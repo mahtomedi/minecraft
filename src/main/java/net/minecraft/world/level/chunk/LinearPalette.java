@@ -1,8 +1,10 @@
 package net.minecraft.world.level.chunk;
 
+import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
+import org.apache.commons.lang3.Validate;
 
 public class LinearPalette<T> implements Palette<T> {
     private final IdMap<T> registry;
@@ -11,15 +13,22 @@ public class LinearPalette<T> implements Palette<T> {
     private final int bits;
     private int size;
 
-    public LinearPalette(IdMap<T> param0, int param1, PaletteResize<T> param2) {
+    public LinearPalette(IdMap<T> param0, int param1, PaletteResize<T> param2, List<T> param3) {
         this.registry = param0;
         this.values = (T[])(new Object[1 << param1]);
         this.bits = param1;
         this.resizeHandler = param2;
+        Validate.isTrue(param3.size() <= this.values.length, "Can't initialize LinearPalette of size %d with %d entries", this.values.length, param3.size());
+
+        for(int var0 = 0; var0 < param3.size(); ++var0) {
+            this.values[var0] = param3.get(var0);
+        }
+
+        this.size = param3.size();
     }
 
-    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2) {
-        return new LinearPalette<>(param1, param0, param2);
+    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2, List<A> param3) {
+        return new LinearPalette<>(param1, param0, param2, param3);
     }
 
     @Override

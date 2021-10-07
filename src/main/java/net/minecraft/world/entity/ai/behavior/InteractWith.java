@@ -1,7 +1,7 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 
 public class InteractWith<E extends LivingEntity, T extends LivingEntity> extends Behavior<E> {
@@ -60,8 +61,8 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
     }
 
     private boolean seesAtLeastOneValidTarget(E param0) {
-        List<LivingEntity> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
-        return var0.stream().anyMatch(this::isTargetValid);
+        NearestVisibleLivingEntities var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
+        return var0.contains(this::isTargetValid);
     }
 
     private boolean isTargetValid(LivingEntity param0x) {
@@ -71,19 +72,18 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
     @Override
     protected void start(ServerLevel param0, E param1, long param2) {
         Brain<?> var0 = param1.getBrain();
-        var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .ifPresent(
-                param2x -> param2x.stream()
-                        .filter(param0x -> this.type.equals(param0x.getType()))
-                        .map(param0x -> param0x)
-                        .filter(param1x -> param1x.distanceToSqr(param1) <= (double)this.interactionRangeSqr)
-                        .filter(this.targetFilter)
-                        .findFirst()
-                        .ifPresent(param1x -> {
-                            var0.setMemory(this.memory, (T)param1x);
-                            var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1x, true));
-                            var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(param1x, false), this.speedModifier, this.maxDist));
-                        })
-            );
+        Optional<NearestVisibleLivingEntities> var1 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
+        if (!var1.isEmpty()) {
+            NearestVisibleLivingEntities var2 = var1.get();
+            var2.findClosest(param1x -> this.canInteract(param1, param1x)).ifPresent(param1x -> {
+                var0.setMemory(this.memory, (T)param1x);
+                var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1x, true));
+                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(param1x, false), this.speedModifier, this.maxDist));
+            });
+        }
+    }
+
+    private boolean canInteract(E param0, LivingEntity param1) {
+        return this.type.equals(param1.getType()) && param1.distanceToSqr(param0) <= (double)this.interactionRangeSqr && this.targetFilter.test((T)param1);
     }
 }

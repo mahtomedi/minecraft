@@ -88,6 +88,11 @@ public class MeleeAttackGoal extends Goal {
     }
 
     @Override
+    public boolean requiresUpdateEveryTick() {
+        return true;
+    }
+
+    @Override
     public void tick() {
         LivingEntity var0 = this.mob.getTarget();
         if (var0 != null) {

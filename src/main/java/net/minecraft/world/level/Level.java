@@ -478,6 +478,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         }
     }
 
+    public boolean shouldTickDeath(Entity param0) {
+        return true;
+    }
+
     public Explosion explode(@Nullable Entity param0, double param1, double param2, double param3, float param4, Explosion.BlockInteraction param5) {
         return this.explode(param0, null, null, param1, param2, param3, param4, false, param5);
     }
@@ -615,11 +619,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 var0.add(param3);
             }
 
-            if (param3 instanceof EnderDragon) {
-                for(EnderDragonPart var0x : ((EnderDragon)param3).getSubEntities()) {
-                    T var1x = param0.tryCast(var0x);
-                    if (var1x != null && param2.test((T)var1x)) {
-                        var0.add((T)var1x);
+            if (param3 instanceof EnderDragon var1x) {
+                for(EnderDragonPart var2x : var1x.getSubEntities()) {
+                    T var3x = param0.tryCast(var2x);
+                    if (var3x != null && param2.test((T)var3x)) {
+                        var0.add((T)var3x);
                     }
                 }
             }

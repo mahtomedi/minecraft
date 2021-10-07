@@ -11,7 +11,7 @@ public class LookControl implements Control {
     protected final Mob mob;
     protected float yMaxRotSpeed;
     protected float xMaxRotAngle;
-    protected boolean hasWanted;
+    protected int lookAtCooldown;
     protected double wantedX;
     protected double wantedY;
     protected double wantedZ;
@@ -42,7 +42,7 @@ public class LookControl implements Control {
         this.wantedZ = param2;
         this.yMaxRotSpeed = param3;
         this.xMaxRotAngle = param4;
-        this.hasWanted = true;
+        this.lookAtCooldown = 2;
     }
 
     public void tick() {
@@ -50,8 +50,8 @@ public class LookControl implements Control {
             this.mob.setXRot(0.0F);
         }
 
-        if (this.hasWanted) {
-            this.hasWanted = false;
+        if (this.lookAtCooldown > 0) {
+            --this.lookAtCooldown;
             this.getYRotD().ifPresent(param0 -> this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, param0, this.yMaxRotSpeed));
             this.getXRotD().ifPresent(param0 -> this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), param0, this.xMaxRotAngle)));
         } else {
@@ -72,8 +72,8 @@ public class LookControl implements Control {
         return true;
     }
 
-    public boolean isHasWanted() {
-        return this.hasWanted;
+    public boolean isLookingAtTarget() {
+        return this.lookAtCooldown > 0;
     }
 
     public double getWantedX() {

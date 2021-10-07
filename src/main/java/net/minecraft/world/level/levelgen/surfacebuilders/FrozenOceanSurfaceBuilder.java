@@ -9,6 +9,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BlockColumn;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.Material;
@@ -140,7 +141,7 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
     @Override
     public void initNoise(long param0) {
         if (this.seed != param0 || this.icebergNoise == null || this.icebergRoofNoise == null) {
-            WorldgenRandom var0 = new WorldgenRandom(param0);
+            WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(param0));
             this.icebergNoise = new PerlinSimplexNoise(var0, IntStream.rangeClosed(-3, 0));
             this.icebergRoofNoise = new PerlinSimplexNoise(var0, ImmutableList.of(0));
         }

@@ -57,7 +57,7 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
         BiomeDefaultFeatures.addDefaultSprings(var1);
-        BiomeDefaultFeatures.addSparseBerryBushes(var1);
+        BiomeDefaultFeatures.addCommonBerryBushes(var1);
         BiomeDefaultFeatures.addSurfaceFreezing(var1);
         return new Biome.BiomeBuilder()
             .precipitation(Biome.Precipitation.RAIN)
@@ -816,9 +816,9 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addDefaultExtraVegetation(var2);
         BiomeDefaultFeatures.addDefaultSprings(var2);
         if (param0) {
-            BiomeDefaultFeatures.addBerryBushes(var2);
+            BiomeDefaultFeatures.addRareBerryBushes(var2);
         } else {
-            BiomeDefaultFeatures.addSparseBerryBushes(var2);
+            BiomeDefaultFeatures.addCommonBerryBushes(var2);
         }
 
         BiomeDefaultFeatures.addSurfaceFreezing(var2);
@@ -1034,7 +1034,7 @@ public class VanillaBiomes {
         BiomeDefaultFeatures.addSurfaceFreezing(var1);
         Biome.BiomeBuilder var2 = new Biome.BiomeBuilder()
             .precipitation(param3 ? Biome.Precipitation.SNOW : Biome.Precipitation.RAIN)
-            .biomeCategory(param4 ? Biome.BiomeCategory.NONE : Biome.BiomeCategory.BEACH);
+            .biomeCategory(Biome.BiomeCategory.BEACH);
         return var2.temperature(param0)
             .downfall(param1)
             .specialEffects(
@@ -1423,7 +1423,6 @@ public class VanillaBiomes {
     public static Biome stonyPeaksBiome() {
         BiomeGenerationSettings.Builder var0 = new BiomeGenerationSettings.Builder().surfaceBuilder(SurfaceBuilders.STONY_PEAKS);
         MobSpawnSettings.Builder var1 = new MobSpawnSettings.Builder();
-        var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3));
         BiomeDefaultFeatures.commonSpawns(var1);
         BiomeDefaultFeatures.addDefaultCarvers(var0);
         BiomeDefaultFeatures.addDefaultLakes(var0);
@@ -1534,6 +1533,7 @@ public class VanillaBiomes {
     public static Biome lushCaves() {
         MobSpawnSettings.Builder var0 = new MobSpawnSettings.Builder();
         var0.addSpawn(MobCategory.AXOLOTLS, new MobSpawnSettings.SpawnerData(EntityType.AXOLOTL, 10, 4, 6));
+        var0.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.TROPICAL_FISH, 25, 8, 8));
         BiomeDefaultFeatures.commonSpawns(var0);
         BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder().surfaceBuilder(SurfaceBuilders.GRASS);
         BiomeDefaultFeatures.addDefaultCarvers(var1);

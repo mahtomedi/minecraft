@@ -1,15 +1,15 @@
 {
-    "id": "Minecraft.Server / f7d695aa1ba843f2aa0cbc2ece6aea49",
-    "name": "21w39a",
+    "id": "21w40a",
+    "name": "21w40a",
     "release_target": "1.18",
-    "world_version": 2836,
+    "world_version": 2838,
     "series_id": "main",
-    "protocol_version": 1073741867,
+    "protocol_version": 1073741868,
     "pack_version": {
         "resource": 8,
         "data": 8
     },
-    "build_time": "2021-09-29T16:22:00+00:00",
+    "build_time": "2021-10-07T11:15:51+00:00",
     "java_component": "java-runtime-alpha",
     "java_version": 16,
     "stable": false

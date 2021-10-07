@@ -48,7 +48,7 @@ public abstract class Sensor<E extends LivingEntity> {
 
     public abstract Set<MemoryModuleType<?>> requires();
 
-    protected static boolean isEntityTargetable(LivingEntity param0, LivingEntity param1) {
+    public static boolean isEntityTargetable(LivingEntity param0, LivingEntity param1) {
         return param0.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, param1)
             ? TARGET_CONDITIONS_IGNORE_INVISIBILITY_TESTING.test(param0, param1)
             : TARGET_CONDITIONS.test(param0, param1);

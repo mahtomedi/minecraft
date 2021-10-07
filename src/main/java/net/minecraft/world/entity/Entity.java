@@ -29,6 +29,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -145,6 +146,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public double zo;
     private Vec3 position;
     private BlockPos blockPosition;
+    private ChunkPos chunkPosition;
     private Vec3 deltaMovement = Vec3.ZERO;
     private float yRot;
     private float xRot;
@@ -231,6 +233,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.dimensions = param0.getDimensions();
         this.position = Vec3.ZERO;
         this.blockPosition = BlockPos.ZERO;
+        this.chunkPosition = ChunkPos.ZERO;
         this.packetCoordinates = Vec3.ZERO;
         this.entityData = new SynchedEntityData(this);
         this.entityData.define(DATA_SHARED_FLAGS_ID, (byte)0);
@@ -2934,7 +2937,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public ChunkPos chunkPosition() {
-        return new ChunkPos(this.blockPosition);
+        return this.chunkPosition;
     }
 
     public Vec3 getDeltaMovement() {
@@ -3009,6 +3012,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             int var2 = Mth.floor(param2);
             if (var0 != this.blockPosition.getX() || var1 != this.blockPosition.getY() || var2 != this.blockPosition.getZ()) {
                 this.blockPosition = new BlockPos(var0, var1, var2);
+                if (SectionPos.blockToSectionCoord(var0) != this.chunkPosition.x || SectionPos.blockToSectionCoord(var2) != this.chunkPosition.z) {
+                    this.chunkPosition = new ChunkPos(this.blockPosition);
+                }
             }
 
             this.levelCallback.onMove();

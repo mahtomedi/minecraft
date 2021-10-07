@@ -50,6 +50,7 @@ import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+import net.minecraft.network.protocol.game.ClientboundSetSimulationDistancePacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
@@ -177,6 +178,7 @@ public abstract class PlayerList {
                 BiomeManager.obfuscateSeed(var7.getSeed()),
                 this.getMaxPlayers(),
                 this.viewDistance,
+                this.simulationDistance,
                 var14,
                 !var13,
                 var7.isDebug(),
@@ -834,6 +836,7 @@ public abstract class PlayerList {
 
     public void setSimulationDistance(int param0) {
         this.simulationDistance = param0;
+        this.broadcastAll(new ClientboundSetSimulationDistancePacket(param0));
 
         for(ServerLevel var0 : this.server.getAllLevels()) {
             if (var0 != null) {

@@ -494,7 +494,7 @@ public class Guardian extends Monster {
                 double var16 = var12.getWantedX();
                 double var17 = var12.getWantedY();
                 double var18 = var12.getWantedZ();
-                if (!var12.isHasWanted()) {
+                if (!var12.isLookingAtTarget()) {
                     var16 = var13;
                     var17 = var14;
                     var18 = var15;

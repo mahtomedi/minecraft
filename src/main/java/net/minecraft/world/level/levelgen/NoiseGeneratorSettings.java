@@ -34,11 +34,13 @@ public final class NoiseGeneratorSettings {
                     Codec.BOOL.fieldOf("noise_caves_enabled").forGetter(NoiseGeneratorSettings::isNoiseCavesEnabled),
                     Codec.BOOL.fieldOf("deepslate_enabled").forGetter(NoiseGeneratorSettings::isDeepslateEnabled),
                     Codec.BOOL.fieldOf("ore_veins_enabled").forGetter(NoiseGeneratorSettings::isOreVeinsEnabled),
-                    Codec.BOOL.fieldOf("noodle_caves_enabled").forGetter(NoiseGeneratorSettings::isNoodleCavesEnabled)
+                    Codec.BOOL.fieldOf("noodle_caves_enabled").forGetter(NoiseGeneratorSettings::isNoodleCavesEnabled),
+                    Codec.BOOL.fieldOf("legacy_random_source").forGetter(NoiseGeneratorSettings::useLegacyRandomSource)
                 )
                 .apply(param0, NoiseGeneratorSettings::new)
     );
     public static final Codec<Supplier<NoiseGeneratorSettings>> CODEC = RegistryFileCodec.create(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY, DIRECT_CODEC);
+    private final WorldgenRandom.Algorithm randomSource;
     private final StructureSettings structureSettings;
     private final NoiseSettings noiseSettings;
     private final NoiseOctaves noiseOctaves;
@@ -88,7 +90,8 @@ public final class NoiseGeneratorSettings {
         boolean param10,
         boolean param11,
         boolean param12,
-        boolean param13
+        boolean param13,
+        boolean param14
     ) {
         this.structureSettings = param0;
         this.noiseSettings = param1;
@@ -104,6 +107,7 @@ public final class NoiseGeneratorSettings {
         this.deepslateEnabled = param11;
         this.oreVeinsEnabled = param12;
         this.noodleCavesEnabled = param13;
+        this.randomSource = param14 ? WorldgenRandom.Algorithm.LEGACY : WorldgenRandom.Algorithm.XOROSHIRO;
     }
 
     public StructureSettings structureSettings() {
@@ -163,6 +167,18 @@ public final class NoiseGeneratorSettings {
         return this.noodleCavesEnabled;
     }
 
+    public boolean useLegacyRandomSource() {
+        return this.randomSource == WorldgenRandom.Algorithm.LEGACY;
+    }
+
+    public RandomSource createRandomSource(long param0) {
+        return this.getRandomSource().newInstance(param0);
+    }
+
+    public WorldgenRandom.Algorithm getRandomSource() {
+        return this.randomSource;
+    }
+
     public boolean stable(ResourceKey<NoiseGeneratorSettings> param0) {
         return Objects.equals(this, BuiltinRegistries.NOISE_GENERATOR_SETTINGS.get(param0));
     }
@@ -212,7 +228,8 @@ public final class NoiseGeneratorSettings {
             false,
             false,
             false,
-            false
+            false,
+            true
         );
     }
 
@@ -255,7 +272,8 @@ public final class NoiseGeneratorSettings {
             false,
             false,
             false,
-            false
+            false,
+            true
         );
     }
 
@@ -281,8 +299,8 @@ public final class NoiseGeneratorSettings {
                 false
             ),
             new NoiseOctaves(
-                new NormalNoise.NoiseParameters(-9 + var0, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0),
-                new NormalNoise.NoiseParameters(-7 + var0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0),
+                new NormalNoise.NoiseParameters(-10 + var0, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0),
+                new NormalNoise.NoiseParameters(-8 + var0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0),
                 new NormalNoise.NoiseParameters(-9 + var0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0),
                 new NormalNoise.NoiseParameters(-9 + var0, 1.0, 1.0, 0.0, 1.0, 1.0),
                 new NormalNoise.NoiseParameters(-7 + var0, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0),
@@ -294,6 +312,7 @@ public final class NoiseGeneratorSettings {
             0,
             63,
             false,
+            true,
             true,
             true,
             true,

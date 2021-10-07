@@ -831,7 +831,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             + ", B: "
             + this.culledEntities
             + ", SD: "
-            + this.minecraft.options.simulationDistance;
+            + this.level.getServerSimulationDistance();
     }
 
     private void setupRender(Camera param0, Frustum param1, boolean param2, boolean param3) {

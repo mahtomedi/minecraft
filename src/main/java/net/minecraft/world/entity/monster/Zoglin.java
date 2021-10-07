@@ -38,6 +38,7 @@ import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromLookTarget;
 import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.hoglin.HoglinBase;
@@ -134,10 +135,8 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     private Optional<? extends LivingEntity> findNearestValidAttackTarget() {
         return this.getBrain()
             .getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .orElse(ImmutableList.of())
-            .stream()
-            .filter(this::isTargetable)
-            .findFirst();
+            .orElse(NearestVisibleLivingEntities.empty())
+            .findClosest(this::isTargetable);
     }
 
     private boolean isTargetable(LivingEntity param0x) {

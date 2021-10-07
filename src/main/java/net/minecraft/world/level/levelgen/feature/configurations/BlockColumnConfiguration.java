@@ -3,17 +3,20 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
-public record BlockColumnConfiguration(List<BlockColumnConfiguration.Layer> layers, Direction direction, boolean allowWater, boolean prioritizeTip)
+public record BlockColumnConfiguration(List<BlockColumnConfiguration.Layer> layers, Direction direction, BlockPredicate allowedPlacement, boolean prioritizeTip)
     implements FeatureConfiguration {
     public static final Codec<BlockColumnConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     BlockColumnConfiguration.Layer.CODEC.listOf().fieldOf("layers").forGetter(BlockColumnConfiguration::layers),
                     Direction.CODEC.fieldOf("direction").forGetter(BlockColumnConfiguration::direction),
-                    Codec.BOOL.fieldOf("allow_water").forGetter(BlockColumnConfiguration::allowWater),
+                    BlockPredicate.CODEC.fieldOf("allowed_placement").forGetter(BlockColumnConfiguration::allowedPlacement),
                     Codec.BOOL.fieldOf("prioritize_tip").forGetter(BlockColumnConfiguration::prioritizeTip)
                 )
                 .apply(param0, BlockColumnConfiguration::new)
@@ -24,7 +27,7 @@ public record BlockColumnConfiguration(List<BlockColumnConfiguration.Layer> laye
     }
 
     public static BlockColumnConfiguration simple(IntProvider param0, BlockStateProvider param1) {
-        return new BlockColumnConfiguration(List.of(layer(param0, param1)), Direction.UP, false, false);
+        return new BlockColumnConfiguration(List.of(layer(param0, param1)), Direction.UP, BlockPredicate.matchesBlock(Blocks.AIR, BlockPos.ZERO), false);
     }
 
     public static record Layer(IntProvider height, BlockStateProvider state) {

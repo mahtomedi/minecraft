@@ -12,6 +12,8 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
@@ -47,6 +49,20 @@ public class ConfiguredStructureFeature<FC extends FeatureConfiguration, F exten
         LevelHeightAccessor param8,
         Predicate<Biome> param9
     ) {
-        return this.feature.generate(param0, param1, param2, param3, param4, param5, param6, new WorldgenRandom(), param7, this.config, param8, param9);
+        return this.feature
+            .generate(
+                param0,
+                param1,
+                param2,
+                param3,
+                param4,
+                param5,
+                param6,
+                new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier())),
+                param7,
+                this.config,
+                param8,
+                param9
+            );
     }
 }

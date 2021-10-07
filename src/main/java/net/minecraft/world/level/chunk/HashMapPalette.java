@@ -25,8 +25,8 @@ public class HashMapPalette<T> implements Palette<T> {
         this.values = CrudeIncrementalIntIdentityHashBiMap.create(1 << param1);
     }
 
-    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2) {
-        return new HashMapPalette<>(param1, param0, param2);
+    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2, List<A> param3) {
+        return new HashMapPalette<>(param1, param0, param2, param3);
     }
 
     @Override

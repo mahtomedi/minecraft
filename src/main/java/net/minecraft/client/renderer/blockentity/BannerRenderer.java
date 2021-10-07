@@ -58,45 +58,43 @@ public class BannerRenderer implements BlockEntityRenderer<BannerBlockEntity> {
 
     public void render(BannerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         List<Pair<BannerPattern, DyeColor>> var0 = param0.getPatterns();
-        if (var0 != null) {
-            float var1 = 0.6666667F;
-            boolean var2 = param0.getLevel() == null;
-            param2.pushPose();
-            long var3;
-            if (var2) {
-                var3 = 0L;
+        float var1 = 0.6666667F;
+        boolean var2 = param0.getLevel() == null;
+        param2.pushPose();
+        long var3;
+        if (var2) {
+            var3 = 0L;
+            param2.translate(0.5, 0.5, 0.5);
+            this.pole.visible = true;
+        } else {
+            var3 = param0.getLevel().getGameTime();
+            BlockState var5 = param0.getBlockState();
+            if (var5.getBlock() instanceof BannerBlock) {
                 param2.translate(0.5, 0.5, 0.5);
+                float var6 = (float)(-var5.getValue(BannerBlock.ROTATION) * 360) / 16.0F;
+                param2.mulPose(Vector3f.YP.rotationDegrees(var6));
                 this.pole.visible = true;
             } else {
-                var3 = param0.getLevel().getGameTime();
-                BlockState var5 = param0.getBlockState();
-                if (var5.getBlock() instanceof BannerBlock) {
-                    param2.translate(0.5, 0.5, 0.5);
-                    float var6 = (float)(-var5.getValue(BannerBlock.ROTATION) * 360) / 16.0F;
-                    param2.mulPose(Vector3f.YP.rotationDegrees(var6));
-                    this.pole.visible = true;
-                } else {
-                    param2.translate(0.5, -0.16666667F, 0.5);
-                    float var7 = -var5.getValue(WallBannerBlock.FACING).toYRot();
-                    param2.mulPose(Vector3f.YP.rotationDegrees(var7));
-                    param2.translate(0.0, -0.3125, -0.4375);
-                    this.pole.visible = false;
-                }
+                param2.translate(0.5, -0.16666667F, 0.5);
+                float var7 = -var5.getValue(WallBannerBlock.FACING).toYRot();
+                param2.mulPose(Vector3f.YP.rotationDegrees(var7));
+                param2.translate(0.0, -0.3125, -0.4375);
+                this.pole.visible = false;
             }
-
-            param2.pushPose();
-            param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-            VertexConsumer var8 = ModelBakery.BANNER_BASE.buffer(param3, RenderType::entitySolid);
-            this.pole.render(param2, var8, param4, param5);
-            this.bar.render(param2, var8, param4, param5);
-            BlockPos var9 = param0.getBlockPos();
-            float var10 = ((float)Math.floorMod((long)(var9.getX() * 7 + var9.getY() * 9 + var9.getZ() * 13) + var3, 100L) + param1) / 100.0F;
-            this.flag.xRot = (-0.0125F + 0.01F * Mth.cos((float) (Math.PI * 2) * var10)) * (float) Math.PI;
-            this.flag.y = -32.0F;
-            renderPatterns(param2, param3, param4, param5, this.flag, ModelBakery.BANNER_BASE, true, var0);
-            param2.popPose();
-            param2.popPose();
         }
+
+        param2.pushPose();
+        param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
+        VertexConsumer var8 = ModelBakery.BANNER_BASE.buffer(param3, RenderType::entitySolid);
+        this.pole.render(param2, var8, param4, param5);
+        this.bar.render(param2, var8, param4, param5);
+        BlockPos var9 = param0.getBlockPos();
+        float var10 = ((float)Math.floorMod((long)(var9.getX() * 7 + var9.getY() * 9 + var9.getZ() * 13) + var3, 100L) + param1) / 100.0F;
+        this.flag.xRot = (-0.0125F + 0.01F * Mth.cos((float) (Math.PI * 2) * var10)) * (float) Math.PI;
+        this.flag.y = -32.0F;
+        renderPatterns(param2, param3, param4, param5, this.flag, ModelBakery.BANNER_BASE, true, var0);
+        param2.popPose();
+        param2.popPose();
     }
 
     public static void renderPatterns(

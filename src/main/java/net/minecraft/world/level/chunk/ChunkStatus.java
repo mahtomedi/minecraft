@@ -118,7 +118,7 @@ public class ChunkStatus {
     public static final ChunkStatus SURFACE = registerSimple(
         "surface", NOISE, 1, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
             WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
-            param2.buildSurfaceAndBedrock(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
+            param2.buildSurface(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
         }
     );
     public static final ChunkStatus CARVERS = registerSimple(

@@ -83,7 +83,7 @@ public class TargetingConditions {
                     }
                 }
 
-                if (this.checkLineOfSight && param0 instanceof Mob && !((Mob)param0).getSensing().hasLineOfSight(param1)) {
+                if (this.checkLineOfSight && param0 instanceof Mob var3 && !var3.getSensing().hasLineOfSight(param1)) {
                     return false;
                 }
             }

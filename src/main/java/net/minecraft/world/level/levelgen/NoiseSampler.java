@@ -46,7 +46,8 @@ public class NoiseSampler implements Climate.Sampler {
     private final double dimensionDensityOffset;
     private final int minCellY;
     private final NormalNoise barrierNoise;
-    private final NormalNoise waterLevelNoise;
+    private final NormalNoise fluidLevelFloodednessNoise;
+    private final NormalNoise fluidLevelSpreadNoise;
     private final NormalNoise lavaNoise;
     private final PositionalRandomFactory aquiferPositionalRandomFactory;
     private final SurfaceNoise surfaceNoise;
@@ -85,7 +86,9 @@ public class NoiseSampler implements Climate.Sampler {
     private final NoiseChunk.InterpolatableNoise noodleRidgeB;
     private final boolean isNoiseCavesEnabled;
 
-    public NoiseSampler(int param0, int param1, int param2, NoiseSettings param3, NoiseOctaves param4, boolean param5, long param6) {
+    public NoiseSampler(
+        int param0, int param1, int param2, NoiseSettings param3, NoiseOctaves param4, boolean param5, long param6, WorldgenRandom.Algorithm param7
+    ) {
         this.cellHeight = param1;
         this.cellCountY = param2;
         this.noiseSettings = param3;
@@ -93,15 +96,15 @@ public class NoiseSampler implements Climate.Sampler {
         this.dimensionDensityOffset = param3.densityOffset();
         int var0 = param3.minY();
         this.minCellY = Mth.intFloorDiv(var0, param1);
-        RandomSource var1 = new SimpleRandomSource(param6);
-        RandomSource var2 = new SimpleRandomSource(param6);
+        RandomSource var1 = param7.newInstance(param6);
+        RandomSource var2 = param7.newInstance(param6);
         RandomSource var3 = param3.useLegacyRandom() ? var2 : var1.fork();
         this.blendedNoise = new BlendedNoise(var3, param3.noiseSamplingSettings(), param0, param1);
         this.surfaceNoise = (SurfaceNoise)(param3.useSimplexSurfaceNoise()
             ? new PerlinSimplexNoise(var2, IntStream.rangeClosed(-3, 0))
             : new PerlinNoise(var2, IntStream.rangeClosed(-3, 0)));
         if (param3.islandNoiseOverride()) {
-            RandomSource var4 = new SimpleRandomSource(param6);
+            RandomSource var4 = param7.newInstance(param6);
             var4.consumeCount(17292);
             this.islandNoise = new SimplexNoise(var4);
         } else {
@@ -110,9 +113,10 @@ public class NoiseSampler implements Climate.Sampler {
 
         RandomSource var5 = var1.fork();
         this.barrierNoise = NormalNoise.create(var5.fork(), -3, 1.0);
-        this.waterLevelNoise = NormalNoise.create(var5.fork(), -3, 0.2, 2.0, 1.0);
+        this.fluidLevelFloodednessNoise = NormalNoise.create(var5.fork(), -7, 1.0);
         this.lavaNoise = NormalNoise.create(var5.fork(), -1, 1.0, 0.0);
         this.aquiferPositionalRandomFactory = var5.forkPositional();
+        this.fluidLevelSpreadNoise = NormalNoise.create(var5.fork(), -4, 1.0);
         var5 = var1.fork();
         this.pillarNoiseSource = NormalNoise.create(var5.fork(), -7, 1.0, 1.0);
         this.pillarRarenessModulator = NormalNoise.create(var5.fork(), -8, 1.0);
@@ -131,14 +135,14 @@ public class NoiseSampler implements Climate.Sampler {
         this.layerNoiseSource = NormalNoise.create(var5.fork(), -8, 1.0);
         this.cheeseNoiseSource = NormalNoise.create(var5.fork(), -8, 0.5, 1.0, 2.0, 1.0, 2.0, 1.0, 0.0, 2.0, 0.0);
         this.isNoiseCavesEnabled = param5;
-        this.temperatureNoise = NormalNoise.create(new SimpleRandomSource(param6), param4.temperature());
-        this.humidityNoise = NormalNoise.create(new SimpleRandomSource(param6 + 1L), param4.humidity());
-        this.continentalnessNoise = NormalNoise.create(new SimpleRandomSource(param6 + 2L), param4.continentalness());
-        this.erosionNoise = NormalNoise.create(new SimpleRandomSource(param6 + 3L), param4.erosion());
-        this.weirdnessNoise = NormalNoise.create(new SimpleRandomSource(param6 + 4L), param4.weirdness());
-        this.offsetNoise = NormalNoise.create(new SimpleRandomSource(param6 + 5L), param4.shift());
+        this.temperatureNoise = NormalNoise.create(param7.newInstance(param6), param4.temperature());
+        this.humidityNoise = NormalNoise.create(param7.newInstance(param6 + 1L), param4.humidity());
+        this.continentalnessNoise = NormalNoise.create(param7.newInstance(param6 + 2L), param4.continentalness());
+        this.erosionNoise = NormalNoise.create(param7.newInstance(param6 + 3L), param4.erosion());
+        this.weirdnessNoise = NormalNoise.create(param7.newInstance(param6 + 4L), param4.weirdness());
+        this.offsetNoise = NormalNoise.create(param7.newInstance(param6 + 5L), param4.shift());
         this.jaggedNoise = NormalNoise.create(
-            new SimpleRandomSource(param6 + 6L), -16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+            param7.newInstance(param6 + 6L), -16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
         );
         this.baseNoise = param0x -> param0x.createNoiseInterpolator(
                 (param1x, param2x, param3x) -> this.calculateBaseNoise(
@@ -332,7 +336,8 @@ public class NoiseSampler implements Climate.Sampler {
                 param0,
                 new ChunkPos(var0, var1),
                 this.barrierNoise,
-                this.waterLevelNoise,
+                this.fluidLevelFloodednessNoise,
+                this.fluidLevelSpreadNoise,
                 this.lavaNoise,
                 this.aquiferPositionalRandomFactory,
                 this,
@@ -390,11 +395,11 @@ public class NoiseSampler implements Climate.Sampler {
     }
 
     public double getTemperature(double param0, double param1, double param2) {
-        return this.temperatureNoise.getValue(param0, param1, param2);
+        return this.temperatureNoise.getValue(param0, 0.0, param2);
     }
 
     public double getHumidity(double param0, double param1, double param2) {
-        return this.humidityNoise.getValue(param0, param1, param2);
+        return this.humidityNoise.getValue(param0, 0.0, param2);
     }
 
     public double getContinentalness(double param0, double param1, double param2) {

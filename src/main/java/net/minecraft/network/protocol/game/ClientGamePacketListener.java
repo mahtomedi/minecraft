@@ -191,6 +191,8 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleSetChunkCacheRadius(ClientboundSetChunkCacheRadiusPacket var1);
 
+    void handleSetSimulationDistance(ClientboundSetSimulationDistancePacket var1);
+
     void handleSetChunkCacheCenter(ClientboundSetChunkCacheCenterPacket var1);
 
     void handleBlockBreakAck(ClientboundBlockBreakAckPacket var1);

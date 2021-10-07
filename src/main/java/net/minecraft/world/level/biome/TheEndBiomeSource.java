@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
@@ -50,7 +51,7 @@ public class TheEndBiomeSource extends BiomeSource {
         this.midlands = param4;
         this.islands = param5;
         this.barrens = param6;
-        WorldgenRandom var0 = new WorldgenRandom(param1);
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(param1));
         var0.consumeCount(17292);
         this.islandNoise = new SimplexNoise(var0);
     }

@@ -105,6 +105,7 @@ public class ClientLevel extends Level {
     });
     private final ClientChunkCache chunkSource;
     private final Deque<Runnable> lightUpdateQueue = Queues.newArrayDeque();
+    private int serverSimulationDistance;
 
     public ClientLevel(
         ClientPacketListener param0,
@@ -112,18 +113,20 @@ public class ClientLevel extends Level {
         ResourceKey<Level> param2,
         DimensionType param3,
         int param4,
-        Supplier<ProfilerFiller> param5,
-        LevelRenderer param6,
-        boolean param7,
-        long param8
+        int param5,
+        Supplier<ProfilerFiller> param6,
+        LevelRenderer param7,
+        boolean param8,
+        long param9
     ) {
-        super(param1, param2, param3, param5, true, param7, param8);
+        super(param1, param2, param3, param6, true, param8, param9);
         this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
-        this.levelRenderer = param6;
+        this.levelRenderer = param7;
         this.effects = DimensionSpecialEffects.forType(param3);
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8), 0.0F);
+        this.serverSimulationDistance = param5;
         this.updateSkyBrightness();
         this.prepareWeather();
     }
@@ -200,6 +203,11 @@ public class ClientLevel extends Level {
         });
         var0.pop();
         this.tickBlockEntities();
+    }
+
+    @Override
+    public boolean shouldTickDeath(Entity param0) {
+        return param0.chunkPosition().getChessboardDistance(this.minecraft.player.chunkPosition()) <= this.serverSimulationDistance;
     }
 
     public void tickNonPassenger(Entity param0) {
@@ -804,6 +812,14 @@ public class ClientLevel extends Level {
     @Override
     public void addDestroyBlockEffect(BlockPos param0, BlockState param1) {
         this.minecraft.particleEngine.destroy(param0, param1);
+    }
+
+    public void setServerSimulationDistance(int param0) {
+        this.serverSimulationDistance = param0;
+    }
+
+    public int getServerSimulationDistance() {
+        return this.serverSimulationDistance;
     }
 
     @OnlyIn(Dist.CLIENT)

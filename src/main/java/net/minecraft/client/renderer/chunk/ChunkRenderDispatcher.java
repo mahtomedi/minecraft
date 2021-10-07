@@ -416,11 +416,15 @@ public class ChunkRenderDispatcher {
 
         void updateGlobalBlockEntities(Set<BlockEntity> param0) {
             Set<BlockEntity> var0 = Sets.newHashSet(param0);
-            Set<BlockEntity> var1 = Sets.newHashSet(this.globalBlockEntities);
-            var0.removeAll(this.globalBlockEntities);
-            var1.removeAll(param0);
-            this.globalBlockEntities.clear();
-            this.globalBlockEntities.addAll(param0);
+            Set<BlockEntity> var1;
+            synchronized(this.globalBlockEntities) {
+                var1 = Sets.newHashSet(this.globalBlockEntities);
+                var0.removeAll(this.globalBlockEntities);
+                var1.removeAll(param0);
+                this.globalBlockEntities.clear();
+                this.globalBlockEntities.addAll(param0);
+            }
+
             ChunkRenderDispatcher.this.renderer.updateGlobalBlockEntities(var1, var0);
         }
 

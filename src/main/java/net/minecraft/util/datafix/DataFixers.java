@@ -38,6 +38,7 @@ import net.minecraft.util.datafix.fixes.BlockRenameFixWithJigsaw;
 import net.minecraft.util.datafix.fixes.BlockStateStructureTemplateFix;
 import net.minecraft.util.datafix.fixes.CatTypeFix;
 import net.minecraft.util.datafix.fixes.CauldronRenameFix;
+import net.minecraft.util.datafix.fixes.CavesAndCliffsRenames;
 import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkHeightAndBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
@@ -811,6 +812,8 @@ public class DataFixers {
         param0.addFixer(new ChunkHeightAndBiomeFix(var147));
         Schema var148 = param0.addSchema(2833, SAME_NAMESPACED);
         param0.addFixer(new WorldGenSettingsDisallowOldCustomWorldsFix(var148));
+        Schema var149 = param0.addSchema(2838, SAME_NAMESPACED);
+        param0.addFixer(new RenameBiomesFix(var149, false, "Caves and Cliffs biome renames", CavesAndCliffsRenames.RENAMES));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

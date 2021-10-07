@@ -8,7 +8,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -66,6 +65,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
     private static final BlockState[] EMPTY_COLUMN = new BlockState[0];
     private static final int HOW_FAR_BELOW_PRELIMINARY_SURFACE_LEVEL_TO_BUILD_SURFACE = 8;
+    private static final int BEDROCK_LAYER_HEIGHT = 5;
     private final int cellHeight;
     private final int cellWidth;
     private final int cellCountX;
@@ -96,20 +96,34 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         this.cellCountX = 16 / this.cellWidth;
         this.cellCountY = var1.height() / this.cellHeight;
         this.cellCountZ = 16 / this.cellWidth;
-        this.sampler = new NoiseSampler(this.cellWidth, this.cellHeight, this.cellCountY, var1, var0.noiseOctaves(), var0.isNoiseCavesEnabled(), param2);
+        this.sampler = new NoiseSampler(
+            this.cellWidth, this.cellHeight, this.cellCountY, var1, var0.noiseOctaves(), var0.isNoiseCavesEnabled(), param2, var0.getRandomSource()
+        );
         Builder<WorldGenMaterialRule> var2 = ImmutableList.builder();
+        RandomSource var3 = var0.createRandomSource(param2);
+        int var4 = var0.getBedrockFloorPosition();
+        if (var4 > -5 && var4 < this.height) {
+            int var5 = this.getMinY() + var4;
+            var2.add(new VerticalGradientRule(var3.forkPositional(), Blocks.BEDROCK.defaultBlockState(), null, var5, var5 + 5));
+        }
+
+        int var6 = var0.getBedrockRoofPosition();
+        if (var6 > -5 && var6 < this.height) {
+            int var7 = this.getMinY() + this.height - 1 + var6;
+            var2.add(new VerticalGradientRule(var3.forkPositional(), null, Blocks.BEDROCK.defaultBlockState(), var7 - 5, var7));
+        }
+
         var2.add(NoiseChunk::updateNoiseAndGenerateBaseState);
         var2.add(NoiseChunk::oreVeinify);
         if (var0.isDeepslateEnabled()) {
-            SimpleRandomSource var3 = new SimpleRandomSource(param2);
-            var2.add(new DepthBasedRule(var3.forkPositional(), Blocks.DEEPSLATE.defaultBlockState()));
+            var2.add(new VerticalGradientRule(var3.forkPositional(), Blocks.DEEPSLATE.defaultBlockState(), null, -8, 0));
         }
 
         this.materialRule = new MaterialRuleList(var2.build());
-        Aquifer.FluidStatus var4 = new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState());
-        Aquifer.FluidStatus var5 = new Aquifer.FluidStatus(var0.seaLevel(), var0.getDefaultFluid());
-        Aquifer.FluidStatus var6 = new Aquifer.FluidStatus(var0.noiseSettings().minY() - 1, Blocks.AIR.defaultBlockState());
-        this.globalFluidPicker = (param3x, param4, param5) -> param4 < -54 ? var4 : var5;
+        Aquifer.FluidStatus var8 = new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState());
+        Aquifer.FluidStatus var9 = new Aquifer.FluidStatus(var0.seaLevel(), var0.getDefaultFluid());
+        Aquifer.FluidStatus var10 = new Aquifer.FluidStatus(var0.noiseSettings().minY() - 1, Blocks.AIR.defaultBlockState());
+        this.globalFluidPicker = (param3x, param4, param5) -> param4 < -54 ? var8 : var9;
     }
 
     @Override
@@ -247,12 +261,12 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void buildSurfaceAndBedrock(WorldGenRegion param0, StructureFeatureManager param1, final ChunkAccess param2) {
+    public void buildSurface(WorldGenRegion param0, StructureFeatureManager param1, final ChunkAccess param2) {
         ChunkPos var0 = param2.getPos();
         int var1 = var0.x;
         int var2 = var0.z;
         if (!SharedConstants.debugVoidTerrain(var0.getMinBlockX(), var0.getMinBlockZ())) {
-            WorldgenRandom var3 = new WorldgenRandom();
+            WorldgenRandom var3 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
             var3.setBaseChunkSeed(var1, var2);
             final ChunkPos var4 = param2.getPos();
             int var5 = var4.getMinBlockX();
@@ -311,42 +325,6 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                 }
             }
 
-            this.setBedrock(param2, var3);
-        }
-    }
-
-    private void setBedrock(ChunkAccess param0, Random param1) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        int var1 = param0.getPos().getMinBlockX();
-        int var2 = param0.getPos().getMinBlockZ();
-        NoiseGeneratorSettings var3 = this.settings.get();
-        int var4 = var3.noiseSettings().minY();
-        int var5 = var4 + var3.getBedrockFloorPosition();
-        int var6 = this.height - 1 + var4 - var3.getBedrockRoofPosition();
-        int var7 = 5;
-        int var8 = param0.getMinBuildHeight();
-        int var9 = param0.getMaxBuildHeight();
-        boolean var10 = var6 + 5 - 1 >= var8 && var6 < var9;
-        boolean var11 = var5 + 5 - 1 >= var8 && var5 < var9;
-        if (var10 || var11) {
-            for(BlockPos var12 : BlockPos.betweenClosed(var1, 0, var2, var1 + 15, 0, var2 + 15)) {
-                if (var10) {
-                    for(int var13 = 0; var13 < 5; ++var13) {
-                        if (var13 <= param1.nextInt(5)) {
-                            param0.setBlockState(var0.set(var12.getX(), var6 - var13, var12.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
-                        }
-                    }
-                }
-
-                if (var11) {
-                    for(int var14 = 4; var14 >= 0; --var14) {
-                        if (var14 <= param1.nextInt(5)) {
-                            param0.setBlockState(var0.set(var12.getX(), var5 + var14, var12.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
-                        }
-                    }
-                }
-            }
-
         }
     }
 
@@ -357,7 +335,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         BiomeManager var0 = param2.withDifferentSource(
             (param0x, param1x, param2x) -> this.biomeSource.getNoiseBiome(param0x, param1x, param2x, this.climateSampler())
         );
-        WorldgenRandom var1 = new WorldgenRandom();
+        WorldgenRandom var1 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
         int var2 = 8;
         ChunkPos var3 = param4.getPos();
         CarvingContext var4 = new CarvingContext(this, param4);
@@ -584,7 +562,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         if (!this.settings.get().disableMobGeneration()) {
             ChunkPos var0 = param0.getCenter();
             Biome var1 = param0.getBiome(var0.getWorldPosition());
-            WorldgenRandom var2 = new WorldgenRandom();
+            WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
             var2.setDecorationSeed(param0.getSeed(), var0.getMinBlockX(), var0.getMinBlockZ());
             NaturalSpawner.spawnMobsForChunkGeneration(param0, var1, var0, var2);
         }

@@ -1,8 +1,12 @@
 package net.minecraft.world.entity.animal;
 
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,7 +23,10 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Blocks;
 
 public class TropicalFish extends AbstractSchoolingFish {
     public static final String BUCKET_VARIANT_TAG = "BucketVariantTag";
@@ -238,6 +245,16 @@ public class TropicalFish extends AbstractSchoolingFish {
             this.setVariant(var1 | var2 << 8 | var3 << 16 | var4 << 24);
             return param3;
         }
+    }
+
+    public static boolean checkTropicalFishSpawnRules(
+        EntityType<TropicalFish> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+    ) {
+        return param1.getBlockState(param3).is(Blocks.WATER)
+            && (
+                Objects.equals(param1.getBiomeName(param3), Optional.of(Biomes.LUSH_CAVES))
+                    || WaterAnimal.checkSurfaceWaterAnimalSpawnRules(param0, param1, param2, param3, param4)
+            );
     }
 
     static enum Pattern {

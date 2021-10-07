@@ -28,6 +28,8 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
@@ -192,7 +194,7 @@ public class StructureFeature<C extends FeatureConfiguration> {
         int var2 = SectionPos.blockToSectionCoord(param2.getZ());
         int var3 = 0;
 
-        for(WorldgenRandom var4 = new WorldgenRandom(); var3 <= param3; ++var3) {
+        for(WorldgenRandom var4 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier())); var3 <= param3; ++var3) {
             for(int var5 = -var3; var5 <= var3; ++var5) {
                 boolean var6 = var5 == -var3 || var5 == var3;
 
@@ -287,7 +289,10 @@ public class StructureFeature<C extends FeatureConfiguration> {
                         param5,
                         param11,
                         param10,
-                        Util.make(new WorldgenRandom(), param2x -> param2x.setLargeFeatureSeed(param4, param5.x, param5.z)),
+                        Util.make(
+                            new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier())),
+                            param2x -> param2x.setLargeFeatureSeed(param4, param5.x, param5.z)
+                        ),
                         param4
                     )
                 );

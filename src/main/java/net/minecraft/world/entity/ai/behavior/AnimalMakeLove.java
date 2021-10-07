@@ -87,13 +87,12 @@ public class AnimalMakeLove extends Behavior<Animal> {
     }
 
     private Optional<? extends Animal> findValidBreedPartner(Animal param0) {
-        return param0.getBrain()
-            .getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .get()
-            .stream()
-            .filter(param0x -> param0x.getType() == this.partnerType)
-            .map(param0x -> (Animal)param0x)
-            .filter(param0::canMate)
-            .findFirst();
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().findClosest(param1 -> {
+            if (param1.getType() == this.partnerType && param1 instanceof Animal var1x && param0.canMate(var1x)) {
+                return true;
+            }
+
+            return false;
+        }).map(Animal.class::cast);
     }
 }

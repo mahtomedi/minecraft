@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
@@ -26,23 +27,17 @@ public class PiglinBruteSpecificSensor extends Sensor<LivingEntity> {
     @Override
     protected void doTick(ServerLevel param0, LivingEntity param1) {
         Brain<?> var0 = param1.getBrain();
-        Optional<Mob> var1 = Optional.empty();
-        List<AbstractPiglin> var2 = Lists.newArrayList();
+        List<AbstractPiglin> var1 = Lists.newArrayList();
+        NearestVisibleLivingEntities var2 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(NearestVisibleLivingEntities.empty());
+        Optional<Mob> var3 = var2.findClosest(param0x -> param0x instanceof WitherSkeleton || param0x instanceof WitherBoss).map(Mob.class::cast);
 
-        for(LivingEntity var4 : var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of())) {
-            if (var4 instanceof WitherSkeleton || var4 instanceof WitherBoss) {
-                var1 = Optional.of((Mob)var4);
-                break;
+        for(LivingEntity var5 : var0.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(ImmutableList.of())) {
+            if (var5 instanceof AbstractPiglin && ((AbstractPiglin)var5).isAdult()) {
+                var1.add((AbstractPiglin)var5);
             }
         }
 
-        for(LivingEntity var6 : var0.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(ImmutableList.of())) {
-            if (var6 instanceof AbstractPiglin && ((AbstractPiglin)var6).isAdult()) {
-                var2.add((AbstractPiglin)var6);
-            }
-        }
-
-        var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS, var1);
-        var0.setMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS, var2);
+        var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS, var3);
+        var0.setMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS, var1);
     }
 }

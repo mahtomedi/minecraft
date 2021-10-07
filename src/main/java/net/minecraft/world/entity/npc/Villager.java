@@ -61,6 +61,7 @@ import net.minecraft.world.entity.ai.gossip.GossipContainer;
 import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.sensing.GolemSensor;
 import net.minecraft.world.entity.ai.sensing.Sensor;
@@ -633,14 +634,13 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     private void tellWitnessesThatIWasMurdered(Entity param0) {
-        if (this.level instanceof ServerLevel) {
-            Optional<List<LivingEntity>> var0 = this.brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
-            if (var0.isPresent()) {
-                ServerLevel var1 = (ServerLevel)this.level;
-                var0.get()
-                    .stream()
-                    .filter(param0x -> param0x instanceof ReputationEventHandler)
-                    .forEach(param2 -> var1.onReputationEvent(ReputationEventType.VILLAGER_KILLED, param0, (ReputationEventHandler)param2));
+        Level var2 = this.level;
+        if (var2 instanceof ServerLevel var0) {
+            Optional<NearestVisibleLivingEntities> var2x = this.brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
+            if (!var2x.isEmpty()) {
+                var2x.get()
+                    .findAll(ReputationEventHandler.class::isInstance)
+                    .forEach(param2 -> var0.onReputationEvent(ReputationEventType.VILLAGER_KILLED, param0, (ReputationEventHandler)param2));
             }
         }
     }

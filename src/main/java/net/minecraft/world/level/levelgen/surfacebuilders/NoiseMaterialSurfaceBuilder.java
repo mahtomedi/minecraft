@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BlockColumn;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -61,7 +62,7 @@ public abstract class NoiseMaterialSurfaceBuilder extends DefaultSurfaceBuilder 
     @Override
     public void initNoise(long param0) {
         if (this.seed != param0) {
-            WorldgenRandom var0 = new WorldgenRandom(param0);
+            WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(param0));
             this.surfaceNoise = NormalNoise.create(var0, -3, 1.0, 1.0, 1.0, 1.0);
         }
 

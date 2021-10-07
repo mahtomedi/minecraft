@@ -805,6 +805,10 @@ public class Mth {
         return Math.sqrt((double)(param0 * param0) + param1 * param1 + (double)(param2 * param2));
     }
 
+    public static int quantize(double param0, int param1) {
+        return floor(param0 / (double)param1) * param1;
+    }
+
     static {
         for(int var0 = 0; var0 < 257; ++var0) {
             double var1 = (double)var0 / 256.0;

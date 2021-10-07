@@ -177,6 +177,7 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
+import net.minecraft.network.protocol.game.ClientboundSetSimulationDistancePacket;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
@@ -294,6 +295,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private TagContainer tags = TagContainer.EMPTY;
     private final DebugQueryHandler debugQueryHandler = new DebugQueryHandler(this);
     private int serverChunkRadius = 3;
+    private int serverSimulationDistance = 3;
     private final Random random = new Random();
     private CommandDispatcher<SharedSuggestionProvider> commands = new CommandDispatcher<>();
     private final RecipeManager recipeManager = new RecipeManager();
@@ -339,12 +341,22 @@ public class ClientPacketListener implements ClientGamePacketListener {
         ResourceKey<Level> var1 = param0.dimension();
         DimensionType var2 = param0.dimensionType();
         this.serverChunkRadius = param0.chunkRadius();
+        this.serverSimulationDistance = param0.simulationDistance();
         boolean var3 = param0.isDebug();
         boolean var4 = param0.isFlat();
         ClientLevel.ClientLevelData var5 = new ClientLevel.ClientLevelData(Difficulty.NORMAL, param0.hardcore(), var4);
         this.levelData = var5;
         this.level = new ClientLevel(
-            this, var5, var1, var2, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var3, param0.seed()
+            this,
+            var5,
+            var1,
+            var2,
+            this.serverChunkRadius,
+            this.serverSimulationDistance,
+            this.minecraft::getProfiler,
+            this.minecraft.levelRenderer,
+            var3,
+            param0.seed()
         );
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
@@ -923,7 +935,16 @@ public class ClientPacketListener implements ClientGamePacketListener {
             ClientLevel.ClientLevelData var8 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var7);
             this.levelData = var8;
             this.level = new ClientLevel(
-                this, var8, var0, var1, this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var6, param0.getSeed()
+                this,
+                var8,
+                var0,
+                var1,
+                this.serverChunkRadius,
+                this.serverSimulationDistance,
+                this.minecraft::getProfiler,
+                this.minecraft.levelRenderer,
+                var6,
+                param0.getSeed()
             );
             this.level.setScoreboard(var4);
             this.level.addMapData(var5);
@@ -2238,6 +2259,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.serverChunkRadius = param0.getRadius();
         this.minecraft.options.setServerRenderDistance(this.serverChunkRadius);
         this.level.getChunkSource().updateViewRadius(param0.getRadius());
+    }
+
+    @Override
+    public void handleSetSimulationDistance(ClientboundSetSimulationDistancePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.serverSimulationDistance = param0.simulationDistance();
+        this.level.setServerSimulationDistance(this.serverSimulationDistance);
     }
 
     @Override

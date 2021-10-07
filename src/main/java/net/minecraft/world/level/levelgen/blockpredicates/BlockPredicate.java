@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 
 public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
@@ -39,7 +40,7 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
     }
 
     static BlockPredicate matchesBlocks(List<Block> param0, BlockPos param1) {
-        return new MatchingBlocksPredicate(param0, param1);
+        return new MatchingBlocksPredicate(param1, param0);
     }
 
     static BlockPredicate matchesBlock(Block param0, BlockPos param1) {
@@ -47,7 +48,7 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
     }
 
     static BlockPredicate matchesFluids(List<Fluid> param0, BlockPos param1) {
-        return new MatchingFluidsPredicate(param0, param1);
+        return new MatchingFluidsPredicate(param1, param0);
     }
 
     static BlockPredicate matchesFluid(Fluid param0, BlockPos param1) {
@@ -58,7 +59,19 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
         return new NotPredicate(param0);
     }
 
+    static BlockPredicate replaceable(BlockPos param0) {
+        return new ReplaceablePredicate(param0);
+    }
+
     static BlockPredicate replaceable() {
-        return ReplaceablePredicate.INSTANCE;
+        return replaceable(BlockPos.ZERO);
+    }
+
+    static BlockPredicate wouldSurvive(BlockState param0, BlockPos param1) {
+        return new WouldSurvivePredicate(param1, param0);
+    }
+
+    static BlockPredicate alwaysTrue() {
+        return TrueBlockPredicate.INSTANCE;
     }
 }

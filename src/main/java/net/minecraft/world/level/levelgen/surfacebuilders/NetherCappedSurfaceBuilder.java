@@ -9,6 +9,7 @@ import java.util.Random;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BlockColumn;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
@@ -84,7 +85,9 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
         if (this.seed != param0 || this.patchNoise == null || this.floorNoises.isEmpty() || this.ceilingNoises.isEmpty()) {
             this.floorNoises = initPerlinNoises(this.getFloorBlockStates(), param0);
             this.ceilingNoises = initPerlinNoises(this.getCeilingBlockStates(), param0 + (long)this.floorNoises.size());
-            this.patchNoise = new PerlinNoise(new WorldgenRandom(param0 + (long)this.floorNoises.size() + (long)this.ceilingNoises.size()), ImmutableList.of(0));
+            this.patchNoise = new PerlinNoise(
+                new WorldgenRandom(new LegacyRandomSource(param0 + (long)this.floorNoises.size() + (long)this.ceilingNoises.size())), ImmutableList.of(0)
+            );
         }
 
         this.seed = param0;
@@ -94,7 +97,7 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
         Builder<BlockState, PerlinNoise> var0 = new Builder<>();
 
         for(BlockState var1 : param0) {
-            var0.put(var1, new PerlinNoise(new WorldgenRandom(param1), ImmutableList.of(-4)));
+            var0.put(var1, new PerlinNoise(new WorldgenRandom(new LegacyRandomSource(param1)), ImmutableList.of(-4)));
             ++param1;
         }
 

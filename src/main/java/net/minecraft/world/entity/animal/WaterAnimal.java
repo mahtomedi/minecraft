@@ -2,21 +2,16 @@ package net.minecraft.world.entity.animal;
 
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 public abstract class WaterAnimal extends PathfinderMob {
@@ -80,35 +75,14 @@ public abstract class WaterAnimal extends PathfinderMob {
         return false;
     }
 
-    public static boolean checkUndergroundWaterCreatureSpawnRules(
-        EntityType<? extends LivingEntity> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+    public static boolean checkSurfaceWaterAnimalSpawnRules(
+        EntityType<? extends WaterAnimal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
     ) {
-        return param3.getY() < param1.getSeaLevel()
-            && param3.getY() < param1.getHeight(Heightmap.Types.OCEAN_FLOOR, param3.getX(), param3.getZ())
-            && isDarkEnoughToSpawn(param1, param3)
-            && isBaseStoneBelow(param3, param1);
-    }
-
-    public static boolean isBaseStoneBelow(BlockPos param0, ServerLevelAccessor param1) {
-        BlockPos.MutableBlockPos var0 = param0.mutable();
-
-        for(int var1 = 0; var1 < 5; ++var1) {
-            var0.move(Direction.DOWN);
-            BlockState var2 = param1.getBlockState(var0);
-            if (var2.is(BlockTags.BASE_STONE_OVERWORLD)) {
-                return true;
-            }
-
-            if (!var2.is(Blocks.WATER)) {
-                return false;
-            }
-        }
-
-        return false;
-    }
-
-    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor param0, BlockPos param1) {
-        int var0 = param0.getLevel().isThundering() ? param0.getMaxLocalRawBrightness(param1, 10) : param0.getMaxLocalRawBrightness(param1);
-        return var0 == 0;
+        int var0 = param1.getSeaLevel();
+        int var1 = var0 - 13;
+        return param1.getBlockState(param3).is(Blocks.WATER)
+            && param1.getBlockState(param3.above()).is(Blocks.WATER)
+            && param3.getY() >= var1
+            && param3.getY() <= var0;
     }
 }

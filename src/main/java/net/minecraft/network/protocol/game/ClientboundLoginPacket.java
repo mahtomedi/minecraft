@@ -24,6 +24,7 @@ public record ClientboundLoginPacket(
     long seed,
     int maxPlayers,
     int chunkRadius,
+    int simulationDistance,
     boolean reducedDebugInfo,
     boolean showDeathScreen,
     boolean isDebug,
@@ -40,6 +41,7 @@ public record ClientboundLoginPacket(
             param0.readWithCodec(DimensionType.CODEC).get(),
             ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation()),
             param0.readLong(),
+            param0.readVarInt(),
             param0.readVarInt(),
             param0.readVarInt(),
             param0.readBoolean(),
@@ -62,6 +64,7 @@ public record ClientboundLoginPacket(
         param0.writeLong(this.seed);
         param0.writeVarInt(this.maxPlayers);
         param0.writeVarInt(this.chunkRadius);
+        param0.writeVarInt(this.simulationDistance);
         param0.writeBoolean(this.reducedDebugInfo);
         param0.writeBoolean(this.showDeathScreen);
         param0.writeBoolean(this.isDebug);

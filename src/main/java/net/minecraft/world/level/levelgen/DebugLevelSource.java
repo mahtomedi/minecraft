@@ -64,7 +64,7 @@ public class DebugLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public void buildSurfaceAndBedrock(WorldGenRegion param0, StructureFeatureManager param1, ChunkAccess param2) {
+    public void buildSurface(WorldGenRegion param0, StructureFeatureManager param1, ChunkAccess param2) {
     }
 
     @Override

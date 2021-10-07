@@ -32,6 +32,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundChatPacket;
@@ -832,14 +833,6 @@ public class ServerPlayer extends Player {
         }
     }
 
-    private void broadcast(BlockEntity param0) {
-        Packet<?> var0 = param0.getUpdatePacket();
-        if (var0 != null) {
-            this.connection.send(var0);
-        }
-
-    }
-
     @Override
     public void take(Entity param0, int param1) {
         super.take(param0, param1);
@@ -1051,8 +1044,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void openCommandBlock(CommandBlockEntity param0) {
-        param0.setSendToClient(true);
-        this.broadcast(param0);
+        this.connection.send(ClientboundBlockEntityDataPacket.create(param0, BlockEntity::saveWithoutMetadata));
     }
 
     @Override

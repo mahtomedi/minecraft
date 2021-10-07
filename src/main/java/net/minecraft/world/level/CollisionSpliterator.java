@@ -30,6 +30,9 @@ public class CollisionSpliterator extends AbstractSpliterator<VoxelShape> {
     private final CollisionGetter collisionGetter;
     private boolean needsBorderCheck;
     private final BiPredicate<BlockState, BlockPos> predicate;
+    @Nullable
+    private BlockGetter cachedBlockGetter;
+    private long cachedBlockGetterPos;
 
     public CollisionSpliterator(CollisionGetter param0, @Nullable Entity param1, AABB param2) {
         this(param0, param1, param2, (param0x, param1x) -> true);
@@ -96,7 +99,14 @@ public class CollisionSpliterator extends AbstractSpliterator<VoxelShape> {
     private BlockGetter getChunk(int param0, int param1) {
         int var0 = SectionPos.blockToSectionCoord(param0);
         int var1 = SectionPos.blockToSectionCoord(param1);
-        return this.collisionGetter.getChunkForCollisions(var0, var1);
+        if (this.cachedBlockGetter != null && this.cachedBlockGetterPos == ChunkPos.asLong(var0, var1)) {
+            return this.cachedBlockGetter;
+        } else {
+            BlockGetter var2 = this.collisionGetter.getChunkForCollisions(var0, var1);
+            this.cachedBlockGetter = var2;
+            this.cachedBlockGetterPos = ChunkPos.asLong(var0, var1);
+            return var2;
+        }
     }
 
     boolean worldBorderCheck(Consumer<? super VoxelShape> param0) {

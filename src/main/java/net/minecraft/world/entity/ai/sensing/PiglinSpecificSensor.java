@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
@@ -58,35 +59,36 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
         int var8 = 0;
         List<AbstractPiglin> var9 = Lists.newArrayList();
         List<AbstractPiglin> var10 = Lists.newArrayList();
+        NearestVisibleLivingEntities var11 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(NearestVisibleLivingEntities.empty());
 
-        for(LivingEntity var12 : var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of())) {
+        for(LivingEntity var12 : var11.findAll(param0x -> true)) {
             if (var12 instanceof Hoglin var13) {
-                if (var13.isBaby() && !var3.isPresent()) {
+                if (var13.isBaby() && var3.isEmpty()) {
                     var3 = Optional.of(var13);
                 } else if (var13.isAdult()) {
                     ++var8;
-                    if (!var2.isPresent() && var13.canBeHunted()) {
+                    if (var2.isEmpty() && var13.canBeHunted()) {
                         var2 = Optional.of(var13);
                     }
                 }
-            } else if (var12 instanceof PiglinBrute) {
-                var9.add((PiglinBrute)var12);
-            } else if (var12 instanceof Piglin var14) {
-                if (var14.isBaby() && !var4.isPresent()) {
-                    var4 = Optional.of(var14);
-                } else if (var14.isAdult()) {
-                    var9.add(var14);
+            } else if (var12 instanceof PiglinBrute var14) {
+                var9.add(var14);
+            } else if (var12 instanceof Piglin var15) {
+                if (var15.isBaby() && var4.isEmpty()) {
+                    var4 = Optional.of(var15);
+                } else if (var15.isAdult()) {
+                    var9.add(var15);
                 }
-            } else if (var12 instanceof Player var15) {
-                if (!var6.isPresent() && param1.canAttack(var12) && !PiglinAi.isWearingGold(var15)) {
-                    var6 = Optional.of(var15);
+            } else if (var12 instanceof Player var16) {
+                if (var6.isEmpty() && !PiglinAi.isWearingGold(var16) && param1.canAttack(var12)) {
+                    var6 = Optional.of(var16);
                 }
 
-                if (!var7.isPresent() && !var15.isSpectator() && PiglinAi.isPlayerHoldingLovedItem(var15)) {
-                    var7 = Optional.of(var15);
+                if (var7.isEmpty() && !var16.isSpectator() && PiglinAi.isPlayerHoldingLovedItem(var16)) {
+                    var7 = Optional.of(var16);
                 }
-            } else if (var1.isPresent() || !(var12 instanceof WitherSkeleton) && !(var12 instanceof WitherBoss)) {
-                if (!var5.isPresent() && PiglinAi.isZombified(var12.getType())) {
+            } else if (!var1.isEmpty() || !(var12 instanceof WitherSkeleton) && !(var12 instanceof WitherBoss)) {
+                if (var5.isEmpty() && PiglinAi.isZombified(var12.getType())) {
                     var5 = Optional.of(var12);
                 }
             } else {
@@ -94,9 +96,9 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
             }
         }
 
-        for(LivingEntity var17 : var0.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(ImmutableList.of())) {
-            if (var17 instanceof AbstractPiglin && ((AbstractPiglin)var17).isAdult()) {
-                var10.add((AbstractPiglin)var17);
+        for(LivingEntity var18 : var0.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(ImmutableList.of())) {
+            if (var18 instanceof AbstractPiglin var19 && var19.isAdult()) {
+                var10.add(var19);
             }
         }
 

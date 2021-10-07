@@ -5,28 +5,25 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
-class MatchingBlocksPredicate implements BlockPredicate {
+class MatchingBlocksPredicate extends StateTestingPredicate {
     private final List<Block> blocks;
-    private final BlockPos offset;
     public static final Codec<MatchingBlocksPredicate> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    Registry.BLOCK.listOf().fieldOf("blocks").forGetter(param0x -> param0x.blocks),
-                    BlockPos.CODEC.fieldOf("offset").forGetter(param0x -> param0x.offset)
-                )
+        param0 -> stateTestingCodec(param0)
+                .and(Registry.BLOCK.listOf().fieldOf("blocks").forGetter(param0x -> param0x.blocks))
                 .apply(param0, MatchingBlocksPredicate::new)
     );
 
-    public MatchingBlocksPredicate(List<Block> param0, BlockPos param1) {
-        this.blocks = param0;
-        this.offset = param1;
+    public MatchingBlocksPredicate(BlockPos param0, List<Block> param1) {
+        super(param0);
+        this.blocks = param1;
     }
 
-    public boolean test(WorldGenLevel param0, BlockPos param1) {
-        Block var0 = param0.getBlockState(param1.offset(this.offset)).getBlock();
-        return this.blocks.contains(var0);
+    @Override
+    protected boolean test(BlockState param0) {
+        return this.blocks.contains(param0.getBlock());
     }
 
     @Override

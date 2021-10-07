@@ -1,5 +1,6 @@
 package net.minecraft.world.level.chunk;
 
+import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,7 +12,7 @@ public class GlobalPalette<T> implements Palette<T> {
         this.registry = param0;
     }
 
-    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2) {
+    public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2, List<A> param3) {
         return new GlobalPalette<>(param1);
     }
 

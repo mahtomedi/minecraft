@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import java.util.List;
 import java.util.stream.IntStream;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
@@ -48,7 +49,7 @@ public class PerlinSimplexNoise implements SurfaceNoise {
 
                 if (var1 > 0) {
                     long var6 = (long)(var3.getValue(var3.xo, var3.yo, var3.zo) * 9.223372E18F);
-                    RandomSource var7 = new WorldgenRandom(var6);
+                    RandomSource var7 = new WorldgenRandom(new LegacyRandomSource(var6));
 
                     for(int var8 = var4 - 1; var8 >= 0; --var8) {
                         if (var8 < var2 && param1.contains(var4 - var8)) {

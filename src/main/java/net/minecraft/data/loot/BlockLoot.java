@@ -271,7 +271,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
             applyExplosionDecay(
                 param0,
                 LootItem.lootTableItem(Items.RAW_COPPER)
-                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 3.0F)))
+                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F)))
                     .apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))
             )
         );

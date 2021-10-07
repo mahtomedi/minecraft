@@ -1,15 +1,15 @@
 package net.minecraft.world.level.levelgen;
 
 import java.util.Random;
+import java.util.function.LongFunction;
 
 public class WorldgenRandom extends Random implements RandomSource {
+    private final RandomSource randomSource;
     private int count;
 
-    public WorldgenRandom() {
-    }
-
-    public WorldgenRandom(long param0) {
-        super(param0);
+    public WorldgenRandom(RandomSource param0) {
+        super(0L);
+        this.randomSource = param0;
     }
 
     public int getCount() {
@@ -18,13 +18,26 @@ public class WorldgenRandom extends Random implements RandomSource {
 
     @Override
     public RandomSource fork() {
-        return new SimpleRandomSource(this.nextLong());
+        return this.randomSource.fork();
+    }
+
+    @Override
+    public PositionalRandomFactory forkPositional() {
+        return this.randomSource.forkPositional();
     }
 
     @Override
     public int next(int param0) {
         ++this.count;
-        return super.next(param0);
+        RandomSource var3 = this.randomSource;
+        return var3 instanceof LegacyRandomSource var0 ? var0.next(param0) : (int)(this.randomSource.nextLong() >>> 64 - param0);
+    }
+
+    @Override
+    public synchronized void setSeed(long param0) {
+        if (this.randomSource != null) {
+            this.randomSource.setSeed(param0);
+        }
     }
 
     public void setBaseChunkSeed(int param0, int param1) {
@@ -63,5 +76,20 @@ public class WorldgenRandom extends Random implements RandomSource {
         return new Random(
             param2 + (long)(param0 * param0 * 4987142) + (long)(param0 * 5947611) + (long)(param1 * param1) * 4392871L + (long)(param1 * 389711) ^ param3
         );
+    }
+
+    public static enum Algorithm {
+        LEGACY(LegacyRandomSource::new),
+        XOROSHIRO(XoroshiroRandomSource::new);
+
+        private final LongFunction<RandomSource> constructor;
+
+        private Algorithm(LongFunction<RandomSource> param0) {
+            this.constructor = param0;
+        }
+
+        public RandomSource newInstance(long param0) {
+            return this.constructor.apply(param0);
+        }
     }
 }

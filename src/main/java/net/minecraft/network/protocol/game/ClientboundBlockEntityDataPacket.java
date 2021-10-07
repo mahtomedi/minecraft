@@ -1,5 +1,6 @@
 package net.minecraft.network.protocol.game;
 
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -15,8 +16,12 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
     @Nullable
     private final CompoundTag tag;
 
+    public static ClientboundBlockEntityDataPacket create(BlockEntity param0, Function<BlockEntity, CompoundTag> param1) {
+        return new ClientboundBlockEntityDataPacket(param0.getBlockPos(), param0.getType(), param1.apply(param0));
+    }
+
     public static ClientboundBlockEntityDataPacket create(BlockEntity param0) {
-        return new ClientboundBlockEntityDataPacket(param0.getBlockPos(), param0.getType(), param0.getUpdateTag());
+        return create(param0, BlockEntity::getUpdateTag);
     }
 
     private ClientboundBlockEntityDataPacket(BlockPos param0, BlockEntityType<?> param1, CompoundTag param2) {
