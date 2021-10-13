@@ -18,6 +18,7 @@ import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.DebugBuffer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.util.ThreadingDetector;
@@ -46,13 +47,16 @@ public class PalettedContainer<T> implements PaletteResize<T> {
         this.lock.release();
     }
 
-    public static <T> Codec<PalettedContainer<T>> codec(IdMap<T> param0, Codec<T> param1, PalettedContainer.Strategy param2) {
+    public static <T> Codec<PalettedContainer<T>> codec(IdMap<T> param0, Codec<T> param1, PalettedContainer.Strategy param2, T param3) {
         return RecordCodecBuilder.<PalettedContainer.DiscData>create(
-                param1x -> param1x.group(
-                            param1.listOf().fieldOf("palette").forGetter(PalettedContainer.DiscData::paletteEntries),
+                param2x -> param2x.group(
+                            param1.mapResult(ExtraCodecs.orElsePartial(param3))
+                                .listOf()
+                                .fieldOf("palette")
+                                .forGetter(PalettedContainer.DiscData::paletteEntries),
                             Codec.LONG_STREAM.optionalFieldOf("data").forGetter(PalettedContainer.DiscData::storage)
                         )
-                        .apply(param1x, PalettedContainer.DiscData::new)
+                        .apply(param2x, PalettedContainer.DiscData::new)
             )
             .comapFlatMap(param2x -> read(param0, param2, param2x), param2x -> param2x.write(param0, param2));
     }
@@ -73,7 +77,7 @@ public class PalettedContainer<T> implements PaletteResize<T> {
 
     private PalettedContainer.Data<T> createOrReuseData(@Nullable PalettedContainer.Data<T> param0, int param1) {
         PalettedContainer.Configuration<T> var0 = this.strategy.getConfiguration(this.registry, param1);
-        return param0 != null && var0.equals(param0.configuration()) ? param0 : var0.createData(this.registry, this, this.strategy.size(), null);
+        return param0 != null && var0.equals(param0.configuration()) ? param0 : var0.createData(this.registry, this, this.strategy.size());
     }
 
     @Override
@@ -173,13 +177,18 @@ public class PalettedContainer<T> implements PaletteResize<T> {
             }
 
             long[] var6 = var5.get().toArray();
-            if (var3.factory() == PalettedContainer.Strategy.GLOBAL_PALETTE_FACTORY) {
-                Palette<T> var7 = new HashMapPalette<>(param0, var2, (param0x, param1x) -> 0, var0);
-                SimpleBitStorage var8 = new SimpleBitStorage(var2, param1.size(), var6);
-                IntStream var9 = IntStream.range(0, var8.getSize()).map(param3 -> param0.getId(var7.valueFor(var8.get(param3))));
-                var4 = new SimpleBitStorage(var3.bits(), var1, var9);
-            } else {
-                var4 = new SimpleBitStorage(var3.bits(), var1, var6);
+
+            try {
+                if (var3.factory() == PalettedContainer.Strategy.GLOBAL_PALETTE_FACTORY) {
+                    Palette<T> var7 = new HashMapPalette<>(param0, var2, (param0x, param1x) -> 0, var0);
+                    SimpleBitStorage var8 = new SimpleBitStorage(var2, param1.size(), var6);
+                    IntStream var9 = IntStream.range(0, var8.getSize()).map(param3 -> param0.getId(var7.valueFor(var8.get(param3))));
+                    var4 = new SimpleBitStorage(var3.bits(), var1, var9);
+                } else {
+                    var4 = new SimpleBitStorage(var3.bits(), var1, var6);
+                }
+            } catch (SimpleBitStorage.InitializationException var131) {
+                return DataResult.error("Failed to read PalettedContainer: " + var131.getMessage());
             }
         }
 
@@ -245,8 +254,8 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     }
 
     static record Configuration<T>(Palette.Factory factory, int bits) {
-        public PalettedContainer.Data<T> createData(IdMap<T> param0, PaletteResize<T> param1, int param2, @Nullable long[] param3) {
-            BitStorage var0 = (BitStorage)(this.bits == 0 ? new ZeroBitStorage(param2) : new SimpleBitStorage(this.bits, param2, param3));
+        public PalettedContainer.Data<T> createData(IdMap<T> param0, PaletteResize<T> param1, int param2) {
+            BitStorage var0 = (BitStorage)(this.bits == 0 ? new ZeroBitStorage(param2) : new SimpleBitStorage(this.bits, param2));
             Palette<T> var1 = this.factory.create(this.bits, param0, param1, List.of());
             return new PalettedContainer.Data<>(this, var0, var1);
         }

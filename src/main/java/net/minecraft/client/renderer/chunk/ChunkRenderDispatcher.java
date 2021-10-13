@@ -27,6 +27,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -38,7 +39,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.thread.ProcessorMailbox;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,7 +57,10 @@ public class ChunkRenderDispatcher {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int MAX_WORKERS_32_BIT = 4;
     private static final VertexFormat VERTEX_FORMAT = DefaultVertexFormat.BLOCK;
-    private final PriorityQueue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatch = Queues.newPriorityQueue();
+    private static final int MAX_HIGH_PRIORITY_QUOTA = 2;
+    private final PriorityQueue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityQueue();
+    private final Queue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchLowPriority = Queues.newArrayDeque();
+    private int highPriorityQuota = 2;
     private final Queue<ChunkBufferBuilderPack> freeBuffers;
     private final Queue<Runnable> toUpload = Queues.newConcurrentLinkedQueue();
     private volatile int toBatchCount;
@@ -65,11 +68,11 @@ public class ChunkRenderDispatcher {
     final ChunkBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
-    Level level;
+    ClientLevel level;
     final LevelRenderer renderer;
     private Vec3 camera = Vec3.ZERO;
 
-    public ChunkRenderDispatcher(Level param0, LevelRenderer param1, Executor param2, boolean param3, ChunkBufferBuilderPack param4) {
+    public ChunkRenderDispatcher(ClientLevel param0, LevelRenderer param1, Executor param2, boolean param3, ChunkBufferBuilderPack param4) {
         this.level = param0;
         this.renderer = param1;
         int var0 = Math.max(
@@ -103,16 +106,16 @@ public class ChunkRenderDispatcher {
         this.mailbox.tell(this::runTask);
     }
 
-    public void setLevel(Level param0) {
+    public void setLevel(ClientLevel param0) {
         this.level = param0;
     }
 
     private void runTask() {
         if (!this.freeBuffers.isEmpty()) {
-            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0x = this.toBatch.poll();
+            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0x = this.pollTask();
             if (var0x != null) {
                 ChunkBufferBuilderPack var1x = this.freeBuffers.poll();
-                this.toBatchCount = this.toBatch.size();
+                this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
                 this.freeBufferCount = this.freeBuffers.size();
                 CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(var0x.name(), () -> var0x.doTask(var1x)), this.executor)
                     .thenCompose(param0x -> param0x)
@@ -135,6 +138,26 @@ public class ChunkRenderDispatcher {
                         }
                     });
             }
+        }
+    }
+
+    @Nullable
+    private ChunkRenderDispatcher.RenderChunk.ChunkCompileTask pollTask() {
+        if (this.highPriorityQuota <= 0) {
+            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.toBatchLowPriority.poll();
+            if (var0 != null) {
+                this.highPriorityQuota = 2;
+                return var0;
+            }
+        }
+
+        ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var1 = this.toBatchHighPriority.poll();
+        if (var1 != null) {
+            --this.highPriorityQuota;
+            return var1;
+        } else {
+            this.highPriorityQuota = 2;
+            return this.toBatchLowPriority.poll();
         }
     }
 
@@ -180,8 +203,13 @@ public class ChunkRenderDispatcher {
 
     public void schedule(ChunkRenderDispatcher.RenderChunk.ChunkCompileTask param0) {
         this.mailbox.tell(() -> {
-            this.toBatch.offer(param0);
-            this.toBatchCount = this.toBatch.size();
+            if (param0.isHighPriority) {
+                this.toBatchHighPriority.offer(param0);
+            } else {
+                this.toBatchLowPriority.offer(param0);
+            }
+
+            this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
             this.runTask();
         });
     }
@@ -196,10 +224,17 @@ public class ChunkRenderDispatcher {
     }
 
     private void clearBatchQueue() {
-        while(!this.toBatch.isEmpty()) {
-            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.toBatch.poll();
+        while(!this.toBatchHighPriority.isEmpty()) {
+            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.toBatchHighPriority.poll();
             if (var0 != null) {
                 var0.cancel();
+            }
+        }
+
+        while(!this.toBatchLowPriority.isEmpty()) {
+            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var1 = this.toBatchLowPriority.poll();
+            if (var1 != null) {
+                var1.cancel();
             }
         }
 
@@ -387,25 +422,31 @@ public class ChunkRenderDispatcher {
             }
         }
 
-        protected void cancelTasks() {
+        protected boolean cancelTasks() {
+            boolean var0 = false;
             if (this.lastRebuildTask != null) {
                 this.lastRebuildTask.cancel();
                 this.lastRebuildTask = null;
+                var0 = true;
             }
 
             if (this.lastResortTransparencyTask != null) {
                 this.lastResortTransparencyTask.cancel();
                 this.lastResortTransparencyTask = null;
+                var0 = true;
             }
 
+            return var0;
         }
 
         public ChunkRenderDispatcher.RenderChunk.ChunkCompileTask createCompileTask() {
-            this.cancelTasks();
-            BlockPos var0 = this.origin.immutable();
-            int var1 = 1;
-            RenderChunkRegion var2 = RenderChunkRegion.createIfNotEmpty(ChunkRenderDispatcher.this.level, var0.offset(-1, -1, -1), var0.offset(16, 16, 16), 1);
-            this.lastRebuildTask = new ChunkRenderDispatcher.RenderChunk.RebuildTask(this.getDistToPlayerSqr(), var2);
+            boolean var0 = this.cancelTasks();
+            BlockPos var1 = this.origin.immutable();
+            int var2 = 1;
+            RenderChunkRegion var3 = RenderChunkRegion.createIfNotEmpty(ChunkRenderDispatcher.this.level, var1.offset(-1, -1, -1), var1.offset(16, 16, 16), 1);
+            this.lastRebuildTask = new ChunkRenderDispatcher.RenderChunk.RebuildTask(
+                this.getDistToPlayerSqr(), var3, var0 || this.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED
+            );
             return this.lastRebuildTask;
         }
 
@@ -437,9 +478,11 @@ public class ChunkRenderDispatcher {
         abstract class ChunkCompileTask implements Comparable<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> {
             protected final double distAtCreation;
             protected final AtomicBoolean isCancelled = new AtomicBoolean(false);
+            protected final boolean isHighPriority;
 
-            public ChunkCompileTask(double param0) {
+            public ChunkCompileTask(double param0, boolean param1) {
                 this.distAtCreation = param0;
+                this.isHighPriority = param1;
             }
 
             public abstract CompletableFuture<ChunkRenderDispatcher.ChunkTaskResult> doTask(ChunkBufferBuilderPack var1);
@@ -458,8 +501,8 @@ public class ChunkRenderDispatcher {
             @Nullable
             protected RenderChunkRegion region;
 
-            public RebuildTask(@Nullable double param0, RenderChunkRegion param1) {
-                super(param0);
+            public RebuildTask(@Nullable double param0, RenderChunkRegion param1, boolean param2) {
+                super(param0, param2);
                 this.region = param1;
             }
 
@@ -613,7 +656,7 @@ public class ChunkRenderDispatcher {
             private final ChunkRenderDispatcher.CompiledChunk compiledChunk;
 
             public ResortTransparencyTask(double param0, ChunkRenderDispatcher.CompiledChunk param1) {
-                super(param0);
+                super(param0, true);
                 this.compiledChunk = param1;
             }
 

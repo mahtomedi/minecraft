@@ -1,7 +1,6 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -23,12 +22,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Graph;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public abstract class BiomeSource {
     public static final Codec<BiomeSource> CODEC = Registry.BIOME_SOURCE.dispatchStable(BiomeSource::codec, Function.identity());
-    private final ImmutableSet<BlockState> surfaceBlocks;
     private final List<Biome> possibleBiomes;
     private final ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> featuresPerStep;
 
@@ -38,9 +35,6 @@ public abstract class BiomeSource {
 
     protected BiomeSource(List<Biome> param0) {
         this.possibleBiomes = param0;
-        this.surfaceBlocks = param0.stream()
-            .map(param0x -> param0x.getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial())
-            .collect(ImmutableSet.toImmutableSet());
 
         record FeatureData(int step, ConfiguredFeature<?, ?> feature) {
         }
@@ -178,10 +172,6 @@ public abstract class BiomeSource {
     }
 
     public abstract Biome getNoiseBiome(int var1, int var2, int var3, Climate.Sampler var4);
-
-    public boolean hasSurfaceBlock(BlockState param0) {
-        return this.surfaceBlocks.contains(param0);
-    }
 
     public void addMultinoiseDebugInfo(List<String> param0, BlockPos param1, Climate.Sampler param2) {
     }

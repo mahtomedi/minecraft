@@ -285,29 +285,29 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     int var13 = (var11 - var4 + 16) * 32 + var12 - var2 + 16;
                     double var14 = (double)this.rainSizeX[var13] * 0.5;
                     double var15 = (double)this.rainSizeZ[var13] * 0.5;
-                    var10.set(var12, 0, var11);
-                    Biome var16 = var1.getBiome(var10);
-                    if (var16.getPrecipitation() != Biome.Precipitation.NONE) {
-                        int var17 = var1.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var10).getY();
+                    int var16 = var1.getHeight(Heightmap.Types.MOTION_BLOCKING, var12, var11);
+                    var10.set(var12, var16, var11);
+                    Biome var17 = var1.getBiome(var10);
+                    if (var17.getPrecipitation() != Biome.Precipitation.NONE) {
                         int var18 = var3 - var7;
                         int var19 = var3 + var7;
-                        if (var18 < var17) {
-                            var18 = var17;
+                        if (var18 < var16) {
+                            var18 = var16;
                         }
 
-                        if (var19 < var17) {
-                            var19 = var17;
+                        if (var19 < var16) {
+                            var19 = var16;
                         }
 
-                        int var20 = var17;
-                        if (var17 < var3) {
+                        int var20 = var16;
+                        if (var16 < var3) {
                             var20 = var3;
                         }
 
                         if (var18 != var19) {
                             Random var21 = new Random((long)(var12 * var12 * 3121 + var12 * 45238971 ^ var11 * var11 * 418711 + var11 * 13761));
                             var10.set(var12, var18, var11);
-                            float var22 = var16.getTemperature(var10);
+                            float var22 = var17.getTemperature(var10);
                             if (var22 >= 0.15F) {
                                 if (var8 != 0) {
                                     if (var8 >= 0) {
@@ -886,7 +886,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         if (!param2) {
-            if (this.needsFullRenderChunkUpdate) {
+            if (this.needsFullRenderChunkUpdate && (this.lastFullRenderChunkUpdate == null || this.lastFullRenderChunkUpdate.isDone())) {
                 this.minecraft.getProfiler().push("full_update_schedule");
                 this.needsFullRenderChunkUpdate = false;
                 boolean var15 = var14;
@@ -1005,7 +1005,11 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
             for(Direction var7 : DIRECTIONS) {
                 ChunkRenderDispatcher.RenderChunk var8 = this.getRelativeFrom(var1, var4, var7);
-                if (var8 != null && (!param4 || !var3.hasDirection(var7.getOpposite()))) {
+                if (var8 == null) {
+                    if (!this.closeToBorder(var1, var4)) {
+                        this.nextFullUpdateMillis.set(System.currentTimeMillis() + 500L);
+                    }
+                } else if (!param4 || !var3.hasDirection(var7.getOpposite())) {
                     if (param4 && var3.hasSourceDirections()) {
                         ChunkRenderDispatcher.CompiledChunk var9 = var4.getCompiledChunk();
                         boolean var10 = false;
@@ -1037,55 +1041,55 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     if (param4 && var6) {
                         BlockPos var14;
                         byte var10001;
-                        label141: {
-                            label140: {
+                        label140: {
+                            label139: {
                                 var14 = var8.getOrigin();
                                 if (var7.getAxis() == Direction.Axis.X) {
                                     if (var2.getX() > var14.getX()) {
-                                        break label140;
+                                        break label139;
                                     }
                                 } else if (var2.getX() < var14.getX()) {
-                                    break label140;
+                                    break label139;
                                 }
 
                                 var10001 = 0;
-                                break label141;
+                                break label140;
                             }
 
                             var10001 = 16;
                         }
 
                         byte var10002;
-                        label133: {
-                            label132: {
+                        label132: {
+                            label131: {
                                 if (var7.getAxis() == Direction.Axis.Y) {
                                     if (var2.getY() > var14.getY()) {
-                                        break label132;
+                                        break label131;
                                     }
                                 } else if (var2.getY() < var14.getY()) {
-                                    break label132;
+                                    break label131;
                                 }
 
                                 var10002 = 0;
-                                break label133;
+                                break label132;
                             }
 
                             var10002 = 16;
                         }
 
                         byte var10003;
-                        label125: {
-                            label124: {
+                        label124: {
+                            label123: {
                                 if (var7.getAxis() == Direction.Axis.Z) {
                                     if (var2.getZ() > var14.getZ()) {
-                                        break label124;
+                                        break label123;
                                     }
                                 } else if (var2.getZ() < var14.getZ()) {
-                                    break label124;
+                                    break label123;
                                 }
 
                                 var10003 = 0;
-                                break label125;
+                                break label124;
                             }
 
                             var10003 = 16;
@@ -1196,7 +1200,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.blockEntityRenderDispatcher.prepare(this.level, param4, this.minecraft.hitResult);
         this.entityRenderDispatcher.prepare(this.level, param4, this.minecraft.crosshairPickEntity);
         ProfilerFiller var0 = this.level.getProfiler();
-        var0.popPush("chunk_update_queue");
+        var0.popPush("light_update_queue");
         this.level.pollLightUpdates();
         var0.popPush("light_updates");
         boolean var1 = this.level.isLightUpdateQueueEmpty();

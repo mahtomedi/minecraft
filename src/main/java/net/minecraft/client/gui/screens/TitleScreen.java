@@ -345,7 +345,7 @@ public class TitleScreen extends Screen {
                 var7 = var7 + ("release".equalsIgnoreCase(this.minecraft.getVersionType()) ? "" : "/" + this.minecraft.getVersionType());
             }
 
-            if (Minecraft.isProbablyModded()) {
+            if (Minecraft.checkModStatus().shouldReportAsModified()) {
                 var7 = var7 + I18n.get("menu.modded");
             }
 

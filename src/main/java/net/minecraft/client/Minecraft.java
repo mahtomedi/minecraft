@@ -201,6 +201,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.FileZipper;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.MemoryReserve;
+import net.minecraft.util.ModCheck;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.Unit;
@@ -579,7 +580,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     private String createTitle() {
         StringBuilder var0 = new StringBuilder("Minecraft");
-        if (isProbablyModded()) {
+        if (checkModStatus().shouldReportAsModified()) {
             var0.append("*");
         }
 
@@ -611,8 +612,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
     }
 
-    public static boolean isProbablyModded() {
-        return !"vanilla".equals(ClientBrandRetriever.getClientModName()) || Minecraft.class.getSigners() == null;
+    public static ModCheck checkModStatus() {
+        return ModCheck.identify("vanilla", ClientBrandRetriever::getClientModName, "Client", Minecraft.class);
     }
 
     private void rollbackResourcePacks(Throwable param0) {
@@ -2307,19 +2308,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         param0.setDetail("GL Caps", RenderSystem::getCapsString);
         param0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
         param0.setDetail("Using VBOs", () -> "Yes");
-        param0.setDetail(
-            "Is Modded",
-            () -> {
-                String var0x = ClientBrandRetriever.getClientModName();
-                if (!"vanilla".equals(var0x)) {
-                    return "Definitely; Client brand changed to '" + var0x + "'";
-                } else {
-                    return Minecraft.class.getSigners() == null
-                        ? "Very likely; Jar signature invalidated"
-                        : "Probably not. Jar signature remains and client brand is untouched.";
-                }
-            }
-        );
+        param0.setDetail("Is Modded", () -> checkModStatus().fullDescription());
         param0.setDetail("Type", "Client (map_client.txt)");
         if (param4 != null) {
             if (instance != null) {

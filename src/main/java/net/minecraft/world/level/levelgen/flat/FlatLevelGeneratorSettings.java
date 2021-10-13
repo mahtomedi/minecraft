@@ -123,7 +123,7 @@ public class FlatLevelGeneratorSettings {
     public Biome getBiomeFromSettings() {
         Biome var0 = this.getBiome();
         BiomeGenerationSettings var1 = var0.getGenerationSettings();
-        BiomeGenerationSettings.Builder var2 = new BiomeGenerationSettings.Builder().surfaceBuilder(var1.getSurfaceBuilder());
+        BiomeGenerationSettings.Builder var2 = new BiomeGenerationSettings.Builder();
         if (this.addLakes) {
             var2.addFeature(GenerationStep.Decoration.LAKES, Features.LAKE_LAVA);
         }

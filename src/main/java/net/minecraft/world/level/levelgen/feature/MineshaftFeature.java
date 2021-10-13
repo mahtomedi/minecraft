@@ -4,7 +4,9 @@ import com.mojang.serialization.Codec;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -13,9 +15,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.MineShaftPieces;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
@@ -55,13 +57,15 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
             );
             param0x.addPiece(var0);
             var0.addChildren(var0, param0x, param2.random());
+            int var1 = param2.chunkGenerator().getSeaLevel();
             if (param1.type == MineshaftFeature.Type.MESA) {
-                int var1 = -5;
-                BoundingBox var2 = param0x.getBoundingBox();
-                int var3 = param2.chunkGenerator().getSeaLevel() - var2.maxY() + var2.getYSpan() / 2 - -5;
-                param0x.offsetPiecesVertically(var3);
+                BlockPos var2 = param0x.getBoundingBox().getCenter();
+                int var3 = param2.chunkGenerator().getBaseHeight(var2.getX(), var2.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param2.heightAccessor());
+                int var4 = var3 <= var1 ? var1 : Mth.randomBetweenInclusive(param2.random(), var1, var3);
+                int var5 = var4 - var2.getY();
+                param0x.offsetPiecesVertically(var5);
             } else {
-                param0x.moveBelowSeaLevel(param2.chunkGenerator().getSeaLevel(), param2.chunkGenerator().getMinY(), param2.random(), 10);
+                param0x.moveBelowSeaLevel(var1, param2.chunkGenerator().getMinY(), param2.random(), 10);
             }
 
         }

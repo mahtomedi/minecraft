@@ -265,7 +265,7 @@ public class ServerPlayer extends Player {
                 int var9 = (var7 + var6 * var8) % var5;
                 int var10 = var9 % (var1 * 2 + 1);
                 int var11 = var9 / (var1 * 2 + 1);
-                BlockPos var12 = PlayerRespawnLogic.getOverworldRespawnPos(param0, var0.getX() + var10 - var1, var0.getZ() + var11 - var1, false);
+                BlockPos var12 = PlayerRespawnLogic.getOverworldRespawnPos(param0, var0.getX() + var10 - var1, var0.getZ() + var11 - var1);
                 if (var12 != null) {
                     this.moveTo(var12, 0.0F, 0.0F);
                     if (param0.noCollision(this)) {

@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.synth;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.RandomSource;
 
@@ -189,5 +190,10 @@ public final class ImprovedNoise {
         param6[1] += var43;
         param6[2] += var44;
         return Mth.lerp3(var30, var31, var32, var22, var23, var24, var25, var26, var27, var28, var29);
+    }
+
+    @VisibleForTesting
+    public void parityConfigString(StringBuilder param0) {
+        NoiseUtils.parityNoiseOctaveConfigString(param0, this.xo, this.yo, this.zo, this.p);
     }
 }

@@ -276,16 +276,10 @@ public class StructureUtils {
     private static void clearBlock(int param0, BlockPos param1, ServerLevel param2) {
         BlockState var0 = null;
         FlatLevelGeneratorSettings var1 = FlatLevelGeneratorSettings.getDefault(param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY));
-        if (var1 instanceof FlatLevelGeneratorSettings) {
-            List<BlockState> var2 = var1.getLayers();
-            int var3 = param1.getY() - param2.getMinBuildHeight();
-            if (param1.getY() < param0 && var3 > 0 && var3 <= var2.size()) {
-                var0 = var2.get(var3 - 1);
-            }
-        } else if (param1.getY() == param0 - 1) {
-            var0 = param2.getBiome(param1).getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial();
-        } else if (param1.getY() < param0 - 1) {
-            var0 = param2.getBiome(param1).getGenerationSettings().getSurfaceBuilderConfig().getUnderMaterial();
+        List<BlockState> var2 = var1.getLayers();
+        int var3 = param1.getY() - param2.getMinBuildHeight();
+        if (param1.getY() < param0 && var3 > 0 && var3 <= var2.size()) {
+            var0 = var2.get(var3 - 1);
         }
 
         if (var0 == null) {

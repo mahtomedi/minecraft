@@ -4,9 +4,7 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
@@ -105,31 +103,13 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                     }
                 }
 
-                for(int var30 = 0; var30 < 16; ++var30) {
-                    for(int var31 = 0; var31 < 16; ++var31) {
-                        for(int var32 = 4; var32 < 8; ++var32) {
-                            if (var4[(var30 * 16 + var31) * 8 + var32]) {
-                                BlockPos var33 = var0.offset(var30, var32 - 1, var31);
-                                if (isDirt(var1.getBlockState(var33)) && var1.getBrightness(LightLayer.SKY, var0.offset(var30, var32, var31)) > 0) {
-                                    Biome var34 = var1.getBiome(var33);
-                                    if (var34.getGenerationSettings().getSurfaceBuilderConfig().getTopMaterial().is(Blocks.MYCELIUM)) {
-                                        var1.setBlock(var33, Blocks.MYCELIUM.defaultBlockState(), 2);
-                                    } else {
-                                        var1.setBlock(var33, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
                 if (var3.state.getMaterial() == Material.WATER) {
-                    for(int var35 = 0; var35 < 16; ++var35) {
-                        for(int var36 = 0; var36 < 16; ++var36) {
-                            int var37 = 4;
-                            BlockPos var38 = var0.offset(var35, 4, var36);
-                            if (var1.getBiome(var38).shouldFreeze(var1, var38, false)) {
-                                var1.setBlock(var38, Blocks.ICE.defaultBlockState(), 2);
+                    for(int var30 = 0; var30 < 16; ++var30) {
+                        for(int var31 = 0; var31 < 16; ++var31) {
+                            int var32 = 4;
+                            BlockPos var33 = var0.offset(var30, 4, var31);
+                            if (var1.getBiome(var33).shouldFreeze(var1, var33, false)) {
+                                var1.setBlock(var33, Blocks.ICE.defaultBlockState(), 2);
                             }
                         }
                     }

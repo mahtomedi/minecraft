@@ -168,7 +168,7 @@ public abstract class GuiComponent {
     }
 
     public static void blit(PoseStack param0, int param1, int param2, int param3, float param4, float param5, int param6, int param7, int param8, int param9) {
-        innerBlit(param0, param1, param1 + param6, param2, param2 + param7, param3, param6, param7, param4, param5, param9, param8);
+        innerBlit(param0, param1, param1 + param6, param2, param2 + param7, param3, param6, param7, param4, param5, param8, param9);
     }
 
     public static void blit(

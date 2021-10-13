@@ -42,7 +42,7 @@ public class DualNoiseProvider extends NoiseProvider {
         this.variety = param0;
         this.slowNoiseParameters = param1;
         this.slowScale = param2;
-        this.slowNoise = NormalNoise.create(new WorldgenRandom(new LegacyRandomSource(param3)), param1);
+        this.slowNoise = NormalNoise.createLegacy(new WorldgenRandom(new LegacyRandomSource(param3)), param1);
     }
 
     @Override

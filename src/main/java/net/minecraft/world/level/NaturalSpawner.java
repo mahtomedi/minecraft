@@ -330,9 +330,7 @@ public final class NaturalSpawner {
             BlockPos var3 = param2.below();
             switch(param0) {
                 case IN_WATER:
-                    return var1.is(FluidTags.WATER)
-                        && param1.getFluidState(var3).is(FluidTags.WATER)
-                        && !param1.getBlockState(var2).isRedstoneConductor(param1, var2);
+                    return var1.is(FluidTags.WATER) && !param1.getBlockState(var2).isRedstoneConductor(param1, var2);
                 case IN_LAVA:
                     return var1.is(FluidTags.LAVA);
                 case ON_GROUND:

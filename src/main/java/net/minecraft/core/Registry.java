@@ -64,6 +64,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.PositionSourceType;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
@@ -85,8 +86,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.PosRuleTestTy
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTestType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
-import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
-import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilder;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
@@ -203,9 +202,6 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public static final ResourceKey<Registry<BlockPredicateType<?>>> BLOCK_PREDICATE_TYPE_REGISTRY = createRegistryKey("block_predicate_type");
     public static final Registry<BlockPredicateType<?>> BLOCK_PREDICATE_TYPES = registerSimple(BLOCK_PREDICATE_TYPE_REGISTRY, () -> BlockPredicateType.NOT);
     public static final ResourceKey<Registry<NoiseGeneratorSettings>> NOISE_GENERATOR_SETTINGS_REGISTRY = createRegistryKey("worldgen/noise_settings");
-    public static final ResourceKey<Registry<ConfiguredSurfaceBuilder<?>>> CONFIGURED_SURFACE_BUILDER_REGISTRY = createRegistryKey(
-        "worldgen/configured_surface_builder"
-    );
     public static final ResourceKey<Registry<ConfiguredWorldCarver<?>>> CONFIGURED_CARVER_REGISTRY = createRegistryKey("worldgen/configured_carver");
     public static final ResourceKey<Registry<ConfiguredFeature<?, ?>>> CONFIGURED_FEATURE_REGISTRY = createRegistryKey("worldgen/configured_feature");
     public static final ResourceKey<Registry<ConfiguredStructureFeature<?, ?>>> CONFIGURED_STRUCTURE_FEATURE_REGISTRY = createRegistryKey(
@@ -214,8 +210,6 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public static final ResourceKey<Registry<StructureProcessorList>> PROCESSOR_LIST_REGISTRY = createRegistryKey("worldgen/processor_list");
     public static final ResourceKey<Registry<StructureTemplatePool>> TEMPLATE_POOL_REGISTRY = createRegistryKey("worldgen/template_pool");
     public static final ResourceKey<Registry<Biome>> BIOME_REGISTRY = createRegistryKey("worldgen/biome");
-    public static final ResourceKey<Registry<SurfaceBuilder<?>>> SURFACE_BUILDER_REGISTRY = createRegistryKey("worldgen/surface_builder");
-    public static final Registry<SurfaceBuilder<?>> SURFACE_BUILDER = registerSimple(SURFACE_BUILDER_REGISTRY, () -> SurfaceBuilder.DEFAULT);
     public static final ResourceKey<Registry<WorldCarver<?>>> CARVER_REGISTRY = createRegistryKey("worldgen/carver");
     public static final Registry<WorldCarver<?>> CARVER = registerSimple(CARVER_REGISTRY, () -> WorldCarver.CAVE);
     public static final ResourceKey<Registry<Feature<?>>> FEATURE_REGISTRY = createRegistryKey("worldgen/feature");
@@ -235,6 +229,10 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public static final ResourceKey<Registry<FeatureSizeType<?>>> FEATURE_SIZE_TYPE_REGISTRY = createRegistryKey("worldgen/feature_size_type");
     public static final ResourceKey<Registry<Codec<? extends BiomeSource>>> BIOME_SOURCE_REGISTRY = createRegistryKey("worldgen/biome_source");
     public static final ResourceKey<Registry<Codec<? extends ChunkGenerator>>> CHUNK_GENERATOR_REGISTRY = createRegistryKey("worldgen/chunk_generator");
+    public static final ResourceKey<Registry<Codec<? extends SurfaceRules.ConditionSource>>> CONDITION_REGISTRY = createRegistryKey(
+        "worldgen/material_condition"
+    );
+    public static final ResourceKey<Registry<Codec<? extends SurfaceRules.RuleSource>>> RULE_REGISTRY = createRegistryKey("worldgen/material_rule");
     public static final ResourceKey<Registry<StructureProcessorType<?>>> STRUCTURE_PROCESSOR_REGISTRY = createRegistryKey("worldgen/structure_processor");
     public static final ResourceKey<Registry<StructurePoolElementType<?>>> STRUCTURE_POOL_ELEMENT_REGISTRY = createRegistryKey(
         "worldgen/structure_pool_element"
@@ -256,6 +254,10 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public static final Registry<Codec<? extends ChunkGenerator>> CHUNK_GENERATOR = registerSimple(
         CHUNK_GENERATOR_REGISTRY, Lifecycle.stable(), () -> ChunkGenerator.CODEC
     );
+    public static final Registry<Codec<? extends SurfaceRules.ConditionSource>> CONDITION = registerSimple(
+        CONDITION_REGISTRY, SurfaceRules.ConditionSource::bootstrap
+    );
+    public static final Registry<Codec<? extends SurfaceRules.RuleSource>> RULE = registerSimple(RULE_REGISTRY, SurfaceRules.RuleSource::bootstrap);
     public static final Registry<StructureProcessorType<?>> STRUCTURE_PROCESSOR = registerSimple(
         STRUCTURE_PROCESSOR_REGISTRY, () -> StructureProcessorType.BLOCK_IGNORE
     );
@@ -328,7 +330,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
         return param0.compressMaps()
             ? param0.getNumberValue(param1).flatMap(param0x -> {
                 T var0 = this.byId(param0x.intValue());
-                return var0 == null ? DataResult.error("Unknown registry id: " + param0x) : DataResult.success(var0, this.lifecycle(var0));
+                return var0 == null ? DataResult.error("Unknown registry id in " + this.key + ": " + param0x) : DataResult.success(var0, this.lifecycle(var0));
             }).map(param1x -> Pair.of((T)param1x, param0.empty()))
             : ResourceLocation.CODEC
                 .decode(param0, param1)
@@ -336,7 +338,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
                     param0x -> {
                         T var0 = this.get(param0x.getFirst());
                         return var0 == null
-                            ? DataResult.error("Unknown registry key: " + param0x.getFirst())
+                            ? DataResult.error("Unknown registry key in " + this.key + ": " + param0x.getFirst())
                             : DataResult.success(Pair.of(var0, param0x.getSecond()), this.lifecycle(var0));
                     }
                 );
@@ -346,7 +348,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public <U> DataResult<U> encode(T param0, DynamicOps<U> param1, U param2) {
         ResourceLocation var0 = this.getKey(param0);
         if (var0 == null) {
-            return DataResult.error("Unknown registry element " + param0);
+            return DataResult.error("Unknown registry element in " + this.key + ":" + param0);
         } else {
             return param1.compressMaps()
                 ? param1.mergeToPrimitive(param2, param1.createInt(this.getId(param0))).setLifecycle(this.lifecycle)
@@ -388,7 +390,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public T getOrThrow(ResourceKey<T> param0) {
         T var0 = this.get(param0);
         if (var0 == null) {
-            throw new IllegalStateException("Missing: " + param0);
+            throw new IllegalStateException("Missing key in " + this.key + ": " + param0);
         } else {
             return var0;
         }

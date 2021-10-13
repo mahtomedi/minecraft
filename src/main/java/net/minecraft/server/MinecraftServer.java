@@ -91,11 +91,11 @@ import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.ServerOpListEntry;
 import net.minecraft.server.players.UserWhiteList;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagContainer;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 import net.minecraft.util.FrameTimer;
+import net.minecraft.util.ModCheck;
 import net.minecraft.util.Mth;
 import net.minecraft.util.NativeModuleLister;
 import net.minecraft.util.Unit;
@@ -130,7 +130,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -319,7 +318,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         boolean var0 = false;
         ProfiledDuration var1 = JvmProfiler.INSTANCE.onWorldLoadedStarted();
         this.detectBundledResources();
-        this.worldData.setModdedInfo(this.getServerModName(), this.getModdedStatus().isPresent());
+        this.worldData.setModdedInfo(this.getServerModName(), this.getModdedStatus().shouldReportAsModified());
         ChunkProgressListener var2 = this.progressListenerFactory.create(11);
         this.createLevels(var2);
         this.forceDifficulty();
@@ -431,50 +430,41 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 LOGGER.warn("Unable to find spawn biome");
             }
 
-            boolean var5 = false;
-
-            for(Block var6 : BlockTags.VALID_SPAWN.getValues()) {
-                if (var1.hasSurfaceBlock(var6.defaultBlockState())) {
-                    var5 = true;
-                    break;
-                }
+            int var5 = var0.getSpawnHeight(param0);
+            if (var5 < param0.getMinBuildHeight()) {
+                BlockPos var6 = var4.getWorldPosition();
+                var5 = param0.getHeight(Heightmap.Types.WORLD_SURFACE, var6.getX() + 8, var6.getZ() + 8);
             }
 
-            int var7 = var0.getSpawnHeight(param0);
-            if (var7 < param0.getMinBuildHeight()) {
-                BlockPos var8 = var4.getWorldPosition();
-                var7 = param0.getHeight(Heightmap.Types.WORLD_SURFACE, var8.getX() + 8, var8.getZ() + 8);
-            }
-
-            param1.setSpawn(var4.getWorldPosition().offset(8, var7, 8), 0.0F);
+            param1.setSpawn(var4.getWorldPosition().offset(8, var5, 8), 0.0F);
+            int var7 = 0;
+            int var8 = 0;
             int var9 = 0;
-            int var10 = 0;
-            int var11 = 0;
-            int var12 = -1;
-            int var13 = 32;
+            int var10 = -1;
+            int var11 = 32;
 
-            for(int var14 = 0; var14 < 1024; ++var14) {
-                if (var9 > -16 && var9 <= 16 && var10 > -16 && var10 <= 16) {
-                    BlockPos var15 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var4.x + var9, var4.z + var10), var5);
-                    if (var15 != null) {
-                        param1.setSpawn(var15, 0.0F);
+            for(int var12 = 0; var12 < 1024; ++var12) {
+                if (var7 > -16 && var7 <= 16 && var8 > -16 && var8 <= 16) {
+                    BlockPos var13 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var4.x + var7, var4.z + var8));
+                    if (var13 != null) {
+                        param1.setSpawn(var13, 0.0F);
                         break;
                     }
                 }
 
-                if (var9 == var10 || var9 < 0 && var9 == -var10 || var9 > 0 && var9 == 1 - var10) {
-                    int var16 = var11;
-                    var11 = -var12;
-                    var12 = var16;
+                if (var7 == var8 || var7 < 0 && var7 == -var8 || var7 > 0 && var7 == 1 - var8) {
+                    int var14 = var9;
+                    var9 = -var10;
+                    var10 = var14;
                 }
 
-                var9 += var11;
-                var10 += var12;
+                var7 += var9;
+                var8 += var10;
             }
 
             if (param2) {
-                ConfiguredFeature<?, ?> var17 = Features.BONUS_CHEST;
-                var17.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
+                ConfiguredFeature<?, ?> var15 = Features.BONUS_CHEST;
+                var15.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
             }
 
         }
@@ -999,7 +989,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public abstract SystemReport fillServerSystemReport(SystemReport var1);
 
-    public abstract Optional<String> getModdedStatus();
+    public ModCheck getModdedStatus() {
+        return ModCheck.identify("vanilla", this::getServerModName, "Server", MinecraftServer.class);
+    }
 
     @Override
     public void sendMessage(Component param0, UUID param1) {

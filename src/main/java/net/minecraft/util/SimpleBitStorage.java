@@ -3,7 +3,6 @@ package net.minecraft.util;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -234,9 +233,7 @@ public class SimpleBitStorage implements BitStorage {
         int var1 = (param1 + this.valuesPerLong - 1) / this.valuesPerLong;
         if (param2 != null) {
             if (param2.length != var1) {
-                throw (RuntimeException)Util.pauseInIde(
-                    new RuntimeException("Invalid length given for storage, got: " + param2.length + " but expected: " + var1)
-                );
+                throw new SimpleBitStorage.InitializationException("Invalid length given for storage, got: " + param2.length + " but expected: " + var1);
             }
 
             this.data = param2;
@@ -312,5 +309,11 @@ public class SimpleBitStorage implements BitStorage {
             }
         }
 
+    }
+
+    public static class InitializationException extends RuntimeException {
+        InitializationException(String param0) {
+            super(param0);
+        }
     }
 }

@@ -40,11 +40,6 @@ public class WorldgenRandom extends Random implements RandomSource {
         }
     }
 
-    public void setBaseChunkSeed(int param0, int param1) {
-        long var0 = (long)param0 * 341873128712L + (long)param1 * 132897987541L;
-        this.setSeed(var0);
-    }
-
     public long setDecorationSeed(long param0, int param1, int param2) {
         this.setSeed(param0);
         long var0 = this.nextLong() | 1L;

@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -30,10 +29,8 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.BlockColumn;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -214,24 +211,6 @@ public final class Biome {
         double var0 = (double)Mth.clamp(this.climateSettings.temperature, 0.0F, 1.0F);
         double var1 = (double)Mth.clamp(this.climateSettings.downfall, 0.0F, 1.0F);
         return FoliageColor.get(var0, var1);
-    }
-
-    public void buildSurfaceAt(
-        Random param0,
-        BlockColumn param1,
-        int param2,
-        int param3,
-        int param4,
-        double param5,
-        BlockState param6,
-        BlockState param7,
-        int param8,
-        int param9,
-        long param10
-    ) {
-        ConfiguredSurfaceBuilder<?> var0 = this.generationSettings.getSurfaceBuilder().get();
-        var0.initNoise(param10);
-        var0.apply(param0, param1, this, param2, param3, param4, param5, param6, param7, param8, param9, param10);
     }
 
     public final float getDownfall() {

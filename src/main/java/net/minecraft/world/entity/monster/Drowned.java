@@ -99,14 +99,18 @@ public class Drowned extends Zombie implements RangedAttackMob {
     }
 
     public static boolean checkDrownedSpawnRules(EntityType<Drowned> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        Optional<ResourceKey<Biome>> var0 = param1.getBiomeName(param3);
-        boolean var1 = param1.getDifficulty() != Difficulty.PEACEFUL
-            && isDarkEnoughToSpawn(param1, param3, param4)
-            && (param2 == MobSpawnType.SPAWNER || param1.getFluidState(param3).is(FluidTags.WATER));
-        if (!Objects.equals(var0, Optional.of(Biomes.RIVER)) && !Objects.equals(var0, Optional.of(Biomes.FROZEN_RIVER))) {
-            return param4.nextInt(40) == 0 && isDeepEnoughToSpawn(param1, param3) && var1;
+        if (!param1.getFluidState(param3.below()).is(FluidTags.WATER)) {
+            return false;
         } else {
-            return param4.nextInt(15) == 0 && var1;
+            Optional<ResourceKey<Biome>> var0 = param1.getBiomeName(param3);
+            boolean var1 = param1.getDifficulty() != Difficulty.PEACEFUL
+                && isDarkEnoughToSpawn(param1, param3, param4)
+                && (param2 == MobSpawnType.SPAWNER || param1.getFluidState(param3).is(FluidTags.WATER));
+            if (!Objects.equals(var0, Optional.of(Biomes.RIVER)) && !Objects.equals(var0, Optional.of(Biomes.FROZEN_RIVER))) {
+                return param4.nextInt(40) == 0 && isDeepEnoughToSpawn(param1, param3) && var1;
+            } else {
+                return param4.nextInt(15) == 0 && var1;
+            }
         }
     }
 

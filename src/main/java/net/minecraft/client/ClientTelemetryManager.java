@@ -79,7 +79,7 @@ public class ClientTelemetryManager {
                 TelemetryEvent var0 = this.telemetrySession.createNewEvent("WorldLoaded");
                 WorldVersion var1 = SharedConstants.getCurrentVersion();
                 var0.addProperty("build_display_name", var1.getId());
-                var0.addProperty("clientModded", Minecraft.isProbablyModded());
+                var0.addProperty("clientModded", Minecraft.checkModStatus().shouldReportAsModified());
                 if (this.serverBrand != null) {
                     var0.addProperty("serverModded", !this.serverBrand.equals("vanilla"));
                 } else {
