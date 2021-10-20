@@ -1521,7 +1521,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     private void renderChunkLayer(RenderType param0, PoseStack param1, double param2, double param3, double param4, Matrix4f param5) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         param0.setupRenderState();
         if (param0 == RenderType.translucent()) {
             this.minecraft.getProfiler().push("translucent_sort");

@@ -21,6 +21,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Contract;
 
 public class GsonHelper {
     private static final Gson GSON = new GsonBuilder().create();
@@ -85,7 +86,9 @@ public class GsonHelper {
         }
     }
 
-    public static String getAsString(JsonObject param0, String param1, String param2) {
+    @Nullable
+    @Contract("_,_,!null->!null;_,_,null->_")
+    public static String getAsString(JsonObject param0, String param1, @Nullable String param2) {
         return param0.has(param1) ? convertToString(param0.get(param1), param1) : param2;
     }
 
@@ -108,7 +111,9 @@ public class GsonHelper {
         }
     }
 
-    public static Item getAsItem(JsonObject param0, String param1, Item param2) {
+    @Nullable
+    @Contract("_,_,!null->!null;_,_,null->_")
+    public static Item getAsItem(JsonObject param0, String param1, @Nullable Item param2) {
         return param0.has(param1) ? convertToItem(param0.get(param1), param1) : param2;
     }
 
@@ -328,7 +333,9 @@ public class GsonHelper {
         }
     }
 
-    public static JsonObject getAsJsonObject(JsonObject param0, String param1, JsonObject param2) {
+    @Nullable
+    @Contract("_,_,!null->!null;_,_,null->_")
+    public static JsonObject getAsJsonObject(JsonObject param0, String param1, @Nullable JsonObject param2) {
         return param0.has(param1) ? convertToJsonObject(param0.get(param1), param1) : param2;
     }
 
@@ -349,6 +356,7 @@ public class GsonHelper {
     }
 
     @Nullable
+    @Contract("_,_,!null->!null;_,_,null->_")
     public static JsonArray getAsJsonArray(JsonObject param0, String param1, @Nullable JsonArray param2) {
         return param0.has(param1) ? convertToJsonArray(param0.get(param1), param1) : param2;
     }
@@ -369,11 +377,13 @@ public class GsonHelper {
         }
     }
 
-    public static <T> T getAsObject(JsonObject param0, String param1, T param2, JsonDeserializationContext param3, Class<? extends T> param4) {
+    @Nullable
+    @Contract("_,_,!null,_,_->!null;_,_,null,_,_->_")
+    public static <T> T getAsObject(JsonObject param0, String param1, @Nullable T param2, JsonDeserializationContext param3, Class<? extends T> param4) {
         return (T)(param0.has(param1) ? convertToObject(param0.get(param1), param1, param3, param4) : param2);
     }
 
-    public static String getType(JsonElement param0) {
+    public static String getType(@Nullable JsonElement param0) {
         String var0 = StringUtils.abbreviateMiddle(String.valueOf(param0), "...", 10);
         if (param0 == null) {
             return "null (missing)";

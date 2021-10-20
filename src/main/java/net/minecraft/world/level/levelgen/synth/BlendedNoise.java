@@ -32,9 +32,9 @@ public class BlendedNoise implements NoiseChunk.NoiseFiller {
 
     public BlendedNoise(RandomSource param0, NoiseSamplingSettings param1, int param2, int param3) {
         this(
-            new PerlinNoise(param0, IntStream.rangeClosed(-15, 0)),
-            new PerlinNoise(param0, IntStream.rangeClosed(-15, 0)),
-            new PerlinNoise(param0, IntStream.rangeClosed(-7, 0)),
+            PerlinNoise.createLegacyForBlendedNoise(param0, IntStream.rangeClosed(-15, 0)),
+            PerlinNoise.createLegacyForBlendedNoise(param0, IntStream.rangeClosed(-15, 0)),
+            PerlinNoise.createLegacyForBlendedNoise(param0, IntStream.rangeClosed(-7, 0)),
             param1,
             param2,
             param3

@@ -18,7 +18,7 @@ public class DualNoiseProvider extends NoiseProvider {
     public static final Codec<DualNoiseProvider> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     InclusiveRange.codec(Codec.INT, 1, 64).fieldOf("variety").forGetter(param0x -> param0x.variety),
-                    NormalNoise.NoiseParameters.CODEC.fieldOf("slow_noise").forGetter(param0x -> param0x.slowNoiseParameters),
+                    NormalNoise.NoiseParameters.DIRECT_CODEC.fieldOf("slow_noise").forGetter(param0x -> param0x.slowNoiseParameters),
                     ExtraCodecs.POSITIVE_FLOAT.fieldOf("slow_scale").forGetter(param0x -> param0x.slowScale)
                 )
                 .and(noiseProviderCodec(param0))
@@ -42,7 +42,7 @@ public class DualNoiseProvider extends NoiseProvider {
         this.variety = param0;
         this.slowNoiseParameters = param1;
         this.slowScale = param2;
-        this.slowNoise = NormalNoise.createLegacy(new WorldgenRandom(new LegacyRandomSource(param3)), param1);
+        this.slowNoise = NormalNoise.create(new WorldgenRandom(new LegacyRandomSource(param3)), param1);
     }
 
     @Override

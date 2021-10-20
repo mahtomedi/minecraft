@@ -17,6 +17,7 @@ import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.valueproviders.BiasedToBottomInt;
 import net.minecraft.util.valueproviders.ClampedInt;
 import net.minecraft.util.valueproviders.ClampedNormalFloat;
+import net.minecraft.util.valueproviders.ClampedNormalInt;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformFloat;
@@ -61,6 +62,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.LargeDripstoneC
 import net.minecraft.world.level.levelgen.feature.configurations.NoiseDependantDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.PointedDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomBooleanFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
@@ -68,9 +70,9 @@ import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConf
 import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ReplaceSphereConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RootSystemConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.ScatterDecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleRandomFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.SmallDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpringConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -533,9 +535,9 @@ public class Features {
                     )
                 )
             )
-            .rangeUniform(VerticalAnchor.bottom(), VerticalAnchor.top())
+            .rangeUniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(192))
             .squared()
-            .count(40)
+            .count(25)
     );
     public static final ConfiguredFeature<?, ?> PILE_HAY = register(
         "pile_hay", Feature.BLOCK_PILE.configured(new BlockPileConfiguration(new RotatedBlockProvider(Blocks.HAY_BLOCK)))
@@ -992,9 +994,9 @@ public class Features {
         "ore_gold_extra",
         Feature.ORE
             .configured(new OreConfiguration(ORE_GOLD_TARGET_LIST, 9))
-            .rangeUniform(VerticalAnchor.absolute(32), VerticalAnchor.absolute(79))
+            .rangeUniform(VerticalAnchor.absolute(32), VerticalAnchor.absolute(256))
             .squared()
-            .count(20)
+            .count(50)
     );
     public static final ConfiguredFeature<?, ?> ORE_GOLD = register(
         "ore_gold",
@@ -1155,10 +1157,26 @@ public class Features {
             .squared()
             .count(UniformInt.of(7, 35))
     );
-    public static final ConfiguredFeature<?, ?> SMALL_DRIPSTONE_FEATURE = register(
-        "small_dripstone",
-        Feature.SMALL_DRIPSTONE
-            .configured(new SmallDripstoneConfiguration(5, 10, 2, 0.2F))
+    public static final ConfiguredFeature<?, ?> POINTED_DRIPSTONE_FEATURE = register(
+        "pointed_dripstone",
+        Feature.SIMPLE_RANDOM_SELECTOR
+            .configured(
+                new SimpleRandomFeatureConfiguration(
+                    ImmutableList.of(
+                        () -> Feature.POINTED_DRIPSTONE
+                                .configured(new PointedDripstoneConfiguration(0.2F, 0.7F, 0.5F, 0.5F))
+                                .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.FLOOR, 12, true))),
+                        () -> Feature.POINTED_DRIPSTONE
+                                .configured(new PointedDripstoneConfiguration(0.2F, 0.7F, 0.5F, 0.5F))
+                                .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12, true)))
+                    )
+                )
+            )
+            .decorated(
+                FeatureDecorator.SCATTER
+                    .configured(new ScatterDecoratorConfiguration(ClampedNormalInt.of(0.0F, 3.0F, -10, 10), ClampedNormalInt.of(0.0F, 0.6F, -2, 2)))
+            )
+            .count(UniformInt.of(1, 5))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
             .count(UniformInt.of(140, 220))
@@ -1888,7 +1906,7 @@ public class Features {
                     2
                 )
             )
-            .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12)))
+            .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12, false)))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
     );
@@ -1950,7 +1968,7 @@ public class Features {
     );
     public static final ConfiguredFeature<?, ?> CAVE_VINES = register(
         "cave_vines",
-        CAVE_VINE.decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12)))
+        CAVE_VINE.decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12, false)))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
             .count(157)
@@ -2009,7 +2027,7 @@ public class Features {
     );
     public static final ConfiguredFeature<?, ?> LUSH_CAVES_VEGETATION = register(
         "lush_caves_vegetation",
-        MOSS_PATCH.decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.FLOOR, 12)))
+        MOSS_PATCH.decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.FLOOR, 12, false)))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
             .count(104)
@@ -2069,7 +2087,7 @@ public class Features {
         "lush_caves_clay",
         Feature.RANDOM_BOOLEAN_SELECTOR
             .configured(new RandomBooleanFeatureConfiguration(() -> CLAY_WITH_DRIPLEAVES, () -> CLAY_POOL_WITH_DRIPLEAVES))
-            .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.FLOOR, 12)))
+            .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.FLOOR, 12, false)))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
             .count(52)
@@ -2094,7 +2112,7 @@ public class Features {
     );
     public static final ConfiguredFeature<?, ?> LUSH_CAVES_CEILING_VEGETATION = register(
         "lush_caves_ceiling_vegetation",
-        MOSS_PATCH_CEILING.decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12)))
+        MOSS_PATCH_CEILING.decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12, false)))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
             .count(104)
@@ -2103,7 +2121,7 @@ public class Features {
         "spore_blossom",
         Feature.SIMPLE_BLOCK
             .configured(new SimpleBlockConfiguration(BlockStateProvider.simple(Blocks.SPORE_BLOSSOM)))
-            .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12)))
+            .decorated(FeatureDecorator.CAVE_SURFACE.configured(new CaveDecoratorConfiguration(CaveSurface.CEILING, 12, false)))
             .range(Features.Decorators.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT)
             .squared()
             .count(21)
@@ -2320,7 +2338,19 @@ public class Features {
             true,
             4,
             1,
-            ImmutableSet.of(Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE, Blocks.DEEPSLATE, Blocks.TUFF)
+            ImmutableSet.of(
+                Blocks.STONE,
+                Blocks.GRANITE,
+                Blocks.DIORITE,
+                Blocks.ANDESITE,
+                Blocks.DEEPSLATE,
+                Blocks.TUFF,
+                Blocks.CALCITE,
+                Blocks.DIRT,
+                Blocks.SNOW_BLOCK,
+                Blocks.POWDER_SNOW,
+                Blocks.PACKED_ICE
+            )
         );
         public static final SpringConfiguration CLOSED_NETHER_SPRING = new SpringConfiguration(
             Fluids.LAVA.defaultFluidState(), false, 5, 0, ImmutableSet.of(Blocks.NETHERRACK)

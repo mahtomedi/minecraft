@@ -51,6 +51,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
@@ -90,6 +91,7 @@ public class Gui extends GuiComponent {
     private static final ResourceLocation SPYGLASS_SCOPE_LOCATION = new ResourceLocation("textures/misc/spyglass_scope.png");
     private static final ResourceLocation POWDER_SNOW_OUTLINE_LOCATION = new ResourceLocation("textures/misc/powder_snow_outline.png");
     private static final Component DEMO_EXPIRED_TEXT = new TranslatableComponent("demo.demoExpired");
+    private static final Component SAVING_TEXT = new TranslatableComponent("menu.savingLevel");
     private static final int COLOR_WHITE = 16777215;
     private static final float MIN_CROSSHAIR_ATTACK_SPEED = 5.0F;
     private static final int NUM_HEARTS_PER_ROW = 10;
@@ -98,6 +100,7 @@ public class Gui extends GuiComponent {
     private static final float PORTAL_OVERLAY_ALPHA_MIN = 0.2F;
     private static final int HEART_SIZE = 9;
     private static final int HEART_SEPARATION = 8;
+    private static final float AUTOSAVE_FADE_SPEED_FACTOR = 0.2F;
     private final Random random = new Random();
     private final Minecraft minecraft;
     private final ItemRenderer itemRenderer;
@@ -129,6 +132,8 @@ public class Gui extends GuiComponent {
     private long healthBlinkTime;
     private int screenWidth;
     private int screenHeight;
+    private float autosaveIndicatorValue;
+    private float lastAutosaveIndicatorValue;
     private final Map<ChatType, List<ChatListener>> chatListeners = Maps.newHashMap();
     private float scopeScale;
 
@@ -365,6 +370,8 @@ public class Gui extends GuiComponent {
                 this.tabList.setVisible(true);
                 this.tabList.render(param0, this.screenWidth, var19, var23);
             }
+
+            this.renderSavingIndicator(param0);
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -1121,7 +1128,15 @@ public class Gui extends GuiComponent {
         }
     }
 
-    public void tick() {
+    public void tick(boolean param0) {
+        this.tickAutosaveIndicator();
+        if (!param0) {
+            this.tick();
+        }
+
+    }
+
+    private void tick() {
         if (this.overlayMessageTime > 0) {
             --this.overlayMessageTime;
         }
@@ -1155,6 +1170,13 @@ public class Gui extends GuiComponent {
             this.lastToolHighlight = var1;
         }
 
+    }
+
+    private void tickAutosaveIndicator() {
+        MinecraftServer var0 = this.minecraft.getSingleplayerServer();
+        boolean var1 = var0 != null && var0.isCurrentlySaving();
+        this.lastAutosaveIndicatorValue = this.autosaveIndicatorValue;
+        this.autosaveIndicatorValue = Mth.lerp(0.2F, this.autosaveIndicatorValue, var1 ? 1.0F : 0.0F);
     }
 
     public void setNowPlaying(Component param0) {
@@ -1252,6 +1274,21 @@ public class Gui extends GuiComponent {
 
     public void clearCache() {
         this.debugScreen.clearChunkCache();
+    }
+
+    private void renderSavingIndicator(PoseStack param0) {
+        if (this.minecraft.options.showAutosaveIndicator && (this.autosaveIndicatorValue > 0.0F || this.lastAutosaveIndicatorValue > 0.0F)) {
+            int var0 = Mth.floor(
+                255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), this.lastAutosaveIndicatorValue, this.autosaveIndicatorValue), 0.0F, 1.0F)
+            );
+            if (var0 > 8) {
+                Font var1 = this.getFont();
+                int var2 = var1.width(SAVING_TEXT);
+                int var3 = 16777215 | var0 << 24 & 0xFF000000;
+                var1.drawShadow(param0, SAVING_TEXT, (float)(this.screenWidth - var2 - 10), (float)(this.screenHeight - 15), var3);
+            }
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)

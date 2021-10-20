@@ -29,7 +29,7 @@ public class TextureUtil {
     private static final int DEFAULT_IMAGE_BUFFER_SIZE = 8192;
 
     public static int generateTextureId() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             int[] var0 = new int[ThreadLocalRandom.current().nextInt(15) + 1];
             GlStateManager._genTextures(var0);
@@ -42,7 +42,7 @@ public class TextureUtil {
     }
 
     public static void releaseTextureId(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GlStateManager._deleteTexture(param0);
     }
 
@@ -59,7 +59,7 @@ public class TextureUtil {
     }
 
     public static void prepareImage(NativeImage.InternalGlFormat param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         bind(param1);
         if (param2 >= 0) {
             GlStateManager._texParameter(3553, 33085, param2);
@@ -75,7 +75,7 @@ public class TextureUtil {
     }
 
     private static void bind(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GlStateManager._bindTexture(param0);
     }
 
@@ -103,7 +103,7 @@ public class TextureUtil {
 
     @Nullable
     public static String readResourceAsString(InputStream param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         ByteBuffer var0 = null;
 
         try {
@@ -123,7 +123,7 @@ public class TextureUtil {
     }
 
     public static void writeAsPNG(String param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         bind(param1);
 
         for(int var0 = 0; var0 <= param2; ++var0) {
@@ -143,7 +143,7 @@ public class TextureUtil {
     }
 
     public static void initTexture(IntBuffer param0, int param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glPixelStorei(3312, 0);
         GL11.glPixelStorei(3313, 0);
         GL11.glPixelStorei(3314, 0);

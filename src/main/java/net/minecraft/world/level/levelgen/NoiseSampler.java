@@ -1,14 +1,17 @@
 package net.minecraft.world.level.levelgen;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import net.minecraft.world.level.biome.TerrainShaper;
 import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.block.Blocks;
@@ -32,37 +35,6 @@ public class NoiseSampler implements Climate.Sampler {
     private static final float CHANCE_OF_RAW_ORE_BLOCK = 0.02F;
     private static final float SKIP_ORE_IF_GAP_NOISE_IS_BELOW = -0.3F;
     private static final double NOODLE_SPACING_AND_STRAIGHTNESS = 1.5;
-    private static final NormalNoise.NoiseParameters NOISE_BARRIER = new NormalNoise.NoiseParameters(-3, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_FLUID_LEVEL_FLOODEDNESS = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_LAVA = new NormalNoise.NoiseParameters(-1, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_FLUID_LEVEL_SPREAD = new NormalNoise.NoiseParameters(-4, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_PILLAR = new NormalNoise.NoiseParameters(-7, 1.0, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_PILLAR_RARENESS = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_PILLAR_THICKNESS = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_SPAGHETTI_2D = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_SPAGHETTI_2D_ELEVATION = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_SPAGHETTI_2D_RARITY = new NormalNoise.NoiseParameters(-11, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_SPAGHETTI_2D_THICKNESS = new NormalNoise.NoiseParameters(-11, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_SPAGHETTI_3D_1 = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_SPAGHETTI_3D_2 = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_SPAGHETTI_3D_RARITY = new NormalNoise.NoiseParameters(-11, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_SPAGHETTI_3D_THICKNESS = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SPAGHETTI_ROUGHNESS = new NormalNoise.NoiseParameters(-5, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_MODULATOR_SPAGHETTI_ROUGHNESS = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_BIG_ENTRANCE = new NormalNoise.NoiseParameters(-7, 0.4, 0.5, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_LAYER = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_SOURCE_CHEESE = new NormalNoise.NoiseParameters(-8, 0.5, 1.0, 2.0, 1.0, 2.0, 1.0, 0.0, 2.0, 0.0);
-    private static final NormalNoise.NoiseParameters NOISE_JAGGED = new NormalNoise.NoiseParameters(
-        -16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
-    );
-    private static final NormalNoise.NoiseParameters NOISE_VEININESS_BASE = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_VEIN_A_BASE = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_VEIN_B_BASE = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_GAP = new NormalNoise.NoiseParameters(-5, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_NOODLE_TOGGLE_BASE = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_NOODLE_THICKNESS_BASE = new NormalNoise.NoiseParameters(-8, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_NOODLE_RIDGE_A_BASE = new NormalNoise.NoiseParameters(-7, 1.0);
-    private static final NormalNoise.NoiseParameters NOISE_NOODLE_RIDGE_B_BASE = new NormalNoise.NoiseParameters(-7, 1.0);
     private final int cellHeight;
     private final int cellCountY;
     private final NoiseSettings noiseSettings;
@@ -103,26 +75,27 @@ public class NoiseSampler implements Climate.Sampler {
     private final NormalNoise weirdnessNoise;
     private final NormalNoise offsetNoise;
     private final NormalNoise gapNoise;
-    private final NormalNoise veininessBaseNoise;
     private final NoiseChunk.InterpolatableNoise veininess;
-    private final NormalNoise veinABaseNoise;
     private final NoiseChunk.InterpolatableNoise veinA;
-    private final NormalNoise veinBBaseNoise;
     private final NoiseChunk.InterpolatableNoise veinB;
-    private final NormalNoise noodleToggleBaseNoise;
     private final NoiseChunk.InterpolatableNoise noodleToggle;
-    private final NormalNoise noodleThicknessBaseNoise;
     private final NoiseChunk.InterpolatableNoise noodleThickness;
-    private final NormalNoise noodleRidgeABaseNoise;
     private final NoiseChunk.InterpolatableNoise noodleRidgeA;
-    private final NormalNoise noodleRidgeBBaseNoise;
     private final NoiseChunk.InterpolatableNoise noodleRidgeB;
     private final PositionalRandomFactory aquiferPositionalRandomFactory;
     private final PositionalRandomFactory oreVeinsPositionalRandomFactory;
     private final PositionalRandomFactory depthBasedLayerPositionalRandomFactory;
+    private final List<Climate.ParameterPoint> spawnTarget = new OverworldBiomeBuilder().spawnTarget();
 
     public NoiseSampler(
-        int param0, int param1, int param2, NoiseSettings param3, NoiseOctaves param4, boolean param5, long param6, WorldgenRandom.Algorithm param7
+        int param0,
+        int param1,
+        int param2,
+        NoiseSettings param3,
+        boolean param4,
+        long param5,
+        Registry<NormalNoise.NoiseParameters> param6,
+        WorldgenRandom.Algorithm param7
     ) {
         this.cellHeight = param1;
         this.cellCountY = param2;
@@ -131,14 +104,14 @@ public class NoiseSampler implements Climate.Sampler {
         this.dimensionDensityOffset = param3.densityOffset();
         int var0 = param3.minY();
         this.minCellY = Mth.intFloorDiv(var0, param1);
-        this.isNoiseCavesEnabled = param5;
+        this.isNoiseCavesEnabled = param4;
         this.baseNoise = param0x -> param0x.createNoiseInterpolator(
                 (param1x, param2x, param3x) -> this.calculateBaseNoise(
                         param1x, param2x, param3x, param0x.terrainInfo(QuartPos.fromBlock(param1x), QuartPos.fromBlock(param3x))
                     )
             );
         if (param3.islandNoiseOverride()) {
-            RandomSource var1 = param7.newInstance(param6);
+            RandomSource var1 = param7.newInstance(param5);
             var1.consumeCount(17292);
             this.islandNoise = new SimplexNoise(var1);
         } else {
@@ -151,110 +124,55 @@ public class NoiseSampler implements Climate.Sampler {
         double var5 = 2.6666666666666665;
         int var6 = var0 + 4;
         int var7 = var0 + param3.height();
+        PositionalRandomFactory var8 = param7.newInstance(param5).forkPositional();
         if (param7 != WorldgenRandom.Algorithm.LEGACY) {
-            PositionalRandomFactory var8 = param7.newInstance(param6).forkPositional();
             this.blendedNoise = new BlendedNoise(var8.fromHashOf("terrain"), param3.noiseSamplingSettings(), param0, param1);
-            this.barrierNoise = NormalNoise.create(var8.fromHashOf("aquifer_barrier"), NOISE_BARRIER);
-            this.fluidLevelFloodednessNoise = NormalNoise.create(var8.fromHashOf("aquifer_fluid_level_floodedness"), NOISE_FLUID_LEVEL_FLOODEDNESS);
-            this.lavaNoise = NormalNoise.create(var8.fromHashOf("aquifer_lava"), NOISE_LAVA);
-            this.aquiferPositionalRandomFactory = var8.fromHashOf("aquifer").forkPositional();
-            this.fluidLevelSpreadNoise = NormalNoise.create(var8.fromHashOf("aquifer_fluid_level_spread"), NOISE_FLUID_LEVEL_SPREAD);
-            this.pillarNoiseSource = NormalNoise.create(var8.fromHashOf("pillar"), NOISE_SOURCE_PILLAR);
-            this.pillarRarenessModulator = NormalNoise.create(var8.fromHashOf("pillar_rareness"), NOISE_MODULATOR_PILLAR_RARENESS);
-            this.pillarThicknessModulator = NormalNoise.create(var8.fromHashOf("pillar_thickness"), NOISE_MODULATOR_PILLAR_THICKNESS);
-            this.spaghetti2DNoiseSource = NormalNoise.create(var8.fromHashOf("spaghetti_2d"), NOISE_SOURCE_SPAGHETTI_2D);
-            this.spaghetti2DElevationModulator = NormalNoise.create(var8.fromHashOf("spaghetti_2d_elevation"), NOISE_MODULATOR_SPAGHETTI_2D_ELEVATION);
-            this.spaghetti2DRarityModulator = NormalNoise.create(var8.fromHashOf("spaghetti_2d_modulator"), NOISE_MODULATOR_SPAGHETTI_2D_RARITY);
-            this.spaghetti2DThicknessModulator = NormalNoise.create(var8.fromHashOf("spaghetti_2d_thickness"), NOISE_MODULATOR_SPAGHETTI_2D_THICKNESS);
-            this.spaghetti3DNoiseSource1 = NormalNoise.create(var8.fromHashOf("spaghetti_3d_1"), NOISE_SOURCE_SPAGHETTI_3D_1);
-            this.spaghetti3DNoiseSource2 = NormalNoise.create(var8.fromHashOf("spaghetti_3d_2"), NOISE_SOURCE_SPAGHETTI_3D_2);
-            this.spaghetti3DRarityModulator = NormalNoise.create(var8.fromHashOf("spaghetti_3d_rarity"), NOISE_MODULATOR_SPAGHETTI_3D_RARITY);
-            this.spaghetti3DThicknessModulator = NormalNoise.create(var8.fromHashOf("spaghetti_3d_thickness"), NOISE_MODULATOR_SPAGHETTI_3D_THICKNESS);
-            this.spaghettiRoughnessNoise = NormalNoise.create(var8.fromHashOf("spaghetti_roughness"), NOISE_SPAGHETTI_ROUGHNESS);
-            this.spaghettiRoughnessModulator = NormalNoise.create(var8.fromHashOf("spaghetti_roughness_modulator"), NOISE_MODULATOR_SPAGHETTI_ROUGHNESS);
-            this.bigEntranceNoiseSource = NormalNoise.create(var8.fromHashOf("cave_entrance"), NOISE_SOURCE_BIG_ENTRANCE);
-            this.layerNoiseSource = NormalNoise.create(var8.fromHashOf("cave_layer"), NOISE_SOURCE_LAYER);
-            this.cheeseNoiseSource = NormalNoise.create(var8.fromHashOf("cave_cheese"), NOISE_SOURCE_CHEESE);
-            this.temperatureNoise = NormalNoise.create(var8.fromHashOf("temperature"), param4.temperature());
-            this.humidityNoise = NormalNoise.create(var8.fromHashOf("vegetation"), param4.humidity());
-            this.continentalnessNoise = NormalNoise.create(var8.fromHashOf("continentalness"), param4.continentalness());
-            this.erosionNoise = NormalNoise.create(var8.fromHashOf("erosion"), param4.erosion());
-            this.weirdnessNoise = NormalNoise.create(var8.fromHashOf("ridge"), param4.weirdness());
-            this.offsetNoise = NormalNoise.create(var8.fromHashOf("offset"), param4.shift());
-            this.veininessBaseNoise = NormalNoise.create(var8.fromHashOf("ore_veininess"), NOISE_VEININESS_BASE);
-            this.veininess = yLimitedInterpolatableNoise(this.veininessBaseNoise, var2, var3, 0, 1.5);
-            this.veinABaseNoise = NormalNoise.create(var8.fromHashOf("ore_vein_a"), NOISE_VEIN_A_BASE);
-            this.veinA = yLimitedInterpolatableNoise(this.veinABaseNoise, var2, var3, 0, 4.0);
-            this.veinBBaseNoise = NormalNoise.create(var8.fromHashOf("ore_vein_b"), NOISE_VEIN_B_BASE);
-            this.veinB = yLimitedInterpolatableNoise(this.veinBBaseNoise, var2, var3, 0, 4.0);
-            this.gapNoise = NormalNoise.create(var8.fromHashOf("ore_gap"), NOISE_GAP);
-            this.oreVeinsPositionalRandomFactory = var8.fromHashOf("ore").forkPositional();
-            this.noodleToggleBaseNoise = NormalNoise.create(var8.fromHashOf("noodle"), NOISE_NOODLE_TOGGLE_BASE);
-            this.noodleToggle = yLimitedInterpolatableNoise(this.noodleToggleBaseNoise, var6, var7, -1, 1.0);
-            this.noodleThicknessBaseNoise = NormalNoise.create(var8.fromHashOf("noodle_thickness"), NOISE_NOODLE_THICKNESS_BASE);
-            this.noodleThickness = yLimitedInterpolatableNoise(this.noodleThicknessBaseNoise, var6, var7, 0, 1.0);
-            this.noodleRidgeABaseNoise = NormalNoise.create(var8.fromHashOf("noodle_ridge_a"), NOISE_NOODLE_RIDGE_A_BASE);
-            this.noodleRidgeA = yLimitedInterpolatableNoise(this.noodleRidgeABaseNoise, var6, var7, 0, 2.6666666666666665);
-            this.noodleRidgeBBaseNoise = NormalNoise.create(var8.fromHashOf("noodle_ridge_b"), NOISE_NOODLE_RIDGE_B_BASE);
-            this.noodleRidgeB = yLimitedInterpolatableNoise(this.noodleRidgeBBaseNoise, var6, var7, 0, 2.6666666666666665);
-            this.jaggedNoise = NormalNoise.create(var8.fromHashOf("jagged"), NOISE_JAGGED);
-            this.depthBasedLayerPositionalRandomFactory = var8.fromHashOf("depth_based_layer").forkPositional();
+            this.temperatureNoise = Noises.instantiate(param6, var8, Noises.TEMPERATURE);
+            this.humidityNoise = Noises.instantiate(param6, var8, Noises.VEGETATION);
+            this.offsetNoise = Noises.instantiate(param6, var8, Noises.SHIFT);
         } else {
-            RandomSource var9 = param7.newInstance(param6);
-            RandomSource var10 = param7.newInstance(param6);
-            RandomSource var11 = param3.useLegacyRandom() ? var10 : var9.fork();
-            this.blendedNoise = new BlendedNoise(var11, param3.noiseSamplingSettings(), param0, param1);
-            RandomSource var12 = var9.fork();
-            this.barrierNoise = NormalNoise.createLegacy(var12.fork(), NOISE_BARRIER);
-            this.fluidLevelFloodednessNoise = NormalNoise.createLegacy(var12.fork(), NOISE_FLUID_LEVEL_FLOODEDNESS);
-            this.lavaNoise = NormalNoise.createLegacy(var12.fork(), NOISE_LAVA);
-            this.aquiferPositionalRandomFactory = var12.forkPositional();
-            this.fluidLevelSpreadNoise = NormalNoise.createLegacy(var12.fork(), NOISE_FLUID_LEVEL_SPREAD);
-            RandomSource var13 = var9.fork();
-            this.pillarNoiseSource = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_PILLAR);
-            this.pillarRarenessModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_PILLAR_RARENESS);
-            this.pillarThicknessModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_PILLAR_THICKNESS);
-            this.spaghetti2DNoiseSource = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_SPAGHETTI_2D);
-            this.spaghetti2DElevationModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_SPAGHETTI_2D_ELEVATION);
-            this.spaghetti2DRarityModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_SPAGHETTI_2D_RARITY);
-            this.spaghetti2DThicknessModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_SPAGHETTI_2D_THICKNESS);
-            this.spaghetti3DNoiseSource1 = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_SPAGHETTI_3D_1);
-            this.spaghetti3DNoiseSource2 = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_SPAGHETTI_3D_2);
-            this.spaghetti3DRarityModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_SPAGHETTI_3D_RARITY);
-            this.spaghetti3DThicknessModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_SPAGHETTI_3D_THICKNESS);
-            this.spaghettiRoughnessNoise = NormalNoise.createLegacy(var13.fork(), NOISE_SPAGHETTI_ROUGHNESS);
-            this.spaghettiRoughnessModulator = NormalNoise.createLegacy(var13.fork(), NOISE_MODULATOR_SPAGHETTI_ROUGHNESS);
-            this.bigEntranceNoiseSource = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_BIG_ENTRANCE);
-            this.layerNoiseSource = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_LAYER);
-            this.cheeseNoiseSource = NormalNoise.createLegacy(var13.fork(), NOISE_SOURCE_CHEESE);
-            this.temperatureNoise = NormalNoise.createLegacy(param7.newInstance(param6), param4.temperature());
-            this.humidityNoise = NormalNoise.createLegacy(param7.newInstance(param6 + 1L), param4.humidity());
-            this.continentalnessNoise = NormalNoise.createLegacy(param7.newInstance(param6 + 2L), param4.continentalness());
-            this.erosionNoise = NormalNoise.createLegacy(param7.newInstance(param6 + 3L), param4.erosion());
-            this.weirdnessNoise = NormalNoise.createLegacy(param7.newInstance(param6 + 4L), param4.weirdness());
-            this.offsetNoise = NormalNoise.createLegacy(param7.newInstance(param6 + 5L), param4.shift());
-            this.jaggedNoise = NormalNoise.createLegacy(param7.newInstance(param6 + 6L), NOISE_JAGGED);
-            RandomSource var14 = var9.fork();
-            this.veininessBaseNoise = NormalNoise.createLegacy(var14.fork(), NOISE_VEININESS_BASE);
-            this.veininess = yLimitedInterpolatableNoise(this.veininessBaseNoise, var2, var3, 0, 1.5);
-            this.veinABaseNoise = NormalNoise.createLegacy(var14.fork(), NOISE_VEIN_A_BASE);
-            this.veinA = yLimitedInterpolatableNoise(this.veinABaseNoise, var2, var3, 0, 4.0);
-            this.veinBBaseNoise = NormalNoise.createLegacy(var14.fork(), NOISE_VEIN_B_BASE);
-            this.veinB = yLimitedInterpolatableNoise(this.veinBBaseNoise, var2, var3, 0, 4.0);
-            this.gapNoise = NormalNoise.createLegacy(var14.fork(), NOISE_GAP);
-            this.oreVeinsPositionalRandomFactory = var14.forkPositional();
-            RandomSource var15 = var9.fork();
-            this.noodleToggleBaseNoise = NormalNoise.createLegacy(var15.fork(), NOISE_NOODLE_TOGGLE_BASE);
-            this.noodleToggle = yLimitedInterpolatableNoise(this.noodleToggleBaseNoise, var6, var7, -1, 1.0);
-            this.noodleThicknessBaseNoise = NormalNoise.createLegacy(var15.fork(), NOISE_NOODLE_THICKNESS_BASE);
-            this.noodleThickness = yLimitedInterpolatableNoise(this.noodleThicknessBaseNoise, var6, var7, 0, 1.0);
-            this.noodleRidgeABaseNoise = NormalNoise.createLegacy(var15.fork(), NOISE_NOODLE_RIDGE_A_BASE);
-            this.noodleRidgeA = yLimitedInterpolatableNoise(this.noodleRidgeABaseNoise, var6, var7, 0, 2.6666666666666665);
-            this.noodleRidgeBBaseNoise = NormalNoise.createLegacy(var15.fork(), NOISE_NOODLE_RIDGE_B_BASE);
-            this.noodleRidgeB = yLimitedInterpolatableNoise(this.noodleRidgeBBaseNoise, var6, var7, 0, 2.6666666666666665);
-            this.depthBasedLayerPositionalRandomFactory = param7.newInstance(param6).forkPositional();
+            RandomSource var9 = param7.newInstance(param5);
+            this.blendedNoise = new BlendedNoise(param7.newInstance(param5), param3.noiseSamplingSettings(), param0, param1);
+            this.temperatureNoise = NormalNoise.createLegacyNetherBiome(param7.newInstance(param5), new NormalNoise.NoiseParameters(-7, 1.0, 1.0));
+            this.humidityNoise = NormalNoise.createLegacyNetherBiome(param7.newInstance(param5 + 1L), new NormalNoise.NoiseParameters(-7, 1.0, 1.0));
+            this.offsetNoise = NormalNoise.create(var8.fromHashOf(Noises.SHIFT.location()), new NormalNoise.NoiseParameters(0, 0.0));
         }
 
+        this.aquiferPositionalRandomFactory = var8.fromHashOf("aquifer").forkPositional();
+        this.oreVeinsPositionalRandomFactory = var8.fromHashOf("ore").forkPositional();
+        this.depthBasedLayerPositionalRandomFactory = var8.fromHashOf("depth_based_layer").forkPositional();
+        this.barrierNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_BARRIER);
+        this.fluidLevelFloodednessNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS);
+        this.lavaNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_LAVA);
+        this.fluidLevelSpreadNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_FLUID_LEVEL_SPREAD);
+        this.pillarNoiseSource = Noises.instantiate(param6, var8, Noises.PILLAR);
+        this.pillarRarenessModulator = Noises.instantiate(param6, var8, Noises.PILLAR_RARENESS);
+        this.pillarThicknessModulator = Noises.instantiate(param6, var8, Noises.PILLAR_THICKNESS);
+        this.spaghetti2DNoiseSource = Noises.instantiate(param6, var8, Noises.SPAGHETTI_2D);
+        this.spaghetti2DElevationModulator = Noises.instantiate(param6, var8, Noises.SPAGHETTI_2D_ELEVATION);
+        this.spaghetti2DRarityModulator = Noises.instantiate(param6, var8, Noises.SPAGHETTI_2D_MODULATOR);
+        this.spaghetti2DThicknessModulator = Noises.instantiate(param6, var8, Noises.SPAGHETTI_2D_THICKNESS);
+        this.spaghetti3DNoiseSource1 = Noises.instantiate(param6, var8, Noises.SPAGHETTI_3D_1);
+        this.spaghetti3DNoiseSource2 = Noises.instantiate(param6, var8, Noises.SPAGHETTI_3D_2);
+        this.spaghetti3DRarityModulator = Noises.instantiate(param6, var8, Noises.SPAGHETTI_3D_RARITY);
+        this.spaghetti3DThicknessModulator = Noises.instantiate(param6, var8, Noises.SPAGHETTI_3D_THICKNESS);
+        this.spaghettiRoughnessNoise = Noises.instantiate(param6, var8, Noises.SPAGHETTI_ROUGHNESS);
+        this.spaghettiRoughnessModulator = Noises.instantiate(param6, var8, Noises.SPAGHETTI_ROUGHNESS_MODULATOR);
+        this.bigEntranceNoiseSource = Noises.instantiate(param6, var8, Noises.CAVE_ENTRANCE);
+        this.layerNoiseSource = Noises.instantiate(param6, var8, Noises.CAVE_LAYER);
+        this.cheeseNoiseSource = Noises.instantiate(param6, var8, Noises.CAVE_CHEESE);
+        this.continentalnessNoise = Noises.instantiate(param6, var8, Noises.CONTINENTALNESS);
+        this.erosionNoise = Noises.instantiate(param6, var8, Noises.EROSION);
+        this.weirdnessNoise = Noises.instantiate(param6, var8, Noises.RIDGE);
+        this.veininess = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.ORE_VEININESS), var2, var3, 0, 1.5);
+        this.veinA = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.ORE_VEIN_A), var2, var3, 0, 4.0);
+        this.veinB = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.ORE_VEIN_B), var2, var3, 0, 4.0);
+        this.gapNoise = Noises.instantiate(param6, var8, Noises.ORE_GAP);
+        this.noodleToggle = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.NOODLE), var6, var7, -1, 1.0);
+        this.noodleThickness = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.NOODLE_THICKNESS), var6, var7, 0, 1.0);
+        this.noodleRidgeA = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.NOODLE_RIDGE_A), var6, var7, 0, 2.6666666666666665);
+        this.noodleRidgeB = yLimitedInterpolatableNoise(Noises.instantiate(param6, var8, Noises.NOODLE_RIDGE_B), var6, var7, 0, 2.6666666666666665);
+        this.jaggedNoise = Noises.instantiate(param6, var8, Noises.JAGGED);
     }
 
     private static NoiseChunk.InterpolatableNoise yLimitedInterpolatableNoise(NormalNoise param0, int param1, int param2, int param3, double param4) {
@@ -472,6 +390,11 @@ public class NoiseSampler implements Climate.Sampler {
         }
     }
 
+    @Override
+    public BlockPos findSpawnPosition() {
+        return Climate.findSpawnPosition(this.spawnTarget, this);
+    }
+
     public double getOffset(int param0, int param1, int param2) {
         return this.offsetNoise.getValue((double)param0, (double)param1, (double)param2) * 4.0;
     }
@@ -586,89 +509,6 @@ public class NoiseSampler implements Climate.Sampler {
     private double spaghettiRoughness(int param0, int param1, int param2) {
         double var0 = NoiseUtils.sampleNoiseAndMapToRange(this.spaghettiRoughnessModulator, (double)param0, (double)param1, (double)param2, 0.0, 0.1);
         return (0.4 - Math.abs(this.spaghettiRoughnessNoise.getValue((double)param0, (double)param1, (double)param2))) * var0;
-    }
-
-    @VisibleForTesting
-    public void parityConfigString(StringBuilder param0) {
-        param0.append("blended: ");
-        this.blendedNoise.parityConfigString(param0);
-        param0.append("\n").append("jagged: ");
-        this.jaggedNoise.parityConfigString(param0);
-        param0.append("\n").append("barrier: ");
-        this.barrierNoise.parityConfigString(param0);
-        param0.append("\n").append("fluid level floodedness: ");
-        this.fluidLevelFloodednessNoise.parityConfigString(param0);
-        param0.append("\n").append("lava: ");
-        this.lavaNoise.parityConfigString(param0);
-        param0.append("\n").append("aquifer positional: ");
-        this.aquiferPositionalRandomFactory.parityConfigString(param0);
-        param0.append("\n").append("fluid level spread: ");
-        this.fluidLevelSpreadNoise.parityConfigString(param0);
-        param0.append("\n").append("layer: ");
-        this.layerNoiseSource.parityConfigString(param0);
-        param0.append("\n").append("pillar: ");
-        this.pillarNoiseSource.parityConfigString(param0);
-        param0.append("\n").append("pillar rareness: ");
-        this.pillarRarenessModulator.parityConfigString(param0);
-        param0.append("\n").append("pillar thickness: ");
-        this.pillarThicknessModulator.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 2d: ");
-        this.spaghetti2DNoiseSource.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 2d elev: ");
-        this.spaghetti2DElevationModulator.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 2d rare: ");
-        this.spaghetti2DRarityModulator.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 2d thick: ");
-        this.spaghetti2DThicknessModulator.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 3d 1: ");
-        this.spaghetti3DNoiseSource1.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 3d 2: ");
-        this.spaghetti3DNoiseSource2.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 3d rarity: ");
-        this.spaghetti3DRarityModulator.parityConfigString(param0);
-        param0.append("\n").append("spaghetti 3d thickness: ");
-        this.spaghetti3DThicknessModulator.parityConfigString(param0);
-        param0.append("\n").append("spaghetti roughness: ");
-        this.spaghettiRoughnessNoise.parityConfigString(param0);
-        param0.append("\n").append("spaghetti roughness modulator: ");
-        this.spaghettiRoughnessModulator.parityConfigString(param0);
-        param0.append("\n").append("big entrance: ");
-        this.bigEntranceNoiseSource.parityConfigString(param0);
-        param0.append("\n").append("cheese: ");
-        this.cheeseNoiseSource.parityConfigString(param0);
-        param0.append("\n").append("temp: ");
-        this.temperatureNoise.parityConfigString(param0);
-        param0.append("\n").append("humidity: ");
-        this.humidityNoise.parityConfigString(param0);
-        param0.append("\n").append("continentalness: ");
-        this.continentalnessNoise.parityConfigString(param0);
-        param0.append("\n").append("erosion: ");
-        this.erosionNoise.parityConfigString(param0);
-        param0.append("\n").append("weirdness: ");
-        this.weirdnessNoise.parityConfigString(param0);
-        param0.append("\n").append("offset: ");
-        this.offsetNoise.parityConfigString(param0);
-        param0.append("\n").append("gap noise: ");
-        this.gapNoise.parityConfigString(param0);
-        param0.append("\n").append("veininess: ");
-        this.veininessBaseNoise.parityConfigString(param0);
-        param0.append("\n").append("vein a: ");
-        this.veinABaseNoise.parityConfigString(param0);
-        param0.append("\n").append("vein b: ");
-        this.veinBBaseNoise.parityConfigString(param0);
-        param0.append("\n").append("vein positional: ");
-        this.oreVeinsPositionalRandomFactory.parityConfigString(param0);
-        param0.append("\n").append("noodle toggle: ");
-        this.noodleToggleBaseNoise.parityConfigString(param0);
-        param0.append("\n").append("noodle thickness: ");
-        this.noodleThicknessBaseNoise.parityConfigString(param0);
-        param0.append("\n").append("noodle ridge a: ");
-        this.noodleRidgeABaseNoise.parityConfigString(param0);
-        param0.append("\n").append("noodle ridge b: ");
-        this.noodleRidgeBBaseNoise.parityConfigString(param0);
-        param0.append("\n").append("depth based layer: ");
-        this.depthBasedLayerPositionalRandomFactory.parityConfigString(param0);
-        param0.append("\n");
     }
 
     public PositionalRandomFactory getDepthBasedLayerPositionalRandom() {

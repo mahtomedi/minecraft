@@ -13,19 +13,19 @@ public class ProgramManager {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void glUseProgram(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GlStateManager._glUseProgram(param0);
     }
 
     public static void releaseProgram(Shader param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         param0.getFragmentProgram().close();
         param0.getVertexProgram().close();
         GlStateManager.glDeleteProgram(param0.getId());
     }
 
     public static int createProgram() throws IOException {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         int var0 = GlStateManager.glCreateProgram();
         if (var0 <= 0) {
             throw new IOException("Could not create shader program (returned program ID " + var0 + ")");
@@ -35,7 +35,7 @@ public class ProgramManager {
     }
 
     public static void linkShader(Shader param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         param0.attachToProgram();
         GlStateManager.glLinkProgram(param0.getId());
         int var0 = GlStateManager.glGetProgrami(param0.getId(), 35714);

@@ -31,7 +31,7 @@ public class DynamicTexture extends AbstractTexture {
     }
 
     public DynamicTexture(int param0, int param1, boolean param2) {
-        RenderSystem.assertThread(RenderSystem::isOnGameThreadOrInit);
+        RenderSystem.assertOnGameThreadOrInit();
         this.pixels = new NativeImage(param0, param1, param2);
         TextureUtil.prepareImage(this.getId(), this.pixels.getWidth(), this.pixels.getHeight());
     }

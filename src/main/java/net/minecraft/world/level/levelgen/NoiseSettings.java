@@ -18,8 +18,7 @@ public record NoiseSettings(
     double densityFactor,
     double densityOffset,
     @Deprecated boolean islandNoiseOverride,
-    @Deprecated boolean isAmplified,
-    boolean useLegacyRandom
+    @Deprecated boolean isAmplified
 ) {
     public static final Codec<NoiseSettings> CODEC = RecordCodecBuilder.<NoiseSettings>create(
             param0 -> param0.group(
@@ -35,10 +34,7 @@ public record NoiseSettings(
                         Codec.BOOL
                             .optionalFieldOf("island_noise_override", Boolean.valueOf(false), Lifecycle.experimental())
                             .forGetter(NoiseSettings::islandNoiseOverride),
-                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified),
-                        Codec.BOOL
-                            .optionalFieldOf("use_legacy_random", Boolean.valueOf(false), Lifecycle.experimental())
-                            .forGetter(NoiseSettings::useLegacyRandom)
+                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified)
                     )
                     .apply(param0, NoiseSettings::new)
         )
@@ -65,10 +61,9 @@ public record NoiseSettings(
         double param7,
         double param8,
         boolean param9,
-        boolean param10,
-        boolean param11
+        boolean param10
     ) {
-        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
+        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
         guardY(var0).error().ifPresent(param0x -> {
             throw new IllegalStateException(param0x.message());
         });

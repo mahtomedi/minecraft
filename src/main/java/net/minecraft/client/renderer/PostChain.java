@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -347,7 +348,8 @@ public class PostChain implements AutoCloseable {
         return this.name;
     }
 
-    private RenderTarget getRenderTarget(String param0) {
+    @Nullable
+    private RenderTarget getRenderTarget(@Nullable String param0) {
         if (param0 == null) {
             return null;
         } else {

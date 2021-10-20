@@ -86,28 +86,37 @@ public class WorldGenSettings {
     }
 
     public static WorldGenSettings demoSettings(RegistryAccess param0) {
-        Registry<Biome> var0 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-        int var1 = "North Carolina".hashCode();
-        Registry<DimensionType> var2 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-        Registry<NoiseGeneratorSettings> var3 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
+        int var0 = "North Carolina".hashCode();
         return new WorldGenSettings(
-            (long)var1,
+            (long)var0,
             true,
             true,
-            withOverworld(var2, DimensionType.defaultDimensions(var2, var0, var3, (long)var1), makeDefaultOverworld(var0, var3, (long)var1))
+            withOverworld(
+                param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY),
+                DimensionType.defaultDimensions(param0, (long)var0),
+                makeDefaultOverworld(param0, (long)var0)
+            )
         );
     }
 
-    public static WorldGenSettings makeDefault(Registry<DimensionType> param0, Registry<Biome> param1, Registry<NoiseGeneratorSettings> param2) {
+    public static WorldGenSettings makeDefault(RegistryAccess param0) {
         long var0 = new Random().nextLong();
         return new WorldGenSettings(
-            var0, true, false, withOverworld(param0, DimensionType.defaultDimensions(param0, param1, param2, var0), makeDefaultOverworld(param1, param2, var0))
+            var0,
+            true,
+            false,
+            withOverworld(
+                param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY), DimensionType.defaultDimensions(param0, var0), makeDefaultOverworld(param0, var0)
+            )
         );
     }
 
-    public static NoiseBasedChunkGenerator makeDefaultOverworld(Registry<Biome> param0, Registry<NoiseGeneratorSettings> param1, long param2) {
+    public static NoiseBasedChunkGenerator makeDefaultOverworld(RegistryAccess param0, long param1) {
         return new NoiseBasedChunkGenerator(
-            MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(param0), param2, () -> param1.getOrThrow(NoiseGeneratorSettings.OVERWORLD)
+            param0.registryOrThrow(Registry.NOISE_REGISTRY),
+            MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(param0.registryOrThrow(Registry.BIOME_REGISTRY)),
+            param1,
+            () -> param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).getOrThrow(NoiseGeneratorSettings.OVERWORLD)
         );
     }
 
@@ -206,38 +215,37 @@ public class WorldGenSettings {
                 if (var7 != 0L) {
                     var6 = var7;
                 }
-            } catch (NumberFormatException var18) {
+            } catch (NumberFormatException var17) {
                 var6 = (long)var1.hashCode();
             }
         }
 
         Registry<DimensionType> var9 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         Registry<Biome> var10 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-        Registry<NoiseGeneratorSettings> var11 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
-        MappedRegistry<LevelStem> var12 = DimensionType.defaultDimensions(var9, var10, var11, var6);
+        MappedRegistry<LevelStem> var11 = DimensionType.defaultDimensions(param0, var6);
         switch(var5) {
             case "flat":
-                JsonObject var13 = !var0.isEmpty() ? GsonHelper.parse(var0) : new JsonObject();
-                Dynamic<JsonElement> var14 = new Dynamic<>(JsonOps.INSTANCE, var13);
+                JsonObject var12 = !var0.isEmpty() ? GsonHelper.parse(var0) : new JsonObject();
+                Dynamic<JsonElement> var13 = new Dynamic<>(JsonOps.INSTANCE, var12);
                 return new WorldGenSettings(
                     var6,
                     var3,
                     false,
                     withOverworld(
                         var9,
-                        var12,
+                        var11,
                         new FlatLevelSource(
                             FlatLevelGeneratorSettings.CODEC
-                                .parse(var14)
+                                .parse(var13)
                                 .resultOrPartial(LOGGER::error)
                                 .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var10))
                         )
                     )
                 );
             case "debug_all_block_states":
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var12, new DebugLevelSource(var10)));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, new DebugLevelSource(var10)));
             default:
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var12, makeDefaultOverworld(var10, var11, var6)));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeDefaultOverworld(param0, var6)));
         }
     }
 

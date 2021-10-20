@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.StringRepresentable;
@@ -189,8 +190,8 @@ public class BiomeSpecialEffects {
             return this;
         }
 
-        public BiomeSpecialEffects.Builder backgroundMusic(Music param0) {
-            this.backgroundMusic = Optional.of(param0);
+        public BiomeSpecialEffects.Builder backgroundMusic(@Nullable Music param0) {
+            this.backgroundMusic = Optional.ofNullable(param0);
             return this;
         }
 

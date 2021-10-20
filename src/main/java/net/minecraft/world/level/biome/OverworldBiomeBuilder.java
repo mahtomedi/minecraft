@@ -1,6 +1,7 @@
 package net.minecraft.world.level.biome;
 
 import com.mojang.datafixers.util.Pair;
+import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceKey;
@@ -91,6 +92,31 @@ public final class OverworldBiomeBuilder {
         {null, null, null, null, null},
         {null, null, null, null, null}
     };
+
+    public List<Climate.ParameterPoint> spawnTarget() {
+        Climate.Parameter var0 = Climate.Parameter.point(0.0F);
+        float var1 = 0.16F;
+        return List.of(
+            new Climate.ParameterPoint(
+                this.FULL_RANGE,
+                this.FULL_RANGE,
+                Climate.Parameter.span(this.inlandContinentalness, this.FULL_RANGE),
+                this.FULL_RANGE,
+                var0,
+                Climate.Parameter.span(-1.0F, -0.16F),
+                0L
+            ),
+            new Climate.ParameterPoint(
+                this.FULL_RANGE,
+                this.FULL_RANGE,
+                Climate.Parameter.span(this.inlandContinentalness, this.FULL_RANGE),
+                this.FULL_RANGE,
+                var0,
+                Climate.Parameter.span(0.16F, 1.0F),
+                0L
+            )
+        );
+    }
 
     protected void addBiomes(Consumer<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> param0) {
         if (SharedConstants.debugGenerateSquareTerrainWithoutNoise) {
@@ -668,7 +694,7 @@ public final class OverworldBiomeBuilder {
         if (param0 == 0) {
             return Biomes.SNOWY_BEACH;
         } else {
-            return param0 == 4 && param1 < 3 ? Biomes.DESERT : Biomes.BEACH;
+            return param0 == 4 ? Biomes.DESERT : Biomes.BEACH;
         }
     }
 

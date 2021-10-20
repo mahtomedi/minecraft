@@ -74,7 +74,7 @@ public class DripstoneUtils {
 
     }
 
-    protected static void growPointedDripstone(WorldGenLevel param0, BlockPos param1, Direction param2, int param3, boolean param4) {
+    protected static void growPointedDripstone(LevelAccessor param0, BlockPos param1, Direction param2, int param3, boolean param4) {
         BlockPos.MutableBlockPos var0 = param1.mutable();
         buildBaseToTipColumn(param2, param3, param4, param3x -> {
             if (param3x.is(Blocks.POINTED_DRIPSTONE)) {
@@ -86,7 +86,7 @@ public class DripstoneUtils {
         });
     }
 
-    protected static boolean placeDripstoneBlockIfPossible(WorldGenLevel param0, BlockPos param1) {
+    protected static boolean placeDripstoneBlockIfPossible(LevelAccessor param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
         if (var0.is(BlockTags.DRIPSTONE_REPLACEABLE)) {
             param0.setBlock(param1, Blocks.DRIPSTONE_BLOCK.defaultBlockState(), 2);

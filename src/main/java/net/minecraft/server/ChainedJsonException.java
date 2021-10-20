@@ -67,7 +67,7 @@ public class ChainedJsonException extends IOException {
         }
 
         public String getJsonKeys() {
-            return StringUtils.join((Iterable<?>)this.jsonKeys, "->");
+            return StringUtils.join(this.jsonKeys, "->");
         }
 
         @Override

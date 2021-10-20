@@ -143,7 +143,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     private static void setFilter(boolean param0, boolean param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         if (param0) {
             GlStateManager._texParameter(3553, 10241, param1 ? 9987 : 9729);
             GlStateManager._texParameter(3553, 10240, 9729);
@@ -210,7 +210,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public void setPixelLuminance(int param0, int param1, byte param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (!this.format.hasLuminance()) {
             throw new IllegalArgumentException(String.format("setPixelLuminance only works on image with luminance; have %s", this.format));
         } else if (this.isOutsideBounds(param0, param1)) {
@@ -223,7 +223,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public byte getRedOrLuminance(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (!this.format.hasLuminanceOrRed()) {
             throw new IllegalArgumentException(String.format("no red or luminance in %s", this.format));
         } else if (this.isOutsideBounds(param0, param1)) {
@@ -235,7 +235,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public byte getGreenOrLuminance(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (!this.format.hasLuminanceOrGreen()) {
             throw new IllegalArgumentException(String.format("no green or luminance in %s", this.format));
         } else if (this.isOutsideBounds(param0, param1)) {
@@ -247,7 +247,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public byte getBlueOrLuminance(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (!this.format.hasLuminanceOrBlue()) {
             throw new IllegalArgumentException(String.format("no blue or luminance in %s", this.format));
         } else if (this.isOutsideBounds(param0, param1)) {
@@ -357,7 +357,7 @@ public final class NativeImage implements AutoCloseable {
     private void _upload(
         int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, boolean param8, boolean param9, boolean param10
     ) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         this.checkAllocated();
         setFilter(param7, param9);
         if (param5 == this.getWidth()) {
@@ -382,7 +382,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public void downloadTexture(int param0, boolean param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         this.checkAllocated();
         this.format.setPackPixelStoreState();
         GlStateManager._getTexImage(3553, param0, this.format.glFormat(), 5121, this.pixels);
@@ -397,7 +397,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public void downloadDepthBuffer(float param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (this.format.components() != 1) {
             throw new IllegalStateException("Depth buffer must be stored in NativeImage with 1 component.");
         } else {
@@ -408,7 +408,7 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public void drawPixels() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         this.format.setUnpackPixelStoreState();
         GlStateManager._glDrawPixels(this.width, this.height, this.format.glFormat(), 5121, this.pixels);
     }
@@ -677,12 +677,12 @@ public final class NativeImage implements AutoCloseable {
         }
 
         public void setPackPixelStoreState() {
-            RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+            RenderSystem.assertOnRenderThread();
             GlStateManager._pixelStore(3333, this.components());
         }
 
         public void setUnpackPixelStoreState() {
-            RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+            RenderSystem.assertOnRenderThreadOrInit();
             GlStateManager._pixelStore(3317, this.components());
         }
 

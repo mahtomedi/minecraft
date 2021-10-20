@@ -512,6 +512,9 @@ public abstract class Option {
         param0 -> param0.hideLightningFlashes,
         (param0, param1, param2) -> param0.hideLightningFlashes = param2
     );
+    public static final CycleOption<Boolean> AUTOSAVE_INDICATOR = CycleOption.createOnOff(
+        "options.autosaveIndicator", param0 -> param0.showAutosaveIndicator, (param0, param1, param2) -> param0.showAutosaveIndicator = param2
+    );
     private final Component caption;
 
     public Option(String param0) {

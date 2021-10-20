@@ -9,9 +9,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SoundEventRegistration {
     private final List<Sound> sounds;
     private final boolean replace;
+    @Nullable
     private final String subtitle;
 
-    public SoundEventRegistration(List<Sound> param0, boolean param1, String param2) {
+    public SoundEventRegistration(List<Sound> param0, boolean param1, @Nullable String param2) {
         this.sounds = param0;
         this.replace = param1;
         this.subtitle = param2;

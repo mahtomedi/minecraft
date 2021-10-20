@@ -18,14 +18,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class NoiseGeneratorSettings {
     public static final Codec<NoiseGeneratorSettings> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     StructureSettings.CODEC.fieldOf("structures").forGetter(NoiseGeneratorSettings::structureSettings),
                     NoiseSettings.CODEC.fieldOf("noise").forGetter(NoiseGeneratorSettings::noiseSettings),
-                    NoiseOctaves.CODEC.fieldOf("octaves").forGetter(NoiseGeneratorSettings::noiseOctaves),
                     BlockState.CODEC.fieldOf("default_block").forGetter(NoiseGeneratorSettings::getDefaultBlock),
                     BlockState.CODEC.fieldOf("default_fluid").forGetter(NoiseGeneratorSettings::getDefaultFluid),
                     SurfaceRules.RuleSource.CODEC.fieldOf("surface_rule").forGetter(NoiseGeneratorSettings::surfaceRule),
@@ -46,7 +44,6 @@ public final class NoiseGeneratorSettings {
     private final WorldgenRandom.Algorithm randomSource;
     private final StructureSettings structureSettings;
     private final NoiseSettings noiseSettings;
-    private final NoiseOctaves noiseOctaves;
     private final BlockState defaultBlock;
     private final BlockState defaultFluid;
     private final SurfaceRules.RuleSource surfaceRule;
@@ -79,42 +76,40 @@ public final class NoiseGeneratorSettings {
         Registry.NOISE_GENERATOR_SETTINGS_REGISTRY, new ResourceLocation("floating_islands")
     );
     @VisibleForTesting
-    static final NoiseGeneratorSettings BUILTIN_OVERWORLD = register(OVERWORLD, overworld(new StructureSettings(true), false, false, false));
+    static final NoiseGeneratorSettings BUILTIN_OVERWORLD = register(OVERWORLD, overworld(new StructureSettings(true), false, false));
 
     private NoiseGeneratorSettings(
         StructureSettings param0,
         NoiseSettings param1,
-        NoiseOctaves param2,
+        BlockState param2,
         BlockState param3,
-        BlockState param4,
-        SurfaceRules.RuleSource param5,
+        SurfaceRules.RuleSource param4,
+        int param5,
         int param6,
         int param7,
-        int param8,
+        boolean param8,
         boolean param9,
         boolean param10,
         boolean param11,
         boolean param12,
         boolean param13,
-        boolean param14,
-        boolean param15
+        boolean param14
     ) {
         this.structureSettings = param0;
         this.noiseSettings = param1;
-        this.noiseOctaves = param2;
-        this.defaultBlock = param3;
-        this.defaultFluid = param4;
-        this.surfaceRule = param5;
-        this.bedrockRoofPosition = param6;
-        this.bedrockFloorPosition = param7;
-        this.seaLevel = param8;
-        this.disableMobGeneration = param9;
-        this.aquifersEnabled = param10;
-        this.noiseCavesEnabled = param11;
-        this.deepslateEnabled = param12;
-        this.oreVeinsEnabled = param13;
-        this.noodleCavesEnabled = param14;
-        this.randomSource = param15 ? WorldgenRandom.Algorithm.LEGACY : WorldgenRandom.Algorithm.XOROSHIRO;
+        this.defaultBlock = param2;
+        this.defaultFluid = param3;
+        this.surfaceRule = param4;
+        this.bedrockRoofPosition = param5;
+        this.bedrockFloorPosition = param6;
+        this.seaLevel = param7;
+        this.disableMobGeneration = param8;
+        this.aquifersEnabled = param9;
+        this.noiseCavesEnabled = param10;
+        this.deepslateEnabled = param11;
+        this.oreVeinsEnabled = param12;
+        this.noodleCavesEnabled = param13;
+        this.randomSource = param14 ? WorldgenRandom.Algorithm.LEGACY : WorldgenRandom.Algorithm.XOROSHIRO;
     }
 
     public StructureSettings structureSettings() {
@@ -123,10 +118,6 @@ public final class NoiseGeneratorSettings {
 
     public NoiseSettings noiseSettings() {
         return this.noiseSettings;
-    }
-
-    public NoiseOctaves noiseOctaves() {
-        return this.noiseOctaves;
     }
 
     public BlockState getDefaultBlock() {
@@ -216,16 +207,7 @@ public final class NoiseGeneratorSettings {
                 0.0,
                 0.0,
                 param4,
-                false,
-                true
-            ),
-            new NoiseOctaves(
-                new NormalNoise.NoiseParameters(0, 0.0),
-                new NormalNoise.NoiseParameters(0, 0.0),
-                new NormalNoise.NoiseParameters(0, 0.0),
-                new NormalNoise.NoiseParameters(0, 0.0),
-                new NormalNoise.NoiseParameters(0, 0.0),
-                new NormalNoise.NoiseParameters(0, 0.0)
+                false
             ),
             param1,
             param2,
@@ -259,16 +241,7 @@ public final class NoiseGeneratorSettings {
                 0.0,
                 -0.030078125,
                 false,
-                false,
-                true
-            ),
-            new NoiseOctaves(
-                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(-7, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(0, 0.0)
+                false
             ),
             param1,
             param2,
@@ -286,8 +259,7 @@ public final class NoiseGeneratorSettings {
         );
     }
 
-    @VisibleForTesting
-    public static NoiseGeneratorSettings overworld(StructureSettings param0, boolean param1, boolean param2, boolean param3) {
+    private static NoiseGeneratorSettings overworld(StructureSettings param0, boolean param1, boolean param2) {
         int var0 = param2 ? -2 : 0;
         double var1 = 0.9999999814507745;
         return new NoiseGeneratorSettings(
@@ -303,16 +275,7 @@ public final class NoiseGeneratorSettings {
                 1.0,
                 -0.51875,
                 false,
-                param1,
-                false
-            ),
-            new NoiseOctaves(
-                new NormalNoise.NoiseParameters(-10 + var0, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0),
-                new NormalNoise.NoiseParameters(-8 + var0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0),
-                new NormalNoise.NoiseParameters(-9 + var0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(-9 + var0, 1.0, 1.0, 0.0, 1.0, 1.0),
-                new NormalNoise.NoiseParameters(-7 + var0, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0),
-                new NormalNoise.NoiseParameters(-3 + var0, 1.0, 1.0, 1.0, 0.0)
+                param1
             ),
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),
@@ -326,13 +289,13 @@ public final class NoiseGeneratorSettings {
             true,
             true,
             true,
-            param3
+            false
         );
     }
 
     static {
-        register(LARGE_BIOMES, overworld(new StructureSettings(true), false, true, false));
-        register(AMPLIFIED, overworld(new StructureSettings(true), true, false, false));
+        register(LARGE_BIOMES, overworld(new StructureSettings(true), false, true));
+        register(AMPLIFIED, overworld(new StructureSettings(true), true, false));
         register(NETHER, netherLikePreset(new StructureSettings(false), Blocks.NETHERRACK.defaultBlockState(), Blocks.LAVA.defaultBlockState()));
         register(END, endLikePreset(new StructureSettings(false), Blocks.END_STONE.defaultBlockState(), Blocks.AIR.defaultBlockState(), true, true));
         register(CAVES, netherLikePreset(new StructureSettings(true), Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState()));

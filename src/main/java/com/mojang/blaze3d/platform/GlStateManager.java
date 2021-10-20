@@ -43,32 +43,32 @@ public class GlStateManager {
     private static final GlStateManager.ColorMask COLOR_MASK = new GlStateManager.ColorMask();
 
     public static void _disableScissorTest() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         SCISSOR.mode.disable();
     }
 
     public static void _enableScissorTest() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         SCISSOR.mode.enable();
     }
 
     public static void _scissorBox(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL20.glScissor(param0, param1, param2, param3);
     }
 
     public static void _disableDepthTest() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         DEPTH.mode.disable();
     }
 
     public static void _enableDepthTest() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         DEPTH.mode.enable();
     }
 
     public static void _depthFunc(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         if (param0 != DEPTH.func) {
             DEPTH.func = param0;
             GL11.glDepthFunc(param0);
@@ -77,7 +77,7 @@ public class GlStateManager {
     }
 
     public static void _depthMask(boolean param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != DEPTH.mask) {
             DEPTH.mask = param0;
             GL11.glDepthMask(param0);
@@ -86,17 +86,17 @@ public class GlStateManager {
     }
 
     public static void _disableBlend() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         BLEND.mode.disable();
     }
 
     public static void _enableBlend() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         BLEND.mode.enable();
     }
 
     public static void _blendFunc(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != BLEND.srcRgb || param1 != BLEND.dstRgb) {
             BLEND.srcRgb = param0;
             BLEND.dstRgb = param1;
@@ -106,7 +106,7 @@ public class GlStateManager {
     }
 
     public static void _blendFuncSeparate(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != BLEND.srcRgb || param1 != BLEND.dstRgb || param2 != BLEND.srcAlpha || param3 != BLEND.dstAlpha) {
             BLEND.srcRgb = param0;
             BLEND.dstRgb = param1;
@@ -118,32 +118,32 @@ public class GlStateManager {
     }
 
     public static void _blendEquation(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL14.glBlendEquation(param0);
     }
 
     public static int glGetProgrami(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glGetProgrami(param0, param1);
     }
 
     public static void glAttachShader(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glAttachShader(param0, param1);
     }
 
     public static void glDeleteShader(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glDeleteShader(param0);
     }
 
     public static int glCreateShader(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glCreateShader(param0);
     }
 
     public static void glShaderSource(int param0, List<String> param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         StringBuilder var0 = new StringBuilder();
 
         for(String var1 : param1) {
@@ -167,250 +167,250 @@ public class GlStateManager {
     }
 
     public static void glCompileShader(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glCompileShader(param0);
     }
 
     public static int glGetShaderi(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glGetShaderi(param0, param1);
     }
 
     public static void _glUseProgram(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUseProgram(param0);
     }
 
     public static int glCreateProgram() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glCreateProgram();
     }
 
     public static void glDeleteProgram(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glDeleteProgram(param0);
     }
 
     public static void glLinkProgram(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glLinkProgram(param0);
     }
 
     public static int _glGetUniformLocation(int param0, CharSequence param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glGetUniformLocation(param0, param1);
     }
 
     public static void _glUniform1(int param0, IntBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform1iv(param0, param1);
     }
 
     public static void _glUniform1i(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform1i(param0, param1);
     }
 
     public static void _glUniform1(int param0, FloatBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform1fv(param0, param1);
     }
 
     public static void _glUniform2(int param0, IntBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform2iv(param0, param1);
     }
 
     public static void _glUniform2(int param0, FloatBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform2fv(param0, param1);
     }
 
     public static void _glUniform3(int param0, IntBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform3iv(param0, param1);
     }
 
     public static void _glUniform3(int param0, FloatBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform3fv(param0, param1);
     }
 
     public static void _glUniform4(int param0, IntBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform4iv(param0, param1);
     }
 
     public static void _glUniform4(int param0, FloatBuffer param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniform4fv(param0, param1);
     }
 
     public static void _glUniformMatrix2(int param0, boolean param1, FloatBuffer param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniformMatrix2fv(param0, param1, param2);
     }
 
     public static void _glUniformMatrix3(int param0, boolean param1, FloatBuffer param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniformMatrix3fv(param0, param1, param2);
     }
 
     public static void _glUniformMatrix4(int param0, boolean param1, FloatBuffer param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glUniformMatrix4fv(param0, param1, param2);
     }
 
     public static int _glGetAttribLocation(int param0, CharSequence param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glGetAttribLocation(param0, param1);
     }
 
     public static void _glBindAttribLocation(int param0, int param1, CharSequence param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glBindAttribLocation(param0, param1, param2);
     }
 
     public static int _glGenBuffers() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL15.glGenBuffers();
     }
 
     public static int _glGenVertexArrays() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL30.glGenVertexArrays();
     }
 
     public static void _glBindBuffer(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL15.glBindBuffer(param0, param1);
     }
 
     public static void _glBindVertexArray(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glBindVertexArray(param0);
     }
 
     public static void _glBufferData(int param0, ByteBuffer param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL15.glBufferData(param0, param1, param2);
     }
 
     public static void _glBufferData(int param0, long param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL15.glBufferData(param0, param1, param2);
     }
 
     @Nullable
     public static ByteBuffer _glMapBuffer(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL15.glMapBuffer(param0, param1);
     }
 
     public static void _glUnmapBuffer(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL15.glUnmapBuffer(param0);
     }
 
     public static void _glDeleteBuffers(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL15.glDeleteBuffers(param0);
     }
 
     public static void _glCopyTexSubImage2D(int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL20.glCopyTexSubImage2D(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
     public static void _glDeleteVertexArrays(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL30.glDeleteVertexArrays(param0);
     }
 
     public static void _glBindFramebuffer(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glBindFramebuffer(param0, param1);
     }
 
     public static void _glBlitFrameBuffer(
         int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9
     ) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glBlitFramebuffer(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
     public static void _glBindRenderbuffer(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glBindRenderbuffer(param0, param1);
     }
 
     public static void _glDeleteRenderbuffers(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glDeleteRenderbuffers(param0);
     }
 
     public static void _glDeleteFramebuffers(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glDeleteFramebuffers(param0);
     }
 
     public static int glGenFramebuffers() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL30.glGenFramebuffers();
     }
 
     public static int glGenRenderbuffers() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL30.glGenRenderbuffers();
     }
 
     public static void _glRenderbufferStorage(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glRenderbufferStorage(param0, param1, param2, param3);
     }
 
     public static void _glFramebufferRenderbuffer(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glFramebufferRenderbuffer(param0, param1, param2, param3);
     }
 
     public static int glCheckFramebufferStatus(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL30.glCheckFramebufferStatus(param0);
     }
 
     public static void _glFramebufferTexture2D(int param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL30.glFramebufferTexture2D(param0, param1, param2, param3, param4);
     }
 
     public static int getBoundFramebuffer() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return _getInteger(36006);
     }
 
     public static void glActiveTexture(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL13.glActiveTexture(param0);
     }
 
     public static void glBlendFuncSeparate(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL14.glBlendFuncSeparate(param0, param1, param2, param3);
     }
 
     public static String glGetShaderInfoLog(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glGetShaderInfoLog(param0, param1);
     }
 
     public static String glGetProgramInfoLog(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL20.glGetProgramInfoLog(param0, param1);
     }
 
     public static void setupLevelDiffuseLighting(Vector3f param0, Vector3f param1, Matrix4f param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         Vector4f var0 = new Vector4f(param0);
         var0.transform(param2);
         Vector4f var1 = new Vector4f(param1);
@@ -419,7 +419,7 @@ public class GlStateManager {
     }
 
     public static void setupGuiFlatDiffuseLighting(Vector3f param0, Vector3f param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         Matrix4f var0 = new Matrix4f();
         var0.setIdentity();
         var0.multiply(Matrix4f.createScaleMatrix(1.0F, -1.0F, 1.0F));
@@ -429,7 +429,7 @@ public class GlStateManager {
     }
 
     public static void setupGui3DDiffuseLighting(Vector3f param0, Vector3f param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         Matrix4f var0 = new Matrix4f();
         var0.setIdentity();
         var0.multiply(Vector3f.YP.rotationDegrees(62.0F));
@@ -440,32 +440,32 @@ public class GlStateManager {
     }
 
     public static void _enableCull() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         CULL.enable.enable();
     }
 
     public static void _disableCull() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         CULL.enable.disable();
     }
 
     public static void _polygonMode(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glPolygonMode(param0, param1);
     }
 
     public static void _enablePolygonOffset() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         POLY_OFFSET.fill.enable();
     }
 
     public static void _disablePolygonOffset() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         POLY_OFFSET.fill.disable();
     }
 
     public static void _polygonOffset(float param0, float param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != POLY_OFFSET.factor || param1 != POLY_OFFSET.units) {
             POLY_OFFSET.factor = param0;
             POLY_OFFSET.units = param1;
@@ -475,17 +475,17 @@ public class GlStateManager {
     }
 
     public static void _enableColorLogicOp() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         COLOR_LOGIC.enable.enable();
     }
 
     public static void _disableColorLogicOp() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         COLOR_LOGIC.enable.disable();
     }
 
     public static void _logicOp(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != COLOR_LOGIC.op) {
             COLOR_LOGIC.op = param0;
             GL11.glLogicOp(param0);
@@ -494,7 +494,7 @@ public class GlStateManager {
     }
 
     public static void _activeTexture(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (activeTexture != param0 - 33984) {
             activeTexture = param0 - 33984;
             glActiveTexture(param0);
@@ -503,42 +503,42 @@ public class GlStateManager {
     }
 
     public static void _enableTexture() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         TEXTURES[activeTexture].enable = true;
     }
 
     public static void _disableTexture() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         TEXTURES[activeTexture].enable = false;
     }
 
     public static void _texParameter(int param0, int param1, float param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glTexParameterf(param0, param1, param2);
     }
 
     public static void _texParameter(int param0, int param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glTexParameteri(param0, param1, param2);
     }
 
     public static int _getTexLevelParameter(int param0, int param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        RenderSystem.assertInInitPhase();
         return GL11.glGetTexLevelParameteri(param0, param1, param2);
     }
 
     public static int _genTexture() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL11.glGenTextures();
     }
 
     public static void _genTextures(int[] param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glGenTextures(param0);
     }
 
     public static void _deleteTexture(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glDeleteTextures(param0);
 
         for(GlStateManager.TextureState var0 : TEXTURES) {
@@ -550,7 +550,7 @@ public class GlStateManager {
     }
 
     public static void _deleteTextures(int[] param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
 
         for(GlStateManager.TextureState var0 : TEXTURES) {
             for(int var1 : param0) {
@@ -564,7 +564,7 @@ public class GlStateManager {
     }
 
     public static void _bindTexture(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         if (param0 != TEXTURES[activeTexture].binding) {
             TEXTURES[activeTexture].binding = param0;
             GL11.glBindTexture(3553, param0);
@@ -581,22 +581,22 @@ public class GlStateManager {
     }
 
     public static void _texImage2D(int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, @Nullable IntBuffer param8) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glTexImage2D(param0, param1, param2, param3, param4, param5, param6, param7, param8);
     }
 
     public static void _texSubImage2D(int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, long param8) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glTexSubImage2D(param0, param1, param2, param3, param4, param5, param6, param7, param8);
     }
 
     public static void _getTexImage(int param0, int param1, int param2, int param3, long param4) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glGetTexImage(param0, param1, param2, param3, param4);
     }
 
     public static void _viewport(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GlStateManager.Viewport.INSTANCE.x = param0;
         GlStateManager.Viewport.INSTANCE.y = param1;
         GlStateManager.Viewport.INSTANCE.width = param2;
@@ -605,7 +605,7 @@ public class GlStateManager {
     }
 
     public static void _colorMask(boolean param0, boolean param1, boolean param2, boolean param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != COLOR_MASK.red || param1 != COLOR_MASK.green || param2 != COLOR_MASK.blue || param3 != COLOR_MASK.alpha) {
             COLOR_MASK.red = param0;
             COLOR_MASK.green = param1;
@@ -617,7 +617,7 @@ public class GlStateManager {
     }
 
     public static void _stencilFunc(int param0, int param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != STENCIL.func.func || param0 != STENCIL.func.ref || param0 != STENCIL.func.mask) {
             STENCIL.func.func = param0;
             STENCIL.func.ref = param1;
@@ -628,7 +628,7 @@ public class GlStateManager {
     }
 
     public static void _stencilMask(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != STENCIL.mask) {
             STENCIL.mask = param0;
             GL11.glStencilMask(param0);
@@ -637,7 +637,7 @@ public class GlStateManager {
     }
 
     public static void _stencilOp(int param0, int param1, int param2) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         if (param0 != STENCIL.fail || param1 != STENCIL.zfail || param2 != STENCIL.zpass) {
             STENCIL.fail = param0;
             STENCIL.zfail = param1;
@@ -648,22 +648,22 @@ public class GlStateManager {
     }
 
     public static void _clearDepth(double param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glClearDepth(param0);
     }
 
     public static void _clearColor(float param0, float param1, float param2, float param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glClearColor(param0, param1, param2, param3);
     }
 
     public static void _clearStencil(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glClearStencil(param0);
     }
 
     public static void _clear(int param0, boolean param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glClear(param0);
         if (param1) {
             _getError();
@@ -672,62 +672,62 @@ public class GlStateManager {
     }
 
     public static void _glDrawPixels(int param0, int param1, int param2, int param3, long param4) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glDrawPixels(param0, param1, param2, param3, param4);
     }
 
     public static void _vertexAttribPointer(int param0, int param1, int param2, boolean param3, int param4, long param5) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glVertexAttribPointer(param0, param1, param2, param3, param4, param5);
     }
 
     public static void _vertexAttribIPointer(int param0, int param1, int param2, int param3, long param4) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL30.glVertexAttribIPointer(param0, param1, param2, param3, param4);
     }
 
     public static void _enableVertexAttribArray(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glEnableVertexAttribArray(param0);
     }
 
     public static void _disableVertexAttribArray(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL20.glDisableVertexAttribArray(param0);
     }
 
     public static void _drawElements(int param0, int param1, int param2, long param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glDrawElements(param0, param1, param2, param3);
     }
 
     public static void _pixelStore(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GL11.glPixelStorei(param0, param1);
     }
 
     public static void _readPixels(int param0, int param1, int param2, int param3, int param4, int param5, ByteBuffer param6) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glReadPixels(param0, param1, param2, param3, param4, param5, param6);
     }
 
     public static void _readPixels(int param0, int param1, int param2, int param3, int param4, int param5, long param6) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GL11.glReadPixels(param0, param1, param2, param3, param4, param5, param6);
     }
 
     public static int _getError() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL11.glGetError();
     }
 
     public static String _getString(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GL11.glGetString(param0);
     }
 
     public static int _getInteger(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         return GL11.glGetInteger(param0);
     }
 
@@ -758,7 +758,7 @@ public class GlStateManager {
         }
 
         public void setEnabled(boolean param0) {
-            RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+            RenderSystem.assertOnRenderThreadOrInit();
             if (param0 != this.enabled) {
                 this.enabled = param0;
                 if (param0) {

@@ -25,24 +25,14 @@ public class PerlinNoise {
     private final double lowestFreqValueFactor;
     private final double lowestFreqInputFactor;
 
-    public PerlinNoise(RandomSource param0, IntStream param1) {
-        this(param0, param1.boxed().collect(ImmutableList.toImmutableList()));
-    }
-
-    public PerlinNoise(RandomSource param0, List<Integer> param1) {
-        this(param0, new IntRBTreeSet(param1));
+    @Deprecated
+    public static PerlinNoise createLegacyForBlendedNoise(RandomSource param0, IntStream param1) {
+        return new PerlinNoise(param0, makeAmplitudes(new IntRBTreeSet(param1.boxed().collect(ImmutableList.toImmutableList()))), false);
     }
 
     @Deprecated
-    public static PerlinNoise createLegacy(RandomSource param0, int param1, double param2, double... param3) {
-        DoubleArrayList var0 = new DoubleArrayList(param3);
-        var0.add(0, param2);
-        return createLegacy(param0, param1, var0);
-    }
-
-    @Deprecated
-    public static PerlinNoise createLegacy(RandomSource param0, int param1, DoubleList param2) {
-        return new PerlinNoise(param0, Pair.of(param1, param2));
+    public static PerlinNoise createLegacyForLegacyNormalNoise(RandomSource param0, int param1, DoubleList param2) {
+        return new PerlinNoise(param0, Pair.of(param1, param2), false);
     }
 
     public static PerlinNoise create(RandomSource param0, IntStream param1) {
@@ -84,14 +74,6 @@ public class PerlinNoise {
                 return Pair.of(-var0, var3);
             }
         }
-    }
-
-    private PerlinNoise(RandomSource param0, IntSortedSet param1) {
-        this(param0, makeAmplitudes(param1), false);
-    }
-
-    protected PerlinNoise(RandomSource param0, Pair<Integer, DoubleList> param1) {
-        this(param0, param1, false);
     }
 
     protected PerlinNoise(RandomSource param0, Pair<Integer, DoubleList> param1, boolean param2) {

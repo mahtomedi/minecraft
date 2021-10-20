@@ -123,7 +123,7 @@ public class GlDebug {
     }
 
     public static void enableDebugCallback(int param0, boolean param1) {
-        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        RenderSystem.assertInInitPhase();
         if (param0 > 0) {
             GLCapabilities var0 = GL.getCapabilities();
             if (var0.GL_KHR_debug) {

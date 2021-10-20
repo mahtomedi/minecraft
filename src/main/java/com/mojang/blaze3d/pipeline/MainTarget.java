@@ -17,7 +17,7 @@ public class MainTarget extends RenderTarget {
 
     public MainTarget(int param0, int param1) {
         super(true);
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         if (!RenderSystem.isOnRenderThread()) {
             RenderSystem.recordRenderCall(() -> this.createFrameBuffer(param0, param1));
         } else {
@@ -27,7 +27,7 @@ public class MainTarget extends RenderTarget {
     }
 
     private void createFrameBuffer(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         MainTarget.Dimension var0 = this.allocateAttachments(param0, param1);
         this.frameBufferId = GlStateManager.glGenFramebuffers();
         GlStateManager._glBindFramebuffer(36160, this.frameBufferId);
@@ -54,7 +54,7 @@ public class MainTarget extends RenderTarget {
     }
 
     private MainTarget.Dimension allocateAttachments(int param0, int param1) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         this.colorTextureId = TextureUtil.generateTextureId();
         this.depthBufferId = TextureUtil.generateTextureId();
         MainTarget.AttachmentState var0 = MainTarget.AttachmentState.NONE;
@@ -78,7 +78,7 @@ public class MainTarget extends RenderTarget {
     }
 
     private boolean allocateColorAttachment(MainTarget.Dimension param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GlStateManager._getError();
         GlStateManager._bindTexture(this.colorTextureId);
         GlStateManager._texImage2D(3553, 0, 32856, param0.width, param0.height, 0, 6408, 5121, null);
@@ -86,7 +86,7 @@ public class MainTarget extends RenderTarget {
     }
 
     private boolean allocateDepthAttachment(MainTarget.Dimension param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        RenderSystem.assertOnRenderThreadOrInit();
         GlStateManager._getError();
         GlStateManager._bindTexture(this.depthBufferId);
         GlStateManager._texImage2D(3553, 0, 6402, param0.width, param0.height, 0, 6402, 5126, null);
@@ -118,7 +118,7 @@ public class MainTarget extends RenderTarget {
         }
 
         static List<MainTarget.Dimension> listWithFallback(int param0, int param1) {
-            RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+            RenderSystem.assertOnRenderThreadOrInit();
             int var0 = RenderSystem.maxSupportedTextureSize();
             return param0 > 0 && param0 <= var0 && param1 > 0 && param1 <= var0
                 ? ImmutableList.of(new MainTarget.Dimension(param0, param1), MainTarget.DEFAULT_DIMENSIONS)

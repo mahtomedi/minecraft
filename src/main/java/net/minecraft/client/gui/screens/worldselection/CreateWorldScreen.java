@@ -30,7 +30,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -126,16 +125,7 @@ public class CreateWorldScreen extends Screen {
         return new CreateWorldScreen(
             param0,
             DataPackConfig.DEFAULT,
-            new WorldGenSettingsComponent(
-                var0,
-                WorldGenSettings.makeDefault(
-                    var0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY),
-                    var0.registryOrThrow(Registry.BIOME_REGISTRY),
-                    var0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY)
-                ),
-                Optional.of(WorldPreset.NORMAL),
-                OptionalLong.empty()
-            )
+            new WorldGenSettingsComponent(var0, WorldGenSettings.makeDefault(var0), Optional.of(WorldPreset.NORMAL), OptionalLong.empty())
         );
     }
 

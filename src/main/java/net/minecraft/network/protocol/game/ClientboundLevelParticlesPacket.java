@@ -3,7 +3,6 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
@@ -36,10 +35,6 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
 
     public ClientboundLevelParticlesPacket(FriendlyByteBuf param0) {
         ParticleType<?> var0 = Registry.PARTICLE_TYPE.byId(param0.readInt());
-        if (var0 == null) {
-            var0 = ParticleTypes.BARRIER;
-        }
-
         this.overrideLimiter = param0.readBoolean();
         this.x = param0.readDouble();
         this.y = param0.readDouble();

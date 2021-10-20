@@ -56,7 +56,7 @@ public class BufferUploader {
     private static void _end(
         ByteBuffer param0, VertexFormat.Mode param1, VertexFormat param2, int param3, VertexFormat.IndexType param4, int param5, boolean param6
     ) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         param0.clear();
         if (param3 > 0) {
             int var0 = param3 * param2.getVertexSize();
@@ -144,7 +144,7 @@ public class BufferUploader {
     }
 
     public static void _endInternal(BufferBuilder param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         Pair<BufferBuilder.DrawState, ByteBuffer> var0 = param0.popNextBuffer();
         BufferBuilder.DrawState var1 = var0.getFirst();
         ByteBuffer var2 = var0.getSecond();

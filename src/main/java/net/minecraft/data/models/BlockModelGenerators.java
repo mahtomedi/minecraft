@@ -3901,8 +3901,7 @@ public class BlockModelGenerators {
         this.createFullAndCarpetBlocks(Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET);
         this.createAirLikeBlock(Blocks.BARRIER, Items.BARRIER);
         this.createSimpleFlatItemModel(Items.BARRIER);
-        this.createAirLikeBlock(Blocks.LIGHT, Items.LIGHT);
-        this.createLightBlockItems();
+        this.createLightBlock();
         this.createAirLikeBlock(Blocks.STRUCTURE_VOID, Items.STRUCTURE_VOID);
         this.createSimpleFlatItemModel(Items.STRUCTURE_VOID);
         this.createAirLikeBlock(Blocks.MOVING_PISTON, TextureMapping.getBlockTexture(Blocks.PISTON, "_side"));
@@ -4455,19 +4454,25 @@ public class BlockModelGenerators {
         SpawnEggItem.eggs().forEach(param0 -> this.delegateItemModel(param0, ModelLocationUtils.decorateItemModelLocation("template_spawn_egg")));
     }
 
-    private void createLightBlockItems() {
+    private void createLightBlock() {
         this.skipAutoItemBlock(Blocks.LIGHT);
+        PropertyDispatch.C1<Integer> var0 = PropertyDispatch.property(BlockStateProperties.LEVEL);
 
-        for(int var0 = 0; var0 < 16; ++var0) {
-            String var1 = String.format("_%02d", var0);
-            ModelTemplates.FLAT_ITEM
-                .create(
-                    ModelLocationUtils.getModelLocation(Items.LIGHT, var1),
-                    TextureMapping.layer0(TextureMapping.getItemTexture(Items.LIGHT, var1)),
-                    this.modelOutput
-                );
+        for(int var1 = 0; var1 < 16; ++var1) {
+            String var2 = String.format("_%02d", var1);
+            ResourceLocation var3 = TextureMapping.getItemTexture(Items.LIGHT, var2);
+            var0.select(
+                var1,
+                Variant.variant()
+                    .with(
+                        VariantProperties.MODEL,
+                        ModelTemplates.PARTICLE_ONLY.createWithSuffix(Blocks.LIGHT, var2, TextureMapping.particle(var3), this.modelOutput)
+                    )
+            );
+            ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(Items.LIGHT, var2), TextureMapping.layer0(var3), this.modelOutput);
         }
 
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(Blocks.LIGHT).with(var0));
     }
 
     private void createCandleAndCandleCake(Block param0, Block param1) {

@@ -398,7 +398,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     }
 
     public void reloadShaders(ResourceManager param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         List<Program> var0 = Lists.newArrayList();
         var0.addAll(Program.Type.FRAGMENT.getPrograms().values());
         var0.addAll(Program.Type.VERTEX.getPrograms().values());
@@ -620,7 +620,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     }
 
     private void shutdownShaders() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         this.shaders.values().forEach(ShaderInstance::close);
         this.shaders.clear();
     }

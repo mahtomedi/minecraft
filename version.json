@@ -1,15 +1,15 @@
 {
-    "id": "21w41a",
-    "name": "21w41a",
+    "id": "21w42a",
+    "name": "21w42a",
     "release_target": "1.18",
-    "world_version": 2839,
+    "world_version": 2840,
     "series_id": "main",
-    "protocol_version": 1073741869,
+    "protocol_version": 1073741870,
     "pack_version": {
         "resource": 8,
         "data": 8
     },
-    "build_time": "2021-10-13T15:21:27+00:00",
+    "build_time": "2021-10-20T12:39:24+00:00",
     "java_component": "java-runtime-alpha",
     "java_version": 16,
     "stable": false

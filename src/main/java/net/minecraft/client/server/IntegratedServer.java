@@ -38,7 +38,7 @@ public class IntegratedServer extends MinecraftServer {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int MIN_SIM_DISTANCE = 2;
     private final Minecraft minecraft;
-    private boolean paused;
+    private boolean paused = true;
     private int publishedPort = -1;
     @Nullable
     private GameType publishedGameType;
@@ -83,31 +83,31 @@ public class IntegratedServer extends MinecraftServer {
     @Override
     public void tickServer(BooleanSupplier param0) {
         boolean var0 = this.paused;
-        this.paused = Minecraft.getInstance().getConnection() != null && Minecraft.getInstance().isPaused();
+        this.paused = Minecraft.getInstance().isPaused();
         ProfilerFiller var1 = this.getProfiler();
         if (!var0 && this.paused) {
             var1.push("autoSave");
             LOGGER.info("Saving and pausing game...");
-            this.getPlayerList().saveAll();
-            this.saveAllChunks(false, false, false);
+            this.saveEverything(false, false, false);
             var1.pop();
         }
 
-        if (this.paused) {
+        boolean var2 = Minecraft.getInstance().getConnection() != null;
+        if (var2 && this.paused) {
             this.tickPaused();
         } else {
             super.tickServer(param0);
-            int var2 = Math.max(2, this.minecraft.options.renderDistance);
-            if (var2 != this.getPlayerList().getViewDistance()) {
-                LOGGER.info("Changing view distance to {}, from {}", var2, this.getPlayerList().getViewDistance());
-                this.getPlayerList().setViewDistance(var2);
+            int var3 = Math.max(2, this.minecraft.options.renderDistance);
+            if (var3 != this.getPlayerList().getViewDistance()) {
+                LOGGER.info("Changing view distance to {}, from {}", var3, this.getPlayerList().getViewDistance());
+                this.getPlayerList().setViewDistance(var3);
             }
 
-            int var3 = Math.max(2, this.minecraft.options.simulationDistance);
-            if (var3 != this.previousSimulationDistance) {
-                LOGGER.info("Changing simulation distance to {}, from {}", var3, this.previousSimulationDistance);
-                this.getPlayerList().setSimulationDistance(var3);
-                this.previousSimulationDistance = var3;
+            int var4 = Math.max(2, this.minecraft.options.simulationDistance);
+            if (var4 != this.previousSimulationDistance) {
+                LOGGER.info("Changing simulation distance to {}, from {}", var4, this.previousSimulationDistance);
+                this.getPlayerList().setSimulationDistance(var4);
+                this.previousSimulationDistance = var4;
             }
 
         }

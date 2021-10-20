@@ -32,14 +32,14 @@ public class GLX {
     private static String cpuInfo;
 
     public static String getOpenGLVersionString() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         return GLFW.glfwGetCurrentContext() == 0L
             ? "NO CONTEXT"
             : GlStateManager._getString(7937) + " GL version " + GlStateManager._getString(7938) + ", " + GlStateManager._getString(7936);
     }
 
     public static int _getRefreshRate(Window param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         long var0 = GLFW.glfwGetWindowMonitor(param0.getWindow());
         if (var0 == 0L) {
             var0 = GLFW.glfwGetPrimaryMonitor();
@@ -50,12 +50,12 @@ public class GLX {
     }
 
     public static String _getLWJGLVersion() {
-        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        RenderSystem.assertInInitPhase();
         return Version.getVersion();
     }
 
     public static LongSupplier _initGlfw() {
-        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        RenderSystem.assertInInitPhase();
         Window.checkGlfwError((param0, param1) -> {
             throw new IllegalStateException(String.format("GLFW error before init: [0x%X]%s", param0, param1));
         });
@@ -76,7 +76,7 @@ public class GLX {
     }
 
     public static void _setGlfwErrorCallback(GLFWErrorCallbackI param0) {
-        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        RenderSystem.assertInInitPhase();
         GLFWErrorCallback var0 = GLFW.glfwSetErrorCallback(param0);
         if (var0 != null) {
             var0.free();
@@ -89,7 +89,7 @@ public class GLX {
     }
 
     public static void _init(int param0, boolean param1) {
-        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        RenderSystem.assertInInitPhase();
 
         try {
             CentralProcessor var0 = new SystemInfo().getHardware().getProcessor();
@@ -105,7 +105,7 @@ public class GLX {
     }
 
     public static void _renderCrosshair(int param0, boolean param1, boolean param2, boolean param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        RenderSystem.assertOnRenderThread();
         GlStateManager._disableTexture();
         GlStateManager._depthMask(false);
         GlStateManager._disableCull();

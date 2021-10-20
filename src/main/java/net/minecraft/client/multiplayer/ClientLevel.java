@@ -9,6 +9,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -30,6 +31,7 @@ import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -46,6 +48,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -61,7 +65,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -106,6 +109,7 @@ public class ClientLevel extends Level {
     private final ClientChunkCache chunkSource;
     private final Deque<Runnable> lightUpdateQueue = Queues.newArrayDeque();
     private int serverSimulationDistance;
+    private static final Set<Item> MARKER_PARTICLE_ITEMS = Set.of(Items.BARRIER, Items.LIGHT);
 
     public ClientLevel(
         ClientPacketListener param0,
@@ -302,7 +306,7 @@ public class ClientLevel extends Level {
     public void animateTick(int param0, int param1, int param2) {
         int var0 = 32;
         Random var1 = new Random();
-        ClientLevel.MarkerParticleStatus var2 = this.getMarkerParticleStatus();
+        Block var2 = this.getMarkerParticleTarget();
         BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
 
         for(int var4 = 0; var4 < 667; ++var4) {
@@ -313,24 +317,19 @@ public class ClientLevel extends Level {
     }
 
     @Nullable
-    private ClientLevel.MarkerParticleStatus getMarkerParticleStatus() {
+    private Block getMarkerParticleTarget() {
         if (this.minecraft.gameMode.getPlayerMode() == GameType.CREATIVE) {
             ItemStack var0 = this.minecraft.player.getMainHandItem();
-            if (var0.getItem() == Items.BARRIER) {
-                return ClientLevel.MarkerParticleStatus.BARRIER;
-            }
-
-            if (var0.getItem() == Items.LIGHT) {
-                return ClientLevel.MarkerParticleStatus.LIGHT;
+            Item var1 = var0.getItem();
+            if (MARKER_PARTICLE_ITEMS.contains(var1) && var1 instanceof BlockItem var2) {
+                return var2.getBlock();
             }
         }
 
         return null;
     }
 
-    public void doAnimateTick(
-        int param0, int param1, int param2, int param3, Random param4, @Nullable ClientLevel.MarkerParticleStatus param5, BlockPos.MutableBlockPos param6
-    ) {
+    public void doAnimateTick(int param0, int param1, int param2, int param3, Random param4, @Nullable Block param5, BlockPos.MutableBlockPos param6) {
         int var0 = param0 + this.random.nextInt(param3) - this.random.nextInt(param3);
         int var1 = param1 + this.random.nextInt(param3) - this.random.nextInt(param3);
         int var2 = param2 + this.random.nextInt(param3) - this.random.nextInt(param3);
@@ -348,8 +347,10 @@ public class ClientLevel extends Level {
             }
         }
 
-        if (param5 != null && var3.getBlock() == param5.block) {
-            this.addParticle(param5.particle, (double)var0 + 0.5, (double)var1 + 0.5, (double)var2 + 0.5, 0.0, 0.0, 0.0);
+        if (param5 == var3.getBlock()) {
+            this.addParticle(
+                new BlockParticleOption(ParticleTypes.BLOCK_MARKER, var3), (double)var0 + 0.5, (double)var1 + 0.5, (double)var2 + 0.5, 0.0, 0.0, 0.0
+            );
         }
 
         if (!var3.isCollisionShapeFullBlock(this, param6)) {
@@ -993,20 +994,6 @@ public class ClientLevel extends Level {
         public void onTrackingEnd(Entity param0) {
             param0.unRide();
             ClientLevel.this.players.remove(param0);
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static enum MarkerParticleStatus {
-        BARRIER(Blocks.BARRIER, ParticleTypes.BARRIER),
-        LIGHT(Blocks.LIGHT, ParticleTypes.LIGHT);
-
-        final Block block;
-        final ParticleOptions particle;
-
-        private MarkerParticleStatus(Block param0, ParticleOptions param1) {
-            this.block = param0;
-            this.particle = param1;
         }
     }
 }
