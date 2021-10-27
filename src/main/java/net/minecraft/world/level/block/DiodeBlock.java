@@ -10,7 +10,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.TickPriority;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.ticks.TickPriority;
 
 public abstract class DiodeBlock extends HorizontalDirectionalBlock {
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0);
@@ -47,7 +47,7 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
             } else if (!var0) {
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(true)), 2);
                 if (!var1) {
-                    param1.getBlockTicks().scheduleTick(param2, this, this.getDelay(param0), TickPriority.VERY_HIGH);
+                    param1.scheduleTick(param2, this, this.getDelay(param0), TickPriority.VERY_HIGH);
                 }
             }
 
@@ -96,7 +96,7 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
                     var2 = TickPriority.VERY_HIGH;
                 }
 
-                param0.getBlockTicks().scheduleTick(param1, this, this.getDelay(param2), var2);
+                param0.scheduleTick(param1, this, this.getDelay(param2), var2);
             }
 
         }
@@ -155,7 +155,7 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
     @Override
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, LivingEntity param3, ItemStack param4) {
         if (this.shouldTurnOn(param0, param1, param2)) {
-            param0.getBlockTicks().scheduleTick(param1, this, 1);
+            param0.scheduleTick(param1, this, 1);
         }
 
     }

@@ -93,7 +93,7 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
             param0 = param0.cycle(OPEN);
             param1.setBlock(param2, param0, 2);
             if (param0.getValue(WATERLOGGED)) {
-                param1.getLiquidTicks().scheduleTick(param2, Fluids.WATER, Fluids.WATER.getTickDelay(param1));
+                param1.scheduleTick(param2, Fluids.WATER, Fluids.WATER.getTickDelay(param1));
             }
 
             this.playSound(param3, param1, param2, param0.getValue(OPEN));
@@ -125,7 +125,7 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
 
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)), 2);
                 if (param0.getValue(WATERLOGGED)) {
-                    param1.getLiquidTicks().scheduleTick(param2, Fluids.WATER, Fluids.WATER.getTickDelay(param1));
+                    param1.scheduleTick(param2, Fluids.WATER, Fluids.WATER.getTickDelay(param1));
                 }
             }
 
@@ -164,7 +164,7 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getValue(WATERLOGGED)) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);

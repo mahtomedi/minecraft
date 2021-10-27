@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.worldselection;
 
-import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -19,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,28 +45,22 @@ public class OptimizeWorldScreen extends Screen {
         RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
 
         try {
-            OptimizeWorldScreen var9;
+            OptimizeWorldScreen var8;
             try (Minecraft.ServerStem var1 = param0.makeServerStem(var0, Minecraft::loadDataPacks, Minecraft::loadWorldData, false, param3)) {
                 WorldData var2 = var1.worldData();
                 param3.saveDataTag(var0, var2);
-                ImmutableSet<ResourceKey<Level>> var3 = var2.worldGenSettings().levels();
-                var9 = new OptimizeWorldScreen(param1, param2, param3, var2.getLevelSettings(), param4, var3);
+                var8 = new OptimizeWorldScreen(param1, param2, param3, var2.getLevelSettings(), param4, var2.worldGenSettings());
             }
 
-            return var9;
-        } catch (Exception var12) {
-            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var12);
+            return var8;
+        } catch (Exception var11) {
+            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var11);
             return null;
         }
     }
 
     private OptimizeWorldScreen(
-        BooleanConsumer param0,
-        DataFixer param1,
-        LevelStorageSource.LevelStorageAccess param2,
-        LevelSettings param3,
-        boolean param4,
-        ImmutableSet<ResourceKey<Level>> param5
+        BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, LevelSettings param3, boolean param4, WorldGenSettings param5
     ) {
         super(new TranslatableComponent("optimizeWorld.title", param3.levelName()));
         this.callback = param0;

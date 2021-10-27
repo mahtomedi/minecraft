@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.FastColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -63,6 +64,10 @@ public interface VertexConsumer {
 
     default VertexConsumer color(float param0, float param1, float param2, float param3) {
         return this.color((int)(param0 * 255.0F), (int)(param1 * 255.0F), (int)(param2 * 255.0F), (int)(param3 * 255.0F));
+    }
+
+    default VertexConsumer color(int param0) {
+        return this.color(FastColor.ARGB32.red(param0), FastColor.ARGB32.green(param0), FastColor.ARGB32.blue(param0), FastColor.ARGB32.alpha(param0));
     }
 
     default VertexConsumer uv2(int param0) {

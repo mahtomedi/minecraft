@@ -41,12 +41,12 @@ public class FrostedIceBlock extends IceBlock {
                 var0.setWithOffset(param2, var1);
                 BlockState var2 = param1.getBlockState(var0);
                 if (var2.is(this) && !this.slightlyMelt(var2, param1, var0)) {
-                    param1.getBlockTicks().scheduleTick(var0, this, Mth.nextInt(param3, 20, 40));
+                    param1.scheduleTick(var0, this, Mth.nextInt(param3, 20, 40));
                 }
             }
 
         } else {
-            param1.getBlockTicks().scheduleTick(param2, this, Mth.nextInt(param3, 20, 40));
+            param1.scheduleTick(param2, this, Mth.nextInt(param3, 20, 40));
         }
     }
 

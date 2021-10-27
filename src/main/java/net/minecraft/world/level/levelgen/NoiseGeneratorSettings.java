@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.SurfaceRuleData;
+import net.minecraft.data.worldgen.TerrainProvider;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -207,7 +208,8 @@ public final class NoiseGeneratorSettings {
                 0.0,
                 0.0,
                 param4,
-                false
+                false,
+                TerrainProvider.end()
             ),
             param1,
             param2,
@@ -241,7 +243,8 @@ public final class NoiseGeneratorSettings {
                 0.0,
                 -0.030078125,
                 false,
-                false
+                false,
+                TerrainProvider.nether()
             ),
             param1,
             param2,
@@ -273,9 +276,10 @@ public final class NoiseGeneratorSettings {
                 1,
                 2,
                 1.0,
-                -0.51875,
+                0.0,
                 false,
-                param1
+                param1,
+                TerrainProvider.overworld()
             ),
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),

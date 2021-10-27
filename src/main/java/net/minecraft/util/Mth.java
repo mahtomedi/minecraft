@@ -801,6 +801,10 @@ public class Mth {
         return param1 + (float)param0.nextGaussian() * param2;
     }
 
+    public static double length(int param0, double param1) {
+        return Math.sqrt((double)(param0 * param0) + param1 * param1);
+    }
+
     public static double length(int param0, double param1, int param2) {
         return Math.sqrt((double)(param0 * param0) + param1 * param1 + (double)(param2 * param2));
     }

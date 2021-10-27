@@ -52,7 +52,7 @@ public class ChorusPlantBlock extends PipeBlock {
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (!param0.canSurvive(param3, param4)) {
-            param3.getBlockTicks().scheduleTick(param4, this, 1);
+            param3.scheduleTick(param4, this, 1);
             return super.updateShape(param0, param1, param2, param3, param4, param5);
         } else {
             boolean var0 = param2.is(this) || param2.is(Blocks.CHORUS_FLOWER) || param1 == Direction.DOWN && param2.is(Blocks.END_STONE);

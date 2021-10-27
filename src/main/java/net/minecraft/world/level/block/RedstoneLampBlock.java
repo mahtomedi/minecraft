@@ -31,7 +31,7 @@ public class RedstoneLampBlock extends Block {
             boolean var0 = param0.getValue(LIT);
             if (var0 != param1.hasNeighborSignal(param2)) {
                 if (var0) {
-                    param1.getBlockTicks().scheduleTick(param2, this, 4);
+                    param1.scheduleTick(param2, this, 4);
                 } else {
                     param1.setBlock(param2, param0.cycle(LIT), 2);
                 }

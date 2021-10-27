@@ -452,8 +452,8 @@ public abstract class AbstractContainerMenu {
                         if (var24.getCount() > var26) {
                             var23.set(var24.split(var26));
                         } else {
-                            var23.set(var24);
                             var0.setItem(param1, ItemStack.EMPTY);
+                            var23.set(var24);
                         }
                     }
                 } else if (var23.mayPickup(param3) && var23.mayPlace(var24)) {
@@ -465,8 +465,8 @@ public abstract class AbstractContainerMenu {
                             param3.drop(var25, true);
                         }
                     } else {
-                        var23.set(var24);
                         var0.setItem(param1, var25);
+                        var23.set(var24);
                         var23.onTake(param3, var25);
                     }
                 }

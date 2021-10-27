@@ -415,14 +415,6 @@ public class OverworldBiomes {
         return baseOcean(var0, 4445678, 270131, var1);
     }
 
-    public static Biome deepWarmOcean() {
-        MobSpawnSettings.Builder var0 = new MobSpawnSettings.Builder();
-        BiomeDefaultFeatures.warmOceanSpawns(var0, 5, 1);
-        BiomeGenerationSettings.Builder var1 = baseOceanGeneration().addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SEAGRASS_DEEP_WARM);
-        BiomeDefaultFeatures.addDefaultSeagrass(var1);
-        return baseOcean(var0, 4445678, 270131, var1);
-    }
-
     public static Biome frozenOcean(boolean param0) {
         MobSpawnSettings.Builder var0 = new MobSpawnSettings.Builder()
             .addSpawn(MobCategory.WATER_CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SQUID, 1, 1, 4))
@@ -718,6 +710,7 @@ public class OverworldBiomes {
         var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3));
         BiomeDefaultFeatures.commonSpawns(var1);
         globalOverworldGeneration(var0);
+        BiomeDefaultFeatures.addFrozenSprings(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
         BiomeDefaultFeatures.addExtraEmeralds(var0);
@@ -732,6 +725,7 @@ public class OverworldBiomes {
         var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3));
         BiomeDefaultFeatures.commonSpawns(var1);
         globalOverworldGeneration(var0);
+        BiomeDefaultFeatures.addFrozenSprings(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
         BiomeDefaultFeatures.addExtraEmeralds(var0);
@@ -760,6 +754,7 @@ public class OverworldBiomes {
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.GOAT, 5, 1, 3));
         BiomeDefaultFeatures.commonSpawns(var1);
         globalOverworldGeneration(var0);
+        BiomeDefaultFeatures.addFrozenSprings(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var0);
@@ -778,6 +773,7 @@ public class OverworldBiomes {
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FOX, 8, 2, 4));
         BiomeDefaultFeatures.commonSpawns(var1);
         globalOverworldGeneration(var0);
+        BiomeDefaultFeatures.addFrozenSprings(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
         BiomeDefaultFeatures.addGroveTrees(var0);

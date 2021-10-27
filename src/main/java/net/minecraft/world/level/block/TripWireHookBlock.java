@@ -133,7 +133,7 @@ public class TripWireHookBlock extends Block {
                 var4 |= var10 && var11;
                 var6[var7] = var9;
                 if (var7 == param5) {
-                    param0.getBlockTicks().scheduleTick(param1, this, 10);
+                    param0.scheduleTick(param1, this, 10);
                     var3 &= var10;
                 }
             }

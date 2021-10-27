@@ -48,7 +48,7 @@ public class SeagrassBlock extends BushBlock implements BonemealableBlock, Liqui
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         BlockState var0 = super.updateShape(param0, param1, param2, param3, param4, param5);
         if (!var0.isAir()) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         return var0;

@@ -47,98 +47,110 @@ public class ResetChunksCommand {
         var1.chunkMap.debugReloadGenerator();
         Vec3 var2 = param0.getPosition();
         ChunkPos var3 = new ChunkPos(new BlockPos(var2));
+        int var4 = var3.z - param1;
+        int var5 = var3.z + param1;
+        int var6 = var3.x - param1;
+        int var7 = var3.x + param1;
 
-        for(int var4 = var3.z - param1; var4 <= var3.z + param1; ++var4) {
-            for(int var5 = var3.x - param1; var5 <= var3.x + param1; ++var5) {
-                ChunkPos var6 = new ChunkPos(var5, var4);
-
-                for(BlockPos var7 : BlockPos.betweenClosed(
-                    var6.getMinBlockX(), var0.getMinBuildHeight(), var6.getMinBlockZ(), var6.getMaxBlockX(), var0.getMaxBuildHeight() - 1, var6.getMaxBlockZ()
-                )) {
-                    var0.setBlock(var7, Blocks.AIR.defaultBlockState(), 16);
+        for(int var8 = var4; var8 <= var5; ++var8) {
+            for(int var9 = var6; var9 <= var7; ++var9) {
+                ChunkPos var10 = new ChunkPos(var9, var8);
+                LevelChunk var11 = var1.getChunk(var9, var8, false);
+                if (var11 != null) {
+                    for(BlockPos var12 : BlockPos.betweenClosed(
+                        var10.getMinBlockX(),
+                        var0.getMinBuildHeight(),
+                        var10.getMinBlockZ(),
+                        var10.getMaxBlockX(),
+                        var0.getMaxBuildHeight() - 1,
+                        var10.getMaxBlockZ()
+                    )) {
+                        var0.setBlock(var12, Blocks.AIR.defaultBlockState(), 16);
+                    }
                 }
             }
         }
 
-        ProcessorMailbox<Runnable> var8 = ProcessorMailbox.create(Util.backgroundExecutor(), "worldgen-resetchunks");
-        long var9 = System.currentTimeMillis();
-        int var10 = (param1 * 2 + 1) * (param1 * 2 + 1);
+        ProcessorMailbox<Runnable> var13 = ProcessorMailbox.create(Util.backgroundExecutor(), "worldgen-resetchunks");
+        long var14 = System.currentTimeMillis();
+        int var15 = (param1 * 2 + 1) * (param1 * 2 + 1);
 
-        for(ChunkStatus var11 : ImmutableList.of(
+        for(ChunkStatus var16 : ImmutableList.of(
             ChunkStatus.BIOMES, ChunkStatus.NOISE, ChunkStatus.SURFACE, ChunkStatus.CARVERS, ChunkStatus.LIQUID_CARVERS, ChunkStatus.FEATURES
         )) {
-            long var12 = System.currentTimeMillis();
-            CompletableFuture<Unit> var13 = CompletableFuture.supplyAsync(() -> Unit.INSTANCE, var8::tell);
+            long var17 = System.currentTimeMillis();
+            CompletableFuture<Unit> var18 = CompletableFuture.supplyAsync(() -> Unit.INSTANCE, var13::tell);
 
-            for(int var14 = var3.z - param1; var14 <= var3.z + param1; ++var14) {
-                for(int var15 = var3.x - param1; var15 <= var3.x + param1; ++var15) {
-                    ChunkPos var16 = new ChunkPos(var15, var14);
-                    List<ChunkAccess> var17 = Lists.newArrayList();
-                    int var18 = Math.max(1, var11.getRange());
+            for(int var19 = var3.z - param1; var19 <= var3.z + param1; ++var19) {
+                for(int var20 = var3.x - param1; var20 <= var3.x + param1; ++var20) {
+                    ChunkPos var21 = new ChunkPos(var20, var19);
+                    LevelChunk var22 = var1.getChunk(var20, var19, false);
+                    if (var22 != null) {
+                        List<ChunkAccess> var23 = Lists.newArrayList();
+                        int var24 = Math.max(1, var16.getRange());
 
-                    for(int var19 = var16.z - var18; var19 <= var16.z + var18; ++var19) {
-                        for(int var20 = var16.x - var18; var20 <= var16.x + var18; ++var20) {
-                            ChunkAccess var21 = var1.getChunk(var20, var19, var11.getParent(), true);
-                            ChunkAccess var22;
-                            if (var21 instanceof ImposterProtoChunk) {
-                                var22 = new ImposterProtoChunk(((ImposterProtoChunk)var21).getWrapped(), true);
-                            } else if (var21 instanceof LevelChunk) {
-                                var22 = new ImposterProtoChunk((LevelChunk)var21, true);
-                            } else {
-                                var22 = var21;
+                        for(int var25 = var21.z - var24; var25 <= var21.z + var24; ++var25) {
+                            for(int var26 = var21.x - var24; var26 <= var21.x + var24; ++var26) {
+                                ChunkAccess var27 = var1.getChunk(var26, var25, var16.getParent(), true);
+                                ChunkAccess var28;
+                                if (var27 instanceof ImposterProtoChunk) {
+                                    var28 = new ImposterProtoChunk(((ImposterProtoChunk)var27).getWrapped(), true);
+                                } else if (var27 instanceof LevelChunk) {
+                                    var28 = new ImposterProtoChunk((LevelChunk)var27, true);
+                                } else {
+                                    var28 = var27;
+                                }
+
+                                var23.add(var28);
                             }
-
-                            var17.add(var22);
                         }
-                    }
 
-                    var13 = var13.thenComposeAsync(
-                        param5 -> var11.generate(
-                                    var8::tell, var0, var0.getChunkSource().getGenerator(), var0.getStructureManager(), var1.getLightEngine(), param0x -> {
-                                        throw new UnsupportedOperationException("Not creating full chunks here");
-                                    }, var17, true
-                                )
-                                .thenApply(param1x -> {
-                                    if (var11 == ChunkStatus.NOISE) {
+                        var18 = var18.thenComposeAsync(
+                            param5 -> var16.generate(var13::tell, var0, var1.getGenerator(), var0.getStructureManager(), var1.getLightEngine(), param0x -> {
+                                    throw new UnsupportedOperationException("Not creating full chunks here");
+                                }, var23, true).thenApply(param1x -> {
+                                    if (var16 == ChunkStatus.NOISE) {
                                         param1x.left().ifPresent(param0x -> Heightmap.primeHeightmaps(param0x, ChunkStatus.POST_FEATURES));
                                     }
-        
+    
                                     return Unit.INSTANCE;
-                                }),
-                        var8::tell
-                    );
+                                }), var13::tell
+                        );
+                    }
                 }
             }
 
-            param0.getServer().managedBlock(var13::isDone);
-            LOGGER.debug(var11.getName() + " took " + (System.currentTimeMillis() - var12) + " ms");
+            param0.getServer().managedBlock(var18::isDone);
+            LOGGER.debug(var16.getName() + " took " + (System.currentTimeMillis() - var17) + " ms");
         }
 
-        long var25 = System.currentTimeMillis();
+        long var31 = System.currentTimeMillis();
 
-        for(int var26 = var3.z - param1; var26 <= var3.z + param1; ++var26) {
-            for(int var27 = var3.x - param1; var27 <= var3.x + param1; ++var27) {
-                ChunkPos var28 = new ChunkPos(var27, var26);
-
-                for(BlockPos var29 : BlockPos.betweenClosed(
-                    var28.getMinBlockX(),
-                    var0.getMinBuildHeight(),
-                    var28.getMinBlockZ(),
-                    var28.getMaxBlockX(),
-                    var0.getMaxBuildHeight() - 1,
-                    var28.getMaxBlockZ()
-                )) {
-                    var1.blockChanged(var29);
+        for(int var32 = var3.z - param1; var32 <= var3.z + param1; ++var32) {
+            for(int var33 = var3.x - param1; var33 <= var3.x + param1; ++var33) {
+                ChunkPos var34 = new ChunkPos(var33, var32);
+                LevelChunk var35 = var1.getChunk(var33, var32, false);
+                if (var35 != null) {
+                    for(BlockPos var36 : BlockPos.betweenClosed(
+                        var34.getMinBlockX(),
+                        var0.getMinBuildHeight(),
+                        var34.getMinBlockZ(),
+                        var34.getMaxBlockX(),
+                        var0.getMaxBuildHeight() - 1,
+                        var34.getMaxBlockZ()
+                    )) {
+                        var1.blockChanged(var36);
+                    }
                 }
             }
         }
 
-        LOGGER.debug("blockChanged took " + (System.currentTimeMillis() - var25) + " ms");
-        long var30 = System.currentTimeMillis() - var9;
+        LOGGER.debug("blockChanged took " + (System.currentTimeMillis() - var31) + " ms");
+        long var37 = System.currentTimeMillis() - var14;
         param0.sendSuccess(
             new TextComponent(
                 String.format(
-                    "%d chunks have been reset. This took %d ms for %d chunks, or %02f ms per chunk", var10, var30, var10, (float)var30 / (float)var10
+                    "%d chunks have been reset. This took %d ms for %d chunks, or %02f ms per chunk", var15, var37, var15, (float)var37 / (float)var15
                 )
             ),
             true

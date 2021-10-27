@@ -70,7 +70,7 @@ public class SpringFeature extends Feature<SpringConfiguration> {
 
                 if (var5 == var0.rockCount && var6 == var0.holeCount) {
                     var1.setBlock(var2, var0.state.createLegacyBlock(), 2);
-                    var1.getLiquidTicks().scheduleTick(var2, var0.state.getType(), 0);
+                    var1.scheduleTick(var2, var0.state.getType(), 0);
                     ++var4;
                 }
 

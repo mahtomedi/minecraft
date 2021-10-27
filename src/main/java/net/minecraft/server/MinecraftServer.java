@@ -10,7 +10,6 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.longs.LongIterator;
-import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -113,8 +112,6 @@ import net.minecraft.util.profiling.metrics.profiling.ServerMetricsSamplersProvi
 import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.Snooper;
-import net.minecraft.world.SnooperPopulator;
 import net.minecraft.world.entity.ai.village.VillageSiege;
 import net.minecraft.world.entity.npc.CatSpawner;
 import net.minecraft.world.entity.npc.WanderingTraderSpawner;
@@ -158,13 +155,12 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements SnooperPopulator, CommandSource, AutoCloseable {
+public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final String VANILLA_BRAND = "vanilla";
     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
     private static final int TICK_STATS_SPAN = 100;
     public static final int MS_PER_TICK = 50;
-    private static final int SNOOPER_UPDATE_INTERVAL = 6000;
     private static final int OVERLOADED_THRESHOLD = 2000;
     private static final int OVERLOADED_WARNING_INTERVAL = 15000;
     public static final String LEVEL_STORAGE_PROTOCOL = "level";
@@ -184,7 +180,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private static final long DELAYED_TASKS_TICK_EXTENSION = 50L;
     protected final LevelStorageSource.LevelStorageAccess storageSource;
     protected final PlayerDataStorage playerDataStorage;
-    private final Snooper snooper = new Snooper("server", this, Util.getMillis());
     private final List<Runnable> tickables = Lists.newArrayList();
     private MetricsRecorder metricsRecorder = InactiveMetricsRecorder.INSTANCE;
     private ProfilerFiller profiler = this.metricsRecorder.getProfiler();
@@ -614,10 +609,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         }
 
         this.isSaving = false;
-        if (this.snooper.isStarted()) {
-            this.snooper.interrupt();
-        }
-
         this.resources.close();
 
         try {
@@ -834,16 +825,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             LOGGER.debug("Autosave finished");
         }
 
-        this.profiler.push("snooper");
-        if (!this.snooper.isStarted() && this.tickCount > 100) {
-            this.snooper.start();
-        }
-
-        if (this.tickCount % 6000 == 0) {
-            this.snooper.prepare();
-        }
-
-        this.profiler.pop();
         this.profiler.push("tallying");
         long var4 = this.tickTimes[this.tickCount % 100] = Util.getNanos() - var0;
         this.averageTickTime = this.averageTickTime * 0.8F + (float)var4 / 1000000.0F * 0.19999999F;
@@ -1087,50 +1068,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.resourcePackHash = param1;
     }
 
-    @Override
-    public void populateSnooper(Snooper param0) {
-        param0.setDynamicData("whitelist_enabled", false);
-        param0.setDynamicData("whitelist_count", 0);
-        if (this.playerList != null) {
-            param0.setDynamicData("players_current", this.getPlayerCount());
-            param0.setDynamicData("players_max", this.getMaxPlayers());
-            param0.setDynamicData("players_seen", this.playerDataStorage.getSeenPlayers().length);
-        }
-
-        param0.setDynamicData("uses_auth", this.onlineMode);
-        param0.setDynamicData("gui_state", this.hasGui() ? "enabled" : "disabled");
-        param0.setDynamicData("run_time", (Util.getMillis() - param0.getStartupTime()) / 60L * 1000L);
-        param0.setDynamicData("avg_tick_ms", (int)(Mth.average(this.tickTimes) * 1.0E-6));
-        int var0 = 0;
-
-        for(ServerLevel var1 : this.getAllLevels()) {
-            if (var1 != null) {
-                param0.setDynamicData("world[" + var0 + "][dimension]", var1.dimension().location());
-                param0.setDynamicData("world[" + var0 + "][mode]", this.worldData.getGameType());
-                param0.setDynamicData("world[" + var0 + "][difficulty]", var1.getDifficulty());
-                param0.setDynamicData("world[" + var0 + "][hardcore]", this.worldData.isHardcore());
-                param0.setDynamicData("world[" + var0 + "][height]", var1.getMaxBuildHeight());
-                param0.setDynamicData("world[" + var0 + "][chunks_loaded]", var1.getChunkSource().getLoadedChunksCount());
-                ++var0;
-            }
-        }
-
-        param0.setDynamicData("worlds", var0);
-    }
-
-    @Override
-    public void populateSnooperInitial(Snooper param0) {
-        param0.setFixedData("singleplayer", this.isSingleplayer());
-        param0.setFixedData("server_brand", this.getServerModName());
-        param0.setFixedData("gui_supported", GraphicsEnvironment.isHeadless() ? "headless" : "supported");
-        param0.setFixedData("dedicated", this.isDedicatedServer());
-    }
-
-    @Override
-    public boolean isSnooperEnabled() {
-        return true;
-    }
-
     public abstract boolean isDedicatedServer();
 
     public abstract int getRateLimitPacketsPerSecond();
@@ -1224,10 +1161,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public int getTickCount() {
         return this.tickCount;
-    }
-
-    public Snooper getSnooper() {
-        return this.snooper;
     }
 
     public int getSpawnProtectionRadius() {

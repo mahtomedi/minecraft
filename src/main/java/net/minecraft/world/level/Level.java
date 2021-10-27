@@ -100,6 +100,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
     private final ResourceKey<Level> dimension;
+    private long subTickCount;
 
     protected Level(
         WritableLevelData param0,
@@ -958,5 +959,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             }
         }
 
+    }
+
+    @Override
+    public long nextSubTickCount() {
+        return (long)(this.subTickCount++);
     }
 }

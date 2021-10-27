@@ -46,7 +46,18 @@ public class XoroshiroRandomSource implements RandomSource {
         if (param0 <= 0) {
             throw new IllegalArgumentException("Bound must be positive");
         } else {
-            return Math.abs((int)(this.randomNumberGenerator.nextLong() % (long)param0));
+            long var0 = Integer.toUnsignedLong(this.nextInt());
+            long var1 = var0 * (long)param0;
+            long var2 = var1 & 4294967295L;
+            if (var2 < (long)param0) {
+                for(int var3 = Integer.remainderUnsigned(~param0 + 1, param0); var2 < (long)var3; var2 = var1 & 4294967295L) {
+                    var0 = Integer.toUnsignedLong(this.nextInt());
+                    var1 = var0 * (long)param0;
+                }
+            }
+
+            long var4 = var1 >> 32;
+            return (int)var4;
         }
     }
 

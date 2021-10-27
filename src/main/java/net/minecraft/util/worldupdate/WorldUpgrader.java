@@ -26,8 +26,10 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.chunk.storage.RegionFile;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +38,7 @@ import org.apache.logging.log4j.Logger;
 public class WorldUpgrader {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder().setDaemon(true).build();
-    private final ImmutableSet<ResourceKey<Level>> levels;
+    private final WorldGenSettings worldGenSettings;
     private final boolean eraseCache;
     private final LevelStorageSource.LevelStorageAccess levelStorage;
     private final Thread thread;
@@ -52,8 +54,8 @@ public class WorldUpgrader {
     private static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca$");
     private final DimensionDataStorage overworldDataStorage;
 
-    public WorldUpgrader(LevelStorageSource.LevelStorageAccess param0, DataFixer param1, ImmutableSet<ResourceKey<Level>> param2, boolean param3) {
-        this.levels = param2;
+    public WorldUpgrader(LevelStorageSource.LevelStorageAccess param0, DataFixer param1, WorldGenSettings param2, boolean param3) {
+        this.worldGenSettings = param2;
         this.eraseCache = param3;
         this.dataFixer = param1;
         this.levelStorage = param0;
@@ -80,108 +82,109 @@ public class WorldUpgrader {
     private void work() {
         this.totalChunks = 0;
         Builder<ResourceKey<Level>, ListIterator<ChunkPos>> var0 = ImmutableMap.builder();
+        ImmutableSet<ResourceKey<Level>> var1 = this.worldGenSettings.levels();
 
-        for(ResourceKey<Level> var1 : this.levels) {
-            List<ChunkPos> var2 = this.getAllChunkPos(var1);
-            var0.put(var1, var2.listIterator());
-            this.totalChunks += var2.size();
+        for(ResourceKey<Level> var2 : var1) {
+            List<ChunkPos> var3 = this.getAllChunkPos(var2);
+            var0.put(var2, var3.listIterator());
+            this.totalChunks += var3.size();
         }
 
         if (this.totalChunks == 0) {
             this.finished = true;
         } else {
-            float var3 = (float)this.totalChunks;
-            ImmutableMap<ResourceKey<Level>, ListIterator<ChunkPos>> var4 = var0.build();
-            Builder<ResourceKey<Level>, ChunkStorage> var5 = ImmutableMap.builder();
+            float var4 = (float)this.totalChunks;
+            ImmutableMap<ResourceKey<Level>, ListIterator<ChunkPos>> var5 = var0.build();
+            Builder<ResourceKey<Level>, ChunkStorage> var6 = ImmutableMap.builder();
 
-            for(ResourceKey<Level> var6 : this.levels) {
-                File var7 = this.levelStorage.getDimensionPath(var6);
-                var5.put(var6, new ChunkStorage(new File(var7, "region"), this.dataFixer, true));
+            for(ResourceKey<Level> var7 : var1) {
+                File var8 = this.levelStorage.getDimensionPath(var7);
+                var6.put(var7, new ChunkStorage(new File(var8, "region"), this.dataFixer, true));
             }
 
-            ImmutableMap<ResourceKey<Level>, ChunkStorage> var8 = var5.build();
-            long var9 = Util.getMillis();
+            ImmutableMap<ResourceKey<Level>, ChunkStorage> var9 = var6.build();
+            long var10 = Util.getMillis();
             this.status = new TranslatableComponent("optimizeWorld.stage.upgrading");
 
             while(this.running) {
-                boolean var10 = false;
-                float var11 = 0.0F;
+                boolean var11 = false;
+                float var12 = 0.0F;
 
-                for(ResourceKey<Level> var12 : this.levels) {
-                    ListIterator<ChunkPos> var13 = var4.get(var12);
-                    ChunkStorage var14 = var8.get(var12);
-                    if (var13.hasNext()) {
-                        ChunkPos var15 = var13.next();
-                        boolean var16 = false;
+                for(ResourceKey<Level> var13 : var1) {
+                    ListIterator<ChunkPos> var14 = var5.get(var13);
+                    ChunkStorage var15 = var9.get(var13);
+                    if (var14.hasNext()) {
+                        ChunkPos var16 = var14.next();
+                        boolean var17 = false;
 
                         try {
-                            CompoundTag var17 = var14.read(var15);
-                            if (var17 != null) {
-                                int var18 = ChunkStorage.getVersion(var17);
-                                CompoundTag var19 = var14.upgradeChunkTag(var12, () -> this.overworldDataStorage, var17);
-                                CompoundTag var20 = var19.getCompound("Level");
-                                ChunkPos var21 = new ChunkPos(var20.getInt("xPos"), var20.getInt("zPos"));
-                                if (!var21.equals(var15)) {
-                                    LOGGER.warn("Chunk {} has invalid position {}", var15, var21);
+                            CompoundTag var18 = var15.read(var16);
+                            if (var18 != null) {
+                                int var19 = ChunkStorage.getVersion(var18);
+                                ChunkGenerator var20 = this.worldGenSettings.dimensions().get(WorldGenSettings.levelToLevelStem(var13)).generator();
+                                CompoundTag var21 = var15.upgradeChunkTag(var13, () -> this.overworldDataStorage, var18, var20.getTypeNameForDataFixer());
+                                ChunkPos var22 = new ChunkPos(var21.getInt("xPos"), var21.getInt("zPos"));
+                                if (!var22.equals(var16)) {
+                                    LOGGER.warn("Chunk {} has invalid position {}", var16, var22);
                                 }
 
-                                boolean var22 = var18 < SharedConstants.getCurrentVersion().getWorldVersion();
+                                boolean var23 = var19 < SharedConstants.getCurrentVersion().getWorldVersion();
                                 if (this.eraseCache) {
-                                    var22 = var22 || var20.contains("Heightmaps");
-                                    var20.remove("Heightmaps");
-                                    var22 = var22 || var20.contains("isLightOn");
-                                    var20.remove("isLightOn");
+                                    var23 = var23 || var21.contains("Heightmaps");
+                                    var21.remove("Heightmaps");
+                                    var23 = var23 || var21.contains("isLightOn");
+                                    var21.remove("isLightOn");
                                 }
 
-                                if (var22) {
-                                    var14.write(var15, var19);
-                                    var16 = true;
+                                if (var23) {
+                                    var15.write(var16, var21);
+                                    var17 = true;
                                 }
                             }
-                        } catch (ReportedException var23) {
-                            Throwable var24 = var23.getCause();
-                            if (!(var24 instanceof IOException)) {
-                                throw var23;
+                        } catch (ReportedException var24) {
+                            Throwable var25 = var24.getCause();
+                            if (!(var25 instanceof IOException)) {
+                                throw var24;
                             }
 
-                            LOGGER.error("Error upgrading chunk {}", var15, var24);
-                        } catch (IOException var241) {
-                            LOGGER.error("Error upgrading chunk {}", var15, var241);
+                            LOGGER.error("Error upgrading chunk {}", var16, var25);
+                        } catch (IOException var251) {
+                            LOGGER.error("Error upgrading chunk {}", var16, var251);
                         }
 
-                        if (var16) {
+                        if (var17) {
                             ++this.converted;
                         } else {
                             ++this.skipped;
                         }
 
-                        var10 = true;
+                        var11 = true;
                     }
 
-                    float var26 = (float)var13.nextIndex() / var3;
-                    this.progressMap.put(var12, var26);
-                    var11 += var26;
+                    float var27 = (float)var14.nextIndex() / var4;
+                    this.progressMap.put(var13, var27);
+                    var12 += var27;
                 }
 
-                this.progress = var11;
-                if (!var10) {
+                this.progress = var12;
+                if (!var11) {
                     this.running = false;
                 }
             }
 
             this.status = new TranslatableComponent("optimizeWorld.stage.finished");
 
-            for(ChunkStorage var27 : var8.values()) {
+            for(ChunkStorage var28 : var9.values()) {
                 try {
-                    var27.close();
-                } catch (IOException var221) {
-                    LOGGER.error("Error upgrading chunk", (Throwable)var221);
+                    var28.close();
+                } catch (IOException var231) {
+                    LOGGER.error("Error upgrading chunk", (Throwable)var231);
                 }
             }
 
             this.overworldDataStorage.save();
-            var9 = Util.getMillis() - var9;
-            LOGGER.info("World optimizaton finished after {} ms", var9);
+            var10 = Util.getMillis() - var10;
+            LOGGER.info("World optimizaton finished after {} ms", var10);
             this.finished = true;
         }
     }
@@ -224,7 +227,7 @@ public class WorldUpgrader {
     }
 
     public ImmutableSet<ResourceKey<Level>> levels() {
-        return this.levels;
+        return this.worldGenSettings.levels();
     }
 
     public float dimensionProgress(ResourceKey<Level> param0) {

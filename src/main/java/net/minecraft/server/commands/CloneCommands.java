@@ -310,7 +310,7 @@ public class CloneCommands {
                         var4.blockUpdated(var30.pos, var30.state.getBlock());
                     }
 
-                    var4.getBlockTicks().copy(var0, var9);
+                    var4.getBlockTicks().copyArea(var0, var9);
                     if (var26 == 0) {
                         throw ERROR_FAILED.create();
                     } else {

@@ -53,7 +53,7 @@ public class FrostWalkerEnchantment extends Enchantment {
                             && var0.canSurvive(param1, var3)
                             && param1.isUnobstructed(var0, var3, CollisionContext.empty())) {
                             param1.setBlockAndUpdate(var3, var0);
-                            param1.getBlockTicks().scheduleTick(var3, Blocks.FROSTED_ICE, Mth.nextInt(param0.getRandom(), 60, 120));
+                            param1.scheduleTick(var3, Blocks.FROSTED_ICE, Mth.nextInt(param0.getRandom(), 60, 120));
                         }
                     }
                 }

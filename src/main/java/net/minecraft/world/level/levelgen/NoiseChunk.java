@@ -8,9 +8,9 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.QuartPos;
 import net.minecraft.util.Mth;
-import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 
 public class NoiseChunk {
     final int cellWidth;
@@ -23,16 +23,12 @@ public class NoiseChunk {
     private final int firstNoiseX;
     private final int firstNoiseZ;
     final List<NoiseChunk.NoiseInterpolator> interpolators;
-    private final double[][] shiftedX;
-    private final double[][] shiftedZ;
-    private final double[][] continentalness;
-    private final double[][] weirdness;
-    private final double[][] erosion;
-    private final TerrainInfo[][] terrainInfoBuffer;
+    private final NoiseSampler.FlatNoiseData[][] noiseData;
     private final Long2ObjectMap<TerrainInfo> terrainInfo = new Long2ObjectOpenHashMap<>();
     private final Aquifer aquifer;
     private final NoiseChunk.BlockStateFiller baseNoise;
     private final NoiseChunk.BlockStateFiller oreVeins;
+    private final Blender blender;
 
     public NoiseChunk(
         int param0,
@@ -45,7 +41,8 @@ public class NoiseChunk {
         int param7,
         NoiseChunk.NoiseFiller param8,
         Supplier<NoiseGeneratorSettings> param9,
-        Aquifer.FluidPicker param10
+        Aquifer.FluidPicker param10,
+        Blender param11
     ) {
         this.cellWidth = param0;
         this.cellHeight = param1;
@@ -58,31 +55,16 @@ public class NoiseChunk {
         this.firstNoiseX = QuartPos.fromBlock(param6);
         this.firstNoiseZ = QuartPos.fromBlock(param7);
         int var0 = QuartPos.fromBlock(param2 * param0);
-        this.shiftedX = new double[var0 + 1][];
-        this.shiftedZ = new double[var0 + 1][];
-        this.continentalness = new double[var0 + 1][];
-        this.weirdness = new double[var0 + 1][];
-        this.erosion = new double[var0 + 1][];
-        this.terrainInfoBuffer = new TerrainInfo[var0 + 1][];
+        this.noiseData = new NoiseSampler.FlatNoiseData[var0 + 1][];
+        this.blender = param11;
 
         for(int var1 = 0; var1 <= var0; ++var1) {
             int var2 = this.firstNoiseX + var1;
-            this.shiftedX[var1] = new double[var0 + 1];
-            this.shiftedZ[var1] = new double[var0 + 1];
-            this.continentalness[var1] = new double[var0 + 1];
-            this.weirdness[var1] = new double[var0 + 1];
-            this.erosion[var1] = new double[var0 + 1];
-            this.terrainInfoBuffer[var1] = new TerrainInfo[var0 + 1];
+            this.noiseData[var1] = new NoiseSampler.FlatNoiseData[var0 + 1];
 
             for(int var3 = 0; var3 <= var0; ++var3) {
                 int var4 = this.firstNoiseZ + var3;
-                NoiseChunk.FlatNoiseData var5 = noiseData(param5, var2, var4);
-                this.shiftedX[var1][var3] = var5.shiftedX;
-                this.shiftedZ[var1][var3] = var5.shiftedZ;
-                this.continentalness[var1][var3] = var5.continentalness;
-                this.weirdness[var1][var3] = var5.weirdness;
-                this.erosion[var1][var3] = var5.erosion;
-                this.terrainInfoBuffer[var1][var3] = var5.terrainInfo;
+                this.noiseData[var1][var3] = param5.noiseData(var2, var4, param11);
             }
         }
 
@@ -91,52 +73,29 @@ public class NoiseChunk {
         this.oreVeins = param5.makeOreVeinifier(this, param9.get().isOreVeinsEnabled());
     }
 
-    @VisibleForDebug
-    public static NoiseChunk.FlatNoiseData noiseData(NoiseSampler param0, int param1, int param2) {
-        return new NoiseChunk.FlatNoiseData(param0, param1, param2);
-    }
-
-    public double shiftedX(int param0, int param1) {
-        return this.shiftedX[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
-    }
-
-    public double shiftedZ(int param0, int param1) {
-        return this.shiftedZ[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
-    }
-
-    public double continentalness(int param0, int param1) {
-        return this.continentalness[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
-    }
-
-    public double weirdness(int param0, int param1) {
-        return this.weirdness[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
-    }
-
-    public double erosion(int param0, int param1) {
-        return this.erosion[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
-    }
-
-    public TerrainInfo terrainInfo(int param0, int param1) {
-        return this.terrainInfoBuffer[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
+    public NoiseSampler.FlatNoiseData noiseData(int param0, int param1) {
+        return this.noiseData[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
     }
 
     public TerrainInfo terrainInfoWide(NoiseSampler param0, int param1, int param2) {
         int var0 = param1 - this.firstNoiseX;
         int var1 = param2 - this.firstNoiseZ;
-        int var2 = this.terrainInfoBuffer.length;
+        int var2 = this.noiseData.length;
         return var0 >= 0 && var1 >= 0 && var0 < var2 && var1 < var2
-            ? this.terrainInfoBuffer[var0][var1]
+            ? this.noiseData[var0][var1].terrainInfo()
             : this.terrainInfo
-                .computeIfAbsent(ChunkPos.asLong(param1, param2), param1x -> noiseData(param0, ChunkPos.getX(param1x), ChunkPos.getZ(param1x)).terrainInfo);
+                .computeIfAbsent(
+                    ChunkPos.asLong(param1, param2), param1x -> param0.noiseData(ChunkPos.getX(param1x), ChunkPos.getZ(param1x), this.blender).terrainInfo()
+                );
     }
 
     public TerrainInfo terrainInfoInterpolated(int param0, int param1) {
         int var0 = QuartPos.fromBlock(param0) - this.firstNoiseX;
         int var1 = QuartPos.fromBlock(param1) - this.firstNoiseZ;
-        TerrainInfo var2 = this.terrainInfoBuffer[var0][var1];
-        TerrainInfo var3 = this.terrainInfoBuffer[var0][var1 + 1];
-        TerrainInfo var4 = this.terrainInfoBuffer[var0 + 1][var1];
-        TerrainInfo var5 = this.terrainInfoBuffer[var0 + 1][var1 + 1];
+        TerrainInfo var2 = this.noiseData[var0][var1].terrainInfo();
+        TerrainInfo var3 = this.noiseData[var0][var1 + 1].terrainInfo();
+        TerrainInfo var4 = this.noiseData[var0 + 1][var1].terrainInfo();
+        TerrainInfo var5 = this.noiseData[var0 + 1][var1 + 1].terrainInfo();
         double var6 = (double)Math.floorMod(param0, 4) / 4.0;
         double var7 = (double)Math.floorMod(param1, 4) / 4.0;
         double var8 = Mth.lerp2(var6, var7, var2.offset(), var4.offset(), var3.offset(), var5.offset());
@@ -147,6 +106,10 @@ public class NoiseChunk {
 
     protected NoiseChunk.NoiseInterpolator createNoiseInterpolator(NoiseChunk.NoiseFiller param0) {
         return new NoiseChunk.NoiseInterpolator(param0);
+    }
+
+    public Blender getBlender() {
+        return this.blender;
     }
 
     public void initializeForFirstCellX() {
@@ -195,27 +158,6 @@ public class NoiseChunk {
     public interface BlockStateFiller {
         @Nullable
         BlockState calculate(int var1, int var2, int var3);
-    }
-
-    public static final class FlatNoiseData {
-        final double shiftedX;
-        final double shiftedZ;
-        final double continentalness;
-        final double weirdness;
-        final double erosion;
-        @VisibleForDebug
-        public final TerrainInfo terrainInfo;
-
-        FlatNoiseData(NoiseSampler param0, int param1, int param2) {
-            this.shiftedX = (double)param1 + param0.getOffset(param1, 0, param2);
-            this.shiftedZ = (double)param2 + param0.getOffset(param2, param1, 0);
-            this.continentalness = param0.getContinentalness(this.shiftedX, 0.0, this.shiftedZ);
-            this.weirdness = param0.getWeirdness(this.shiftedX, 0.0, this.shiftedZ);
-            this.erosion = param0.getErosion(this.shiftedX, 0.0, this.shiftedZ);
-            this.terrainInfo = param0.terrainInfo(
-                QuartPos.toBlock(param1), QuartPos.toBlock(param2), (float)this.continentalness, (float)this.weirdness, (float)this.erosion
-            );
-        }
     }
 
     @FunctionalInterface

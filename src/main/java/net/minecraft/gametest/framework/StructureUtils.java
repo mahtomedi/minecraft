@@ -153,7 +153,7 @@ public class StructureUtils {
         forceLoadChunks(param1, param4);
         clearSpaceForStructure(var1, param1.getY(), param4);
         StructureBlockEntity var7 = createStructureBlock(param0, var2, param2, param4, param5);
-        param4.getBlockTicks().fetchTicksInArea(var1, true, false);
+        param4.getBlockTicks().clearArea(var1);
         param4.clearBlockEvents(var1);
         return var7;
     }
@@ -174,7 +174,7 @@ public class StructureUtils {
     public static void clearSpaceForStructure(BoundingBox param0, int param1, ServerLevel param2) {
         BoundingBox var0 = new BoundingBox(param0.minX() - 2, param0.minY() - 3, param0.minZ() - 3, param0.maxX() + 3, param0.maxY() + 20, param0.maxZ() + 3);
         BlockPos.betweenClosedStream(var0).forEach(param2x -> clearBlock(param1, param2x, param2));
-        param2.getBlockTicks().fetchTicksInArea(var0, true, false);
+        param2.getBlockTicks().clearArea(var0);
         param2.clearBlockEvents(var0);
         AABB var1 = new AABB((double)var0.minX(), (double)var0.minY(), (double)var0.minZ(), (double)var0.maxX(), (double)var0.maxY(), (double)var0.maxZ());
         List<Entity> var2 = param2.getEntitiesOfClass(Entity.class, var1, param0x -> !(param0x instanceof Player));

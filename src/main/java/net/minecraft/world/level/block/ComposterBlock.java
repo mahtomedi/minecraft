@@ -214,7 +214,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param0.getValue(LEVEL) == 7) {
-            param1.getBlockTicks().scheduleTick(param2, param0.getBlock(), 20);
+            param1.scheduleTick(param2, param0.getBlock(), 20);
         }
 
     }
@@ -287,7 +287,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
             BlockState var3 = param0.setValue(LEVEL, Integer.valueOf(var2));
             param1.setBlock(param2, var3, 3);
             if (var2 == 7) {
-                param1.getBlockTicks().scheduleTick(param2, param0.getBlock(), 20);
+                param1.scheduleTick(param2, param0.getBlock(), 20);
             }
 
             return var3;

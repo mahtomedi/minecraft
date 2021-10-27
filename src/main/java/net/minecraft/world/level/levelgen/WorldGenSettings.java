@@ -166,11 +166,15 @@ public class WorldGenSettings {
     }
 
     public ImmutableSet<ResourceKey<Level>> levels() {
-        return this.dimensions()
-            .entrySet()
-            .stream()
-            .map(param0 -> ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.getKey().location()))
-            .collect(ImmutableSet.toImmutableSet());
+        return this.dimensions().entrySet().stream().map(Entry::getKey).map(WorldGenSettings::levelStemToLevel).collect(ImmutableSet.toImmutableSet());
+    }
+
+    public static ResourceKey<Level> levelStemToLevel(ResourceKey<LevelStem> param0) {
+        return ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.location());
+    }
+
+    public static ResourceKey<LevelStem> levelToLevelStem(ResourceKey<Level> param0) {
+        return ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, param0.location());
     }
 
     public boolean isDebug() {

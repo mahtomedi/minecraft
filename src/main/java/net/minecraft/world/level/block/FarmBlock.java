@@ -37,7 +37,7 @@ public class FarmBlock extends Block {
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param1 == Direction.UP && !param0.canSurvive(param3, param4)) {
-            param3.getBlockTicks().scheduleTick(param4, this, 1);
+            param3.scheduleTick(param4, this, 1);
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);

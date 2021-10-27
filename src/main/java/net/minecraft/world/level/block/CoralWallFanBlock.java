@@ -39,7 +39,7 @@ public class CoralWallFanBlock extends BaseCoralWallFanBlock {
             return Blocks.AIR.defaultBlockState();
         } else {
             if (param0.getValue(WATERLOGGED)) {
-                param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+                param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
             }
 
             this.tryScheduleDieTick(param0, param3, param4);

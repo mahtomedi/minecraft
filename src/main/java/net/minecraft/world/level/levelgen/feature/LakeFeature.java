@@ -95,7 +95,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
                                 boolean var29 = var27 >= 4;
                                 var1.setBlock(var28, var29 ? AIR : var3.state, 2);
                                 if (var29) {
-                                    var1.getBlockTicks().scheduleTick(var28, AIR.getBlock(), 0);
+                                    var1.scheduleTick(var28, AIR.getBlock(), 0);
                                     this.markAboveForPostProcessing(var1, var28);
                                 }
                             }

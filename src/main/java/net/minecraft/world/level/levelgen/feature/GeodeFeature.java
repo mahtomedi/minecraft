@@ -118,7 +118,7 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
                         BlockPos var39 = var32.relative(var38);
                         FluidState var40 = var3.getFluidState(var39);
                         if (!var40.isEmpty()) {
-                            var3.getLiquidTicks().scheduleTick(var39, var40.getType(), 0);
+                            var3.scheduleTick(var39, var40.getType(), 0);
                         }
                     }
                 } else if (var34 >= var15) {

@@ -66,7 +66,7 @@ public class HangingRootsBlock extends Block implements SimpleWaterloggedBlock {
             return Blocks.AIR.defaultBlockState();
         } else {
             if (param0.getValue(WATERLOGGED)) {
-                param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+                param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
             }
 
             return super.updateShape(param0, param1, param2, param3, param4, param5);

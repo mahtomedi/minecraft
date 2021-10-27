@@ -8,7 +8,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
@@ -16,6 +18,7 @@ import net.minecraft.world.level.biome.TerrainShaper;
 import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NoiseUtils;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -107,7 +110,11 @@ public class NoiseSampler implements Climate.Sampler {
         this.isNoiseCavesEnabled = param4;
         this.baseNoise = param0x -> param0x.createNoiseInterpolator(
                 (param1x, param2x, param3x) -> this.calculateBaseNoise(
-                        param1x, param2x, param3x, param0x.terrainInfo(QuartPos.fromBlock(param1x), QuartPos.fromBlock(param3x))
+                        param1x,
+                        param2x,
+                        param3x,
+                        param0x.noiseData(QuartPos.fromBlock(param1x), QuartPos.fromBlock(param3x)).terrainInfo(),
+                        param0x.getBlender()
                     )
             );
         if (param3.islandNoiseOverride()) {
@@ -126,7 +133,7 @@ public class NoiseSampler implements Climate.Sampler {
         int var7 = var0 + param3.height();
         PositionalRandomFactory var8 = param7.newInstance(param5).forkPositional();
         if (param7 != WorldgenRandom.Algorithm.LEGACY) {
-            this.blendedNoise = new BlendedNoise(var8.fromHashOf("terrain"), param3.noiseSamplingSettings(), param0, param1);
+            this.blendedNoise = new BlendedNoise(var8.fromHashOf(new ResourceLocation("terrain")), param3.noiseSamplingSettings(), param0, param1);
             this.temperatureNoise = Noises.instantiate(param6, var8, Noises.TEMPERATURE);
             this.humidityNoise = Noises.instantiate(param6, var8, Noises.VEGETATION);
             this.offsetNoise = Noises.instantiate(param6, var8, Noises.SHIFT);
@@ -138,9 +145,9 @@ public class NoiseSampler implements Climate.Sampler {
             this.offsetNoise = NormalNoise.create(var8.fromHashOf(Noises.SHIFT.location()), new NormalNoise.NoiseParameters(0, 0.0));
         }
 
-        this.aquiferPositionalRandomFactory = var8.fromHashOf("aquifer").forkPositional();
-        this.oreVeinsPositionalRandomFactory = var8.fromHashOf("ore").forkPositional();
-        this.depthBasedLayerPositionalRandomFactory = var8.fromHashOf("depth_based_layer").forkPositional();
+        this.aquiferPositionalRandomFactory = var8.fromHashOf(new ResourceLocation("aquifer")).forkPositional();
+        this.oreVeinsPositionalRandomFactory = var8.fromHashOf(new ResourceLocation("ore")).forkPositional();
+        this.depthBasedLayerPositionalRandomFactory = var8.fromHashOf(new ResourceLocation("depth_based_layer")).forkPositional();
         this.barrierNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_BARRIER);
         this.fluidLevelFloodednessNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS);
         this.lavaNoise = Noises.instantiate(param6, var8, Noises.AQUIFER_LAVA);
@@ -182,64 +189,64 @@ public class NoiseSampler implements Climate.Sampler {
         return param1x -> param1x.createNoiseInterpolator(var0);
     }
 
-    private double calculateBaseNoise(int param0, int param1, int param2, TerrainInfo param3) {
+    private double calculateBaseNoise(int param0, int param1, int param2, TerrainInfo param3, Blender param4) {
         double var0 = this.blendedNoise.calculateNoise(param0, param1, param2);
         boolean var1 = !this.isNoiseCavesEnabled;
-        return this.calculateBaseNoise(param0, param1, param2, param3, var0, var1, true);
+        return this.calculateBaseNoise(param0, param1, param2, param3, var0, var1, true, param4);
     }
 
-    private double calculateBaseNoise(int param0, int param1, int param2, TerrainInfo param3, double param4, boolean param5, boolean param6) {
+    private double calculateBaseNoise(int param0, int param1, int param2, TerrainInfo param3, double param4, boolean param5, boolean param6, Blender param7) {
         double var0;
         if (this.dimensionDensityFactor == 0.0 && this.dimensionDensityOffset == -0.030078125) {
             var0 = 0.0;
         } else {
             double var1 = param6 ? this.sampleJaggedNoise(param3.jaggedness(), (double)param0, (double)param2) : 0.0;
-            double var2 = this.computeDimensionDensity((double)param1);
-            double var3 = (var2 + param3.offset() + var1) * param3.factor();
-            var0 = var3 * (double)(var3 > 0.0 ? 4 : 1);
+            double var2 = (this.computeBaseDensity(param1, param3) + var1) * param3.factor();
+            var0 = var2 * (double)(var2 > 0.0 ? 4 : 1);
         }
 
-        double var5 = var0 + param4;
-        double var6 = 1.5625;
-        double var17;
-        double var18;
+        double var4 = var0 + param4;
+        double var5 = 1.5625;
+        double var15;
         double var16;
-        if (!param5 && !(var5 < -64.0)) {
-            double var10 = var5 - 1.5625;
-            boolean var11 = var10 < 0.0;
-            double var12 = this.getBigEntrances(param0, param1, param2);
-            double var13 = this.spaghettiRoughness(param0, param1, param2);
-            double var14 = this.getSpaghetti3D(param0, param1, param2);
-            double var15 = Math.min(var12, var14 + var13);
-            if (var11) {
-                var16 = var5;
-                var17 = var15 * 5.0;
-                var18 = -64.0;
+        double var17;
+        if (!param5 && !(var4 < -64.0)) {
+            double var9 = var4 - 1.5625;
+            boolean var10 = var9 < 0.0;
+            double var11 = this.getBigEntrances(param0, param1, param2);
+            double var12 = this.spaghettiRoughness(param0, param1, param2);
+            double var13 = this.getSpaghetti3D(param0, param1, param2);
+            double var14 = Math.min(var11, var13 + var12);
+            if (var10) {
+                var15 = var4;
+                var16 = var14 * 5.0;
+                var17 = -64.0;
             } else {
-                double var19 = this.getLayerizedCaverns(param0, param1, param2);
-                if (var19 > 64.0) {
-                    var16 = 64.0;
+                double var18 = this.getLayerizedCaverns(param0, param1, param2);
+                if (var18 > 64.0) {
+                    var15 = 64.0;
                 } else {
-                    double var21 = this.cheeseNoiseSource.getValue((double)param0, (double)param1 / 1.5, (double)param2);
-                    double var22 = Mth.clamp(var21 + 0.27, -1.0, 1.0);
-                    double var23 = var10 * 1.28;
-                    double var24 = var22 + Mth.clampedLerp(0.5, 0.0, var23);
-                    var16 = var24 + var19;
+                    double var20 = this.cheeseNoiseSource.getValue((double)param0, (double)param1 / 1.5, (double)param2);
+                    double var21 = Mth.clamp(var20 + 0.27, -1.0, 1.0);
+                    double var22 = var9 * 1.28;
+                    double var23 = var21 + Mth.clampedLerp(0.5, 0.0, var22);
+                    var15 = var23 + var18;
                 }
 
-                double var26 = this.getSpaghetti2D(param0, param1, param2);
-                var17 = Math.min(var15, var26 + var13);
-                var18 = this.getPillars(param0, param1, param2);
+                double var25 = this.getSpaghetti2D(param0, param1, param2);
+                var16 = Math.min(var14, var25 + var12);
+                var17 = this.getPillars(param0, param1, param2);
             }
         } else {
-            var16 = var5;
-            var17 = 64.0;
-            var18 = -64.0;
+            var15 = var4;
+            var16 = 64.0;
+            var17 = -64.0;
         }
 
-        double var29 = Math.max(Math.min(var16, var17), var18);
-        var29 = this.applySlide(var29, param1 / this.cellHeight);
-        return Mth.clamp(var29, -64.0, 64.0);
+        double var28 = Math.max(Math.min(var15, var16), var17);
+        var28 = this.applySlide(var28, param1 / this.cellHeight);
+        var28 = param7.blendDensity(param0, param1, param2, var28);
+        return Mth.clamp(var28, -64.0, 64.0);
     }
 
     private double sampleJaggedNoise(double param0, double param1, double param2) {
@@ -252,9 +259,9 @@ public class NoiseSampler implements Climate.Sampler {
         }
     }
 
-    private double computeDimensionDensity(double param0) {
-        double var0 = 1.0 - param0 / 128.0;
-        return var0 * this.dimensionDensityFactor + this.dimensionDensityOffset;
+    private double computeBaseDensity(int param0, TerrainInfo param1) {
+        double var0 = 1.0 - (double)param0 / 128.0;
+        return var0 * this.dimensionDensityFactor + param1.offset();
     }
 
     private double applySlide(double param0, int param1) {
@@ -321,7 +328,7 @@ public class NoiseSampler implements Climate.Sampler {
         for(int var0 = this.minCellY + this.cellCountY; var0 >= this.minCellY; --var0) {
             int var1 = var0 * this.cellHeight;
             double var2 = -0.703125;
-            double var3 = this.calculateBaseNoise(param0, var1, param1, param2, -0.703125, true, false);
+            double var3 = this.calculateBaseNoise(param0, var1, param1, param2, -0.703125, true, false, Blender.empty());
             if (var3 > 0.390625) {
                 return var1;
             }
@@ -352,28 +359,39 @@ public class NoiseSampler implements Climate.Sampler {
         }
     }
 
-    @Override
-    public Climate.TargetPoint sample(int param0, int param1, int param2) {
-        double var0 = (double)param0 + this.getOffset(param0, 0, param2);
-        double var1 = (double)param2 + this.getOffset(param2, param0, 0);
-        float var2 = (float)this.getContinentalness(var0, 0.0, var1);
-        float var3 = (float)this.getErosion(var0, 0.0, var1);
-        float var4 = (float)this.getWeirdness(var0, 0.0, var1);
-        double var5 = (double)this.shaper.offset(this.shaper.makePoint(var2, var3, var4));
-        return this.target(param0, param1, param2, var0, var1, var2, var3, var4, var5);
+    @VisibleForDebug
+    public NoiseSampler.FlatNoiseData noiseData(int param0, int param1, Blender param2) {
+        double var0 = (double)param0 + this.getOffset(param0, 0, param1);
+        double var1 = (double)param1 + this.getOffset(param1, param0, 0);
+        double var2 = this.getContinentalness(var0, 0.0, var1);
+        double var3 = this.getWeirdness(var0, 0.0, var1);
+        double var4 = this.getErosion(var0, 0.0, var1);
+        TerrainInfo var5 = this.terrainInfo(QuartPos.toBlock(param0), QuartPos.toBlock(param1), (float)var2, (float)var3, (float)var4, param2);
+        return new NoiseSampler.FlatNoiseData(var0, var1, var2, var3, var4, var5);
     }
 
-    protected Climate.TargetPoint target(
-        int param0, int param1, int param2, double param3, double param4, float param5, float param6, float param7, double param8
-    ) {
-        double var0 = (double)param1 + this.getOffset(param1, param2, param0);
-        double var1 = this.computeDimensionDensity((double)QuartPos.toBlock(param1)) + param8;
+    @Override
+    public Climate.TargetPoint sample(int param0, int param1, int param2) {
+        return this.target(param0, param1, param2, this.noiseData(param0, param2, Blender.empty()));
+    }
+
+    @VisibleForDebug
+    public Climate.TargetPoint target(int param0, int param1, int param2, NoiseSampler.FlatNoiseData param3) {
+        double var0 = param3.shiftedX();
+        double var1 = (double)param1 + this.getOffset(param1, param2, param0);
+        double var2 = param3.shiftedZ();
+        double var3 = this.computeBaseDensity(QuartPos.toBlock(param1), param3.terrainInfo());
         return Climate.target(
-            (float)this.getTemperature(param3, var0, param4), (float)this.getHumidity(param3, var0, param4), param5, param6, (float)var1, param7
+            (float)this.getTemperature(var0, var1, var2),
+            (float)this.getHumidity(var0, var1, var2),
+            (float)param3.continentalness(),
+            (float)param3.erosion(),
+            (float)var3,
+            (float)param3.weirdness()
         );
     }
 
-    public TerrainInfo terrainInfo(int param0, int param1, float param2, float param3, float param4) {
+    public TerrainInfo terrainInfo(int param0, int param1, float param2, float param3, float param4, Blender param5) {
         if (this.islandNoise != null) {
             double var0 = (double)(TheEndBiomeSource.getHeightValue(this.islandNoise, param0 / 8, param1 / 8) - 8.0F);
             double var1;
@@ -386,7 +404,9 @@ public class NoiseSampler implements Climate.Sampler {
             return new TerrainInfo(var0, var1, 0.0);
         } else {
             TerrainShaper.Point var3 = this.shaper.makePoint(param2, param4, param3);
-            return new TerrainInfo((double)this.shaper.offset(var3), (double)this.shaper.factor(var3), (double)this.shaper.jaggedness(var3));
+            return param5.blendOffsetAndFactor(
+                param0, param1, new TerrainInfo((double)this.shaper.offset(var3), (double)this.shaper.factor(var3), (double)this.shaper.jaggedness(var3))
+            );
         }
     }
 
@@ -395,18 +415,20 @@ public class NoiseSampler implements Climate.Sampler {
         return Climate.findSpawnPosition(this.spawnTarget, this);
     }
 
+    @VisibleForDebug
     public double getOffset(int param0, int param1, int param2) {
         return this.offsetNoise.getValue((double)param0, (double)param1, (double)param2) * 4.0;
     }
 
-    public double getTemperature(double param0, double param1, double param2) {
+    private double getTemperature(double param0, double param1, double param2) {
         return this.temperatureNoise.getValue(param0, 0.0, param2);
     }
 
-    public double getHumidity(double param0, double param1, double param2) {
+    private double getHumidity(double param0, double param1, double param2) {
         return this.humidityNoise.getValue(param0, 0.0, param2);
     }
 
+    @VisibleForDebug
     public double getContinentalness(double param0, double param1, double param2) {
         if (SharedConstants.debugGenerateSquareTerrainWithoutNoise) {
             if (SharedConstants.debugVoidTerrain((int)param0 * 4, (int)param2 * 4)) {
@@ -423,6 +445,7 @@ public class NoiseSampler implements Climate.Sampler {
         }
     }
 
+    @VisibleForDebug
     public double getErosion(double param0, double param1, double param2) {
         if (SharedConstants.debugGenerateSquareTerrainWithoutNoise) {
             if (SharedConstants.debugVoidTerrain((int)param0 * 4, (int)param2 * 4)) {
@@ -439,6 +462,7 @@ public class NoiseSampler implements Climate.Sampler {
         }
     }
 
+    @VisibleForDebug
     public double getWeirdness(double param0, double param1, double param2) {
         return this.weirdnessNoise.getValue(param0, param1, param2);
     }
@@ -541,6 +565,9 @@ public class NoiseSampler implements Climate.Sampler {
         } else {
             return null;
         }
+    }
+
+    public static record FlatNoiseData(double shiftedX, double shiftedZ, double continentalness, double weirdness, double erosion, TerrainInfo terrainInfo) {
     }
 
     static final class QuantizedSpaghettiRarity {

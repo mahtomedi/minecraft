@@ -73,7 +73,7 @@ public class TargetBlock extends Block {
 
     private static void setOutputPower(LevelAccessor param0, BlockState param1, int param2, BlockPos param3, int param4) {
         param0.setBlock(param3, param1.setValue(OUTPUT_POWER, Integer.valueOf(param2)), 3);
-        param0.getBlockTicks().scheduleTick(param3, param1.getBlock(), param4);
+        param0.scheduleTick(param3, param1.getBlock(), param4);
     }
 
     @Override

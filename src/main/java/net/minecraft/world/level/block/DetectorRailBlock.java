@@ -103,7 +103,7 @@ public class DetectorRailBlock extends BaseRailBlock {
             }
 
             if (var1) {
-                param0.getBlockTicks().scheduleTick(param1, this, 20);
+                param0.scheduleTick(param1, this, 20);
             }
 
             param0.updateNeighbourForOutputSignal(param1, this);

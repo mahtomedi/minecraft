@@ -1,6 +1,5 @@
 package net.minecraft.server;
 
-import com.google.common.collect.ImmutableSet;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
@@ -28,7 +27,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.resources.RegistryReadOps;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
@@ -46,7 +44,6 @@ import net.minecraft.util.profiling.jfr.JvmProfiler;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
@@ -186,7 +183,7 @@ public class Main {
             }
 
             if (var16.has(var5)) {
-                forceUpgrade(var29, DataFixers.getDataFixer(), var16.has(var6), () -> true, var40.worldGenSettings().levels());
+                forceUpgrade(var29, DataFixers.getDataFixer(), var16.has(var6), () -> true, var40.worldGenSettings());
             }
 
             var29.saveDataTag(var17, var40);
@@ -223,7 +220,7 @@ public class Main {
     }
 
     private static void forceUpgrade(
-        LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3, ImmutableSet<ResourceKey<Level>> param4
+        LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3, WorldGenSettings param4
     ) {
         LOGGER.info("Forcing world upgrade!");
         WorldUpgrader var0 = new WorldUpgrader(param0, param1, param4, param2);

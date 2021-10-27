@@ -70,7 +70,7 @@ public class AmethystClusterBlock extends AmethystBlock implements SimpleWaterlo
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getValue(WATERLOGGED)) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         return param1 == param0.getValue(FACING).getOpposite() && !param0.canSurvive(param3, param4)

@@ -109,7 +109,7 @@ public class LiquidBlock extends Block implements BucketPickup {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (this.shouldSpreadLiquid(param1, param2, param0)) {
-            param1.getLiquidTicks().scheduleTick(param2, param0.getFluidState().getType(), this.fluid.getTickDelay(param1));
+            param1.scheduleTick(param2, param0.getFluidState().getType(), this.fluid.getTickDelay(param1));
         }
 
     }
@@ -117,7 +117,7 @@ public class LiquidBlock extends Block implements BucketPickup {
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getFluidState().isSource() || param2.getFluidState().isSource()) {
-            param3.getLiquidTicks().scheduleTick(param4, param0.getFluidState().getType(), this.fluid.getTickDelay(param3));
+            param3.scheduleTick(param4, param0.getFluidState().getType(), this.fluid.getTickDelay(param3));
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
@@ -126,7 +126,7 @@ public class LiquidBlock extends Block implements BucketPickup {
     @Override
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
         if (this.shouldSpreadLiquid(param1, param2, param0)) {
-            param1.getLiquidTicks().scheduleTick(param2, param0.getFluidState().getType(), this.fluid.getTickDelay(param1));
+            param1.scheduleTick(param2, param0.getFluidState().getType(), this.fluid.getTickDelay(param1));
         }
 
     }

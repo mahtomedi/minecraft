@@ -24,7 +24,7 @@ public interface SimpleWaterloggedBlock extends BucketPickup, LiquidBlockContain
         if (!param2.getValue(BlockStateProperties.WATERLOGGED) && param3.getType() == Fluids.WATER) {
             if (!param0.isClientSide()) {
                 param0.setBlock(param1, param2.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true)), 3);
-                param0.getLiquidTicks().scheduleTick(param1, param3.getType(), param3.getType().getTickDelay(param0));
+                param0.scheduleTick(param1, param3.getType(), param3.getType().getTickDelay(param0));
             }
 
             return true;

@@ -22,12 +22,12 @@ public class FallingBlock extends Block implements Fallable {
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        param1.getBlockTicks().scheduleTick(param2, this, this.getDelayAfterPlace());
+        param1.scheduleTick(param2, this, this.getDelayAfterPlace());
     }
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        param3.getBlockTicks().scheduleTick(param4, this, this.getDelayAfterPlace());
+        param3.scheduleTick(param4, this, this.getDelayAfterPlace());
         return super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 

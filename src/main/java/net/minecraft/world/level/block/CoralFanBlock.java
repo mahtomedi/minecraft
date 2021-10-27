@@ -38,7 +38,7 @@ public class CoralFanBlock extends BaseCoralFanBlock {
         } else {
             this.tryScheduleDieTick(param0, param3, param4);
             if (param0.getValue(WATERLOGGED)) {
-                param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+                param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
             }
 
             return super.updateShape(param0, param1, param2, param3, param4, param5);

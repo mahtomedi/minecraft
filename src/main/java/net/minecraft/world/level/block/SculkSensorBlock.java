@@ -142,7 +142,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
                 param1.setBlock(param2, param0.setValue(POWER, Integer.valueOf(0)), 18);
             }
 
-            param1.getBlockTicks().scheduleTick(new BlockPos(param2), param0.getBlock(), 1);
+            param1.scheduleTick(new BlockPos(param2), param0.getBlock(), 1);
         }
     }
 
@@ -160,7 +160,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getValue(WATERLOGGED)) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
@@ -221,7 +221,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     public static void deactivate(Level param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.COOLDOWN).setValue(POWER, Integer.valueOf(0)), 3);
-        param0.getBlockTicks().scheduleTick(new BlockPos(param1), param2.getBlock(), 1);
+        param0.scheduleTick(new BlockPos(param1), param2.getBlock(), 1);
         if (!param2.getValue(WATERLOGGED)) {
             param0.playSound(null, param1, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param0.random.nextFloat() * 0.2F + 0.8F);
         }
@@ -231,7 +231,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     public static void activate(Level param0, BlockPos param1, BlockState param2, int param3) {
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param3)), 3);
-        param0.getBlockTicks().scheduleTick(new BlockPos(param1), param2.getBlock(), 40);
+        param0.scheduleTick(new BlockPos(param1), param2.getBlock(), 40);
         updateNeighbours(param0, param1);
         if (!param2.getValue(WATERLOGGED)) {
             param0.playSound(

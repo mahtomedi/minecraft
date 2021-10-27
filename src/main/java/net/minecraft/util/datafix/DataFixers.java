@@ -18,7 +18,6 @@ import net.minecraft.util.datafix.fixes.AddNewChoices;
 import net.minecraft.util.datafix.fixes.AdvancementsFix;
 import net.minecraft.util.datafix.fixes.AdvancementsRenameFix;
 import net.minecraft.util.datafix.fixes.AttributesRename;
-import net.minecraft.util.datafix.fixes.BedBlockEntityInjecter;
 import net.minecraft.util.datafix.fixes.BedItemColorFix;
 import net.minecraft.util.datafix.fixes.BeehivePoiRenameFix;
 import net.minecraft.util.datafix.fixes.BiomeFix;
@@ -39,10 +38,13 @@ import net.minecraft.util.datafix.fixes.BlockStateStructureTemplateFix;
 import net.minecraft.util.datafix.fixes.CatTypeFix;
 import net.minecraft.util.datafix.fixes.CauldronRenameFix;
 import net.minecraft.util.datafix.fixes.CavesAndCliffsRenames;
+import net.minecraft.util.datafix.fixes.ChunkBedBlockEntityInjecterFix;
 import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkHeightAndBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
+import net.minecraft.util.datafix.fixes.ChunkProtoTickListFix;
+import net.minecraft.util.datafix.fixes.ChunkRenamesFix;
 import net.minecraft.util.datafix.fixes.ChunkStatusFix;
 import net.minecraft.util.datafix.fixes.ChunkStatusFix2;
 import net.minecraft.util.datafix.fixes.ChunkStructuresTemplateRenameFix;
@@ -203,6 +205,7 @@ import net.minecraft.util.datafix.schemas.V2704;
 import net.minecraft.util.datafix.schemas.V2707;
 import net.minecraft.util.datafix.schemas.V2831;
 import net.minecraft.util.datafix.schemas.V2832;
+import net.minecraft.util.datafix.schemas.V2842;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -304,7 +307,7 @@ public class DataFixers {
         Schema var32 = param0.addSchema(1022, V1022::new);
         param0.addFixer(new WriteAndReadFix(var32, "added shoulder entities to players", References.PLAYER));
         Schema var33 = param0.addSchema(1125, V1125::new);
-        param0.addFixer(new BedBlockEntityInjecter(var33, true));
+        param0.addFixer(new ChunkBedBlockEntityInjecterFix(var33, true));
         param0.addFixer(new BedItemColorFix(var33, false));
         Schema var34 = param0.addSchema(1344, SAME_NAMESPACED);
         param0.addFixer(new OptionsKeyLwjgl3Fix(var34, false));
@@ -814,6 +817,12 @@ public class DataFixers {
         param0.addFixer(new WorldGenSettingsDisallowOldCustomWorldsFix(var148));
         Schema var149 = param0.addSchema(2838, SAME_NAMESPACED);
         param0.addFixer(new RenameBiomesFix(var149, false, "Caves and Cliffs biome renames", CavesAndCliffsRenames.RENAMES));
+        Schema var150 = param0.addSchema(2841, SAME_NAMESPACED);
+        param0.addFixer(new ChunkProtoTickListFix(var150));
+        Schema var151 = param0.addSchema(2842, V2842::new);
+        param0.addFixer(new ChunkRenamesFix(var151));
+        Schema var152 = param0.addSchema(2843, SAME_NAMESPACED);
+        param0.addFixer(new RenameBiomesFix(var152, false, "Remove Deep Warm Ocean", Map.of("minecraft:deep_warm_ocean", "minecraft:warm_ocean")));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

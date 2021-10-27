@@ -13,6 +13,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
@@ -21,11 +22,15 @@ import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
 import net.minecraft.util.profiling.jfr.callback.ProfiledDuration;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class ChunkStatus {
+    public static final int MAX_STRUCTURE_DISTANCE = 8;
     private static final EnumSet<Heightmap.Types> PRE_FEATURES = EnumSet.of(Heightmap.Types.OCEAN_FLOOR_WG, Heightmap.Types.WORLD_SURFACE_WG);
     public static final EnumSet<Heightmap.Types> POST_FEATURES = EnumSet.of(
         Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE, Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES
@@ -49,12 +54,49 @@ public class ChunkStatus {
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4, param5, param6, param7, param8, param9) -> {
             if (!param8.getStatus().isOrAfter(param0)) {
-                if (param2.getServer().getWorldData().worldGenSettings().generateFeatures()) {
-                    param3.createStructures(param2.registryAccess(), param2.structureFeatureManager(), param8, param4, param2.getSeed());
+                BelowZeroRetrogen var0 = param8.getBelowZeroRetrogen();
+                if (var0 == null) {
+                    if (param2.getServer().getWorldData().worldGenSettings().generateFeatures()) {
+                        param3.createStructures(param2.registryAccess(), param2.structureFeatureManager(), param8, param4, param2.getSeed());
+                    }
+                } else {
+                    ChunkStatus var1 = var0.targetStatus();
+                    param0 = var1;
+                    if (var1.isOrAfter(ChunkStatus.NOISE)) {
+                        int var2 = 4;
+                        LevelChunkSection var3 = param8.getSection(4);
+                        BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(15, 4, 15)).forEach(param1x -> {
+                            if (var3.getBlockState(param1x.getX(), param1x.getY(), param1x.getZ()).is(Blocks.BEDROCK)) {
+                                var3.setBlockState(param1x.getX(), param1x.getY(), param1x.getZ(), Blocks.DEEPSLATE.defaultBlockState());
+                            }
+    
+                        });
+    
+                        for(int var4 = 0; var4 < 4; ++var4) {
+                            LevelChunkSection var5 = param8.getSection(var4);
+                            BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(15, 15, 15)).forEach(param2x -> {
+                                if (var0.hasBedrockAt(param2x.getX(), param2x.getZ())) {
+                                    var5.setBlockState(param2x.getX(), param2x.getY(), param2x.getZ(), Blocks.DEEPSLATE.defaultBlockState());
+                                }
+    
+                            });
+                        }
+    
+                        LevelChunkSection var6 = param8.getSection(0);
+                        BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(15, 0, 15)).forEach(param2x -> {
+                            if (var0.hasBedrockAt(param2x.getX(), param2x.getZ())) {
+                                var6.setBlockState(param2x.getX(), param2x.getY(), param2x.getZ(), Blocks.BEDROCK.defaultBlockState());
+                            }
+    
+                        });
+                    }
                 }
     
-                if (param8 instanceof ProtoChunk) {
-                    ((ProtoChunk)param8).setStatus(param0);
+                if (param8 instanceof ProtoChunk var8) {
+                    var8.setStatus(param0);
+                    if (param0.isOrAfter(ChunkStatus.FEATURES)) {
+                        var8.setLightEngine(param5);
+                    }
                 }
             }
     
@@ -78,19 +120,13 @@ public class ChunkStatus {
                 return CompletableFuture.completedFuture(Either.left(param8));
             } else {
                 WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, -1);
-                return param3.createBiomes(
-                        param1,
-                        param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-                        param2.structureFeatureManager().forWorldGenRegion(var0),
-                        param8
-                    )
-                    .thenApply(param1x -> {
-                        if (param1x instanceof ProtoChunk) {
-                            ((ProtoChunk)param1x).setStatus(param0);
-                        }
-        
-                        return Either.left(param1x);
-                    });
+                return param3.createBiomes(param1, Blender.of(var0), param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
+                    if (param1x instanceof ProtoChunk) {
+                        ((ProtoChunk)param1x).setStatus(param0);
+                    }
+    
+                    return Either.left(param1x);
+                });
             }
         }
     );
@@ -105,7 +141,7 @@ public class ChunkStatus {
                 return CompletableFuture.completedFuture(Either.left(param8));
             } else {
                 WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, 0);
-                return param3.fillFromNoise(param1, param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
+                return param3.fillFromNoise(param1, Blender.of(var0), param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
                     if (param1x instanceof ProtoChunk) {
                         ((ProtoChunk)param1x).setStatus(param0);
                     }
@@ -116,7 +152,7 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus SURFACE = registerSimple(
-        "surface", NOISE, 1, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
+        "surface", NOISE, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
             WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
             param2.buildSurface(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
         }
@@ -211,6 +247,7 @@ public class ChunkStatus {
         FEATURES,
         LIQUID_CARVERS,
         BIOMES,
+        STRUCTURE_STARTS,
         STRUCTURE_STARTS,
         STRUCTURE_STARTS,
         STRUCTURE_STARTS,

@@ -672,7 +672,7 @@ public class NetherBridgePieces {
             this.placeBlock(param0, Blocks.LAVA.defaultBlockState(), 6, 5, 6, param4);
             BlockPos var8 = this.getWorldPos(6, 5, 6);
             if (param4.isInside(var8)) {
-                param0.getLiquidTicks().scheduleTick(var8, Fluids.LAVA, 0);
+                param0.scheduleTick(var8, Fluids.LAVA, 0);
             }
 
         }

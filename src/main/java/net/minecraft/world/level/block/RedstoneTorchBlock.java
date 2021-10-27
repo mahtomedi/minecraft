@@ -71,7 +71,7 @@ public class RedstoneTorchBlock extends TorchBlock {
                 param1.setBlock(param2, param0.setValue(LIT, Boolean.valueOf(false)), 3);
                 if (isToggledTooFrequently(param1, param2, true)) {
                     param1.levelEvent(1502, param2, 0);
-                    param1.getBlockTicks().scheduleTick(param2, param1.getBlockState(param2).getBlock(), 160);
+                    param1.scheduleTick(param2, param1.getBlockState(param2).getBlock(), 160);
                 }
             }
         } else if (!var0 && !isToggledTooFrequently(param1, param2, false)) {
@@ -83,7 +83,7 @@ public class RedstoneTorchBlock extends TorchBlock {
     @Override
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
         if (param0.getValue(LIT) == this.hasNeighborSignal(param1, param2, param0) && !param1.getBlockTicks().willTickThisTick(param2, this)) {
-            param1.getBlockTicks().scheduleTick(param2, this, 2);
+            param1.scheduleTick(param2, this, 2);
         }
 
     }

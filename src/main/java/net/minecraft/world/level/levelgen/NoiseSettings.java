@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Function;
+import net.minecraft.world.level.biome.TerrainShaper;
 import net.minecraft.world.level.dimension.DimensionType;
 
 public record NoiseSettings(
@@ -18,7 +19,8 @@ public record NoiseSettings(
     double densityFactor,
     double densityOffset,
     @Deprecated boolean islandNoiseOverride,
-    @Deprecated boolean isAmplified
+    @Deprecated boolean isAmplified,
+    TerrainShaper terrainShaper
 ) {
     public static final Codec<NoiseSettings> CODEC = RecordCodecBuilder.<NoiseSettings>create(
             param0 -> param0.group(
@@ -34,7 +36,8 @@ public record NoiseSettings(
                         Codec.BOOL
                             .optionalFieldOf("island_noise_override", Boolean.valueOf(false), Lifecycle.experimental())
                             .forGetter(NoiseSettings::islandNoiseOverride),
-                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified)
+                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified),
+                        TerrainShaper.CODEC.fieldOf("terrain_shaper").forGetter(NoiseSettings::terrainShaper)
                     )
                     .apply(param0, NoiseSettings::new)
         )
@@ -61,9 +64,10 @@ public record NoiseSettings(
         double param7,
         double param8,
         boolean param9,
-        boolean param10
+        boolean param10,
+        TerrainShaper param11
     ) {
-        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
+        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
         guardY(var0).error().ifPresent(param0x -> {
             throw new IllegalStateException(param0x.message());
         });

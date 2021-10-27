@@ -232,21 +232,23 @@ public class ClientPackSource implements RepositorySource {
     }
 
     private void clearOldDownloads() {
-        try {
-            List<File> var0 = Lists.newArrayList(FileUtils.listFiles(this.serverPackDir, TrueFileFilter.TRUE, null));
-            var0.sort(LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-            int var1 = 0;
+        if (this.serverPackDir.isDirectory()) {
+            try {
+                List<File> var0 = Lists.newArrayList(FileUtils.listFiles(this.serverPackDir, TrueFileFilter.TRUE, null));
+                var0.sort(LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+                int var1 = 0;
 
-            for(File var2 : var0) {
-                if (var1++ >= 10) {
-                    LOGGER.info("Deleting old server resource pack {}", var2.getName());
-                    FileUtils.deleteQuietly(var2);
+                for(File var2 : var0) {
+                    if (var1++ >= 10) {
+                        LOGGER.info("Deleting old server resource pack {}", var2.getName());
+                        FileUtils.deleteQuietly(var2);
+                    }
                 }
+            } catch (Exception var5) {
+                LOGGER.error("Error while deleting old server resource pack : {}", var5.getMessage());
             }
-        } catch (IllegalArgumentException var5) {
-            LOGGER.error("Error while deleting old server resource pack : {}", var5.getMessage());
-        }
 
+        }
     }
 
     public CompletableFuture<Void> setServerPack(File param0, PackSource param1) {

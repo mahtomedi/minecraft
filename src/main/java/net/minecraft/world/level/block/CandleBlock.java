@@ -95,7 +95,7 @@ public class CandleBlock extends AbstractCandleBlock implements SimpleWaterlogge
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getValue(WATERLOGGED)) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
@@ -136,7 +136,7 @@ public class CandleBlock extends AbstractCandleBlock implements SimpleWaterlogge
                 param0.setBlock(param1, var0, 3);
             }
 
-            param0.getLiquidTicks().scheduleTick(param1, param3.getType(), param3.getType().getTickDelay(param0));
+            param0.scheduleTick(param1, param3.getType(), param3.getType().getTickDelay(param0));
             return true;
         } else {
             return false;

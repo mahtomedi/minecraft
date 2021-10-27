@@ -156,7 +156,7 @@ public class TripWireBlock extends Block {
         }
 
         if (var2) {
-            param0.getBlockTicks().scheduleTick(new BlockPos(param1), this, 10);
+            param0.scheduleTick(new BlockPos(param1), this, 10);
         }
 
     }

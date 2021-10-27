@@ -179,7 +179,7 @@ public class LecternBlock extends BaseEntityBlock {
 
     public static void signalPageChange(Level param0, BlockPos param1, BlockState param2) {
         changePowered(param0, param1, param2, true);
-        param0.getBlockTicks().scheduleTick(param1, param2.getBlock(), 2);
+        param0.scheduleTick(param1, param2.getBlock(), 2);
         param0.levelEvent(1043, param1, 0);
     }
 

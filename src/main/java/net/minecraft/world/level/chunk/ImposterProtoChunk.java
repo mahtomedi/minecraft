@@ -10,7 +10,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
@@ -19,18 +18,26 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.ticks.BlackholeTickAccess;
+import net.minecraft.world.ticks.TickContainerAccess;
 
 public class ImposterProtoChunk extends ProtoChunk {
     private final LevelChunk wrapped;
     private final boolean allowWrites;
 
     public ImposterProtoChunk(LevelChunk param0, boolean param1) {
-        super(param0.getPos(), UpgradeData.EMPTY, param0.levelHeightAccessor, param0.getLevel().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY));
+        super(
+            param0.getPos(),
+            UpgradeData.EMPTY,
+            param0.levelHeightAccessor,
+            param0.getLevel().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
+            param0.getGenerationUpgradeData()
+        );
         this.wrapped = param0;
         this.allowWrites = param1;
     }
@@ -214,13 +221,29 @@ public class ImposterProtoChunk extends ProtoChunk {
     }
 
     @Override
-    public TickList<Block> getBlockTicks() {
-        return new ProtoTickList<>(param0 -> param0.defaultBlockState().isAir(), this.getPos(), this);
+    public TickContainerAccess<Block> getBlockTicks() {
+        return BlackholeTickAccess.emptyContainer();
     }
 
     @Override
-    public TickList<Fluid> getLiquidTicks() {
-        return new ProtoTickList<>(param0 -> param0 == Fluids.EMPTY, this.getPos(), this);
+    public TickContainerAccess<Fluid> getFluidTicks() {
+        return BlackholeTickAccess.emptyContainer();
+    }
+
+    @Override
+    public ChunkAccess.TicksToSave getTicksForSerialization() {
+        return this.wrapped.getTicksForSerialization();
+    }
+
+    @Nullable
+    @Override
+    public BlendingData getBlendingData() {
+        return this.wrapped.getBlendingData();
+    }
+
+    @Override
+    public void setBlendingData(BlendingData param0) {
+        this.wrapped.setBlendingData(param0);
     }
 
     @Override

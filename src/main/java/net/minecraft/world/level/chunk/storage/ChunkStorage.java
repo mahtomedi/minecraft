@@ -1,8 +1,10 @@
 package net.minecraft.world.level.chunk.storage;
 
 import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Codec;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -12,6 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
@@ -26,7 +29,9 @@ public class ChunkStorage implements AutoCloseable {
         this.worker = new IOWorker(param0, param2, "chunk");
     }
 
-    public CompoundTag upgradeChunkTag(ResourceKey<Level> param0, Supplier<DimensionDataStorage> param1, CompoundTag param2) {
+    public CompoundTag upgradeChunkTag(
+        ResourceKey<Level> param0, Supplier<DimensionDataStorage> param1, CompoundTag param2, Optional<ResourceKey<Codec<? extends ChunkGenerator>>> param3
+    ) {
         int var0 = getVersion(param2);
         int var1 = 1493;
         if (var0 < 1493) {
@@ -40,13 +45,19 @@ public class ChunkStorage implements AutoCloseable {
             }
         }
 
-        param2.getCompound("Level").putString("__dimension", param0.location().toString());
+        CompoundTag var2 = new CompoundTag();
+        var2.putString("dimension", param0.location().toString());
+        if (param3.isPresent()) {
+            var2.putString("generator", param3.get().location().toString());
+        }
+
+        param2.put("__context", var2);
         param2 = NbtUtils.update(this.fixerUpper, DataFixTypes.CHUNK, param2, Math.max(1493, var0));
         if (var0 < SharedConstants.getCurrentVersion().getWorldVersion()) {
             param2.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
         }
 
-        param2.getCompound("Level").remove("__dimension");
+        param2.remove("__context");
         return param2;
     }
 

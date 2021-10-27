@@ -99,7 +99,7 @@ public class DispenserBlock extends BaseEntityBlock {
         boolean var0 = param1.hasNeighborSignal(param2) || param1.hasNeighborSignal(param2.above());
         boolean var1 = param0.getValue(TRIGGERED);
         if (var0 && !var1) {
-            param1.getBlockTicks().scheduleTick(param2, this, 4);
+            param1.scheduleTick(param2, this, 4);
             param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(true)), 4);
         } else if (!var0 && var1) {
             param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(false)), 4);

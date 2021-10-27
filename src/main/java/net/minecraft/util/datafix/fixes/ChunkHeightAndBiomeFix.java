@@ -10,6 +10,7 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.OptionalDynamic;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -23,14 +24,18 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 public class ChunkHeightAndBiomeFix extends DataFix {
-    public static final String DIMENSION_UPGRADE_TAG = "__dimension";
+    public static final String DATAFIXER_CONTEXT_TAG = "__context";
     private static final String NAME = "ChunkHeightAndBiomeFix";
     private static final int OLD_SECTION_COUNT = 16;
     private static final int NEW_SECTION_COUNT = 24;
@@ -42,6 +47,9 @@ public class ChunkHeightAndBiomeFix extends DataFix {
     private static final String[] HEIGHTMAP_TYPES = new String[]{
         "WORLD_SURFACE_WG", "WORLD_SURFACE", "WORLD_SURFACE_IGNORE_SNOW", "OCEAN_FLOOR_WG", "OCEAN_FLOOR", "MOTION_BLOCKING", "MOTION_BLOCKING_NO_LEAVES"
     };
+    private static final Set<String> STATUSES_WITH_NOISE_DATA = Set.of(
+        "noise", "surface", "carvers", "liquid_carvers", "features", "light", "spawn", "heightmaps", "full"
+    );
     private static final int BIOME_CONTAINER_LAYER_SIZE = 16;
     private static final int BIOME_CONTAINER_SIZE = 64;
     private static final int BIOME_CONTAINER_TOP_LAYER_OFFSET = 1008;
@@ -68,54 +76,65 @@ public class ChunkHeightAndBiomeFix extends DataFix {
             param4 -> param4.updateTyped(
                     var1,
                     var5,
-                    param2x -> {
-                        Dynamic<?> var0x = param2x.get(DSL.remainderFinder());
-                        String var1x = var0x.get("__dimension").asString().result().orElse("");
-                        boolean var2x = "minecraft:overworld".equals(var1x);
-                        MutableBoolean var3x = new MutableBoolean();
-                        int var4x = var2x ? -4 : 0;
-                        Dynamic<?>[] var5x = getBiomeContainers(var0x, var2x, var4x, var3x);
-                        Dynamic<?> var6x = makePalettedContainer(
+                    param3x -> {
+                        Dynamic<?> var0x = param3x.get(DSL.remainderFinder());
+                        OptionalDynamic<?> var1x = param4.get(DSL.remainderFinder()).get("__context");
+                        String var2x = var1x.get("dimension").asString().result().orElse("");
+                        String var3x = var1x.get("generator").asString().result().orElse("");
+                        boolean var4x = "minecraft:overworld".equals(var2x);
+                        MutableBoolean var5x = new MutableBoolean();
+                        int var6x = var4x ? -4 : 0;
+                        Dynamic<?>[] var7x = getBiomeContainers(var0x, var4x, var6x, var5x);
+                        Dynamic<?> var8 = makePalettedContainer(
                             var0x.createList(Stream.of(var0x.createMap(ImmutableMap.of(var0x.createString("Name"), var0x.createString("minecraft:air")))))
                         );
-                        param2x = param2x.updateTyped(
+                        MutableObject<Supplier<ChunkProtoTickListFix.PoorMansPalettedContainer>> var9 = new MutableObject<>(() -> null);
+                        param3x = param3x.updateTyped(
                             var2,
                             var6,
-                            param5 -> {
+                            param6 -> {
                                 IntSet var0xx = new IntOpenHashSet();
-                                Dynamic<?> var1xx = param5.write().result().orElseThrow(() -> new IllegalStateException("Malformed Chunk.Level.Sections"));
+                                Dynamic<?> var1xx = param6.write().result().orElseThrow(() -> new IllegalStateException("Malformed Chunk.Level.Sections"));
                                 List<Dynamic<?>> var2xx = var1xx.asStream()
                                     .map(
-                                        param4x -> {
-                                            int var0xxx = param4x.get("Y").asInt(0);
+                                        param5x -> {
+                                            int var0xxx = param5x.get("Y").asInt(0);
                                             Dynamic<?> var1xxx = DataFixUtils.orElse(
-                                                param4x.get("Palette")
+                                                param5x.get("Palette")
                                                     .result()
                                                     .flatMap(
-                                                        param1x -> param4x.get("BlockStates")
+                                                        param1x -> param5x.get("BlockStates")
                                                                 .result()
                                                                 .map(param1xx -> makeOptimizedPalettedContainer(param1x, param1xx))
                                                     ),
-                                                var6x
+                                                var8
                                             );
-                                            Dynamic<?> var2xxx = param4x;
-                                            int var3xxx = var0xxx - var4x;
-                                            if (var3xxx >= 0 && var3xxx < var5x.length) {
-                                                var2xxx = param4x.set("biomes", var5x[var3xxx]);
+                                            Dynamic<?> var2xxx = param5x;
+                                            int var3xxx = var0xxx - var6x;
+                                            if (var3xxx >= 0 && var3xxx < var7x.length) {
+                                                var2xxx = param5x.set("biomes", var7x[var3xxx]);
                                             }
                     
                                             var0xx.add(var0xxx);
+                                            if (param5x.get("Y").asInt(Integer.MAX_VALUE) == 0) {
+                                                var9.setValue(() -> {
+                                                    List<? extends Dynamic<?>> var0xxxx = var1xxx.get("palette").asList(Function.identity());
+                                                    long[] var1xxxx = var1xxx.get("data").asLongStream().toArray();
+                                                    return new ChunkProtoTickListFix.PoorMansPalettedContainer(var0xxxx, var1xxxx);
+                                                });
+                                            }
+                    
                                             return var2xxx.set("block_states", var1xxx).remove("Palette").remove("BlockStates");
                                         }
                                     )
                                     .collect(Collectors.toCollection(ArrayList::new));
             
-                                for(int var3xx = 0; var3xx < var5x.length; ++var3xx) {
-                                    int var4xx = var3xx + var4x;
+                                for(int var3xx = 0; var3xx < var7x.length; ++var3xx) {
+                                    int var4xx = var3xx + var6x;
                                     if (var0xx.add(var4xx)) {
                                         Dynamic<?> var5xx = var0x.createMap(Map.of(var0x.createString("Y"), var0x.createInt(var4xx)));
-                                        var5xx = var5xx.set("block_states", var6x);
-                                        var5xx = var5xx.set("biomes", var5x[var3xx]);
+                                        var5xx = var5xx.set("block_states", var8);
+                                        var5xx = var5xx.set("biomes", var7x[var3xx]);
                                         var2xx.add(var5xx);
                                     }
                                 }
@@ -126,7 +145,10 @@ public class ChunkHeightAndBiomeFix extends DataFix {
                                     .getFirst();
                             }
                         );
-                        return param2x.update(DSL.remainderFinder(), param2xx -> updateChunkTag(param2xx, var2x, var3x.booleanValue()));
+                        return param3x.update(
+                            DSL.remainderFinder(),
+                            param4x -> updateChunkTag(param4x, var4x, var5x.booleanValue(), "minecraft:noise".equals(var3x), var9.getValue())
+                        );
                     }
                 )
         );
@@ -168,7 +190,9 @@ public class ChunkHeightAndBiomeFix extends DataFix {
         return var0;
     }
 
-    private static Dynamic<?> updateChunkTag(Dynamic<?> param0, boolean param1, boolean param2) {
+    private static Dynamic<?> updateChunkTag(
+        Dynamic<?> param0, boolean param1, boolean param2, boolean param3, Supplier<ChunkProtoTickListFix.PoorMansPalettedContainer> param4
+    ) {
         param0 = param0.remove("Biomes");
         if (!param1) {
             return updateCarvingMasks(param0, 16, 0);
@@ -180,7 +204,62 @@ public class ChunkHeightAndBiomeFix extends DataFix {
             param0 = addPaddingEntries(param0, "LiquidsToBeTicked");
             param0 = addPaddingEntries(param0, "PostProcessing");
             param0 = addPaddingEntries(param0, "ToBeTicked");
-            return updateCarvingMasks(param0, 24, 4);
+            param0 = updateCarvingMasks(param0, 24, 4);
+            if (!param3) {
+                return param0;
+            } else {
+                Optional<? extends Dynamic<?>> var0 = param0.get("Status").result();
+                if (var0.isPresent()) {
+                    Dynamic<?> var1 = var0.get();
+                    String var2 = var1.asString("");
+                    if (!"empty".equals(var2)) {
+                        boolean var3 = STATUSES_WITH_NOISE_DATA.contains(var2);
+                        boolean var4 = var3 || "biomes".equals(var2);
+                        param0 = param0.set(
+                            "blending_data",
+                            param0.createMap(
+                                ImmutableMap.of(
+                                    param0.createString("old_biome"), param0.createBoolean(var4), param0.createString("old_noise"), param0.createBoolean(var3)
+                                )
+                            )
+                        );
+                        ChunkProtoTickListFix.PoorMansPalettedContainer var5 = param4.get();
+                        if (var5 != null) {
+                            BitSet var6 = new BitSet(256);
+
+                            for(int var7 = 0; var7 < 16; ++var7) {
+                                for(int var8 = 0; var8 < 16; ++var8) {
+                                    Dynamic<?> var9 = var5.get(var8, 0, var7);
+                                    boolean var10 = var9 != null && "minecraft:bedrock".equals(var9.get("Name").asString(""));
+                                    if (!var10) {
+                                        var6.set(var7 * 16 + var8);
+                                    }
+                                }
+                            }
+
+                            boolean var11 = var6.cardinality() != var6.size();
+                            if (var11) {
+                                Dynamic<?> var12 = "full".equals(var2) ? param0.createString("heightmaps") : var1;
+                                param0 = param0.set(
+                                    "below_zero_retrogen",
+                                    param0.createMap(
+                                        ImmutableMap.of(
+                                            param0.createString("target_status"),
+                                            var12,
+                                            param0.createString("missing_bedrock"),
+                                            param0.createLongList(LongStream.of(var6.toLongArray()))
+                                        )
+                                    )
+                                );
+                                param0 = param0.set("Status", param0.createString("empty"));
+                                param0 = param0.set("isLightOn", param0.createBoolean(false));
+                            }
+                        }
+                    }
+                }
+
+                return param0;
+            }
         }
     }
 

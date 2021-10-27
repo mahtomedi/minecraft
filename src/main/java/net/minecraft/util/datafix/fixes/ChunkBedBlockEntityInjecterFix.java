@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class BedBlockEntityInjecter extends DataFix {
-    public BedBlockEntityInjecter(Schema param0, boolean param1) {
+public class ChunkBedBlockEntityInjecterFix extends DataFix {
+    public ChunkBedBlockEntityInjecterFix(Schema param0, boolean param1) {
         super(param0, param1);
     }
 

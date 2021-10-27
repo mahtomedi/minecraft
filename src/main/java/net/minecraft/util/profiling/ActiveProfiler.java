@@ -147,13 +147,13 @@ public class ActiveProfiler implements ProfileCollector {
     }
 
     @Override
-    public void incrementCounter(String param0) {
-        this.getCurrentEntry().counters.addTo(param0, 1L);
+    public void incrementCounter(String param0, int param1) {
+        this.getCurrentEntry().counters.addTo(param0, (long)param1);
     }
 
     @Override
-    public void incrementCounter(Supplier<String> param0) {
-        this.getCurrentEntry().counters.addTo(param0.get(), 1L);
+    public void incrementCounter(Supplier<String> param0, int param1) {
+        this.getCurrentEntry().counters.addTo(param0.get(), (long)param1);
     }
 
     @Override

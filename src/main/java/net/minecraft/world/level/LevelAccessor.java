@@ -16,6 +16,9 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.ticks.LevelTickAccess;
+import net.minecraft.world.ticks.ScheduledTick;
+import net.minecraft.world.ticks.TickPriority;
 
 public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
     @Override
@@ -23,9 +26,35 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
         return this.getLevelData().getDayTime();
     }
 
-    TickList<Block> getBlockTicks();
+    long nextSubTickCount();
 
-    TickList<Fluid> getLiquidTicks();
+    LevelTickAccess<Block> getBlockTicks();
+
+    private <T> ScheduledTick<T> createTick(BlockPos param0, T param1, int param2, TickPriority param3) {
+        return new ScheduledTick<>(param1, param0, this.getLevelData().getGameTime() + (long)param2, param3, this.nextSubTickCount());
+    }
+
+    private <T> ScheduledTick<T> createTick(BlockPos param0, T param1, int param2) {
+        return new ScheduledTick<>(param1, param0, this.getLevelData().getGameTime() + (long)param2, this.nextSubTickCount());
+    }
+
+    default void scheduleTick(BlockPos param0, Block param1, int param2, TickPriority param3) {
+        this.getBlockTicks().schedule(this.createTick(param0, param1, param2, param3));
+    }
+
+    default void scheduleTick(BlockPos param0, Block param1, int param2) {
+        this.getBlockTicks().schedule(this.createTick(param0, param1, param2));
+    }
+
+    LevelTickAccess<Fluid> getFluidTicks();
+
+    default void scheduleTick(BlockPos param0, Fluid param1, int param2, TickPriority param3) {
+        this.getFluidTicks().schedule(this.createTick(param0, param1, param2, param3));
+    }
+
+    default void scheduleTick(BlockPos param0, Fluid param1, int param2) {
+        this.getFluidTicks().schedule(this.createTick(param0, param1, param2));
+    }
 
     LevelData getLevelData();
 
@@ -55,10 +84,6 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
     void addParticle(ParticleOptions var1, double var2, double var4, double var6, double var8, double var10, double var12);
 
     void levelEvent(@Nullable Player var1, int var2, BlockPos var3, int var4);
-
-    default int getLogicalHeight() {
-        return this.dimensionType().logicalHeight();
-    }
 
     default void levelEvent(int param0, BlockPos param1, int param2) {
         this.levelEvent(null, param0, param1, param2);

@@ -9,12 +9,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
 public interface Aquifer {
-    int EMPTY_FLUID_LEVEL = -4096;
-
     static Aquifer create(
         NoiseChunk param0,
         ChunkPos param1,
@@ -96,7 +95,7 @@ public interface Aquifer {
         private final int gridSizeX;
         private final int gridSizeZ;
         private static final int[][] SURFACE_SAMPLING_OFFSETS_IN_CHUNKS = new int[][]{
-            {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {3, 0}, {-3, 0}, {0, 3}, {0, -3}, {2, 2}, {2, -2}, {-2, 2}, {-2, 2}
+            {-2, -1}, {-1, -1}, {0, -1}, {1, -1}, {-3, 0}, {-2, 0}, {-1, 0}, {0, 0}, {1, 0}, {-2, 1}, {-1, 1}, {0, 1}, {1, 1}
         };
 
         NoiseBasedAquifer(
@@ -389,7 +388,7 @@ public interface Aquifer {
             } else {
                 double var19 = Mth.map(var15, 1.0, 0.0, -0.8, 0.4);
                 if (var17 <= var19) {
-                    return new Aquifer.FluidStatus(-4096, var0.fluidType);
+                    return new Aquifer.FluidStatus(DimensionType.WAY_BELOW_MIN_Y, var0.fluidType);
                 } else {
                     int var20 = 16;
                     int var21 = 40;
@@ -416,7 +415,7 @@ public interface Aquifer {
                 int var3 = Math.floorDiv(param1, 40);
                 int var4 = Math.floorDiv(param2, 64);
                 double var5 = this.lavaNoise.getValue((double)var2, (double)var3, (double)var4);
-                if (Math.abs(var5) > 0.22) {
+                if (Math.abs(var5) > 0.3) {
                     return Blocks.LAVA.defaultBlockState();
                 }
             }

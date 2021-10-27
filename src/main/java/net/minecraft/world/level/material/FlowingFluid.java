@@ -427,7 +427,7 @@ public abstract class FlowingFluid extends Fluid {
                 param2 = var0;
                 BlockState var2 = var0.createLegacyBlock();
                 param0.setBlock(param1, var2, 2);
-                param0.getLiquidTicks().scheduleTick(param1, var0.getType(), var1);
+                param0.scheduleTick(param1, var0.getType(), var1);
                 param0.updateNeighborsAt(param1, var2.getBlock());
             }
         }

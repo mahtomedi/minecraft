@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
@@ -134,6 +135,10 @@ public class ExtraCodecs {
         };
     }
 
+    public static <A> Codec<A> lazyInitializedCodec(Supplier<Codec<A>> param0) {
+        return new ExtraCodecs.LazyInitializedCodec<>(param0);
+    }
+
     static final class EitherCodec<F, S> implements Codec<Either<F, S>> {
         private final Codec<F> first;
         private final Codec<S> second;
@@ -178,6 +183,23 @@ public class ExtraCodecs {
         @Override
         public String toString() {
             return "EitherCodec[" + this.first + ", " + this.second + "]";
+        }
+    }
+
+    static record LazyInitializedCodec<A, T>(Supplier<Codec<A>> delegate) implements Codec {
+        LazyInitializedCodec(Supplier<Codec<A>> param0) {
+            Supplier<Codec<A>> var2 = Suppliers.memoize(param0::get);
+            this.delegate = var2;
+        }
+
+        @Override
+        public <T> DataResult<Pair<A, T>> decode(DynamicOps<T> param0, T param1) {
+            return this.delegate.get().decode(param0, param1);
+        }
+
+        @Override
+        public <T> DataResult<T> encode(A param0, DynamicOps<T> param1, T param2) {
+            return this.delegate.get().encode(param0, param1, param2);
         }
     }
 

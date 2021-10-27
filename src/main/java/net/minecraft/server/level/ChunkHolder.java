@@ -353,27 +353,26 @@ public class ChunkHolder {
         }
 
         if (var9 && !var10) {
-            CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var11 = this.fullChunkFuture;
+            this.fullChunkFuture.complete(UNLOADED_LEVEL_CHUNK);
             this.fullChunkFuture = UNLOADED_LEVEL_CHUNK_FUTURE;
-            this.updateChunkToSave(var11.thenApply(param1x -> param1x.ifLeft(param0::packTicks)), "unfull");
         }
 
-        boolean var12 = var4.isOrAfter(ChunkHolder.FullChunkStatus.TICKING);
-        boolean var13 = var5.isOrAfter(ChunkHolder.FullChunkStatus.TICKING);
-        if (!var12 && var13) {
+        boolean var11 = var4.isOrAfter(ChunkHolder.FullChunkStatus.TICKING);
+        boolean var12 = var5.isOrAfter(ChunkHolder.FullChunkStatus.TICKING);
+        if (!var11 && var12) {
             this.tickingChunkFuture = param0.prepareTickingChunk(this);
             this.scheduleFullChunkPromotion(param0, this.tickingChunkFuture, param1, ChunkHolder.FullChunkStatus.TICKING);
             this.updateChunkToSave(this.tickingChunkFuture, "ticking");
         }
 
-        if (var12 && !var13) {
+        if (var11 && !var12) {
             this.tickingChunkFuture.complete(UNLOADED_LEVEL_CHUNK);
             this.tickingChunkFuture = UNLOADED_LEVEL_CHUNK_FUTURE;
         }
 
-        boolean var14 = var4.isOrAfter(ChunkHolder.FullChunkStatus.ENTITY_TICKING);
-        boolean var15 = var5.isOrAfter(ChunkHolder.FullChunkStatus.ENTITY_TICKING);
-        if (!var14 && var15) {
+        boolean var13 = var4.isOrAfter(ChunkHolder.FullChunkStatus.ENTITY_TICKING);
+        boolean var14 = var5.isOrAfter(ChunkHolder.FullChunkStatus.ENTITY_TICKING);
+        if (!var13 && var14) {
             if (this.entityTickingChunkFuture != UNLOADED_LEVEL_CHUNK_FUTURE) {
                 throw (IllegalStateException)Util.pauseInIde(new IllegalStateException());
             }
@@ -383,7 +382,7 @@ public class ChunkHolder {
             this.updateChunkToSave(this.entityTickingChunkFuture, "entity ticking");
         }
 
-        if (var14 && !var15) {
+        if (var13 && !var14) {
             this.entityTickingChunkFuture.complete(UNLOADED_LEVEL_CHUNK);
             this.entityTickingChunkFuture = UNLOADED_LEVEL_CHUNK_FUTURE;
         }

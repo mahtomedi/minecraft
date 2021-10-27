@@ -3,7 +3,6 @@ package net.minecraft.client;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
-import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.mojang.authlib.AuthenticationService;
 import com.mojang.authlib.GameProfile;
@@ -41,7 +40,6 @@ import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -219,8 +217,6 @@ import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.Snooper;
-import net.minecraft.world.SnooperPopulator;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.ChatVisiblity;
@@ -250,14 +246,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 @OnlyIn(Dist.CLIENT)
-public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements SnooperPopulator, WindowEventHandler {
+public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements WindowEventHandler {
     private static Minecraft instance;
     private static final Logger LOGGER = LogManager.getLogger();
     public static final boolean ON_OSX = Util.getPlatform() == Util.OS.OSX;
@@ -275,7 +270,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final VirtualScreen virtualScreen;
     private final Window window;
     private final Timer timer = new Timer(20.0F, 0L);
-    private final Snooper snooper = new Snooper("client", this, Util.getMillis());
     private final RenderBuffers renderBuffers;
     public final LevelRenderer levelRenderer;
     private final EntityRenderDispatcher entityRenderDispatcher;
@@ -1098,10 +1092,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             );
             this.lastTime += 1000L;
             this.frames = 0;
-            this.snooper.prepare();
-            if (!this.snooper.isStarted()) {
-                this.snooper.start();
-            }
         }
 
         this.profiler.pop();
@@ -2350,66 +2340,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.<CompletableFuture<Void>>submit(this::reloadResourcePacks).thenCompose(param0 -> param0);
     }
 
-    @Override
-    public void populateSnooper(Snooper param0) {
-        param0.setDynamicData("fps", fps);
-        param0.setDynamicData("vsync_enabled", this.options.enableVsync);
-        param0.setDynamicData("display_frequency", this.window.getRefreshRate());
-        param0.setDynamicData("display_type", this.window.isFullscreen() ? "fullscreen" : "windowed");
-        param0.setDynamicData("run_time", (Util.getMillis() - param0.getStartupTime()) / 60L * 1000L);
-        param0.setDynamicData("current_action", this.getCurrentSnooperAction());
-        param0.setDynamicData("language", this.options.languageCode == null ? "en_us" : this.options.languageCode);
-        String var0 = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN ? "little" : "big";
-        param0.setDynamicData("endianness", var0);
-        param0.setDynamicData("subtitles", this.options.showSubtitles);
-        param0.setDynamicData("touch", this.options.touchscreen ? "touch" : "mouse");
-        int var1 = 0;
-
-        for(Pack var2 : this.resourcePackRepository.getSelectedPacks()) {
-            if (!var2.isRequired() && !var2.isFixedPosition()) {
-                param0.setDynamicData("resource_pack[" + var1++ + "]", var2.getId());
-            }
-        }
-
-        param0.setDynamicData("resource_packs", var1);
-        if (this.singleplayerServer != null) {
-            param0.setDynamicData("snooper_partner", this.singleplayerServer.getSnooper().getToken());
-        }
-
-    }
-
-    private String getCurrentSnooperAction() {
-        if (this.singleplayerServer != null) {
-            return this.singleplayerServer.isPublished() ? "hosting_lan" : "singleplayer";
-        } else if (this.currentServer != null) {
-            return this.currentServer.isLan() ? "playing_lan" : "multiplayer";
-        } else {
-            return "out_of_game";
-        }
-    }
-
-    @Override
-    public void populateSnooperInitial(Snooper param0) {
-        param0.setFixedData("client_brand", ClientBrandRetriever.getClientModName());
-        param0.setFixedData("launched_version", this.launchedVersion);
-        populateSnooperWithOpenGL(param0);
-        param0.setFixedData("gl_max_texture_size", RenderSystem.maxSupportedTextureSize());
-        GameProfile var0 = this.user.getGameProfile();
-        if (var0.getId() != null) {
-            param0.setFixedData("uuid", Hashing.sha1().hashBytes(var0.getId().toString().getBytes(Charsets.ISO_8859_1)).toString());
-        }
-
-    }
-
-    private static void populateSnooperWithOpenGL(Snooper param0) {
-        GlUtil.populateSnooperWithOpenGL(param0::setFixedData);
-    }
-
-    @Override
-    public boolean isSnooperEnabled() {
-        return this.options.snooperEnabled;
-    }
-
     public void setCurrentServer(@Nullable ServerData param0) {
         this.currentServer = param0;
     }
@@ -2430,10 +2360,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     public IntegratedServer getSingleplayerServer() {
         return this.singleplayerServer;
-    }
-
-    public Snooper getSnooper() {
-        return this.snooper;
     }
 
     public User getUser() {

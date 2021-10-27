@@ -46,11 +46,11 @@ public class InactiveProfiler implements ProfileCollector {
     }
 
     @Override
-    public void incrementCounter(String param0) {
+    public void incrementCounter(String param0, int param1) {
     }
 
     @Override
-    public void incrementCounter(Supplier<String> param0) {
+    public void incrementCounter(Supplier<String> param0, int param1) {
     }
 
     @Override

@@ -102,6 +102,10 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
         return this.getType().is(param0);
     }
 
+    public boolean is(Fluid param0) {
+        return this.getType() == param0;
+    }
+
     public float getExplosionResistance() {
         return this.getType().getExplosionResistance();
     }

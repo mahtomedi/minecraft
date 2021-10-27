@@ -193,7 +193,7 @@ public abstract class StructurePiece {
                 param0.setBlock(var0, param1, 2);
                 FluidState var1 = param0.getFluidState(var0);
                 if (!var1.isEmpty()) {
-                    param0.getLiquidTicks().scheduleTick(var0, var1.getType(), 0);
+                    param0.scheduleTick(var0, var1.getType(), 0);
                 }
 
                 if (SHAPE_CHECK_BLOCKS.contains(param1.getBlock())) {

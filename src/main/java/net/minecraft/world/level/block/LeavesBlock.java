@@ -63,7 +63,7 @@ public class LeavesBlock extends Block {
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         int var0 = getDistanceAt(param2) + 1;
         if (var0 != 1 || param0.getValue(DISTANCE) != var0) {
-            param3.getBlockTicks().scheduleTick(param4, this, 1);
+            param3.scheduleTick(param4, this, 1);
         }
 
         return param0;

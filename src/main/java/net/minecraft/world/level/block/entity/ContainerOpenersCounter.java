@@ -86,6 +86,6 @@ public abstract class ContainerOpenersCounter {
     }
 
     private static void scheduleRecheck(Level param0, BlockPos param1, BlockState param2) {
-        param0.getBlockTicks().scheduleTick(param1, param2.getBlock(), 5);
+        param0.scheduleTick(param1, param2.getBlock(), 5);
     }
 }

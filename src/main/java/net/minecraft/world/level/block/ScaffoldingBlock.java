@@ -82,7 +82,7 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param1.isClientSide) {
-            param1.getBlockTicks().scheduleTick(param2, this, 1);
+            param1.scheduleTick(param2, this, 1);
         }
 
     }
@@ -90,11 +90,11 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getValue(WATERLOGGED)) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         if (!param3.isClientSide()) {
-            param3.getBlockTicks().scheduleTick(param4, this, 1);
+            param3.scheduleTick(param4, this, 1);
         }
 
         return param0;

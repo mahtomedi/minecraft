@@ -127,7 +127,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param0.getValue(WATERLOGGED)) {
-            param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
         return param1 == Direction.DOWN
@@ -210,7 +210,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
             }
 
             param0.setBlock(param1, param2.setValue(WATERLOGGED, Boolean.valueOf(true)).setValue(LIT, Boolean.valueOf(false)), 3);
-            param0.getLiquidTicks().scheduleTick(param1, param3.getType(), param3.getType().getTickDelay(param0));
+            param0.scheduleTick(param1, param3.getType(), param3.getType().getTickDelay(param0));
             return true;
         } else {
             return false;

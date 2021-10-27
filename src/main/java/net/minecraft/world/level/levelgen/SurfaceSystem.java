@@ -7,7 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.Biomes;
@@ -15,6 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BlockColumn;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.material.Material;
@@ -36,8 +40,12 @@ public class SurfaceSystem {
     private final int seaLevel;
     private final BlockState[] clayBands;
     private final NormalNoise clayBandsOffsetNoise;
-    private final NormalNoise icebergAndBadlandsPillarNoise;
-    private final NormalNoise icebergAndBadlandsPillarRoofNoise;
+    private final NormalNoise badlandsPillarNoise;
+    private final NormalNoise badlandsPillarRoofNoise;
+    private final NormalNoise badlandsSurfaceNoise;
+    private final NormalNoise icebergPillarNoise;
+    private final NormalNoise icebergPillarRoofNoise;
+    private final NormalNoise icebergSurfaceNoise;
     private final Registry<NormalNoise.NoiseParameters> noises;
     private final Map<ResourceKey<NormalNoise.NoiseParameters>, NormalNoise> noiseIntances = new ConcurrentHashMap<>();
     private final PositionalRandomFactory randomFactory;
@@ -52,10 +60,14 @@ public class SurfaceSystem {
         this.seaLevel = param3;
         this.randomFactory = param5.newInstance(param4).forkPositional();
         this.clayBandsOffsetNoise = Noises.instantiate(param1, this.randomFactory, Noises.CLAY_BANDS_OFFSET);
-        this.clayBands = generateBands(this.randomFactory.fromHashOf("clay_bands"));
+        this.clayBands = generateBands(this.randomFactory.fromHashOf(new ResourceLocation("clay_bands")));
         this.surfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.SURFACE);
-        this.icebergAndBadlandsPillarNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_AND_BADLANDS_PILLAR);
-        this.icebergAndBadlandsPillarRoofNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_AND_BADLANDS_PILLAR_ROOF);
+        this.badlandsPillarNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_PILLAR);
+        this.badlandsPillarRoofNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_PILLAR_ROOF);
+        this.badlandsSurfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_SURFACE);
+        this.icebergPillarNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_PILLAR);
+        this.icebergPillarRoofNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_PILLAR_ROOF);
+        this.icebergSurfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_SURFACE);
     }
 
     protected NormalNoise getOrCreateNoise(ResourceKey<NormalNoise.NoiseParameters> param0) {
@@ -108,7 +120,7 @@ public class SurfaceSystem {
                 Biome var17 = param0.getBiome(var7.set(var10, param2 ? 0 : var12, var11));
                 ResourceKey<Biome> var18 = param1.getResourceKey(var17).orElseThrow(() -> new IllegalStateException("Unregistered biome: " + var17));
                 if (var18 == Biomes.ERODED_BADLANDS) {
-                    this.erodedBadlandsExtension(var16, var14, var4, var10, var11, var12);
+                    this.erodedBadlandsExtension(var16, var14, var4, var10, var11, var12, param4);
                 }
 
                 int var19 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
@@ -139,17 +151,17 @@ public class SurfaceSystem {
                     if (var31.isAir()) {
                         var26 = 0;
                         var28 = Integer.MIN_VALUE;
-                    } else if (!var31.is(this.defaultBlock.getBlock())) {
+                    } else if (!var31.getFluidState().isEmpty()) {
                         if (var28 == Integer.MIN_VALUE) {
                             var28 = var30 + 1;
                         }
                     } else {
-                        if (var5.hasCeilingRules() && var29 >= var30) {
-                            var29 = Integer.MIN_VALUE;
+                        if (var29 >= var30) {
+                            var29 = DimensionType.WAY_BELOW_MIN_Y;
 
-                            for(int var32 = var30 - 1; var32 >= var24; --var32) {
+                            for(int var32 = var30 - 1; var32 >= var24 - 1; --var32) {
                                 BlockState var33 = var4.getBlock(var32);
-                                if (!var33.is(this.defaultBlock.getBlock())) {
+                                if (!this.isStone(var33)) {
                                     var29 = var32 + 1;
                                     break;
                                 }
@@ -164,7 +176,7 @@ public class SurfaceSystem {
                         var5.updateY(var36, var35, var20, var26, var34, var28, var10, var30, var11);
                         BlockState var37 = var6.tryApply(var10, var30, var11);
                         if (var37 != null) {
-                            var4.setBlock(var30, this.supportState(var4, var30, var37, (double)var28));
+                            var4.setBlock(var30, var37);
                         }
                     }
                 }
@@ -175,6 +187,10 @@ public class SurfaceSystem {
             }
         }
 
+    }
+
+    private boolean isStone(BlockState param0) {
+        return !param0.isAir() && param0.getFluidState().isEmpty();
     }
 
     @Deprecated
@@ -192,31 +208,35 @@ public class SurfaceSystem {
         return Optional.ofNullable(var5);
     }
 
-    private void erodedBadlandsExtension(int param0, double param1, BlockColumn param2, int param3, int param4, int param5) {
-        double var0 = Math.min(Math.abs(param1 * 8.25), this.icebergAndBadlandsPillarNoise.getValue((double)param3 * 0.25, 0.0, (double)param4 * 0.25) * 15.0);
-        if (!(var0 <= 0.0)) {
-            double var1 = 0.001953125;
-            double var2 = Math.abs(this.icebergAndBadlandsPillarRoofNoise.getValue((double)param3 * 0.001953125, 0.0, (double)param4 * 0.001953125));
-            double var3 = 64.0 + Math.min(var0 * var0 * 2.5, Math.ceil(var2 * 50.0) + 14.0);
-            int var4 = Math.max(param5, (int)var3 + 1);
+    private void erodedBadlandsExtension(int param0, double param1, BlockColumn param2, int param3, int param4, int param5, LevelHeightAccessor param6) {
+        double var0 = 0.2;
+        double var1 = Math.min(
+            Math.abs(this.badlandsSurfaceNoise.getValue((double)param3, 0.0, (double)param4) * 8.25),
+            this.badlandsPillarNoise.getValue((double)param3 * 0.2, 0.0, (double)param4 * 0.2) * 15.0
+        );
+        if (!(var1 <= 0.0)) {
+            double var2 = 0.75;
+            double var3 = 1.5;
+            double var4 = Math.abs(this.badlandsPillarRoofNoise.getValue((double)param3 * 0.75, 0.0, (double)param4 * 0.75) * 1.5);
+            double var5 = 64.0 + Math.min(var1 * var1 * 2.5, Math.ceil(var4 * 50.0) + 24.0);
+            int var6 = Mth.floor(var5);
+            if (param5 <= var6) {
+                for(int var7 = var6; var7 >= param6.getMinBuildHeight(); --var7) {
+                    BlockState var8 = param2.getBlock(var7);
+                    if (var8.is(this.defaultBlock.getBlock())) {
+                        break;
+                    }
 
-            for(int var5 = var4; var5 >= param0; --var5) {
-                BlockState var6 = param2.getBlock(var5);
-                if (var6.is(this.defaultBlock.getBlock())) {
-                    break;
+                    if (var8.is(Blocks.WATER)) {
+                        return;
+                    }
                 }
 
-                if (var6.is(Blocks.WATER)) {
-                    return;
+                for(int var9 = var6; var9 >= param6.getMinBuildHeight() && param2.getBlock(var9).isAir(); --var9) {
+                    param2.setBlock(var9, this.defaultBlock);
                 }
+
             }
-
-            for(int var7 = var4; var7 >= param0; --var7) {
-                if (param2.getBlock(var7).isAir() && var7 < (int)var3) {
-                    param2.setBlock(var7, this.defaultBlock);
-                }
-            }
-
         }
     }
 
@@ -224,42 +244,47 @@ public class SurfaceSystem {
         int param0, Biome param1, double param2, BlockColumn param3, BlockPos.MutableBlockPos param4, int param5, int param6, int param7
     ) {
         float var0 = param1.getTemperature(param4.set(param5, 63, param6));
-        double var1 = Math.min(Math.abs(param2 * 8.25), this.icebergAndBadlandsPillarNoise.getValue((double)param5 * 0.1, 0.0, (double)param6 * 0.1) * 15.0);
-        if (!(var1 <= 1.8)) {
-            double var2 = 0.09765625;
-            double var3 = Math.abs(this.icebergAndBadlandsPillarRoofNoise.getValue((double)param5 * 0.09765625, 0.0, (double)param6 * 0.09765625));
-            double var4 = Math.min(var1 * var1 * 1.2, Math.ceil(var3 * 40.0) + 14.0);
+        double var1 = 1.28;
+        double var2 = Math.min(
+            Math.abs(this.icebergSurfaceNoise.getValue((double)param5, 0.0, (double)param6) * 8.25),
+            this.icebergPillarNoise.getValue((double)param5 * 1.28, 0.0, (double)param6 * 1.28) * 15.0
+        );
+        if (!(var2 <= 1.8)) {
+            double var3 = 1.17;
+            double var4 = 1.5;
+            double var5 = Math.abs(this.icebergPillarRoofNoise.getValue((double)param5 * 1.17, 0.0, (double)param6 * 1.17) * 1.5);
+            double var6 = Math.min(var2 * var2 * 1.2, Math.ceil(var5 * 40.0) + 14.0);
             if (var0 > 0.1F) {
-                var4 -= 2.0;
+                var6 -= 2.0;
             }
 
-            double var5;
-            if (var4 > 2.0) {
-                var4 += (double)this.seaLevel;
-                var5 = (double)this.seaLevel - var4 - 7.0;
+            double var7;
+            if (var6 > 2.0) {
+                var6 += (double)this.seaLevel;
+                var7 = (double)this.seaLevel - var6 - 7.0;
             } else {
-                var4 = 0.0;
-                var5 = 0.0;
+                var6 = 0.0;
+                var7 = 0.0;
             }
 
-            double var7 = var4;
-            RandomSource var8 = this.randomFactory.at(param5, 0, param6);
-            int var9 = 2 + var8.nextInt(4);
-            int var10 = this.seaLevel + 18 + var8.nextInt(10);
-            int var11 = 0;
+            double var9 = var6;
+            RandomSource var10 = this.randomFactory.at(param5, 0, param6);
+            int var11 = 2 + var10.nextInt(4);
+            int var12 = this.seaLevel + 18 + var10.nextInt(10);
+            int var13 = 0;
 
-            for(int var12 = Math.max(param7, (int)var4 + 1); var12 >= param0; --var12) {
-                if (param3.getBlock(var12).isAir() && var12 < (int)var7 && var8.nextDouble() > 0.01
-                    || param3.getBlock(var12).getMaterial() == Material.WATER
-                        && var12 > (int)var5
-                        && var12 < this.seaLevel
-                        && var5 != 0.0
-                        && var8.nextDouble() > 0.15) {
-                    if (var11 <= var9 && var12 > var10) {
-                        param3.setBlock(var12, SNOW_BLOCK);
-                        ++var11;
+            for(int var14 = Math.max(param7, (int)var6 + 1); var14 >= param0; --var14) {
+                if (param3.getBlock(var14).isAir() && var14 < (int)var9 && var10.nextDouble() > 0.01
+                    || param3.getBlock(var14).getMaterial() == Material.WATER
+                        && var14 > (int)var7
+                        && var14 < this.seaLevel
+                        && var7 != 0.0
+                        && var10.nextDouble() > 0.15) {
+                    if (var13 <= var11 && var14 > var12) {
+                        param3.setBlock(var14, SNOW_BLOCK);
+                        ++var13;
                     } else {
-                        param3.setBlock(var12, PACKED_ICE);
+                        param3.setBlock(var14, PACKED_ICE);
                     }
                 }
             }
@@ -267,22 +292,8 @@ public class SurfaceSystem {
         }
     }
 
-    private BlockState supportState(BlockColumn param0, int param1, BlockState param2, double param3) {
-        if ((double)param1 <= param3 && param2.is(Blocks.GRASS_BLOCK)) {
-            return Blocks.DIRT.defaultBlockState();
-        } else if (param0.getBlock(param1 - 1).is(this.defaultBlock.getBlock())) {
-            return param2;
-        } else if (param2.is(Blocks.SAND)) {
-            return Blocks.SANDSTONE.defaultBlockState();
-        } else if (param2.is(Blocks.RED_SAND)) {
-            return Blocks.RED_SANDSTONE.defaultBlockState();
-        } else {
-            return param2.is(Blocks.GRAVEL) ? Blocks.STONE.defaultBlockState() : param2;
-        }
-    }
-
     private static BlockState[] generateBands(RandomSource param0) {
-        BlockState[] var0 = new BlockState[64];
+        BlockState[] var0 = new BlockState[192];
         Arrays.fill(var0, TERRACOTTA);
 
         for(int var1 = 0; var1 < var0.length; ++var1) {
@@ -295,7 +306,7 @@ public class SurfaceSystem {
         makeBands(param0, var0, 1, YELLOW_TERRACOTTA);
         makeBands(param0, var0, 2, BROWN_TERRACOTTA);
         makeBands(param0, var0, 1, RED_TERRACOTTA);
-        int var2 = param0.nextInt(3) + 3;
+        int var2 = param0.nextIntBetweenInclusive(9, 15);
         int var3 = 0;
 
         for(int var4 = 0; var3 < var2 && var4 < var0.length; var4 += param0.nextInt(16) + 4) {
@@ -315,7 +326,7 @@ public class SurfaceSystem {
     }
 
     private static void makeBands(RandomSource param0, BlockState[] param1, int param2, BlockState param3) {
-        int var0 = param0.nextInt(4) + 2;
+        int var0 = param0.nextIntBetweenInclusive(6, 15);
 
         for(int var1 = 0; var1 < var0; ++var1) {
             int var2 = param2 + param0.nextInt(3);
@@ -329,7 +340,7 @@ public class SurfaceSystem {
     }
 
     protected BlockState getBand(int param0, int param1, int param2) {
-        int var0 = (int)Math.round(this.clayBandsOffsetNoise.getValue((double)param0, 0.0, (double)param2) * 2.0);
+        int var0 = (int)Math.round(this.clayBandsOffsetNoise.getValue((double)param0, 0.0, (double)param2) * 4.0);
         return this.clayBands[(param1 + var0 + this.clayBands.length) % this.clayBands.length];
     }
 }

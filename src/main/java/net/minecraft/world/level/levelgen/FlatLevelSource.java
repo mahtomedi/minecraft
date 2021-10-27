@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
 public class FlatLevelSource extends ChunkGenerator {
@@ -63,20 +64,20 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, StructureFeatureManager param1, ChunkAccess param2) {
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
         List<BlockState> var0 = this.settings.getLayers();
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-        Heightmap var2 = param2.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
-        Heightmap var3 = param2.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        Heightmap var2 = param3.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap var3 = param3.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
 
-        for(int var4 = 0; var4 < Math.min(param2.getHeight(), var0.size()); ++var4) {
+        for(int var4 = 0; var4 < Math.min(param3.getHeight(), var0.size()); ++var4) {
             BlockState var5 = var0.get(var4);
             if (var5 != null) {
-                int var6 = param2.getMinBuildHeight() + var4;
+                int var6 = param3.getMinBuildHeight() + var4;
 
                 for(int var7 = 0; var7 < 16; ++var7) {
                     for(int var8 = 0; var8 < 16; ++var8) {
-                        param2.setBlockState(var1.set(var7, var6, var8), var5, false);
+                        param3.setBlockState(var1.set(var7, var6, var8), var5, false);
                         var2.update(var7, var6, var8, var5);
                         var3.update(var7, var6, var8, var5);
                     }
@@ -84,7 +85,7 @@ public class FlatLevelSource extends ChunkGenerator {
             }
         }
 
-        return CompletableFuture.completedFuture(param2);
+        return CompletableFuture.completedFuture(param3);
     }
 
     @Override
