@@ -16,10 +16,9 @@ public record NoiseSettings(
     NoiseSlider bottomSlideSettings,
     int noiseSizeHorizontal,
     int noiseSizeVertical,
-    double densityFactor,
-    double densityOffset,
     @Deprecated boolean islandNoiseOverride,
     @Deprecated boolean isAmplified,
+    @Deprecated boolean largeBiomes,
     TerrainShaper terrainShaper
 ) {
     public static final Codec<NoiseSettings> CODEC = RecordCodecBuilder.<NoiseSettings>create(
@@ -31,12 +30,11 @@ public record NoiseSettings(
                         NoiseSlider.CODEC.fieldOf("bottom_slide").forGetter(NoiseSettings::bottomSlideSettings),
                         Codec.intRange(1, 4).fieldOf("size_horizontal").forGetter(NoiseSettings::noiseSizeHorizontal),
                         Codec.intRange(1, 4).fieldOf("size_vertical").forGetter(NoiseSettings::noiseSizeVertical),
-                        Codec.DOUBLE.fieldOf("density_factor").forGetter(NoiseSettings::densityFactor),
-                        Codec.DOUBLE.fieldOf("density_offset").forGetter(NoiseSettings::densityOffset),
                         Codec.BOOL
                             .optionalFieldOf("island_noise_override", Boolean.valueOf(false), Lifecycle.experimental())
                             .forGetter(NoiseSettings::islandNoiseOverride),
                         Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified),
+                        Codec.BOOL.optionalFieldOf("large_biomes", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::largeBiomes),
                         TerrainShaper.CODEC.fieldOf("terrain_shaper").forGetter(NoiseSettings::terrainShaper)
                     )
                     .apply(param0, NoiseSettings::new)
@@ -61,13 +59,12 @@ public record NoiseSettings(
         NoiseSlider param4,
         int param5,
         int param6,
-        double param7,
-        double param8,
+        boolean param7,
+        boolean param8,
         boolean param9,
-        boolean param10,
-        TerrainShaper param11
+        TerrainShaper param10
     ) {
-        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
+        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
         guardY(var0).error().ifPresent(param0x -> {
             throw new IllegalStateException(param0x.message());
         });

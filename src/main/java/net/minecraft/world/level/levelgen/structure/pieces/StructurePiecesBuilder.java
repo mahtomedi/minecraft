@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.structure.pieces;
 
 import com.google.common.collect.Lists;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -15,10 +14,6 @@ public class StructurePiecesBuilder implements StructurePieceAccessor {
     @Override
     public void addPiece(StructurePiece param0) {
         this.pieces.add(param0);
-    }
-
-    public void addAll(Collection<StructurePiece> param0) {
-        this.pieces.addAll(param0);
     }
 
     @Nullable

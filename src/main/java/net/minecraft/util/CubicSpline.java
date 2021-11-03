@@ -72,6 +72,10 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
         return var0.getValue();
     }
 
+    static <C> CubicSpline<C> constant(float param0) {
+        return new CubicSpline.Constant<>(param0);
+    }
+
     static <C> CubicSpline.Builder<C> builder(ToFloatFunction<C> param0) {
         return new CubicSpline.Builder<>(param0);
     }

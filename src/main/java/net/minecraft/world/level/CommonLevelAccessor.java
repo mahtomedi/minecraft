@@ -1,8 +1,7 @@
 package net.minecraft.world.level;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -23,8 +22,8 @@ public interface CommonLevelAccessor extends EntityGetter, LevelReader, LevelSim
     }
 
     @Override
-    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
-        return EntityGetter.super.getEntityCollisions(param0, param1, param2);
+    default List<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1) {
+        return EntityGetter.super.getEntityCollisions(param0, param1);
     }
 
     @Override

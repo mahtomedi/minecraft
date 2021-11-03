@@ -119,6 +119,7 @@ public class Options {
     public boolean invertYMouse;
     public boolean discreteMouseScroll;
     public boolean realmsNotifications = true;
+    public boolean allowServerListing = true;
     public boolean reducedDebugInfo;
     public boolean showSubtitles;
     public boolean backgroundForChatOnly = true;
@@ -600,7 +601,8 @@ public class Options {
                         this.chatColors,
                         var0,
                         this.mainHand,
-                        this.minecraft.isTextFilteringEnabled()
+                        this.minecraft.isTextFilteringEnabled(),
+                        this.allowServerListing
                     )
                 );
         }

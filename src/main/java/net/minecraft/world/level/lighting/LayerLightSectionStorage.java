@@ -92,15 +92,7 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
             SectionPos.sectionRelative(BlockPos.getZ(param0)),
             param1
         );
-
-        for(int var2 = -1; var2 <= 1; ++var2) {
-            for(int var3 = -1; var3 <= 1; ++var3) {
-                for(int var4 = -1; var4 <= 1; ++var4) {
-                    this.sectionsAffectedByLightUpdates.add(SectionPos.blockToSection(BlockPos.offset(param0, var3, var4, var2)));
-                }
-            }
-        }
-
+        SectionPos.aroundAndAtBlockPos(param0, this.sectionsAffectedByLightUpdates::add);
     }
 
     @Override
@@ -143,14 +135,7 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
                 this.updatingSectionData.setLayer(param0, this.createDataLayer(param0));
                 this.changedSections.add(param0);
                 this.onNodeAdded(param0);
-
-                for(int var1 = -1; var1 <= 1; ++var1) {
-                    for(int var2 = -1; var2 <= 1; ++var2) {
-                        for(int var3 = -1; var3 <= 1; ++var3) {
-                            this.sectionsAffectedByLightUpdates.add(SectionPos.blockToSection(BlockPos.offset(param0, var2, var3, var1)));
-                        }
-                    }
-                }
+                SectionPos.aroundAndAtBlockPos(param0, this.sectionsAffectedByLightUpdates::add);
             }
         }
 
@@ -167,22 +152,24 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     }
 
     protected void clearQueuedSectionBlocks(LayerLightEngine<?, ?> param0, long param1) {
-        if (param0.getQueueSize() < 8192) {
-            param0.removeIf(param1x -> SectionPos.blockToSection(param1x) == param1);
-        } else {
-            int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
-            int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
-            int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
+        if (param0.getQueueSize() != 0) {
+            if (param0.getQueueSize() < 8192) {
+                param0.removeIf(param1x -> SectionPos.blockToSection(param1x) == param1);
+            } else {
+                int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
+                int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
+                int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
 
-            for(int var3 = 0; var3 < 16; ++var3) {
-                for(int var4 = 0; var4 < 16; ++var4) {
-                    for(int var5 = 0; var5 < 16; ++var5) {
-                        long var6 = BlockPos.asLong(var0 + var3, var1 + var4, var2 + var5);
-                        param0.removeFromQueue(var6);
+                for(int var3 = 0; var3 < 16; ++var3) {
+                    for(int var4 = 0; var4 < 16; ++var4) {
+                        for(int var5 = 0; var5 < 16; ++var5) {
+                            long var6 = BlockPos.asLong(var0 + var3, var1 + var4, var2 + var5);
+                            param0.removeFromQueue(var6);
+                        }
                     }
                 }
-            }
 
+            }
         }
     }
 

@@ -77,7 +77,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
 
     public WitherBoss(EntityType<? extends WitherBoss> param0, Level param1) {
         super(param0, param1);
-        this.moveControl = new FlyingMoveControl(this, 10, true);
+        this.moveControl = new FlyingMoveControl(this, 10, false);
         this.setHealth(this.getMaxHealth());
         this.xpReward = 50;
     }

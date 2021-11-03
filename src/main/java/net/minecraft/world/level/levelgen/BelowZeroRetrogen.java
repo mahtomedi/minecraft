@@ -8,9 +8,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.LongStream;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ProtoChunk;
 
 public final class BelowZeroRetrogen {
     private static final BitSet EMPTY = new BitSet(0);
@@ -28,6 +32,17 @@ public final class BelowZeroRetrogen {
                 )
                 .apply(param0, BelowZeroRetrogen::new)
     );
+    public static final LevelHeightAccessor UPGRADE_HEIGHT_ACCESSOR = new LevelHeightAccessor() {
+        @Override
+        public int getHeight() {
+            return 64;
+        }
+
+        @Override
+        public int getMinBuildHeight() {
+            return -64;
+        }
+    };
     private final ChunkStatus targetStatus;
     private final BitSet missingBedrock;
 
@@ -42,11 +57,41 @@ public final class BelowZeroRetrogen {
         return var0 == ChunkStatus.EMPTY ? null : new BelowZeroRetrogen(var0, Optional.of(BitSet.valueOf(param0.getLongArray("missing_bedrock"))));
     }
 
+    public static void replaceOldBedrock(ProtoChunk param0) {
+        int var0 = 4;
+        BlockPos.betweenClosed(0, 0, 0, 15, 4, 15).forEach(param1 -> {
+            if (param0.getBlockState(param1).is(Blocks.BEDROCK)) {
+                param0.setBlockState(param1, Blocks.DEEPSLATE.defaultBlockState(), false);
+            }
+
+        });
+    }
+
+    public void applyBedrockMask(ProtoChunk param0) {
+        LevelHeightAccessor var0 = param0.getHeightAccessorForGeneration();
+        int var1 = var0.getMinBuildHeight();
+        int var2 = var0.getMaxBuildHeight() - 1;
+
+        for(int var3 = 0; var3 < 16; ++var3) {
+            for(int var4 = 0; var4 < 16; ++var4) {
+                if (this.hasBedrockHole(var3, var4)) {
+                    BlockPos.betweenClosed(var3, var1, var4, var3, var2, var4)
+                        .forEach(param1 -> param0.setBlockState(param1, Blocks.AIR.defaultBlockState(), false));
+                }
+            }
+        }
+
+    }
+
     public ChunkStatus targetStatus() {
         return this.targetStatus;
     }
 
-    public boolean hasBedrockAt(int param0, int param1) {
-        return !this.missingBedrock.get((param1 & 15) * 16 + (param0 & 15));
+    public boolean hasBedrockHoles() {
+        return !this.missingBedrock.isEmpty();
+    }
+
+    public boolean hasBedrockHole(int param0, int param1) {
+        return this.missingBedrock.get((param1 & 15) * 16 + (param0 & 15));
     }
 }

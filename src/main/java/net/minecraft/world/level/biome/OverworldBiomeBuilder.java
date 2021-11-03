@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
+import net.minecraft.data.worldgen.TerrainProvider;
 import net.minecraft.resources.ResourceKey;
 
 public final class OverworldBiomeBuilder {
@@ -120,7 +121,7 @@ public final class OverworldBiomeBuilder {
 
     protected void addBiomes(Consumer<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> param0) {
         if (SharedConstants.debugGenerateSquareTerrainWithoutNoise) {
-            new TerrainShaper().addDebugBiomesToVisualizeSplinePoints(param0);
+            TerrainProvider.overworld().addDebugBiomesToVisualizeSplinePoints(param0);
         } else {
             this.addOffCoastBiomes(param0);
             this.addInlandBiomes(param0);

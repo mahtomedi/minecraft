@@ -12,6 +12,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -69,7 +70,6 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     );
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
     private static final BlockState[] EMPTY_COLUMN = new BlockState[0];
-    private static final int BEDROCK_LAYER_HEIGHT = 5;
     private final int cellHeight;
     private final int cellWidth;
     private final int cellCountX;
@@ -109,30 +109,13 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
             this.cellWidth, this.cellHeight, this.cellCountY, var1, var0.isNoiseCavesEnabled(), param3, param0, var0.getRandomSource()
         );
         Builder<WorldGenMaterialRule> var2 = ImmutableList.builder();
-        RandomSource var3 = var0.createRandomSource(param3);
-        int var4 = var0.getBedrockFloorPosition();
-        if (var4 > -5 && var4 < this.height) {
-            int var5 = this.getMinY() + var4;
-            var2.add(new VerticalGradientRule(var3.forkPositional(), Blocks.BEDROCK.defaultBlockState(), null, var5, var5 + 5));
-        }
-
-        int var6 = var0.getBedrockRoofPosition();
-        if (var6 > -5 && var6 < this.height) {
-            int var7 = this.getMinY() + this.height - 1 + var6;
-            var2.add(new VerticalGradientRule(var3.forkPositional(), null, Blocks.BEDROCK.defaultBlockState(), var7 - 5, var7));
-        }
-
         var2.add(NoiseChunk::updateNoiseAndGenerateBaseState);
         var2.add(NoiseChunk::oreVeinify);
-        if (var0.isDeepslateEnabled()) {
-            var2.add(new VerticalGradientRule(this.sampler.getDepthBasedLayerPositionalRandom(), Blocks.DEEPSLATE.defaultBlockState(), null, -8, 0));
-        }
-
         this.materialRule = new MaterialRuleList(var2.build());
-        Aquifer.FluidStatus var8 = new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState());
-        Aquifer.FluidStatus var9 = new Aquifer.FluidStatus(var0.seaLevel(), var0.getDefaultFluid());
-        Aquifer.FluidStatus var10 = new Aquifer.FluidStatus(var0.noiseSettings().minY() - 1, Blocks.AIR.defaultBlockState());
-        this.globalFluidPicker = (param3x, param4x, param5) -> param4x < -54 ? var8 : var9;
+        Aquifer.FluidStatus var3 = new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState());
+        Aquifer.FluidStatus var4 = new Aquifer.FluidStatus(var0.seaLevel(), var0.getDefaultFluid());
+        Aquifer.FluidStatus var5 = new Aquifer.FluidStatus(var0.noiseSettings().minY() - 1, Blocks.AIR.defaultBlockState());
+        this.globalFluidPicker = (param3x, param4x, param5) -> param4x < -54 ? var3 : var4;
         this.surfaceSystem = new SurfaceSystem(this.sampler, param0, this.defaultBlock, var0.seaLevel(), param3, var0.getRandomSource());
     }
 
@@ -269,7 +252,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     @Override
     public void buildSurface(WorldGenRegion param0, StructureFeatureManager param1, ChunkAccess param2) {
         ChunkPos var0 = param2.getPos();
-        if (!SharedConstants.debugVoidTerrain(var0.getMinBlockX(), var0.getMinBlockZ())) {
+        if (!SharedConstants.debugVoidTerrain(var0)) {
             int var1 = var0.getMinBlockX();
             int var2 = var0.getMinBlockZ();
             int var3 = Math.max(this.settings.get().noiseSettings().minY(), param2.getMinBuildHeight());
@@ -364,8 +347,8 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
         NoiseSettings var0 = this.settings.get().noiseSettings();
-        int var1 = Math.max(var0.minY(), param3.getMinBuildHeight());
-        int var2 = Math.min(var0.minY() + var0.height(), param3.getMaxBuildHeight());
+        int var1 = Math.max(var0.minY(), param3.getHeightAccessorForGeneration().getMinBuildHeight());
+        int var2 = Math.min(var0.minY() + var0.height(), param3.getHeightAccessorForGeneration().getMaxBuildHeight());
         int var3 = Mth.intFloorDiv(var1, this.cellHeight);
         int var4 = Mth.intFloorDiv(var2 - var1, this.cellHeight);
         if (var4 <= 0) {
@@ -453,7 +436,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                                 }
 
                                 var25 = this.debugPreliminarySurfaceLevel(var13, var18, var22, var25);
-                                if (var25 != AIR && !SharedConstants.debugVoidTerrain(var18, var22)) {
+                                if (var25 != AIR && !SharedConstants.debugVoidTerrain(param2.getPos())) {
                                     if (var25.getLightEmission() != 0 && param2 instanceof ProtoChunk) {
                                         var7.set(var18, var13, var22);
                                         ((ProtoChunk)param2).addLight(var7);
@@ -546,11 +529,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Deprecated
-    public Optional<BlockState> topMaterial(CarvingContext param0, Biome param1, ChunkAccess param2, BlockPos param3, boolean param4) {
-        ResourceKey<Biome> var0 = param0.registryAccess()
-            .registryOrThrow(Registry.BIOME_REGISTRY)
-            .getResourceKey(param1)
-            .orElseThrow(() -> new IllegalStateException("Unregistered biome: " + param1));
-        return this.surfaceSystem.topMaterial(this.settings.get().surfaceRule(), param0, param1, var0, param2, param3, param4);
+    public Optional<BlockState> topMaterial(CarvingContext param0, Function<BlockPos, Biome> param1, ChunkAccess param2, BlockPos param3, boolean param4) {
+        return this.surfaceSystem.topMaterial(this.settings.get().surfaceRule(), param0, param1, param2, param3, param4);
     }
 }

@@ -531,7 +531,7 @@ public class MineShaftPieces {
                         param2 + 1,
                         param5,
                         param4 - 1,
-                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH)
+                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH)
                     );
                     this.maybeGenerateBlock(
                         param0,
@@ -541,7 +541,7 @@ public class MineShaftPieces {
                         param2 + 1,
                         param5,
                         param4 + 1,
-                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH)
+                        Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH)
                     );
                 }
 

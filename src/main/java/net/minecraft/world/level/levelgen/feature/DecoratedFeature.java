@@ -33,7 +33,7 @@ public class DecoratedFeature extends Feature<DecoratedFeatureConfiguration> {
                 }
             }
 
-            if (var5.placeWithBiomeCheck(var0x, var1, var3, var4, param6)) {
+            if (var1.ensureCanWrite(param6) && var5.placeWithBiomeCheck(var0x, var1, var3, var4, param6)) {
                 var0.setTrue();
             }
 

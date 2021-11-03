@@ -4,9 +4,13 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import java.nio.file.Path;
+import java.io.File;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
@@ -41,11 +45,14 @@ public class JfrCommand {
 
     private static int stopJfr(CommandSourceStack param0) throws CommandSyntaxException {
         try {
-            Path var0 = JvmProfiler.INSTANCE.stop();
-            param0.sendSuccess(new TranslatableComponent("commands.jfr.stopped", var0), false);
+            File var0 = JvmProfiler.INSTANCE.stop().toFile();
+            Component var1 = new TextComponent(var0.getName())
+                .withStyle(ChatFormatting.UNDERLINE)
+                .withStyle(param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, var0.getAbsolutePath())));
+            param0.sendSuccess(new TranslatableComponent("commands.jfr.stopped", var1), false);
             return 1;
-        } catch (Throwable var2) {
-            throw DUMP_FAILED.create(var2.getMessage());
+        } catch (Throwable var3) {
+            throw DUMP_FAILED.create(var3.getMessage());
         }
     }
 }

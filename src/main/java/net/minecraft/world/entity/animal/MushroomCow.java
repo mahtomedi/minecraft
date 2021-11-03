@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -60,7 +61,7 @@ public class MushroomCow extends Cow implements Shearable {
     }
 
     public static boolean checkMushroomSpawnRules(EntityType<MushroomCow> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param1.getBlockState(param3.below()).is(Blocks.MYCELIUM) && param1.getRawBrightness(param3, 0) > 8;
+        return param1.getBlockState(param3.below()).is(BlockTags.MOOSHROOMS_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 
     @Override

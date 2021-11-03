@@ -28,13 +28,10 @@ public final class NoiseGeneratorSettings {
                     BlockState.CODEC.fieldOf("default_block").forGetter(NoiseGeneratorSettings::getDefaultBlock),
                     BlockState.CODEC.fieldOf("default_fluid").forGetter(NoiseGeneratorSettings::getDefaultFluid),
                     SurfaceRules.RuleSource.CODEC.fieldOf("surface_rule").forGetter(NoiseGeneratorSettings::surfaceRule),
-                    Codec.INT.fieldOf("bedrock_roof_position").forGetter(NoiseGeneratorSettings::getBedrockRoofPosition),
-                    Codec.INT.fieldOf("bedrock_floor_position").forGetter(NoiseGeneratorSettings::getBedrockFloorPosition),
                     Codec.INT.fieldOf("sea_level").forGetter(NoiseGeneratorSettings::seaLevel),
                     Codec.BOOL.fieldOf("disable_mob_generation").forGetter(NoiseGeneratorSettings::disableMobGeneration),
                     Codec.BOOL.fieldOf("aquifers_enabled").forGetter(NoiseGeneratorSettings::isAquifersEnabled),
                     Codec.BOOL.fieldOf("noise_caves_enabled").forGetter(NoiseGeneratorSettings::isNoiseCavesEnabled),
-                    Codec.BOOL.fieldOf("deepslate_enabled").forGetter(NoiseGeneratorSettings::isDeepslateEnabled),
                     Codec.BOOL.fieldOf("ore_veins_enabled").forGetter(NoiseGeneratorSettings::isOreVeinsEnabled),
                     Codec.BOOL.fieldOf("noodle_caves_enabled").forGetter(NoiseGeneratorSettings::isNoodleCavesEnabled),
                     Codec.BOOL.fieldOf("legacy_random_source").forGetter(NoiseGeneratorSettings::useLegacyRandomSource)
@@ -48,13 +45,10 @@ public final class NoiseGeneratorSettings {
     private final BlockState defaultBlock;
     private final BlockState defaultFluid;
     private final SurfaceRules.RuleSource surfaceRule;
-    private final int bedrockRoofPosition;
-    private final int bedrockFloorPosition;
     private final int seaLevel;
     private final boolean disableMobGeneration;
     private final boolean aquifersEnabled;
     private final boolean noiseCavesEnabled;
-    private final boolean deepslateEnabled;
     private final boolean oreVeinsEnabled;
     private final boolean noodleCavesEnabled;
     public static final ResourceKey<NoiseGeneratorSettings> OVERWORLD = ResourceKey.create(
@@ -86,31 +80,25 @@ public final class NoiseGeneratorSettings {
         BlockState param3,
         SurfaceRules.RuleSource param4,
         int param5,
-        int param6,
-        int param7,
+        boolean param6,
+        boolean param7,
         boolean param8,
         boolean param9,
         boolean param10,
-        boolean param11,
-        boolean param12,
-        boolean param13,
-        boolean param14
+        boolean param11
     ) {
         this.structureSettings = param0;
         this.noiseSettings = param1;
         this.defaultBlock = param2;
         this.defaultFluid = param3;
         this.surfaceRule = param4;
-        this.bedrockRoofPosition = param5;
-        this.bedrockFloorPosition = param6;
-        this.seaLevel = param7;
-        this.disableMobGeneration = param8;
-        this.aquifersEnabled = param9;
-        this.noiseCavesEnabled = param10;
-        this.deepslateEnabled = param11;
-        this.oreVeinsEnabled = param12;
-        this.noodleCavesEnabled = param13;
-        this.randomSource = param14 ? WorldgenRandom.Algorithm.LEGACY : WorldgenRandom.Algorithm.XOROSHIRO;
+        this.seaLevel = param5;
+        this.disableMobGeneration = param6;
+        this.aquifersEnabled = param7;
+        this.noiseCavesEnabled = param8;
+        this.oreVeinsEnabled = param9;
+        this.noodleCavesEnabled = param10;
+        this.randomSource = param11 ? WorldgenRandom.Algorithm.LEGACY : WorldgenRandom.Algorithm.XOROSHIRO;
     }
 
     public StructureSettings structureSettings() {
@@ -133,14 +121,6 @@ public final class NoiseGeneratorSettings {
         return this.surfaceRule;
     }
 
-    public int getBedrockRoofPosition() {
-        return this.bedrockRoofPosition;
-    }
-
-    public int getBedrockFloorPosition() {
-        return this.bedrockFloorPosition;
-    }
-
     public int seaLevel() {
         return this.seaLevel;
     }
@@ -156,10 +136,6 @@ public final class NoiseGeneratorSettings {
 
     public boolean isNoiseCavesEnabled() {
         return this.noiseCavesEnabled;
-    }
-
-    public boolean isDeepslateEnabled() {
-        return this.deepslateEnabled;
     }
 
     public boolean isOreVeinsEnabled() {
@@ -205,20 +181,16 @@ public final class NoiseGeneratorSettings {
                 new NoiseSlider(-0.234375, 7, 1),
                 2,
                 1,
-                0.0,
-                0.0,
                 param4,
+                false,
                 false,
                 TerrainProvider.end()
             ),
             param1,
             param2,
             SurfaceRuleData.end(),
-            Integer.MIN_VALUE,
-            Integer.MIN_VALUE,
             0,
             param3,
-            false,
             false,
             false,
             false,
@@ -240,8 +212,7 @@ public final class NoiseGeneratorSettings {
                 new NoiseSlider(2.5, 4, -1),
                 1,
                 2,
-                0.0,
-                -0.030078125,
+                false,
                 false,
                 false,
                 TerrainProvider.nether()
@@ -249,10 +220,7 @@ public final class NoiseGeneratorSettings {
             param1,
             param2,
             SurfaceRuleData.nether(),
-            0,
-            0,
             32,
-            false,
             false,
             false,
             false,
@@ -263,32 +231,26 @@ public final class NoiseGeneratorSettings {
     }
 
     private static NoiseGeneratorSettings overworld(StructureSettings param0, boolean param1, boolean param2) {
-        int var0 = param2 ? -2 : 0;
-        double var1 = 0.9999999814507745;
         return new NoiseGeneratorSettings(
             param0,
             NoiseSettings.create(
                 -64,
                 384,
-                new NoiseSamplingSettings(0.9999999814507745, 0.9999999814507745, 80.0, 160.0),
+                new NoiseSamplingSettings(1.0, 1.0, 80.0, 160.0),
                 new NoiseSlider(-0.078125, 2, 8),
                 new NoiseSlider(0.1171875, 3, 0),
                 1,
                 2,
-                1.0,
-                0.0,
                 false,
                 param1,
+                param2,
                 TerrainProvider.overworld()
             ),
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),
             SurfaceRuleData.overworld(),
-            Integer.MIN_VALUE,
-            0,
             63,
             false,
-            true,
             true,
             true,
             true,

@@ -13,7 +13,7 @@ public class PacketReceivedEvent extends PacketEvent {
     public static final String NAME = "minecraft.PacketReceived";
     public static final EventType TYPE = EventType.getEventType(PacketReceivedEvent.class);
 
-    public PacketReceivedEvent(String param0, SocketAddress param1, int param2) {
-        super(param0, param1, param2);
+    public PacketReceivedEvent(int param0, int param1, SocketAddress param2, int param3) {
+        super(param0, param1, param2, param3);
     }
 }

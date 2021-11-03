@@ -297,9 +297,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     }
 
     public static boolean checkParrotSpawnRules(EntityType<Parrot> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        BlockState var0 = param1.getBlockState(param3.below());
-        return (var0.is(BlockTags.LEAVES) || var0.is(Blocks.GRASS_BLOCK) || var0.is(BlockTags.LOGS) || var0.is(Blocks.AIR))
-            && param1.getRawBrightness(param3, 0) > 8;
+        return param1.getBlockState(param3.below()).is(BlockTags.PARROTS_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 
     @Override

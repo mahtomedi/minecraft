@@ -69,18 +69,19 @@ public class DebugLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public void applyBiomeDecoration(WorldGenLevel param0, ChunkPos param1, StructureFeatureManager param2) {
+    public void applyBiomeDecoration(WorldGenLevel param0, ChunkAccess param1, StructureFeatureManager param2) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        int var1 = param1.x;
-        int var2 = param1.z;
+        ChunkPos var1 = param1.getPos();
+        int var2 = var1.x;
+        int var3 = var1.z;
 
-        for(int var3 = 0; var3 < 16; ++var3) {
-            for(int var4 = 0; var4 < 16; ++var4) {
-                int var5 = SectionPos.sectionToBlockCoord(var1, var3);
+        for(int var4 = 0; var4 < 16; ++var4) {
+            for(int var5 = 0; var5 < 16; ++var5) {
                 int var6 = SectionPos.sectionToBlockCoord(var2, var4);
-                param0.setBlock(var0.set(var5, 60, var6), BARRIER, 2);
-                BlockState var7 = getBlockStateFor(var5, var6);
-                param0.setBlock(var0.set(var5, 70, var6), var7, 2);
+                int var7 = SectionPos.sectionToBlockCoord(var3, var5);
+                param0.setBlock(var0.set(var6, 60, var7), BARRIER, 2);
+                BlockState var8 = getBlockStateFor(var6, var7);
+                param0.setBlock(var0.set(var6, 70, var7), var8, 2);
             }
         }
 

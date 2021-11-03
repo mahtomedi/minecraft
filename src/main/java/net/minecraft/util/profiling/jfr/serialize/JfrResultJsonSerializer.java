@@ -23,7 +23,7 @@ import net.minecraft.util.profiling.jfr.stats.ChunkGenStat;
 import net.minecraft.util.profiling.jfr.stats.CpuLoadStat;
 import net.minecraft.util.profiling.jfr.stats.FileIOStat;
 import net.minecraft.util.profiling.jfr.stats.GcHeapStat;
-import net.minecraft.util.profiling.jfr.stats.PacketStat;
+import net.minecraft.util.profiling.jfr.stats.NetworkPacketSummary;
 import net.minecraft.util.profiling.jfr.stats.ThreadAllocationStat;
 import net.minecraft.util.profiling.jfr.stats.TickTimeStat;
 import net.minecraft.util.profiling.jfr.stats.TimedStatSummary;
@@ -149,24 +149,29 @@ public class JfrResultJsonSerializer {
 
     private JsonElement network(JfrStatsResult param0) {
         JsonObject var0 = new JsonObject();
-        var0.add("sent", this.packets(param0.sentPackets()));
-        var0.add("received", this.packets(param0.receivedPackets()));
+        var0.add("sent", this.packets(param0.sentPacketsSummary()));
+        var0.add("received", this.packets(param0.receivedPacketsSummary()));
         return var0;
     }
 
-    private JsonElement packets(PacketStat.Summary param0) {
+    private JsonElement packets(NetworkPacketSummary param0) {
         JsonObject var0 = new JsonObject();
-        var0.addProperty("totalBytes", param0.totalSize());
-        var0.addProperty("count", param0.totalCount());
-        var0.addProperty("bytesPerSecond", param0.sizePerSecond());
-        var0.addProperty("countPerSecond", param0.countsPerSecond());
+        var0.addProperty("totalBytes", param0.getTotalSize());
+        var0.addProperty("count", param0.getTotalCount());
+        var0.addProperty("bytesPerSecond", param0.getSizePerSecond());
+        var0.addProperty("countPerSecond", param0.getCountsPerSecond());
         JsonArray var1 = new JsonArray();
         var0.add("topContributors", var1);
-        param0.largestSizeContributors().stream().limit(10L).forEach(param1 -> {
+        param0.largestSizeContributors().forEach(param1 -> {
             JsonObject var0x = new JsonObject();
             var1.add(var0x);
-            var0x.addProperty("packetName", param1.getFirst());
-            var0x.addProperty("totalBytes", param1.getSecond());
+            NetworkPacketSummary.PacketIdentification var1x = param1.getFirst();
+            NetworkPacketSummary.PacketCountAndSize var2x = param1.getSecond();
+            var0x.addProperty("protocolId", var1x.protocolId());
+            var0x.addProperty("packetId", var1x.packetId());
+            var0x.addProperty("packetName", var1x.packetName());
+            var0x.addProperty("totalBytes", var2x.totalSize());
+            var0x.addProperty("count", var2x.totalCount());
         });
         return var0;
     }

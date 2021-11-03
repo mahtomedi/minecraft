@@ -133,7 +133,6 @@ public class Main {
             JvmProfiler.INSTANCE.start(Environment.CLIENT);
         }
 
-        JvmProfiler.INSTANCE.initialize();
         CrashReport.preload();
         Bootstrap.bootStrap();
         Bootstrap.validate();

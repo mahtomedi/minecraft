@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -48,7 +49,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class PolarBear extends Animal implements NeutralMob {
@@ -106,7 +106,7 @@ public class PolarBear extends Animal implements NeutralMob {
         if (!Objects.equals(var0, Optional.of(Biomes.FROZEN_OCEAN)) && !Objects.equals(var0, Optional.of(Biomes.DEEP_FROZEN_OCEAN))) {
             return checkAnimalSpawnRules(param0, param1, param2, param3, param4);
         } else {
-            return param1.getRawBrightness(param3, 0) > 8 && param1.getBlockState(param3.below()).is(Blocks.ICE);
+            return isBrightEnoughToSpawn(param1, param3) && param1.getBlockState(param3.below()).is(BlockTags.POLAR_BEARS_SPAWNABLE_ON_IN_FROZEN_OCEAN);
         }
     }
 

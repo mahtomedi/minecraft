@@ -13,7 +13,7 @@ import net.minecraft.util.profiling.jfr.stats.ChunkGenStat;
 import net.minecraft.util.profiling.jfr.stats.CpuLoadStat;
 import net.minecraft.util.profiling.jfr.stats.FileIOStat;
 import net.minecraft.util.profiling.jfr.stats.GcHeapStat;
-import net.minecraft.util.profiling.jfr.stats.PacketStat;
+import net.minecraft.util.profiling.jfr.stats.NetworkPacketSummary;
 import net.minecraft.util.profiling.jfr.stats.ThreadAllocationStat;
 import net.minecraft.util.profiling.jfr.stats.TickTimeStat;
 import net.minecraft.util.profiling.jfr.stats.TimedStatSummary;
@@ -28,8 +28,8 @@ public record JfrStatsResult(
     List<CpuLoadStat> cpuLoadStats,
     GcHeapStat.Summary heapSummary,
     ThreadAllocationStat.Summary threadAllocationSummary,
-    PacketStat.Summary receivedPackets,
-    PacketStat.Summary sentPackets,
+    NetworkPacketSummary receivedPacketsSummary,
+    NetworkPacketSummary sentPacketsSummary,
     FileIOStat.Summary fileWrites,
     FileIOStat.Summary fileReads,
     List<ChunkGenStat> chunkGenStats

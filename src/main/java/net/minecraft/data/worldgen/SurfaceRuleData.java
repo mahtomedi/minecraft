@@ -9,12 +9,14 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 
 public class SurfaceRuleData {
     private static final SurfaceRules.RuleSource AIR = makeStateRule(Blocks.AIR);
+    private static final SurfaceRules.RuleSource BEDROCK = makeStateRule(Blocks.BEDROCK);
     private static final SurfaceRules.RuleSource WHITE_TERRACOTTA = makeStateRule(Blocks.WHITE_TERRACOTTA);
     private static final SurfaceRules.RuleSource ORANGE_TERRACOTTA = makeStateRule(Blocks.ORANGE_TERRACOTTA);
     private static final SurfaceRules.RuleSource TERRACOTTA = makeStateRule(Blocks.TERRACOTTA);
     private static final SurfaceRules.RuleSource RED_SAND = makeStateRule(Blocks.RED_SAND);
     private static final SurfaceRules.RuleSource RED_SANDSTONE = makeStateRule(Blocks.RED_SANDSTONE);
     private static final SurfaceRules.RuleSource STONE = makeStateRule(Blocks.STONE);
+    private static final SurfaceRules.RuleSource DEEPSLATE = makeStateRule(Blocks.DEEPSLATE);
     private static final SurfaceRules.RuleSource DIRT = makeStateRule(Blocks.DIRT);
     private static final SurfaceRules.RuleSource PODZOL = makeStateRule(Blocks.PODZOL);
     private static final SurfaceRules.RuleSource COARSE_DIRT = makeStateRule(Blocks.COARSE_DIRT);
@@ -74,8 +76,8 @@ public class SurfaceRuleData {
             SurfaceRules.ifTrue(SurfaceRules.isBiome(Biomes.WARM_OCEAN, Biomes.DESERT, Biomes.BEACH, Biomes.SNOWY_BEACH), var13),
             SurfaceRules.ifTrue(SurfaceRules.isBiome(Biomes.DRIPSTONE_CAVES), STONE)
         );
-        SurfaceRules.RuleSource var16 = SurfaceRules.ifTrue(SurfaceRules.noiseCondition(Noises.POWDER_SNOW_UNDER, 0.45, 0.58), POWDER_SNOW);
-        SurfaceRules.RuleSource var17 = SurfaceRules.ifTrue(SurfaceRules.noiseCondition(Noises.POWDER_SNOW_SURFACE, 0.35, 0.6), POWDER_SNOW);
+        SurfaceRules.RuleSource var16 = SurfaceRules.ifTrue(SurfaceRules.noiseCondition(Noises.POWDER_SNOW, 0.45, 0.58), POWDER_SNOW);
+        SurfaceRules.RuleSource var17 = SurfaceRules.ifTrue(SurfaceRules.noiseCondition(Noises.POWDER_SNOW, 0.35, 0.6), POWDER_SNOW);
         SurfaceRules.RuleSource var18 = SurfaceRules.sequence(
             SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(Biomes.FROZEN_PEAKS),
@@ -140,7 +142,7 @@ public class SurfaceRuleData {
         SurfaceRules.ConditionSource var20 = SurfaceRules.noiseCondition(Noises.SURFACE, -0.909, -0.5454);
         SurfaceRules.ConditionSource var21 = SurfaceRules.noiseCondition(Noises.SURFACE, -0.1818, 0.1818);
         SurfaceRules.ConditionSource var22 = SurfaceRules.noiseCondition(Noises.SURFACE, 0.5454, 0.909);
-        return SurfaceRules.sequence(
+        SurfaceRules.RuleSource var23 = SurfaceRules.sequence(
             SurfaceRules.ifTrue(
                 SurfaceRules.ON_FLOOR,
                 SurfaceRules.sequence(
@@ -221,6 +223,11 @@ public class SurfaceRuleData {
                 )
             )
         );
+        return SurfaceRules.sequence(
+            SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(), VerticalAnchor.aboveBottom(5)), BEDROCK),
+            SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), var23),
+            SurfaceRules.ifTrue(SurfaceRules.verticalGradient("deepslate", VerticalAnchor.absolute(0), VerticalAnchor.absolute(8)), DEEPSLATE)
+        );
     }
 
     public static SurfaceRules.RuleSource nether() {
@@ -237,6 +244,8 @@ public class SurfaceRuleData {
         SurfaceRules.ConditionSource var10 = SurfaceRules.noiseCondition(Noises.NETHER_STATE_SELECTOR, 0.0);
         SurfaceRules.RuleSource var11 = SurfaceRules.ifTrue(var7, SurfaceRules.ifTrue(var2, SurfaceRules.ifTrue(var3, GRAVEL)));
         return SurfaceRules.sequence(
+            SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(), VerticalAnchor.aboveBottom(5)), BEDROCK),
+            SurfaceRules.ifTrue(SurfaceRules.not(SurfaceRules.verticalGradient("bedrock_roof", VerticalAnchor.belowTop(5), VerticalAnchor.top())), BEDROCK),
             SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(Biomes.BASALT_DELTAS),
                 SurfaceRules.sequence(

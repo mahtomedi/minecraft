@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
@@ -456,7 +457,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         AABB var0 = this.getBoundingBox();
         AABB var1 = new AABB((double)param0.getX(), var0.minY, (double)param0.getZ(), (double)param0.getX() + 1.0, var0.maxY, (double)param0.getZ() + 1.0)
             .deflate(1.0E-7);
-        return this.level.hasBlockCollision(this, var1, (param0x, param1) -> param0x.isSuffocating(this.level, param1));
+        return this.level.collidesWithSuffocatingBlock(this, var1);
     }
 
     @Override
@@ -966,31 +967,32 @@ public class LocalPlayer extends AbstractClientPlayer {
                         Vec3 var29 = var22.subtract(var27);
                         Vec3 var30 = var21.add(var27);
                         Vec3 var31 = var22.add(var27);
-                        Iterator<AABB> var32 = this.level.getCollisions(this, var25, param0x -> true).flatMap(param0x -> param0x.toAabbs().stream()).iterator();
-                        float var33 = Float.MIN_VALUE;
+                        Iterable<VoxelShape> var32 = this.level.getCollisions(this, var25);
+                        Iterator<AABB> var33 = StreamSupport.stream(var32.spliterator(), false).flatMap(param0x -> param0x.toAabbs().stream()).iterator();
+                        float var34 = Float.MIN_VALUE;
 
-                        while(var32.hasNext()) {
-                            AABB var34 = var32.next();
-                            if (var34.intersects(var28, var29) || var34.intersects(var30, var31)) {
-                                var33 = (float)var34.maxY;
-                                Vec3 var35 = var34.getCenter();
-                                BlockPos var36 = new BlockPos(var35);
+                        while(var33.hasNext()) {
+                            AABB var35 = var33.next();
+                            if (var35.intersects(var28, var29) || var35.intersects(var30, var31)) {
+                                var34 = (float)var35.maxY;
+                                Vec3 var36 = var35.getCenter();
+                                BlockPos var37 = new BlockPos(var36);
 
-                                for(int var37 = 1; (float)var37 < var19; ++var37) {
-                                    BlockPos var38 = var36.above(var37);
-                                    BlockState var39 = this.level.getBlockState(var38);
-                                    VoxelShape var40;
-                                    if (!(var40 = var39.getCollisionShape(this.level, var38, var14)).isEmpty()) {
-                                        var33 = (float)var40.max(Direction.Axis.Y) + (float)var38.getY();
-                                        if ((double)var33 - this.getY() > (double)var19) {
+                                for(int var38 = 1; (float)var38 < var19; ++var38) {
+                                    BlockPos var39 = var37.above(var38);
+                                    BlockState var40 = this.level.getBlockState(var39);
+                                    VoxelShape var41;
+                                    if (!(var41 = var40.getCollisionShape(this.level, var39, var14)).isEmpty()) {
+                                        var34 = (float)var41.max(Direction.Axis.Y) + (float)var39.getY();
+                                        if ((double)var34 - this.getY() > (double)var19) {
                                             return;
                                         }
                                     }
 
-                                    if (var37 > 1) {
+                                    if (var38 > 1) {
                                         var15 = var15.above();
-                                        BlockState var41 = this.level.getBlockState(var15);
-                                        if (!var41.getCollisionShape(this.level, var15, var14).isEmpty()) {
+                                        BlockState var42 = this.level.getBlockState(var15);
+                                        if (!var42.getCollisionShape(this.level, var15, var14).isEmpty()) {
                                             return;
                                         }
                                     }
@@ -999,9 +1001,9 @@ public class LocalPlayer extends AbstractClientPlayer {
                             }
                         }
 
-                        if (var33 != Float.MIN_VALUE) {
-                            float var42 = (float)((double)var33 - this.getY());
-                            if (!(var42 <= 0.5F) && !(var42 > var19)) {
+                        if (var34 != Float.MIN_VALUE) {
+                            float var43 = (float)((double)var34 - this.getY());
+                            if (!(var43 <= 0.5F) && !(var43 > var19)) {
                                 this.autoJumpTime = 1;
                             }
                         }

@@ -45,8 +45,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
                         throw new IllegalArgumentException("Packet too big (is " + var4 + ", should be less than 8388608): " + param1);
                     } else {
                         int var5 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
-                        JvmProfiler.INSTANCE
-                            .onPacketSent(() -> "%d/%d (%s)".formatted(var5, var1, param1.getClass().getSimpleName()), param0.channel().remoteAddress(), var4);
+                        JvmProfiler.INSTANCE.onPacketSent(var5, var1, param0.channel().remoteAddress(), var4);
                     }
                 } catch (Throwable var10) {
                     LOGGER.error(var10);

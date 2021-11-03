@@ -191,7 +191,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                 if (param8.isTrue()) {
                     param6.setWithOffset(param5, Direction.DOWN);
                     if (param2.getBlockState(param6).is(Blocks.DIRT)) {
-                        param0.topMaterial(param3.apply(param6), param2, param6, !var1.getFluidState().isEmpty())
+                        param0.topMaterial(param3, param2, param6, !var1.getFluidState().isEmpty())
                             .ifPresent(param2x -> param2.setBlockState(param6, param2x, false));
                     }
                 }

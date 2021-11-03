@@ -1,14 +1,15 @@
 package net.minecraft.world.level.entity;
 
+import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.minecraft.util.ClassInstanceMultiMap;
 import net.minecraft.util.VisibleForDebug;
+import net.minecraft.world.phys.AABB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class EntitySection<T> {
+public class EntitySection<T extends EntityAccess> {
     protected static final Logger LOGGER = LogManager.getLogger();
     private final ClassInstanceMultiMap<T> storage;
     private Visibility chunkStatus;
@@ -26,23 +27,26 @@ public class EntitySection<T> {
         return this.storage.remove(param0);
     }
 
-    public void getEntities(Predicate<? super T> param0, Consumer<T> param1) {
+    public void getEntities(AABB param0, Consumer<T> param1) {
         for(T var0 : this.storage) {
-            if (param0.test(var0)) {
+            if (var0.getBoundingBox().intersects(param0)) {
                 param1.accept(var0);
             }
         }
 
     }
 
-    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, Predicate<? super U> param1, Consumer<? super U> param2) {
-        for(T var0 : this.storage.find(param0.getBaseClass())) {
-            U var1 = (U)param0.tryCast(var0);
-            if (var1 != null && param1.test(var1)) {
-                param2.accept((T)var1);
+    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, AABB param1, Consumer<? super U> param2) {
+        Collection<? extends T> var0 = this.storage.find(param0.getBaseClass());
+        if (!var0.isEmpty()) {
+            for(T var1 : var0) {
+                U var2 = (U)param0.tryCast(var1);
+                if (var2 != null && var1.getBoundingBox().intersects(param1)) {
+                    param2.accept(var2);
+                }
             }
-        }
 
+        }
     }
 
     public boolean isEmpty() {

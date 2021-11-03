@@ -1,7 +1,7 @@
 package net.minecraft.world.phys.shapes;
 
-import java.util.Optional;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -15,7 +15,7 @@ import net.minecraft.world.level.material.FluidState;
 
 public class EntityCollisionContext implements CollisionContext {
     protected static final CollisionContext EMPTY = new EntityCollisionContext(
-        false, -Double.MAX_VALUE, ItemStack.EMPTY, ItemStack.EMPTY, param0 -> false, Optional.empty()
+        false, -Double.MAX_VALUE, ItemStack.EMPTY, ItemStack.EMPTY, param0 -> false, null
     ) {
         @Override
         public boolean isAbove(VoxelShape param0, BlockPos param1, boolean param2) {
@@ -27,9 +27,10 @@ public class EntityCollisionContext implements CollisionContext {
     private final ItemStack heldItem;
     private final ItemStack footItem;
     private final Predicate<Fluid> canStandOnFluid;
-    private final Optional<Entity> entity;
+    @Nullable
+    private final Entity entity;
 
-    protected EntityCollisionContext(boolean param0, double param1, ItemStack param2, ItemStack param3, Predicate<Fluid> param4, Optional<Entity> param5) {
+    protected EntityCollisionContext(boolean param0, double param1, ItemStack param2, ItemStack param3, Predicate<Fluid> param4, @Nullable Entity param5) {
         this.descending = param0;
         this.entityBottom = param1;
         this.footItem = param2;
@@ -46,7 +47,7 @@ public class EntityCollisionContext implements CollisionContext {
             param0 instanceof LivingEntity ? ((LivingEntity)param0).getItemBySlot(EquipmentSlot.FEET) : ItemStack.EMPTY,
             param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem() : ItemStack.EMPTY,
             param0 instanceof LivingEntity ? ((LivingEntity)param0)::canStandOnFluid : param0x -> false,
-            Optional.of(param0)
+            param0
         );
     }
 
@@ -75,7 +76,8 @@ public class EntityCollisionContext implements CollisionContext {
         return this.entityBottom > (double)param1.getY() + param0.max(Direction.Axis.Y) - 1.0E-5F;
     }
 
-    public Optional<Entity> getEntity() {
+    @Nullable
+    public Entity getEntity() {
         return this.entity;
     }
 }

@@ -1,9 +1,8 @@
 package net.minecraft.world.level;
 
+import com.google.common.collect.Iterables;
+import java.util.List;
 import java.util.Optional;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -37,37 +36,58 @@ public interface CollisionGetter extends BlockGetter {
     }
 
     default boolean noCollision(AABB param0) {
-        return this.noCollision(null, param0, param0x -> true);
+        return this.noCollision(null, param0);
     }
 
     default boolean noCollision(Entity param0) {
-        return this.noCollision(param0, param0.getBoundingBox(), param0x -> true);
+        return this.noCollision(param0, param0.getBoundingBox());
     }
 
-    default boolean noCollision(Entity param0, AABB param1) {
-        return this.noCollision(param0, param1, param0x -> true);
+    default boolean noCollision(@Nullable Entity param0, AABB param1) {
+        for(VoxelShape var0 : this.getBlockCollisions(param0, param1)) {
+            if (!var0.isEmpty()) {
+                return false;
+            }
+        }
+
+        if (!this.getEntityCollisions(param0, param1).isEmpty()) {
+            return false;
+        } else if (param0 == null) {
+            return true;
+        } else {
+            VoxelShape var1 = this.borderCollision(param0, param1);
+            return var1 == null || !Shapes.joinIsNotEmpty(var1, Shapes.create(param1), BooleanOp.AND);
+        }
     }
 
-    default boolean noCollision(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
-        return this.getCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
+    List<VoxelShape> getEntityCollisions(@Nullable Entity var1, AABB var2);
+
+    default Iterable<VoxelShape> getCollisions(@Nullable Entity param0, AABB param1) {
+        List<VoxelShape> var0 = this.getEntityCollisions(param0, param1);
+        Iterable<VoxelShape> var1 = this.getBlockCollisions(param0, param1);
+        return var0.isEmpty() ? var1 : Iterables.concat(var0, var1);
     }
 
-    Stream<VoxelShape> getEntityCollisions(@Nullable Entity var1, AABB var2, Predicate<Entity> var3);
-
-    default Stream<VoxelShape> getCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
-        return Stream.concat(this.getBlockCollisions(param0, param1), this.getEntityCollisions(param0, param1, param2));
+    default Iterable<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1) {
+        return () -> new BlockCollisions(this, param0, param1);
     }
 
-    default Stream<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1) {
-        return StreamSupport.stream(new CollisionSpliterator(this, param0, param1), false);
+    @Nullable
+    private VoxelShape borderCollision(Entity param0, AABB param1) {
+        WorldBorder var0 = this.getWorldBorder();
+        return var0.isInsideCloseToBorder(param0, param1) ? var0.getCollisionShape() : null;
     }
 
-    default boolean hasBlockCollision(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {
-        return !this.getBlockCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
-    }
+    default boolean collidesWithSuffocatingBlock(@Nullable Entity param0, AABB param1) {
+        BlockCollisions var0 = new BlockCollisions(this, param0, param1, true);
 
-    default Stream<VoxelShape> getBlockCollisions(@Nullable Entity param0, AABB param1, BiPredicate<BlockState, BlockPos> param2) {
-        return StreamSupport.stream(new CollisionSpliterator(this, param0, param1, param2), false);
+        while(var0.hasNext()) {
+            if (!var0.next().isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     default Optional<Vec3> findFreePosition(@Nullable Entity param0, VoxelShape param1, Vec3 param2, double param3, double param4, double param5) {
@@ -75,7 +95,8 @@ public interface CollisionGetter extends BlockGetter {
             return Optional.empty();
         } else {
             AABB var0 = param1.bounds().inflate(param3, param4, param5);
-            VoxelShape var1 = this.getBlockCollisions(param0, var0)
+            VoxelShape var1 = StreamSupport.stream(this.getBlockCollisions(param0, var0).spliterator(), false)
+                .filter(param0x -> this.getWorldBorder() == null || this.getWorldBorder().isWithinBounds(param0x.bounds()))
                 .flatMap(param0x -> param0x.toAabbs().stream())
                 .map(param3x -> param3x.inflate(param3 / 2.0, param4 / 2.0, param5 / 2.0))
                 .map(Shapes::create)

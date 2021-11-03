@@ -912,9 +912,16 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     }
 
     private boolean isPlayerCollidingWithAnythingNew(LevelReader param0, AABB param1) {
-        Stream<VoxelShape> var0 = param0.getCollisions(this.player, this.player.getBoundingBox().deflate(1.0E-5F), param0x -> true);
+        Iterable<VoxelShape> var0 = param0.getCollisions(this.player, this.player.getBoundingBox().deflate(1.0E-5F));
         VoxelShape var1 = Shapes.create(param1.deflate(1.0E-5F));
-        return var0.anyMatch(param1x -> !Shapes.joinIsNotEmpty(param1x, var1, BooleanOp.AND));
+
+        for(VoxelShape var2 : var0) {
+            if (!Shapes.joinIsNotEmpty(var2, var1, BooleanOp.AND)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void dismount(double param0, double param1, double param2, float param3, float param4) {

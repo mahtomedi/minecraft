@@ -1,10 +1,11 @@
 package net.minecraft.world.level;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList.Builder;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -53,24 +54,23 @@ public interface EntityGetter {
         return this.getEntitiesOfClass(param0, param1, EntitySelector.NO_SPECTATORS);
     }
 
-    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
+    default List<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1) {
         if (param1.getSize() < 1.0E-7) {
-            return Stream.empty();
+            return List.of();
         } else {
-            AABB var0 = param1.inflate(1.0E-7);
-            return this.getEntities(param0, var0, param2.and(param2x -> {
-                if (param2x.getBoundingBox().intersects(var0)) {
-                    if (param0 == null) {
-                        if (param2x.canBeCollidedWith()) {
-                            return true;
-                        }
-                    } else if (param0.canCollideWith(param2x)) {
-                        return true;
-                    }
+            Predicate<Entity> var0 = param0 == null ? EntitySelector.CAN_BE_COLLIDED_WITH : EntitySelector.NO_SPECTATORS.and(param0::canCollideWith);
+            List<Entity> var1 = this.getEntities(param0, param1.inflate(1.0E-7), var0);
+            if (var1.isEmpty()) {
+                return List.of();
+            } else {
+                Builder<VoxelShape> var2 = ImmutableList.builderWithExpectedSize(var1.size());
+
+                for(Entity var3 : var1) {
+                    var2.add(Shapes.create(var3.getBoundingBox()));
                 }
 
-                return false;
-            })).stream().map(Entity::getBoundingBox).map(Shapes::create);
+                return var2.build();
+            }
         }
     }
 

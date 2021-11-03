@@ -188,23 +188,6 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         return var0.getFirstAvailable(param1 & 15, param2 & 15) - 1;
     }
 
-    public BlockPos getHeighestPosition(Heightmap.Types param0) {
-        int var0 = this.getMinBuildHeight();
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-
-        for(int var2 = this.chunkPos.getMinBlockX(); var2 <= this.chunkPos.getMaxBlockX(); ++var2) {
-            for(int var3 = this.chunkPos.getMinBlockZ(); var3 <= this.chunkPos.getMaxBlockZ(); ++var3) {
-                int var4 = this.getHeight(param0, var2 & 15, var3 & 15);
-                if (var4 > var0) {
-                    var0 = var4;
-                    var1.set(var2, var4, var3);
-                }
-            }
-        }
-
-        return var1.immutable();
-    }
-
     public ChunkPos getPos() {
         return this.chunkPos;
     }
@@ -426,21 +409,30 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         ChunkPos var0 = this.getPos();
         int var1 = QuartPos.fromBlock(var0.getMinBlockX());
         int var2 = QuartPos.fromBlock(var0.getMinBlockZ());
+        LevelHeightAccessor var3 = this.getHeightAccessorForGeneration();
 
-        for(int var3 = 0; var3 < this.getSectionsCount(); ++var3) {
-            LevelChunkSection var4 = this.getSection(var3);
-            var4.fillBiomesFromNoise(param0, param1, var1, var2);
+        for(int var4 = var3.getMinSection(); var4 < var3.getMaxSection(); ++var4) {
+            LevelChunkSection var5 = this.getSection(this.getSectionIndexFromSectionY(var4));
+            var5.fillBiomesFromNoise(param0, param1, var1, var2);
         }
 
     }
 
     public boolean hasAnyStructureReferences() {
-        return !this.structuresRefences.isEmpty();
+        return !this.getAllReferences().isEmpty();
     }
 
     @Nullable
     public BelowZeroRetrogen getBelowZeroRetrogen() {
         return null;
+    }
+
+    public boolean isUpgrading() {
+        return this.getBelowZeroRetrogen() != null;
+    }
+
+    public LevelHeightAccessor getHeightAccessorForGeneration() {
+        return this;
     }
 
     public static record TicksToSave(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids) {

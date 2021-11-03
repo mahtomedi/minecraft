@@ -675,7 +675,7 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
             var0 = var0.expandTowards(0.0, -1.0, 0.0);
         }
 
-        Stream<VoxelShape> var1 = param0.getCollisions(null, var0, param0x -> true);
+        Iterable<VoxelShape> var1 = param0.getCollisions(null, var0);
         return 1.0 + Shapes.collide(Direction.Axis.Y, param3, var1, param2 ? -2.0 : -1.0);
     }
 

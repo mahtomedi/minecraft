@@ -178,7 +178,7 @@ public class Turtle extends Animal {
     }
 
     public static boolean checkTurtleSpawnRules(EntityType<Turtle> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param3.getY() < param1.getSeaLevel() + 4 && TurtleEggBlock.onSand(param1, param3) && param1.getRawBrightness(param3, 0) > 8;
+        return param3.getY() < param1.getSeaLevel() + 4 && TurtleEggBlock.onSand(param1, param3) && isBrightEnoughToSpawn(param1, param3);
     }
 
     @Override

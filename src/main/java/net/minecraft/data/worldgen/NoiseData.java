@@ -7,12 +7,10 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class NoiseData {
     public static NormalNoise.NoiseParameters bootstrap() {
-        register(Noises.TEMPERATURE, -10, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0);
-        register(Noises.VEGETATION, -8, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0);
-        register(Noises.CONTINENTALNESS, -9, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0);
-        register(Noises.EROSION, -9, 1.0, 1.0, 0.0, 1.0, 1.0);
-        register(Noises.RIDGE, -7, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0);
-        register(Noises.SHIFT, -3, 1.0, 1.0, 1.0, 0.0);
+        registerBiomeNoises(0, Noises.TEMPERATURE, Noises.VEGETATION, Noises.CONTINENTALNESS, Noises.EROSION, Noises.RIDGE, Noises.SHIFT);
+        registerBiomeNoises(
+            -2, Noises.TEMPERATURE_LARGE, Noises.VEGETATION_LARGE, Noises.CONTINENTALNESS_LARGE, Noises.EROSION_LARGE, Noises.RIDGE_LARGE, Noises.SHIFT_LARGE
+        );
         register(Noises.AQUIFER_BARRIER, -3, 1.0);
         register(Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS, -7, 1.0);
         register(Noises.AQUIFER_LAVA, -1, 1.0);
@@ -53,8 +51,7 @@ public class NoiseData {
         register(Noises.SWAMP, -2, 1.0);
         register(Noises.CALCITE, -9, 1.0, 1.0, 1.0, 1.0);
         register(Noises.GRAVEL, -8, 1.0, 1.0, 1.0, 1.0);
-        register(Noises.POWDER_SNOW_UNDER, -6, 1.0, 1.0, 1.0, 1.0);
-        register(Noises.POWDER_SNOW_SURFACE, -6, 1.0, 1.0, 1.0, 1.0);
+        register(Noises.POWDER_SNOW, -6, 1.0, 1.0, 1.0, 1.0);
         register(Noises.PACKED_ICE, -7, 1.0, 1.0, 1.0, 1.0);
         register(Noises.ICE, -4, 1.0, 1.0, 1.0, 1.0);
         register(Noises.SOUL_SAND_LAYER, -8, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.013333333333333334);
@@ -64,6 +61,23 @@ public class NoiseData {
         register(Noises.NETHER_WART, -3, 1.0, 0.0, 0.0, 0.9);
         register(Noises.NETHER_STATE_SELECTOR, -4, 1.0);
         return BuiltinRegistries.NOISE.iterator().next();
+    }
+
+    private static void registerBiomeNoises(
+        int param0,
+        ResourceKey<NormalNoise.NoiseParameters> param1,
+        ResourceKey<NormalNoise.NoiseParameters> param2,
+        ResourceKey<NormalNoise.NoiseParameters> param3,
+        ResourceKey<NormalNoise.NoiseParameters> param4,
+        ResourceKey<NormalNoise.NoiseParameters> param5,
+        ResourceKey<NormalNoise.NoiseParameters> param6
+    ) {
+        register(param1, -10 + param0, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0);
+        register(param2, -8 + param0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        register(param3, -9 + param0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0);
+        register(param4, -9 + param0, 1.0, 1.0, 0.0, 1.0, 1.0);
+        register(param5, -7 + param0, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0);
+        register(param6, -3 + param0, 1.0, 1.0, 1.0, 0.0);
     }
 
     private static void register(ResourceKey<NormalNoise.NoiseParameters> param0, int param1, double param2, double... param3) {

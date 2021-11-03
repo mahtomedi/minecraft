@@ -47,7 +47,7 @@ public class PlayerRespawnLogic {
 
     @Nullable
     public static BlockPos getSpawnPosInChunk(ServerLevel param0, ChunkPos param1) {
-        if (SharedConstants.debugVoidTerrain(param1.getMinBlockX(), param1.getMinBlockZ())) {
+        if (SharedConstants.debugVoidTerrain(param1)) {
             return null;
         } else {
             for(int var0 = param1.getMinBlockX(); var0 <= param1.getMaxBlockX(); ++var0) {

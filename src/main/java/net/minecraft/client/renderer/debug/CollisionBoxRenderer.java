@@ -1,10 +1,10 @@
 package net.minecraft.client.renderer.debug;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -31,7 +31,7 @@ public class CollisionBoxRenderer implements DebugRenderer.SimpleDebugRenderer {
         if (var0 - this.lastUpdateTime > 1.0E8) {
             this.lastUpdateTime = var0;
             Entity var1 = this.minecraft.gameRenderer.getMainCamera().getEntity();
-            this.shapes = var1.level.getCollisions(var1, var1.getBoundingBox().inflate(6.0), param0x -> true).collect(Collectors.toList());
+            this.shapes = ImmutableList.copyOf(var1.level.getCollisions(var1, var1.getBoundingBox().inflate(6.0)));
         }
 
         VertexConsumer var2 = param1.getBuffer(RenderType.lines());

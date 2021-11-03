@@ -181,6 +181,7 @@ public class ServerPlayer extends Player {
     private float respawnAngle;
     private final TextFilter textFilter;
     private boolean textFilteringEnabled;
+    private boolean allowsListing = true;
     private final ContainerSynchronizer containerSynchronizer = new ContainerSynchronizer() {
         @Override
         public void sendInitialData(AbstractContainerMenu param0, NonNullList<ItemStack> param1, ItemStack param2, int[] param3) {
@@ -1318,11 +1319,12 @@ public class ServerPlayer extends Player {
     }
 
     public void updateOptions(ServerboundClientInformationPacket param0) {
-        this.chatVisibility = param0.getChatVisibility();
-        this.canChatColor = param0.getChatColors();
-        this.textFilteringEnabled = param0.isTextFilteringEnabled();
-        this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (byte)param0.getModelCustomisation());
-        this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (byte)(param0.getMainHand() == HumanoidArm.LEFT ? 0 : 1));
+        this.chatVisibility = param0.chatVisibility();
+        this.canChatColor = param0.chatColors();
+        this.textFilteringEnabled = param0.textFilteringEnabled();
+        this.allowsListing = param0.allowsListing();
+        this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (byte)param0.modelCustomisation());
+        this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (byte)(param0.mainHand() == HumanoidArm.LEFT ? 0 : 1));
     }
 
     public boolean canChatInColor() {
@@ -1625,5 +1627,9 @@ public class ServerPlayer extends Player {
         ItemStack var1 = var0.removeFromSelected(param0);
         this.containerMenu.findSlot(var0, var0.selected).ifPresent(param1 -> this.containerMenu.setRemoteSlot(param1, var0.getSelected()));
         return this.drop(var1, false, true) != null;
+    }
+
+    public boolean allowsListing() {
+        return this.allowsListing;
     }
 }

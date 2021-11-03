@@ -25,6 +25,9 @@ import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.GenerationUpgradeData;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -209,6 +212,20 @@ public class ProtoChunk extends ChunkAccess {
         }
     }
 
+    @Override
+    public void setStartForFeature(StructureFeature<?> param0, StructureStart<?> param1) {
+        BelowZeroRetrogen var0 = this.getBelowZeroRetrogen();
+        if (var0 != null && param1.isValid()) {
+            BoundingBox var1 = param1.getBoundingBox();
+            LevelHeightAccessor var2 = this.getHeightAccessorForGeneration();
+            if (var1.minY() < var2.getMinBuildHeight() || var1.maxY() >= var2.getMaxBuildHeight()) {
+                return;
+            }
+        }
+
+        super.setStartForFeature(param0, param1);
+    }
+
     public List<CompoundTag> getEntities() {
         return this.entities;
     }
@@ -320,5 +337,10 @@ public class ProtoChunk extends ChunkAccess {
 
     public LevelChunkTicks<Fluid> unpackFluidTicks() {
         return unpackTicks(this.fluidTicks);
+    }
+
+    @Override
+    public LevelHeightAccessor getHeightAccessorForGeneration() {
+        return (LevelHeightAccessor)(this.isUpgrading() ? BelowZeroRetrogen.UPGRADE_HEIGHT_ACCESSOR : this);
     }
 }

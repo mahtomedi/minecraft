@@ -214,87 +214,80 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         }
     }
 
-    public void applyBiomeDecoration(WorldGenLevel param0, ChunkPos param1, StructureFeatureManager param2) {
-        int var0 = param1.x;
-        int var1 = param1.z;
-        int var2 = param1.getMinBlockX();
-        int var3 = param1.getMinBlockZ();
-        if (!SharedConstants.debugVoidTerrain(var2, var3)) {
-            BlockPos var4 = new BlockPos(var2, param0.getMinBuildHeight(), var3);
-            int var5 = SectionPos.blockToSectionCoord(var4.getX());
-            int var6 = SectionPos.blockToSectionCoord(var4.getZ());
-            int var7 = SectionPos.sectionToBlockCoord(var5);
-            int var8 = SectionPos.sectionToBlockCoord(var6);
-            int var9 = param0.getMinBuildHeight() + 1;
-            int var10 = param0.getMaxBuildHeight() - 1;
-            Map<Integer, List<StructureFeature<?>>> var11 = Registry.STRUCTURE_FEATURE
+    public void applyBiomeDecoration(WorldGenLevel param0, ChunkAccess param1, StructureFeatureManager param2) {
+        ChunkPos var0 = param1.getPos();
+        if (!SharedConstants.debugVoidTerrain(var0)) {
+            SectionPos var1 = SectionPos.of(var0, param0.getMinSection());
+            BlockPos var2 = var1.origin();
+            Map<Integer, List<StructureFeature<?>>> var3 = Registry.STRUCTURE_FEATURE
                 .stream()
                 .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
-            ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> var12 = this.biomeSource.featuresPerStep();
-            WorldgenRandom var13 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
-            long var14 = var13.setDecorationSeed(param0.getSeed(), var2, var3);
+            ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> var4 = this.biomeSource.featuresPerStep();
+            WorldgenRandom var5 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
+            long var6 = var5.setDecorationSeed(param0.getSeed(), var2.getX(), var2.getZ());
 
             try {
-                Registry<ConfiguredFeature<?, ?>> var15 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
-                Registry<StructureFeature<?>> var16 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
-                int var17 = Math.max(GenerationStep.Decoration.values().length, var12.size());
+                Registry<ConfiguredFeature<?, ?>> var7 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
+                Registry<StructureFeature<?>> var8 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
+                int var9 = Math.max(GenerationStep.Decoration.values().length, var4.size());
 
-                for(int var18 = 0; var18 < var17; ++var18) {
-                    int var19 = 0;
+                for(int var10 = 0; var10 < var9; ++var10) {
+                    int var11 = 0;
                     if (param2.shouldGenerateFeatures()) {
-                        for(StructureFeature<?> var21 : var11.getOrDefault(var18, Collections.emptyList())) {
-                            var13.setFeatureSeed(var14, var19, var18);
-                            Supplier<String> var22 = () -> var16.getResourceKey(var21).map(Object::toString).orElseGet(var21::toString);
+                        for(StructureFeature<?> var13 : var3.getOrDefault(var10, Collections.emptyList())) {
+                            var5.setFeatureSeed(var6, var11, var10);
+                            Supplier<String> var14 = () -> var8.getResourceKey(var13).map(Object::toString).orElseGet(var13::toString);
 
                             try {
-                                param0.setCurrentlyGenerating(var22);
-                                param2.startsForFeature(SectionPos.of(var4), var21)
-                                    .forEach(
-                                        param9 -> param9.placeInChunk(
-                                                param0,
-                                                param2,
-                                                this,
-                                                var13,
-                                                new BoundingBox(var7, var9, var8, var7 + 15, var10, var8 + 15),
-                                                new ChunkPos(var5, var6)
-                                            )
-                                    );
-                            } catch (Exception var31) {
-                                CrashReport var24 = CrashReport.forThrowable(var31, "Feature placement");
-                                var24.addCategory("Feature").setDetail("Description", var22::get);
-                                throw new ReportedException(var24);
+                                param0.setCurrentlyGenerating(var14);
+                                param2.startsForFeature(var1, var13)
+                                    .forEach(param5 -> param5.placeInChunk(param0, param2, this, var5, getWritableArea(param1), var0));
+                            } catch (Exception var23) {
+                                CrashReport var16 = CrashReport.forThrowable(var23, "Feature placement");
+                                var16.addCategory("Feature").setDetail("Description", var14::get);
+                                throw new ReportedException(var16);
                             }
 
-                            ++var19;
+                            ++var11;
                         }
                     }
 
-                    if (var12.size() > var18) {
-                        for(ConfiguredFeature<?, ?> var25 : var12.get(var18)) {
-                            Supplier<String> var26 = () -> var15.getResourceKey(var25).map(Object::toString).orElseGet(var25::toString);
-                            var13.setFeatureSeed(var14, var19, var18);
+                    if (var4.size() > var10) {
+                        for(ConfiguredFeature<?, ?> var17 : var4.get(var10)) {
+                            Supplier<String> var18 = () -> var7.getResourceKey(var17).map(Object::toString).orElseGet(var17::toString);
+                            var5.setFeatureSeed(var6, var11, var10);
 
                             try {
-                                param0.setCurrentlyGenerating(var26);
-                                var25.placeWithBiomeCheck(Optional.of(var25), param0, this, var13, var4);
-                            } catch (Exception var32) {
-                                CrashReport var28 = CrashReport.forThrowable(var32, "Feature placement");
-                                var28.addCategory("Feature").setDetail("Description", var26::get);
-                                throw new ReportedException(var28);
+                                param0.setCurrentlyGenerating(var18);
+                                var17.placeWithBiomeCheck(Optional.of(var17), param0, this, var5, var2);
+                            } catch (Exception var24) {
+                                CrashReport var20 = CrashReport.forThrowable(var24, "Feature placement");
+                                var20.addCategory("Feature").setDetail("Description", var18::get);
+                                throw new ReportedException(var20);
                             }
 
-                            ++var19;
+                            ++var11;
                         }
                     }
                 }
 
                 param0.setCurrentlyGenerating(null);
-            } catch (Exception var33) {
-                CrashReport var30 = CrashReport.forThrowable(var33, "Biome decoration");
-                var30.addCategory("Generation").setDetail("CenterX", var0).setDetail("CenterZ", var1).setDetail("Seed", var14);
-                throw new ReportedException(var30);
+            } catch (Exception var25) {
+                CrashReport var22 = CrashReport.forThrowable(var25, "Biome decoration");
+                var22.addCategory("Generation").setDetail("CenterX", var0.x).setDetail("CenterZ", var0.z).setDetail("Seed", var6);
+                throw new ReportedException(var22);
             }
         }
+    }
+
+    private static BoundingBox getWritableArea(ChunkAccess param0) {
+        ChunkPos var0 = param0.getPos();
+        int var1 = var0.getMinBlockX();
+        int var2 = var0.getMinBlockZ();
+        LevelHeightAccessor var3 = param0.getHeightAccessorForGeneration();
+        int var4 = var3.getMinBuildHeight() + 1;
+        int var5 = var3.getMaxBuildHeight() - 1;
+        return new BoundingBox(var1, var4, var2, var1 + 15, var5, var2 + 15);
     }
 
     public abstract void buildSurface(WorldGenRegion var1, StructureFeatureManager var2, ChunkAccess var3);

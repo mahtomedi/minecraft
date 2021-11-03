@@ -178,6 +178,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         "Demo World", GameType.SURVIVAL, false, Difficulty.NORMAL, false, new GameRules(), DataPackConfig.DEFAULT
     );
     private static final long DELAYED_TASKS_TICK_EXTENSION = 50L;
+    public static final GameProfile ANONYMOUS_PLAYER_PROFILE = new GameProfile(Util.NIL_UUID, "Anonymous Player");
     protected final LevelStorageSource.LevelStorageAccess storageSource;
     protected final PlayerDataStorage playerDataStorage;
     private final List<Runnable> tickables = Lists.newArrayList();
@@ -806,15 +807,22 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         if (var0 - this.lastServerStatus >= 5000000000L) {
             this.lastServerStatus = var0;
             this.status.setPlayers(new ServerStatus.Players(this.getMaxPlayers(), this.getPlayerCount()));
-            GameProfile[] var1 = new GameProfile[Math.min(this.getPlayerCount(), 12)];
-            int var2 = Mth.nextInt(this.random, 0, this.getPlayerCount() - var1.length);
+            if (!this.hidesOnlinePlayers()) {
+                GameProfile[] var1 = new GameProfile[Math.min(this.getPlayerCount(), 12)];
+                int var2 = Mth.nextInt(this.random, 0, this.getPlayerCount() - var1.length);
 
-            for(int var3 = 0; var3 < var1.length; ++var3) {
-                var1[var3] = this.playerList.getPlayers().get(var2 + var3).getGameProfile();
+                for(int var3 = 0; var3 < var1.length; ++var3) {
+                    ServerPlayer var4 = this.playerList.getPlayers().get(var2 + var3);
+                    if (var4.allowsListing()) {
+                        var1[var3] = var4.getGameProfile();
+                    } else {
+                        var1[var3] = ANONYMOUS_PLAYER_PROFILE;
+                    }
+                }
+
+                Collections.shuffle(Arrays.asList(var1));
+                this.status.getPlayers().setSample(var1);
             }
-
-            Collections.shuffle(Arrays.asList(var1));
-            this.status.getPlayers().setSample(var1);
         }
 
         if (this.tickCount % 6000 == 0) {
@@ -826,10 +834,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         }
 
         this.profiler.push("tallying");
-        long var4 = this.tickTimes[this.tickCount % 100] = Util.getNanos() - var0;
-        this.averageTickTime = this.averageTickTime * 0.8F + (float)var4 / 1000000.0F * 0.19999999F;
-        long var5 = Util.getNanos();
-        this.frameTimer.logFrameDuration(var5 - var0);
+        long var5 = this.tickTimes[this.tickCount % 100] = Util.getNanos() - var0;
+        this.averageTickTime = this.averageTickTime * 0.8F + (float)var5 / 1000000.0F * 0.19999999F;
+        long var6 = Util.getNanos();
+        this.frameTimer.logFrameDuration(var6 - var0);
         this.profiler.pop();
     }
 
@@ -1173,6 +1181,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public boolean repliesToStatus() {
         return true;
+    }
+
+    public boolean hidesOnlinePlayers() {
+        return false;
     }
 
     public Proxy getProxy() {

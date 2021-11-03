@@ -16,6 +16,7 @@ public final class EntitySelector {
     public static final Predicate<Entity> NO_CREATIVE_OR_SPECTATOR = param0 -> !(param0 instanceof Player)
             || !param0.isSpectator() && !((Player)param0).isCreative();
     public static final Predicate<Entity> NO_SPECTATORS = param0 -> !param0.isSpectator();
+    public static final Predicate<Entity> CAN_BE_COLLIDED_WITH = NO_SPECTATORS.and(Entity::canBeCollidedWith);
 
     private EntitySelector() {
     }

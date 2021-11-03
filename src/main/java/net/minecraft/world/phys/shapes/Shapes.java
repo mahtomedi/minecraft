@@ -6,9 +6,7 @@ import com.google.common.math.IntMath;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Objects;
-import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.AxisCycle;
 import net.minecraft.core.BlockPos;
@@ -210,21 +208,23 @@ public final class Shapes {
         );
     }
 
-    public static double collide(Direction.Axis param0, AABB param1, Stream<VoxelShape> param2, double param3) {
-        for(Iterator<VoxelShape> var0 = param2.iterator(); var0.hasNext(); param3 = var0.next().collide(param0, param1, param3)) {
+    public static double collide(Direction.Axis param0, AABB param1, Iterable<VoxelShape> param2, double param3) {
+        for(VoxelShape var0 : param2) {
             if (Math.abs(param3) < 1.0E-7) {
                 return 0.0;
             }
+
+            param3 = var0.collide(param0, param1, param3);
         }
 
         return param3;
     }
 
-    public static double collide(Direction.Axis param0, AABB param1, LevelReader param2, double param3, CollisionContext param4, Stream<VoxelShape> param5) {
+    public static double collide(Direction.Axis param0, AABB param1, LevelReader param2, double param3, CollisionContext param4, Iterable<VoxelShape> param5) {
         return collide(param1, param2, param3, param4, AxisCycle.between(param0, Direction.Axis.Z), param5);
     }
 
-    private static double collide(AABB param0, LevelReader param1, double param2, CollisionContext param3, AxisCycle param4, Stream<VoxelShape> param5) {
+    private static double collide(AABB param0, LevelReader param1, double param2, CollisionContext param3, AxisCycle param4, Iterable<VoxelShape> param5) {
         if (param0.getXsize() < 1.0E-6 || param0.getYsize() < 1.0E-6 || param0.getZsize() < 1.0E-6) {
             return param2;
         } else if (Math.abs(param2) < 1.0E-7) {
@@ -290,9 +290,13 @@ public final class Shapes {
                 var15 += var14;
             }
 
-            double[] var20 = new double[]{param2};
-            param5.forEach(param3x -> var20[0] = param3x.collide(var3, param0, var20[0]));
-            return var20[0];
+            double var20 = param2;
+
+            for(VoxelShape var21 : param5) {
+                var20 = var21.collide(var3, param0, var20);
+            }
+
+            return var20;
         }
     }
 

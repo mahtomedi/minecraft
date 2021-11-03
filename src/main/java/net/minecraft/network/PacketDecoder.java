@@ -33,8 +33,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
                 throw new IOException("Bad packet id " + var2);
             } else {
                 int var4 = param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get().getId();
-                JvmProfiler.INSTANCE
-                    .onPacketReceived(() -> "%d/%d (%s)".formatted(var4, var2, var3.getClass().getSimpleName()), param0.channel().remoteAddress(), var0);
+                JvmProfiler.INSTANCE.onPacketReceived(var4, var2, param0.channel().remoteAddress(), var0);
                 if (var1.readableBytes() > 0) {
                     throw new IOException(
                         "Packet "

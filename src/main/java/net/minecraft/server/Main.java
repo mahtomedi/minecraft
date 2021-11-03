@@ -84,7 +84,6 @@ public class Main {
                 return;
             }
 
-            JvmProfiler.INSTANCE.initialize();
             CrashReport.preload();
             if (var16.has(var14)) {
                 JvmProfiler.INSTANCE.start(Environment.SERVER);

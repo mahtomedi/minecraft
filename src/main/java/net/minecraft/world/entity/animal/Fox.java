@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
@@ -74,6 +76,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -295,6 +298,10 @@ public class Fox extends Animal {
         Fox var0 = EntityType.FOX.create(param0);
         var0.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((Fox)param1).getFoxType());
         return var0;
+    }
+
+    public static boolean checkFoxSpawnRules(EntityType<Fox> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+        return param1.getBlockState(param3.below()).is(BlockTags.FOXES_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 
     @Nullable

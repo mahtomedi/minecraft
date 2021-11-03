@@ -23,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -55,7 +56,7 @@ import org.apache.logging.log4j.Logger;
 public class WorldGenRegion implements WorldGenLevel {
     private static final Logger LOGGER = LogManager.getLogger();
     private final List<ChunkAccess> cache;
-    private final ChunkPos center;
+    private final ChunkAccess center;
     private final int size;
     private final ServerLevel level;
     private final long seed;
@@ -81,9 +82,8 @@ public class WorldGenRegion implements WorldGenLevel {
         if (var0 * var0 != param1.size()) {
             throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Cache size is not a square."));
         } else {
-            ChunkPos var1 = param1.get(param1.size() / 2).getPos();
             this.cache = param1;
-            this.center = var1;
+            this.center = param1.get(param1.size() / 2);
             this.size = var0;
             this.level = param0;
             this.seed = param0.getSeed();
@@ -98,7 +98,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     public ChunkPos getCenter() {
-        return this.center;
+        return this.center.getPos();
     }
 
     @Override
@@ -245,9 +245,17 @@ public class WorldGenRegion implements WorldGenLevel {
     public boolean ensureCanWrite(BlockPos param0) {
         int var0 = SectionPos.blockToSectionCoord(param0.getX());
         int var1 = SectionPos.blockToSectionCoord(param0.getZ());
-        int var2 = Math.abs(this.center.x - var0);
-        int var3 = Math.abs(this.center.z - var1);
-        if (var2 <= this.writeRadiusCutoff && var3 <= this.writeRadiusCutoff) {
+        ChunkPos var2 = this.getCenter();
+        int var3 = Math.abs(var2.x - var0);
+        int var4 = Math.abs(var2.z - var1);
+        if (var3 <= this.writeRadiusCutoff && var4 <= this.writeRadiusCutoff) {
+            if (this.center.isUpgrading()) {
+                LevelHeightAccessor var5 = this.center.getHeightAccessorForGeneration();
+                if (param0.getY() < var5.getMinBuildHeight() || param0.getY() >= var5.getMaxBuildHeight()) {
+                    return false;
+                }
+            }
+
             return true;
         } else {
             Util.logAndPauseIfInIde(

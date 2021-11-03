@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -129,7 +128,7 @@ public class Block extends BlockBehaviour implements ItemLike {
             return param1;
         } else {
             for(Entity var2 : param2.getEntities(null, var0.bounds())) {
-                double var3 = Shapes.collide(Direction.Axis.Y, var2.getBoundingBox().move(0.0, 1.0, 0.0), Stream.of(var0), -1.0);
+                double var3 = Shapes.collide(Direction.Axis.Y, var2.getBoundingBox().move(0.0, 1.0, 0.0), List.of(var0), -1.0);
                 var2.teleportTo(var2.getX(), var2.getY() + 1.0 + var3, var2.getZ());
             }
 

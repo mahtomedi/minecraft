@@ -1,5 +1,6 @@
 package net.minecraft.core;
 
+import it.unimi.dsi.fastutil.longs.LongConsumer;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -240,5 +241,34 @@ public class SectionPos extends Vec3i {
                 }
             }
         }, false);
+    }
+
+    public static void aroundAndAtBlockPos(BlockPos param0, LongConsumer param1) {
+        aroundAndAtBlockPos(param0.getX(), param0.getY(), param0.getZ(), param1);
+    }
+
+    public static void aroundAndAtBlockPos(long param0, LongConsumer param1) {
+        aroundAndAtBlockPos(BlockPos.getX(param0), BlockPos.getY(param0), BlockPos.getZ(param0), param1);
+    }
+
+    public static void aroundAndAtBlockPos(int param0, int param1, int param2, LongConsumer param3) {
+        int var0 = blockToSectionCoord(param0 - 1);
+        int var1 = blockToSectionCoord(param0 + 1);
+        int var2 = blockToSectionCoord(param1 - 1);
+        int var3 = blockToSectionCoord(param1 + 1);
+        int var4 = blockToSectionCoord(param2 - 1);
+        int var5 = blockToSectionCoord(param2 + 1);
+        if (var0 == var1 && var2 == var3 && var4 == var5) {
+            param3.accept(asLong(var0, var2, var4));
+        } else {
+            for(int var6 = var0; var6 <= var1; ++var6) {
+                for(int var7 = var2; var7 <= var3; ++var7) {
+                    for(int var8 = var4; var8 <= var5; ++var8) {
+                        param3.accept(asLong(var6, var7, var8));
+                    }
+                }
+            }
+        }
+
     }
 }

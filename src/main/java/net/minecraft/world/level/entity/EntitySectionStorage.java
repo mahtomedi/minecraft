@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Spliterators;
 import java.util.PrimitiveIterator.OfLong;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -33,7 +32,7 @@ public class EntitySectionStorage<T extends EntityAccess> {
         this.intialSectionVisibility = param1;
     }
 
-    public void forEachAccessibleSection(AABB param0, Consumer<EntitySection<T>> param1) {
+    public void forEachAccessibleNonEmptySection(AABB param0, Consumer<EntitySection<T>> param1) {
         int var0 = SectionPos.posToSectionCoord(param0.minX - 2.0);
         int var1 = SectionPos.posToSectionCoord(param0.minY - 2.0);
         int var2 = SectionPos.posToSectionCoord(param0.minZ - 2.0);
@@ -52,7 +51,7 @@ public class EntitySectionStorage<T extends EntityAccess> {
                 int var12 = SectionPos.z(var10);
                 if (var11 >= var1 && var11 <= var4 && var12 >= var2 && var12 <= var5) {
                     EntitySection<T> var13 = this.sections.get(var10);
-                    if (var13 != null && var13.getStatus().isAccessible()) {
+                    if (var13 != null && !var13.isEmpty() && var13.getStatus().isAccessible()) {
                         param1.accept(var13);
                     }
                 }
@@ -109,16 +108,12 @@ public class EntitySectionStorage<T extends EntityAccess> {
         return var0;
     }
 
-    private static <T extends EntityAccess> Predicate<T> createBoundingBoxCheck(AABB param0) {
-        return param1 -> param1.getBoundingBox().intersects(param0);
-    }
-
     public void getEntities(AABB param0, Consumer<T> param1) {
-        this.forEachAccessibleSection(param0, param2 -> param2.getEntities(createBoundingBoxCheck(param0), param1));
+        this.forEachAccessibleNonEmptySection(param0, param2 -> param2.getEntities(param0, param1));
     }
 
     public <U extends T> void getEntities(EntityTypeTest<T, U> param0, AABB param1, Consumer<U> param2) {
-        this.forEachAccessibleSection(param1, param3 -> param3.getEntities(param0, createBoundingBoxCheck(param1), param2));
+        this.forEachAccessibleNonEmptySection(param1, param3 -> param3.getEntities(param0, param1, param2));
     }
 
     public void remove(long param0) {
