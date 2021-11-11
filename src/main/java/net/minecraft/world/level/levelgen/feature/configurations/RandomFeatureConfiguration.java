@@ -6,24 +6,25 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.WeightedConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class RandomFeatureConfiguration implements FeatureConfiguration {
     public static final Codec<RandomFeatureConfiguration> CODEC = RecordCodecBuilder.create(
         param0 -> param0.apply2(
                 RandomFeatureConfiguration::new,
-                WeightedConfiguredFeature.CODEC.listOf().fieldOf("features").forGetter(param0x -> param0x.features),
-                ConfiguredFeature.CODEC.fieldOf("default").forGetter(param0x -> param0x.defaultFeature)
+                WeightedPlacedFeature.CODEC.listOf().fieldOf("features").forGetter(param0x -> param0x.features),
+                PlacedFeature.CODEC.fieldOf("default").forGetter(param0x -> param0x.defaultFeature)
             )
     );
-    public final List<WeightedConfiguredFeature> features;
-    public final Supplier<ConfiguredFeature<?, ?>> defaultFeature;
+    public final List<WeightedPlacedFeature> features;
+    public final Supplier<PlacedFeature> defaultFeature;
 
-    public RandomFeatureConfiguration(List<WeightedConfiguredFeature> param0, ConfiguredFeature<?, ?> param1) {
+    public RandomFeatureConfiguration(List<WeightedPlacedFeature> param0, PlacedFeature param1) {
         this(param0, () -> param1);
     }
 
-    private RandomFeatureConfiguration(List<WeightedConfiguredFeature> param0, Supplier<ConfiguredFeature<?, ?>> param1) {
+    private RandomFeatureConfiguration(List<WeightedPlacedFeature> param0, Supplier<PlacedFeature> param1) {
         this.features = param0;
         this.defaultFeature = param1;
     }

@@ -6,7 +6,6 @@ import com.mojang.serialization.DynamicOps;
 import java.util.Optional;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.WritableRegistry;
 
 public class RegistryWriteOps<T> extends DelegatingOps<T> {
     private final RegistryAccess registryAccess;
@@ -21,9 +20,9 @@ public class RegistryWriteOps<T> extends DelegatingOps<T> {
     }
 
     protected <E> DataResult<T> encode(E param0, T param1, ResourceKey<? extends Registry<E>> param2, Codec<E> param3) {
-        Optional<WritableRegistry<E>> var0 = this.registryAccess.ownedRegistry(param2);
+        Optional<? extends Registry<E>> var0 = this.registryAccess.ownedRegistry(param2);
         if (var0.isPresent()) {
-            WritableRegistry<E> var1 = var0.get();
+            Registry<E> var1 = var0.get();
             Optional<ResourceKey<E>> var2 = var1.getResourceKey(param0);
             if (var2.isPresent()) {
                 ResourceKey<E> var3 = var2.get();

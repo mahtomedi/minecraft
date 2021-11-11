@@ -2,7 +2,9 @@ package net.minecraft.data.worldgen.biome;
 
 import javax.annotation.Nullable;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
-import net.minecraft.data.worldgen.Features;
+import net.minecraft.data.worldgen.placement.AquaticPlacements;
+import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.sounds.SoundEvents;
@@ -100,7 +102,10 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addFerns(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
         BiomeDefaultFeatures.addDefaultSoftDisks(var1);
-        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? Features.TREES_GIANT_SPRUCE : Features.TREES_GIANT);
+        var1.addFeature(
+            GenerationStep.Decoration.VEGETAL_DECORATION,
+            param0 ? VegetationPlacements.TREES_OLD_GROWTH_SPRUCE_TAIGA : VegetationPlacements.TREES_OLD_GROWTH_PINE_TAIGA
+        );
         BiomeDefaultFeatures.addDefaultFlowers(var1);
         BiomeDefaultFeatures.addGiantTaigaVegetation(var1);
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
@@ -171,7 +176,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultOres(var1);
         BiomeDefaultFeatures.addDefaultSoftDisks(var1);
         if (param0) {
-            BiomeDefaultFeatures.addMountainEdgeTrees(var1);
+            BiomeDefaultFeatures.addMountainForestTrees(var1);
         } else {
             BiomeDefaultFeatures.addMountainTrees(var1);
         }
@@ -210,14 +215,14 @@ public class OverworldBiomes {
             var0.creatureGenerationProbability(0.07F);
             BiomeDefaultFeatures.snowySpawns(var0);
             if (param2) {
-                var1.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, Features.ICE_SPIKE);
-                var1.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, Features.ICE_PATCH);
+                var1.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, MiscOverworldPlacements.ICE_SPIKE);
+                var1.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, MiscOverworldPlacements.ICE_PATCH);
             }
         } else {
             BiomeDefaultFeatures.plainsSpawns(var0);
             BiomeDefaultFeatures.addPlainGrass(var1);
             if (param0) {
-                var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PATCH_SUNFLOWER);
+                var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
             } else {
                 var0.setPlayerCanSpawn();
             }
@@ -235,8 +240,8 @@ public class OverworldBiomes {
 
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         if (param0) {
-            var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PATCH_SUGAR_CANE);
-            var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.PATCH_PUMPKIN);
+            var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUGAR_CANE);
+            var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_PUMPKIN);
         } else {
             BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
         }
@@ -261,7 +266,6 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultOres(var1);
         BiomeDefaultFeatures.addDefaultSoftDisks(var1);
         BiomeDefaultFeatures.addMushroomFieldVegetation(var1);
-        BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
         return biome(Biome.Precipitation.RAIN, Biome.BiomeCategory.MUSHROOM, 0.9F, 1.0F, var0, var1, NORMAL_MUSIC);
     }
@@ -366,7 +370,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.oceanSpawns(var0, 3, 4, 15);
         var0.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.SALMON, 15, 1, 5));
         BiomeGenerationSettings.Builder var1 = baseOceanGeneration();
-        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? Features.SEAGRASS_DEEP_COLD : Features.SEAGRASS_COLD);
+        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? AquaticPlacements.SEAGRASS_DEEP_COLD : AquaticPlacements.SEAGRASS_COLD);
         BiomeDefaultFeatures.addDefaultSeagrass(var1);
         BiomeDefaultFeatures.addColdOceanExtraVegetation(var1);
         return baseOcean(var0, 4020182, 329011, var1);
@@ -377,7 +381,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.oceanSpawns(var0, 1, 4, 10);
         var0.addSpawn(MobCategory.WATER_CREATURE, new MobSpawnSettings.SpawnerData(EntityType.DOLPHIN, 1, 1, 2));
         BiomeGenerationSettings.Builder var1 = baseOceanGeneration();
-        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? Features.SEAGRASS_DEEP : Features.SEAGRASS_NORMAL);
+        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? AquaticPlacements.SEAGRASS_DEEP : AquaticPlacements.SEAGRASS_NORMAL);
         BiomeDefaultFeatures.addDefaultSeagrass(var1);
         BiomeDefaultFeatures.addColdOceanExtraVegetation(var1);
         return baseOcean(var0, 4159204, 329011, var1);
@@ -395,7 +399,7 @@ public class OverworldBiomes {
             .addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.TROPICAL_FISH, 25, 8, 8))
             .addSpawn(MobCategory.WATER_CREATURE, new MobSpawnSettings.SpawnerData(EntityType.DOLPHIN, 2, 1, 2));
         BiomeGenerationSettings.Builder var1 = baseOceanGeneration();
-        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? Features.SEAGRASS_DEEP_WARM : Features.SEAGRASS_WARM);
+        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, param0 ? AquaticPlacements.SEAGRASS_DEEP_WARM : AquaticPlacements.SEAGRASS_WARM);
         if (param0) {
             BiomeDefaultFeatures.addDefaultSeagrass(var1);
         }
@@ -409,9 +413,9 @@ public class OverworldBiomes {
             .addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.PUFFERFISH, 15, 1, 3));
         BiomeDefaultFeatures.warmOceanSpawns(var0, 10, 4);
         BiomeGenerationSettings.Builder var1 = baseOceanGeneration()
-            .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.WARM_OCEAN_VEGETATION)
-            .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SEAGRASS_WARM)
-            .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SEA_PICKLE);
+            .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.WARM_OCEAN_VEGETATION)
+            .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEAGRASS_WARM)
+            .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEA_PICKLE);
         return baseOcean(var0, 4445678, 270131, var1);
     }
 
@@ -458,7 +462,7 @@ public class OverworldBiomes {
         BiomeGenerationSettings.Builder var0 = new BiomeGenerationSettings.Builder();
         globalOverworldGeneration(var0);
         if (param2) {
-            var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.FOREST_FLOWER_VEGETATION_COMMON);
+            var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_FOREST_FLOWERS);
         } else {
             BiomeDefaultFeatures.addForestFlowers(var0);
         }
@@ -466,8 +470,8 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
         if (param2) {
-            var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.FOREST_FLOWER_TREES);
-            var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.FLOWER_FOREST);
+            var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.TREES_FLOWER_FOREST);
+            var0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_FLOWER_FOREST);
             BiomeDefaultFeatures.addDefaultGrass(var0);
         } else {
             if (param0) {
@@ -519,7 +523,6 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addTaigaTrees(var2);
         BiomeDefaultFeatures.addDefaultFlowers(var2);
         BiomeDefaultFeatures.addTaigaGrass(var2);
-        BiomeDefaultFeatures.addDefaultMushrooms(var2);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var2);
         if (param0) {
             BiomeDefaultFeatures.addRareBerryBushes(var2);
@@ -546,7 +549,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.commonSpawns(var0);
         BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder();
         globalOverworldGeneration(var1);
-        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.DARK_FOREST_VEGETATION);
+        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.DARK_FOREST_VEGETATION);
         BiomeDefaultFeatures.addForestFlowers(var1);
         BiomeDefaultFeatures.addDefaultOres(var1);
         BiomeDefaultFeatures.addDefaultSoftDisks(var1);
@@ -587,7 +590,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addSwampVegetation(var1);
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addSwampExtraVegetation(var1);
-        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SEAGRASS_SWAMP);
+        var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEAGRASS_SWAMP);
         return new Biome.BiomeBuilder()
             .precipitation(Biome.Precipitation.RAIN)
             .biomeCategory(Biome.BiomeCategory.SWAMP)
@@ -625,7 +628,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
         if (!param0) {
-            var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Features.SEAGRASS_RIVER);
+            var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEAGRASS_RIVER);
         }
 
         float var2 = param0 ? 0.0F : 0.5F;
@@ -682,7 +685,7 @@ public class OverworldBiomes {
 
     public static Biome theVoid() {
         BiomeGenerationSettings.Builder var0 = new BiomeGenerationSettings.Builder();
-        var0.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, Features.VOID_START_PLATFORM);
+        var0.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, MiscOverworldPlacements.VOID_START_PLATFORM);
         return biome(Biome.Precipitation.NONE, Biome.BiomeCategory.NONE, 0.5F, 0.5F, new MobSpawnSettings.Builder(), var0, NORMAL_MUSIC);
     }
 

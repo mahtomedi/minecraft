@@ -124,6 +124,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
@@ -796,8 +797,8 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2) {
-        Optional<BlockUtil.FoundRectangle> var0 = super.getExitPortal(param0, param1, param2);
+    protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2, WorldBorder param3) {
+        Optional<BlockUtil.FoundRectangle> var0 = super.getExitPortal(param0, param1, param2, param3);
         if (var0.isPresent()) {
             return var0;
         } else {

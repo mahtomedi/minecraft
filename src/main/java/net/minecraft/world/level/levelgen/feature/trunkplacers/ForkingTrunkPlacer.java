@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
@@ -37,7 +38,7 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
         BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
         int var5 = param4.getX();
         int var6 = param4.getZ();
-        int var7 = 0;
+        OptionalInt var7 = OptionalInt.empty();
 
         for(int var8 = 0; var8 < param3; ++var8) {
             int var9 = param4.getY() + var8;
@@ -48,18 +49,21 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
             }
 
             if (placeLog(param0, param1, param2, var4.set(var5, var9, var6), param5)) {
-                var7 = var9 + 1;
+                var7 = OptionalInt.of(var9 + 1);
             }
         }
 
-        var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var5, var7, var6), 1, false));
+        if (var7.isPresent()) {
+            var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var5, var7.getAsInt(), var6), 1, false));
+        }
+
         var5 = param4.getX();
         var6 = param4.getZ();
         Direction var10 = Direction.Plane.HORIZONTAL.getRandomDirection(param2);
         if (var10 != var1) {
             int var11 = var2 - param2.nextInt(2) - 1;
             int var12 = 1 + param2.nextInt(3);
-            var7 = 0;
+            var7 = OptionalInt.empty();
 
             for(int var13 = var11; var13 < param3 && var12 > 0; --var12) {
                 if (var13 >= 1) {
@@ -67,15 +71,15 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
                     var5 += var10.getStepX();
                     var6 += var10.getStepZ();
                     if (placeLog(param0, param1, param2, var4.set(var5, var14, var6), param5)) {
-                        var7 = var14 + 1;
+                        var7 = OptionalInt.of(var14 + 1);
                     }
                 }
 
                 ++var13;
             }
 
-            if (var7 > 1) {
-                var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var5, var7, var6), 0, false));
+            if (var7.isPresent()) {
+                var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var5, var7.getAsInt(), var6), 0, false));
             }
         }
 

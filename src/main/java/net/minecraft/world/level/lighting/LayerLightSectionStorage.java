@@ -135,7 +135,17 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
                 this.updatingSectionData.setLayer(param0, this.createDataLayer(param0));
                 this.changedSections.add(param0);
                 this.onNodeAdded(param0);
-                SectionPos.aroundAndAtBlockPos(param0, this.sectionsAffectedByLightUpdates::add);
+                int var1 = SectionPos.x(param0);
+                int var2 = SectionPos.y(param0);
+                int var3 = SectionPos.z(param0);
+
+                for(int var4 = -1; var4 <= 1; ++var4) {
+                    for(int var5 = -1; var5 <= 1; ++var5) {
+                        for(int var6 = -1; var6 <= 1; ++var6) {
+                            this.sectionsAffectedByLightUpdates.add(SectionPos.asLong(var1 + var5, var2 + var6, var3 + var4));
+                        }
+                    }
+                }
             }
         }
 

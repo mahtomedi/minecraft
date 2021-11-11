@@ -456,7 +456,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
         }
 
-        while((param0.getAsBoolean() || this.unloadQueue.size() > 2000) && (var2 = (long)this.unloadQueue.poll()) != null) {
+        int var4 = Math.max(0, this.unloadQueue.size() - 2000);
+
+        while((param0.getAsBoolean() || var4 > 0) && (var2 = (long)this.unloadQueue.poll()) != null) {
+            --var4;
             var2.run();
         }
 
@@ -1103,22 +1106,25 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         for(ChunkMap.TrackedEntity var2 : this.entityMap.values()) {
             SectionPos var3 = var2.lastSectionPos;
             SectionPos var4 = SectionPos.of(var2.entity);
-            if (!Objects.equals(var3, var4)) {
+            boolean var5 = !Objects.equals(var3, var4);
+            if (var5) {
                 var2.updatePlayers(var1);
-                Entity var5 = var2.entity;
-                if (var5 instanceof ServerPlayer) {
-                    var0.add((ServerPlayer)var5);
+                Entity var6 = var2.entity;
+                if (var6 instanceof ServerPlayer) {
+                    var0.add((ServerPlayer)var6);
                 }
 
                 var2.lastSectionPos = var4;
             }
 
-            var2.serverEntity.sendChanges();
+            if (var5 || this.distanceManager.inEntityTickingRange(var4.chunk().toLong())) {
+                var2.serverEntity.sendChanges();
+            }
         }
 
         if (!var0.isEmpty()) {
-            for(ChunkMap.TrackedEntity var6 : this.entityMap.values()) {
-                var6.updatePlayers(var0);
+            for(ChunkMap.TrackedEntity var7 : this.entityMap.values()) {
+                var7.updatePlayers(var0);
             }
         }
 

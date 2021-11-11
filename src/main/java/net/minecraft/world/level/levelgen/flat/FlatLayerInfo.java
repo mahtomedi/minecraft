@@ -12,7 +12,7 @@ public class FlatLayerInfo {
     public static final Codec<FlatLayerInfo> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Codec.intRange(0, DimensionType.Y_SIZE).fieldOf("height").forGetter(FlatLayerInfo::getHeight),
-                    Registry.BLOCK.fieldOf("block").orElse(Blocks.AIR).forGetter(param0x -> param0x.getBlockState().getBlock())
+                    Registry.BLOCK.byNameCodec().fieldOf("block").orElse(Blocks.AIR).forGetter(param0x -> param0x.getBlockState().getBlock())
                 )
                 .apply(param0, FlatLayerInfo::new)
     );

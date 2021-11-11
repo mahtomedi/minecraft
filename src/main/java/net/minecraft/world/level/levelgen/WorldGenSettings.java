@@ -112,11 +112,23 @@ public class WorldGenSettings {
     }
 
     public static NoiseBasedChunkGenerator makeDefaultOverworld(RegistryAccess param0, long param1) {
+        return makeDefaultOverworld(param0, param1, true);
+    }
+
+    public static NoiseBasedChunkGenerator makeDefaultOverworld(RegistryAccess param0, long param1, boolean param2) {
+        return makeOverworld(param0, param1, NoiseGeneratorSettings.OVERWORLD, param2);
+    }
+
+    public static NoiseBasedChunkGenerator makeOverworld(RegistryAccess param0, long param1, ResourceKey<NoiseGeneratorSettings> param2) {
+        return makeOverworld(param0, param1, param2, true);
+    }
+
+    public static NoiseBasedChunkGenerator makeOverworld(RegistryAccess param0, long param1, ResourceKey<NoiseGeneratorSettings> param2, boolean param3) {
         return new NoiseBasedChunkGenerator(
             param0.registryOrThrow(Registry.NOISE_REGISTRY),
-            MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(param0.registryOrThrow(Registry.BIOME_REGISTRY)),
+            MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(param0.registryOrThrow(Registry.BIOME_REGISTRY), param3),
             param1,
-            () -> param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).getOrThrow(NoiseGeneratorSettings.OVERWORLD)
+            () -> param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).getOrThrow(param2)
         );
     }
 

@@ -37,29 +37,29 @@ import org.apache.logging.log4j.Logger;
 public class MappedRegistry<T> extends WritableRegistry<T> {
     protected static final Logger LOGGER = LogManager.getLogger();
     private final ObjectList<T> byId = new ObjectArrayList<>(256);
-    private final Object2IntMap<T> toId = new Object2IntOpenCustomHashMap<>(Util.identityStrategy());
-    private final BiMap<ResourceLocation, T> storage;
-    private final BiMap<ResourceKey<T>, T> keyStorage;
-    private final Map<T, Lifecycle> lifecycles;
+    private final Object2IntMap<T> toId = Util.make(new Object2IntOpenCustomHashMap<>(Util.identityStrategy()), param0x -> param0x.defaultReturnValue(-1));
+    private final BiMap<ResourceLocation, T> storage = HashBiMap.create();
+    private final BiMap<ResourceKey<T>, T> keyStorage = HashBiMap.create();
+    private final Map<T, Lifecycle> lifecycles = Maps.newIdentityHashMap();
     private Lifecycle elementsLifecycle;
+    @Nullable
     protected Object[] randomCache;
     private int nextId;
 
     public MappedRegistry(ResourceKey<? extends Registry<T>> param0, Lifecycle param1) {
         super(param0, param1);
-        this.toId.defaultReturnValue(-1);
-        this.storage = HashBiMap.create();
-        this.keyStorage = HashBiMap.create();
-        this.lifecycles = Maps.newIdentityHashMap();
         this.elementsLifecycle = param1;
     }
 
     public static <T> MapCodec<MappedRegistry.RegistryEntry<T>> withNameAndId(ResourceKey<? extends Registry<T>> param0, MapCodec<T> param1) {
         return RecordCodecBuilder.mapCodec(
             param2 -> param2.group(
-                        ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location).fieldOf("name").forGetter(param0x -> param0x.key),
-                        Codec.INT.fieldOf("id").forGetter(param0x -> param0x.id),
-                        param1.forGetter(param0x -> param0x.value)
+                        ResourceLocation.CODEC
+                            .xmap(ResourceKey.elementKey(param0), ResourceKey::location)
+                            .fieldOf("name")
+                            .forGetter(MappedRegistry.RegistryEntry::key),
+                        Codec.INT.fieldOf("id").forGetter(MappedRegistry.RegistryEntry::id),
+                        param1.forGetter(MappedRegistry.RegistryEntry::value)
                     )
                     .apply(param2, MappedRegistry.RegistryEntry::new)
         );
@@ -200,7 +200,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
                 return null;
             }
 
-            this.randomCache = var0.toArray(new Object[var0.size()]);
+            this.randomCache = var0.toArray(param0x -> new Object[param0x]);
         }
 
         return Util.getRandom((T[])this.randomCache, param0);
@@ -221,7 +221,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
             MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
 
             for(MappedRegistry.RegistryEntry<T> var1x : param2x) {
-                var0x.registerMapping(var1x.id, var1x.key, var1x.value, param1);
+                var0x.registerMapping(var1x.id(), var1x.key(), var1x.value(), param1);
             }
 
             return var0x;
@@ -248,15 +248,6 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         }, param0x -> ImmutableMap.copyOf(param0x.keyStorage));
     }
 
-    public static class RegistryEntry<T> {
-        public final ResourceKey<T> key;
-        public final int id;
-        public final T value;
-
-        public RegistryEntry(ResourceKey<T> param0, int param1, T param2) {
-            this.key = param0;
-            this.id = param1;
-            this.value = param2;
-        }
+    static record RegistryEntry<T>(ResourceKey<T> key, int id, T value) {
     }
 }

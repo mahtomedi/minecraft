@@ -39,11 +39,12 @@ public class PortalForcer {
         this.level = param0;
     }
 
-    public Optional<BlockUtil.FoundRectangle> findPortalAround(BlockPos param0, boolean param1) {
+    public Optional<BlockUtil.FoundRectangle> findPortalAround(BlockPos param0, boolean param1, WorldBorder param2) {
         PoiManager var0 = this.level.getPoiManager();
         int var1 = param1 ? 16 : 128;
         var0.ensureLoadedAndValid(this.level, param0, var1);
         Optional<PoiRecord> var2 = var0.getInSquare(param0x -> param0x == PoiType.NETHER_PORTAL, param0, var1, PoiManager.Occupancy.ANY)
+            .filter(param1x -> param2.isWithinBounds(param1x.getPos()))
             .sorted(Comparator.<PoiRecord>comparingDouble(param1x -> param1x.getPos().distSqr(param0)).thenComparingInt(param0x -> param0x.getPos().getY()))
             .filter(param0x -> this.level.getBlockState(param0x.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS))
             .findFirst();

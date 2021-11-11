@@ -43,37 +43,22 @@ public abstract class WorldPreset {
             return new FlatLevelSource(FlatLevelGeneratorSettings.getDefault(param0.registryOrThrow(Registry.BIOME_REGISTRY)));
         }
     };
+    public static final WorldPreset LARGE_BIOMES = new WorldPreset("large_biomes") {
+        @Override
+        protected ChunkGenerator generator(RegistryAccess param0, long param1) {
+            return WorldGenSettings.makeOverworld(param0, param1, NoiseGeneratorSettings.LARGE_BIOMES);
+        }
+    };
+    public static final WorldPreset AMPLIFIED = new WorldPreset("amplified") {
+        @Override
+        protected ChunkGenerator generator(RegistryAccess param0, long param1) {
+            return WorldGenSettings.makeOverworld(param0, param1, NoiseGeneratorSettings.AMPLIFIED);
+        }
+    };
     private static final WorldPreset SINGLE_BIOME_SURFACE = new WorldPreset("single_biome_surface") {
         @Override
         protected ChunkGenerator generator(RegistryAccess param0, long param1) {
             return WorldPreset.fixedBiomeGenerator(param0, param1, NoiseGeneratorSettings.OVERWORLD);
-        }
-    };
-    private static final WorldPreset SINGLE_BIOME_CAVES = new WorldPreset("single_biome_caves") {
-        @Override
-        public WorldGenSettings create(RegistryAccess.RegistryHolder param0, long param1, boolean param2, boolean param3) {
-            Registry<DimensionType> var0 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-            return new WorldGenSettings(
-                param1,
-                param2,
-                param3,
-                WorldGenSettings.withOverworld(
-                    DimensionType.defaultDimensions(param0, param1),
-                    () -> var0.getOrThrow(DimensionType.OVERWORLD_CAVES_LOCATION),
-                    this.generator(param0, param1)
-                )
-            );
-        }
-
-        @Override
-        protected ChunkGenerator generator(RegistryAccess param0, long param1) {
-            return WorldPreset.fixedBiomeGenerator(param0, param1, NoiseGeneratorSettings.CAVES);
-        }
-    };
-    private static final WorldPreset SINGLE_BIOME_FLOATING_ISLANDS = new WorldPreset("single_biome_floating_islands") {
-        @Override
-        protected ChunkGenerator generator(RegistryAccess param0, long param1) {
-            return WorldPreset.fixedBiomeGenerator(param0, param1, NoiseGeneratorSettings.FLOATING_ISLANDS);
         }
     };
     private static final WorldPreset DEBUG = new WorldPreset("debug_all_block_states") {
@@ -82,9 +67,7 @@ public abstract class WorldPreset {
             return new DebugLevelSource(param0.registryOrThrow(Registry.BIOME_REGISTRY));
         }
     };
-    protected static final List<WorldPreset> PRESETS = Lists.newArrayList(
-        NORMAL, FLAT, SINGLE_BIOME_SURFACE, SINGLE_BIOME_CAVES, SINGLE_BIOME_FLOATING_ISLANDS, DEBUG
-    );
+    protected static final List<WorldPreset> PRESETS = Lists.newArrayList(NORMAL, FLAT, LARGE_BIOMES, AMPLIFIED, SINGLE_BIOME_SURFACE, DEBUG);
     protected static final Map<Optional<WorldPreset>, WorldPreset.PresetEditor> EDITORS = ImmutableMap.of(
         Optional.of(FLAT),
         (param0, param1) -> {
@@ -116,22 +99,6 @@ public abstract class WorldPreset {
                 param2 -> param0.worldGenSettingsComponent
                         .updateSettings(fromBuffetSettings(param0.worldGenSettingsComponent.registryHolder(), param1, SINGLE_BIOME_SURFACE, param2)),
                 parseBuffetSettings(param0.worldGenSettingsComponent.registryHolder(), param1)
-            ),
-        Optional.of(SINGLE_BIOME_CAVES),
-        (param0, param1) -> new CreateBuffetWorldScreen(
-                param0,
-                param0.worldGenSettingsComponent.registryHolder(),
-                param2 -> param0.worldGenSettingsComponent
-                        .updateSettings(fromBuffetSettings(param0.worldGenSettingsComponent.registryHolder(), param1, SINGLE_BIOME_CAVES, param2)),
-                parseBuffetSettings(param0.worldGenSettingsComponent.registryHolder(), param1)
-            ),
-        Optional.of(SINGLE_BIOME_FLOATING_ISLANDS),
-        (param0, param1) -> new CreateBuffetWorldScreen(
-                param0,
-                param0.worldGenSettingsComponent.registryHolder(),
-                param2 -> param0.worldGenSettingsComponent
-                        .updateSettings(fromBuffetSettings(param0.worldGenSettingsComponent.registryHolder(), param1, SINGLE_BIOME_FLOATING_ISLANDS, param2)),
-                parseBuffetSettings(param0.worldGenSettingsComponent.registryHolder(), param1)
             )
     );
     private final Component description;
@@ -153,15 +120,7 @@ public abstract class WorldPreset {
         BiomeSource var0 = new FixedBiomeSource(param3);
         Registry<DimensionType> var1 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         Registry<NoiseGeneratorSettings> var2 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
-        Supplier<NoiseGeneratorSettings> var3;
-        if (param2 == SINGLE_BIOME_CAVES) {
-            var3 = () -> var2.getOrThrow(NoiseGeneratorSettings.CAVES);
-        } else if (param2 == SINGLE_BIOME_FLOATING_ISLANDS) {
-            var3 = () -> var2.getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS);
-        } else {
-            var3 = () -> var2.getOrThrow(NoiseGeneratorSettings.OVERWORLD);
-        }
-
+        Supplier<NoiseGeneratorSettings> var3 = () -> var2.getOrThrow(NoiseGeneratorSettings.OVERWORLD);
         return new WorldGenSettings(
             param1.seed(),
             param1.generateFeatures(),

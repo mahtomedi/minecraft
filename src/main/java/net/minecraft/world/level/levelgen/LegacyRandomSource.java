@@ -31,6 +31,8 @@ public class LegacyRandomSource implements BitRandomSource {
     public void setSeed(long param0) {
         if (!this.seed.compareAndSet(this.seed.get(), (param0 ^ 25214903917L) & 281474976710655L)) {
             throw ThreadingDetector.makeThreadingException("LegacyRandomSource", null);
+        } else {
+            this.gaussianSource.reset();
         }
     }
 

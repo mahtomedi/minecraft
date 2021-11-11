@@ -133,7 +133,7 @@ public class WorldBorderCommand {
     }
 
     private static int setDamageBuffer(CommandSourceStack param0, float param1) throws CommandSyntaxException {
-        WorldBorder var0 = param0.getLevel().getWorldBorder();
+        WorldBorder var0 = param0.getServer().overworld().getWorldBorder();
         if (var0.getDamageSafeZone() == (double)param1) {
             throw ERROR_SAME_DAMAGE_BUFFER.create();
         } else {
@@ -144,7 +144,7 @@ public class WorldBorderCommand {
     }
 
     private static int setDamageAmount(CommandSourceStack param0, float param1) throws CommandSyntaxException {
-        WorldBorder var0 = param0.getLevel().getWorldBorder();
+        WorldBorder var0 = param0.getServer().overworld().getWorldBorder();
         if (var0.getDamagePerBlock() == (double)param1) {
             throw ERROR_SAME_DAMAGE_AMOUNT.create();
         } else {
@@ -155,7 +155,7 @@ public class WorldBorderCommand {
     }
 
     private static int setWarningTime(CommandSourceStack param0, int param1) throws CommandSyntaxException {
-        WorldBorder var0 = param0.getLevel().getWorldBorder();
+        WorldBorder var0 = param0.getServer().overworld().getWorldBorder();
         if (var0.getWarningTime() == param1) {
             throw ERROR_SAME_WARNING_TIME.create();
         } else {
@@ -166,7 +166,7 @@ public class WorldBorderCommand {
     }
 
     private static int setWarningDistance(CommandSourceStack param0, int param1) throws CommandSyntaxException {
-        WorldBorder var0 = param0.getLevel().getWorldBorder();
+        WorldBorder var0 = param0.getServer().overworld().getWorldBorder();
         if (var0.getWarningBlocks() == param1) {
             throw ERROR_SAME_WARNING_DISTANCE.create();
         } else {
@@ -177,13 +177,13 @@ public class WorldBorderCommand {
     }
 
     private static int getSize(CommandSourceStack param0) {
-        double var0 = param0.getLevel().getWorldBorder().getSize();
+        double var0 = param0.getServer().overworld().getWorldBorder().getSize();
         param0.sendSuccess(new TranslatableComponent("commands.worldborder.get", String.format(Locale.ROOT, "%.0f", var0)), false);
         return Mth.floor(var0 + 0.5);
     }
 
     private static int setCenter(CommandSourceStack param0, Vec2 param1) throws CommandSyntaxException {
-        WorldBorder var0 = param0.getLevel().getWorldBorder();
+        WorldBorder var0 = param0.getServer().overworld().getWorldBorder();
         if (var0.getCenterX() == (double)param1.x && var0.getCenterZ() == (double)param1.y) {
             throw ERROR_SAME_CENTER.create();
         } else {
@@ -197,7 +197,7 @@ public class WorldBorderCommand {
     }
 
     private static int setSize(CommandSourceStack param0, double param1, long param2) throws CommandSyntaxException {
-        WorldBorder var0 = param0.getLevel().getWorldBorder();
+        WorldBorder var0 = param0.getServer().overworld().getWorldBorder();
         double var1 = var0.getSize();
         if (var1 == param1) {
             throw ERROR_SAME_SIZE.create();

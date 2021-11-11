@@ -442,13 +442,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.virtualScreen = new VirtualScreen(this);
         this.window = this.virtualScreen.newWindow(var6, this.options.fullscreenVideoModeString, this.createTitle());
         this.setWindowActive(true);
-
-        try {
-            InputStream var8 = this.getClientPackSource().getVanillaPack().getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_16x16.png"));
-            InputStream var9 = this.getClientPackSource().getVanillaPack().getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_32x32.png"));
-            this.window.setIcon(var8, var9);
-        } catch (IOException var9) {
-            LOGGER.error("Couldn't set icon", (Throwable)var9);
+        if (!ON_OSX) {
+            try {
+                InputStream var8 = this.getClientPackSource()
+                    .getVanillaPack()
+                    .getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_16x16.png"));
+                InputStream var9 = this.getClientPackSource()
+                    .getVanillaPack()
+                    .getResource(PackType.CLIENT_RESOURCES, new ResourceLocation("icons/icon_32x32.png"));
+                this.window.setIcon(var8, var9);
+            } catch (IOException var9) {
+                LOGGER.error("Couldn't set icon", (Throwable)var9);
+            }
         }
 
         this.window.setFramerateLimit(this.options.framerateLimit);
@@ -1510,6 +1515,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                             case ENTITY:
                                 EntityHitResult var2 = (EntityHitResult)this.hitResult;
                                 Entity var3 = var2.getEntity();
+                                if (!this.level.getWorldBorder().isWithinBounds(var3.blockPosition())) {
+                                    return;
+                                }
+
                                 InteractionResult var4 = this.gameMode.interactAt(this.player, var3, var2, var0);
                                 if (!var4.consumesAction()) {
                                     var4 = this.gameMode.interact(this.player, var3, var0);

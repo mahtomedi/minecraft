@@ -237,14 +237,14 @@ public final class NoiseGeneratorSettings {
                 -64,
                 384,
                 new NoiseSamplingSettings(1.0, 1.0, 80.0, 160.0),
-                new NoiseSlider(-0.078125, 2, 8),
+                new NoiseSlider(-0.078125, 2, param1 ? 0 : 8),
                 new NoiseSlider(0.1171875, 3, 0),
                 1,
                 2,
                 false,
                 param1,
                 param2,
-                TerrainProvider.overworld()
+                TerrainProvider.overworld(param1)
             ),
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),

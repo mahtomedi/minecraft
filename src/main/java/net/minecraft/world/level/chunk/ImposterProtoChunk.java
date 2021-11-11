@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,7 +36,7 @@ public class ImposterProtoChunk extends ProtoChunk {
             UpgradeData.EMPTY,
             param0.levelHeightAccessor,
             param0.getLevel().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-            param0.getGenerationUpgradeData()
+            param0.getBlendingData()
         );
         this.wrapped = param0;
         this.allowWrites = param1;
@@ -274,7 +274,7 @@ public class ImposterProtoChunk extends ProtoChunk {
     }
 
     @Override
-    public void fillBiomesFromNoise(BiomeSource param0, Climate.Sampler param1) {
+    public void fillBiomesFromNoise(BiomeResolver param0, Climate.Sampler param1) {
         if (this.allowWrites) {
             this.wrapped.fillBiomesFromNoise(param0, param1);
         }

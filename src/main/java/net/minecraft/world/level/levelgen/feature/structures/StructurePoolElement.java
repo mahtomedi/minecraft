@@ -18,7 +18,7 @@ import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 public abstract class StructurePoolElement {
     public static final Codec<StructurePoolElement> CODEC = Registry.STRUCTURE_POOL_ELEMENT
+        .byNameCodec()
         .dispatch("element_type", StructurePoolElement::getType, StructurePoolElementType::codec);
     @Nullable
     private volatile StructureTemplatePool.Projection projection;
@@ -102,7 +103,7 @@ public abstract class StructurePoolElement {
         return param2 -> new SinglePoolElement(Either.left(new ResourceLocation(param0)), () -> param1, param2);
     }
 
-    public static Function<StructureTemplatePool.Projection, FeaturePoolElement> feature(ConfiguredFeature<?, ?> param0) {
+    public static Function<StructureTemplatePool.Projection, FeaturePoolElement> feature(PlacedFeature param0) {
         return param1 -> new FeaturePoolElement(() -> param0, param1);
     }
 

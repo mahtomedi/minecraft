@@ -3,15 +3,14 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.data.worldgen.Features;
+import net.minecraft.data.worldgen.features.NetherFeatures;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.NetherForestVegetationFeature;
-import net.minecraft.world.level.levelgen.feature.TwistingVinesFeature;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.lighting.LayerLightEngine;
 
 public class NyliumBlock extends Block implements BonemealableBlock {
@@ -48,13 +47,14 @@ public class NyliumBlock extends Block implements BonemealableBlock {
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         BlockState var0 = param0.getBlockState(param2);
         BlockPos var1 = param2.above();
+        ChunkGenerator var2 = param0.getChunkSource().getGenerator();
         if (var0.is(Blocks.CRIMSON_NYLIUM)) {
-            NetherForestVegetationFeature.place(param0, param1, var1, Features.Configs.CRIMSON_FOREST, 3, 1);
+            NetherFeatures.CRIMSON_FOREST_VEGETATION_BONEMEAL.place(param0, var2, param1, var1);
         } else if (var0.is(Blocks.WARPED_NYLIUM)) {
-            NetherForestVegetationFeature.place(param0, param1, var1, Features.Configs.WARPED_FOREST, 3, 1);
-            NetherForestVegetationFeature.place(param0, param1, var1, Features.Configs.NETHER_SPROUTS, 3, 1);
+            NetherFeatures.WARPED_FOREST_VEGETATION_BONEMEAL.place(param0, var2, param1, var1);
+            NetherFeatures.NETHER_SPROUTS_BONEMEAL.place(param0, var2, param1, var1);
             if (param1.nextInt(8) == 0) {
-                TwistingVinesFeature.place(param0, param1, var1, 3, 1, 2);
+                NetherFeatures.TWISTING_VINES_BONEMEAL.place(param0, var2, param1, var1);
             }
         }
 

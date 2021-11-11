@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.FrontAndTop;
-import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -19,20 +18,20 @@ import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class FeaturePoolElement extends StructurePoolElement {
     public static final Codec<FeaturePoolElement> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(ConfiguredFeature.CODEC.fieldOf("feature").forGetter(param0x -> param0x.feature), projectionCodec())
+        param0 -> param0.group(PlacedFeature.CODEC.fieldOf("feature").forGetter(param0x -> param0x.feature), projectionCodec())
                 .apply(param0, FeaturePoolElement::new)
     );
-    private final Supplier<ConfiguredFeature<?, ?>> feature;
+    private final Supplier<PlacedFeature> feature;
     private final CompoundTag defaultJigsawNBT;
 
-    protected FeaturePoolElement(Supplier<ConfiguredFeature<?, ?>> param0, StructureTemplatePool.Projection param1) {
+    protected FeaturePoolElement(Supplier<PlacedFeature> param0, StructureTemplatePool.Projection param1) {
         super(param1);
         this.feature = param0;
         this.defaultJigsawNBT = this.fillDefaultJigsawNBT();
@@ -97,6 +96,6 @@ public class FeaturePoolElement extends StructurePoolElement {
 
     @Override
     public String toString() {
-        return "Feature[" + Registry.FEATURE.getKey(this.feature.get().feature()) + "]";
+        return "Feature[" + this.feature.get() + "]";
     }
 }

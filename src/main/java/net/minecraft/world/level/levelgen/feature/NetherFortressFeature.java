@@ -10,6 +10,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.NetherBridgePieces;
@@ -31,16 +32,11 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        long param2,
-        WorldgenRandom param3,
-        ChunkPos param4,
-        ChunkPos param5,
-        NoneFeatureConfiguration param6,
-        LevelHeightAccessor param7
+        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, NoneFeatureConfiguration param4, LevelHeightAccessor param5
     ) {
-        return param3.nextInt(5) < 2;
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
+        var0.setLargeFeatureSeed(param2, param3.x, param3.z);
+        return var0.nextInt(5) < 2;
     }
 
     private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {

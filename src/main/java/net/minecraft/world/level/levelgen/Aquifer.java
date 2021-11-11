@@ -214,7 +214,7 @@ public interface Aquifer {
                         double var31 = this.similarity(var7, var8);
                         double var32 = this.similarity(var7, var9);
                         double var33 = this.similarity(var8, var9);
-                        var3 = var31 > 0.0;
+                        var3 = var31 > -0.4;
                         if (var28.at(param1).is(Blocks.WATER) && this.globalFluidPicker.computeFluid(param0, param1 - 1, param2).at(param1 - 1).is(Blocks.LAVA)
                             )
                          {

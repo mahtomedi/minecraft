@@ -25,7 +25,7 @@ public class StructureSettings {
     public static final Codec<StructureSettings> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     StrongholdConfiguration.CODEC.optionalFieldOf("stronghold").forGetter(param0x -> Optional.ofNullable(param0x.stronghold)),
-                    Codec.simpleMap(Registry.STRUCTURE_FEATURE, StructureFeatureConfiguration.CODEC, Registry.STRUCTURE_FEATURE)
+                    Codec.simpleMap(Registry.STRUCTURE_FEATURE.byNameCodec(), StructureFeatureConfiguration.CODEC, Registry.STRUCTURE_FEATURE)
                         .fieldOf("structures")
                         .forGetter(param0x -> param0x.structureConfig)
                 )

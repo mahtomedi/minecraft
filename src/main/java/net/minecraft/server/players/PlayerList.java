@@ -286,7 +286,7 @@ public abstract class PlayerList {
 
     }
 
-    public void setLevel(ServerLevel param0) {
+    public void addWorldborderListener(ServerLevel param0) {
         param0.getWorldBorder().addListener(new BorderChangeListener() {
             @Override
             public void onBorderSizeSet(WorldBorder param0, double param1) {

@@ -6,15 +6,16 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class SimpleRandomFeatureConfiguration implements FeatureConfiguration {
-    public static final Codec<SimpleRandomFeatureConfiguration> CODEC = ExtraCodecs.nonEmptyList(ConfiguredFeature.LIST_CODEC)
+    public static final Codec<SimpleRandomFeatureConfiguration> CODEC = ExtraCodecs.nonEmptyList(PlacedFeature.LIST_CODEC)
         .fieldOf("features")
         .xmap(SimpleRandomFeatureConfiguration::new, param0 -> param0.features)
         .codec();
-    public final List<Supplier<ConfiguredFeature<?, ?>>> features;
+    public final List<Supplier<PlacedFeature>> features;
 
-    public SimpleRandomFeatureConfiguration(List<Supplier<ConfiguredFeature<?, ?>>> param0) {
+    public SimpleRandomFeatureConfiguration(List<Supplier<PlacedFeature>> param0) {
         this.features = param0;
     }
 

@@ -12,9 +12,6 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
-import net.minecraft.world.level.levelgen.RandomSupport;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -22,6 +19,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 
 public class ConfiguredStructureFeature<FC extends FeatureConfiguration, F extends StructureFeature<FC>> {
     public static final Codec<ConfiguredStructureFeature<?, ?>> DIRECT_CODEC = Registry.STRUCTURE_FEATURE
+        .byNameCodec()
         .dispatch(param0 -> param0.feature, StructureFeature::configuredStructureCodec);
     public static final Codec<Supplier<ConfiguredStructureFeature<?, ?>>> CODEC = RegistryFileCodec.create(
         Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, DIRECT_CODEC
@@ -49,20 +47,6 @@ public class ConfiguredStructureFeature<FC extends FeatureConfiguration, F exten
         LevelHeightAccessor param8,
         Predicate<Biome> param9
     ) {
-        return this.feature
-            .generate(
-                param0,
-                param1,
-                param2,
-                param3,
-                param4,
-                param5,
-                param6,
-                new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier())),
-                param7,
-                this.config,
-                param8,
-                param9
-            );
+        return this.feature.generate(param0, param1, param2, param3, param4, param5, param6, param7, this.config, param8, param9);
     }
 }

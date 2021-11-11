@@ -16,7 +16,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import net.minecraft.Util;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -71,6 +73,69 @@ public class ExtraCodecs {
                 return "OrElsePartial[" + param0 + "]";
             }
         };
+    }
+
+    public static <E> Codec<E> idResolverCodec(ToIntFunction<E> param0, IntFunction<E> param1, int param2) {
+        return Codec.INT
+            .flatXmap(
+                param1x -> Optional.ofNullable(param1.apply(param1x))
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error("Unknown element id: " + param1x)),
+                param2x -> {
+                    int var0x = param0.applyAsInt(param2x);
+                    return var0x == param2 ? DataResult.error("Element with unknown id: " + param2x) : DataResult.success(var0x);
+                }
+            );
+    }
+
+    public static <E> Codec<E> stringResolverCodec(Function<E, String> param0, Function<String, E> param1) {
+        return Codec.STRING
+            .flatXmap(
+                param1x -> Optional.ofNullable(param1.apply(param1x))
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error("Unknown element name:" + param1x)),
+                param1x -> Optional.ofNullable(param0.apply(param1x))
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error("Element with unknown name: " + param1x))
+            );
+    }
+
+    public static <E> Codec<E> orCompressed(final Codec<E> param0, final Codec<E> param1) {
+        return new Codec<E>() {
+            @Override
+            public <T> DataResult<T> encode(E param0x, DynamicOps<T> param1x, T param2) {
+                return param1.compressMaps() ? param1.encode(param0, param1, param2) : param0.encode(param0, param1, param2);
+            }
+
+            @Override
+            public <T> DataResult<Pair<E, T>> decode(DynamicOps<T> param0x, T param1x) {
+                return param0.compressMaps() ? param1.decode(param0, param1) : param0.decode(param0, param1);
+            }
+
+            @Override
+            public String toString() {
+                return param0 + " orCompressed " + param1;
+            }
+        };
+    }
+
+    public static <E> Codec<E> overrideLifecycle(Codec<E> param0, final Function<E, Lifecycle> param1, final Function<E, Lifecycle> param2) {
+        return param0.mapResult(new ResultFunction<E>() {
+            @Override
+            public <T> DataResult<Pair<E, T>> apply(DynamicOps<T> param0, T param1x, DataResult<Pair<E, T>> param2x) {
+                return param2.result().map(param2xxx -> param2.setLifecycle(param1.apply(param2xxx.getFirst()))).orElse(param2);
+            }
+
+            @Override
+            public <T> DataResult<T> coApply(DynamicOps<T> param0, E param1x, DataResult<T> param2x) {
+                return param2.setLifecycle(param2.apply(param1));
+            }
+
+            @Override
+            public String toString() {
+                return "WithLifecycle[" + param1 + " " + param2 + "]";
+            }
+        });
     }
 
     private static <N extends Number & Comparable<N>> Function<N, DataResult<N>> checkRangeWithMessage(N param0, N param1, Function<N, String> param2) {

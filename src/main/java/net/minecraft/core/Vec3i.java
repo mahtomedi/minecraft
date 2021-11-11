@@ -2,6 +2,8 @@ package net.minecraft.core;
 
 import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.Util;
@@ -18,6 +20,16 @@ public class Vec3i implements Comparable<Vec3i> {
     private int x;
     private int y;
     private int z;
+
+    private static Function<Vec3i, DataResult<Vec3i>> checkOffsetAxes(int param0) {
+        return param1 -> Math.abs(param1.getX()) < param0 && Math.abs(param1.getY()) < param0 && Math.abs(param1.getZ()) < param0
+                ? DataResult.success(param1)
+                : DataResult.error("Position out of range, expected at most " + param0 + ": " + param1);
+    }
+
+    public static Codec<Vec3i> offsetCodec(int param0) {
+        return CODEC.flatXmap(checkOffsetAxes(param0), checkOffsetAxes(param0));
+    }
 
     public Vec3i(int param0, int param1, int param2) {
         this.x = param0;

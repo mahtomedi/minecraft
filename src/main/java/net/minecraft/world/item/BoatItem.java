@@ -51,7 +51,7 @@ public class BoatItem extends Item {
                 Boat var8 = new Boat(param0, var1.getLocation().x, var1.getLocation().y, var1.getLocation().z);
                 var8.setType(this.type);
                 var8.setYRot(param1.getYRot());
-                if (!param0.noCollision(var8, var8.getBoundingBox().inflate(-0.1))) {
+                if (!param0.noCollision(var8, var8.getBoundingBox())) {
                     return InteractionResultHolder.fail(var0);
                 } else {
                     if (!param0.isClientSide) {

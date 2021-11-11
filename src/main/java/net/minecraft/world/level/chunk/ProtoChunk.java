@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.blending.GenerationUpgradeData;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -48,7 +48,7 @@ public class ProtoChunk extends ChunkAccess {
     private final ProtoChunkTicks<Block> blockTicks;
     private final ProtoChunkTicks<Fluid> fluidTicks;
 
-    public ProtoChunk(ChunkPos param0, UpgradeData param1, LevelHeightAccessor param2, Registry<Biome> param3, @Nullable GenerationUpgradeData param4) {
+    public ProtoChunk(ChunkPos param0, UpgradeData param1, LevelHeightAccessor param2, Registry<Biome> param3, @Nullable BlendingData param4) {
         this(param0, param1, null, new ProtoChunkTicks<>(), new ProtoChunkTicks<>(), param2, param3, param4);
     }
 
@@ -60,7 +60,7 @@ public class ProtoChunk extends ChunkAccess {
         ProtoChunkTicks<Fluid> param4,
         LevelHeightAccessor param5,
         Registry<Biome> param6,
-        @Nullable GenerationUpgradeData param7
+        @Nullable BlendingData param7
     ) {
         super(param0, param1, param5, param6, 0L, param2, param7);
         this.blockTicks = param3;
@@ -246,7 +246,8 @@ public class ProtoChunk extends ChunkAccess {
 
     @Override
     public Biome getNoiseBiome(int param0, int param1, int param2) {
-        if (!this.getStatus().isOrAfter(ChunkStatus.BIOMES)) {
+        if (!this.getStatus().isOrAfter(ChunkStatus.BIOMES)
+            && (this.belowZeroRetrogen == null || !this.belowZeroRetrogen.targetStatus().isOrAfter(ChunkStatus.BIOMES))) {
             throw new IllegalStateException("Asking for biomes before we have biomes");
         } else {
             return super.getNoiseBiome(param0, param1, param2);

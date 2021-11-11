@@ -16,7 +16,12 @@ public class SpringConfiguration implements FeatureConfiguration {
                     Codec.BOOL.fieldOf("requires_block_below").orElse(true).forGetter(param0x -> param0x.requiresBlockBelow),
                     Codec.INT.fieldOf("rock_count").orElse(4).forGetter(param0x -> param0x.rockCount),
                     Codec.INT.fieldOf("hole_count").orElse(1).forGetter(param0x -> param0x.holeCount),
-                    Registry.BLOCK.listOf().fieldOf("valid_blocks").xmap(ImmutableSet::copyOf, ImmutableList::copyOf).forGetter(param0x -> param0x.validBlocks)
+                    Registry.BLOCK
+                        .byNameCodec()
+                        .listOf()
+                        .fieldOf("valid_blocks")
+                        .xmap(ImmutableSet::copyOf, ImmutableList::copyOf)
+                        .forGetter(param0x -> param0x.validBlocks)
                 )
                 .apply(param0, SpringConfiguration::new)
     );

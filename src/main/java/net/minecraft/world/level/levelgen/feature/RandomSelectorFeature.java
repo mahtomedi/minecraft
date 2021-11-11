@@ -20,7 +20,7 @@ public class RandomSelectorFeature extends Feature<RandomFeatureConfiguration> {
         ChunkGenerator var3 = param0.chunkGenerator();
         BlockPos var4 = param0.origin();
 
-        for(WeightedConfiguredFeature var5 : var0.features) {
+        for(WeightedPlacedFeature var5 : var0.features) {
             if (var1.nextFloat() < var5.chance) {
                 return var5.place(var2, var3, var1, var4);
             }

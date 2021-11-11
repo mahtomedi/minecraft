@@ -142,6 +142,6 @@ public class FlatLevelSource extends ChunkGenerator {
 
     @Override
     public int getSeaLevel() {
-        return 63;
+        return -63;
     }
 }

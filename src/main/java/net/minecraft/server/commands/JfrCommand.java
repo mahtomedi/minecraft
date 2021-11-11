@@ -4,12 +4,15 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.profiling.jfr.Environment;
@@ -45,14 +48,18 @@ public class JfrCommand {
 
     private static int stopJfr(CommandSourceStack param0) throws CommandSyntaxException {
         try {
-            File var0 = JvmProfiler.INSTANCE.stop().toFile();
-            Component var1 = new TextComponent(var0.getName())
+            Path var0 = Paths.get(".").relativize(JvmProfiler.INSTANCE.stop().normalize());
+            Path var1 = param0.getServer().isPublished() && !SharedConstants.IS_RUNNING_IN_IDE ? var0 : var0.toAbsolutePath();
+            Component var2 = new TextComponent(var0.toString())
                 .withStyle(ChatFormatting.UNDERLINE)
-                .withStyle(param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, var0.getAbsolutePath())));
-            param0.sendSuccess(new TranslatableComponent("commands.jfr.stopped", var1), false);
+                .withStyle(
+                    param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, var1.toString()))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.copy.click")))
+                );
+            param0.sendSuccess(new TranslatableComponent("commands.jfr.stopped", var2), false);
             return 1;
-        } catch (Throwable var3) {
-            throw DUMP_FAILED.create(var3.getMessage());
+        } catch (Throwable var4) {
+            throw DUMP_FAILED.create(var4.getMessage());
         }
     }
 }

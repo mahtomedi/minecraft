@@ -7,9 +7,11 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -26,13 +28,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Graph;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.apache.commons.lang3.mutable.MutableInt;
 
-public abstract class BiomeSource {
-    public static final Codec<BiomeSource> CODEC = Registry.BIOME_SOURCE.dispatchStable(BiomeSource::codec, Function.identity());
+public abstract class BiomeSource implements BiomeResolver {
+    public static final Codec<BiomeSource> CODEC = Registry.BIOME_SOURCE.byNameCodec().dispatchStable(BiomeSource::codec, Function.identity());
     private final List<Biome> possibleBiomes;
-    private final ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> featuresPerStep;
+    private final List<List<PlacedFeature>> featuresPerStep;
 
     protected BiomeSource(Stream<Supplier<Biome>> param0) {
         this(param0.map(Supplier::get).distinct().collect(ImmutableList.toImmutableList()));
@@ -40,10 +42,14 @@ public abstract class BiomeSource {
 
     protected BiomeSource(List<Biome> param0) {
         this.possibleBiomes = param0;
-        Object2IntMap<ConfiguredFeature<?, ?>> var0 = new Object2IntOpenHashMap<>();
+        this.featuresPerStep = this.buildFeaturesPerStep(param0, true);
+    }
+
+    private List<List<PlacedFeature>> buildFeaturesPerStep(List<Biome> param0, boolean param1) {
+        Object2IntMap<PlacedFeature> var0 = new Object2IntOpenHashMap<>();
         MutableInt var1 = new MutableInt(0);
 
-        record FeatureData(int featureIndex, int step, ConfiguredFeature<?, ?> feature) {
+        record FeatureData(int featureIndex, int step, PlacedFeature feature) {
         }
 
         Comparator<FeatureData> var2 = Comparator.comparingInt(FeatureData::step).thenComparingInt(FeatureData::featureIndex);
@@ -52,18 +58,18 @@ public abstract class BiomeSource {
 
         for(Biome var5 : param0) {
             List<FeatureData> var6 = Lists.newArrayList();
-            List<List<Supplier<ConfiguredFeature<?, ?>>>> var7 = var5.getGenerationSettings().features();
+            List<List<Supplier<PlacedFeature>>> var7 = var5.getGenerationSettings().features();
             var4 = Math.max(var4, var7.size());
 
             for(int var8 = 0; var8 < var7.size(); ++var8) {
-                for(Supplier<ConfiguredFeature<?, ?>> var9 : var7.get(var8)) {
-                    ConfiguredFeature<?, ?> var10 = var9.get();
-                    var6.add(new FeatureData(var0.computeIfAbsent(var10, param1 -> var1.getAndIncrement()), var8, var10));
+                for(Supplier<PlacedFeature> var9 : var7.get(var8)) {
+                    PlacedFeature var10 = var9.get();
+                    var6.add(new FeatureData(var0.computeIfAbsent(var10, param1x -> var1.getAndIncrement()), var8, var10));
                 }
             }
 
             for(int var11 = 0; var11 < var6.size(); ++var11) {
-                Set<FeatureData> var12 = var3.computeIfAbsent(var6.get(var11), param1 -> new TreeSet<>(var2));
+                Set<FeatureData> var12 = var3.computeIfAbsent(var6.get(var11), param1x -> new TreeSet<>(var2));
                 if (var11 < var6.size() - 1) {
                     var12.add(var6.get(var11 + 1));
                 }
@@ -80,22 +86,44 @@ public abstract class BiomeSource {
             }
 
             if (!var13.contains(var16) && Graph.depthFirstSearch(var3, var13, var14, var15::add, var16)) {
-                Collections.reverse(var15);
-                throw new IllegalStateException(
-                    "Feature order cycle found: " + (String)var15.stream().filter(var14::contains).map(Object::toString).collect(Collectors.joining(", "))
-                );
+                if (!param1) {
+                    throw new IllegalStateException("Feature order cycle found");
+                }
+
+                List<Biome> var17 = new ArrayList<>(param0);
+
+                int var18;
+                do {
+                    var18 = var17.size();
+                    ListIterator<Biome> var19 = var17.listIterator();
+
+                    while(var19.hasNext()) {
+                        Biome var20 = var19.next();
+                        var19.remove();
+
+                        try {
+                            this.buildFeaturesPerStep(var17, false);
+                        } catch (IllegalStateException var181) {
+                            continue;
+                        }
+
+                        var19.add(var20);
+                    }
+                } while(var18 != var17.size());
+
+                throw new IllegalStateException("Feature order cycle found, involved biomes: " + var17);
             }
         }
 
         Collections.reverse(var15);
-        Builder<ImmutableList<ConfiguredFeature<?, ?>>> var17 = ImmutableList.builder();
+        Builder<List<PlacedFeature>> var22 = ImmutableList.builder();
 
-        for(int var18 = 0; var18 < var4; ++var18) {
-            int var19 = var18;
-            var17.add(var15.stream().filter(param1 -> param1.step() == var19).map(FeatureData::feature).collect(ImmutableList.toImmutableList()));
+        for(int var23 = 0; var23 < var4; ++var23) {
+            int var24 = var23;
+            var22.add(var15.stream().filter(param1x -> param1x.step() == var24).map(FeatureData::feature).collect(Collectors.toList()));
         }
 
-        this.featuresPerStep = var17.build();
+        return var22.build();
     }
 
     protected abstract Codec<? extends BiomeSource> codec();
@@ -180,12 +208,13 @@ public abstract class BiomeSource {
         return var4;
     }
 
+    @Override
     public abstract Biome getNoiseBiome(int var1, int var2, int var3, Climate.Sampler var4);
 
     public void addMultinoiseDebugInfo(List<String> param0, BlockPos param1, Climate.Sampler param2) {
     }
 
-    public ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> featuresPerStep() {
+    public List<List<PlacedFeature>> featuresPerStep() {
         return this.featuresPerStep;
     }
 

@@ -2350,13 +2350,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 return null;
             } else {
                 WorldBorder var5 = param0.getWorldBorder();
-                double var6 = Math.max(-2.9999872E7, var5.getMinX() + 16.0);
-                double var7 = Math.max(-2.9999872E7, var5.getMinZ() + 16.0);
-                double var8 = Math.min(2.9999872E7, var5.getMaxX() - 16.0);
-                double var9 = Math.min(2.9999872E7, var5.getMaxZ() - 16.0);
-                double var10 = DimensionType.getTeleportationScale(this.level.dimensionType(), param0.dimensionType());
-                BlockPos var11 = new BlockPos(Mth.clamp(this.getX() * var10, var6, var8), this.getY(), Mth.clamp(this.getZ() * var10, var7, var9));
-                return this.getExitPortal(param0, var11, var4)
+                double var6 = DimensionType.getTeleportationScale(this.level.dimensionType(), param0.dimensionType());
+                BlockPos var7 = var5.clampToBounds(this.getX() * var6, this.getY(), this.getZ() * var6);
+                return this.getExitPortal(param0, var7, var4, var5)
                     .map(
                         param1 -> {
                             BlockState var0x = this.level.getBlockState(this.portalEntrancePos);
@@ -2398,8 +2394,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return PortalShape.getRelativePosition(param1, param0, this.position(), this.getDimensions(this.getPose()));
     }
 
-    protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2) {
-        return param0.getPortalForcer().findPortalAround(param1, param2);
+    protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel param0, BlockPos param1, boolean param2, WorldBorder param3) {
+        return param0.getPortalForcer().findPortalAround(param1, param2, param3);
     }
 
     public boolean canChangeDimensions() {
@@ -3114,7 +3110,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     @Override
-    public final void setRemoved(Entity.RemovalReason param0) {
+    public void setRemoved(Entity.RemovalReason param0) {
         if (this.removalReason == null) {
             this.removalReason = param0;
         }

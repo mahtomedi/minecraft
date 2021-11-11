@@ -309,7 +309,7 @@ public class DimensionType {
         return Level.RESOURCE_KEY_CODEC.parse(param0);
     }
 
-    public static RegistryAccess.RegistryHolder registerBuiltin(RegistryAccess.RegistryHolder param0) {
+    public static RegistryAccess registerBuiltin(RegistryAccess param0) {
         WritableRegistry<DimensionType> var0 = param0.ownedRegistryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         var0.register(OVERWORLD_LOCATION, DEFAULT_OVERWORLD, Lifecycle.stable());
         var0.register(OVERWORLD_CAVES_LOCATION, DEFAULT_OVERWORLD_CAVES, Lifecycle.stable());
@@ -319,6 +319,10 @@ public class DimensionType {
     }
 
     public static MappedRegistry<LevelStem> defaultDimensions(RegistryAccess param0, long param1) {
+        return defaultDimensions(param0, param1, true);
+    }
+
+    public static MappedRegistry<LevelStem> defaultDimensions(RegistryAccess param0, long param1, boolean param2) {
         MappedRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
         Registry<DimensionType> var1 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         Registry<Biome> var2 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
@@ -329,7 +333,7 @@ public class DimensionType {
             new LevelStem(
                 () -> var1.getOrThrow(NETHER_LOCATION),
                 new NoiseBasedChunkGenerator(
-                    var4, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(var2), param1, () -> var3.getOrThrow(NoiseGeneratorSettings.NETHER)
+                    var4, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(var2, param2), param1, () -> var3.getOrThrow(NoiseGeneratorSettings.NETHER)
                 )
             ),
             Lifecycle.stable()

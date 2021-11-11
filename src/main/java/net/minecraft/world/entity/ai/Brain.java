@@ -79,7 +79,7 @@ public class Brain<E extends LivingEntity> {
                     public <T> DataResult<Brain<E>> decode(DynamicOps<T> param0x, MapLike<T> param1x) {
                         MutableObject<DataResult<Builder<Brain.MemoryValue<?>>>> var0 = new MutableObject<>(DataResult.success(ImmutableList.builder()));
                         param1.entries().forEach(param2 -> {
-                            DataResult<MemoryModuleType<?>> var0xxx = Registry.MEMORY_MODULE_TYPE.parse(param0, param2.getFirst());
+                            DataResult<MemoryModuleType<?>> var0xxx = Registry.MEMORY_MODULE_TYPE.byNameCodec().parse(param0, param2.getFirst());
                             DataResult<? extends Brain.MemoryValue<?>> var1x = var0xxx.flatMap(
                                 param2x -> this.captureRead(param2x, param0, (T)param2.getSecond())
                             );
@@ -498,7 +498,11 @@ public class Brain<E extends LivingEntity> {
                 .getCodec()
                 .ifPresent(
                     param2 -> this.value
-                            .ifPresent(param3 -> param1.add(Registry.MEMORY_MODULE_TYPE.encodeStart(param0, this.type), param2.encodeStart(param0, param3)))
+                            .ifPresent(
+                                param3 -> param1.add(
+                                        Registry.MEMORY_MODULE_TYPE.byNameCodec().encodeStart(param0, this.type), param2.encodeStart(param0, param3)
+                                    )
+                            )
                 );
         }
     }

@@ -5,7 +5,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.Block;
@@ -172,7 +172,7 @@ public class LevelChunkSection {
         return this.biomes.get(param0, param1, param2);
     }
 
-    public void fillBiomesFromNoise(BiomeSource param0, Climate.Sampler param1, int param2, int param3) {
+    public void fillBiomesFromNoise(BiomeResolver param0, Climate.Sampler param1, int param2, int param3) {
         PalettedContainer<Biome> var0 = this.getBiomes();
         var0.acquire();
 

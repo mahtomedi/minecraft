@@ -292,7 +292,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         if (super.mouseClicked(param0, param1, param2)) {
             return true;
         } else {
-            boolean var0 = this.minecraft.options.keyPickItem.matchesMouse(param2);
+            boolean var0 = this.minecraft.options.keyPickItem.matchesMouse(param2) && this.minecraft.gameMode.hasInfiniteItems();
             Slot var1 = this.findSlot(param0, param1);
             long var2 = Util.getMillis();
             this.doubleclick = this.lastClickSlot == var1 && var2 - this.lastClickTime < 250L && this.lastClickButton == param2;
@@ -328,7 +328,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                         }
                     } else if (!this.isQuickCrafting) {
                         if (this.menu.getCarried().isEmpty()) {
-                            if (this.minecraft.options.keyPickItem.matchesMouse(param2)) {
+                            if (var0) {
                                 this.slotClicked(var1, var6, param2, ClickType.CLONE);
                             } else {
                                 boolean var7 = var6 != -999
@@ -356,7 +356,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                                 this.quickCraftingType = 0;
                             } else if (param2 == 1) {
                                 this.quickCraftingType = 1;
-                            } else if (this.minecraft.options.keyPickItem.matchesMouse(param2)) {
+                            } else if (var0) {
                                 this.quickCraftingType = 2;
                             }
                         }

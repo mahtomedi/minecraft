@@ -39,7 +39,7 @@ public class MobSpawnSettings {
                         )
                         .fieldOf("spawners")
                         .forGetter(param0x -> param0x.spawners),
-                    Codec.simpleMap(Registry.ENTITY_TYPE, MobSpawnSettings.MobSpawnCost.CODEC, Registry.ENTITY_TYPE)
+                    Codec.simpleMap(Registry.ENTITY_TYPE.byNameCodec(), MobSpawnSettings.MobSpawnCost.CODEC, Registry.ENTITY_TYPE)
                         .fieldOf("spawn_costs")
                         .forGetter(param0x -> param0x.mobSpawnCosts),
                     Codec.BOOL.fieldOf("player_spawn_friendly").orElse(false).forGetter(MobSpawnSettings::playerSpawnFriendly)
@@ -145,7 +145,7 @@ public class MobSpawnSettings {
     public static class SpawnerData extends WeightedEntry.IntrusiveBase {
         public static final Codec<MobSpawnSettings.SpawnerData> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
-                        Registry.ENTITY_TYPE.fieldOf("type").forGetter(param0x -> param0x.type),
+                        Registry.ENTITY_TYPE.byNameCodec().fieldOf("type").forGetter(param0x -> param0x.type),
                         Weight.CODEC.fieldOf("weight").forGetter(WeightedEntry.IntrusiveBase::getWeight),
                         Codec.INT.fieldOf("minCount").forGetter(param0x -> param0x.minCount),
                         Codec.INT.fieldOf("maxCount").forGetter(param0x -> param0x.maxCount)

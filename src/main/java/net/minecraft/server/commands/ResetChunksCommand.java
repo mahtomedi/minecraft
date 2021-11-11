@@ -3,6 +3,7 @@ package net.minecraft.server.commands;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.datafixers.util.Unit;
 import java.util.List;
@@ -33,15 +34,25 @@ public class ResetChunksCommand {
         param0.register(
             Commands.literal("resetchunks")
                 .requires(param0x -> param0x.hasPermission(2))
-                .executes(param0x -> resetChunks(param0x.getSource(), 0))
+                .executes(param0x -> resetChunks(param0x.getSource(), 0, true))
                 .then(
                     Commands.argument("range", IntegerArgumentType.integer(0, 5))
-                        .executes(param0x -> resetChunks(param0x.getSource(), IntegerArgumentType.getInteger(param0x, "range")))
+                        .executes(param0x -> resetChunks(param0x.getSource(), IntegerArgumentType.getInteger(param0x, "range"), true))
+                        .then(
+                            Commands.argument("skipOldChunks", BoolArgumentType.bool())
+                                .executes(
+                                    param0x -> resetChunks(
+                                            param0x.getSource(),
+                                            IntegerArgumentType.getInteger(param0x, "range"),
+                                            BoolArgumentType.getBool(param0x, "skipOldChunks")
+                                        )
+                                )
+                        )
                 )
         );
     }
 
-    private static int resetChunks(CommandSourceStack param0, int param1) {
+    private static int resetChunks(CommandSourceStack param0, int param1, boolean param2) {
         ServerLevel var0 = param0.getLevel();
         ServerChunkCache var1 = var0.getChunkSource();
         var1.chunkMap.debugReloadGenerator();
@@ -56,7 +67,7 @@ public class ResetChunksCommand {
             for(int var9 = var6; var9 <= var7; ++var9) {
                 ChunkPos var10 = new ChunkPos(var9, var8);
                 LevelChunk var11 = var1.getChunk(var9, var8, false);
-                if (var11 != null) {
+                if (var11 != null && (!param2 || !var11.isOldNoiseGeneration())) {
                     for(BlockPos var12 : BlockPos.betweenClosed(
                         var10.getMinBlockX(),
                         var0.getMinBuildHeight(),
@@ -85,7 +96,7 @@ public class ResetChunksCommand {
                 for(int var20 = var3.x - param1; var20 <= var3.x + param1; ++var20) {
                     ChunkPos var21 = new ChunkPos(var20, var19);
                     LevelChunk var22 = var1.getChunk(var20, var19, false);
-                    if (var22 != null) {
+                    if (var22 != null && (!param2 || !var22.isOldNoiseGeneration())) {
                         List<ChunkAccess> var23 = Lists.newArrayList();
                         int var24 = Math.max(1, var16.getRange());
 
@@ -130,7 +141,7 @@ public class ResetChunksCommand {
             for(int var33 = var3.x - param1; var33 <= var3.x + param1; ++var33) {
                 ChunkPos var34 = new ChunkPos(var33, var32);
                 LevelChunk var35 = var1.getChunk(var33, var32, false);
-                if (var35 != null) {
+                if (var35 != null && (!param2 || !var35.isOldNoiseGeneration())) {
                     for(BlockPos var36 : BlockPos.betweenClosed(
                         var34.getMinBlockX(),
                         var0.getMinBuildHeight(),

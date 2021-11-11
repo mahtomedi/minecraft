@@ -519,8 +519,8 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var1)
             .display(
                 Items.JUKEBOX,
-                new TranslatableComponent("advancements.husbandry.play_jukebox_in_meadows.title"),
-                new TranslatableComponent("advancements.husbandry.play_jukebox_in_meadows.description"),
+                new TranslatableComponent("advancements.adventure.play_jukebox_in_meadows.title"),
+                new TranslatableComponent("advancements.adventure.play_jukebox_in_meadows.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -534,7 +534,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                     ItemPredicate.Builder.item().of(ItemTags.MUSIC_DISCS)
                 )
             )
-            .save(param0, "husbandry/play_jukebox_in_meadows");
+            .save(param0, "adventure/play_jukebox_in_meadows");
         Advancement.Builder.advancement()
             .parent(var9)
             .display(
@@ -569,7 +569,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                     LocationPredicate.atYLocation(MinMaxBounds.Doubles.atLeast(319.0))
                 )
             )
-            .save(param0, "adventure/caves_and_cliffs");
+            .save(param0, "adventure/fall_from_world_height");
     }
 
     private List<ResourceKey<Biome>> getAllOverworldBiomes() {

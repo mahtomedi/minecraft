@@ -4,17 +4,18 @@ import com.mojang.datafixers.Products.P1;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class StateTestingPredicate implements BlockPredicate {
-    protected final BlockPos offset;
+    protected final Vec3i offset;
 
-    protected static <P extends StateTestingPredicate> P1<Mu<P>, BlockPos> stateTestingCodec(Instance<P> param0) {
-        return param0.group(BlockPos.CODEC.optionalFieldOf("offset", BlockPos.ZERO).forGetter(param0x -> param0x.offset));
+    protected static <P extends StateTestingPredicate> P1<Mu<P>, Vec3i> stateTestingCodec(Instance<P> param0) {
+        return param0.group(Vec3i.offsetCodec(16).optionalFieldOf("offset", Vec3i.ZERO).forGetter(param0x -> param0x.offset));
     }
 
-    protected StateTestingPredicate(BlockPos param0) {
+    protected StateTestingPredicate(Vec3i param0) {
         this.offset = param0;
     }
 

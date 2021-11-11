@@ -13,6 +13,7 @@ import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.info.BlockListReport;
 import net.minecraft.data.info.CommandsReport;
 import net.minecraft.data.info.RegistryDumpReport;
+import net.minecraft.data.info.WorldgenRegistryDumpReport;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.models.ModelProvider;
 import net.minecraft.data.recipes.RecipeProvider;
@@ -24,7 +25,6 @@ import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.data.tags.GameEventTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.data.worldgen.biome.BiomeReport;
 import net.minecraft.obfuscate.DontObfuscate;
 
 public class Main {
@@ -91,7 +91,7 @@ public class Main {
             var0.addProvider(new BlockListReport(var0));
             var0.addProvider(new RegistryDumpReport(var0));
             var0.addProvider(new CommandsReport(var0));
-            var0.addProvider(new BiomeReport(var0));
+            var0.addProvider(new WorldgenRegistryDumpReport(var0));
         }
 
         return var0;

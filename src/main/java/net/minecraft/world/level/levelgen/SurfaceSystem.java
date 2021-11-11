@@ -26,7 +26,6 @@ import net.minecraft.world.level.material.Material;
 
 public class SurfaceSystem {
     private static final int HOW_FAR_BELOW_PRELIMINARY_SURFACE_LEVEL_TO_BUILD_SURFACE = 8;
-    private static final int MAX_CLAY_DEPTH = 15;
     private static final BlockState WHITE_TERRACOTTA = Blocks.WHITE_TERRACOTTA.defaultBlockState();
     private static final BlockState ORANGE_TERRACOTTA = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
     private static final BlockState TERRACOTTA = Blocks.TERRACOTTA.defaultBlockState();
@@ -52,6 +51,7 @@ public class SurfaceSystem {
     private final Map<ResourceLocation, PositionalRandomFactory> positionalRandoms = new ConcurrentHashMap<>();
     private final PositionalRandomFactory randomFactory;
     private final NormalNoise surfaceNoise;
+    private final NormalNoise surfaceSecondaryNoise;
 
     public SurfaceSystem(
         NoiseSampler param0, Registry<NormalNoise.NoiseParameters> param1, BlockState param2, int param3, long param4, WorldgenRandom.Algorithm param5
@@ -64,6 +64,7 @@ public class SurfaceSystem {
         this.clayBandsOffsetNoise = Noises.instantiate(param1, this.randomFactory, Noises.CLAY_BANDS_OFFSET);
         this.clayBands = generateBands(this.randomFactory.fromHashOf(new ResourceLocation("clay_bands")));
         this.surfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.SURFACE);
+        this.surfaceSecondaryNoise = Noises.instantiate(param1, this.randomFactory, Noises.SURFACE_SECONDARY);
         this.badlandsPillarNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_PILLAR);
         this.badlandsPillarRoofNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_PILLAR_ROOF);
         this.badlandsSurfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_SURFACE);
@@ -101,7 +102,11 @@ public class SurfaceSystem {
 
             @Override
             public void setBlock(int param0, BlockState param1) {
-                param4.setBlockState(var0.setY(param0), param1, false);
+                LevelHeightAccessor var0 = param4.getHeightAccessorForGeneration();
+                if (param0 >= var0.getMinBuildHeight() && param0 < var0.getMaxBuildHeight()) {
+                    param4.setBlockState(var0.setY(param0), param1, false);
+                }
+
             }
 
             @Override
@@ -109,7 +114,7 @@ public class SurfaceSystem {
                 return "ChunkBlockColumn " + var1;
             }
         };
-        SurfaceRules.Context var5 = new SurfaceRules.Context(this, param4, param0::getBiome, param1, param3);
+        SurfaceRules.Context var5 = new SurfaceRules.Context(this, param4, param5, param0::getBiome, param1, param3);
         SurfaceRules.SurfaceRule var6 = param6.apply(var5);
         BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
 
@@ -118,66 +123,75 @@ public class SurfaceSystem {
                 int var10 = var2 + var8;
                 int var11 = var3 + var9;
                 int var12 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
-                RandomSource var13 = this.randomFactory.at(var10, 0, var11);
-                double var14 = this.surfaceNoise.getValue((double)var10, 0.0, (double)var11);
                 var0.setX(var10).setZ(var11);
-                int var15 = this.sampler.getPreliminarySurfaceLevel(var10, var11, param5.terrainInfoInterpolated(var10, var11));
-                int var16 = var15 - 8;
-                Biome var17 = param0.getBiome(var7.set(var10, param2 ? 0 : var12, var11));
-                ResourceKey<Biome> var18 = param1.getResourceKey(var17).orElseThrow(() -> new IllegalStateException("Unregistered biome: " + var17));
-                if (var18 == Biomes.ERODED_BADLANDS) {
+                Biome var13 = param0.getBiome(var7.set(var10, param2 ? 0 : var12, var11));
+                ResourceKey<Biome> var14 = param1.getResourceKey(var13).orElseThrow(() -> new IllegalStateException("Unregistered biome: " + var13));
+                if (var14 == Biomes.ERODED_BADLANDS) {
                     this.erodedBadlandsExtension(var4, var10, var11, var12, param4);
                 }
 
-                int var19 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
-                int var20 = (int)(var14 * 2.75 + 3.0 + var13.nextDouble() * 0.25);
-                int var21 = var18 != Biomes.WOODED_BADLANDS && var18 != Biomes.BADLANDS ? Integer.MAX_VALUE : 15;
-                var5.updateXZ(var10, var11, var20);
-                int var22 = 0;
-                int var23 = 0;
-                int var24 = Integer.MIN_VALUE;
-                int var25 = Integer.MAX_VALUE;
-                int var26 = param4.getMinBuildHeight();
+                int var15 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
+                var5.updateXZ(var10, var11);
+                int var16 = 0;
+                int var17 = Integer.MIN_VALUE;
+                int var18 = Integer.MAX_VALUE;
+                int var19 = param4.getMinBuildHeight();
 
-                for(int var27 = var19; var27 >= var26 && var23 < var21; --var27) {
-                    BlockState var28 = var4.getBlock(var27);
-                    if (var28.isAir()) {
-                        var22 = 0;
-                        var24 = Integer.MIN_VALUE;
-                    } else if (!var28.getFluidState().isEmpty()) {
-                        if (var24 == Integer.MIN_VALUE) {
-                            var24 = var27 + 1;
+                for(int var20 = var15; var20 >= var19; --var20) {
+                    BlockState var21 = var4.getBlock(var20);
+                    if (var21.isAir()) {
+                        var16 = 0;
+                        var17 = Integer.MIN_VALUE;
+                    } else if (!var21.getFluidState().isEmpty()) {
+                        if (var17 == Integer.MIN_VALUE) {
+                            var17 = var20 + 1;
                         }
                     } else {
-                        if (var25 >= var27) {
-                            var25 = DimensionType.WAY_BELOW_MIN_Y;
+                        if (var18 >= var20) {
+                            var18 = DimensionType.WAY_BELOW_MIN_Y;
 
-                            for(int var29 = var27 - 1; var29 >= var26 - 1; --var29) {
-                                BlockState var30 = var4.getBlock(var29);
-                                if (!this.isStone(var30)) {
-                                    var25 = var29 + 1;
+                            for(int var22 = var20 - 1; var22 >= var19 - 1; --var22) {
+                                BlockState var23 = var4.getBlock(var22);
+                                if (!this.isStone(var23)) {
+                                    var18 = var22 + 1;
                                     break;
                                 }
                             }
                         }
 
-                        ++var22;
-                        ++var23;
-                        int var31 = var27 - var25 + 1;
-                        var5.updateY(var16, var22, var31, var24, var10, var27, var11);
-                        BlockState var32 = var6.tryApply(var10, var27, var11);
-                        if (var32 != null) {
-                            var4.setBlock(var27, var32);
+                        ++var16;
+                        int var24 = var20 - var18 + 1;
+                        var5.updateY(var16, var24, var17, var10, var20, var11);
+                        BlockState var25 = var6.tryApply(var10, var20, var11);
+                        if (var25 != null) {
+                            var4.setBlock(var20, var25);
                         }
                     }
                 }
 
-                if (var18 == Biomes.FROZEN_OCEAN || var18 == Biomes.DEEP_FROZEN_OCEAN) {
-                    this.frozenOceanExtension(var16, var17, var4, var7, var10, var11, var12);
+                if (var14 == Biomes.FROZEN_OCEAN || var14 == Biomes.DEEP_FROZEN_OCEAN) {
+                    this.frozenOceanExtension(var5.getMinSurfaceLevel(), var13, var4, var7, var10, var11, var12);
                 }
             }
         }
 
+    }
+
+    protected int getMinSurfaceLevel(NoiseChunk param0, int param1, int param2) {
+        int var0 = this.sampler.getPreliminarySurfaceLevel(param1, param2, param0.terrainInfoInterpolated(param1, param2));
+        return var0 - 8;
+    }
+
+    protected int getSurfaceDepth(int param0, int param1) {
+        return this.getSurfaceDepth(this.surfaceNoise, param0, param1);
+    }
+
+    protected int getSurfaceSecondaryDepth(int param0, int param1) {
+        return this.getSurfaceDepth(this.surfaceSecondaryNoise, param0, param1);
+    }
+
+    private int getSurfaceDepth(NormalNoise param0, int param1, int param2) {
+        return (int)(param0.getValue((double)param1, 0.0, (double)param2) * 2.75 + 3.0 + this.randomFactory.at(param1, 0, param2).nextDouble() * 0.25);
     }
 
     private boolean isStone(BlockState param0) {
@@ -186,21 +200,25 @@ public class SurfaceSystem {
 
     @Deprecated
     public Optional<BlockState> topMaterial(
-        SurfaceRules.RuleSource param0, CarvingContext param1, Function<BlockPos, Biome> param2, ChunkAccess param3, BlockPos param4, boolean param5
+        SurfaceRules.RuleSource param0,
+        CarvingContext param1,
+        Function<BlockPos, Biome> param2,
+        ChunkAccess param3,
+        NoiseChunk param4,
+        BlockPos param5,
+        boolean param6
     ) {
-        SurfaceRules.Context var0 = new SurfaceRules.Context(this, param3, param2, param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param1);
+        SurfaceRules.Context var0 = new SurfaceRules.Context(
+            this, param3, param4, param2, param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param1
+        );
         SurfaceRules.SurfaceRule var1 = param0.apply(var0);
-        int var2 = param4.getX();
-        int var3 = param4.getY();
-        int var4 = param4.getZ();
-        RandomSource var5 = this.randomFactory.at(var2, 0, var4);
-        double var6 = this.surfaceNoise.getValue((double)var2, 0.0, (double)var4);
-        int var7 = (int)(var6 * 2.75 + 3.0 + var5.nextDouble() * 0.25);
-        var0.updateXZ(var2, var4, var7);
-        int var8 = var3 - 16;
-        var0.updateY(var8, 1, 1, param5 ? var3 + 1 : Integer.MIN_VALUE, var2, var3, var4);
-        BlockState var9 = var1.tryApply(var2, var3, var4);
-        return Optional.ofNullable(var9);
+        int var2 = param5.getX();
+        int var3 = param5.getY();
+        int var4 = param5.getZ();
+        var0.updateXZ(var2, var4);
+        var0.updateY(1, 1, param6 ? var3 + 1 : Integer.MIN_VALUE, var2, var3, var4);
+        BlockState var5 = var1.tryApply(var2, var3, var4);
+        return Optional.ofNullable(var5);
     }
 
     private void erodedBadlandsExtension(BlockColumn param0, int param1, int param2, int param3, LevelHeightAccessor param4) {

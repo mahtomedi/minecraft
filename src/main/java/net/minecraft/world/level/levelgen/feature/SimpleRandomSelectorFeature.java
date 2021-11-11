@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleRandomFeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConfiguration> {
     public SimpleRandomSelectorFeature(Codec<SimpleRandomFeatureConfiguration> param0) {
@@ -20,7 +21,7 @@ public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConf
         BlockPos var3 = param0.origin();
         ChunkGenerator var4 = param0.chunkGenerator();
         int var5 = var0.nextInt(var1.features.size());
-        ConfiguredFeature<?, ?> var6 = var1.features.get(var5).get();
+        PlacedFeature var6 = var1.features.get(var5).get();
         return var6.place(var2, var4, var0, var3);
     }
 }

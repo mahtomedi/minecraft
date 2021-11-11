@@ -36,17 +36,10 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        long param2,
-        WorldgenRandom param3,
-        ChunkPos param4,
-        ChunkPos param5,
-        NoneFeatureConfiguration param6,
-        LevelHeightAccessor param7
+        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, NoneFeatureConfiguration param4, LevelHeightAccessor param5
     ) {
-        int var0 = param4.getBlockX(9);
-        int var1 = param4.getBlockZ(9);
+        int var0 = param3.getBlockX(9);
+        int var1 = param3.getBlockZ(9);
 
         for(Biome var3 : param1.getBiomesWithin(var0, param0.getSeaLevel(), var1, 29, param0.climateSampler())) {
             if (var3.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var3.getBiomeCategory() != Biome.BiomeCategory.RIVER) {

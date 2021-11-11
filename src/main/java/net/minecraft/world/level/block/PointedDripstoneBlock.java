@@ -301,6 +301,14 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
         BlockPos var0 = findTip(param0, param1, param2, Integer.MAX_VALUE, true);
         if (var0 != null) {
             BlockPos.MutableBlockPos var1 = var0.mutable();
+            var1.move(Direction.DOWN);
+            BlockState var2 = param1.getBlockState(var1);
+            if (var2.getCollisionShape(param1, var1, CollisionContext.empty()).max(Direction.Axis.Y) >= 1.0 || var2.is(Blocks.POWDER_SNOW)) {
+                param1.destroyBlock(var0, true);
+                var1.move(Direction.UP);
+            }
+
+            var1.move(Direction.UP);
 
             while(isStalactite(param1.getBlockState(var1))) {
                 param1.scheduleTick(var1, this, 2);

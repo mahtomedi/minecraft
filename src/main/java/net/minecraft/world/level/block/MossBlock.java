@@ -1,16 +1,13 @@
 package net.minecraft.world.level.block;
 
-import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.data.worldgen.Features;
+import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 public class MossBlock extends Block implements BonemealableBlock {
     public MossBlock(BlockBehaviour.Properties param0) {
@@ -29,11 +26,6 @@ public class MossBlock extends Block implements BonemealableBlock {
 
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
-        Feature.VEGETATION_PATCH
-            .place(
-                new FeaturePlaceContext<>(
-                    Optional.empty(), param0, param0.getChunkSource().getGenerator(), param1, param2.above(), Features.MOSS_PATCH_BONEMEAL.config()
-                )
-            );
+        CaveFeatures.MOSS_PATCH_BONEMEAL.place(param0, param0.getChunkSource().getGenerator(), param1, param2.above());
     }
 }

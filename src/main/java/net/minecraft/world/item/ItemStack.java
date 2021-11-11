@@ -74,7 +74,7 @@ import org.apache.logging.log4j.Logger;
 public final class ItemStack {
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Registry.ITEM.fieldOf("id").forGetter(param0x -> param0x.item),
+                    Registry.ITEM.byNameCodec().fieldOf("id").forGetter(param0x -> param0x.item),
                     Codec.INT.fieldOf("Count").forGetter(param0x -> param0x.count),
                     CompoundTag.CODEC.optionalFieldOf("tag").forGetter(param0x -> Optional.ofNullable(param0x.tag))
                 )

@@ -1,6 +1,5 @@
 package net.minecraft.world.level.chunk;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
@@ -55,17 +54,17 @@ import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.StrongholdConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
-    public static final Codec<ChunkGenerator> CODEC = Registry.CHUNK_GENERATOR.dispatchStable(ChunkGenerator::codec, Function.identity());
+    public static final Codec<ChunkGenerator> CODEC = Registry.CHUNK_GENERATOR.byNameCodec().dispatchStable(ChunkGenerator::codec, Function.identity());
     protected final BiomeSource biomeSource;
     protected final BiomeSource runtimeBiomeSource;
     private final StructureSettings settings;
@@ -158,7 +157,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
 
     public CompletableFuture<ChunkAccess> createBiomes(Executor param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
         return CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("init_biomes", () -> {
-            param3.fillBiomesFromNoise(this.runtimeBiomeSource, this.climateSampler());
+            param3.fillBiomesFromNoise(this.runtimeBiomeSource::getNoiseBiome, this.climateSampler());
             return param3;
         }), Util.backgroundExecutor());
     }
@@ -222,12 +221,12 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
             Map<Integer, List<StructureFeature<?>>> var3 = Registry.STRUCTURE_FEATURE
                 .stream()
                 .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
-            ImmutableList<ImmutableList<ConfiguredFeature<?, ?>>> var4 = this.biomeSource.featuresPerStep();
+            List<List<PlacedFeature>> var4 = this.biomeSource.featuresPerStep();
             WorldgenRandom var5 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
             long var6 = var5.setDecorationSeed(param0.getSeed(), var2.getX(), var2.getZ());
 
             try {
-                Registry<ConfiguredFeature<?, ?>> var7 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
+                Registry<PlacedFeature> var7 = param0.registryAccess().registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
                 Registry<StructureFeature<?>> var8 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
                 int var9 = Math.max(GenerationStep.Decoration.values().length, var4.size());
 
@@ -253,13 +252,13 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                     }
 
                     if (var4.size() > var10) {
-                        for(ConfiguredFeature<?, ?> var17 : var4.get(var10)) {
+                        for(PlacedFeature var17 : var4.get(var10)) {
                             Supplier<String> var18 = () -> var7.getResourceKey(var17).map(Object::toString).orElseGet(var17::toString);
                             var5.setFeatureSeed(var6, var11, var10);
 
                             try {
                                 param0.setCurrentlyGenerating(var18);
-                                var17.placeWithBiomeCheck(Optional.of(var17), param0, this, var5, var2);
+                                var17.placeWithBiomeCheck(param0, this, var5, var2);
                             } catch (Exception var24) {
                                 CrashReport var20 = CrashReport.forThrowable(var24, "Feature placement");
                                 var20.addCategory("Feature").setDetail("Description", var18::get);

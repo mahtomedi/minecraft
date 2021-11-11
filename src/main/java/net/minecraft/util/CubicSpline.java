@@ -80,18 +80,28 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
         return new CubicSpline.Builder<>(param0);
     }
 
+    static <C> CubicSpline.Builder<C> builder(ToFloatFunction<C> param0, ToFloatFunction<Float> param1) {
+        return new CubicSpline.Builder<>(param0, param1);
+    }
+
     public static final class Builder<C> {
         private final ToFloatFunction<C> coordinate;
+        private final ToFloatFunction<Float> valueTransformer;
         private final FloatList locations = new FloatArrayList();
         private final List<CubicSpline<C>> values = Lists.newArrayList();
         private final FloatList derivatives = new FloatArrayList();
 
         protected Builder(ToFloatFunction<C> param0) {
+            this(param0, param0x -> param0x);
+        }
+
+        protected Builder(ToFloatFunction<C> param0, ToFloatFunction<Float> param1) {
             this.coordinate = param0;
+            this.valueTransformer = param1;
         }
 
         public CubicSpline.Builder<C> addPoint(float param0, float param1, float param2) {
-            return this.addPoint(param0, new CubicSpline.Constant<>(param1), param2);
+            return this.addPoint(param0, new CubicSpline.Constant<>(this.valueTransformer.apply(param1)), param2);
         }
 
         public CubicSpline.Builder<C> addPoint(float param0, CubicSpline<C> param1, float param2) {

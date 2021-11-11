@@ -53,6 +53,10 @@ public class WorldBorder {
         return param0.maxX > this.getMinX() && param0.minX < this.getMaxX() && param0.maxZ > this.getMinZ() && param0.minZ < this.getMaxZ();
     }
 
+    public BlockPos clampToBounds(double param0, double param1, double param2) {
+        return new BlockPos(Mth.clamp(param0, this.getMinX(), this.getMaxX()), param1, Mth.clamp(param2, this.getMinZ(), this.getMaxZ()));
+    }
+
     public double getDistanceToBorder(Entity param0) {
         return this.getDistanceToBorder(param0.getX(), param0.getZ());
     }

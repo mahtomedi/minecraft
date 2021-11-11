@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 
 public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
-    Codec<BlockPredicate> CODEC = Registry.BLOCK_PREDICATE_TYPES.dispatch(BlockPredicate::type, BlockPredicateType::codec);
+    Codec<BlockPredicate> CODEC = Registry.BLOCK_PREDICATE_TYPES.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
+    BlockPredicate ONLY_IN_AIR_PREDICATE = matchesBlock(Blocks.AIR, BlockPos.ZERO);
+    BlockPredicate ONLY_IN_AIR_OR_WATER_PREDICATE = matchesBlocks(List.of(Blocks.AIR, Blocks.WATER), BlockPos.ZERO);
 
     BlockPredicateType<?> type();
 
@@ -39,19 +43,19 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
         return anyOf(List.of(param0, param1));
     }
 
-    static BlockPredicate matchesBlocks(List<Block> param0, BlockPos param1) {
+    static BlockPredicate matchesBlocks(List<Block> param0, Vec3i param1) {
         return new MatchingBlocksPredicate(param1, param0);
     }
 
-    static BlockPredicate matchesBlock(Block param0, BlockPos param1) {
+    static BlockPredicate matchesBlock(Block param0, Vec3i param1) {
         return matchesBlocks(List.of(param0), param1);
     }
 
-    static BlockPredicate matchesFluids(List<Fluid> param0, BlockPos param1) {
+    static BlockPredicate matchesFluids(List<Fluid> param0, Vec3i param1) {
         return new MatchingFluidsPredicate(param1, param0);
     }
 
-    static BlockPredicate matchesFluid(Fluid param0, BlockPos param1) {
+    static BlockPredicate matchesFluid(Fluid param0, Vec3i param1) {
         return matchesFluids(List.of(param0), param1);
     }
 
@@ -59,16 +63,28 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
         return new NotPredicate(param0);
     }
 
-    static BlockPredicate replaceable(BlockPos param0) {
+    static BlockPredicate replaceable(Vec3i param0) {
         return new ReplaceablePredicate(param0);
     }
 
     static BlockPredicate replaceable() {
-        return replaceable(BlockPos.ZERO);
+        return replaceable(Vec3i.ZERO);
     }
 
-    static BlockPredicate wouldSurvive(BlockState param0, BlockPos param1) {
+    static BlockPredicate wouldSurvive(BlockState param0, Vec3i param1) {
         return new WouldSurvivePredicate(param1, param0);
+    }
+
+    static BlockPredicate solid(Vec3i param0) {
+        return new SolidPredicate(param0);
+    }
+
+    static BlockPredicate solid() {
+        return solid(Vec3i.ZERO);
+    }
+
+    static BlockPredicate insideWorld(Vec3i param0) {
+        return new InsideWorldBoundsPredicate(param0);
     }
 
     static BlockPredicate alwaysTrue() {

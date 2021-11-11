@@ -105,7 +105,7 @@ public class Beardifier implements NoiseChunk.NoiseFiller {
     }
 
     private static double getBuryContribution(int param0, int param1, int param2) {
-        double var0 = Mth.length(param0, (double)param1 / 2.0, param2);
+        double var0 = Mth.length((double)param0, (double)param1 / 2.0, (double)param2);
         return Mth.clampedMap(var0, 0.0, 6.0, 1.0, 0.0);
     }
 

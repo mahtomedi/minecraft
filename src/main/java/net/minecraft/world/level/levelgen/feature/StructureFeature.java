@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
-import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
@@ -37,7 +35,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfig
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OceanRuinConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RangeConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RuinedPortalConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
@@ -106,8 +104,8 @@ public class StructureFeature<C extends FeatureConfiguration> {
     public static final StructureFeature<JigsawConfiguration> VILLAGE = register(
         "Village", new VillageFeature(JigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
     );
-    public static final StructureFeature<RangeDecoratorConfiguration> NETHER_FOSSIL = register(
-        "Nether_Fossil", new NetherFossilFeature(RangeDecoratorConfiguration.CODEC), GenerationStep.Decoration.UNDERGROUND_DECORATION
+    public static final StructureFeature<RangeConfiguration> NETHER_FOSSIL = register(
+        "Nether_Fossil", new NetherFossilFeature(RangeConfiguration.CODEC), GenerationStep.Decoration.UNDERGROUND_DECORATION
     );
     public static final StructureFeature<JigsawConfiguration> BASTION_REMNANT = register(
         "Bastion_Remnant", new BastionFeature(JigsawConfiguration.CODEC), GenerationStep.Decoration.SURFACE_STRUCTURES
@@ -192,28 +190,27 @@ public class StructureFeature<C extends FeatureConfiguration> {
         int var0 = param6.spacing();
         int var1 = SectionPos.blockToSectionCoord(param2.getX());
         int var2 = SectionPos.blockToSectionCoord(param2.getZ());
-        int var3 = 0;
 
-        for(WorldgenRandom var4 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier())); var3 <= param3; ++var3) {
-            for(int var5 = -var3; var5 <= var3; ++var5) {
-                boolean var6 = var5 == -var3 || var5 == var3;
+        for(int var3 = 0; var3 <= param3; ++var3) {
+            for(int var4 = -var3; var4 <= var3; ++var4) {
+                boolean var5 = var4 == -var3 || var4 == var3;
 
-                for(int var7 = -var3; var7 <= var3; ++var7) {
-                    boolean var8 = var7 == -var3 || var7 == var3;
-                    if (var6 || var8) {
-                        int var9 = var1 + var0 * var5;
-                        int var10 = var2 + var0 * var7;
-                        ChunkPos var11 = this.getPotentialFeatureChunk(param6, param5, var4, var9, var10);
-                        ChunkAccess var12 = param0.getChunk(var11.x, var11.z, ChunkStatus.STRUCTURE_STARTS);
-                        StructureStart<?> var13 = param1.getStartForFeature(SectionPos.bottomOf(var12), this, var12);
-                        if (var13 != null && var13.isValid()) {
-                            if (param4 && var13.canBeReferenced()) {
-                                var13.addReference();
-                                return this.getLocatePos(var13.getChunkPos());
+                for(int var6 = -var3; var6 <= var3; ++var6) {
+                    boolean var7 = var6 == -var3 || var6 == var3;
+                    if (var5 || var7) {
+                        int var8 = var1 + var0 * var4;
+                        int var9 = var2 + var0 * var6;
+                        ChunkPos var10 = this.getPotentialFeatureChunk(param6, param5, var8, var9);
+                        ChunkAccess var11 = param0.getChunk(var10.x, var10.z, ChunkStatus.STRUCTURE_STARTS);
+                        StructureStart<?> var12 = param1.getStartForFeature(SectionPos.bottomOf(var11), this, var11);
+                        if (var12 != null && var12.isValid()) {
+                            if (param4 && var12.canBeReferenced()) {
+                                var12.addReference();
+                                return this.getLocatePos(var12.getChunkPos());
                             }
 
                             if (!param4) {
-                                return this.getLocatePos(var13.getChunkPos());
+                                return this.getLocatePos(var12.getChunkPos());
                             }
                         }
 
@@ -236,28 +233,27 @@ public class StructureFeature<C extends FeatureConfiguration> {
         return true;
     }
 
-    public final ChunkPos getPotentialFeatureChunk(StructureFeatureConfiguration param0, long param1, WorldgenRandom param2, int param3, int param4) {
+    public final ChunkPos getPotentialFeatureChunk(StructureFeatureConfiguration param0, long param1, int param2, int param3) {
         int var0 = param0.spacing();
         int var1 = param0.separation();
-        int var2 = Math.floorDiv(param3, var0);
-        int var3 = Math.floorDiv(param4, var0);
-        param2.setLargeFeatureWithSalt(param1, var2, var3, param0.salt());
-        int var4;
+        int var2 = Math.floorDiv(param2, var0);
+        int var3 = Math.floorDiv(param3, var0);
+        WorldgenRandom var4 = new WorldgenRandom(new LegacyRandomSource(0L));
+        var4.setLargeFeatureWithSalt(param1, var2, var3, param0.salt());
         int var5;
+        int var6;
         if (this.linearSeparation()) {
-            var4 = param2.nextInt(var0 - var1);
-            var5 = param2.nextInt(var0 - var1);
+            var5 = var4.nextInt(var0 - var1);
+            var6 = var4.nextInt(var0 - var1);
         } else {
-            var4 = (param2.nextInt(var0 - var1) + param2.nextInt(var0 - var1)) / 2;
-            var5 = (param2.nextInt(var0 - var1) + param2.nextInt(var0 - var1)) / 2;
+            var5 = (var4.nextInt(var0 - var1) + var4.nextInt(var0 - var1)) / 2;
+            var6 = (var4.nextInt(var0 - var1) + var4.nextInt(var0 - var1)) / 2;
         }
 
-        return new ChunkPos(var2 * var0 + var4, var3 * var0 + var5);
+        return new ChunkPos(var2 * var0 + var5, var3 * var0 + var6);
     }
 
-    protected boolean isFeatureChunk(
-        ChunkGenerator param0, BiomeSource param1, long param2, WorldgenRandom param3, ChunkPos param4, ChunkPos param5, C param6, LevelHeightAccessor param7
-    ) {
+    protected boolean isFeatureChunk(ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, C param4, LevelHeightAccessor param5) {
         return true;
     }
 
@@ -269,36 +265,20 @@ public class StructureFeature<C extends FeatureConfiguration> {
         long param4,
         ChunkPos param5,
         int param6,
-        WorldgenRandom param7,
-        StructureFeatureConfiguration param8,
-        C param9,
-        LevelHeightAccessor param10,
-        Predicate<Biome> param11
+        StructureFeatureConfiguration param7,
+        C param8,
+        LevelHeightAccessor param9,
+        Predicate<Biome> param10
     ) {
-        ChunkPos var0 = this.getPotentialFeatureChunk(param8, param4, param7, param5.x, param5.z);
-        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param7, param5, var0, param9, param10)) {
+        ChunkPos var0 = this.getPotentialFeatureChunk(param7, param4, param5.x, param5.z);
+        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param5, param8, param9)) {
             StructurePiecesBuilder var1 = new StructurePiecesBuilder();
-            this.pieceGenerator
-                .generatePieces(
-                    var1,
-                    param9,
-                    new PieceGenerator.Context(
-                        param0,
-                        param1,
-                        param3,
-                        param5,
-                        param11,
-                        param10,
-                        Util.make(
-                            new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier())),
-                            param2x -> param2x.setLargeFeatureSeed(param4, param5.x, param5.z)
-                        ),
-                        param4
-                    )
-                );
-            StructureStart<C> var2 = new StructureStart<>(this, param5, param6, var1.build());
-            if (var2.isValid()) {
-                return var2;
+            WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(0L));
+            var2.setLargeFeatureSeed(param4, param5.x, param5.z);
+            this.pieceGenerator.generatePieces(var1, param8, new PieceGenerator.Context(param0, param1, param3, param5, param10, param9, var2, param4));
+            StructureStart<C> var3 = new StructureStart<>(this, param5, param6, var1.build());
+            if (var3.isValid()) {
+                return var3;
             }
         }
 

@@ -369,7 +369,9 @@ public class ServerChunkCache extends ChunkSource {
                         NaturalSpawner.spawnForChunk(this.level, var14, var8, this.spawnFriendlies, this.spawnEnemies, var6);
                     }
 
-                    this.level.tickChunk(var14, var5);
+                    if (this.level.shouldTickBlocksAt(var15.toLong())) {
+                        this.level.tickChunk(var14, var5);
+                    }
                 }
             }
 

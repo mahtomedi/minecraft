@@ -22,6 +22,7 @@ import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,7 +40,7 @@ public class BiomeGenerationSettings {
                         )
                         .fieldOf("carvers")
                         .forGetter(param0x -> param0x.carvers),
-                    ConfiguredFeature.LIST_CODEC
+                    PlacedFeature.LIST_CODEC
                         .promotePartial(Util.prefix("Feature: ", LOGGER::error))
                         .flatXmap(ExtraCodecs.nonNullSupplierListCheck(), ExtraCodecs.nonNullSupplierListCheck())
                         .listOf()
@@ -49,17 +50,17 @@ public class BiomeGenerationSettings {
                 .apply(param0, BiomeGenerationSettings::new)
     );
     private final Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> carvers;
-    private final List<List<Supplier<ConfiguredFeature<?, ?>>>> features;
+    private final List<List<Supplier<PlacedFeature>>> features;
     private final List<ConfiguredFeature<?, ?>> flowerFeatures;
-    private final Set<ConfiguredFeature<?, ?>> featureSet;
+    private final Set<PlacedFeature> featureSet;
 
-    BiomeGenerationSettings(Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> param0, List<List<Supplier<ConfiguredFeature<?, ?>>>> param1) {
+    BiomeGenerationSettings(Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> param0, List<List<Supplier<PlacedFeature>>> param1) {
         this.carvers = param0;
         this.features = param1;
         this.flowerFeatures = param1.stream()
             .flatMap(Collection::stream)
             .map(Supplier::get)
-            .flatMap(ConfiguredFeature::getFeatures)
+            .flatMap(PlacedFeature::getFeatures)
             .filter(param0x -> param0x.feature == Feature.FLOWER)
             .collect(ImmutableList.toImmutableList());
         this.featureSet = param1.stream().flatMap(Collection::stream).map(Supplier::get).collect(Collectors.toSet());
@@ -73,23 +74,23 @@ public class BiomeGenerationSettings {
         return this.flowerFeatures;
     }
 
-    public List<List<Supplier<ConfiguredFeature<?, ?>>>> features() {
+    public List<List<Supplier<PlacedFeature>>> features() {
         return this.features;
     }
 
-    public boolean hasFeature(ConfiguredFeature<?, ?> param0) {
+    public boolean hasFeature(PlacedFeature param0) {
         return this.featureSet.contains(param0);
     }
 
     public static class Builder {
         private final Map<GenerationStep.Carving, List<Supplier<ConfiguredWorldCarver<?>>>> carvers = Maps.newLinkedHashMap();
-        private final List<List<Supplier<ConfiguredFeature<?, ?>>>> features = Lists.newArrayList();
+        private final List<List<Supplier<PlacedFeature>>> features = Lists.newArrayList();
 
-        public BiomeGenerationSettings.Builder addFeature(GenerationStep.Decoration param0, ConfiguredFeature<?, ?> param1) {
+        public BiomeGenerationSettings.Builder addFeature(GenerationStep.Decoration param0, PlacedFeature param1) {
             return this.addFeature(param0.ordinal(), () -> param1);
         }
 
-        public BiomeGenerationSettings.Builder addFeature(int param0, Supplier<ConfiguredFeature<?, ?>> param1) {
+        public BiomeGenerationSettings.Builder addFeature(int param0, Supplier<PlacedFeature> param1) {
             this.addFeatureStepsUpTo(param0);
             this.features.get(param0).add(param1);
             return this;

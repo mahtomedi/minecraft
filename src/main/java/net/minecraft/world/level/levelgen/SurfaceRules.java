@@ -24,10 +24,14 @@ import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class SurfaceRules {
-    public static final SurfaceRules.ConditionSource ON_FLOOR = new SurfaceRules.StoneDepthCheck(false, CaveSurface.FLOOR);
-    public static final SurfaceRules.ConditionSource UNDER_FLOOR = new SurfaceRules.StoneDepthCheck(true, CaveSurface.FLOOR);
-    public static final SurfaceRules.ConditionSource ON_CEILING = new SurfaceRules.StoneDepthCheck(false, CaveSurface.CEILING);
-    public static final SurfaceRules.ConditionSource UNDER_CEILING = new SurfaceRules.StoneDepthCheck(true, CaveSurface.CEILING);
+    public static final SurfaceRules.ConditionSource ON_FLOOR = stoneDepthCheck(0, false, false, CaveSurface.FLOOR);
+    public static final SurfaceRules.ConditionSource UNDER_FLOOR = stoneDepthCheck(0, true, false, CaveSurface.FLOOR);
+    public static final SurfaceRules.ConditionSource ON_CEILING = stoneDepthCheck(0, false, false, CaveSurface.CEILING);
+    public static final SurfaceRules.ConditionSource UNDER_CEILING = stoneDepthCheck(0, true, false, CaveSurface.CEILING);
+
+    public static SurfaceRules.ConditionSource stoneDepthCheck(int param0, boolean param1, boolean param2, CaveSurface param3) {
+        return new SurfaceRules.StoneDepthCheck(param0, param1, param2, param3);
+    }
 
     public static SurfaceRules.ConditionSource not(SurfaceRules.ConditionSource param0) {
         return new SurfaceRules.NotConditionSource(param0);
@@ -187,7 +191,7 @@ public class SurfaceRules {
     }
 
     public interface ConditionSource extends Function<SurfaceRules.Context, SurfaceRules.Condition> {
-        Codec<SurfaceRules.ConditionSource> CODEC = Registry.CONDITION.dispatch(SurfaceRules.ConditionSource::codec, Function.identity());
+        Codec<SurfaceRules.ConditionSource> CODEC = Registry.CONDITION.byNameCodec().dispatch(SurfaceRules.ConditionSource::codec, Function.identity());
 
         static Codec<? extends SurfaceRules.ConditionSource> bootstrap() {
             Registry.register(Registry.CONDITION, "biome", SurfaceRules.BiomeConditionSource.CODEC);
@@ -214,56 +218,85 @@ public class SurfaceRules {
         final SurfaceRules.Condition hole = new SurfaceRules.Context.HoleCondition(this);
         final SurfaceRules.Condition abovePreliminarySurface = new SurfaceRules.Context.AbovePreliminarySurfaceCondition();
         final ChunkAccess chunk;
+        private final NoiseChunk noiseChunk;
         private final Function<BlockPos, Biome> biomeGetter;
         private final Registry<Biome> biomes;
         final WorldGenerationContext context;
         long lastUpdateXZ = -9223372036854775807L;
         int blockX;
         int blockZ;
-        int runDepth;
+        int surfaceDepth;
+        private long lastSurfaceDepth2Update = this.lastUpdateXZ - 1L;
+        private int surfaceSecondaryDepth;
+        private long lastMinSurfaceLevelUpdate = this.lastUpdateXZ - 1L;
+        private int minSurfaceLevel;
         long lastUpdateY = -9223372036854775807L;
         final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         Supplier<Biome> biome;
         Supplier<ResourceKey<Biome>> biomeKey;
-        int minSurfaceLevel;
         int blockY;
         int waterHeight;
         int stoneDepthBelow;
         int stoneDepthAbove;
 
-        protected Context(SurfaceSystem param0, ChunkAccess param1, Function<BlockPos, Biome> param2, Registry<Biome> param3, WorldGenerationContext param4) {
+        protected Context(
+            SurfaceSystem param0,
+            ChunkAccess param1,
+            NoiseChunk param2,
+            Function<BlockPos, Biome> param3,
+            Registry<Biome> param4,
+            WorldGenerationContext param5
+        ) {
             this.system = param0;
             this.chunk = param1;
-            this.biomeGetter = param2;
-            this.biomes = param3;
-            this.context = param4;
+            this.noiseChunk = param2;
+            this.biomeGetter = param3;
+            this.biomes = param4;
+            this.context = param5;
         }
 
-        protected void updateXZ(int param0, int param1, int param2) {
+        protected void updateXZ(int param0, int param1) {
             ++this.lastUpdateXZ;
             ++this.lastUpdateY;
             this.blockX = param0;
             this.blockZ = param1;
-            this.runDepth = param2;
+            this.surfaceDepth = this.system.getSurfaceDepth(param0, param1);
         }
 
-        protected void updateY(int param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        protected void updateY(int param0, int param1, int param2, int param3, int param4, int param5) {
             ++this.lastUpdateY;
-            this.biome = Suppliers.memoize(() -> this.biomeGetter.apply(this.pos.set(param4, param5, param6)));
+            this.biome = Suppliers.memoize(() -> this.biomeGetter.apply(this.pos.set(param3, param4, param5)));
             this.biomeKey = Suppliers.memoize(
                 () -> this.biomes.getResourceKey(this.biome.get()).orElseThrow(() -> new IllegalStateException("Unregistered biome: " + this.biome))
             );
-            this.minSurfaceLevel = param0;
-            this.blockY = param5;
-            this.waterHeight = param3;
-            this.stoneDepthBelow = param2;
-            this.stoneDepthAbove = param1;
+            this.blockY = param4;
+            this.waterHeight = param2;
+            this.stoneDepthBelow = param1;
+            this.stoneDepthAbove = param0;
+        }
+
+        protected int getSurfaceSecondaryDepth() {
+            if (this.lastSurfaceDepth2Update != this.lastUpdateXZ) {
+                this.lastSurfaceDepth2Update = this.lastUpdateXZ;
+                this.surfaceSecondaryDepth = this.system.getSurfaceSecondaryDepth(this.blockX, this.blockZ);
+            }
+
+            return this.surfaceSecondaryDepth;
+        }
+
+        protected int getMinSurfaceLevel() {
+            if (this.lastMinSurfaceLevelUpdate != this.lastUpdateXZ) {
+                this.lastMinSurfaceLevelUpdate = this.lastUpdateXZ;
+                this.minSurfaceLevel = this.system.getMinSurfaceLevel(this.noiseChunk, this.blockX, this.blockZ);
+            }
+
+            return this.minSurfaceLevel;
         }
 
         final class AbovePreliminarySurfaceCondition implements SurfaceRules.Condition {
             @Override
             public boolean test() {
-                return Context.this.blockY >= Context.this.minSurfaceLevel;
+                return Context.this.blockY >= Context.this.getMinSurfaceLevel();
             }
         }
 
@@ -274,7 +307,7 @@ public class SurfaceRules {
 
             @Override
             protected boolean compute() {
-                return this.context.runDepth <= 0;
+                return this.context.surfaceDepth <= 0;
             }
         }
 
@@ -444,7 +477,7 @@ public class SurfaceRules {
     }
 
     public interface RuleSource extends Function<SurfaceRules.Context, SurfaceRules.SurfaceRule> {
-        Codec<SurfaceRules.RuleSource> CODEC = Registry.RULE.dispatch(SurfaceRules.RuleSource::codec, Function.identity());
+        Codec<SurfaceRules.RuleSource> CODEC = Registry.RULE.byNameCodec().dispatch(SurfaceRules.RuleSource::codec, Function.identity());
 
         static Codec<? extends SurfaceRules.RuleSource> bootstrap() {
             Registry.register(Registry.RULE, "bandlands", SurfaceRules.Bandlands.CODEC);
@@ -521,10 +554,13 @@ public class SurfaceRules {
         }
     }
 
-    static record StoneDepthCheck(boolean addRunDepth, CaveSurface surfaceType) implements SurfaceRules.ConditionSource {
+    static record StoneDepthCheck(int offset, boolean addSurfaceDepth, boolean addSurfaceSecondaryDepth, CaveSurface surfaceType)
+        implements SurfaceRules.ConditionSource {
         static final Codec<SurfaceRules.StoneDepthCheck> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
-                        Codec.BOOL.fieldOf("add_run_depth").forGetter(SurfaceRules.StoneDepthCheck::addRunDepth),
+                        Codec.INT.fieldOf("offset").forGetter(SurfaceRules.StoneDepthCheck::offset),
+                        Codec.BOOL.fieldOf("add_surface_depth").forGetter(SurfaceRules.StoneDepthCheck::addSurfaceDepth),
+                        Codec.BOOL.fieldOf("add_surface_secondary_depth").forGetter(SurfaceRules.StoneDepthCheck::addSurfaceSecondaryDepth),
                         CaveSurface.CODEC.fieldOf("surface_type").forGetter(SurfaceRules.StoneDepthCheck::surfaceType)
                     )
                     .apply(param0, SurfaceRules.StoneDepthCheck::new)
@@ -546,7 +582,10 @@ public class SurfaceRules {
                 @Override
                 protected boolean compute() {
                     return (var0 ? this.context.stoneDepthBelow : this.context.stoneDepthAbove)
-                        <= 1 + (StoneDepthCheck.this.addRunDepth ? this.context.runDepth : 0);
+                        <= 1
+                            + StoneDepthCheck.this.offset
+                            + (StoneDepthCheck.this.addSurfaceDepth ? this.context.surfaceDepth : 0)
+                            + (StoneDepthCheck.this.addSurfaceSecondaryDepth ? this.context.getSurfaceSecondaryDepth() : 0);
                 }
             }
 
@@ -646,11 +685,11 @@ public class SurfaceRules {
         }
     }
 
-    static record WaterConditionSource(int offset, int runDepthMultiplier, boolean addStoneDepth) implements SurfaceRules.ConditionSource {
+    static record WaterConditionSource(int offset, int surfaceDepthMultiplier, boolean addStoneDepth) implements SurfaceRules.ConditionSource {
         static final Codec<SurfaceRules.WaterConditionSource> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         Codec.INT.fieldOf("offset").forGetter(SurfaceRules.WaterConditionSource::offset),
-                        Codec.intRange(-20, 20).fieldOf("run_depth_multiplier").forGetter(SurfaceRules.WaterConditionSource::runDepthMultiplier),
+                        Codec.intRange(-20, 20).fieldOf("surface_depth_multiplier").forGetter(SurfaceRules.WaterConditionSource::surfaceDepthMultiplier),
                         Codec.BOOL.fieldOf("add_stone_depth").forGetter(SurfaceRules.WaterConditionSource::addStoneDepth)
                     )
                     .apply(param0, SurfaceRules.WaterConditionSource::new)
@@ -673,7 +712,7 @@ public class SurfaceRules {
                         || this.context.blockY + (WaterConditionSource.this.addStoneDepth ? this.context.stoneDepthAbove : 0)
                             >= this.context.waterHeight
                                 + WaterConditionSource.this.offset
-                                + this.context.runDepth * WaterConditionSource.this.runDepthMultiplier;
+                                + this.context.surfaceDepth * WaterConditionSource.this.surfaceDepthMultiplier;
                 }
             }
 
@@ -681,11 +720,11 @@ public class SurfaceRules {
         }
     }
 
-    static record YConditionSource(VerticalAnchor anchor, int runDepthMultiplier, boolean addStoneDepth) implements SurfaceRules.ConditionSource {
+    static record YConditionSource(VerticalAnchor anchor, int surfaceDepthMultiplier, boolean addStoneDepth) implements SurfaceRules.ConditionSource {
         static final Codec<SurfaceRules.YConditionSource> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         VerticalAnchor.CODEC.fieldOf("anchor").forGetter(SurfaceRules.YConditionSource::anchor),
-                        Codec.intRange(-20, 20).fieldOf("run_depth_multiplier").forGetter(SurfaceRules.YConditionSource::runDepthMultiplier),
+                        Codec.intRange(-20, 20).fieldOf("surface_depth_multiplier").forGetter(SurfaceRules.YConditionSource::surfaceDepthMultiplier),
                         Codec.BOOL.fieldOf("add_stone_depth").forGetter(SurfaceRules.YConditionSource::addStoneDepth)
                     )
                     .apply(param0, SurfaceRules.YConditionSource::new)
@@ -705,7 +744,8 @@ public class SurfaceRules {
                 @Override
                 protected boolean compute() {
                     return this.context.blockY + (YConditionSource.this.addStoneDepth ? this.context.stoneDepthAbove : 0)
-                        >= YConditionSource.this.anchor.resolveY(this.context.context) + this.context.runDepth * YConditionSource.this.runDepthMultiplier;
+                        >= YConditionSource.this.anchor.resolveY(this.context.context)
+                            + this.context.surfaceDepth * YConditionSource.this.surfaceDepthMultiplier;
                 }
             }
 

@@ -24,6 +24,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -54,8 +55,10 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
 public class WorldGenSettingsComponent implements Widget {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Component CUSTOM_WORLD_DESCRIPTION = new TranslatableComponent("generator.custom");
+    private static final Component AMPLIFIED_HELP_TEXT = new TranslatableComponent("generator.amplified.info");
     private static final Component MAP_FEATURES_INFO = new TranslatableComponent("selectWorld.mapFeatures.info");
     private static final Component SELECT_FILE_PROMPT = new TranslatableComponent("selectWorld.import_worldgen_settings.select_file");
+    private MultiLineLabel amplifiedWorldInfo = MultiLineLabel.EMPTY;
     private Font font;
     private int width;
     private EditBox seedEdit;
@@ -106,6 +109,11 @@ public class WorldGenSettingsComponent implements Widget {
         this.typeButton = param0.addRenderableWidget(
             CycleButton.builder(WorldPreset::description)
                 .withValues(WorldPreset.PRESETS.stream().filter(WorldPreset::isVisibleByDefault).collect(Collectors.toList()), WorldPreset.PRESETS)
+                .withCustomNarration(
+                    param0x -> param0x.getValue() == WorldPreset.AMPLIFIED
+                            ? CommonComponents.joinForNarration(param0x.createDefaultNarrationMessage(), AMPLIFIED_HELP_TEXT)
+                            : param0x.createDefaultNarrationMessage()
+                )
                 .create(var1, 100, 150, 20, new TranslatableComponent("selectWorld.mapType"), (param1x, param2x) -> {
                     this.preset = Optional.of(param2x);
                     this.settings = param2x.create(
@@ -236,6 +244,7 @@ public class WorldGenSettingsComponent implements Widget {
             )
         );
         this.importSettingsButton.visible = false;
+        this.amplifiedWorldInfo = MultiLineLabel.create(param2, AMPLIFIED_HELP_TEXT, this.typeButton.getWidth());
     }
 
     private void importSettings(RegistryAccess.RegistryHolder param0, WorldGenSettings param1) {
@@ -258,6 +267,10 @@ public class WorldGenSettingsComponent implements Widget {
         }
 
         this.seedEdit.render(param0, param1, param2, param3);
+        if (this.preset.equals(Optional.of(WorldPreset.AMPLIFIED))) {
+            this.amplifiedWorldInfo.renderLeftAligned(param0, this.typeButton.x + 2, this.typeButton.y + 22, 9, 10526880);
+        }
+
     }
 
     protected void updateSettings(WorldGenSettings param0) {

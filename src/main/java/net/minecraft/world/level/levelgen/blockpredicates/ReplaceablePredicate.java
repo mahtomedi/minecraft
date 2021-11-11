@@ -2,7 +2,7 @@ package net.minecraft.world.level.levelgen.blockpredicates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.state.BlockState;
 
 class ReplaceablePredicate extends StateTestingPredicate {
@@ -10,7 +10,7 @@ class ReplaceablePredicate extends StateTestingPredicate {
         param0 -> stateTestingCodec(param0).apply(param0, ReplaceablePredicate::new)
     );
 
-    public ReplaceablePredicate(BlockPos param0) {
+    public ReplaceablePredicate(Vec3i param0) {
         super(param0);
     }
 

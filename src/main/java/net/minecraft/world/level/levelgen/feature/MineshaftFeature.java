@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.MineShaftPieces;
@@ -28,18 +29,12 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        long param2,
-        WorldgenRandom param3,
-        ChunkPos param4,
-        ChunkPos param5,
-        MineshaftConfiguration param6,
-        LevelHeightAccessor param7
+        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, MineshaftConfiguration param4, LevelHeightAccessor param5
     ) {
-        param3.setLargeFeatureSeed(param2, param4.x, param4.z);
-        double var0 = (double)param6.probability;
-        return param3.nextDouble() < var0;
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
+        var0.setLargeFeatureSeed(param2, param3.x, param3.z);
+        double var1 = (double)param4.probability;
+        return var0.nextDouble() < var1;
     }
 
     private static void generatePieces(StructurePiecesBuilder param0x, MineshaftConfiguration param1, PieceGenerator.Context param2) {

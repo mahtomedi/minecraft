@@ -10,13 +10,13 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
 public class NoiseChunk {
-    final int cellWidth;
-    final int cellHeight;
-    final int cellCountY;
+    final NoiseSettings noiseSettings;
     final int cellCountXZ;
+    final int cellCountY;
     final int cellNoiseMinY;
     final int firstCellX;
     final int firstCellZ;
@@ -30,47 +30,68 @@ public class NoiseChunk {
     private final NoiseChunk.BlockStateFiller oreVeins;
     private final Blender blender;
 
-    public NoiseChunk(
+    public static NoiseChunk forChunk(
+        ChunkAccess param0,
+        NoiseSampler param1,
+        Supplier<NoiseChunk.NoiseFiller> param2,
+        NoiseGeneratorSettings param3,
+        Aquifer.FluidPicker param4,
+        Blender param5
+    ) {
+        ChunkPos var0 = param0.getPos();
+        NoiseSettings var1 = param3.noiseSettings();
+        int var2 = Math.max(var1.minY(), param0.getMinBuildHeight());
+        int var3 = Math.min(var1.minY() + var1.height(), param0.getMaxBuildHeight());
+        int var4 = Mth.intFloorDiv(var2, var1.getCellHeight());
+        int var5 = Mth.intFloorDiv(var3 - var2, var1.getCellHeight());
+        return new NoiseChunk(16 / var1.getCellWidth(), var5, var4, param1, var0.getMinBlockX(), var0.getMinBlockZ(), param2.get(), param3, param4, param5);
+    }
+
+    public static NoiseChunk forColumn(
+        int param0, int param1, int param2, int param3, NoiseSampler param4, NoiseGeneratorSettings param5, Aquifer.FluidPicker param6
+    ) {
+        return new NoiseChunk(1, param3, param2, param4, param0, param1, (param0x, param1x, param2x) -> 0.0, param5, param6, Blender.empty());
+    }
+
+    private NoiseChunk(
         int param0,
         int param1,
         int param2,
-        int param3,
+        NoiseSampler param3,
         int param4,
-        NoiseSampler param5,
-        int param6,
-        int param7,
-        NoiseChunk.NoiseFiller param8,
-        Supplier<NoiseGeneratorSettings> param9,
-        Aquifer.FluidPicker param10,
-        Blender param11
+        int param5,
+        NoiseChunk.NoiseFiller param6,
+        NoiseGeneratorSettings param7,
+        Aquifer.FluidPicker param8,
+        Blender param9
     ) {
-        this.cellWidth = param0;
-        this.cellHeight = param1;
-        this.cellCountY = param3;
-        this.cellCountXZ = param2;
-        this.cellNoiseMinY = param4;
-        this.firstCellX = Math.floorDiv(param6, param0);
-        this.firstCellZ = Math.floorDiv(param7, param0);
+        this.noiseSettings = param7.noiseSettings();
+        this.cellCountXZ = param0;
+        this.cellCountY = param1;
+        this.cellNoiseMinY = param2;
+        int var0 = this.noiseSettings.getCellWidth();
+        this.firstCellX = Math.floorDiv(param4, var0);
+        this.firstCellZ = Math.floorDiv(param5, var0);
         this.interpolators = Lists.newArrayList();
-        this.firstNoiseX = QuartPos.fromBlock(param6);
-        this.firstNoiseZ = QuartPos.fromBlock(param7);
-        int var0 = QuartPos.fromBlock(param2 * param0);
-        this.noiseData = new NoiseSampler.FlatNoiseData[var0 + 1][];
-        this.blender = param11;
+        this.firstNoiseX = QuartPos.fromBlock(param4);
+        this.firstNoiseZ = QuartPos.fromBlock(param5);
+        int var1 = QuartPos.fromBlock(param0 * var0);
+        this.noiseData = new NoiseSampler.FlatNoiseData[var1 + 1][];
+        this.blender = param9;
 
-        for(int var1 = 0; var1 <= var0; ++var1) {
-            int var2 = this.firstNoiseX + var1;
-            this.noiseData[var1] = new NoiseSampler.FlatNoiseData[var0 + 1];
+        for(int var2 = 0; var2 <= var1; ++var2) {
+            int var3 = this.firstNoiseX + var2;
+            this.noiseData[var2] = new NoiseSampler.FlatNoiseData[var1 + 1];
 
-            for(int var3 = 0; var3 <= var0; ++var3) {
-                int var4 = this.firstNoiseZ + var3;
-                this.noiseData[var1][var3] = param5.noiseData(var2, var4, param11);
+            for(int var4 = 0; var4 <= var1; ++var4) {
+                int var5 = this.firstNoiseZ + var4;
+                this.noiseData[var2][var4] = param3.noiseData(var3, var5, param9);
             }
         }
 
-        this.aquifer = param5.createAquifer(this, param6, param7, param4, param3, param10, param9.get().isAquifersEnabled());
-        this.baseNoise = param5.makeBaseNoiseFiller(this, param8, param9.get().isNoodleCavesEnabled());
-        this.oreVeins = param5.makeOreVeinifier(this, param9.get().isOreVeinsEnabled());
+        this.aquifer = param3.createAquifer(this, param4, param5, param2, param1, param8, param7.isAquifersEnabled());
+        this.baseNoise = param3.makeBaseNoiseFiller(this, param6, param7.isNoodleCavesEnabled());
+        this.oreVeins = param3.makeOreVeinifier(this, param7.isOreVeinsEnabled());
     }
 
     public NoiseSampler.FlatNoiseData noiseData(int param0, int param1) {
@@ -218,14 +239,17 @@ public class NoiseChunk {
         }
 
         private void fillSlice(double[][] param0, int param1) {
-            for(int var0 = 0; var0 < NoiseChunk.this.cellCountXZ + 1; ++var0) {
-                int var1 = NoiseChunk.this.firstCellZ + var0;
+            int var0 = NoiseChunk.this.noiseSettings.getCellWidth();
+            int var1 = NoiseChunk.this.noiseSettings.getCellHeight();
 
-                for(int var2 = 0; var2 < NoiseChunk.this.cellCountY + 1; ++var2) {
-                    int var3 = var2 + NoiseChunk.this.cellNoiseMinY;
-                    int var4 = var3 * NoiseChunk.this.cellHeight;
-                    double var5 = this.noiseFiller.calculateNoise(param1 * NoiseChunk.this.cellWidth, var4, var1 * NoiseChunk.this.cellWidth);
-                    param0[var0][var2] = var5;
+            for(int var2 = 0; var2 < NoiseChunk.this.cellCountXZ + 1; ++var2) {
+                int var3 = NoiseChunk.this.firstCellZ + var2;
+
+                for(int var4 = 0; var4 < NoiseChunk.this.cellCountY + 1; ++var4) {
+                    int var5 = var4 + NoiseChunk.this.cellNoiseMinY;
+                    int var6 = var5 * var1;
+                    double var7 = this.noiseFiller.calculateNoise(param1 * var0, var6, var3 * var0);
+                    param0[var2][var4] = var7;
                 }
             }
 

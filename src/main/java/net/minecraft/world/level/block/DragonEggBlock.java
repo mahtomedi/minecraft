@@ -10,6 +10,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -39,26 +40,28 @@ public class DragonEggBlock extends FallingBlock {
     }
 
     private void teleport(BlockState param0, Level param1, BlockPos param2) {
-        for(int var0 = 0; var0 < 1000; ++var0) {
-            BlockPos var1 = param2.offset(
+        WorldBorder var0 = param1.getWorldBorder();
+
+        for(int var1 = 0; var1 < 1000; ++var1) {
+            BlockPos var2 = param2.offset(
                 param1.random.nextInt(16) - param1.random.nextInt(16),
                 param1.random.nextInt(8) - param1.random.nextInt(8),
                 param1.random.nextInt(16) - param1.random.nextInt(16)
             );
-            if (param1.getBlockState(var1).isAir()) {
+            if (param1.getBlockState(var2).isAir() && var0.isWithinBounds(var2)) {
                 if (param1.isClientSide) {
-                    for(int var2 = 0; var2 < 128; ++var2) {
-                        double var3 = param1.random.nextDouble();
-                        float var4 = (param1.random.nextFloat() - 0.5F) * 0.2F;
+                    for(int var3 = 0; var3 < 128; ++var3) {
+                        double var4 = param1.random.nextDouble();
                         float var5 = (param1.random.nextFloat() - 0.5F) * 0.2F;
                         float var6 = (param1.random.nextFloat() - 0.5F) * 0.2F;
-                        double var7 = Mth.lerp(var3, (double)var1.getX(), (double)param2.getX()) + (param1.random.nextDouble() - 0.5) + 0.5;
-                        double var8 = Mth.lerp(var3, (double)var1.getY(), (double)param2.getY()) + param1.random.nextDouble() - 0.5;
-                        double var9 = Mth.lerp(var3, (double)var1.getZ(), (double)param2.getZ()) + (param1.random.nextDouble() - 0.5) + 0.5;
-                        param1.addParticle(ParticleTypes.PORTAL, var7, var8, var9, (double)var4, (double)var5, (double)var6);
+                        float var7 = (param1.random.nextFloat() - 0.5F) * 0.2F;
+                        double var8 = Mth.lerp(var4, (double)var2.getX(), (double)param2.getX()) + (param1.random.nextDouble() - 0.5) + 0.5;
+                        double var9 = Mth.lerp(var4, (double)var2.getY(), (double)param2.getY()) + param1.random.nextDouble() - 0.5;
+                        double var10 = Mth.lerp(var4, (double)var2.getZ(), (double)param2.getZ()) + (param1.random.nextDouble() - 0.5) + 0.5;
+                        param1.addParticle(ParticleTypes.PORTAL, var8, var9, var10, (double)var5, (double)var6, (double)var7);
                     }
                 } else {
-                    param1.setBlock(var1, param0, 2);
+                    param1.setBlock(var2, param0, 2);
                     param1.removeBlock(param2, false);
                 }
 

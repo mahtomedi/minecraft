@@ -870,7 +870,7 @@ public abstract class LivingEntity extends Entity {
 
     public static boolean areAllEffectsAmbient(Collection<MobEffectInstance> param0) {
         for(MobEffectInstance var0 : param0) {
-            if (!var0.isAmbient()) {
+            if (var0.isVisible() && !var0.isAmbient()) {
                 return false;
             }
         }

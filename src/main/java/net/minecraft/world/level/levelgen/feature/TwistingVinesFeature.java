@@ -6,51 +6,51 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TwistingVinesConfig;
 
-public class TwistingVinesFeature extends Feature<NoneFeatureConfiguration> {
-    public TwistingVinesFeature(Codec<NoneFeatureConfiguration> param0) {
+public class TwistingVinesFeature extends Feature<TwistingVinesConfig> {
+    public TwistingVinesFeature(Codec<TwistingVinesConfig> param0) {
         super(param0);
     }
 
     @Override
-    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
-        return place(param0.level(), param0.random(), param0.origin(), 8, 4, 8);
-    }
-
-    public static boolean place(LevelAccessor param0, Random param1, BlockPos param2, int param3, int param4, int param5) {
-        if (isInvalidPlacementLocation(param0, param2)) {
+    public boolean place(FeaturePlaceContext<TwistingVinesConfig> param0) {
+        WorldGenLevel var0 = param0.level();
+        BlockPos var1 = param0.origin();
+        if (isInvalidPlacementLocation(var0, var1)) {
             return false;
         } else {
-            placeTwistingVines(param0, param1, param2, param3, param4, param5);
+            Random var2 = param0.random();
+            TwistingVinesConfig var3 = param0.config();
+            int var4 = var3.spreadWidth();
+            int var5 = var3.spreadHeight();
+            int var6 = var3.maxHeight();
+            BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
+
+            for(int var8 = 0; var8 < var4 * var4; ++var8) {
+                var7.set(var1).move(Mth.nextInt(var2, -var4, var4), Mth.nextInt(var2, -var5, var5), Mth.nextInt(var2, -var4, var4));
+                if (findFirstAirBlockAboveGround(var0, var7) && !isInvalidPlacementLocation(var0, var7)) {
+                    int var9 = Mth.nextInt(var2, 1, var6);
+                    if (var2.nextInt(6) == 0) {
+                        var9 *= 2;
+                    }
+
+                    if (var2.nextInt(5) == 0) {
+                        var9 = 1;
+                    }
+
+                    int var10 = 17;
+                    int var11 = 25;
+                    placeWeepingVinesColumn(var0, var2, var7, var9, 17, 25);
+                }
+            }
+
             return true;
         }
-    }
-
-    private static void placeTwistingVines(LevelAccessor param0, Random param1, BlockPos param2, int param3, int param4, int param5) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-
-        for(int var1 = 0; var1 < param3 * param3; ++var1) {
-            var0.set(param2).move(Mth.nextInt(param1, -param3, param3), Mth.nextInt(param1, -param4, param4), Mth.nextInt(param1, -param3, param3));
-            if (findFirstAirBlockAboveGround(param0, var0) && !isInvalidPlacementLocation(param0, var0)) {
-                int var2 = Mth.nextInt(param1, 1, param5);
-                if (param1.nextInt(6) == 0) {
-                    var2 *= 2;
-                }
-
-                if (param1.nextInt(5) == 0) {
-                    var2 = 1;
-                }
-
-                int var3 = 17;
-                int var4 = 25;
-                placeWeepingVinesColumn(param0, param1, var0, var2, 17, 25);
-            }
-        }
-
     }
 
     private static boolean findFirstAirBlockAboveGround(LevelAccessor param0, BlockPos.MutableBlockPos param1) {

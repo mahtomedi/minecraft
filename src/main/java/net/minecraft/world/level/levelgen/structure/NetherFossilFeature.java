@@ -9,16 +9,16 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
-import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RangeConfiguration;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
-public class NetherFossilFeature extends NoiseAffectingStructureFeature<RangeDecoratorConfiguration> {
-    public NetherFossilFeature(Codec<RangeDecoratorConfiguration> param0) {
+public class NetherFossilFeature extends NoiseAffectingStructureFeature<RangeConfiguration> {
+    public NetherFossilFeature(Codec<RangeConfiguration> param0) {
         super(param0, NetherFossilFeature::generatePieces);
     }
 
-    private static void generatePieces(StructurePiecesBuilder param0x, RangeDecoratorConfiguration param1, PieceGenerator.Context param2) {
+    private static void generatePieces(StructurePiecesBuilder param0x, RangeConfiguration param1, PieceGenerator.Context param2) {
         int var0 = param2.chunkPos().getMinBlockX() + param2.random().nextInt(16);
         int var1 = param2.chunkPos().getMinBlockZ() + param2.random().nextInt(16);
         int var2 = param2.chunkGenerator().getSeaLevel();

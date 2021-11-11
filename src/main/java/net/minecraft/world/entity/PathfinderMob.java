@@ -8,6 +8,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class PathfinderMob extends Mob {
+    protected static final float DEFAULT_WALK_TARGET_VALUE = 0.0F;
+
     protected PathfinderMob(EntityType<? extends PathfinderMob> param0, Level param1) {
         super(param0, param1);
     }

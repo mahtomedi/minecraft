@@ -30,7 +30,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,7 +44,6 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseSampler;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.blending.GenerationUpgradeData;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
@@ -75,8 +74,6 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     protected final Map<BlockPos, BlockEntity> blockEntities = Maps.newHashMap();
     protected final LevelHeightAccessor levelHeightAccessor;
     protected final LevelChunkSection[] sections;
-    @Nullable
-    protected final GenerationUpgradeData generationUpgradeData;
 
     public ChunkAccess(
         ChunkPos param0,
@@ -85,7 +82,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         Registry<Biome> param3,
         long param4,
         @Nullable LevelChunkSection[] param5,
-        @Nullable GenerationUpgradeData param6
+        @Nullable BlendingData param6
     ) {
         this.chunkPos = param0;
         this.upgradeData = param1;
@@ -93,7 +90,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         this.sections = new LevelChunkSection[param2.getSectionsCount()];
         this.inhabitedTime = param4;
         this.postProcessing = new ShortList[param2.getSectionsCount()];
-        this.generationUpgradeData = param6;
+        this.blendingData = param6;
         if (param5 != null) {
             if (this.sections.length == param5.length) {
                 System.arraycopy(param5, 0, this.sections, 0, this.sections.length);
@@ -304,12 +301,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     public boolean isOldNoiseGeneration() {
-        return this.generationUpgradeData != null && this.generationUpgradeData.oldNoise();
-    }
-
-    @Nullable
-    public GenerationUpgradeData getGenerationUpgradeData() {
-        return this.generationUpgradeData;
+        return this.blendingData != null && this.blendingData.oldNoise();
     }
 
     @Nullable
@@ -360,21 +352,11 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         return this.levelHeightAccessor.getHeight();
     }
 
-    public NoiseChunk noiseChunk(
-        int param0,
-        int param1,
-        int param2,
-        int param3,
-        int param4,
-        int param5,
-        NoiseSampler param6,
-        Supplier<NoiseChunk.NoiseFiller> param7,
-        Supplier<NoiseGeneratorSettings> param8,
-        Aquifer.FluidPicker param9,
-        Blender param10
+    public NoiseChunk getOrCreateNoiseChunk(
+        NoiseSampler param0, Supplier<NoiseChunk.NoiseFiller> param1, NoiseGeneratorSettings param2, Aquifer.FluidPicker param3, Blender param4
     ) {
         if (this.noiseChunk == null) {
-            this.noiseChunk = new NoiseChunk(param4, param5, 16 / param4, param1, param0, param6, param2, param3, param7.get(), param8, param9, param10);
+            this.noiseChunk = NoiseChunk.forChunk(this, param0, param1, param2, param3, param4);
         }
 
         return this.noiseChunk;
@@ -405,7 +387,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
         }
     }
 
-    public void fillBiomesFromNoise(BiomeSource param0, Climate.Sampler param1) {
+    public void fillBiomesFromNoise(BiomeResolver param0, Climate.Sampler param1) {
         ChunkPos var0 = this.getPos();
         int var1 = QuartPos.fromBlock(var0.getMinBlockX());
         int var2 = QuartPos.fromBlock(var0.getMinBlockZ());

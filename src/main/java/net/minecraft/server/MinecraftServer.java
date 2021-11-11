@@ -60,7 +60,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.worldgen.Features;
+import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.gametest.framework.GameTestTicker;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -363,7 +363,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.readScoreboard(var13);
         this.commandStorage = new CommandStorage(var13);
         WorldBorder var14 = var12.getWorldBorder();
-        var14.applySettings(var0.getWorldBorder());
         if (!var0.isInitialized()) {
             try {
                 setInitialSpawn(var12, var0, var1.generateBonusChest(), var2);
@@ -385,7 +384,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             var0.setInitialized(true);
         }
 
-        this.getPlayerList().setLevel(var12);
+        this.getPlayerList().addWorldborderListener(var12);
         if (this.worldData.getCustomBossEvents() != null) {
             this.getCustomBossEvents().load(this.worldData.getCustomBossEvents());
         }
@@ -405,6 +404,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
         }
 
+        var14.applySettings(var0.getWorldBorder());
     }
 
     private static void setInitialSpawn(ServerLevel param0, ServerLevelData param1, boolean param2, boolean param3) {
@@ -446,7 +446,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
 
             if (param2) {
-                ConfiguredFeature<?, ?> var12 = Features.BONUS_CHEST;
+                ConfiguredFeature<?, ?> var12 = MiscOverworldFeatures.BONUS_CHEST;
                 var12.place(param0, var0, param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
             }
 

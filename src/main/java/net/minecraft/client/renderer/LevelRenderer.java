@@ -285,29 +285,29 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     int var13 = (var11 - var4 + 16) * 32 + var12 - var2 + 16;
                     double var14 = (double)this.rainSizeX[var13] * 0.5;
                     double var15 = (double)this.rainSizeZ[var13] * 0.5;
-                    int var16 = var1.getHeight(Heightmap.Types.MOTION_BLOCKING, var12, var11);
-                    var10.set(var12, var16, var11);
-                    Biome var17 = var1.getBiome(var10);
-                    if (var17.getPrecipitation() != Biome.Precipitation.NONE) {
+                    var10.set((double)var12, param3, (double)var11);
+                    Biome var16 = var1.getBiome(var10);
+                    if (var16.getPrecipitation() != Biome.Precipitation.NONE) {
+                        int var17 = var1.getHeight(Heightmap.Types.MOTION_BLOCKING, var12, var11);
                         int var18 = var3 - var7;
                         int var19 = var3 + var7;
-                        if (var18 < var16) {
-                            var18 = var16;
+                        if (var18 < var17) {
+                            var18 = var17;
                         }
 
-                        if (var19 < var16) {
-                            var19 = var16;
+                        if (var19 < var17) {
+                            var19 = var17;
                         }
 
-                        int var20 = var16;
-                        if (var16 < var3) {
+                        int var20 = var17;
+                        if (var17 < var3) {
                             var20 = var3;
                         }
 
                         if (var18 != var19) {
                             Random var21 = new Random((long)(var12 * var12 * 3121 + var12 * 45238971 ^ var11 * var11 * 418711 + var11 * 13761));
                             var10.set(var12, var18, var11);
-                            float var22 = var17.getTemperature(var10);
+                            float var22 = var16.getTemperature(var10);
                             if (var22 >= 0.15F) {
                                 if (var8 != 0) {
                                     if (var8 >= 0) {
@@ -3001,7 +3001,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             case 1027:
                 this.level
                     .playLocalSound(
-                        param2, SoundEvents.ZOMBIE_VILLAGER_CONVERTED, SoundSource.NEUTRAL, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
+                        param2, SoundEvents.ZOMBIE_VILLAGER_CONVERTED, SoundSource.HOSTILE, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
                     );
                 break;
             case 1029:
@@ -3037,13 +3037,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             case 1040:
                 this.level
                     .playLocalSound(
-                        param2, SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, SoundSource.NEUTRAL, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
+                        param2, SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, SoundSource.HOSTILE, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
                     );
                 break;
             case 1041:
                 this.level
                     .playLocalSound(
-                        param2, SoundEvents.HUSK_CONVERTED_TO_ZOMBIE, SoundSource.NEUTRAL, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
+                        param2, SoundEvents.HUSK_CONVERTED_TO_ZOMBIE, SoundSource.HOSTILE, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
                     );
                 break;
             case 1042:
@@ -3084,7 +3084,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             case 1048:
                 this.level
                     .playLocalSound(
-                        param2, SoundEvents.SKELETON_CONVERTED_TO_STRAY, SoundSource.NEUTRAL, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
+                        param2, SoundEvents.SKELETON_CONVERTED_TO_STRAY, SoundSource.HOSTILE, 2.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, false
                     );
                 break;
             case 1500:

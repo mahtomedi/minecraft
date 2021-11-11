@@ -9,10 +9,11 @@ public interface HeightProviderType<P extends HeightProvider> {
     HeightProviderType<BiasedToBottomHeight> BIASED_TO_BOTTOM = register("biased_to_bottom", BiasedToBottomHeight.CODEC);
     HeightProviderType<VeryBiasedToBottomHeight> VERY_BIASED_TO_BOTTOM = register("very_biased_to_bottom", VeryBiasedToBottomHeight.CODEC);
     HeightProviderType<TrapezoidHeight> TRAPEZOID = register("trapezoid", TrapezoidHeight.CODEC);
+    HeightProviderType<WeightedListHeight> WEIGHTED_LIST = register("weighted_list", WeightedListHeight.CODEC);
 
     Codec<P> codec();
 
-    static <P extends HeightProvider> HeightProviderType<P> register(String param0, Codec<P> param1) {
+    private static <P extends HeightProvider> HeightProviderType<P> register(String param0, Codec<P> param1) {
         return Registry.register(Registry.HEIGHT_PROVIDER_TYPES, param0, () -> param1);
     }
 }

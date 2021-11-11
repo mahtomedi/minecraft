@@ -19,6 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryResourceAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +43,7 @@ public abstract class RegistryAccess {
         put(var0, Registry.BIOME_REGISTRY, Biome.DIRECT_CODEC, Biome.NETWORK_CODEC);
         put(var0, Registry.CONFIGURED_CARVER_REGISTRY, ConfiguredWorldCarver.DIRECT_CODEC);
         put(var0, Registry.CONFIGURED_FEATURE_REGISTRY, ConfiguredFeature.DIRECT_CODEC);
+        put(var0, Registry.PLACED_FEATURE_REGISTRY, PlacedFeature.DIRECT_CODEC);
         put(var0, Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, ConfiguredStructureFeature.DIRECT_CODEC);
         put(var0, Registry.PROCESSOR_LIST_REGISTRY, StructureProcessorType.DIRECT_CODEC);
         put(var0, Registry.TEMPLATE_POOL_REGISTRY, StructureTemplatePool.DIRECT_CODEC);
@@ -85,9 +88,13 @@ public abstract class RegistryAccess {
         param0.put(param1, new RegistryAccess.RegistryData<>(param1, param2, param3));
     }
 
+    public static Iterable<RegistryAccess.RegistryData<?>> knownRegistries() {
+        return REGISTRIES.values();
+    }
+
     public static RegistryAccess.RegistryHolder builtin() {
         RegistryAccess.RegistryHolder var0 = new RegistryAccess.RegistryHolder();
-        RegistryReadOps.ResourceAccess.MemoryMap var1 = new RegistryReadOps.ResourceAccess.MemoryMap();
+        RegistryResourceAccess.InMemoryStorage var1 = new RegistryResourceAccess.InMemoryStorage();
 
         for(RegistryAccess.RegistryData<?> var2 : REGISTRIES.values()) {
             addBuiltinElements(var0, var1, var2);
@@ -98,7 +105,7 @@ public abstract class RegistryAccess {
     }
 
     private static <E> void addBuiltinElements(
-        RegistryAccess.RegistryHolder param0, RegistryReadOps.ResourceAccess.MemoryMap param1, RegistryAccess.RegistryData<E> param2
+        RegistryAccess.RegistryHolder param0, RegistryResourceAccess.InMemoryStorage param1, RegistryAccess.RegistryData<E> param2
     ) {
         ResourceKey<? extends Registry<E>> var0 = param2.key();
         boolean var1 = !var0.equals(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY) && !var0.equals(Registry.DIMENSION_TYPE_REGISTRY);
@@ -149,31 +156,7 @@ public abstract class RegistryAccess {
         });
     }
 
-    static final class RegistryData<E> {
-        private final ResourceKey<? extends Registry<E>> key;
-        private final Codec<E> codec;
-        @Nullable
-        private final Codec<E> networkCodec;
-
-        public RegistryData(ResourceKey<? extends Registry<E>> param0, Codec<E> param1, @Nullable Codec<E> param2) {
-            this.key = param0;
-            this.codec = param1;
-            this.networkCodec = param2;
-        }
-
-        public ResourceKey<? extends Registry<E>> key() {
-            return this.key;
-        }
-
-        public Codec<E> codec() {
-            return this.codec;
-        }
-
-        @Nullable
-        public Codec<E> networkCodec() {
-            return this.networkCodec;
-        }
-
+    public static record RegistryData<E>(ResourceKey<? extends Registry<E>> key, Codec<E> codec, @Nullable Codec<E> networkCodec) {
         public boolean sendToClient() {
             return this.networkCodec != null;
         }

@@ -16,7 +16,9 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
 
 public class ConfiguredWorldCarver<WC extends CarverConfiguration> {
-    public static final Codec<ConfiguredWorldCarver<?>> DIRECT_CODEC = Registry.CARVER.dispatch(param0 -> param0.worldCarver, WorldCarver::configuredCodec);
+    public static final Codec<ConfiguredWorldCarver<?>> DIRECT_CODEC = Registry.CARVER
+        .byNameCodec()
+        .dispatch(param0 -> param0.worldCarver, WorldCarver::configuredCodec);
     public static final Codec<Supplier<ConfiguredWorldCarver<?>>> CODEC = RegistryFileCodec.create(Registry.CONFIGURED_CARVER_REGISTRY, DIRECT_CODEC);
     public static final Codec<List<Supplier<ConfiguredWorldCarver<?>>>> LIST_CODEC = RegistryFileCodec.homogeneousList(
         Registry.CONFIGURED_CARVER_REGISTRY, DIRECT_CODEC

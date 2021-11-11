@@ -122,11 +122,8 @@ public class ChunkStatus {
     );
     public static final ChunkStatus SURFACE = registerSimple(
         "surface", NOISE, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
-            if (!param4.isUpgrading()) {
-                WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
-                param2.buildSurface(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
-            }
-    
+            WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
+            param2.buildSurface(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
         }
     );
     public static final ChunkStatus CARVERS = registerSimple(
@@ -136,18 +133,10 @@ public class ChunkStatus {
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4) -> {
-            if (!param4.isUpgrading()) {
-                WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
-                param2.applyCarvers(
-                    var0,
-                    param1.getSeed(),
-                    param1.getBiomeManager(),
-                    param1.structureFeatureManager().forWorldGenRegion(var0),
-                    param4,
-                    GenerationStep.Carving.AIR
-                );
-            }
-    
+            WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
+            param2.applyCarvers(
+                var0, param1.getSeed(), param1.getBiomeManager(), param1.structureFeatureManager().forWorldGenRegion(var0), param4, GenerationStep.Carving.AIR
+            );
         }
     );
     public static final ChunkStatus LIQUID_CARVERS = registerSimple(
@@ -157,18 +146,15 @@ public class ChunkStatus {
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4) -> {
-            if (!param4.isUpgrading()) {
-                WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
-                param2.applyCarvers(
-                    var0,
-                    param1.getSeed(),
-                    param1.getBiomeManager(),
-                    param1.structureFeatureManager().forWorldGenRegion(var0),
-                    param4,
-                    GenerationStep.Carving.LIQUID
-                );
-            }
-    
+            WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
+            param2.applyCarvers(
+                var0,
+                param1.getSeed(),
+                param1.getBiomeManager(),
+                param1.structureFeatureManager().forWorldGenRegion(var0),
+                param4,
+                GenerationStep.Carving.LIQUID
+            );
         }
     );
     public static final ChunkStatus FEATURES = register(

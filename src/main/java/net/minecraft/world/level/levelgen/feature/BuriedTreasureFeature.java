@@ -7,6 +7,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BuriedTreasurePieces;
@@ -21,17 +22,11 @@ public class BuriedTreasureFeature extends StructureFeature<ProbabilityFeatureCo
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        long param2,
-        WorldgenRandom param3,
-        ChunkPos param4,
-        ChunkPos param5,
-        ProbabilityFeatureConfiguration param6,
-        LevelHeightAccessor param7
+        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, ProbabilityFeatureConfiguration param4, LevelHeightAccessor param5
     ) {
-        param3.setLargeFeatureWithSalt(param2, param4.x, param4.z, 10387320);
-        return param3.nextFloat() < param6.probability;
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
+        var0.setLargeFeatureWithSalt(param2, param3.x, param3.z, 10387320);
+        return var0.nextFloat() < param4.probability;
     }
 
     private static void generatePieces(StructurePiecesBuilder param0x, ProbabilityFeatureConfiguration param1, PieceGenerator.Context param2) {

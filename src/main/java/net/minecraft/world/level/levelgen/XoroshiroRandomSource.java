@@ -14,7 +14,7 @@ public class XoroshiroRandomSource implements RandomSource {
     private final MarsagliaPolarGaussian gaussianSource = new MarsagliaPolarGaussian(this);
 
     public XoroshiroRandomSource(long param0) {
-        this.setSeed(param0);
+        this.randomNumberGenerator = new Xoroshiro128PlusPlus(RandomSupport.upgradeSeedTo128bit(param0));
     }
 
     public XoroshiroRandomSource(long param0, long param1) {
@@ -34,6 +34,7 @@ public class XoroshiroRandomSource implements RandomSource {
     @Override
     public void setSeed(long param0) {
         this.randomNumberGenerator = new Xoroshiro128PlusPlus(RandomSupport.upgradeSeedTo128bit(param0));
+        this.gaussianSource.reset();
     }
 
     @Override

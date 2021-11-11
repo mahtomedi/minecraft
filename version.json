@@ -1,15 +1,15 @@
 {
-    "id": "21w44a",
-    "name": "21w44a",
+    "id": "1.18-pre1",
+    "name": "1.18 Pre-release 1",
     "release_target": "1.18",
-    "world_version": 2845,
+    "world_version": 2847,
     "series_id": "main",
-    "protocol_version": 1073741872,
+    "protocol_version": 1073741873,
     "pack_version": {
         "resource": 8,
         "data": 8
     },
-    "build_time": "2021-11-03T16:12:32+00:00",
+    "build_time": "2021-11-11T16:11:59+00:00",
     "java_component": "java-runtime-alpha",
     "java_version": 16,
     "stable": false

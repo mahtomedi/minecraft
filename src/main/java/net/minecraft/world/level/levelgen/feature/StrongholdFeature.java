@@ -6,7 +6,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.NoiseAffectingStructureFeature;
 import net.minecraft.world.level.levelgen.structure.StrongholdPieces;
@@ -20,16 +19,9 @@ public class StrongholdFeature extends NoiseAffectingStructureFeature<NoneFeatur
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        long param2,
-        WorldgenRandom param3,
-        ChunkPos param4,
-        ChunkPos param5,
-        NoneFeatureConfiguration param6,
-        LevelHeightAccessor param7
+        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, NoneFeatureConfiguration param4, LevelHeightAccessor param5
     ) {
-        return param0.hasStronghold(param4);
+        return param0.hasStronghold(param3);
     }
 
     private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {

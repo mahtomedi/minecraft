@@ -12,7 +12,6 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.EndCityPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -32,16 +31,9 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     }
 
     protected boolean isFeatureChunk(
-        ChunkGenerator param0,
-        BiomeSource param1,
-        long param2,
-        WorldgenRandom param3,
-        ChunkPos param4,
-        ChunkPos param5,
-        NoneFeatureConfiguration param6,
-        LevelHeightAccessor param7
+        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, NoneFeatureConfiguration param4, LevelHeightAccessor param5
     ) {
-        return getYPositionForFeature(param4, param0, param7) >= 60;
+        return getYPositionForFeature(param3, param0, param5) >= 60;
     }
 
     private static int getYPositionForFeature(ChunkPos param0, ChunkGenerator param1, LevelHeightAccessor param2) {

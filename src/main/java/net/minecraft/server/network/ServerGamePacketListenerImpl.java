@@ -1267,6 +1267,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.resetLastActionTime();
         this.player.setShiftKeyDown(param0.isUsingSecondaryAction());
         if (var1 != null) {
+            if (!var0.getWorldBorder().isWithinBounds(var1.blockPosition())) {
+                return;
+            }
+
             double var2 = 36.0;
             if (this.player.distanceToSqr(var1) < 36.0) {
                 param0.dispatch(
