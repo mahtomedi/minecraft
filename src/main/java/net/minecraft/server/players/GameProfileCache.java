@@ -188,6 +188,10 @@ public class GameProfileCache {
         this.executor = param0;
     }
 
+    public void clearExecutor() {
+        this.executor = null;
+    }
+
     private static DateFormat createDateFormat() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
     }

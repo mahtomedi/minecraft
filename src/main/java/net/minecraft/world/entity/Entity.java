@@ -157,7 +157,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public boolean horizontalCollision;
     public boolean verticalCollision;
     public boolean minorHorizontalCollision;
-    private static final float SPRINT_STOPPING_COLLISION_RATIO = 0.0064F;
     public boolean hurtMarked;
     protected Vec3 stuckSpeedMultiplier = Vec3.ZERO;
     @Nullable
@@ -411,7 +410,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void baseTick() {
         this.level.getProfiler().push("entityBaseTick");
-        this.feetBlockState = null;
         if (this.isPassenger() && this.getVehicle().isRemoved()) {
             this.stopRiding();
         }
@@ -582,7 +580,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.level.getProfiler().push("rest");
             this.horizontalCollision = !Mth.equal(param1.x, var0.x) || !Mth.equal(param1.z, var0.z);
             this.verticalCollision = param1.y != var0.y;
-            this.minorHorizontalCollision = param1.subtract(var0).lengthSqr() < 0.0064F;
+            if (this.horizontalCollision) {
+                this.minorHorizontalCollision = this.isHorizontalCollisionMinor(var0);
+            } else {
+                this.minorHorizontalCollision = false;
+            }
+
             this.onGround = this.verticalCollision && param1.y < 0.0;
             BlockPos var1 = this.getOnPos();
             BlockState var2 = this.level.getBlockState(var1);
@@ -671,6 +674,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.level.getProfiler().pop();
             }
         }
+    }
+
+    protected boolean isHorizontalCollisionMinor(Vec3 param0) {
+        return false;
     }
 
     protected void tryCheckInsideBlocks() {
@@ -3029,6 +3036,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             int var2 = Mth.floor(param2);
             if (var0 != this.blockPosition.getX() || var1 != this.blockPosition.getY() || var2 != this.blockPosition.getZ()) {
                 this.blockPosition = new BlockPos(var0, var1, var2);
+                this.feetBlockState = null;
                 if (SectionPos.blockToSectionCoord(var0) != this.chunkPosition.x || SectionPos.blockToSectionCoord(var2) != this.chunkPosition.z) {
                     this.chunkPosition = new ChunkPos(this.blockPosition);
                 }

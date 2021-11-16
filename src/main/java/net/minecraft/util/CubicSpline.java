@@ -66,7 +66,7 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
             Codec.either(Codec.FLOAT, var2)
                 .xmap(
                     param0x -> param0x.map(CubicSpline.Constant::new, param0xx -> param0xx),
-                    param0x -> param0x instanceof CubicSpline.Constant var1x ? Either.left(var1x.value()) : Either.right((CubicSpline.Multipoint<C>)param0x)
+                    param0x -> param0x instanceof CubicSpline.Constant var0x ? Either.left(var0x.value()) : Either.right((CubicSpline.Multipoint<C>)param0x)
                 )
         );
         return var0.getValue();

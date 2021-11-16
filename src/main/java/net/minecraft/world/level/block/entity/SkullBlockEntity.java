@@ -34,16 +34,16 @@ public class SkullBlockEntity extends BlockEntity {
         super(BlockEntityType.SKULL, param0, param1);
     }
 
-    public static void setProfileCache(GameProfileCache param0) {
+    public static void setup(GameProfileCache param0, MinecraftSessionService param1, Executor param2) {
         profileCache = param0;
+        sessionService = param1;
+        mainThreadExecutor = param2;
     }
 
-    public static void setSessionService(MinecraftSessionService param0) {
-        sessionService = param0;
-    }
-
-    public static void setMainThreadExecutor(Executor param0) {
-        mainThreadExecutor = param0;
+    public static void clear() {
+        profileCache = null;
+        sessionService = null;
+        mainThreadExecutor = null;
     }
 
     @Override

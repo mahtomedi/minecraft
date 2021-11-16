@@ -105,10 +105,10 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
                 this.vertex(var1, var2, param1, var25, var27, var33, var35, -0.5F, 0, 0, -1, var32);
                 this.vertex(var1, var2, param1, var25, var26, var33, var36, -0.5F, 0, 0, -1, var32);
                 this.vertex(var1, var2, param1, var24, var26, var34, var36, -0.5F, 0, 0, -1, var32);
-                this.vertex(var1, var2, param1, var24, var26, var6, var8, 0.5F, 0, 0, 1, var32);
-                this.vertex(var1, var2, param1, var25, var26, var7, var8, 0.5F, 0, 0, 1, var32);
-                this.vertex(var1, var2, param1, var25, var27, var7, var9, 0.5F, 0, 0, 1, var32);
-                this.vertex(var1, var2, param1, var24, var27, var6, var9, 0.5F, 0, 0, 1, var32);
+                this.vertex(var1, var2, param1, var24, var26, var7, var8, 0.5F, 0, 0, 1, var32);
+                this.vertex(var1, var2, param1, var25, var26, var6, var8, 0.5F, 0, 0, 1, var32);
+                this.vertex(var1, var2, param1, var25, var27, var6, var9, 0.5F, 0, 0, 1, var32);
+                this.vertex(var1, var2, param1, var24, var27, var7, var9, 0.5F, 0, 0, 1, var32);
                 this.vertex(var1, var2, param1, var24, var26, var10, var12, -0.5F, 0, 1, 0, var32);
                 this.vertex(var1, var2, param1, var25, var26, var11, var12, -0.5F, 0, 1, 0, var32);
                 this.vertex(var1, var2, param1, var25, var26, var11, var13, 0.5F, 0, 1, 0, var32);

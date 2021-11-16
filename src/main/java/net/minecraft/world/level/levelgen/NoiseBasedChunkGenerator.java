@@ -107,17 +107,19 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> createBiomes(Executor param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
+    public CompletableFuture<ChunkAccess> createBiomes(
+        Registry<Biome> param0, Executor param1, Blender param2, StructureFeatureManager param3, ChunkAccess param4
+    ) {
         return CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("init_biomes", () -> {
-            this.doCreateBiomes(param1, param2, param3);
-            return param3;
+            this.doCreateBiomes(param0, param2, param3, param4);
+            return param4;
         }), Util.backgroundExecutor());
     }
 
-    private void doCreateBiomes(Blender param0, StructureFeatureManager param1, ChunkAccess param2) {
-        NoiseChunk var0 = param2.getOrCreateNoiseChunk(this.sampler, () -> new Beardifier(param1, param2), this.settings.get(), this.globalFluidPicker, param0);
-        BiomeResolver var1 = param0.getBiomeResolver(this.runtimeBiomeSource);
-        param2.fillBiomesFromNoise(var1, (param1x, param2x, param3) -> this.sampler.target(param1x, param2x, param3, var0.noiseData(param1x, param3)));
+    private void doCreateBiomes(Registry<Biome> param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
+        NoiseChunk var0 = param3.getOrCreateNoiseChunk(this.sampler, () -> new Beardifier(param2, param3), this.settings.get(), this.globalFluidPicker, param1);
+        BiomeResolver var1 = BelowZeroRetrogen.getBiomeResolver(param1.getBiomeResolver(this.runtimeBiomeSource), param0, param3);
+        param3.fillBiomesFromNoise(var1, (param1x, param2x, param3x) -> this.sampler.target(param1x, param2x, param3x, var0.noiseData(param1x, param3x)));
     }
 
     @Override
@@ -443,7 +445,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     public void spawnOriginalMobs(WorldGenRegion param0) {
         if (!this.settings.get().disableMobGeneration()) {
             ChunkPos var0 = param0.getCenter();
-            Biome var1 = param0.getBiome(var0.getWorldPosition());
+            Biome var1 = param0.getBiome(var0.getWorldPosition().atY(param0.getMaxBuildHeight() - 1));
             WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
             var2.setDecorationSeed(param0.getSeed(), var0.getMinBlockX(), var0.getMinBlockZ());
             NaturalSpawner.spawnMobsForChunkGeneration(param0, var1, var0, var2);

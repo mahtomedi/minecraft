@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -262,6 +263,7 @@ public class ChunkHeightAndBiomeFix extends DataFix {
             param0 = addPaddingEntries(param0, "PostProcessing");
             param0 = addPaddingEntries(param0, "ToBeTicked");
             param0 = updateCarvingMasks(param0, 24, 4);
+            param0 = param0.update("UpgradeData", ChunkHeightAndBiomeFix::shiftUpgradeData);
             if (!param3) {
                 return param0;
             } else {
@@ -312,6 +314,23 @@ public class ChunkHeightAndBiomeFix extends DataFix {
                 return param0;
             }
         }
+    }
+
+    private static <T> Dynamic<T> shiftUpgradeData(Dynamic<T> param0x) {
+        return param0x.update("Indices", param0xx -> {
+            Map<Dynamic<?>, Dynamic<?>> var0x = new HashMap<>();
+            param0xx.getMapValues().result().ifPresent(param1x -> param1x.forEach((param1xx, param2x) -> {
+                    try {
+                        param1xx.asString().result().map(Integer::parseInt).ifPresent(param3x -> {
+                            int var0xx = param3x - -4;
+                            var0x.put(param1xx.createString(Integer.toString(var0xx)), param2x);
+                        });
+                    } catch (NumberFormatException var4) {
+                    }
+
+                }));
+            return param0xx.createMap(var0x);
+        });
     }
 
     private static Dynamic<?> updateCarvingMasks(Dynamic<?> param0, int param1, int param2) {

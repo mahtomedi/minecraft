@@ -478,8 +478,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     }
 
                     this.save(param3);
-                    if (this.entitiesInLevel.remove(param0) && param3 instanceof LevelChunk var2) {
-                        this.level.unload(var2);
+                    if (this.entitiesInLevel.remove(param0) && param3 instanceof LevelChunk var1x) {
+                        this.level.unload(var1x);
                     }
 
                     this.lightEngine.updateChunkStatus(param3.getPos());

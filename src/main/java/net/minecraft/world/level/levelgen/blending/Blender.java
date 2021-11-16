@@ -4,18 +4,24 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.QuartPos;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.TerrainInfo;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -244,6 +250,58 @@ public class Blender {
                 return var7.getNoiseBiome(Math.min(var3.getX() & 3, 3), var3.getY(), Math.min(var3.getZ() & 3, 3));
             }
         }
+    }
+
+    public static void generateBorderTicks(WorldGenRegion param0, ChunkAccess param1) {
+        ChunkPos var0 = param1.getPos();
+        boolean var1 = param1.isOldNoiseGeneration();
+        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
+        BlockPos var3 = new BlockPos(var0.getMinBlockX(), 0, var0.getMinBlockZ());
+        int var4 = BlendingData.AREA_WITH_OLD_GENERATION.getMinBuildHeight();
+        int var5 = BlendingData.AREA_WITH_OLD_GENERATION.getMaxBuildHeight() - 1;
+        if (var1) {
+            for(int var6 = 0; var6 < 16; ++var6) {
+                for(int var7 = 0; var7 < 16; ++var7) {
+                    generateBorderTick(param1, var2.setWithOffset(var3, var6, var4 - 1, var7));
+                    generateBorderTick(param1, var2.setWithOffset(var3, var6, var4, var7));
+                    generateBorderTick(param1, var2.setWithOffset(var3, var6, var5, var7));
+                    generateBorderTick(param1, var2.setWithOffset(var3, var6, var5 + 1, var7));
+                }
+            }
+        }
+
+        for(Direction var8 : Direction.Plane.HORIZONTAL) {
+            if (param0.getChunk(var0.x + var8.getStepX(), var0.z + var8.getStepZ()).isOldNoiseGeneration() != var1) {
+                int var9 = var8 == Direction.EAST ? 15 : 0;
+                int var10 = var8 == Direction.WEST ? 0 : 15;
+                int var11 = var8 == Direction.SOUTH ? 15 : 0;
+                int var12 = var8 == Direction.NORTH ? 0 : 15;
+
+                for(int var13 = var9; var13 <= var10; ++var13) {
+                    for(int var14 = var11; var14 <= var12; ++var14) {
+                        int var15 = Math.min(var5, param1.getHeight(Heightmap.Types.MOTION_BLOCKING, var13, var14)) + 1;
+
+                        for(int var16 = var4; var16 < var15; ++var16) {
+                            generateBorderTick(param1, var2.setWithOffset(var3, var13, var16, var14));
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private static void generateBorderTick(ChunkAccess param0, BlockPos param1) {
+        BlockState var0 = param0.getBlockState(param1);
+        if (var0.is(BlockTags.LEAVES)) {
+            param0.getBlockTicks().schedule(ScheduledTick.worldgen(var0.getBlock(), param1, 0L));
+        }
+
+        FluidState var1 = param0.getFluidState(param1);
+        if (!var1.isEmpty()) {
+            param0.getFluidTicks().schedule(ScheduledTick.worldgen(var1.getType(), param1, 0L));
+        }
+
     }
 
     interface CellValueGetter {

@@ -314,7 +314,13 @@ public class BlockPos extends Vec3i {
     }
 
     public static Optional<BlockPos> findClosestMatch(BlockPos param0, int param1, int param2, Predicate<BlockPos> param3) {
-        return withinManhattanStream(param0, param1, param2, param1).filter(param3).findFirst();
+        for(BlockPos var0 : withinManhattan(param0, param1, param2, param1)) {
+            if (param3.test(var0)) {
+                return Optional.of(var0);
+            }
+        }
+
+        return Optional.empty();
     }
 
     public static Stream<BlockPos> withinManhattanStream(BlockPos param0, int param1, int param2, int param3) {

@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleGroup;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -19,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class Particle {
     private static final AABB INITIAL_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    private static final double MAXIMUM_COLLISION_VELOCITY_SQUARED = Mth.square(100.0);
     protected final ClientLevel level;
     protected double xo;
     protected double yo;
@@ -187,7 +189,9 @@ public abstract class Particle {
             double var0 = param0;
             double var1 = param1;
             double var2 = param2;
-            if (this.hasPhysics && (param0 != 0.0 || param1 != 0.0 || param2 != 0.0)) {
+            if (this.hasPhysics
+                && (param0 != 0.0 || param1 != 0.0 || param2 != 0.0)
+                && param0 * param0 + param1 * param1 + param2 * param2 < MAXIMUM_COLLISION_VELOCITY_SQUARED) {
                 Vec3 var3 = Entity.collideBoundingBoxHeuristically(
                     null, new Vec3(param0, param1, param2), this.getBoundingBox(), this.level, CollisionContext.empty(), List.of()
                 );

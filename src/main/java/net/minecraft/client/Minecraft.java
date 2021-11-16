@@ -1912,9 +1912,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 GameProfileRepository var13 = var11.createProfileRepository();
                 GameProfileCache var14 = new GameProfileCache(var13, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
                 var14.setExecutor(this);
-                SkullBlockEntity.setProfileCache(var14);
-                SkullBlockEntity.setSessionService(var12);
-                SkullBlockEntity.setMainThreadExecutor(this);
+                SkullBlockEntity.setup(var14, var12, this);
                 GameProfileCache.setUsesAuthentication(false);
                 this.singleplayerServer = MinecraftServer.spin(
                     param7 -> new IntegratedServer(
@@ -2068,9 +2066,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             GameProfileRepository var3 = var1.createProfileRepository();
             GameProfileCache var4 = new GameProfileCache(var3, new File(this.gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
             var4.setExecutor(this);
-            SkullBlockEntity.setProfileCache(var4);
-            SkullBlockEntity.setSessionService(var2);
-            SkullBlockEntity.setMainThreadExecutor(this);
+            SkullBlockEntity.setup(var4, var2, this);
             GameProfileCache.setUsesAuthentication(false);
         }
 
@@ -2115,6 +2111,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.level = null;
         this.updateLevelInEngines(null);
         this.player = null;
+        SkullBlockEntity.clear();
     }
 
     private void updateScreenAndTick(Screen param0) {

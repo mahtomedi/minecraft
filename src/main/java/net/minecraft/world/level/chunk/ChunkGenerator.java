@@ -155,10 +155,12 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
 
     public abstract ChunkGenerator withSeed(long var1);
 
-    public CompletableFuture<ChunkAccess> createBiomes(Executor param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
+    public CompletableFuture<ChunkAccess> createBiomes(
+        Registry<Biome> param0, Executor param1, Blender param2, StructureFeatureManager param3, ChunkAccess param4
+    ) {
         return CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("init_biomes", () -> {
-            param3.fillBiomesFromNoise(this.runtimeBiomeSource::getNoiseBiome, this.climateSampler());
-            return param3;
+            param4.fillBiomesFromNoise(this.runtimeBiomeSource::getNoiseBiome, this.climateSampler());
+            return param4;
         }), Util.backgroundExecutor());
     }
 
@@ -316,52 +318,58 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         SectionPos var1 = SectionPos.bottomOf(param2);
         StructureFeatureConfiguration var2 = this.settings.getConfig(StructureFeature.STRONGHOLD);
         if (var2 != null) {
-            StructureStart<?> var3 = StructureFeatures.STRONGHOLD
-                .generate(
-                    param0,
-                    this,
-                    this.biomeSource,
-                    param3,
-                    param4,
-                    var0,
-                    fetchReferences(param1, param2, var1, StructureFeature.STRONGHOLD),
-                    var2,
-                    param2,
-                    ChunkGenerator::validStrongholdBiome
-                );
-            param1.setStartForFeature(var1, StructureFeature.STRONGHOLD, var3, param2);
+            StructureStart<?> var3 = param1.getStartForFeature(var1, StructureFeature.STRONGHOLD, param2);
+            if (var3 == null || !var3.isValid()) {
+                StructureStart<?> var4 = StructureFeatures.STRONGHOLD
+                    .generate(
+                        param0,
+                        this,
+                        this.biomeSource,
+                        param3,
+                        param4,
+                        var0,
+                        fetchReferences(param1, param2, var1, StructureFeature.STRONGHOLD),
+                        var2,
+                        param2,
+                        ChunkGenerator::validStrongholdBiome
+                    );
+                param1.setStartForFeature(var1, StructureFeature.STRONGHOLD, var4, param2);
+            }
         }
 
-        Registry<Biome> var4 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<Biome> var5 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
 
-        label39:
-        for(StructureFeature<?> var5 : Registry.STRUCTURE_FEATURE) {
-            if (var5 != StructureFeature.STRONGHOLD) {
-                StructureFeatureConfiguration var6 = this.settings.getConfig(var5);
-                if (var6 != null) {
-                    int var7 = fetchReferences(param1, param2, var1, var5);
+        label48:
+        for(StructureFeature<?> var6 : Registry.STRUCTURE_FEATURE) {
+            if (var6 != StructureFeature.STRONGHOLD) {
+                StructureFeatureConfiguration var7 = this.settings.getConfig(var6);
+                if (var7 != null) {
+                    StructureStart<?> var8 = param1.getStartForFeature(var1, var6, param2);
+                    if (var8 == null || !var8.isValid()) {
+                        int var9 = fetchReferences(param1, param2, var1, var6);
 
-                    for(Entry<ConfiguredStructureFeature<?, ?>, Collection<ResourceKey<Biome>>> var8 : this.settings.structures(var5).asMap().entrySet()) {
-                        StructureStart<?> var9 = var8.getKey()
-                            .generate(
-                                param0,
-                                this,
-                                this.biomeSource,
-                                param3,
-                                param4,
-                                var0,
-                                var7,
-                                var6,
-                                param2,
-                                param2x -> this.validBiome(var4, var8.getValue()::contains, param2x)
-                            );
-                        if (var9.isValid()) {
-                            param1.setStartForFeature(var1, var5, var9, param2);
-                            continue label39;
+                        for(Entry<ConfiguredStructureFeature<?, ?>, Collection<ResourceKey<Biome>>> var10 : this.settings.structures(var6).asMap().entrySet()) {
+                            StructureStart<?> var11 = var10.getKey()
+                                .generate(
+                                    param0,
+                                    this,
+                                    this.biomeSource,
+                                    param3,
+                                    param4,
+                                    var0,
+                                    var9,
+                                    var7,
+                                    param2,
+                                    param2x -> this.validBiome(var5, var10.getValue()::contains, param2x)
+                                );
+                            if (var11.isValid()) {
+                                param1.setStartForFeature(var1, var6, var11, param2);
+                                continue label48;
+                            }
                         }
-                    }
 
-                    param1.setStartForFeature(var1, var5, StructureStart.INVALID_START, param2);
+                        param1.setStartForFeature(var1, var6, StructureStart.INVALID_START, param2);
+                    }
                 }
             }
         }

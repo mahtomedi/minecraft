@@ -99,16 +99,20 @@ public class RegistryReadOps<T> extends DelegatingOps<T> {
             Optional<DataResult<RegistryResourceAccess.ParsedEntry<E>>> var2 = this.resources.parseElement(this.jsonOps, param0, param3, param2);
             DataResult<Supplier<E>> var3;
             if (var2.isEmpty()) {
-                var3 = DataResult.success(createRegistryGetter(param1, param3), Lifecycle.stable());
+                if (param1.containsKey(param3)) {
+                    var3 = DataResult.success(createRegistryGetter(param1, param3), Lifecycle.stable());
+                } else {
+                    var3 = DataResult.error("Missing referenced custom/removed registry entry for registry " + param0 + " named " + param3.location());
+                }
             } else {
-                DataResult<RegistryResourceAccess.ParsedEntry<E>> var4 = var2.get();
-                Optional<RegistryResourceAccess.ParsedEntry<E>> var5 = var4.result();
-                if (var5.isPresent()) {
-                    RegistryResourceAccess.ParsedEntry<E> var6 = var5.get();
-                    param1.registerOrOverride(var6.fixedId(), param3, var6.value(), var4.lifecycle());
+                DataResult<RegistryResourceAccess.ParsedEntry<E>> var5 = var2.get();
+                Optional<RegistryResourceAccess.ParsedEntry<E>> var6 = var5.result();
+                if (var6.isPresent()) {
+                    RegistryResourceAccess.ParsedEntry<E> var7 = var6.get();
+                    param1.registerOrOverride(var7.fixedId(), param3, var7.value(), var5.lifecycle());
                 }
 
-                var3 = var4.map(param2x -> createRegistryGetter(param1, param3));
+                var3 = var5.map(param2x -> createRegistryGetter(param1, param3));
             }
 
             var0.values.put(param3, var3);

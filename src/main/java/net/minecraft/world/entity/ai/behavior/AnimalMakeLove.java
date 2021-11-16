@@ -88,7 +88,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
 
     private Optional<? extends Animal> findValidBreedPartner(Animal param0) {
         return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().findClosest(param1 -> {
-            if (param1.getType() == this.partnerType && param1 instanceof Animal var1x && param0.canMate(var1x)) {
+            if (param1.getType() == this.partnerType && param1 instanceof Animal var0 && param0.canMate(var0)) {
                 return true;
             }
 

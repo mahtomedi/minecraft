@@ -35,31 +35,35 @@ public class FossilFeature extends Feature<FossilFeatureConfiguration> {
         StructureTemplate var8 = var6.getOrCreate(var4.overlayStructures.get(var5));
         ChunkPos var9 = new ChunkPos(var2);
         BoundingBox var10 = new BoundingBox(
-            var9.getMinBlockX(), var1.getMinBuildHeight(), var9.getMinBlockZ(), var9.getMaxBlockX(), var1.getMaxBuildHeight(), var9.getMaxBlockZ()
+            var9.getMinBlockX() - 16,
+            var1.getMinBuildHeight(),
+            var9.getMinBlockZ() - 16,
+            var9.getMaxBlockX() + 16,
+            var1.getMaxBuildHeight(),
+            var9.getMaxBlockZ() + 16
         );
         StructurePlaceSettings var11 = new StructurePlaceSettings().setRotation(var3).setBoundingBox(var10).setRandom(var0);
         Vec3i var12 = var7.getSize(var3);
-        int var13 = var0.nextInt(16 - var12.getX());
-        int var14 = var0.nextInt(16 - var12.getZ());
-        int var15 = var2.getY();
+        BlockPos var13 = var2.offset(-var12.getX() / 2, 0, -var12.getZ() / 2);
+        int var14 = var2.getY();
 
-        for(int var16 = 0; var16 < var12.getX(); ++var16) {
-            for(int var17 = 0; var17 < var12.getZ(); ++var17) {
-                var15 = Math.min(var15, var1.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var2.getX() + var16 + var13, var2.getZ() + var17 + var14));
+        for(int var15 = 0; var15 < var12.getX(); ++var15) {
+            for(int var16 = 0; var16 < var12.getZ(); ++var16) {
+                var14 = Math.min(var14, var1.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, var13.getX() + var15, var13.getZ() + var16));
             }
         }
 
-        int var18 = Math.max(var15 - 15 - var0.nextInt(10), var1.getMinBuildHeight() + 10);
-        BlockPos var19 = var7.getZeroPositionWithTransform(var2.offset(var13, 0, var14).atY(var18), Mirror.NONE, var3);
-        if (countEmptyCorners(var1, var7.getBoundingBox(var11, var19)) > var4.maxEmptyCornersAllowed) {
+        int var17 = Math.max(var14 - 15 - var0.nextInt(10), var1.getMinBuildHeight() + 10);
+        BlockPos var18 = var7.getZeroPositionWithTransform(var13.atY(var17), Mirror.NONE, var3);
+        if (countEmptyCorners(var1, var7.getBoundingBox(var11, var18)) > var4.maxEmptyCornersAllowed) {
             return false;
         } else {
             var11.clearProcessors();
             var4.fossilProcessors.get().list().forEach(param1 -> var11.addProcessor(param1));
-            var7.placeInWorld(var1, var19, var19, var11, var0, 4);
+            var7.placeInWorld(var1, var18, var18, var11, var0, 4);
             var11.clearProcessors();
             var4.overlayProcessors.get().list().forEach(param1 -> var11.addProcessor(param1));
-            var8.placeInWorld(var1, var19, var19, var11, var0, 4);
+            var8.placeInWorld(var1, var18, var18, var11, var0, 4);
             return true;
         }
     }

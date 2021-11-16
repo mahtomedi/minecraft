@@ -148,10 +148,10 @@ public class ChunkSerializer {
             var26 = new LevelChunk(param0.getLevel(), param2, var1, var24, var25, var20, var5, param2x -> postLoadChunk(param0, param3, param2x), var22);
         } else {
             ProtoChunkTicks<Block> var27 = ProtoChunkTicks.load(
-                param3.getList("block_ticks", 9), param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
+                param3.getList("block_ticks", 10), param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
             ProtoChunkTicks<Fluid> var28 = ProtoChunkTicks.load(
-                param3.getList("fluid_ticks", 9), param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
+                param3.getList("fluid_ticks", 10), param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
             ProtoChunk var29 = new ProtoChunk(param2, var1, var5, var27, var28, param0, var9, var22);
             var26 = var29;

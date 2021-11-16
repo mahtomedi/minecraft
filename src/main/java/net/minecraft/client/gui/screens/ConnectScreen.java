@@ -92,17 +92,27 @@ public class ConnectScreen extends Screen {
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
                     ConnectScreen.this.connection.send(new ServerboundHelloPacket(param0.getUser().getGameProfile()));
-                } catch (Exception var4) {
+                } catch (Exception var61) {
                     if (ConnectScreen.this.aborted) {
                         return;
                     }
 
-                    ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var4);
-                    String var3 = var0 == null ? var4.toString() : var4.toString().replaceAll(var0.getHostName() + ":" + var0.getPort(), "");
+                    Throwable var51 = var61.getCause();
+                    Exception var4;
+                    if (var51 instanceof Exception var3) {
+                        var4 = var3;
+                    } else {
+                        var4 = var61;
+                    }
+
+                    ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var61);
+                    String var6 = var0 == null
+                        ? var4.getMessage()
+                        : var4.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
                     param0.execute(
                         () -> param0.setScreen(
                                 new DisconnectedScreen(
-                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", var3)
+                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", var6)
                                 )
                             )
                     );

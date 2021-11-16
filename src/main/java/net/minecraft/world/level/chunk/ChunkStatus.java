@@ -56,8 +56,8 @@ public class ChunkStatus {
                     param3.createStructures(param2.registryAccess(), param2.structureFeatureManager(), param8, param4, param2.getSeed());
                 }
     
-                if (param8 instanceof ProtoChunk var1) {
-                    var1.setStatus(param0);
+                if (param8 instanceof ProtoChunk var0) {
+                    var0.setStatus(param0);
                 }
             }
     
@@ -81,13 +81,20 @@ public class ChunkStatus {
                 return CompletableFuture.completedFuture(Either.left(param8));
             } else {
                 WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, -1);
-                return param3.createBiomes(param1, Blender.of(var0), param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
-                    if (param1x instanceof ProtoChunk) {
-                        ((ProtoChunk)param1x).setStatus(param0);
-                    }
-    
-                    return Either.left(param1x);
-                });
+                return param3.createBiomes(
+                        param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
+                        param1,
+                        Blender.of(var0),
+                        param2.structureFeatureManager().forWorldGenRegion(var0),
+                        param8
+                    )
+                    .thenApply(param1x -> {
+                        if (param1x instanceof ProtoChunk) {
+                            ((ProtoChunk)param1x).setStatus(param0);
+                        }
+        
+                        return Either.left(param1x);
+                    });
             }
         }
     );
@@ -103,16 +110,16 @@ public class ChunkStatus {
             } else {
                 WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, 0);
                 return param3.fillFromNoise(param1, Blender.of(var0), param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
-                    if (param1x instanceof ProtoChunk var1x) {
-                        BelowZeroRetrogen var2x = var1x.getBelowZeroRetrogen();
-                        if (var2x != null) {
-                            BelowZeroRetrogen.replaceOldBedrock(var1x);
-                            if (var2x.hasBedrockHoles()) {
-                                var2x.applyBedrockMask(var1x);
+                    if (param1x instanceof ProtoChunk var0x) {
+                        BelowZeroRetrogen var1x = var0x.getBelowZeroRetrogen();
+                        if (var1x != null) {
+                            BelowZeroRetrogen.replaceOldBedrock(var0x);
+                            if (var1x.hasAllBedrockMissing()) {
+                                BelowZeroRetrogen.removeBedrock(var0x);
                             }
                         }
     
-                        var1x.setStatus(param0);
+                        var0x.setStatus(param0);
                     }
     
                     return Either.left(param1x);
@@ -175,6 +182,7 @@ public class ChunkStatus {
                 );
                 WorldGenRegion var1 = new WorldGenRegion(param2, param7, param0, 1);
                 param3.applyBiomeDecoration(var1, param8, param2.structureFeatureManager().forWorldGenRegion(var1));
+                Blender.generateBorderTicks(var1, param8);
                 var0.setStatus(param0);
             }
     

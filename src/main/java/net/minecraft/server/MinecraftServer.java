@@ -424,10 +424,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             int var5 = 0;
             int var6 = 0;
             int var7 = -1;
-            int var8 = 32;
+            int var8 = 5;
 
-            for(int var9 = 0; var9 < 1024; ++var9) {
-                if (var4 > -16 && var4 <= 16 && var5 > -16 && var5 <= 16) {
+            for(int var9 = 0; var9 < Mth.square(11); ++var9) {
+                if (var4 >= -5 && var4 <= 5 && var5 >= -5 && var5 <= 5) {
                     BlockPos var10 = PlayerRespawnLogic.getSpawnPosInChunk(param0, new ChunkPos(var1.x + var4, var1.z + var5));
                     if (var10 != null) {
                         param1.setSpawn(var10, 0.0F);
@@ -712,6 +712,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             } catch (Throwable var42) {
                 LOGGER.error("Exception stopping the server", var42);
             } finally {
+                if (this.profileCache != null) {
+                    this.profileCache.clearExecutor();
+                }
+
                 this.onServerExit();
             }
 

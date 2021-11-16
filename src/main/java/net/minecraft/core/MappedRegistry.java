@@ -78,11 +78,11 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         this.toId.put((T)param2, param0);
         this.randomCache = null;
         if (param4 && this.keyStorage.containsKey(param1)) {
-            LOGGER.debug("Adding duplicate key '{}' to registry", param1);
+            Util.logAndPauseIfInIde("Adding duplicate key '" + param1 + "' to registry");
         }
 
         if (this.storage.containsValue(param2)) {
-            LOGGER.error("Adding duplicate value '{}' to registry", param2);
+            Util.logAndPauseIfInIde("Adding duplicate value '" + param2 + "' to registry");
         }
 
         this.storage.put(param1.location(), (T)param2);

@@ -329,6 +329,7 @@ public class Options {
         this.hideBundleTutorial = param0.process("hideBundleTutorial", this.hideBundleTutorial);
         this.syncWrites = param0.process("syncChunkWrites", this.syncWrites);
         this.showAutosaveIndicator = param0.process("showAutosaveIndicator", this.showAutosaveIndicator);
+        this.allowServerListing = param0.process("allowServerListing", this.allowServerListing);
 
         for(KeyMapping var0 : this.keyMappings) {
             String var1 = var0.saveString();

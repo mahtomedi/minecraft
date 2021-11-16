@@ -1415,8 +1415,12 @@ public abstract class LivingEntity extends Entity {
         return SoundEvents.GENERIC_DEATH;
     }
 
-    protected SoundEvent getFallDamageSound(int param0) {
-        return param0 > 4 ? SoundEvents.GENERIC_BIG_FALL : SoundEvents.GENERIC_SMALL_FALL;
+    private SoundEvent getFallDamageSound(int param0) {
+        return param0 > 4 ? this.getFallSounds().big() : this.getFallSounds().small();
+    }
+
+    public LivingEntity.Fallsounds getFallSounds() {
+        return new LivingEntity.Fallsounds(SoundEvents.GENERIC_SMALL_FALL, SoundEvents.GENERIC_BIG_FALL);
     }
 
     protected SoundEvent getDrinkingSound(ItemStack param0) {
@@ -3392,5 +3396,8 @@ public abstract class LivingEntity extends Entity {
         this.setUUID(param0.getUUID());
         this.absMoveTo(var0, var1, var2, var3, var4);
         this.setDeltaMovement((double)((float)param0.getXd() / 8000.0F), (double)((float)param0.getYd() / 8000.0F), (double)((float)param0.getZd() / 8000.0F));
+    }
+
+    public static record Fallsounds(SoundEvent small, SoundEvent big) {
     }
 }

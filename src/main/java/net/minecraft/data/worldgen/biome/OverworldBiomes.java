@@ -126,7 +126,6 @@ public class OverworldBiomes {
         var0.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.PARROT, 40, 1, 2))
             .addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.OCELOT, 2, 1, 3))
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.PANDA, 1, 1, 2));
-        var0.setPlayerCanSpawn();
         return baseJungle(0.9F, false, false, true, var0);
     }
 
@@ -223,8 +222,6 @@ public class OverworldBiomes {
             BiomeDefaultFeatures.addPlainGrass(var1);
             if (param0) {
                 var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
-            } else {
-                var0.setPlayerCanSpawn();
             }
         }
 
@@ -496,7 +493,7 @@ public class OverworldBiomes {
         if (param2) {
             var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 4, 2, 3));
         } else if (!param0) {
-            var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.WOLF, 5, 4, 4)).setPlayerCanSpawn();
+            var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.WOLF, 5, 4, 4));
         }
 
         float var2 = param0 ? 0.6F : 0.7F;
@@ -509,10 +506,6 @@ public class OverworldBiomes {
         var0.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.WOLF, 8, 4, 4))
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 4, 2, 3))
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FOX, 8, 2, 4));
-        if (!param0) {
-            var0.setPlayerCanSpawn();
-        }
-
         BiomeDefaultFeatures.commonSpawns(var0);
         float var1 = param0 ? -0.5F : 0.25F;
         BiomeGenerationSettings.Builder var2 = new BiomeGenerationSettings.Builder();

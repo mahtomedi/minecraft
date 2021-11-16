@@ -34,6 +34,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     protected static final FluidState WATER = Fluids.WATER.defaultFluidState();
     protected static final FluidState LAVA = Fluids.LAVA.defaultFluidState();
     protected Set<Block> replaceableBlocks = ImmutableSet.of(
+        Blocks.WATER,
         Blocks.STONE,
         Blocks.GRANITE,
         Blocks.DIORITE,
@@ -191,8 +192,13 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                 if (param8.isTrue()) {
                     param6.setWithOffset(param5, Direction.DOWN);
                     if (param2.getBlockState(param6).is(Blocks.DIRT)) {
-                        param0.topMaterial(param3, param2, param6, !var1.getFluidState().isEmpty())
-                            .ifPresent(param2x -> param2.setBlockState(param6, param2x, false));
+                        param0.topMaterial(param3, param2, param6, !var1.getFluidState().isEmpty()).ifPresent(param2x -> {
+                            param2.setBlockState(param6, param2x, false);
+                            if (!param2x.getFluidState().isEmpty()) {
+                                param2.getFluidTicks().schedule(ScheduledTick.worldgen(param2x.getFluidState().getType(), param6, 0L));
+                            }
+
+                        });
                     }
                 }
 
@@ -234,10 +240,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
 
     protected boolean canReplaceBlock(BlockState param0) {
         return this.replaceableBlocks.contains(param0.getBlock());
-    }
-
-    private static boolean isEdge(int param0, int param1, int param2, int param3, int param4, int param5) {
-        return param0 == param2 || param0 == param3 || param1 == param4 || param1 == param5;
     }
 
     protected static boolean canReach(ChunkPos param0, double param1, double param2, int param3, int param4, float param5) {

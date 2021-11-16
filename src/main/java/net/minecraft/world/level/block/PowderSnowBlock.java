@@ -35,6 +35,8 @@ public class PowderSnowBlock extends Block implements BucketPickup {
     private static final float IN_BLOCK_VERTICAL_SPEED_MULTIPLIER = 1.5F;
     private static final float NUM_BLOCKS_TO_FALL_INTO_BLOCK = 2.5F;
     private static final VoxelShape FALLING_COLLISION_SHAPE = Shapes.box(0.0, 0.0, 0.0, 1.0, 0.9F, 1.0);
+    private static final double MINIMUM_FALL_DISTANCE_FOR_SOUND = 4.0;
+    private static final double MINIMUM_FALL_DISTANCE_FOR_BIG_SOUND = 7.0;
 
     public PowderSnowBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -82,6 +84,15 @@ public class PowderSnowBlock extends Block implements BucketPickup {
             param3.setSharedFlagOnFire(false);
         }
 
+    }
+
+    @Override
+    public void fallOn(Level param0, BlockState param1, BlockPos param2, Entity param3, float param4) {
+        if (!((double)param4 < 4.0) && param3 instanceof LivingEntity var0) {
+            LivingEntity.Fallsounds var2 = var0.getFallSounds();
+            SoundEvent var3 = (double)param4 < 7.0 ? var2.small() : var2.big();
+            param3.playSound(var3, 1.0F, 1.0F);
+        }
     }
 
     @Override

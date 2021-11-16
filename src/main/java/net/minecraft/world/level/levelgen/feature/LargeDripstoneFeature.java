@@ -13,6 +13,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Column;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.LargeDripstoneConfiguration;
 import net.minecraft.world.phys.Vec3;
 
@@ -41,10 +42,10 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
                     int var7 = Mth.clamp(var6, var2.columnRadius.getMinValue(), var2.columnRadius.getMaxValue());
                     int var8 = Mth.randomBetweenInclusive(var3, var2.columnRadius.getMinValue(), var7);
                     LargeDripstoneFeature.LargeDripstone var9 = makeDripstone(
-                        var1.atY(var5.ceiling() - 1), false, var3, var8, var2.stalactiteBluntness, var2.heightScale, var5.height() + 1
+                        var1.atY(var5.ceiling() - 1), false, var3, var8, var2.stalactiteBluntness, var2.heightScale
                     );
                     LargeDripstoneFeature.LargeDripstone var10 = makeDripstone(
-                        var1.atY(var5.floor() + 1), true, var3, var8, var2.stalagmiteBluntness, var2.heightScale, var5.height() + 1
+                        var1.atY(var5.floor() + 1), true, var3, var8, var2.stalagmiteBluntness, var2.heightScale
                     );
                     LargeDripstoneFeature.WindOffsetter var11;
                     if (var9.isSuitableForWind(var2) && var10.isSuitableForWind(var2)) {
@@ -72,9 +73,9 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
     }
 
     private static LargeDripstoneFeature.LargeDripstone makeDripstone(
-        BlockPos param0, boolean param1, Random param2, int param3, FloatProvider param4, FloatProvider param5, int param6
+        BlockPos param0, boolean param1, Random param2, int param3, FloatProvider param4, FloatProvider param5
     ) {
-        return new LargeDripstoneFeature.LargeDripstone(param0, param1, param3, (double)param4.sample(param2), (double)param5.sample(param2), param6);
+        return new LargeDripstoneFeature.LargeDripstone(param0, param1, param3, (double)param4.sample(param2), (double)param5.sample(param2));
     }
 
     private void placeDebugMarkers(WorldGenLevel param0, BlockPos param1, Column.Range param2, LargeDripstoneFeature.WindOffsetter param3) {
@@ -96,15 +97,13 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         private int radius;
         private final double bluntness;
         private final double scale;
-        private final int columnHeight;
 
-        LargeDripstone(BlockPos param0, boolean param1, int param2, double param3, double param4, int param5) {
+        LargeDripstone(BlockPos param0, boolean param1, int param2, double param3, double param4) {
             this.root = param0;
             this.pointingUp = param1;
             this.radius = param2;
             this.bluntness = param3;
             this.scale = param4;
-            this.columnHeight = param5;
         }
 
         private int getHeight() {
@@ -160,14 +159,15 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
 
                             BlockPos.MutableBlockPos var4 = this.root.offset(var0, 0, var1).mutable();
                             boolean var5 = false;
+                            int var6 = this.pointingUp ? param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var4.getX(), var4.getZ()) : Integer.MAX_VALUE;
 
-                            for(int var6 = 0; var6 < var3; ++var6) {
-                                BlockPos var7 = param2.offset(var4);
-                                if (DripstoneUtils.isEmptyOrWaterOrLava(param0, var7)) {
+                            for(int var7 = 0; var7 < var3 && var4.getY() < var6; ++var7) {
+                                BlockPos var8 = param2.offset(var4);
+                                if (DripstoneUtils.isEmptyOrWaterOrLava(param0, var8)) {
                                     var5 = true;
-                                    Block var8 = Blocks.DRIPSTONE_BLOCK;
-                                    param0.setBlock(var7, var8.defaultBlockState(), 2);
-                                } else if (var5 && param0.getBlockState(var7).is(BlockTags.BASE_STONE_OVERWORLD) || !var5 && var6 > this.columnHeight) {
+                                    Block var9 = Blocks.DRIPSTONE_BLOCK;
+                                    param0.setBlock(var8, var9.defaultBlockState(), 2);
+                                } else if (var5 && param0.getBlockState(var8).is(BlockTags.BASE_STONE_OVERWORLD)) {
                                     break;
                                 }
 

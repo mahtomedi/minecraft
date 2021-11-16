@@ -359,7 +359,7 @@ public final class TerrainShaper {
         private static final Codec<TerrainShaper.Coordinate> CODEC = StringRepresentable.fromEnum(TerrainShaper.Coordinate::values, BY_NAME::get);
         static final Codec<ToFloatFunction<TerrainShaper.Point>> WIDE_CODEC = CODEC.flatComapMap(
             (Function<? super TerrainShaper.Coordinate, ? extends TerrainShaper.Coordinate>)(param0 -> param0),
-            param0 -> param0 instanceof TerrainShaper.Coordinate var1 ? DataResult.success(var1) : DataResult.error("Not a coordinate resolver: " + param0)
+            param0 -> param0 instanceof TerrainShaper.Coordinate var0 ? DataResult.success(var0) : DataResult.error("Not a coordinate resolver: " + param0)
         );
         private final ToFloatFunction<TerrainShaper.Point> reference;
         private final String name;
