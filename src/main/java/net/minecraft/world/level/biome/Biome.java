@@ -6,17 +6,18 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryCodecs;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -33,8 +34,11 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class Biome {
+    public static final Logger LOGGER = LogManager.getLogger();
     public static final Codec<Biome> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Biome.ClimateSettings.CODEC.forGetter(param0x -> param0x.climateSettings),
@@ -53,8 +57,8 @@ public final class Biome {
                 )
                 .apply(param0, (param0x, param1, param2) -> new Biome(param0x, param1, param2, BiomeGenerationSettings.EMPTY, MobSpawnSettings.EMPTY))
     );
-    public static final Codec<Holder<Biome>> CODEC = RegistryFileCodec.create(Registry.BIOME_REGISTRY, DIRECT_CODEC);
-    public static final Codec<HolderSet<Biome>> LIST_CODEC = RegistryCodecs.homogeneousList(Registry.BIOME_REGISTRY, DIRECT_CODEC);
+    public static final Codec<Supplier<Biome>> CODEC = RegistryFileCodec.create(Registry.BIOME_REGISTRY, DIRECT_CODEC);
+    public static final Codec<List<Supplier<Biome>>> LIST_CODEC = RegistryFileCodec.homogeneousList(Registry.BIOME_REGISTRY, DIRECT_CODEC);
     private static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(new LegacyRandomSource(1234L)), ImmutableList.of(0));
     static final PerlinSimplexNoise FROZEN_TEMPERATURE_NOISE = new PerlinSimplexNoise(
         new WorldgenRandom(new LegacyRandomSource(3456L)), ImmutableList.of(-2, -1, 0)
@@ -113,8 +117,7 @@ public final class Biome {
         }
     }
 
-    @Deprecated
-    private float getTemperature(BlockPos param0) {
+    public final float getTemperature(BlockPos param0) {
         long var0 = param0.asLong();
         Long2FloatLinkedOpenHashMap var1 = this.temperatureCache.get();
         float var2 = var1.get(var0);
@@ -136,7 +139,7 @@ public final class Biome {
     }
 
     public boolean shouldFreeze(LevelReader param0, BlockPos param1, boolean param2) {
-        if (this.warmEnoughToRain(param1)) {
+        if (this.getTemperature(param1) >= 0.15F) {
             return false;
         } else {
             if (param1.getY() >= param0.getMinBuildHeight()
@@ -163,24 +166,12 @@ public final class Biome {
         }
     }
 
-    public boolean coldEnoughToSnow(BlockPos param0) {
-        return !this.warmEnoughToRain(param0);
-    }
-
-    public boolean warmEnoughToRain(BlockPos param0) {
-        return this.getTemperature(param0) >= 0.15F;
-    }
-
-    public boolean shouldMeltFrozenOceanIcebergSlightly(BlockPos param0) {
-        return this.getTemperature(param0) > 0.1F;
-    }
-
-    public boolean shouldSnowGolemBurn(BlockPos param0) {
-        return this.getTemperature(param0) > 1.0F;
+    public boolean isColdEnoughToSnow(BlockPos param0) {
+        return this.getTemperature(param0) < 0.15F;
     }
 
     public boolean shouldSnow(LevelReader param0, BlockPos param1) {
-        if (this.warmEnoughToRain(param1)) {
+        if (!this.isColdEnoughToSnow(param1)) {
             return false;
         } else {
             if (param1.getY() >= param0.getMinBuildHeight()
@@ -265,13 +256,14 @@ public final class Biome {
         return this.specialEffects.getBackgroundMusic();
     }
 
-    Biome.BiomeCategory getBiomeCategory() {
+    public final Biome.BiomeCategory getBiomeCategory() {
         return this.biomeCategory;
     }
 
-    @Deprecated
-    public static Biome.BiomeCategory getBiomeCategory(Holder<Biome> param0) {
-        return param0.value().getBiomeCategory();
+    @Override
+    public String toString() {
+        ResourceLocation var0 = BuiltinRegistries.BIOME.getKey(this);
+        return var0 == null ? super.toString() : var0.toString();
     }
 
     public static class BiomeBuilder {
@@ -290,17 +282,6 @@ public final class Biome {
         private MobSpawnSettings mobSpawnSettings;
         @Nullable
         private BiomeGenerationSettings generationSettings;
-
-        public static Biome.BiomeBuilder from(Biome param0) {
-            return new Biome.BiomeBuilder()
-                .precipitation(param0.getPrecipitation())
-                .biomeCategory(param0.getBiomeCategory())
-                .temperature(param0.getBaseTemperature())
-                .downfall(param0.getDownfall())
-                .specialEffects(param0.getSpecialEffects())
-                .generationSettings(param0.getGenerationSettings())
-                .mobSpawnSettings(param0.getMobSettings());
-        }
 
         public Biome.BiomeBuilder precipitation(Biome.Precipitation param0) {
             this.precipitation = param0;

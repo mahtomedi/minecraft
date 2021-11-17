@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -25,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.VisibleForDebug;
@@ -38,10 +38,11 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Brain<E extends LivingEntity> {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final Supplier<Codec<Brain<E>>> codec;
     private static final int SCHEDULE_UPDATE_DELAY = 20;
     private final Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = Maps.newHashMap();
@@ -70,7 +71,7 @@ public class Brain<E extends LivingEntity> {
                     @Override
                     public <T> Stream<T> keys(DynamicOps<T> param0x) {
                         return param0.stream()
-                            .flatMap(param0xx -> param0xx.getCodec().map(param1xxx -> Registry.MEMORY_MODULE_TYPE.getKey(param0xx)).stream())
+                            .flatMap(param0xx -> Util.toStream(param0xx.getCodec().map(param1xxx -> Registry.MEMORY_MODULE_TYPE.getKey(param0xx))))
                             .map(param1xx -> param0.createString(param1xx.toString()));
                     }
         

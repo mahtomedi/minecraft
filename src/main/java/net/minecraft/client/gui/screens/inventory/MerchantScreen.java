@@ -214,7 +214,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             }
 
             for(MerchantScreen.TradeOfferButton var14 : this.tradeOfferButtons) {
-                if (var14.isHoveredOrFocused()) {
+                if (var14.isHovered()) {
                     var14.renderToolTip(param0, param1, param2);
                 }
 
@@ -264,7 +264,8 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
         int var0 = this.menu.getOffers().size();
         if (this.canScroll(var0)) {
             int var1 = var0 - 7;
-            this.scrollOff = Mth.clamp((int)((double)this.scrollOff - param2), 0, var1);
+            this.scrollOff = (int)((double)this.scrollOff - param2);
+            this.scrollOff = Mth.clamp(this.scrollOff, 0, var1);
         }
 
         return true;

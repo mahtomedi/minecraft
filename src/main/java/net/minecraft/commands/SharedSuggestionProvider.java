@@ -16,11 +16,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 
 public interface SharedSuggestionProvider {
@@ -36,7 +34,7 @@ public interface SharedSuggestionProvider {
 
     Stream<ResourceLocation> getRecipeNames();
 
-    CompletableFuture<Suggestions> customSuggestion(CommandContext<?> var1);
+    CompletableFuture<Suggestions> customSuggestion(CommandContext<SharedSuggestionProvider> var1, SuggestionsBuilder var2);
 
     default Collection<SharedSuggestionProvider.TextCoordinates> getRelevantCoordinates() {
         return Collections.singleton(SharedSuggestionProvider.TextCoordinates.DEFAULT_GLOBAL);
@@ -49,21 +47,6 @@ public interface SharedSuggestionProvider {
     Set<ResourceKey<Level>> levels();
 
     RegistryAccess registryAccess();
-
-    default void suggestRegistryElements(Registry<?> param0, SharedSuggestionProvider.ElementSuggestionType param1, SuggestionsBuilder param2) {
-        if (param1.shouldSuggestTags()) {
-            suggestResource(param0.getTagNames().map(TagKey::location), param2, "#");
-        }
-
-        if (param1.shouldSuggestElements()) {
-            suggestResource(param0.keySet(), param2);
-        }
-
-    }
-
-    CompletableFuture<Suggestions> suggestRegistryElements(
-        ResourceKey<? extends Registry<?>> var1, SharedSuggestionProvider.ElementSuggestionType var2, SuggestionsBuilder var3, CommandContext<?> var4
-    );
 
     boolean hasPermission(int var1);
 
@@ -101,10 +84,6 @@ public interface SharedSuggestionProvider {
         String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
         filterResources(param0, var0, param2, param0x -> param0x, param2x -> param1.suggest(param2 + param2x));
         return param1.buildFuture();
-    }
-
-    static CompletableFuture<Suggestions> suggestResource(Stream<ResourceLocation> param0, SuggestionsBuilder param1, String param2) {
-        return suggestResource(param0::iterator, param1, param2);
     }
 
     static CompletableFuture<Suggestions> suggestResource(Iterable<ResourceLocation> param0, SuggestionsBuilder param1) {
@@ -246,20 +225,6 @@ public interface SharedSuggestionProvider {
         }
 
         return true;
-    }
-
-    public static enum ElementSuggestionType {
-        TAGS,
-        ELEMENTS,
-        ALL;
-
-        public boolean shouldSuggestTags() {
-            return this == TAGS || this == ALL;
-        }
-
-        public boolean shouldSuggestElements() {
-            return this == ELEMENTS || this == ALL;
-        }
     }
 
     public static class TextCoordinates {

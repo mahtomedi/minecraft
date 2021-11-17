@@ -1,7 +1,6 @@
 package com.mojang.blaze3d.audio;
 
 import com.google.common.collect.Sets;
-import com.mojang.logging.LogUtils;
 import java.nio.IntBuffer;
 import java.util.Collections;
 import java.util.List;
@@ -9,10 +8,11 @@ import java.util.Objects;
 import java.util.OptionalLong;
 import java.util.Set;
 import javax.annotation.Nullable;
-import net.minecraft.SharedConstants;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.ALC;
@@ -22,11 +22,10 @@ import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.openal.ALUtil;
 import org.lwjgl.system.MemoryStack;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Library {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int NO_DEVICE = 0;
     private static final int DEFAULT_CHANNEL_COUNT = 30;
     private long currentDevice;
@@ -261,10 +260,7 @@ public class Library {
         @Override
         public Channel acquire() {
             if (this.activeChannels.size() >= this.limit) {
-                if (SharedConstants.IS_RUNNING_IN_IDE) {
-                    Library.LOGGER.warn("Maximum sound pool size {} reached", this.limit);
-                }
-
+                Library.LOGGER.warn("Maximum sound pool size {} reached", this.limit);
                 return null;
             } else {
                 Channel var0 = Channel.create();

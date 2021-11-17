@@ -1,22 +1,26 @@
 package net.minecraft.world.level.chunk;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
-import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import javax.annotation.Nullable;
 import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.BitStorage;
+import net.minecraft.util.DebugBuffer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.util.SimpleBitStorage;
@@ -29,14 +33,21 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     private final IdMap<T> registry;
     private volatile PalettedContainer.Data<T> data;
     private final PalettedContainer.Strategy strategy;
-    private final ThreadingDetector threadingDetector = new ThreadingDetector("PalettedContainer");
+    private final Semaphore lock = new Semaphore(1);
+    @Nullable
+    private final DebugBuffer<Pair<Thread, StackTraceElement[]>> traces = null;
 
     public void acquire() {
-        this.threadingDetector.checkAndLock();
+        if (this.traces != null) {
+            Thread var0 = Thread.currentThread();
+            this.traces.push(Pair.of(var0, var0.getStackTrace()));
+        }
+
+        ThreadingDetector.checkAndLock(this.lock, this.traces, "PalettedContainer");
     }
 
     public void release() {
-        this.threadingDetector.checkAndUnlock();
+        this.lock.release();
     }
 
     public static <T> Codec<PalettedContainer<T>> codec(IdMap<T> param0, Codec<T> param1, PalettedContainer.Strategy param2, T param3) {
@@ -56,13 +67,8 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     public PalettedContainer(IdMap<T> param0, PalettedContainer.Strategy param1, PalettedContainer.Configuration<T> param2, BitStorage param3, List<T> param4) {
         this.registry = param0;
         this.strategy = param1;
-        this.data = new PalettedContainer.Data<>(param2, param3, param2.factory().create(param2.bits(), param0, this, param4));
-    }
-
-    private PalettedContainer(IdMap<T> param0, PalettedContainer.Strategy param1, PalettedContainer.Data<T> param2) {
-        this.registry = param0;
-        this.strategy = param1;
-        this.data = param2;
+        Palette<T> var0 = param2.factory().create(param2.bits(), param0, this, param4);
+        this.data = new PalettedContainer.Data<>(param2, param3, var0);
     }
 
     public PalettedContainer(IdMap<T> param0, T param1, PalettedContainer.Strategy param2) {
@@ -121,8 +127,7 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     }
 
     private void set(int param0, T param1) {
-        int var0 = this.data.palette.idFor(param1);
-        this.data.storage.set(param0, var0);
+        this.data.set(param0, param1);
     }
 
     public T get(int param0, int param1, int param2) {
@@ -186,10 +191,8 @@ public class PalettedContainer<T> implements PaletteResize<T> {
             try {
                 if (var3.factory() == PalettedContainer.Strategy.GLOBAL_PALETTE_FACTORY) {
                     Palette<T> var7 = new HashMapPalette<>(param0, var2, (param0x, param1x) -> 0, var0);
-                    SimpleBitStorage var8 = new SimpleBitStorage(var2, var1, var6);
-                    int[] var9 = new int[var1];
-                    var8.unpack(var9);
-                    swapPalette(var9, param2x -> param0.getId(var7.valueFor(param2x)));
+                    SimpleBitStorage var8 = new SimpleBitStorage(var2, param1.size(), var6);
+                    IntStream var9 = IntStream.range(0, var8.getSize()).map(param3 -> param0.getId(var7.valueFor(var8.get(param3))));
                     var4 = new SimpleBitStorage(var3.bits(), var1, var9);
                 } else {
                     var4 = new SimpleBitStorage(var3.bits(), var1, var6);
@@ -205,44 +208,45 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     private PalettedContainer.DiscData<T> write(IdMap<T> param0, PalettedContainer.Strategy param1) {
         this.acquire();
 
-        PalettedContainer.DiscData var12;
+        PalettedContainer.DiscData var17;
         try {
             HashMapPalette<T> var0 = new HashMapPalette<>(param0, this.data.storage.getBits(), this.dummyPaletteResize);
-            int var1 = param1.size();
-            int[] var2 = new int[var1];
-            this.data.storage.unpack(var2);
-            swapPalette(var2, param1x -> var0.idFor(this.data.palette.valueFor(param1x)));
-            int var3 = param1.calculateBitsForSerialization(param0, var0.getSize());
-            Optional<LongStream> var5;
-            if (var3 != 0) {
-                SimpleBitStorage var4 = new SimpleBitStorage(var3, var1, var2);
-                var5 = Optional.of(Arrays.stream(var4.getRaw()));
-            } else {
-                var5 = Optional.empty();
+            T var1 = null;
+            int var2 = -1;
+            int var3 = param1.size();
+            int[] var4 = new int[var3];
+
+            for(int var5 = 0; var5 < var3; ++var5) {
+                T var6 = this.get(var5);
+                if (var6 != var1) {
+                    var1 = var6;
+                    var2 = var0.idFor(var6);
+                }
+
+                var4[var5] = var2;
             }
 
-            var12 = new PalettedContainer.DiscData<>(var0.getEntries(), var5);
+            int var7 = param1.calculateBitsForSerialization(param0, var0.getSize());
+            Optional<LongStream> var12;
+            if (var7 == 0) {
+                var12 = Optional.empty();
+            } else {
+                BitStorage var8 = new SimpleBitStorage(var7, var3);
+
+                for(int var9 = 0; var9 < var4.length; ++var9) {
+                    var8.set(var9, var4[var9]);
+                }
+
+                long[] var10 = var8.getRaw();
+                var12 = Optional.of(Arrays.stream(var10));
+            }
+
+            var17 = new PalettedContainer.DiscData<>(var0.getEntries(), var12);
         } finally {
             this.release();
         }
 
-        return var12;
-    }
-
-    private static <T> void swapPalette(int[] param0, IntUnaryOperator param1) {
-        int var0 = -1;
-        int var1 = -1;
-
-        for(int var2 = 0; var2 < param0.length; ++var2) {
-            int var3 = param0[var2];
-            if (var3 != var0) {
-                var0 = var3;
-                var1 = param1.applyAsInt(var3);
-            }
-
-            param0[var2] = var1;
-        }
-
+        return var17;
     }
 
     public int getSerializedSize() {
@@ -253,20 +257,10 @@ public class PalettedContainer<T> implements PaletteResize<T> {
         return this.data.palette.maybeHas(param0);
     }
 
-    public PalettedContainer<T> copy() {
-        return new PalettedContainer<>(
-            this.registry, this.strategy, new PalettedContainer.Data<>(this.data.configuration(), this.data.storage().copy(), this.data.palette().copy())
-        );
-    }
-
     public void count(PalettedContainer.CountConsumer<T> param0) {
-        if (this.data.palette.getSize() == 1) {
-            param0.accept(this.data.palette.valueFor(0), this.data.storage.getSize());
-        } else {
-            Int2IntOpenHashMap var0 = new Int2IntOpenHashMap();
-            this.data.storage.getAll(param1 -> var0.addTo(param1, 1));
-            var0.int2IntEntrySet().forEach(param1 -> param0.accept(this.data.palette.valueFor(param1.getIntKey()), param1.getIntValue()));
-        }
+        Int2IntMap var0 = new Int2IntOpenHashMap();
+        this.data.storage.getAll(param1 -> var0.put(param1, var0.get(param1) + 1));
+        var0.int2IntEntrySet().forEach(param1 -> param0.accept(this.data.palette.valueFor(param1.getIntKey()), param1.getIntValue()));
     }
 
     static record Configuration<T>(Palette.Factory factory, int bits) {
@@ -285,10 +279,13 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     static record Data<T>(PalettedContainer.Configuration<T> configuration, BitStorage storage, Palette<T> palette) {
         public void copyFrom(Palette<T> param0, BitStorage param1) {
             for(int var0 = 0; var0 < param1.getSize(); ++var0) {
-                T var1 = param0.valueFor(param1.get(var0));
-                this.storage.set(var0, this.palette.idFor(var1));
+                this.set(var0, param0.valueFor(param1.get(var0)));
             }
 
+        }
+
+        public void set(int param0, T param1) {
+            this.storage.set(param0, this.palette.idFor(param1));
         }
 
         public int getSerializedSize() {

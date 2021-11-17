@@ -10,21 +10,22 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 
-public final class StructureStart {
+public final class StructureStart<C extends FeatureConfiguration> {
     public static final String INVALID_START_ID = "INVALID";
-    public static final StructureStart INVALID_START = new StructureStart(null, new ChunkPos(0, 0), 0, new PiecesContainer(List.of()));
-    private final ConfiguredStructureFeature<?, ?> feature;
+    public static final StructureStart<?> INVALID_START = new StructureStart(null, new ChunkPos(0, 0), 0, new PiecesContainer(List.of()));
+    private final StructureFeature<C> feature;
     private final PiecesContainer pieceContainer;
     private final ChunkPos chunkPos;
     private int references;
     @Nullable
     private volatile BoundingBox cachedBoundingBox;
 
-    public StructureStart(ConfiguredStructureFeature<?, ?> param0, ChunkPos param1, int param2, PiecesContainer param3) {
+    public StructureStart(StructureFeature<C> param0, ChunkPos param1, int param2, PiecesContainer param3) {
         this.feature = param0;
         this.chunkPos = param1;
         this.references = param2;
@@ -54,14 +55,14 @@ public final class StructureStart {
                 }
             }
 
-            this.feature.feature.getPostPlacementProcessor().afterPlace(param0, param1, param2, param3, param4, param5, this.pieceContainer);
+            this.feature.getPostPlacementProcessor().afterPlace(param0, param1, param2, param3, param4, param5, this.pieceContainer);
         }
     }
 
     public CompoundTag createTag(StructurePieceSerializationContext param0, ChunkPos param1) {
         CompoundTag var0 = new CompoundTag();
         if (this.isValid()) {
-            var0.putString("id", param0.registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY).getKey(this.feature).toString());
+            var0.putString("id", Registry.STRUCTURE_FEATURE.getKey(this.getFeature()).toString());
             var0.putInt("ChunkX", param1.x);
             var0.putInt("ChunkZ", param1.z);
             var0.putInt("references", this.references);
@@ -97,7 +98,7 @@ public final class StructureStart {
         return 1;
     }
 
-    public ConfiguredStructureFeature<?, ?> getFeature() {
+    public StructureFeature<?> getFeature() {
         return this.feature;
     }
 

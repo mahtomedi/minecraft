@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.boss.enderdragon;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -48,10 +47,11 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EnderDragon extends Mob implements Enemy {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final EntityDataAccessor<Integer> DATA_PHASE = SynchedEntityData.defineId(EnderDragon.class, EntityDataSerializers.INT);
     private static final TargetingConditions CRYSTAL_DESTROY_TARGETING = TargetingConditions.forCombat().range(64.0);
     private static final int GROWL_INTERVAL_MIN = 200;
@@ -81,7 +81,7 @@ public class EnderDragon extends Mob implements Enemy {
     private final EndDragonFight dragonFight;
     private final EnderDragonPhaseManager phaseManager;
     private int growlTime = 100;
-    private float sittingDamageReceived;
+    private int sittingDamageReceived;
     private final Node[] nodes = new Node[24];
     private final int[] nodeAdjacency = new int[24];
     private final BinaryHeap openSet = new BinaryHeap();
@@ -266,11 +266,11 @@ public class EnderDragon extends Mob implements Enemy {
                             .normalize();
                         float var20 = Math.max(((float)var19.dot(var18) + 0.5F) / 1.5F, 0.0F);
                         if (Math.abs(var12) > 1.0E-5F || Math.abs(var14) > 1.0E-5F) {
-                            float var21 = Mth.clamp(
-                                Mth.wrapDegrees(180.0F - (float)Mth.atan2(var12, var14) * (180.0F / (float)Math.PI) - this.getYRot()), -50.0F, 50.0F
+                            double var21 = Mth.clamp(
+                                Mth.wrapDegrees(180.0 - Mth.atan2(var12, var14) * 180.0F / (float)Math.PI - (double)this.getYRot()), -50.0, 50.0
                             );
                             this.yRotA *= 0.8F;
-                            this.yRotA += var21 * var10.getTurnSpeed();
+                            this.yRotA = (float)((double)this.yRotA + var21 * (double)var10.getTurnSpeed());
                             this.setYRot(this.getYRot() + this.yRotA * 0.1F);
                         }
 
@@ -506,9 +506,9 @@ public class EnderDragon extends Mob implements Enemy {
                     }
 
                     if (this.phaseManager.getCurrentPhase().isSitting()) {
-                        this.sittingDamageReceived = this.sittingDamageReceived + var0 - this.getHealth();
-                        if (this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
-                            this.sittingDamageReceived = 0.0F;
+                        this.sittingDamageReceived = (int)((float)this.sittingDamageReceived + (var0 - this.getHealth()));
+                        if ((float)this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
+                            this.sittingDamageReceived = 0;
                             this.phaseManager.setPhase(EnderDragonPhase.TAKEOFF);
                         }
                     }
@@ -521,7 +521,7 @@ public class EnderDragon extends Mob implements Enemy {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (param0 instanceof EntityDamageSource && ((EntityDamageSource)param0).isThorns() && !this.level.isClientSide) {
+        if (param0 instanceof EntityDamageSource && ((EntityDamageSource)param0).isThorns()) {
             this.hurt(this.body, param0, param1);
         }
 
@@ -826,7 +826,7 @@ public class EnderDragon extends Mob implements Enemy {
         double var4;
         if (var1 == EnderDragonPhase.LANDING || var1 == EnderDragonPhase.TAKEOFF) {
             BlockPos var2 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            double var3 = Math.max(Math.sqrt(var2.distToCenterSqr(this.position())) / 4.0, 1.0);
+            double var3 = Math.max(Math.sqrt(var2.distSqr(this.position(), true)) / 4.0, 1.0);
             var4 = (double)param0 / var3;
         } else if (var0.isSitting()) {
             var4 = (double)param0;
@@ -845,7 +845,7 @@ public class EnderDragon extends Mob implements Enemy {
         Vec3 var7;
         if (var1 == EnderDragonPhase.LANDING || var1 == EnderDragonPhase.TAKEOFF) {
             BlockPos var2 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            float var3 = Math.max((float)Math.sqrt(var2.distToCenterSqr(this.position())) / 4.0F, 1.0F);
+            float var3 = Math.max((float)Math.sqrt(var2.distSqr(this.position(), true)) / 4.0F, 1.0F);
             float var4 = 6.0F / var3;
             float var5 = this.getXRot();
             float var6 = 1.5F;

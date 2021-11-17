@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
+import com.google.gson.JsonParseException;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -19,10 +19,11 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.loot.PredicateManager;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().create();
     private AdvancementList advancements = new AdvancementList();
     private final PredicateManager predicateManager;
@@ -39,7 +40,7 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
                 JsonObject var0x = GsonHelper.convertToJsonObject(param2x, "advancement");
                 Advancement.Builder var1x = Advancement.Builder.fromJson(var0x, new DeserializationContext(param1x, this.predicateManager));
                 var0.put(param1x, var1x);
-            } catch (Exception var6) {
+            } catch (IllegalArgumentException | JsonParseException var6) {
                 LOGGER.error("Parsing error loading custom advancement {}: {}", param1x, var6.getMessage());
             }
 

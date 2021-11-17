@@ -315,15 +315,12 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     @Override
-    public void tick(BooleanSupplier param0, boolean param1) {
+    public void tick(BooleanSupplier param0) {
         this.level.getProfiler().push("purge");
         this.distanceManager.purgeStaleTickets();
         this.runDistanceManagerUpdates();
         this.level.getProfiler().popPush("chunks");
-        if (param1) {
-            this.tickChunks();
-        }
-
+        this.tickChunks();
         this.level.getProfiler().popPush("unload");
         this.chunkMap.tick(param0);
         this.level.getProfiler().pop();
@@ -366,7 +363,7 @@ public class ServerChunkCache extends ChunkSource {
             for(ServerChunkCache.ChunkAndHolder var13 : var9) {
                 LevelChunk var14 = var13.chunk;
                 ChunkPos var15 = var14.getPos();
-                if (this.level.isNaturalSpawningAllowed(var15) && this.chunkMap.anyPlayerCloseEnoughForSpawning(var15)) {
+                if (this.level.isPositionEntityTicking(var15) && this.chunkMap.anyPlayerCloseEnoughForSpawning(var15)) {
                     var14.incrementInhabitedTime(var1);
                     if (var12 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(var15)) {
                         NaturalSpawner.spawnForChunk(this.level, var14, var8, this.spawnFriendlies, this.spawnEnemies, var6);
@@ -453,10 +450,7 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     public void move(ServerPlayer param0) {
-        if (!param0.isRemoved()) {
-            this.chunkMap.move(param0);
-        }
-
+        this.chunkMap.move(param0);
     }
 
     public void removeEntity(Entity param0) {
@@ -509,10 +503,6 @@ public class ServerChunkCache extends ChunkSource {
     @VisibleForDebug
     public NaturalSpawner.SpawnState getLastSpawnState() {
         return this.lastSpawnState;
-    }
-
-    public void removeTicketsOnClosing() {
-        this.distanceManager.removeTicketsOnClosing();
     }
 
     static record ChunkAndHolder(LevelChunk chunk, ChunkHolder holder) {

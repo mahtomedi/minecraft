@@ -3,10 +3,9 @@ package net.minecraft.world.item;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Streams;
+import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.DecimalFormat;
@@ -19,18 +18,15 @@ import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
@@ -42,7 +38,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -70,7 +68,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class ItemStack {
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(
@@ -81,7 +80,7 @@ public final class ItemStack {
                 )
                 .apply(param0, ItemStack::new)
     );
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final ItemStack EMPTY = new ItemStack((Item)null);
     public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = Util.make(
         new DecimalFormat("#.##"), param0 -> param0.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
@@ -119,10 +118,6 @@ public final class ItemStack {
 
     public ItemStack(ItemLike param0) {
         this(param0, 1);
-    }
-
-    public ItemStack(Holder<Item> param0) {
-        this(param0.value(), 1);
     }
 
     private ItemStack(ItemLike param0, int param1, Optional<CompoundTag> param2) {
@@ -191,25 +186,19 @@ public final class ItemStack {
         return this.emptyCacheFlag ? Items.AIR : this.item;
     }
 
-    public boolean is(TagKey<Item> param0) {
-        return this.getItem().builtInRegistryHolder().is(param0);
+    public boolean is(Tag<Item> param0) {
+        return param0.contains(this.getItem());
     }
 
     public boolean is(Item param0) {
         return this.getItem() == param0;
     }
 
-    public Stream<TagKey<Item>> getTags() {
-        return this.getItem().builtInRegistryHolder().tags();
-    }
-
     public InteractionResult useOn(UseOnContext param0) {
         Player var0 = param0.getPlayer();
         BlockPos var1 = param0.getClickedPos();
         BlockInWorld var2 = new BlockInWorld(param0.getLevel(), var1, false);
-        if (var0 != null
-            && !var0.getAbilities().mayBuild
-            && !this.hasAdventureModePlaceTagForBlock(param0.getLevel().registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), var2)) {
+        if (var0 != null && !var0.getAbilities().mayBuild && !this.hasAdventureModePlaceTagForBlock(param0.getLevel().getTagManager(), var2)) {
             return InteractionResult.PASS;
         } else {
             Item var3 = this.getItem();
@@ -557,7 +546,7 @@ public final class ItemStack {
                 }
 
                 var0.remove("Name");
-            } catch (Exception var3) {
+            } catch (JsonParseException var3) {
                 var0.remove("Name");
             }
         }
@@ -642,7 +631,7 @@ public final class ItemStack {
                             if (var8 != null) {
                                 var0.add(ComponentUtils.mergeStyles(var8, LORE_STYLE));
                             }
-                        } catch (Exception var19) {
+                        } catch (JsonParseException var19) {
                             var4.remove("Lore");
                         }
                     }
@@ -790,23 +779,23 @@ public final class ItemStack {
         try {
             BlockStateParser var0 = new BlockStateParser(new StringReader(param0), true).parse(true);
             BlockState var1 = var0.getState();
-            TagKey<Block> var2 = var0.getTag();
+            ResourceLocation var2 = var0.getTag();
             boolean var3 = var1 != null;
             boolean var4 = var2 != null;
-            if (var3) {
-                return Lists.newArrayList(var1.getBlock().getName().withStyle(ChatFormatting.DARK_GRAY));
-            }
+            if (var3 || var4) {
+                if (var3) {
+                    return Lists.newArrayList(var1.getBlock().getName().withStyle(ChatFormatting.DARK_GRAY));
+                }
 
-            if (var4) {
-                List<Component> var5 = Streams.stream(Registry.BLOCK.getTagOrEmpty(var2))
-                    .map(param0x -> param0x.value().getName())
-                    .map(param0x -> param0x.withStyle(ChatFormatting.DARK_GRAY))
-                    .collect(Collectors.toList());
-                if (!var5.isEmpty()) {
-                    return var5;
+                Tag<Block> var5 = BlockTags.getAllTags().getTag(var2);
+                if (var5 != null) {
+                    Collection<Block> var6 = var5.getValues();
+                    if (!var6.isEmpty()) {
+                        return var6.stream().map(Block::getName).map(param0x -> param0x.withStyle(ChatFormatting.DARK_GRAY)).collect(Collectors.toList());
+                    }
                 }
             }
-        } catch (CommandSyntaxException var7) {
+        } catch (CommandSyntaxException var8) {
         }
 
         return Lists.newArrayList(new TextComponent("missingno").withStyle(ChatFormatting.DARK_GRAY));
@@ -846,7 +835,7 @@ public final class ItemStack {
         }
     }
 
-    public void addTagElement(String param0, Tag param1) {
+    public void addTagElement(String param0, net.minecraft.nbt.Tag param1) {
         this.getOrCreateTag().put(param0, param1);
     }
 
@@ -932,7 +921,7 @@ public final class ItemStack {
         return var1;
     }
 
-    public boolean hasAdventureModePlaceTagForBlock(Registry<Block> param0, BlockInWorld param1) {
+    public boolean hasAdventureModePlaceTagForBlock(TagContainer param0, BlockInWorld param1) {
         if (this.adventurePlaceCheck == null) {
             this.adventurePlaceCheck = new AdventureModeCheck("CanPlaceOn");
         }
@@ -940,7 +929,7 @@ public final class ItemStack {
         return this.adventurePlaceCheck.test(this, param0, param1);
     }
 
-    public boolean hasAdventureModeBreakTagForBlock(Registry<Block> param0, BlockInWorld param1) {
+    public boolean hasAdventureModeBreakTagForBlock(TagContainer param0, BlockInWorld param1) {
         if (this.adventureBreakCheck == null) {
             this.adventureBreakCheck = new AdventureModeCheck("CanDestroy");
         }

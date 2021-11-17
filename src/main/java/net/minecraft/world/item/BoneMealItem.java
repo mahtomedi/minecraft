@@ -1,12 +1,13 @@
 package net.minecraft.world.item;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
@@ -79,7 +80,7 @@ public class BoneMealItem extends Item {
             } else {
                 Random var0 = param1.getRandom();
 
-                label78:
+                label76:
                 for(int var1 = 0; var1 < 128; ++var1) {
                     BlockPos var2 = param2;
                     BlockState var3 = Blocks.SEAGRASS.defaultBlockState();
@@ -87,31 +88,20 @@ public class BoneMealItem extends Item {
                     for(int var4 = 0; var4 < var1 / 16; ++var4) {
                         var2 = var2.offset(var0.nextInt(3) - 1, (var0.nextInt(3) - 1) * var0.nextInt(3) / 2, var0.nextInt(3) - 1);
                         if (param1.getBlockState(var2).isCollisionShapeFullBlock(param1, var2)) {
-                            continue label78;
+                            continue label76;
                         }
                     }
 
-                    Holder<Biome> var5 = param1.getBiome(var2);
-                    if (var5.is(Biomes.WARM_OCEAN)) {
+                    Optional<ResourceKey<Biome>> var5 = param1.getBiomeName(var2);
+                    if (Objects.equals(var5, Optional.of(Biomes.WARM_OCEAN))) {
                         if (var1 == 0 && param3 != null && param3.getAxis().isHorizontal()) {
-                            var3 = Registry.BLOCK
-                                .getTag(BlockTags.WALL_CORALS)
-                                .flatMap(param1x -> param1x.getRandomElement(param1.random))
-                                .map(param0x -> param0x.value().defaultBlockState())
-                                .orElse(var3);
-                            if (var3.hasProperty(BaseCoralWallFanBlock.FACING)) {
-                                var3 = var3.setValue(BaseCoralWallFanBlock.FACING, param3);
-                            }
+                            var3 = BlockTags.WALL_CORALS.getRandomElement(param1.random).defaultBlockState().setValue(BaseCoralWallFanBlock.FACING, param3);
                         } else if (var0.nextInt(4) == 0) {
-                            var3 = Registry.BLOCK
-                                .getTag(BlockTags.UNDERWATER_BONEMEALS)
-                                .flatMap(param1x -> param1x.getRandomElement(param1.random))
-                                .map(param0x -> param0x.value().defaultBlockState())
-                                .orElse(var3);
+                            var3 = BlockTags.UNDERWATER_BONEMEALS.getRandomElement(var0).defaultBlockState();
                         }
                     }
 
-                    if (var3.is(BlockTags.WALL_CORALS, param0x -> param0x.hasProperty(BaseCoralWallFanBlock.FACING))) {
+                    if (var3.is(BlockTags.WALL_CORALS)) {
                         for(int var6 = 0; !var3.canSurvive(param1, var2) && var6 < 4; ++var6) {
                             var3 = var3.setValue(BaseCoralWallFanBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(var0));
                         }

@@ -18,6 +18,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.PrioritizeChunkUpdates;
 import net.minecraft.client.color.block.BlockTintCache;
 import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -29,7 +30,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -42,6 +42,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -115,7 +116,7 @@ public class ClientLevel extends Level {
         ClientPacketListener param0,
         ClientLevel.ClientLevelData param1,
         ResourceKey<Level> param2,
-        Holder<DimensionType> param3,
+        DimensionType param3,
         int param4,
         int param5,
         Supplier<ProfilerFiller> param6,
@@ -128,7 +129,7 @@ public class ClientLevel extends Level {
         this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
         this.levelRenderer = param7;
-        this.effects = DimensionSpecialEffects.forType(param3.value());
+        this.effects = DimensionSpecialEffects.forType(param3);
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8), 0.0F);
         this.serverSimulationDistance = param5;
         this.updateSkyBrightness();
@@ -166,7 +167,7 @@ public class ClientLevel extends Level {
         this.getWorldBorder().tick();
         this.tickTime();
         this.getProfiler().push("blocks");
-        this.chunkSource.tick(param0, true);
+        this.chunkSource.tick(param0);
         this.getProfiler().pop();
     }
 
@@ -355,7 +356,6 @@ public class ClientLevel extends Level {
 
         if (!var3.isCollisionShapeFullBlock(this, param6)) {
             this.getBiome(param6)
-                .value()
                 .getAmbientParticle()
                 .ifPresent(
                     param1x -> {
@@ -527,6 +527,11 @@ public class ClientLevel extends Level {
     }
 
     @Override
+    public TagContainer getTagManager() {
+        return this.connection.getTags();
+    }
+
+    @Override
     public RegistryAccess registryAccess() {
         return this.connection.registryAccess();
     }
@@ -606,8 +611,8 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public Holder<Biome> getUncachedNoiseBiome(int param0, int param1, int param2) {
-        return this.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS);
+    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
+        return this.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getOrThrow(Biomes.PLAINS);
     }
 
     public float getSkyDarken(float param0) {
@@ -615,8 +620,8 @@ public class ClientLevel extends Level {
         float var1 = 1.0F - (Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.2F);
         var1 = Mth.clamp(var1, 0.0F, 1.0F);
         var1 = 1.0F - var1;
-        var1 *= 1.0F - this.getRainLevel(param0) * 5.0F / 16.0F;
-        var1 *= 1.0F - this.getThunderLevel(param0) * 5.0F / 16.0F;
+        var1 = (float)((double)var1 * (1.0 - (double)(this.getRainLevel(param0) * 5.0F) / 16.0));
+        var1 = (float)((double)var1 * (1.0 - (double)(this.getThunderLevel(param0) * 5.0F) / 16.0));
         return var1 * 0.8F + 0.2F;
     }
 
@@ -625,7 +630,7 @@ public class ClientLevel extends Level {
         Vec3 var1 = param0.subtract(2.0, 2.0, 2.0).scale(0.25);
         BiomeManager var2 = this.getBiomeManager();
         Vec3 var3 = CubicSampler.gaussianSampleVec3(
-            var1, (param1x, param2, param3) -> Vec3.fromRGB24(var2.getNoiseBiomeAtQuart(param1x, param2, param3).value().getSkyColor())
+            var1, (param1x, param2, param3) -> Vec3.fromRGB24(var2.getNoiseBiomeAtQuart(param1x, param2, param3).getSkyColor())
         );
         float var4 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
         var4 = Mth.clamp(var4, 0.0F, 1.0F);
@@ -744,7 +749,7 @@ public class ClientLevel extends Level {
     public int calculateBlockTint(BlockPos param0, ColorResolver param1) {
         int var0 = Minecraft.getInstance().options.biomeBlendRadius;
         if (var0 == 0) {
-            return param1.getColor(this.getBiome(param0).value(), (double)param0.getX(), (double)param0.getZ());
+            return param1.getColor(this.getBiome(param0), (double)param0.getX(), (double)param0.getZ());
         } else {
             int var1 = (var0 * 2 + 1) * (var0 * 2 + 1);
             int var2 = 0;
@@ -755,7 +760,7 @@ public class ClientLevel extends Level {
             int var7;
             for(BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(); var5.advance(); var4 += var7 & 0xFF) {
                 var6.set(var5.nextX(), var5.nextY(), var5.nextZ());
-                var7 = param1.getColor(this.getBiome(var6).value(), (double)var6.getX(), (double)var6.getZ());
+                var7 = param1.getColor(this.getBiome(var6), (double)var6.getX(), (double)var6.getZ());
                 var2 += (var7 & 0xFF0000) >> 16;
                 var3 += (var7 & 0xFF00) >> 8;
             }
@@ -825,6 +830,11 @@ public class ClientLevel extends Level {
 
     public int getServerSimulationDistance() {
         return this.serverSimulationDistance;
+    }
+
+    @Override
+    public boolean shouldDelayFallingBlockEntityRemoval(Entity.RemovalReason param0) {
+        return param0 == Entity.RemovalReason.DISCARDED && this.minecraft.options.prioritizeChunkUpdates != PrioritizeChunkUpdates.NEARBY;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -967,8 +977,8 @@ public class ClientLevel extends Level {
             return this.isFlat ? (double)param0.getMinBuildHeight() : 63.0;
         }
 
-        public float getClearColorScale() {
-            return this.isFlat ? 1.0F : 0.03125F;
+        public double getClearColorScale() {
+            return this.isFlat ? 1.0 : 0.03125;
         }
     }
 

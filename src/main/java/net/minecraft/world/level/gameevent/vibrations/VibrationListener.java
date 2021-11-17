@@ -77,11 +77,11 @@ public class VibrationListener implements GameEventListener {
     private boolean isValidVibration(GameEvent param0, @Nullable Entity param1) {
         if (this.receivingEvent.isPresent()) {
             return false;
-        } else if (!param0.is(GameEventTags.VIBRATIONS)) {
+        } else if (!GameEventTags.VIBRATIONS.contains(param0)) {
             return false;
         } else {
             if (param1 != null) {
-                if (param0.is(GameEventTags.IGNORE_VIBRATIONS_SNEAKING) && param1.isSteppingCarefully()) {
+                if (GameEventTags.IGNORE_VIBRATIONS_SNEAKING.contains(param0) && param1.isSteppingCarefully()) {
                     return false;
                 }
 
@@ -97,7 +97,7 @@ public class VibrationListener implements GameEventListener {
     private void sendSignal(Level param0, GameEvent param1, BlockPos param2, BlockPos param3) {
         this.receivingEvent = Optional.of(param1);
         if (param0 instanceof ServerLevel) {
-            this.receivingDistance = Mth.floor(Math.sqrt(param2.distSqr(param3)));
+            this.receivingDistance = Mth.floor(Math.sqrt(param2.distSqr(param3, false)));
             this.travelTimeInTicks = this.receivingDistance;
             ((ServerLevel)param0).sendVibrationParticle(new VibrationPath(param2, this.listenerSource, this.travelTimeInTicks));
         }

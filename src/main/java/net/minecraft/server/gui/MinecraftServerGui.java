@@ -1,8 +1,7 @@
 package net.minecraft.server.gui;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogQueues;
-import com.mojang.logging.LogUtils;
+import com.mojang.util.QueueLogAppender;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,11 +27,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.server.dedicated.DedicatedServer;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MinecraftServerGui extends JComponent {
     private static final Font MONOSPACED = new Font("Monospaced", 0, 12);
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String TITLE = "Minecraft server";
     private static final String SHUTDOWN_TITLE = "Minecraft server - shutting down!";
     private final DedicatedServer server;
@@ -129,7 +129,7 @@ public class MinecraftServerGui extends JComponent {
         var0.setBorder(new TitledBorder(new EtchedBorder(), "Log and chat"));
         this.logAppenderThread = new Thread(() -> {
             String var0x;
-            while((var0x = LogQueues.getNextLogEvent("ServerGuiConsole")) != null) {
+            while((var0x = QueueLogAppender.getNextLogEvent("ServerGuiConsole")) != null) {
                 this.print(var1, var2, var0x);
             }
 

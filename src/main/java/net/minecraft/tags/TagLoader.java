@@ -6,7 +6,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
@@ -27,10 +26,11 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TagLoader<T> {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new Gson();
     private static final String PATH_SUFFIX = ".json";
     private static final int PATH_SUFFIX_LENGTH = ".json".length();
@@ -104,7 +104,7 @@ public class TagLoader<T> {
 
     }
 
-    public Map<ResourceLocation, Tag<T>> build(Map<ResourceLocation, Tag.Builder> param0) {
+    public TagCollection<T> build(Map<ResourceLocation, Tag.Builder> param0) {
         Map<ResourceLocation, Tag<T>> var0 = Maps.newHashMap();
         Function<ResourceLocation, Tag<T>> var1 = var0::get;
         Function<ResourceLocation, T> var2 = param0x -> this.idToValue.apply(param0x).orElse((T)null);
@@ -124,16 +124,16 @@ public class TagLoader<T> {
                                     param1x -> LOGGER.error(
                                             "Couldn't load tag {} as it is missing following references: {}",
                                             param3x,
-                                            param1x.stream().map(Objects::toString).collect(Collectors.joining(", "))
+                                            param1x.stream().map(Objects::toString).collect(Collectors.joining(","))
                                         )
                                 )
                                 .ifRight(param2x -> var0.put(param3x, param2x))
                     )
             );
-        return var0;
+        return TagCollection.of(var0);
     }
 
-    public Map<ResourceLocation, Tag<T>> loadAndBuild(ResourceManager param0) {
+    public TagCollection<T> loadAndBuild(ResourceManager param0) {
         return this.build(this.load(param0));
     }
 }

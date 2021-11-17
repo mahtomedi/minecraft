@@ -1,21 +1,33 @@
 package net.minecraft.resources;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.Lifecycle;
-import java.util.Optional;
-import net.minecraft.core.Holder;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 
-public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
+public final class RegistryFileCodec<E> implements Codec<Supplier<E>> {
     private final ResourceKey<? extends Registry<E>> registryKey;
     private final Codec<E> elementCodec;
     private final boolean allowInline;
 
     public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> param0, Codec<E> param1) {
         return create(param0, param1, true);
+    }
+
+    public static <E> Codec<List<Supplier<E>>> homogeneousList(ResourceKey<? extends Registry<E>> param0, Codec<E> param1) {
+        return Codec.either(create(param0, param1, false).listOf(), param1.<Supplier<>>xmap(param0x -> () -> param0x, Supplier::get).listOf())
+            .xmap(
+                param0x -> param0x.map(
+                        (Function<? super List, ? extends List<Supplier<E>>>)(param0xx -> param0xx),
+                        (Function<? super List, ? extends List<Supplier<E>>>)(param0xx -> param0xx)
+                    ),
+                Either::left
+            );
     }
 
     private static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> param0, Codec<E> param1, boolean param2) {
@@ -28,55 +40,17 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
         this.allowInline = param2;
     }
 
-    public <T> DataResult<T> encode(Holder<E> param0, DynamicOps<T> param1, T param2) {
-        if (param1 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
-            if (var1.isPresent()) {
-                if (!param0.isValidInRegistry(var1.get())) {
-                    return DataResult.error("Element " + param0 + " is not valid in current registry set");
-                }
-
-                return param0.unwrap()
-                    .map(
-                        param2x -> ResourceLocation.CODEC.encode(param2x.location(), param1, param2),
-                        param2x -> this.elementCodec.encode(param2x, param1, param2)
-                    );
-            }
-        }
-
-        return this.elementCodec.encode(param0.value(), param1, param2);
+    public <T> DataResult<T> encode(Supplier<E> param0, DynamicOps<T> param1, T param2) {
+        return param1 instanceof RegistryWriteOps
+            ? ((RegistryWriteOps)param1).encode(param0.get(), param2, this.registryKey, this.elementCodec)
+            : this.elementCodec.encode(param0.get(), param1, param2);
     }
 
     @Override
-    public <T> DataResult<Pair<Holder<E>, T>> decode(DynamicOps<T> param0, T param1) {
-        if (param0 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
-            if (var1.isEmpty()) {
-                return DataResult.error("Registry does not exist: " + this.registryKey);
-            } else {
-                Registry<E> var2 = var1.get();
-                DataResult<Pair<ResourceLocation, T>> var3 = ResourceLocation.CODEC.decode(param0, param1);
-                if (var3.result().isEmpty()) {
-                    return !this.allowInline
-                        ? DataResult.error("Inline definitions not allowed here")
-                        : this.elementCodec.decode(param0, param1).map(param0x -> param0x.mapFirst(Holder::direct));
-                } else {
-                    Pair<ResourceLocation, T> var4 = var3.result().get();
-                    ResourceKey<E> var5 = ResourceKey.create(this.registryKey, var4.getFirst());
-                    Optional<RegistryLoader.Bound> var6 = var0.registryLoader();
-                    if (var6.isPresent()) {
-                        return var6.get()
-                            .overrideElementFromResources(this.registryKey, this.elementCodec, var5, var0.getAsJson())
-                            .map(param1x -> Pair.of(param1x, var4.getSecond()));
-                    } else {
-                        Holder<E> var7 = var2.getOrCreateHolder(var5);
-                        return DataResult.success(Pair.of(var7, var4.getSecond()), Lifecycle.stable());
-                    }
-                }
-            }
-        } else {
-            return this.elementCodec.decode(param0, param1).map(param0x -> param0x.mapFirst(Holder::direct));
-        }
+    public <T> DataResult<Pair<Supplier<E>, T>> decode(DynamicOps<T> param0, T param1) {
+        return param0 instanceof RegistryReadOps
+            ? ((RegistryReadOps)param0).decodeElement(param1, this.registryKey, this.elementCodec, this.allowInline)
+            : this.elementCodec.decode(param0, param1).map(param0x -> param0x.mapFirst(param0xx -> () -> param0xx));
     }
 
     @Override

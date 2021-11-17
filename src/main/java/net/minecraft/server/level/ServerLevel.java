@@ -3,14 +3,11 @@ package net.minecraft.server.level;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
@@ -34,11 +31,8 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
@@ -65,7 +59,7 @@ import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.players.SleepStatus;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.util.CsvOutput;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
@@ -127,9 +121,10 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistrar;
 import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureCheck;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -145,7 +140,8 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.LevelTicks;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServerLevel extends Level implements WorldGenLevel {
     public static final BlockPos END_SPAWN_POINT = new BlockPos(100, 50, 0);
@@ -157,7 +153,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private static final int MAX_THUNDER_DELAY_TIME = 180000;
     private static final int MIN_THUNDER_TIME = 3600;
     private static final int MAX_THUNDER_TIME = 15600;
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int EMPTY_TIME_NO_TICK = 300;
     private static final int MAX_SCHEDULED_TICKS_PER_TICK = 65536;
     final List<ServerPlayer> players = Lists.newArrayList();
@@ -173,7 +169,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private final LevelTicks<Block> blockTicks = new LevelTicks<>(this::isPositionTickingWithEntitiesLoaded, this.getProfilerSupplier());
     private final LevelTicks<Fluid> fluidTicks = new LevelTicks<>(this::isPositionTickingWithEntitiesLoaded, this.getProfilerSupplier());
     final Set<Mob> navigatingMobs = new ObjectOpenHashSet<>();
-    volatile boolean isUpdatingNavigations;
     protected final Raids raids;
     private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet<>();
     private final List<BlockEventData> blockEventsToReschedule = new ArrayList<>(64);
@@ -192,7 +187,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         LevelStorageSource.LevelStorageAccess param2,
         ServerLevelData param3,
         ResourceKey<Level> param4,
-        Holder<DimensionType> param5,
+        DimensionType param5,
         ChunkProgressListener param6,
         ChunkGenerator param7,
         boolean param8,
@@ -205,7 +200,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.server = param0;
         this.customSpawners = param10;
         this.serverLevelData = param3;
-        param7.ensureStructuresGenerated();
         boolean var0 = param0.forceSynchronousWrites();
         DataFixer var1 = param0.getFixerUpper();
         EntityPersistentStorage<Entity> var2 = new EntityStorage(this, param2.getDimensionPath(param4).resolve("entities"), var1, var0, param0);
@@ -228,8 +222,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.updateSkyBrightness();
         this.prepareWeather();
         this.getWorldBorder().setAbsoluteMaxSize(param0.getAbsoluteMaxWorldSize());
-        this.raids = this.getDataStorage()
-            .computeIfAbsent(param0x -> Raids.load(this, param0x), () -> new Raids(this), Raids.getFileId(this.dimensionTypeRegistration()));
+        this.raids = this.getDataStorage().computeIfAbsent(param0x -> Raids.load(this, param0x), () -> new Raids(this), Raids.getFileId(this.dimensionType()));
         if (!param0.isSingleplayer()) {
             param3.setGameType(param0.getDefaultGameType());
         }
@@ -257,7 +250,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Override
-    public Holder<Biome> getUncachedNoiseBiome(int param0, int param1, int param2) {
+    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
         return this.getChunkSource().getGenerator().getNoiseBiome(param0, param1, param2);
     }
 
@@ -300,7 +293,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         var0.popPush("raid");
         this.raids.tick();
         var0.popPush("chunkSource");
-        this.getChunkSource().tick(param0, true);
+        this.getChunkSource().tick(param0);
         var0.popPush("blockEvents");
         this.runBlockEvents();
         this.handlingTick = false;
@@ -426,7 +419,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         if (this.random.nextInt(16) == 0) {
             BlockPos var10 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.getBlockRandomPos(var2, 0, var3, 15));
             BlockPos var11 = var10.below();
-            Biome var12 = this.getBiome(var10).value();
+            Biome var12 = this.getBiome(var10);
             if (var12.shouldFreeze(this, var11)) {
                 this.setBlockAndUpdate(var11, Blocks.ICE.defaultBlockState());
             }
@@ -437,8 +430,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 }
 
                 BlockState var13 = this.getBlockState(var11);
-                Biome.Precipitation var14 = var12.getPrecipitation();
-                if (var14 == Biome.Precipitation.RAIN && var12.coldEnoughToSnow(var11)) {
+                Biome.Precipitation var14 = this.getBiome(var10).getPrecipitation();
+                if (var14 == Biome.Precipitation.RAIN && var12.isColdEnoughToSnow(var11)) {
                     var14 = Biome.Precipitation.SNOW;
                 }
 
@@ -592,17 +585,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
             this.oThunderLevel = this.thunderLevel;
             if (this.levelData.isThundering()) {
-                this.thunderLevel += 0.01F;
+                this.thunderLevel = (float)((double)this.thunderLevel + 0.01);
             } else {
-                this.thunderLevel -= 0.01F;
+                this.thunderLevel = (float)((double)this.thunderLevel - 0.01);
             }
 
             this.thunderLevel = Mth.clamp(this.thunderLevel, 0.0F, 1.0F);
             this.oRainLevel = this.rainLevel;
             if (this.levelData.isRaining()) {
-                this.rainLevel += 0.01F;
+                this.rainLevel = (float)((double)this.rainLevel + 0.01);
             } else {
-                this.rainLevel -= 0.01F;
+                this.rainLevel = (float)((double)this.rainLevel - 0.01);
             }
 
             this.rainLevel = Mth.clamp(this.rainLevel, 0.0F, 1.0F);
@@ -907,32 +900,15 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     @Override
     public void sendBlockUpdated(BlockPos param0, BlockState param1, BlockState param2, int param3) {
-        if (this.isUpdatingNavigations) {
-            String var0 = "recursive call to sendBlockUpdated";
-            Util.logAndPauseIfInIde("recursive call to sendBlockUpdated", new IllegalStateException("recursive call to sendBlockUpdated"));
-        }
-
         this.getChunkSource().blockChanged(param0);
-        VoxelShape var1 = param1.getCollisionShape(this, param0);
-        VoxelShape var2 = param2.getCollisionShape(this, param0);
-        if (Shapes.joinIsNotEmpty(var1, var2, BooleanOp.NOT_SAME)) {
-            List<PathNavigation> var3 = new ObjectArrayList<>();
-
-            for(Mob var4 : this.navigatingMobs) {
-                PathNavigation var5 = var4.getNavigation();
-                if (var5.shouldRecomputePath(param0)) {
-                    var3.add(var5);
+        VoxelShape var0 = param1.getCollisionShape(this, param0);
+        VoxelShape var1 = param2.getCollisionShape(this, param0);
+        if (Shapes.joinIsNotEmpty(var0, var1, BooleanOp.NOT_SAME)) {
+            for(Mob var2 : this.navigatingMobs) {
+                PathNavigation var3 = var2.getNavigation();
+                if (!var3.hasDelayedRecomputation()) {
+                    var3.recomputePath(param0);
                 }
-            }
-
-            try {
-                this.isUpdatingNavigations = true;
-
-                for(PathNavigation var6 : var3) {
-                    var6.recomputePath();
-                }
-            } finally {
-                this.isUpdatingNavigations = false;
             }
 
         }
@@ -1082,7 +1058,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
             return false;
         } else {
             BlockPos var0 = param0.blockPosition();
-            if (var0.closerToCenterThan(new Vec3(param2, param3, param4), param1 ? 512.0 : 32.0)) {
+            if (var0.closerThan(new Vec3(param2, param3, param4), param1 ? 512.0 : 32.0)) {
                 param0.connection.send(param5);
                 return true;
             } else {
@@ -1110,37 +1086,38 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Nullable
-    public BlockPos findNearestMapFeature(TagKey<ConfiguredStructureFeature<?, ?>> param0, BlockPos param1, int param2, boolean param3) {
-        if (!this.server.getWorldData().worldGenSettings().generateFeatures()) {
-            return null;
-        } else {
-            Optional<HolderSet.Named<ConfiguredStructureFeature<?, ?>>> var0 = this.registryAccess()
-                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY)
-                .getTag(param0);
-            if (var0.isEmpty()) {
-                return null;
-            } else {
-                Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>> var1 = this.getChunkSource()
-                    .getGenerator()
-                    .findNearestMapFeature(this, var0.get(), param1, param2, param3);
-                return var1 != null ? var1.getFirst() : null;
-            }
-        }
+    public BlockPos findNearestMapFeature(StructureFeature<?> param0, BlockPos param1, int param2, boolean param3) {
+        return !this.server.getWorldData().worldGenSettings().generateFeatures()
+            ? null
+            : this.getChunkSource().getGenerator().findNearestMapFeature(this, param0, param1, param2, param3);
     }
 
     @Nullable
-    public Pair<BlockPos, Holder<Biome>> findNearestBiome(Predicate<Holder<Biome>> param0, BlockPos param1, int param2, int param3) {
+    public BlockPos findNearestBiome(Biome param0, BlockPos param1, int param2, int param3) {
         return this.getChunkSource()
             .getGenerator()
             .getBiomeSource()
             .findBiomeHorizontal(
-                param1.getX(), param1.getY(), param1.getZ(), param2, param3, param0, this.random, true, this.getChunkSource().getGenerator().climateSampler()
+                param1.getX(),
+                param1.getY(),
+                param1.getZ(),
+                param2,
+                param3,
+                param1x -> param1x == param0,
+                this.random,
+                true,
+                this.getChunkSource().getGenerator().climateSampler()
             );
     }
 
     @Override
     public RecipeManager getRecipeManager() {
         return this.server.getRecipeManager();
+    }
+
+    @Override
+    public TagContainer getTagManager() {
+        return this.server.getTags();
     }
 
     @Override
@@ -1420,6 +1397,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Override
+    public List<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
+        return this.structureFeatureManager().startsForFeature(param0, param1);
+    }
+
+    @Override
     public ServerLevel getLevel() {
         return this;
     }
@@ -1488,7 +1470,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public void onStructureStartsAvailable(ChunkAccess param0) {
-        this.server.execute(() -> this.structureCheck.onStructureLoad(param0.getPos(), param0.getAllStarts()));
+        this.structureCheck.onStructureLoad(param0.getPos(), param0.getAllStarts());
     }
 
     @Override
@@ -1511,15 +1493,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public boolean isPositionEntityTicking(BlockPos param0) {
-        return this.entityManager.canPositionTick(param0) && this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(ChunkPos.asLong(param0));
+        return this.entityManager.isPositionTicking(param0);
     }
 
-    public boolean isNaturalSpawningAllowed(BlockPos param0) {
-        return this.entityManager.canPositionTick(param0);
-    }
-
-    public boolean isNaturalSpawningAllowed(ChunkPos param0) {
-        return this.entityManager.canPositionTick(param0);
+    public boolean isPositionEntityTicking(ChunkPos param0) {
+        return this.entityManager.isPositionTicking(param0);
     }
 
     final class EntityCallbacks implements LevelCallback<Entity> {
@@ -1540,25 +1518,18 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         public void onTrackingStart(Entity param0) {
             ServerLevel.this.getChunkSource().addEntity(param0);
-            if (param0 instanceof ServerPlayer var0) {
-                ServerLevel.this.players.add(var0);
+            if (param0 instanceof ServerPlayer) {
+                ServerLevel.this.players.add((ServerPlayer)param0);
                 ServerLevel.this.updateSleepingPlayerList();
             }
 
-            if (param0 instanceof Mob var1) {
-                if (ServerLevel.this.isUpdatingNavigations) {
-                    String var2 = "onTrackingStart called during navigation iteration";
-                    Util.logAndPauseIfInIde(
-                        "onTrackingStart called during navigation iteration", new IllegalStateException("onTrackingStart called during navigation iteration")
-                    );
-                }
-
-                ServerLevel.this.navigatingMobs.add(var1);
+            if (param0 instanceof Mob) {
+                ServerLevel.this.navigatingMobs.add((Mob)param0);
             }
 
-            if (param0 instanceof EnderDragon var3) {
-                for(EnderDragonPart var4 : var3.getSubEntities()) {
-                    ServerLevel.this.dragonParts.put(var4.getId(), var4);
+            if (param0 instanceof EnderDragon) {
+                for(EnderDragonPart var0 : ((EnderDragon)param0).getSubEntities()) {
+                    ServerLevel.this.dragonParts.put(var0.getId(), var0);
                 }
             }
 
@@ -1571,26 +1542,19 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 ServerLevel.this.updateSleepingPlayerList();
             }
 
-            if (param0 instanceof Mob var1) {
-                if (ServerLevel.this.isUpdatingNavigations) {
-                    String var2 = "onTrackingStart called during navigation iteration";
-                    Util.logAndPauseIfInIde(
-                        "onTrackingStart called during navigation iteration", new IllegalStateException("onTrackingStart called during navigation iteration")
-                    );
-                }
-
-                ServerLevel.this.navigatingMobs.remove(var1);
+            if (param0 instanceof Mob) {
+                ServerLevel.this.navigatingMobs.remove(param0);
             }
 
-            if (param0 instanceof EnderDragon var3) {
-                for(EnderDragonPart var4 : var3.getSubEntities()) {
-                    ServerLevel.this.dragonParts.remove(var4.getId());
+            if (param0 instanceof EnderDragon) {
+                for(EnderDragonPart var1 : ((EnderDragon)param0).getSubEntities()) {
+                    ServerLevel.this.dragonParts.remove(var1.getId());
                 }
             }
 
-            GameEventListenerRegistrar var5 = param0.getGameEventListenerRegistrar();
-            if (var5 != null) {
-                var5.onListenerRemoved(param0.level);
+            GameEventListenerRegistrar var2 = param0.getGameEventListenerRegistrar();
+            if (var2 != null) {
+                var2.onListenerRemoved(param0.level);
             }
 
         }

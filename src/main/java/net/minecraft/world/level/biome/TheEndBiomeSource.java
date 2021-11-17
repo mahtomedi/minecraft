@@ -3,9 +3,8 @@ package net.minecraft.world.level.biome;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 public class TheEndBiomeSource extends BiomeSource {
     public static final Codec<TheEndBiomeSource> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(param0x -> null),
+                    RegistryLookupCodec.create(Registry.BIOME_REGISTRY).forGetter(param0x -> param0x.biomes),
                     Codec.LONG.fieldOf("seed").stable().forGetter(param0x -> param0x.seed)
                 )
                 .apply(param0, param0.stable(TheEndBiomeSource::new))
@@ -23,33 +22,36 @@ public class TheEndBiomeSource extends BiomeSource {
     public static final int ISLAND_CHUNK_DISTANCE = 64;
     private static final long ISLAND_CHUNK_DISTANCE_SQR = 4096L;
     private final SimplexNoise islandNoise;
+    private final Registry<Biome> biomes;
     private final long seed;
-    private final Holder<Biome> end;
-    private final Holder<Biome> highlands;
-    private final Holder<Biome> midlands;
-    private final Holder<Biome> islands;
-    private final Holder<Biome> barrens;
+    private final Biome end;
+    private final Biome highlands;
+    private final Biome midlands;
+    private final Biome islands;
+    private final Biome barrens;
 
     public TheEndBiomeSource(Registry<Biome> param0, long param1) {
         this(
+            param0,
             param1,
-            param0.getOrCreateHolder(Biomes.THE_END),
-            param0.getOrCreateHolder(Biomes.END_HIGHLANDS),
-            param0.getOrCreateHolder(Biomes.END_MIDLANDS),
-            param0.getOrCreateHolder(Biomes.SMALL_END_ISLANDS),
-            param0.getOrCreateHolder(Biomes.END_BARRENS)
+            param0.getOrThrow(Biomes.THE_END),
+            param0.getOrThrow(Biomes.END_HIGHLANDS),
+            param0.getOrThrow(Biomes.END_MIDLANDS),
+            param0.getOrThrow(Biomes.SMALL_END_ISLANDS),
+            param0.getOrThrow(Biomes.END_BARRENS)
         );
     }
 
-    private TheEndBiomeSource(long param0, Holder<Biome> param1, Holder<Biome> param2, Holder<Biome> param3, Holder<Biome> param4, Holder<Biome> param5) {
-        super(ImmutableList.of(param1, param2, param3, param4, param5));
-        this.seed = param0;
-        this.end = param1;
-        this.highlands = param2;
-        this.midlands = param3;
-        this.islands = param4;
-        this.barrens = param5;
-        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(param0));
+    private TheEndBiomeSource(Registry<Biome> param0, long param1, Biome param2, Biome param3, Biome param4, Biome param5, Biome param6) {
+        super(ImmutableList.of(param2, param3, param4, param5, param6));
+        this.biomes = param0;
+        this.seed = param1;
+        this.end = param2;
+        this.highlands = param3;
+        this.midlands = param4;
+        this.islands = param5;
+        this.barrens = param6;
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(param1));
         var0.consumeCount(17292);
         this.islandNoise = new SimplexNoise(var0);
     }
@@ -61,11 +63,11 @@ public class TheEndBiomeSource extends BiomeSource {
 
     @Override
     public BiomeSource withSeed(long param0) {
-        return new TheEndBiomeSource(param0, this.end, this.highlands, this.midlands, this.islands, this.barrens);
+        return new TheEndBiomeSource(this.biomes, param0, this.end, this.highlands, this.midlands, this.islands, this.barrens);
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
+    public Biome getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
         int var0 = param0 >> 2;
         int var1 = param2 >> 2;
         if ((long)var0 * (long)var0 + (long)var1 * (long)var1 <= 4096L) {

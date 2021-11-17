@@ -3,7 +3,6 @@ package net.minecraft.world.level.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -27,10 +26,11 @@ import net.minecraft.util.CsvOutput;
 import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PersistentEntitySectionManager<T extends EntityAccess> implements AutoCloseable {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     final Set<UUID> knownUuids = Sets.newHashSet();
     final LevelCallback<T> callbacks;
     private final EntityPersistentStorage<T> permanentStorage;
@@ -297,11 +297,11 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
         return this.entityGetter;
     }
 
-    public boolean canPositionTick(BlockPos param0) {
+    public boolean isPositionTicking(BlockPos param0) {
         return this.chunkVisibility.get(ChunkPos.asLong(param0)).isTicking();
     }
 
-    public boolean canPositionTick(ChunkPos param0) {
+    public boolean isPositionTicking(ChunkPos param0) {
         return this.chunkVisibility.get(param0.toLong()).isTicking();
     }
 

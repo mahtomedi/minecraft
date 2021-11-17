@@ -1,9 +1,7 @@
 package net.minecraft.world.level.levelgen.structure;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
@@ -11,21 +9,23 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.StructurePieceType;
+import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
+import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
-import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PoolElementStructurePiece extends StructurePiece {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     protected final StructurePoolElement element;
     protected BlockPos position;
     private final int groundLevelDelta;
@@ -47,7 +47,7 @@ public class PoolElementStructurePiece extends StructurePiece {
         this.structureManager = param0.structureManager();
         this.position = new BlockPos(param1.getInt("PosX"), param1.getInt("PosY"), param1.getInt("PosZ"));
         this.groundLevelDelta = param1.getInt("ground_level_delta");
-        DynamicOps<Tag> var0 = RegistryOps.create(NbtOps.INSTANCE, param0.registryAccess());
+        RegistryReadOps<Tag> var0 = RegistryReadOps.create(NbtOps.INSTANCE, param0.resourceManager(), param0.registryAccess());
         this.element = StructurePoolElement.CODEC
             .parse(var0, param1.getCompound("pool_element"))
             .resultOrPartial(LOGGER::error)
@@ -65,7 +65,7 @@ public class PoolElementStructurePiece extends StructurePiece {
         param1.putInt("PosY", this.position.getY());
         param1.putInt("PosZ", this.position.getZ());
         param1.putInt("ground_level_delta", this.groundLevelDelta);
-        DynamicOps<Tag> var0 = RegistryOps.create(NbtOps.INSTANCE, param0.registryAccess());
+        RegistryWriteOps<Tag> var0 = RegistryWriteOps.create(NbtOps.INSTANCE, param0.registryAccess());
         StructurePoolElement.CODEC.encodeStart(var0, this.element).resultOrPartial(LOGGER::error).ifPresent(param1x -> param1.put("pool_element", param1x));
         param1.putString("rotation", this.rotation.name());
         ListTag var1 = new ListTag();

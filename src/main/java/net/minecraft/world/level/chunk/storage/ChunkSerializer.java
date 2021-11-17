@@ -1,7 +1,6 @@
 package net.minecraft.world.level.chunk.storage;
 
 import com.google.common.collect.Maps;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -9,15 +8,14 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -51,7 +49,6 @@ import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
@@ -59,13 +56,14 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ChunkSerializer {
     private static final Codec<PalettedContainer<BlockState>> BLOCK_STATE_CODEC = PalettedContainer.codec(
         Block.BLOCK_STATE_REGISTRY, BlockState.CODEC, PalettedContainer.Strategy.SECTION_STATES, Blocks.AIR.defaultBlockState()
     );
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String TAG_UPGRADE_DATA = "UpgradeData";
     private static final String BLOCK_TICKS_TAG = "block_ticks";
     private static final String FLUID_TICKS_TAG = "fluid_ticks";
@@ -89,7 +87,7 @@ public class ChunkSerializer {
         }
 
         Registry<Biome> var9 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        Codec<PalettedContainer<Holder<Biome>>> var10 = makeBiomeCodec(var9);
+        Codec<PalettedContainer<Biome>> var10 = makeBiomeCodec(var9);
 
         for(int var11 = 0; var11 < var3.size(); ++var11) {
             CompoundTag var12 = var3.getCompound(var11);
@@ -105,13 +103,13 @@ public class ChunkSerializer {
                     var15 = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES);
                 }
 
-                PalettedContainer<Holder<Biome>> var17;
+                PalettedContainer<Biome> var17;
                 if (var12.contains("biomes", 10)) {
                     var17 = var10.parse(NbtOps.INSTANCE, var12.getCompound("biomes"))
                         .promotePartial(param2x -> logErrors(param2, var13, param2x))
                         .getOrThrow(false, LOGGER::error);
                 } else {
-                    var17 = new PalettedContainer<>(var9.asHolderIdMap(), var9.getHolderOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
+                    var17 = new PalettedContainer<>(var9, var9.getOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
                 }
 
                 LevelChunkSection var19 = new LevelChunkSection(var13, var15, var17);
@@ -205,7 +203,7 @@ public class ChunkSerializer {
         Heightmap.primeHeightmaps(var26, var36);
         CompoundTag var39 = param3.getCompound("structures");
         var26.setAllStarts(unpackStructureStart(StructurePieceSerializationContext.fromLevel(param0), var39, param0.getSeed()));
-        var26.setAllReferences(unpackStructureReferences(param0.registryAccess(), param2, var39));
+        var26.setAllReferences(unpackStructureReferences(param2, var39));
         if (param3.getBoolean("shouldSave")) {
             var26.setUnsaved(true);
         }
@@ -262,10 +260,8 @@ public class ChunkSerializer {
         LOGGER.error("Recoverable errors when loading section [" + param0.x + ", " + param1 + ", " + param0.z + "]: " + param2);
     }
 
-    private static Codec<PalettedContainer<Holder<Biome>>> makeBiomeCodec(Registry<Biome> param0) {
-        return PalettedContainer.codec(
-            param0.asHolderIdMap(), param0.holderByNameCodec(), PalettedContainer.Strategy.SECTION_BIOMES, param0.getHolderOrThrow(Biomes.PLAINS)
-        );
+    private static Codec<PalettedContainer<Biome>> makeBiomeCodec(Registry<Biome> param0) {
+        return PalettedContainer.codec(param0, param0.byNameCodec(), PalettedContainer.Strategy.SECTION_BIOMES, param0.getOrThrow(Biomes.PLAINS));
     }
 
     public static CompoundTag write(ServerLevel param0, ChunkAccess param1) {
@@ -300,7 +296,7 @@ public class ChunkSerializer {
         ListTag var6 = new ListTag();
         LevelLightEngine var7 = param0.getChunkSource().getLightEngine();
         Registry<Biome> var8 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        Codec<PalettedContainer<Holder<Biome>>> var9 = makeBiomeCodec(var8);
+        Codec<PalettedContainer<Biome>> var9 = makeBiomeCodec(var8);
         boolean var10 = param1.isLightCorrect();
 
         for(int var11 = var7.getMinLightSection(); var11 < var7.getMaxLightSection(); ++var11) {
@@ -426,48 +422,40 @@ public class ChunkSerializer {
     private static CompoundTag packStructureData(
         StructurePieceSerializationContext param0,
         ChunkPos param1,
-        Map<ConfiguredStructureFeature<?, ?>, StructureStart> param2,
-        Map<ConfiguredStructureFeature<?, ?>, LongSet> param3
+        Map<StructureFeature<?>, StructureStart<?>> param2,
+        Map<StructureFeature<?>, LongSet> param3
     ) {
         CompoundTag var0 = new CompoundTag();
         CompoundTag var1 = new CompoundTag();
-        Registry<ConfiguredStructureFeature<?, ?>> var2 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
 
-        for(Entry<ConfiguredStructureFeature<?, ?>, StructureStart> var3 : param2.entrySet()) {
-            ResourceLocation var4 = var2.getKey(var3.getKey());
-            var1.put(var4.toString(), var3.getValue().createTag(param0, param1));
+        for(Entry<StructureFeature<?>, StructureStart<?>> var2 : param2.entrySet()) {
+            var1.put(var2.getKey().getFeatureName(), var2.getValue().createTag(param0, param1));
         }
 
         var0.put("starts", var1);
-        CompoundTag var5 = new CompoundTag();
+        CompoundTag var3 = new CompoundTag();
 
-        for(Entry<ConfiguredStructureFeature<?, ?>, LongSet> var6 : param3.entrySet()) {
-            if (!var6.getValue().isEmpty()) {
-                ResourceLocation var7 = var2.getKey(var6.getKey());
-                var5.put(var7.toString(), new LongArrayTag(var6.getValue()));
-            }
+        for(Entry<StructureFeature<?>, LongSet> var4 : param3.entrySet()) {
+            var3.put(var4.getKey().getFeatureName(), new LongArrayTag(var4.getValue()));
         }
 
-        var0.put("References", var5);
+        var0.put("References", var3);
         return var0;
     }
 
-    private static Map<ConfiguredStructureFeature<?, ?>, StructureStart> unpackStructureStart(
-        StructurePieceSerializationContext param0, CompoundTag param1, long param2
-    ) {
-        Map<ConfiguredStructureFeature<?, ?>, StructureStart> var0 = Maps.newHashMap();
-        Registry<ConfiguredStructureFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
-        CompoundTag var2 = param1.getCompound("starts");
+    private static Map<StructureFeature<?>, StructureStart<?>> unpackStructureStart(StructurePieceSerializationContext param0, CompoundTag param1, long param2) {
+        Map<StructureFeature<?>, StructureStart<?>> var0 = Maps.newHashMap();
+        CompoundTag var1 = param1.getCompound("starts");
 
-        for(String var3 : var2.getAllKeys()) {
-            ResourceLocation var4 = ResourceLocation.tryParse(var3);
-            ConfiguredStructureFeature<?, ?> var5 = var1.get(var4);
-            if (var5 == null) {
-                LOGGER.error("Unknown structure start: {}", var4);
+        for(String var2 : var1.getAllKeys()) {
+            String var3 = var2.toLowerCase(Locale.ROOT);
+            StructureFeature<?> var4 = StructureFeature.STRUCTURES_REGISTRY.get(var3);
+            if (var4 == null) {
+                LOGGER.error("Unknown structure start: {}", var3);
             } else {
-                StructureStart var6 = StructureFeature.loadStaticStart(param0, var2.getCompound(var3), param2);
-                if (var6 != null) {
-                    var0.put(var5, var6);
+                StructureStart<?> var5 = StructureFeature.loadStaticStart(param0, var1.getCompound(var2), param2);
+                if (var5 != null) {
+                    var0.put(var4, var5);
                 }
             }
         }
@@ -475,29 +463,25 @@ public class ChunkSerializer {
         return var0;
     }
 
-    private static Map<ConfiguredStructureFeature<?, ?>, LongSet> unpackStructureReferences(RegistryAccess param0, ChunkPos param1, CompoundTag param2) {
-        Map<ConfiguredStructureFeature<?, ?>, LongSet> var0 = Maps.newHashMap();
-        Registry<ConfiguredStructureFeature<?, ?>> var1 = param0.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
-        CompoundTag var2 = param2.getCompound("References");
+    private static Map<StructureFeature<?>, LongSet> unpackStructureReferences(ChunkPos param0, CompoundTag param1) {
+        Map<StructureFeature<?>, LongSet> var0 = Maps.newHashMap();
+        CompoundTag var1 = param1.getCompound("References");
 
-        for(String var3 : var2.getAllKeys()) {
-            ResourceLocation var4 = ResourceLocation.tryParse(var3);
-            ConfiguredStructureFeature<?, ?> var5 = var1.get(var4);
-            if (var5 == null) {
-                LOGGER.warn("Found reference to unknown structure '{}' in chunk {}, discarding", var4, param1);
+        for(String var2 : var1.getAllKeys()) {
+            String var3 = var2.toLowerCase(Locale.ROOT);
+            StructureFeature<?> var4 = StructureFeature.STRUCTURES_REGISTRY.get(var3);
+            if (var4 == null) {
+                LOGGER.warn("Found reference to unknown structure '{}' in chunk {}, discarding", var3, param0);
             } else {
-                long[] var6 = var2.getLongArray(var3);
-                if (var6.length != 0) {
-                    var0.put(var5, new LongOpenHashSet(Arrays.stream(var6).filter(param2x -> {
-                        ChunkPos var0x = new ChunkPos(param2x);
-                        if (var0x.getChessboardDistance(param1) > 8) {
-                            LOGGER.warn("Found invalid structure reference [ {} @ {} ] for chunk {}.", var4, var0x, param1);
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    }).toArray()));
-                }
+                var0.put(var4, new LongOpenHashSet(Arrays.stream(var1.getLongArray(var2)).filter(param2 -> {
+                    ChunkPos var0x = new ChunkPos(param2);
+                    if (var0x.getChessboardDistance(param0) > 8) {
+                        LOGGER.warn("Found invalid structure reference [ {} @ {} ] for chunk {}.", var3, var0x, param0);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }).toArray()));
             }
         }
 

@@ -1,7 +1,9 @@
 package net.minecraft.data.tags;
 
+import java.nio.file.Path;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -573,7 +575,6 @@ public class BlockTagsProvider extends TagsProvider<Block> {
                 Blocks.CAVE_VINES,
                 Blocks.CAVE_VINES_PLANT
             );
-        this.tag(BlockTags.FALL_DAMAGE_RESETTING).addTag(BlockTags.CLIMBABLE).add(Blocks.SWEET_BERRY_BUSH, Blocks.COBWEB);
         this.tag(BlockTags.PIGLIN_REPELLENTS)
             .add(Blocks.SOUL_FIRE)
             .add(Blocks.SOUL_TORCH)
@@ -699,20 +700,10 @@ public class BlockTagsProvider extends TagsProvider<Block> {
         this.tag(BlockTags.CRYSTAL_SOUND_BLOCKS).add(Blocks.AMETHYST_BLOCK, Blocks.BUDDING_AMETHYST);
         this.tag(BlockTags.CAULDRONS).add(Blocks.CAULDRON, Blocks.WATER_CAULDRON, Blocks.LAVA_CAULDRON, Blocks.POWDER_SNOW_CAULDRON);
         this.tag(BlockTags.INSIDE_STEP_SOUND_BLOCKS).add(Blocks.SNOW, Blocks.POWDER_SNOW);
-        this.tag(BlockTags.DRIPSTONE_REPLACEABLE).addTag(BlockTags.BASE_STONE_OVERWORLD);
+        this.tag(BlockTags.DRIPSTONE_REPLACEABLE).addTag(BlockTags.BASE_STONE_OVERWORLD).add(Blocks.DIRT);
         this.tag(BlockTags.CAVE_VINES).add(Blocks.CAVE_VINES_PLANT).add(Blocks.CAVE_VINES);
         this.tag(BlockTags.MOSS_REPLACEABLE).addTag(BlockTags.BASE_STONE_OVERWORLD).addTag(BlockTags.CAVE_VINES).addTag(BlockTags.DIRT);
         this.tag(BlockTags.LUSH_GROUND_REPLACEABLE).addTag(BlockTags.MOSS_REPLACEABLE).add(Blocks.CLAY).add(Blocks.GRAVEL).add(Blocks.SAND);
-        this.tag(BlockTags.AZALEA_ROOT_REPLACEABLE)
-            .addTag(BlockTags.BASE_STONE_OVERWORLD)
-            .addTag(BlockTags.DIRT)
-            .addTag(BlockTags.TERRACOTTA)
-            .add(Blocks.RED_SAND)
-            .add(Blocks.CLAY)
-            .add(Blocks.GRAVEL)
-            .add(Blocks.SAND)
-            .add(Blocks.SNOW_BLOCK)
-            .add(Blocks.POWDER_SNOW);
         this.tag(BlockTags.SMALL_DRIPLEAF_PLACEABLE).add(Blocks.CLAY).add(Blocks.MOSS_BLOCK);
         this.tag(BlockTags.BIG_DRIPLEAF_PLACEABLE).addTag(BlockTags.SMALL_DRIPLEAF_PLACEABLE).addTag(BlockTags.DIRT).add(Blocks.FARMLAND);
         this.tag(BlockTags.OCCLUDES_VIBRATION_SIGNALS).addTag(BlockTags.WOOL);
@@ -788,6 +779,7 @@ public class BlockTagsProvider extends TagsProvider<Block> {
             )
             .addTag(BlockTags.BANNERS)
             .addTag(BlockTags.FENCE_GATES)
+            .addTag(BlockTags.FLOWERS)
             .addTag(BlockTags.LOGS)
             .addTag(BlockTags.PLANKS)
             .addTag(BlockTags.SAPLINGS)
@@ -1252,54 +1244,18 @@ public class BlockTagsProvider extends TagsProvider<Block> {
         this.tag(BlockTags.GEODE_INVALID_BLOCKS).add(Blocks.BEDROCK, Blocks.WATER, Blocks.LAVA, Blocks.ICE, Blocks.PACKED_ICE, Blocks.BLUE_ICE);
         this.tag(BlockTags.ANIMALS_SPAWNABLE_ON).add(Blocks.GRASS_BLOCK);
         this.tag(BlockTags.AXOLOTLS_SPAWNABLE_ON).add(Blocks.CLAY);
-        this.tag(BlockTags.GOATS_SPAWNABLE_ON).add(Blocks.STONE, Blocks.SNOW, Blocks.SNOW_BLOCK, Blocks.PACKED_ICE, Blocks.GRAVEL);
+        this.tag(BlockTags.GOATS_SPAWNABLE_ON).add(Blocks.STONE, Blocks.SNOW, Blocks.POWDER_SNOW, Blocks.SNOW_BLOCK, Blocks.PACKED_ICE, Blocks.GRAVEL);
         this.tag(BlockTags.MOOSHROOMS_SPAWNABLE_ON).add(Blocks.MYCELIUM);
         this.tag(BlockTags.PARROTS_SPAWNABLE_ON).add(Blocks.GRASS_BLOCK, Blocks.AIR).addTag(BlockTags.LEAVES).addTag(BlockTags.LOGS);
         this.tag(BlockTags.POLAR_BEARS_SPAWNABLE_ON_IN_FROZEN_OCEAN).add(Blocks.ICE);
         this.tag(BlockTags.RABBITS_SPAWNABLE_ON).add(Blocks.GRASS_BLOCK, Blocks.SNOW, Blocks.SNOW_BLOCK, Blocks.SAND);
         this.tag(BlockTags.FOXES_SPAWNABLE_ON).add(Blocks.GRASS_BLOCK, Blocks.SNOW, Blocks.SNOW_BLOCK, Blocks.PODZOL, Blocks.COARSE_DIRT);
         this.tag(BlockTags.WOLVES_SPAWNABLE_ON).add(Blocks.GRASS_BLOCK, Blocks.SNOW, Blocks.SNOW_BLOCK);
-        this.tag(BlockTags.TERRACOTTA)
-            .add(
-                Blocks.TERRACOTTA,
-                Blocks.WHITE_TERRACOTTA,
-                Blocks.ORANGE_TERRACOTTA,
-                Blocks.MAGENTA_TERRACOTTA,
-                Blocks.LIGHT_BLUE_TERRACOTTA,
-                Blocks.YELLOW_TERRACOTTA,
-                Blocks.LIME_TERRACOTTA,
-                Blocks.PINK_TERRACOTTA,
-                Blocks.GRAY_TERRACOTTA,
-                Blocks.LIGHT_GRAY_TERRACOTTA,
-                Blocks.CYAN_TERRACOTTA,
-                Blocks.PURPLE_TERRACOTTA,
-                Blocks.BLUE_TERRACOTTA,
-                Blocks.BROWN_TERRACOTTA,
-                Blocks.GREEN_TERRACOTTA,
-                Blocks.RED_TERRACOTTA,
-                Blocks.BLACK_TERRACOTTA
-            );
-        this.tag(BlockTags.AZALEA_GROWS_ON)
-            .addTag(BlockTags.DIRT)
-            .addTag(BlockTags.SAND)
-            .addTag(BlockTags.TERRACOTTA)
-            .add(Blocks.SNOW_BLOCK)
-            .add(Blocks.POWDER_SNOW);
-        this.tag(BlockTags.REPLACEABLE_PLANTS)
-            .add(
-                Blocks.GRASS,
-                Blocks.FERN,
-                Blocks.DEAD_BUSH,
-                Blocks.VINE,
-                Blocks.GLOW_LICHEN,
-                Blocks.SUNFLOWER,
-                Blocks.LILAC,
-                Blocks.ROSE_BUSH,
-                Blocks.PEONY,
-                Blocks.TALL_GRASS,
-                Blocks.LARGE_FERN,
-                Blocks.HANGING_ROOTS
-            );
+    }
+
+    @Override
+    protected Path getPath(ResourceLocation param0) {
+        return this.generator.getOutputFolder().resolve("data/" + param0.getNamespace() + "/tags/blocks/" + param0.getPath() + ".json");
     }
 
     @Override

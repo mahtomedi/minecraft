@@ -8,7 +8,6 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.audio.Channel;
 import com.mojang.blaze3d.audio.Library;
 import com.mojang.blaze3d.audio.Listener;
-import com.mojang.logging.LogUtils;
 import com.mojang.math.Vector3f;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Options;
@@ -34,14 +32,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundEngine {
-    private static final Marker MARKER = MarkerFactory.getMarker("SOUNDS");
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Marker MARKER = MarkerManager.getMarker("SOUNDS");
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final float PITCH_MIN = 0.5F;
     private static final float PITCH_MAX = 2.0F;
     private static final float VOLUME_MIN = 0.0F;
@@ -370,10 +369,7 @@ public class SoundEngine {
                                     .createHandle(var2x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
                                 ChannelAccess.ChannelHandle var16 = var15.join();
                                 if (var16 == null) {
-                                    if (SharedConstants.IS_RUNNING_IN_IDE) {
-                                        LOGGER.warn("Failed to create new sound handle");
-                                    }
-
+                                    LOGGER.warn("Failed to create new sound handle");
                                 } else {
                                     LOGGER.debug(MARKER, "Playing sound {} for event {}", var2x.getLocation(), var1x);
                                     this.soundDeleteTime.put(param0, this.tickCount + 20);

@@ -1,6 +1,8 @@
 package net.minecraft.network.protocol.game;
 
-public interface ServerGamePacketListener extends ServerPacketListener {
+import net.minecraft.network.PacketListener;
+
+public interface ServerGamePacketListener extends PacketListener {
     void handleAnimate(ServerboundSwingPacket var1);
 
     void handleChat(ServerboundChatPacket var1);

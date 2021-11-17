@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.util.task;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.WorldDownload;
 import com.mojang.realmsclient.exception.RealmsServiceException;
@@ -11,11 +10,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class DownloadTask extends LongRunningTask {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final long worldId;
     private final int slot;
     private final Screen lastScreen;

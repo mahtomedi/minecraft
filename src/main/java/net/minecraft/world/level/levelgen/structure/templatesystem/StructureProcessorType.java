@@ -2,7 +2,7 @@ package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import net.minecraft.core.Holder;
+import java.util.function.Supplier;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryFileCodec;
 
@@ -23,7 +23,7 @@ public interface StructureProcessorType<P extends StructureProcessor> {
     Codec<StructureProcessorList> LIST_OBJECT_CODEC = SINGLE_CODEC.listOf().xmap(StructureProcessorList::new, StructureProcessorList::list);
     Codec<StructureProcessorList> DIRECT_CODEC = Codec.either(LIST_OBJECT_CODEC.fieldOf("processors").codec(), LIST_OBJECT_CODEC)
         .xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::left);
-    Codec<Holder<StructureProcessorList>> LIST_CODEC = RegistryFileCodec.create(Registry.PROCESSOR_LIST_REGISTRY, DIRECT_CODEC);
+    Codec<Supplier<StructureProcessorList>> LIST_CODEC = RegistryFileCodec.create(Registry.PROCESSOR_LIST_REGISTRY, DIRECT_CODEC);
 
     Codec<P> codec();
 

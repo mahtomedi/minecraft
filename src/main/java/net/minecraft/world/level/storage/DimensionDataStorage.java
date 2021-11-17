@@ -2,7 +2,6 @@ package net.minecraft.world.level.storage;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.logging.LogUtils;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,10 +17,11 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DimensionDataStorage {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final Map<String, SavedData> cache = Maps.newHashMap();
     private final DataFixer fixerUpper;
     private final File dataFolder;

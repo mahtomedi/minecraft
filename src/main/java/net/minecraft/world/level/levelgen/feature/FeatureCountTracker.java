@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -14,10 +13,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FeatureCountTracker {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final LoadingCache<ServerLevel, FeatureCountTracker.LevelData> data = CacheBuilder.newBuilder()
         .weakKeys()
         .expireAfterAccess(5L, TimeUnit.MINUTES)
@@ -31,7 +31,7 @@ public class FeatureCountTracker {
         try {
             data.get(param0).chunksWithFeatures().increment();
         } catch (Exception var2) {
-            LOGGER.error("Failed to increment chunk count", (Throwable)var2);
+            LOGGER.error(var2);
         }
 
     }
@@ -42,7 +42,7 @@ public class FeatureCountTracker {
                 .featureData()
                 .computeInt(new FeatureCountTracker.FeatureData(param1, param2), (param0x, param1x) -> param1x == null ? 1 : param1x + 1);
         } catch (Exception var4) {
-            LOGGER.error("Failed to increment feature count", (Throwable)var4);
+            LOGGER.error(var4);
         }
 
     }

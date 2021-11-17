@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +25,7 @@ import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -214,7 +213,7 @@ public class ProtoChunk extends ChunkAccess {
     }
 
     @Override
-    public void setStartForFeature(ConfiguredStructureFeature<?, ?> param0, StructureStart param1) {
+    public void setStartForFeature(StructureFeature<?> param0, StructureStart<?> param1) {
         BelowZeroRetrogen var0 = this.getBelowZeroRetrogen();
         if (var0 != null && param1.isValid()) {
             BoundingBox var1 = param1.getBoundingBox();
@@ -246,7 +245,7 @@ public class ProtoChunk extends ChunkAccess {
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
+    public Biome getNoiseBiome(int param0, int param1, int param2) {
         if (!this.getStatus().isOrAfter(ChunkStatus.BIOMES)
             && (this.belowZeroRetrogen == null || !this.belowZeroRetrogen.targetStatus().isOrAfter(ChunkStatus.BIOMES))) {
             throw new IllegalStateException("Asking for biomes before we have biomes");

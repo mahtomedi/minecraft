@@ -135,10 +135,6 @@ public class VertexBuffer implements AutoCloseable {
                 param2.PROJECTION_MATRIX.set(param1);
             }
 
-            if (param2.INVERSE_VIEW_ROTATION_MATRIX != null) {
-                param2.INVERSE_VIEW_ROTATION_MATRIX.set(RenderSystem.getInverseViewRotationMatrix());
-            }
-
             if (param2.COLOR_MODULATOR != null) {
                 param2.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
             }
@@ -153,10 +149,6 @@ public class VertexBuffer implements AutoCloseable {
 
             if (param2.FOG_COLOR != null) {
                 param2.FOG_COLOR.set(RenderSystem.getShaderFogColor());
-            }
-
-            if (param2.FOG_SHAPE != null) {
-                param2.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
             }
 
             if (param2.TEXTURE_MATRIX != null) {

@@ -2,16 +2,15 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -29,7 +28,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -73,7 +74,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private CreativeInventoryListener listener;
     private boolean ignoreTextInput;
     private boolean hasClickedOutside;
-    private final Set<TagKey<Item>> visibleTags = new HashSet<>();
+    private final Map<ResourceLocation, Tag<Item>> visibleTags = Maps.newTreeMap();
 
     public CreativeModeInventoryScreen(Player param0) {
         super(new CreativeModeInventoryScreen.ItemPickerMenu(param0), param0.getInventory(), TextComponent.EMPTY);
@@ -373,7 +374,8 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             var1 = param2 -> param2.getNamespace().contains(var2) && param2.getPath().contains(var3);
         }
 
-        Registry.ITEM.getTagNames().filter(param1 -> var1.test(param1.location())).forEach(this.visibleTags::add);
+        TagCollection<Item> var5 = ItemTags.getAllTags();
+        var5.getAvailableTags().stream().filter(var1).forEach(param1 -> this.visibleTags.put(param1, var5.getTag(param1)));
     }
 
     @Override
@@ -535,8 +537,8 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             return false;
         } else {
             int var0 = (this.menu.items.size() + 9 - 1) / 9 - 5;
-            float var1 = (float)(param2 / (double)var0);
-            this.scrollOffs = Mth.clamp(this.scrollOffs - var1, 0.0F, 1.0F);
+            this.scrollOffs = (float)((double)this.scrollOffs - param2 / (double)var0);
+            this.scrollOffs = Mth.clamp(this.scrollOffs, 0.0F, 1.0F);
             this.menu.scrollTo(this.scrollOffs);
             return true;
         }
@@ -620,9 +622,9 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                 }
             }
 
-            this.visibleTags.forEach(param2x -> {
-                if (param1.is(param2x)) {
-                    var1.add(1, new TextComponent("#" + param2x.location()).withStyle(ChatFormatting.DARK_PURPLE));
+            this.visibleTags.forEach((param2x, param3x) -> {
+                if (param1.is(param3x)) {
+                    var1.add(1, new TextComponent("#" + param2x).withStyle(ChatFormatting.DARK_PURPLE));
                 }
 
             });

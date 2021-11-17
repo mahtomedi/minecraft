@@ -2,10 +2,10 @@ package net.minecraft.client.multiplayer;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,6 @@ import net.minecraft.client.searchtree.MutableSearchTree;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
 import net.minecraft.core.PositionImpl;
 import net.minecraft.core.Registry;
@@ -213,8 +211,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatsCounter;
-import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagNetworkSerialization;
+import net.minecraft.tags.StaticTags;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -237,7 +235,6 @@ import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -253,7 +250,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -279,11 +275,12 @@ import net.minecraft.world.scores.Team;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientPacketListener implements ClientGamePacketListener {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Component GENERIC_DISCONNECT_MESSAGE = new TranslatableComponent("disconnect.lost");
     private final Connection connection;
     private final GameProfile localGameProfile;
@@ -291,9 +288,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final Minecraft minecraft;
     private ClientLevel level;
     private ClientLevel.ClientLevelData levelData;
+    private boolean started;
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
     private final ClientAdvancements advancements;
     private final ClientSuggestionProvider suggestionsProvider;
+    private TagContainer tags = TagContainer.EMPTY;
     private final DebugQueryHandler debugQueryHandler = new DebugQueryHandler(this);
     private int serverChunkRadius = 3;
     private int serverSimulationDistance = 3;
@@ -302,7 +301,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final RecipeManager recipeManager = new RecipeManager();
     private final UUID id = UUID.randomUUID();
     private Set<ResourceKey<Level>> levels;
-    private RegistryAccess.Frozen registryAccess = RegistryAccess.BUILTIN.get();
+    private RegistryAccess registryAccess = RegistryAccess.builtin();
     private final ClientTelemetryManager telemetryManager;
 
     public ClientPacketListener(Minecraft param0, Screen param1, Connection param2, GameProfile param3, ClientTelemetryManager param4) {
@@ -331,16 +330,16 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleLogin(ClientboundLoginPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gameMode = new MultiPlayerGameMode(this.minecraft, this);
-        this.registryAccess = param0.registryHolder();
         if (!this.connection.isMemoryConnection()) {
-            this.registryAccess.registries().forEach(param0x -> param0x.value().resetTags());
+            StaticTags.resetAllToEmpty();
         }
 
         List<ResourceKey<Level>> var0 = Lists.newArrayList(param0.levels());
         Collections.shuffle(var0);
         this.levels = Sets.newLinkedHashSet(var0);
+        this.registryAccess = param0.registryHolder();
         ResourceKey<Level> var1 = param0.dimension();
-        Holder<DimensionType> var2 = param0.dimensionType();
+        DimensionType var2 = param0.dimensionType();
         this.serverChunkRadius = param0.chunkRadius();
         this.serverSimulationDistance = param0.simulationDistance();
         boolean var3 = param0.isDebug();
@@ -612,6 +611,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
         var0.absMoveTo(var6, var10, var14, var17, var18);
         this.connection.send(new ServerboundAcceptTeleportationPacket(param0.getId()));
         this.connection.send(new ServerboundMovePlayerPacket.PosRot(var0.getX(), var0.getY(), var0.getZ(), var0.getYRot(), var0.getXRot(), false));
+        if (!this.started) {
+            this.started = true;
+            this.minecraft.setScreen(null);
+        }
+
     }
 
     @Override
@@ -676,6 +680,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             LevelLightEngine var0 = this.level.getLightEngine();
 
             for(int var1x = this.level.getMinSection(); var1x < this.level.getMaxSection(); ++var1x) {
+                this.level.setSectionDirtyWithNeighbors(param0.getX(), var1x, param0.getZ());
                 var0.updateSectionStatus(SectionPos.of(param0.getX(), var1x, param0.getZ()), true);
             }
 
@@ -833,11 +838,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleSetSpawn(ClientboundSetDefaultSpawnPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.level.setDefaultSpawnPos(param0.getPos(), param0.getAngle());
-        Screen var3 = this.minecraft.screen;
-        if (var3 instanceof ReceivingLevelScreen var0) {
-            var0.loadingPacketsReceived();
-        }
-
     }
 
     @Override
@@ -855,12 +855,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 if (var3 != null) {
                     var3.startRiding(var0, true);
                     if (var3 == this.minecraft.player && !var1) {
-                        if (var0 instanceof Boat) {
-                            this.minecraft.player.yRotO = var0.getYRot();
-                            this.minecraft.player.setYRot(var0.getYRot());
-                            this.minecraft.player.setYHeadRot(var0.getYRot());
-                        }
-
                         this.minecraft
                             .gui
                             .setOverlayMessage(new TranslatableComponent("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage()), false);
@@ -931,9 +925,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleRespawn(ClientboundRespawnPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         ResourceKey<Level> var0 = param0.getDimension();
-        Holder<DimensionType> var1 = param0.getDimensionType();
+        DimensionType var1 = param0.getDimensionType();
         LocalPlayer var2 = this.minecraft.player;
         int var3 = var2.getId();
+        this.started = false;
         if (var0 != var2.level.dimension()) {
             Scoreboard var4 = this.level.getScoreboard();
             Map<String, MapItemSavedData> var5 = this.level.getAllMapData();
@@ -1387,20 +1382,18 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleUpdateTags(ClientboundUpdateTagsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        param0.getTags().forEach(this::updateTagsForRegistry);
-        if (!this.connection.isMemoryConnection()) {
-            Blocks.rebuildCache();
-        }
+        TagContainer var0 = TagContainer.deserializeFromNetwork(this.registryAccess, param0.getTags());
+        Multimap<ResourceKey<? extends Registry<?>>, ResourceLocation> var1 = StaticTags.getAllMissingTags(var0);
+        if (!var1.isEmpty()) {
+            LOGGER.warn("Incomplete server tags, disconnecting. Missing: {}", var1);
+            this.connection.disconnect(new TranslatableComponent("multiplayer.disconnect.missing_tags"));
+        } else {
+            this.tags = var0;
+            if (!this.connection.isMemoryConnection()) {
+                var0.bindToGlobal();
+            }
 
-        this.minecraft.getSearchTree(SearchRegistry.CREATIVE_TAGS).refresh();
-    }
-
-    private <T> void updateTagsForRegistry(ResourceKey<? extends Registry<? extends T>> param0x, TagNetworkSerialization.NetworkPayload param1) {
-        if (!param1.isEmpty()) {
-            Registry<T> var0 = this.registryAccess.<T>registry(param0x).orElseThrow(() -> new IllegalStateException("Unknown registry " + param0x));
-            Map<TagKey<T>, List<Holder<T>>> var2 = new HashMap<>();
-            TagNetworkSerialization.deserializeTagsFromNetwork(param0x, var0, param1, var2::put);
-            var0.bindTags(var2);
+            this.minecraft.getSearchTree(SearchRegistry.CREATIVE_TAGS).refresh();
         }
     }
 
@@ -1821,7 +1814,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 BlockPos var7 = var1.readBlockPos();
                 ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(var6, var7);
             } else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(var0)) {
-                DimensionType var8 = this.registryAccess.<DimensionType>registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(var1.readResourceLocation());
+                DimensionType var8 = this.registryAccess.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(var1.readResourceLocation());
                 BoundingBox var9 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
                 int var10 = var1.readInt();
                 List<BoundingBox> var11 = Lists.newArrayList();
@@ -2350,6 +2343,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     public ClientLevel getLevel() {
         return this.level;
+    }
+
+    public TagContainer getTags() {
+        return this.tags;
     }
 
     public DebugQueryHandler getDebugQueryHandler() {

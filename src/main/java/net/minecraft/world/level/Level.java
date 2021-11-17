@@ -15,7 +15,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -27,6 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
@@ -62,8 +62,11 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Scoreboard;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class Level implements AutoCloseable, LevelAccessor {
+    protected static final Logger LOGGER = LogManager.getLogger();
     public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceLocation.CODEC
         .xmap(ResourceKey.elementKey(Registry.DIMENSION_REGISTRY), ResourceKey::location);
     public static final ResourceKey<Level> OVERWORLD = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("overworld"));
@@ -90,8 +93,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected float oThunderLevel;
     protected float thunderLevel;
     public final Random random = new Random();
-    final DimensionType dimensionType;
-    private final Holder<DimensionType> dimensionTypeRegistration;
+    private final DimensionType dimensionType;
     protected final WritableLevelData levelData;
     private final Supplier<ProfilerFiller> profiler;
     public final boolean isClientSide;
@@ -103,7 +105,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected Level(
         WritableLevelData param0,
         ResourceKey<Level> param1,
-        Holder<DimensionType> param2,
+        final DimensionType param2,
         Supplier<ProfilerFiller> param3,
         boolean param4,
         boolean param5,
@@ -111,20 +113,19 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     ) {
         this.profiler = param3;
         this.levelData = param0;
-        this.dimensionTypeRegistration = param2;
-        this.dimensionType = param2.value();
+        this.dimensionType = param2;
         this.dimension = param1;
         this.isClientSide = param4;
-        if (this.dimensionType.coordinateScale() != 1.0) {
+        if (param2.coordinateScale() != 1.0) {
             this.worldBorder = new WorldBorder() {
                 @Override
                 public double getCenterX() {
-                    return super.getCenterX() / Level.this.dimensionType.coordinateScale();
+                    return super.getCenterX() / param2.coordinateScale();
                 }
 
                 @Override
                 public double getCenterZ() {
-                    return super.getCenterZ() / Level.this.dimensionType.coordinateScale();
+                    return super.getCenterZ() / param2.coordinateScale();
                 }
             };
         } else {
@@ -796,13 +797,13 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         } else if (this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, param0).getY() > param0.getY()) {
             return false;
         } else {
-            Biome var0 = this.getBiome(param0).value();
-            return var0.getPrecipitation() == Biome.Precipitation.RAIN && var0.warmEnoughToRain(param0);
+            Biome var0 = this.getBiome(param0);
+            return var0.getPrecipitation() == Biome.Precipitation.RAIN && var0.getTemperature(param0) >= 0.15F;
         }
     }
 
     public boolean isHumidAt(BlockPos param0) {
-        Biome var0 = this.getBiome(param0).value();
+        Biome var0 = this.getBiome(param0);
         return var0.isHumid();
     }
 
@@ -891,10 +892,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return this.dimensionType;
     }
 
-    public Holder<DimensionType> dimensionTypeRegistration() {
-        return this.dimensionTypeRegistration;
-    }
-
     public ResourceKey<Level> dimension() {
         return this.dimension;
     }
@@ -915,6 +912,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public abstract RecipeManager getRecipeManager();
+
+    public abstract TagContainer getTagManager();
 
     public BlockPos getBlockRandomPos(int param0, int param1, int param2, int param3) {
         this.randValue = this.randValue * 3 + 1013904223;
@@ -969,5 +968,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     @Override
     public long nextSubTickCount() {
         return (long)(this.subTickCount++);
+    }
+
+    public boolean shouldDelayFallingBlockEntityRemoval(Entity.RemovalReason param0) {
+        return false;
     }
 }

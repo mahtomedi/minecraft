@@ -7,7 +7,6 @@ import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.font.GlyphProvider;
 import com.mojang.blaze3d.font.RawGlyph;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -21,11 +20,12 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class BitmapProvider implements GlyphProvider {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final NativeImage image;
     private final Int2ObjectMap<BitmapProvider.Glyph> glyphs;
 

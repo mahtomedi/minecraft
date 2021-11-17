@@ -1,7 +1,6 @@
 package net.minecraft.world.entity;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -14,7 +13,6 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -24,7 +22,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.ambient.Bat;
@@ -146,12 +143,12 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final String ENTITY_TAG = "EntityTag";
-    private final Holder.Reference<EntityType<?>> builtInRegistryHolder = Registry.ENTITY_TYPE.createIntrusiveHolder(this);
     private static final float MAGIC_HORSE_WIDTH = 1.3964844F;
     public static final EntityType<AreaEffectCloud> AREA_EFFECT_CLOUD = register(
         "area_effect_cloud",
@@ -882,8 +879,8 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
             && this != EVOKER_FANGS;
     }
 
-    public boolean is(TagKey<EntityType<?>> param0) {
-        return this.builtInRegistryHolder.is(param0);
+    public boolean is(net.minecraft.tags.Tag<EntityType<?>> param0) {
+        return param0.contains(this);
     }
 
     @Nullable
@@ -894,11 +891,6 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     @Override
     public Class<? extends Entity> getBaseClass() {
         return Entity.class;
-    }
-
-    @Deprecated
-    public Holder.Reference<EntityType<?>> builtInRegistryHolder() {
-        return this.builtInRegistryHolder;
     }
 
     public static class Builder<T extends Entity> {

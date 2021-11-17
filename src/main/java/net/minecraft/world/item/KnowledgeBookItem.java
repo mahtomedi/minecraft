@@ -1,7 +1,6 @@
 package net.minecraft.world.item;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.nbt.CompoundTag;
@@ -14,11 +13,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class KnowledgeBookItem extends Item {
     private static final String RECIPE_TAG = "Recipes";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public KnowledgeBookItem(Item.Properties param0) {
         super(param0);

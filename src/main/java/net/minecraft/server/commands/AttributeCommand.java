@@ -7,11 +7,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceKeyArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -23,6 +25,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 public class AttributeCommand {
+    private static final SuggestionProvider<CommandSourceStack> AVAILABLE_ATTRIBUTES = (param0, param1) -> SharedSuggestionProvider.suggestResource(
+            Registry.ATTRIBUTE.keySet(), param1
+        );
     private static final DynamicCommandExceptionType ERROR_NOT_LIVING_ENTITY = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("commands.attribute.failed.entity", param0)
     );
@@ -43,14 +48,15 @@ public class AttributeCommand {
                 .then(
                     Commands.argument("target", EntityArgument.entity())
                         .then(
-                            Commands.argument("attribute", ResourceKeyArgument.key(Registry.ATTRIBUTE_REGISTRY))
+                            Commands.argument("attribute", ResourceLocationArgument.id())
+                                .suggests(AVAILABLE_ATTRIBUTES)
                                 .then(
                                     Commands.literal("get")
                                         .executes(
                                             param0x -> getAttributeValue(
                                                     param0x.getSource(),
                                                     EntityArgument.getEntity(param0x, "target"),
-                                                    ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                    ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                     1.0
                                                 )
                                         )
@@ -60,7 +66,7 @@ public class AttributeCommand {
                                                     param0x -> getAttributeValue(
                                                             param0x.getSource(),
                                                             EntityArgument.getEntity(param0x, "target"),
-                                                            ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                            ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                             DoubleArgumentType.getDouble(param0x, "scale")
                                                         )
                                                 )
@@ -76,7 +82,7 @@ public class AttributeCommand {
                                                             param0x -> setAttributeBase(
                                                                     param0x.getSource(),
                                                                     EntityArgument.getEntity(param0x, "target"),
-                                                                    ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                    ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                     DoubleArgumentType.getDouble(param0x, "value")
                                                                 )
                                                         )
@@ -88,7 +94,7 @@ public class AttributeCommand {
                                                     param0x -> getAttributeBase(
                                                             param0x.getSource(),
                                                             EntityArgument.getEntity(param0x, "target"),
-                                                            ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                            ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                             1.0
                                                         )
                                                 )
@@ -98,7 +104,7 @@ public class AttributeCommand {
                                                             param0x -> getAttributeBase(
                                                                     param0x.getSource(),
                                                                     EntityArgument.getEntity(param0x, "target"),
-                                                                    ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                    ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                     DoubleArgumentType.getDouble(param0x, "scale")
                                                                 )
                                                         )
@@ -121,7 +127,7 @@ public class AttributeCommand {
                                                                                     param0x -> addModifier(
                                                                                             param0x.getSource(),
                                                                                             EntityArgument.getEntity(param0x, "target"),
-                                                                                            ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                                            ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                                             UuidArgument.getUuid(param0x, "uuid"),
                                                                                             StringArgumentType.getString(param0x, "name"),
                                                                                             DoubleArgumentType.getDouble(param0x, "value"),
@@ -135,7 +141,7 @@ public class AttributeCommand {
                                                                                     param0x -> addModifier(
                                                                                             param0x.getSource(),
                                                                                             EntityArgument.getEntity(param0x, "target"),
-                                                                                            ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                                            ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                                             UuidArgument.getUuid(param0x, "uuid"),
                                                                                             StringArgumentType.getString(param0x, "name"),
                                                                                             DoubleArgumentType.getDouble(param0x, "value"),
@@ -149,7 +155,7 @@ public class AttributeCommand {
                                                                                     param0x -> addModifier(
                                                                                             param0x.getSource(),
                                                                                             EntityArgument.getEntity(param0x, "target"),
-                                                                                            ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                                            ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                                             UuidArgument.getUuid(param0x, "uuid"),
                                                                                             StringArgumentType.getString(param0x, "name"),
                                                                                             DoubleArgumentType.getDouble(param0x, "value"),
@@ -169,7 +175,7 @@ public class AttributeCommand {
                                                             param0x -> removeModifier(
                                                                     param0x.getSource(),
                                                                     EntityArgument.getEntity(param0x, "target"),
-                                                                    ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                    ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                     UuidArgument.getUuid(param0x, "uuid")
                                                                 )
                                                         )
@@ -185,7 +191,7 @@ public class AttributeCommand {
                                                                     param0x -> getAttributeModifier(
                                                                             param0x.getSource(),
                                                                             EntityArgument.getEntity(param0x, "target"),
-                                                                            ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                            ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                             UuidArgument.getUuid(param0x, "uuid"),
                                                                             1.0
                                                                         )
@@ -196,7 +202,7 @@ public class AttributeCommand {
                                                                             param0x -> getAttributeModifier(
                                                                                     param0x.getSource(),
                                                                                     EntityArgument.getEntity(param0x, "target"),
-                                                                                    ResourceKeyArgument.getAttribute(param0x, "attribute"),
+                                                                                    ResourceLocationArgument.getAttribute(param0x, "attribute"),
                                                                                     UuidArgument.getUuid(param0x, "uuid"),
                                                                                     DoubleArgumentType.getDouble(param0x, "scale")
                                                                                 )

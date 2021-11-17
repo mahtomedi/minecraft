@@ -25,6 +25,11 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         super(param0, EndCityFeature::pieceGeneratorSupplier);
     }
 
+    @Override
+    protected boolean linearSeparation() {
+        return false;
+    }
+
     private static int getYPositionForFeature(ChunkPos param0, ChunkGenerator param1, LevelHeightAccessor param2) {
         Random var0 = new Random((long)(param0.x + param0.z * 10387313));
         Rotation var1 = Rotation.getRandom(var0);

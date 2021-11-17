@@ -23,14 +23,6 @@ public class CrudeIncrementalIntIdentityHashBiMap<K> implements IdMap<K> {
         this.byId = (K[])(new Object[param0]);
     }
 
-    private CrudeIncrementalIntIdentityHashBiMap(K[] param0, int[] param1, K[] param2, int param3, int param4) {
-        this.keys = param0;
-        this.values = param1;
-        this.byId = param2;
-        this.nextId = param3;
-        this.size = param4;
-    }
-
     public static <A> CrudeIncrementalIntIdentityHashBiMap<A> create(int param0) {
         return new CrudeIncrementalIntIdentityHashBiMap<>((int)((float)param0 / 0.8F));
     }
@@ -172,11 +164,5 @@ public class CrudeIncrementalIntIdentityHashBiMap<K> implements IdMap<K> {
     @Override
     public int size() {
         return this.size;
-    }
-
-    public CrudeIncrementalIntIdentityHashBiMap<K> copy() {
-        return new CrudeIncrementalIntIdentityHashBiMap<>(
-            (K[])((Object[])this.keys.clone()), (int[])this.values.clone(), (K[])((Object[])this.byId.clone()), this.nextId, this.size
-        );
     }
 }

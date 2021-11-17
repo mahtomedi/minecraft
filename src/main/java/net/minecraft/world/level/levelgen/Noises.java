@@ -1,6 +1,5 @@
 package net.minecraft.world.level.levelgen;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -75,11 +74,6 @@ public class Noises {
     public static NormalNoise instantiate(
         Registry<NormalNoise.NoiseParameters> param0, PositionalRandomFactory param1, ResourceKey<NormalNoise.NoiseParameters> param2
     ) {
-        Holder<NormalNoise.NoiseParameters> var0 = param0.getHolderOrThrow(param2);
-        return instantiate(param1, var0);
-    }
-
-    public static NormalNoise instantiate(PositionalRandomFactory param0, Holder<NormalNoise.NoiseParameters> param1) {
-        return NormalNoise.create(param0.fromHashOf(param1.unwrapKey().orElseThrow().location()), param1.value());
+        return NormalNoise.create(param1.fromHashOf(param2.location()), param0.getOrThrow(param2));
     }
 }

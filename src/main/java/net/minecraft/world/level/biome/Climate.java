@@ -10,7 +10,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -18,8 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.NoiseSampler;
 
 public class Climate {
     private static final boolean DEBUG_SLOW_BIOME_SEARCH = false;
@@ -65,12 +63,7 @@ public class Climate {
         return (float)param0 / 10000.0F;
     }
 
-    public static Climate.Sampler empty() {
-        DensityFunction var0 = DensityFunctions.zero();
-        return new Climate.Sampler(var0, var0, var0, var0, var0, var0, List.of());
-    }
-
-    public static BlockPos findSpawnPosition(List<Climate.ParameterPoint> param0, Climate.Sampler param1) {
+    public static BlockPos findSpawnPosition(List<Climate.ParameterPoint> param0, NoiseSampler param1) {
         return (new Climate.SpawnFinder(param0, param1)).result.location();
     }
 
@@ -145,27 +138,24 @@ public class Climate {
             return this.values;
         }
 
-        public T findValue(Climate.TargetPoint param0) {
+        public T findValue(Climate.TargetPoint param0, T param1) {
             return this.findValueIndex(param0);
         }
 
         @VisibleForTesting
-        public T findValueBruteForce(Climate.TargetPoint param0) {
-            Iterator<Pair<Climate.ParameterPoint, T>> var0 = this.values().iterator();
-            Pair<Climate.ParameterPoint, T> var1 = var0.next();
-            long var2 = var1.getFirst().fitness(param0);
-            T var3 = var1.getSecond();
+        public T findValueBruteForce(Climate.TargetPoint param0, T param1) {
+            long var0 = Long.MAX_VALUE;
+            T var1 = param1;
 
-            while(var0.hasNext()) {
-                Pair<Climate.ParameterPoint, T> var4 = var0.next();
-                long var5 = var4.getFirst().fitness(param0);
-                if (var5 < var2) {
-                    var2 = var5;
-                    var3 = var4.getSecond();
+            for(Pair<Climate.ParameterPoint, T> var2 : this.values()) {
+                long var3 = var2.getFirst().fitness(param0);
+                if (var3 < var0) {
+                    var0 = var3;
+                    var1 = var2.getSecond();
                 }
             }
 
-            return var3;
+            return var1;
         }
 
         public T findValueIndex(Climate.TargetPoint param0) {
@@ -442,45 +432,24 @@ public class Climate {
         }
     }
 
-    public static record Sampler(
-        DensityFunction temperature,
-        DensityFunction humidity,
-        DensityFunction continentalness,
-        DensityFunction erosion,
-        DensityFunction depth,
-        DensityFunction weirdness,
-        List<Climate.ParameterPoint> spawnTarget
-    ) {
-        public Climate.TargetPoint sample(int param0, int param1, int param2) {
-            int var0 = QuartPos.toBlock(param0);
-            int var1 = QuartPos.toBlock(param1);
-            int var2 = QuartPos.toBlock(param2);
-            DensityFunction.SinglePointContext var3 = new DensityFunction.SinglePointContext(var0, var1, var2);
-            return Climate.target(
-                (float)this.temperature.compute(var3),
-                (float)this.humidity.compute(var3),
-                (float)this.continentalness.compute(var3),
-                (float)this.erosion.compute(var3),
-                (float)this.depth.compute(var3),
-                (float)this.weirdness.compute(var3)
-            );
-        }
+    public interface Sampler {
+        Climate.TargetPoint sample(int var1, int var2, int var3);
 
-        public BlockPos findSpawnPosition() {
-            return this.spawnTarget.isEmpty() ? BlockPos.ZERO : Climate.findSpawnPosition(this.spawnTarget, this);
+        default BlockPos findSpawnPosition() {
+            return BlockPos.ZERO;
         }
     }
 
     static class SpawnFinder {
         Climate.SpawnFinder.Result result;
 
-        SpawnFinder(List<Climate.ParameterPoint> param0, Climate.Sampler param1) {
+        SpawnFinder(List<Climate.ParameterPoint> param0, NoiseSampler param1) {
             this.result = getSpawnPositionAndFitness(param0, param1, 0, 0);
             this.radialSearch(param0, param1, 2048.0F, 512.0F);
             this.radialSearch(param0, param1, 512.0F, 32.0F);
         }
 
-        private void radialSearch(List<Climate.ParameterPoint> param0, Climate.Sampler param1, float param2, float param3) {
+        private void radialSearch(List<Climate.ParameterPoint> param0, NoiseSampler param1, float param2, float param3) {
             float var0 = 0.0F;
             float var1 = param3;
             BlockPos var2 = this.result.location();
@@ -502,9 +471,7 @@ public class Climate {
 
         }
 
-        private static Climate.SpawnFinder.Result getSpawnPositionAndFitness(
-            List<Climate.ParameterPoint> param0, Climate.Sampler param1, int param2, int param3
-        ) {
+        private static Climate.SpawnFinder.Result getSpawnPositionAndFitness(List<Climate.ParameterPoint> param0, NoiseSampler param1, int param2, int param3) {
             double var0 = Mth.square(2500.0);
             int var1 = 2;
             long var2 = (long)((double)Mth.square(10000.0F) * Math.pow((double)(Mth.square((long)param2) + Mth.square((long)param3)) / var0, 2.0));

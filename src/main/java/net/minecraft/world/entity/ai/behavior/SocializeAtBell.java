@@ -38,7 +38,7 @@ public class SocializeAtBell extends Behavior<LivingEntity> {
         return param0.getRandom().nextInt(100) == 0
             && var1.isPresent()
             && param0.dimension() == var1.get().dimension()
-            && var1.get().pos().closerToCenterThan(param1.position(), 4.0)
+            && var1.get().pos().closerThan(param1.position(), 4.0)
             && var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().contains(param0x -> EntityType.VILLAGER.equals(param0x.getType()));
     }
 

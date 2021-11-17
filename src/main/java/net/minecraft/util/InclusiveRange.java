@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import java.util.function.Function;
 
-public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclusive) {
+public record InclusiveRange<T extends Comparable>(T minInclusive, T maxInclusive) {
     public static final Codec<InclusiveRange<Integer>> INT = codec(Codec.INT);
 
     public InclusiveRange(T param0, T param1) {

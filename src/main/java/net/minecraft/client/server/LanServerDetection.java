@@ -1,7 +1,6 @@
 package net.minecraft.client.server;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -14,12 +13,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class LanServerDetection {
     static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
 
     @OnlyIn(Dist.CLIENT)
     public static class LanServerDetector extends Thread {

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
 public class LegacyStructureDataHandler {
@@ -40,26 +40,6 @@ public class LegacyStructureDataHandler {
         param0.put("TeJP", "Jungle_Pyramid");
         param0.put("TeSH", "Swamp_Hut");
     });
-    private static final Set<String> OLD_STRUCTURE_REGISTRY_KEYS = Set.of(
-        "pillager_outpost",
-        "mineshaft",
-        "mansion",
-        "jungle_pyramid",
-        "desert_pyramid",
-        "igloo",
-        "ruined_portal",
-        "shipwreck",
-        "swamp_hut",
-        "stronghold",
-        "monument",
-        "ocean_ruin",
-        "fortress",
-        "endcity",
-        "buried_treasure",
-        "village",
-        "nether_fossil",
-        "bastion_remnant"
-    );
     private final boolean hasLegacyData;
     private final Map<String, Long2ObjectMap<CompoundTag>> dataMap = Maps.newHashMap();
     private final Map<String, StructureFeatureIndexSavedData> indexMap = Maps.newHashMap();
@@ -101,8 +81,8 @@ public class LegacyStructureDataHandler {
         CompoundTag var3 = var2.getCompound("References");
 
         for(String var4 : this.currentKeys) {
-            boolean var5 = OLD_STRUCTURE_REGISTRY_KEYS.contains(var4.toLowerCase(Locale.ROOT));
-            if (!var3.contains(var4, 12) && var5) {
+            StructureFeature<?> var5 = StructureFeature.STRUCTURES_REGISTRY.get(var4.toLowerCase(Locale.ROOT));
+            if (!var3.contains(var4, 12) && var5 != null) {
                 int var6 = 8;
                 LongList var7 = new LongArrayList();
 

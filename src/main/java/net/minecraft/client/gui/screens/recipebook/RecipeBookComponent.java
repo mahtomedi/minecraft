@@ -279,7 +279,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     public void renderTooltip(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (this.isVisible()) {
             this.recipeBookPage.renderTooltip(param0, param3, param4);
-            if (this.filterButton.isHoveredOrFocused()) {
+            if (this.filterButton.isHovered()) {
                 Component var0 = this.getFilterButtonTooltip();
                 if (this.minecraft.screen != null) {
                     this.minecraft.screen.renderTooltip(param0, var0, param3, param4);
@@ -384,7 +384,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         } else {
             boolean var0 = param0 < (double)param2 || param1 < (double)param3 || param0 >= (double)(param2 + param4) || param1 >= (double)(param3 + param5);
             boolean var1 = (double)(param2 - 147) < param0 && param0 < (double)param2 && (double)param3 < param1 && param1 < (double)(param3 + param5);
-            return var0 && !var1 && !this.selectedTab.isHoveredOrFocused();
+            return var0 && !var1 && !this.selectedTab.isHovered();
         }
     }
 

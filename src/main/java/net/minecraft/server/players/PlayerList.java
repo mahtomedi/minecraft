@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
 import io.netty.buffer.Unpooled;
 import java.io.File;
@@ -69,7 +68,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -90,14 +88,15 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class PlayerList {
     public static final File USERBANLIST_FILE = new File("banned-players.json");
     public static final File IPBANLIST_FILE = new File("banned-ips.json");
     public static final File OPLIST_FILE = new File("ops.json");
     public static final File WHITELIST_FILE = new File("whitelist.json");
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int SEND_PLAYER_INFO_INTERVAL = 600;
     private static final SimpleDateFormat BAN_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
     private final MinecraftServer server;
@@ -111,7 +110,7 @@ public abstract class PlayerList {
     private final Map<UUID, PlayerAdvancements> advancements = Maps.newHashMap();
     private final PlayerDataStorage playerIo;
     private boolean doWhiteList;
-    private final RegistryAccess.Frozen registryHolder;
+    private final RegistryAccess.RegistryHolder registryHolder;
     protected final int maxPlayers;
     private int viewDistance;
     private int simulationDistance;
@@ -119,7 +118,7 @@ public abstract class PlayerList {
     private static final boolean ALLOW_LOGOUTIVATOR = false;
     private int sendAllPlayerInfoIn;
 
-    public PlayerList(MinecraftServer param0, RegistryAccess.Frozen param1, PlayerDataStorage param2, int param3) {
+    public PlayerList(MinecraftServer param0, RegistryAccess.RegistryHolder param1, PlayerDataStorage param2, int param3) {
         this.server = param0;
         this.registryHolder = param1;
         this.maxPlayers = param3;
@@ -174,7 +173,7 @@ public abstract class PlayerList {
                 param1.gameMode.getPreviousGameModeForPlayer(),
                 this.server.levelKeys(),
                 this.registryHolder,
-                var7.dimensionTypeRegistration(),
+                var7.dimensionType(),
                 var7.dimension(),
                 BiomeManager.obfuscateSeed(var7.getSeed()),
                 this.getMaxPlayers(),
@@ -195,7 +194,7 @@ public abstract class PlayerList {
         var11.send(new ClientboundPlayerAbilitiesPacket(param1.getAbilities()));
         var11.send(new ClientboundSetCarriedItemPacket(param1.getInventory().selected));
         var11.send(new ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes()));
-        var11.send(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(this.registryHolder)));
+        var11.send(new ClientboundUpdateTagsPacket(this.server.getTags().serializeToNetwork(this.registryHolder)));
         this.sendPlayerPermissionLevel(param1);
         param1.getStats().markAllDirty();
         param1.getRecipeBook().sendInitialRecipeBook(param1);
@@ -485,7 +484,7 @@ public abstract class PlayerList {
         var7.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var7.level.dimensionTypeRegistration(),
+                    var7.level.dimensionType(),
                     var7.level.dimension(),
                     BiomeManager.obfuscateSeed(var7.getLevel().getSeed()),
                     var7.gameMode.getGameModeForPlayer(),
@@ -865,7 +864,7 @@ public abstract class PlayerList {
             var0.reload(this.server.getAdvancements());
         }
 
-        this.broadcastAll(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(this.registryHolder)));
+        this.broadcastAll(new ClientboundUpdateTagsPacket(this.server.getTags().serializeToNetwork(this.registryHolder)));
         ClientboundUpdateRecipesPacket var1 = new ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes());
 
         for(ServerPlayer var2 : this.players) {

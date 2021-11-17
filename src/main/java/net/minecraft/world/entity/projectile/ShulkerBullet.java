@@ -125,7 +125,7 @@ public class ShulkerBullet extends Projectile {
         double var4 = (double)var1.getY() + var0;
         double var5 = (double)var1.getZ() + 0.5;
         Direction var6 = null;
-        if (!var1.closerToCenterThan(this.position(), 2.0)) {
+        if (!var1.closerThan(this.position(), 2.0)) {
             BlockPos var7 = this.blockPosition();
             List<Direction> var8 = Lists.newArrayList();
             if (param0 != Direction.Axis.X) {

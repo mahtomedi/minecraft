@@ -1,13 +1,10 @@
 package net.minecraft.server.dedicated;
 
-import com.google.gson.JsonObject;
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;
@@ -68,12 +65,6 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final String textFilteringConfig = this.get("text-filtering-config", "");
     public final Settings<DedicatedServerProperties>.MutableValue<Integer> playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
     public final Settings<DedicatedServerProperties>.MutableValue<Boolean> whiteList = this.getMutable("white-list", false);
-    private final DedicatedServerProperties.WorldGenProperties worldGenProperties = new DedicatedServerProperties.WorldGenProperties(
-        this.get("level-seed", ""),
-        this.get("generator-settings", param0x -> GsonHelper.parse(!param0x.isEmpty() ? param0x : "{}"), new JsonObject()),
-        this.get("generate-structures", true),
-        this.get("level-type", param0x -> param0x.toLowerCase(Locale.ROOT), "default")
-    );
     @Nullable
     private WorldGenSettings worldGenSettings;
 
@@ -93,12 +84,9 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
 
     public WorldGenSettings getWorldGenSettings(RegistryAccess param0) {
         if (this.worldGenSettings == null) {
-            this.worldGenSettings = WorldGenSettings.create(param0, this.worldGenProperties);
+            this.worldGenSettings = WorldGenSettings.create(param0, this.properties);
         }
 
         return this.worldGenSettings;
-    }
-
-    public static record WorldGenProperties(String levelSeed, JsonObject generatorSettings, boolean generateStructures, String levelType) {
     }
 }

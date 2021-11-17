@@ -1,6 +1,5 @@
 package net.minecraft.server.level;
 
-import com.mojang.logging.LogUtils;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -15,19 +14,18 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServerPlayerGameMode {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     protected ServerLevel level;
     protected final ServerPlayer player;
     private GameType gameModeForPlayer = GameType.DEFAULT_MODE;
@@ -126,15 +124,7 @@ public class ServerPlayerGameMode {
         double var2 = this.player.getZ() - ((double)param0.getZ() + 0.5);
         double var3 = var0 * var0 + var1 * var1 + var2 * var2;
         if (var3 > 36.0) {
-            BlockState var4;
-            if (this.player.level.getServer() != null
-                && this.player.chunkPosition().getChessboardDistance(new ChunkPos(param0)) < this.player.level.getServer().getPlayerList().getViewDistance()) {
-                var4 = this.level.getBlockState(param0);
-            } else {
-                var4 = Blocks.AIR.defaultBlockState();
-            }
-
-            this.player.connection.send(new ClientboundBlockBreakAckPacket(param0, var4, param1, false, "too far"));
+            this.player.connection.send(new ClientboundBlockBreakAckPacket(param0, this.level.getBlockState(param0), param1, false, "too far"));
         } else if (param0.getY() >= param3) {
             this.player.connection.send(new ClientboundBlockBreakAckPacket(param0, this.level.getBlockState(param0), param1, false, "too high"));
         } else {
@@ -159,14 +149,14 @@ public class ServerPlayerGameMode {
                 }
 
                 this.destroyProgressStart = this.gameTicks;
-                float var6 = 1.0F;
-                BlockState var7 = this.level.getBlockState(param0);
-                if (!var7.isAir()) {
-                    var7.attack(this.level, param0, this.player);
-                    var6 = var7.getDestroyProgress(this.player, this.player.level, param0);
+                float var4 = 1.0F;
+                BlockState var5 = this.level.getBlockState(param0);
+                if (!var5.isAir()) {
+                    var5.attack(this.level, param0, this.player);
+                    var4 = var5.getDestroyProgress(this.player, this.player.level, param0);
                 }
 
-                if (!var7.isAir() && var6 >= 1.0F) {
+                if (!var5.isAir() && var4 >= 1.0F) {
                     this.destroyAndAck(param0, param1, "insta mine");
                 } else {
                     if (this.isDestroyingBlock) {
@@ -185,20 +175,20 @@ public class ServerPlayerGameMode {
 
                     this.isDestroyingBlock = true;
                     this.destroyPos = param0.immutable();
-                    int var8 = (int)(var6 * 10.0F);
-                    this.level.destroyBlockProgress(this.player.getId(), param0, var8);
+                    int var6 = (int)(var4 * 10.0F);
+                    this.level.destroyBlockProgress(this.player.getId(), param0, var6);
                     this.player
                         .connection
                         .send(new ClientboundBlockBreakAckPacket(param0, this.level.getBlockState(param0), param1, true, "actual start of destroying"));
-                    this.lastSentState = var8;
+                    this.lastSentState = var6;
                 }
             } else if (param1 == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK) {
                 if (param0.equals(this.destroyPos)) {
-                    int var9 = this.gameTicks - this.destroyProgressStart;
-                    BlockState var10 = this.level.getBlockState(param0);
-                    if (!var10.isAir()) {
-                        float var11 = var10.getDestroyProgress(this.player, this.player.level, param0) * (float)(var9 + 1);
-                        if (var11 >= 0.7F) {
+                    int var7 = this.gameTicks - this.destroyProgressStart;
+                    BlockState var8 = this.level.getBlockState(param0);
+                    if (!var8.isAir()) {
+                        float var9 = var8.getDestroyProgress(this.player, this.player.level, param0) * (float)(var7 + 1);
+                        if (var9 >= 0.7F) {
                             this.isDestroyingBlock = false;
                             this.level.destroyBlockProgress(this.player.getId(), param0, -1);
                             this.destroyAndAck(param0, param1, "destroyed");

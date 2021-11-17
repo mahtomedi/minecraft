@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -86,10 +85,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.slf4j.Logger;
 
 public class Villager extends AbstractVillager implements ReputationEventHandler, VillagerDataHolder {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final EntityDataAccessor<VillagerData> DATA_VILLAGER_DATA = SynchedEntityData.defineId(Villager.class, EntityDataSerializers.VILLAGER_DATA);
     public static final int BREEDING_FOOD_THRESHOLD = 12;
     public static final Map<Item, Integer> FOOD_POINTS = ImmutableMap.of(Items.BREAD, 4, Items.POTATO, 1, Items.CARROT, 1, Items.BEETROOT, 1);
@@ -111,7 +108,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Nullable
     private Player lastTradedPlayer;
     private boolean chasing;
-    private int foodLevel;
+    private byte foodLevel;
     private final GossipContainer gossips = new GossipContainer();
     private long lastGossipTime;
     private long lastGossipDecayTime;
@@ -484,7 +481,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             .encodeStart(NbtOps.INSTANCE, this.getVillagerData())
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("VillagerData", param1));
-        param0.putByte("FoodLevel", (byte)this.foodLevel);
+        param0.putByte("FoodLevel", this.foodLevel);
         param0.put("Gossips", this.gossips.store(NbtOps.INSTANCE).getValue());
         param0.putInt("Xp", this.villagerXp);
         param0.putLong("LastRestock", this.lastRestockGameTime);
@@ -686,7 +683,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                         int var3 = var1.getCount();
 
                         for(int var4 = var3; var4 > 0; --var4) {
-                            this.foodLevel += var2;
+                            this.foodLevel = (byte)(this.foodLevel + var2);
                             this.getInventory().removeItem(var0, 1);
                             if (!this.hungry()) {
                                 return;
@@ -704,7 +701,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     private void digestFood(int param0) {
-        this.foodLevel -= param0;
+        this.foodLevel = (byte)(this.foodLevel - param0);
     }
 
     public void eatAndDigestFood() {
@@ -759,7 +756,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         if (param2 == MobSpawnType.COMMAND || param2 == MobSpawnType.SPAWN_EGG || param2 == MobSpawnType.SPAWNER || param2 == MobSpawnType.DISPENSER) {
-            this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(this.blockPosition()))));
+            this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiomeName(this.blockPosition()))));
         }
 
         if (param2 == MobSpawnType.STRUCTURE) {
@@ -773,7 +770,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         double var0 = this.random.nextDouble();
         VillagerType var1;
         if (var0 < 0.5) {
-            var1 = VillagerType.byBiome(param0.getBiome(this.blockPosition()));
+            var1 = VillagerType.byBiome(param0.getBiomeName(this.blockPosition()));
         } else if (var0 < 0.75) {
             var1 = this.getVillagerData().getType();
         } else {

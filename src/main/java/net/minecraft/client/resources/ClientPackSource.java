@@ -3,7 +3,6 @@ package net.minecraft.client.resources;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.hash.Hashing;
-import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -44,16 +43,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientPackSource implements RepositorySource {
     private static final PackMetadataSection BUILT_IN = new PackMetadataSection(
         new TranslatableComponent("resourcePack.vanilla.description"), PackType.CLIENT_RESOURCES.getVersion(SharedConstants.getCurrentVersion())
     );
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Pattern SHA1 = Pattern.compile("^[a-fA-F0-9]{40}$");
-    private static final int MAX_PACK_SIZE_BYTES = 262144000;
+    private static final int MAX_WEB_FILESIZE = 104857600;
     private static final int MAX_KEPT_PACKS = 10;
     private static final String VANILLA_ID = "vanilla";
     private static final String SERVER_ID = "server";
@@ -126,7 +126,7 @@ public class ClientPackSource implements RepositorySource {
                 Map<String, String> var5 = getDownloadHeaders();
                 Minecraft var6 = Minecraft.getInstance();
                 var6.executeBlocking(() -> var6.setScreen(var4));
-                var3 = HttpUtil.downloadTo(var2, param0, var5, 262144000, var4, var6.getProxy());
+                var3 = HttpUtil.downloadTo(var2, param0, var5, 104857600, var4, var6.getProxy());
             }
 
             this.currentDownload = var3.<Void>thenCompose(param3 -> {

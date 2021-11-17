@@ -39,7 +39,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
         Optional<BlockPos> var0 = param0.getPoiManager()
             .find(param0x -> param0x == PoiType.HOME, param0x -> true, param1.blockPosition(), this.closeEnoughDist + 1, PoiManager.Occupancy.ANY);
-        if (var0.isPresent() && var0.get().closerToCenterThan(param1.position(), (double)this.closeEnoughDist)) {
+        if (var0.isPresent() && var0.get().closerThan(param1.position(), (double)this.closeEnoughDist)) {
             this.currentPos = var0;
         } else {
             this.currentPos = Optional.empty();
@@ -71,7 +71,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
             var0.eraseMemory(MemoryModuleType.BREED_TARGET);
             var0.eraseMemory(MemoryModuleType.INTERACTION_TARGET);
             var0.setMemory(MemoryModuleType.HIDING_PLACE, GlobalPos.of(param0.dimension(), var1.get()));
-            if (!var1.get().closerToCenterThan(param1.position(), (double)this.closeEnoughDist)) {
+            if (!var1.get().closerThan(param1.position(), (double)this.closeEnoughDist)) {
                 var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var1.get(), this.speedModifier, this.closeEnoughDist));
             }
         }

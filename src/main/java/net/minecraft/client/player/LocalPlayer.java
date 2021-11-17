@@ -3,14 +3,12 @@ package net.minecraft.client.player;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.DeathScreen;
-import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
 import net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen;
@@ -121,7 +119,6 @@ public class LocalPlayer extends AbstractClientPlayer {
     public float portalTime;
     public float oPortalTime;
     private boolean startedUsingItem;
-    @Nullable
     private InteractionHand usingItemHand;
     private boolean handsBusy;
     private boolean autoJumpEnabled = true;
@@ -162,6 +159,12 @@ public class LocalPlayer extends AbstractClientPlayer {
             if (param0 instanceof AbstractMinecart) {
                 this.minecraft.getSoundManager().play(new RidingMinecartSoundInstance(this, (AbstractMinecart)param0, true));
                 this.minecraft.getSoundManager().play(new RidingMinecartSoundInstance(this, (AbstractMinecart)param0, false));
+            }
+
+            if (param0 instanceof Boat) {
+                this.yRotO = param0.getYRot();
+                this.setYRot(param0.getYRot());
+                this.setYHeadRot(param0.getYRot());
             }
 
             return true;
@@ -242,7 +245,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             double var7 = (double)(this.getYRot() - this.yRotLast);
             double var8 = (double)(this.getXRot() - this.xRotLast);
             ++this.positionReminder;
-            boolean var9 = Mth.lengthSquared(var4, var5, var6) > Mth.square(2.0E-4) || this.positionReminder >= 20;
+            boolean var9 = var4 * var4 + var5 * var5 + var6 * var6 > 9.0E-4 || this.positionReminder >= 20;
             boolean var10 = var7 != 0.0 || var8 != 0.0;
             if (this.isPassenger()) {
                 Vec3 var11 = this.getDeltaMovement();
@@ -531,7 +534,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public InteractionHand getUsedItemHand() {
-        return Objects.requireNonNullElse(this.usingItemHand, InteractionHand.MAIN_HAND);
+        return this.usingItemHand;
     }
 
     @Override
@@ -628,8 +631,8 @@ public class LocalPlayer extends AbstractClientPlayer {
             this.jumping = this.input.jumping;
             this.yBobO = this.yBob;
             this.xBobO = this.xBob;
-            this.xBob += (this.getXRot() - this.xBob) * 0.5F;
-            this.yBob += (this.getYRot() - this.yBob) * 0.5F;
+            this.xBob = (float)((double)this.xBob + (double)(this.getXRot() - this.xBob) * 0.5);
+            this.yBob = (float)((double)this.yBob + (double)(this.getYRot() - this.yBob) * 0.5);
         }
 
     }
@@ -838,10 +841,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     private void handleNetherPortalClient() {
         this.oPortalTime = this.portalTime;
         if (this.isInsidePortal) {
-            if (this.minecraft.screen != null
-                && !this.minecraft.screen.isPauseScreen()
-                && !(this.minecraft.screen instanceof DeathScreen)
-                && !(this.minecraft.screen instanceof ReceivingLevelScreen)) {
+            if (this.minecraft.screen != null && !this.minecraft.screen.isPauseScreen() && !(this.minecraft.screen instanceof DeathScreen)) {
                 if (this.minecraft.screen instanceof AbstractContainerScreen) {
                     this.closeContainer();
                 }

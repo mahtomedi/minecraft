@@ -10,7 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
 
-public record SavedTick<T>(T type, BlockPos pos, int delay, TickPriority priority) {
+record SavedTick<T>(T type, BlockPos pos, int delay, TickPriority priority) {
     private static final String TAG_ID = "i";
     private static final String TAG_X = "x";
     private static final String TAG_Y = "y";
@@ -38,21 +38,15 @@ public record SavedTick<T>(T type, BlockPos pos, int delay, TickPriority priorit
 
         for(int var1 = 0; var1 < param0.size(); ++var1) {
             CompoundTag var2 = param0.getCompound(var1);
-            loadTick(var2, param1).ifPresent(param2x -> {
-                if (ChunkPos.asLong(param2x.pos()) == var0) {
-                    param3.accept(param2x);
+            param1.apply(var2.getString("i")).ifPresent(param3x -> {
+                BlockPos var0x = new BlockPos(var2.getInt("x"), var2.getInt("y"), var2.getInt("z"));
+                if (ChunkPos.asLong(var0x) == var0) {
+                    param3.accept(new SavedTick<>(param3x, var0x, var2.getInt("t"), TickPriority.byValue(var2.getInt("p"))));
                 }
 
             });
         }
 
-    }
-
-    public static <T> Optional<SavedTick<T>> loadTick(CompoundTag param0, Function<String, Optional<T>> param1) {
-        return param1.apply(param0.getString("i")).map(param1x -> {
-            BlockPos var0x = new BlockPos(param0.getInt("x"), param0.getInt("y"), param0.getInt("z"));
-            return new SavedTick<>(param1x, var0x, param0.getInt("t"), TickPriority.byValue(param0.getInt("p")));
-        });
     }
 
     private static CompoundTag saveTick(String param0, BlockPos param1, int param2, TickPriority param3) {

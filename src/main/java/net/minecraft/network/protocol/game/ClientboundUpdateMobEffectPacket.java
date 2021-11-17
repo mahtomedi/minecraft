@@ -10,14 +10,14 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
     private static final int FLAG_VISIBLE = 2;
     private static final int FLAG_SHOW_ICON = 4;
     private final int entityId;
-    private final int effectId;
+    private final byte effectId;
     private final byte effectAmplifier;
     private final int effectDurationTicks;
     private final byte flags;
 
     public ClientboundUpdateMobEffectPacket(int param0, MobEffectInstance param1) {
         this.entityId = param0;
-        this.effectId = MobEffect.getId(param1.getEffect());
+        this.effectId = (byte)(MobEffect.getId(param1.getEffect()) & 0xFF);
         this.effectAmplifier = (byte)(param1.getAmplifier() & 0xFF);
         if (param1.getDuration() > 32767) {
             this.effectDurationTicks = 32767;
@@ -43,7 +43,7 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
 
     public ClientboundUpdateMobEffectPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
-        this.effectId = param0.readVarInt();
+        this.effectId = param0.readByte();
         this.effectAmplifier = param0.readByte();
         this.effectDurationTicks = param0.readVarInt();
         this.flags = param0.readByte();
@@ -52,7 +52,7 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
-        param0.writeVarInt(this.effectId);
+        param0.writeByte(this.effectId);
         param0.writeByte(this.effectAmplifier);
         param0.writeVarInt(this.effectDurationTicks);
         param0.writeByte(this.flags);
@@ -70,7 +70,7 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
         return this.entityId;
     }
 
-    public int getEffectId() {
+    public byte getEffectId() {
         return this.effectId;
     }
 

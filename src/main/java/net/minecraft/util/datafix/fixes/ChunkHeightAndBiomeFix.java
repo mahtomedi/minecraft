@@ -280,38 +280,34 @@ public class ChunkHeightAndBiomeFix extends DataFix {
                         ChunkProtoTickListFix.PoorMansPalettedContainer var3 = param4.get();
                         if (var3 != null) {
                             BitSet var4 = new BitSet(256);
-                            boolean var5 = var2.equals("noise");
 
-                            for(int var6 = 0; var6 < 16; ++var6) {
-                                for(int var7 = 0; var7 < 16; ++var7) {
-                                    Dynamic<?> var8 = var3.get(var7, 0, var6);
-                                    boolean var9 = var8 != null && "minecraft:bedrock".equals(var8.get("Name").asString(""));
-                                    boolean var10 = var8 != null && "minecraft:air".equals(var8.get("Name").asString(""));
-                                    if (var10) {
-                                        var4.set(var6 * 16 + var7);
+                            for(int var5 = 0; var5 < 16; ++var5) {
+                                for(int var6 = 0; var6 < 16; ++var6) {
+                                    Dynamic<?> var7 = var3.get(var6, 0, var5);
+                                    boolean var8 = var7 != null && "minecraft:bedrock".equals(var7.get("Name").asString(""));
+                                    if (!var8) {
+                                        var4.set(var5 * 16 + var6);
                                     }
-
-                                    var5 |= var9;
                                 }
                             }
 
-                            if (var5 && var4.cardinality() != var4.size()) {
-                                Dynamic<?> var11 = "full".equals(var2) ? param0.createString("heightmaps") : var1;
+                            boolean var9 = var4.cardinality() != var4.size();
+                            if (var9) {
+                                Dynamic<?> var10 = "full".equals(var2) ? param0.createString("heightmaps") : var1;
                                 param0 = param0.set(
                                     "below_zero_retrogen",
                                     param0.createMap(
                                         ImmutableMap.of(
                                             param0.createString("target_status"),
-                                            var11,
+                                            var10,
                                             param0.createString("missing_bedrock"),
                                             param0.createLongList(LongStream.of(var4.toLongArray()))
                                         )
                                     )
                                 );
                                 param0 = param0.set("Status", param0.createString("empty"));
+                                param0 = param0.set("isLightOn", param0.createBoolean(false));
                             }
-
-                            param0 = param0.set("isLightOn", param0.createBoolean(false));
                         }
                     }
                 }

@@ -3,7 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import net.minecraft.core.Holder;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
@@ -22,12 +22,16 @@ public class FossilFeatureConfiguration implements FeatureConfiguration {
     );
     public final List<ResourceLocation> fossilStructures;
     public final List<ResourceLocation> overlayStructures;
-    public final Holder<StructureProcessorList> fossilProcessors;
-    public final Holder<StructureProcessorList> overlayProcessors;
+    public final Supplier<StructureProcessorList> fossilProcessors;
+    public final Supplier<StructureProcessorList> overlayProcessors;
     public final int maxEmptyCornersAllowed;
 
     public FossilFeatureConfiguration(
-        List<ResourceLocation> param0, List<ResourceLocation> param1, Holder<StructureProcessorList> param2, Holder<StructureProcessorList> param3, int param4
+        List<ResourceLocation> param0,
+        List<ResourceLocation> param1,
+        Supplier<StructureProcessorList> param2,
+        Supplier<StructureProcessorList> param3,
+        int param4
     ) {
         if (param0.isEmpty()) {
             throw new IllegalArgumentException("Fossil structure lists need at least one entry");
@@ -40,5 +44,11 @@ public class FossilFeatureConfiguration implements FeatureConfiguration {
             this.overlayProcessors = param3;
             this.maxEmptyCornersAllowed = param4;
         }
+    }
+
+    public FossilFeatureConfiguration(
+        List<ResourceLocation> param0, List<ResourceLocation> param1, StructureProcessorList param2, StructureProcessorList param3, int param4
+    ) {
+        this(param0, param1, () -> param2, () -> param3, param4);
     }
 }

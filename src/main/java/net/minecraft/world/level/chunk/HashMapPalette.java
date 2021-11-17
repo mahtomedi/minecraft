@@ -19,14 +19,10 @@ public class HashMapPalette<T> implements Palette<T> {
     }
 
     public HashMapPalette(IdMap<T> param0, int param1, PaletteResize<T> param2) {
-        this(param0, param1, param2, CrudeIncrementalIntIdentityHashBiMap.create(1 << param1));
-    }
-
-    private HashMapPalette(IdMap<T> param0, int param1, PaletteResize<T> param2, CrudeIncrementalIntIdentityHashBiMap<T> param3) {
         this.registry = param0;
         this.bits = param1;
         this.resizeHandler = param2;
-        this.values = param3;
+        this.values = CrudeIncrementalIntIdentityHashBiMap.create(1 << param1);
     }
 
     public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2, List<A> param3) {
@@ -73,7 +69,7 @@ public class HashMapPalette<T> implements Palette<T> {
         int var0 = param0.readVarInt();
 
         for(int var1 = 0; var1 < var0; ++var1) {
-            this.values.add(this.registry.byIdOrThrow(param0.readVarInt()));
+            this.values.add(this.registry.byId(param0.readVarInt()));
         }
 
     }
@@ -109,10 +105,5 @@ public class HashMapPalette<T> implements Palette<T> {
     @Override
     public int getSize() {
         return this.values.size();
-    }
-
-    @Override
-    public Palette<T> copy() {
-        return new HashMapPalette<>(this.registry, this.bits, this.resizeHandler, this.values.copy());
     }
 }

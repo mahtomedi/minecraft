@@ -5,12 +5,10 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.IdMapper;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -24,7 +22,6 @@ public abstract class Fluid {
     public static final IdMapper<FluidState> FLUID_STATE_REGISTRY = new IdMapper<>();
     protected final StateDefinition<Fluid, FluidState> stateDefinition;
     private FluidState defaultFluidState;
-    private final Holder.Reference<Fluid> builtInRegistryHolder = Registry.FLUID.createIntrusiveHolder(this);
 
     protected Fluid() {
         StateDefinition.Builder<Fluid, FluidState> var0 = new StateDefinition.Builder<>(this);
@@ -94,19 +91,13 @@ public abstract class Fluid {
         return param0 == this;
     }
 
-    @Deprecated
-    public boolean is(TagKey<Fluid> param0) {
-        return this.builtInRegistryHolder.is(param0);
+    public boolean is(Tag<Fluid> param0) {
+        return param0.contains(this);
     }
 
     public abstract VoxelShape getShape(FluidState var1, BlockGetter var2, BlockPos var3);
 
     public Optional<SoundEvent> getPickupSound() {
         return Optional.empty();
-    }
-
-    @Deprecated
-    public Holder.Reference<Fluid> builtInRegistryHolder() {
-        return this.builtInRegistryHolder;
     }
 }

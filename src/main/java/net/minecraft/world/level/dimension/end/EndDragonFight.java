@@ -5,7 +5,6 @@ import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
-import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -53,10 +52,11 @@ import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
 import net.minecraft.world.level.levelgen.feature.SpikeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.phys.AABB;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EndDragonFight {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int MAX_TICKS_BEFORE_DRAGON_RESPAWN = 1200;
     private static final int TIME_BETWEEN_CRYSTAL_SCANS = 100;
     private static final int TIME_BETWEEN_PLAYER_SCANS = 20;
@@ -400,7 +400,7 @@ public class EndDragonFight {
 
     private void spawnNewGateway(BlockPos param0) {
         this.level.levelEvent(3000, param0, 0);
-        EndFeatures.END_GATEWAY_DELAYED.value().place(this.level, this.level.getChunkSource().getGenerator(), new Random(), param0);
+        EndFeatures.END_GATEWAY_DELAYED.place(this.level, this.level.getChunkSource().getGenerator(), new Random(), param0);
     }
 
     private void spawnExitPortal(boolean param0) {
@@ -413,7 +413,7 @@ public class EndDragonFight {
             }
         }
 
-        var0.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), new Random(), this.portalLocation);
+        var0.configured(FeatureConfiguration.NONE).place(this.level, this.level.getChunkSource().getGenerator(), new Random(), this.portalLocation);
     }
 
     private EnderDragon createNewDragon() {

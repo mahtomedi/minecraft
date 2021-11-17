@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -20,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -127,7 +126,7 @@ public class ImposterProtoChunk extends ProtoChunk {
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
+    public Biome getNoiseBiome(int param0, int param1, int param2) {
         return this.wrapped.getNoiseBiome(param0, param1, param2);
     }
 
@@ -138,39 +137,39 @@ public class ImposterProtoChunk extends ProtoChunk {
 
     @Nullable
     @Override
-    public StructureStart getStartForFeature(ConfiguredStructureFeature<?, ?> param0) {
+    public StructureStart<?> getStartForFeature(StructureFeature<?> param0) {
         return this.wrapped.getStartForFeature(param0);
     }
 
     @Override
-    public void setStartForFeature(ConfiguredStructureFeature<?, ?> param0, StructureStart param1) {
+    public void setStartForFeature(StructureFeature<?> param0, StructureStart<?> param1) {
     }
 
     @Override
-    public Map<ConfiguredStructureFeature<?, ?>, StructureStart> getAllStarts() {
+    public Map<StructureFeature<?>, StructureStart<?>> getAllStarts() {
         return this.wrapped.getAllStarts();
     }
 
     @Override
-    public void setAllStarts(Map<ConfiguredStructureFeature<?, ?>, StructureStart> param0) {
+    public void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> param0) {
     }
 
     @Override
-    public LongSet getReferencesForFeature(ConfiguredStructureFeature<?, ?> param0) {
+    public LongSet getReferencesForFeature(StructureFeature<?> param0) {
         return this.wrapped.getReferencesForFeature(param0);
     }
 
     @Override
-    public void addReferenceForFeature(ConfiguredStructureFeature<?, ?> param0, long param1) {
+    public void addReferenceForFeature(StructureFeature<?> param0, long param1) {
     }
 
     @Override
-    public Map<ConfiguredStructureFeature<?, ?>, LongSet> getAllReferences() {
+    public Map<StructureFeature<?>, LongSet> getAllReferences() {
         return this.wrapped.getAllReferences();
     }
 
     @Override
-    public void setAllReferences(Map<ConfiguredStructureFeature<?, ?>, LongSet> param0) {
+    public void setAllReferences(Map<StructureFeature<?>, LongSet> param0) {
     }
 
     @Override

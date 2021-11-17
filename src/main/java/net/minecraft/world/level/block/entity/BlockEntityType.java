@@ -2,7 +2,6 @@ package net.minecraft.world.level.block.entity;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.types.Type;
-import com.mojang.logging.LogUtils;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -15,10 +14,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BlockEntityType<T extends BlockEntity> {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final BlockEntityType<FurnaceBlockEntity> FURNACE = register("furnace", BlockEntityType.Builder.of(FurnaceBlockEntity::new, Blocks.FURNACE));
     public static final BlockEntityType<ChestBlockEntity> CHEST = register("chest", BlockEntityType.Builder.of(ChestBlockEntity::new, Blocks.CHEST));
     public static final BlockEntityType<TrappedChestBlockEntity> TRAPPED_CHEST = register(

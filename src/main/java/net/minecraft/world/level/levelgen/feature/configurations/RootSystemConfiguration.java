@@ -2,11 +2,8 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
+import java.util.function.Supplier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
@@ -16,7 +13,7 @@ public class RootSystemConfiguration implements FeatureConfiguration {
                     PlacedFeature.CODEC.fieldOf("feature").forGetter(param0x -> param0x.treeFeature),
                     Codec.intRange(1, 64).fieldOf("required_vertical_space_for_tree").forGetter(param0x -> param0x.requiredVerticalSpaceForTree),
                     Codec.intRange(1, 64).fieldOf("root_radius").forGetter(param0x -> param0x.rootRadius),
-                    TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("root_replaceable").forGetter(param0x -> param0x.rootReplaceable),
+                    ResourceLocation.CODEC.fieldOf("root_replaceable").forGetter(param0x -> param0x.rootReplaceable),
                     BlockStateProvider.CODEC.fieldOf("root_state_provider").forGetter(param0x -> param0x.rootStateProvider),
                     Codec.intRange(1, 256).fieldOf("root_placement_attempts").forGetter(param0x -> param0x.rootPlacementAttempts),
                     Codec.intRange(1, 4096).fieldOf("root_column_max_height").forGetter(param0x -> param0x.rootColumnMaxHeight),
@@ -24,15 +21,14 @@ public class RootSystemConfiguration implements FeatureConfiguration {
                     Codec.intRange(0, 16).fieldOf("hanging_roots_vertical_span").forGetter(param0x -> param0x.hangingRootsVerticalSpan),
                     BlockStateProvider.CODEC.fieldOf("hanging_root_state_provider").forGetter(param0x -> param0x.hangingRootStateProvider),
                     Codec.intRange(1, 256).fieldOf("hanging_root_placement_attempts").forGetter(param0x -> param0x.hangingRootPlacementAttempts),
-                    Codec.intRange(1, 64).fieldOf("allowed_vertical_water_for_tree").forGetter(param0x -> param0x.allowedVerticalWaterForTree),
-                    BlockPredicate.CODEC.fieldOf("allowed_tree_position").forGetter(param0x -> param0x.allowedTreePosition)
+                    Codec.intRange(1, 64).fieldOf("allowed_vertical_water_for_tree").forGetter(param0x -> param0x.allowedVerticalWaterForTree)
                 )
                 .apply(param0, RootSystemConfiguration::new)
     );
-    public final Holder<PlacedFeature> treeFeature;
+    public final Supplier<PlacedFeature> treeFeature;
     public final int requiredVerticalSpaceForTree;
     public final int rootRadius;
-    public final TagKey<Block> rootReplaceable;
+    public final ResourceLocation rootReplaceable;
     public final BlockStateProvider rootStateProvider;
     public final int rootPlacementAttempts;
     public final int rootColumnMaxHeight;
@@ -41,13 +37,12 @@ public class RootSystemConfiguration implements FeatureConfiguration {
     public final BlockStateProvider hangingRootStateProvider;
     public final int hangingRootPlacementAttempts;
     public final int allowedVerticalWaterForTree;
-    public final BlockPredicate allowedTreePosition;
 
     public RootSystemConfiguration(
-        Holder<PlacedFeature> param0,
+        Supplier<PlacedFeature> param0,
         int param1,
         int param2,
-        TagKey<Block> param3,
+        ResourceLocation param3,
         BlockStateProvider param4,
         int param5,
         int param6,
@@ -55,8 +50,7 @@ public class RootSystemConfiguration implements FeatureConfiguration {
         int param8,
         BlockStateProvider param9,
         int param10,
-        int param11,
-        BlockPredicate param12
+        int param11
     ) {
         this.treeFeature = param0;
         this.requiredVerticalSpaceForTree = param1;
@@ -70,6 +64,5 @@ public class RootSystemConfiguration implements FeatureConfiguration {
         this.hangingRootStateProvider = param9;
         this.hangingRootPlacementAttempts = param10;
         this.allowedVerticalWaterForTree = param11;
-        this.allowedTreePosition = param12;
     }
 }

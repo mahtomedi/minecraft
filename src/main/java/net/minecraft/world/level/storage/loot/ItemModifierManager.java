@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -19,10 +18,11 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ItemModifierManager extends SimpleJsonResourceReloadListener {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = Deserializers.createFunctionSerializer().create();
     private final PredicateManager predicateManager;
     private final LootTables lootTables;

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Floats;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
-import com.mojang.logging.LogUtils;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
@@ -129,7 +128,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BaseCommandBlock;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -150,10 +148,11 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int LATENCY_CHECK_INTERVAL = 15000;
     public final Connection connection;
     private final MinecraftServer server;
@@ -195,7 +194,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         param1.setListener(this);
         this.player = param2;
         param2.connection = this;
-        this.keepAliveTime = Util.getMillis();
         param2.getTextFilter().join();
     }
 
@@ -208,7 +206,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.getYRot(), this.player.getXRot());
         ++this.tickCount;
         this.knownMovePacketCount = this.receivedMovePacketCount;
-        if (this.clientIsFloating && !this.player.isSleeping() && !this.player.isPassenger()) {
+        if (this.clientIsFloating && !this.player.isSleeping()) {
             if (++this.aboveGroundTickCount > 80) {
                 LOGGER.warn("{} was kicked for floating too long!", this.player.getName().getString());
                 this.disconnect(new TranslatableComponent("multiplayer.disconnect.flying"));
@@ -299,13 +297,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
     private <T, R> void filterTextPacket(T param0, Consumer<R> param1, BiFunction<TextFilter, T, CompletableFuture<R>> param2) {
         BlockableEventLoop<?> var0 = this.player.getLevel().getServer();
-        Consumer<R> var1 = param2x -> {
+        Consumer<R> var1 = param1x -> {
             if (this.getConnection().isConnected()) {
-                try {
-                    param1.accept(param2x);
-                } catch (Exception var5x) {
-                    LOGGER.error("Failed to handle chat packet {}, suppressing error", param0, var5x);
-                }
+                param1.accept(param1x);
             } else {
                 LOGGER.debug("Ignoring packet due to disconnection");
             }
@@ -374,7 +368,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 var10 = var5 - this.vehicleLastGoodX;
                 var11 = var6 - this.vehicleLastGoodY - 1.0E-6;
                 var12 = var7 - this.vehicleLastGoodZ;
-                boolean var16 = var0.verticalCollisionBelow;
                 var0.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
                 var10 = var5 - var0.getX();
                 var11 = var6 - var0.getY();
@@ -384,15 +377,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                 var12 = var7 - var0.getZ();
                 var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                boolean var18 = false;
+                boolean var17 = false;
                 if (var14 > 0.0625) {
-                    var18 = true;
+                    var17 = true;
                     LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", var0.getName().getString(), this.player.getName().getString(), Math.sqrt(var14));
                 }
 
                 var0.absMoveTo(var5, var6, var7, var8, var9);
-                boolean var19 = var1.noCollision(var0, var0.getBoundingBox().deflate(0.0625));
-                if (var15 && (var18 || !var19)) {
+                boolean var18 = var1.noCollision(var0, var0.getBoundingBox().deflate(0.0625));
+                if (var15 && (var17 || !var18)) {
                     var0.absMoveTo(var2, var3, var4, var8, var9);
                     this.connection.send(new ClientboundMoveVehiclePacket(var0));
                     return;
@@ -400,11 +393,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                 this.player.getLevel().getChunkSource().move(this.player);
                 this.player.checkMovementStatistics(this.player.getX() - var2, this.player.getY() - var3, this.player.getZ() - var4);
-                this.clientVehicleIsFloating = var11 >= -0.03125
-                    && !var16
-                    && !this.server.isFlightAllowed()
-                    && !var0.isNoGravity()
-                    && this.noBlocksAround(var0);
+                this.clientVehicleIsFloating = var11 >= -0.03125 && !this.server.isFlightAllowed() && this.noBlocksAround(var0);
                 this.vehicleLastGoodX = var0.getX();
                 this.vehicleLastGoodY = var0.getY();
                 this.vehicleLastGoodZ = var0.getZ();
@@ -871,7 +860,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                                 this.player.jumpFromGround();
                             }
 
-                            boolean var19 = this.player.verticalCollisionBelow;
                             this.player.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
                             var10 = var1 - this.player.getX();
                             var11 = var2 - this.player.getY();
@@ -881,28 +869,26 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                             var12 = var3 - this.player.getZ();
                             var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                            boolean var21 = false;
+                            boolean var20 = false;
                             if (!this.player.isChangingDimension()
                                 && var14 > 0.0625
                                 && !this.player.isSleeping()
                                 && !this.player.gameMode.isCreative()
                                 && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
-                                var21 = true;
+                                var20 = true;
                                 LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                             }
 
                             this.player.absMoveTo(var1, var2, var3, var4, var5);
                             if (this.player.noPhysics
                                 || this.player.isSleeping()
-                                || (!var21 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
+                                || (!var20 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
                                 this.clientIsFloating = var11 >= -0.03125
-                                    && !var19
                                     && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
                                     && !this.server.isFlightAllowed()
                                     && !this.player.getAbilities().mayfly
                                     && !this.player.hasEffect(MobEffects.LEVITATION)
                                     && !this.player.isFallFlying()
-                                    && !this.player.isAutoSpinAttack()
                                     && this.noBlocksAround(this.player);
                                 this.player.getLevel().getChunkSource().move(this.player);
                                 this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());
@@ -1031,46 +1017,29 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         InteractionHand var1 = param0.getHand();
         ItemStack var2 = this.player.getItemInHand(var1);
         BlockHitResult var3 = param0.getHitResult();
-        Vec3 var4 = var3.getLocation();
-        BlockPos var5 = var3.getBlockPos();
-        Vec3 var6 = var4.subtract(Vec3.atCenterOf(var5));
-        if (this.player.level.getServer() != null
-            && this.player.chunkPosition().getChessboardDistance(new ChunkPos(var5)) < this.player.level.getServer().getPlayerList().getViewDistance()) {
-            double var7 = 1.0000001;
-            if (Math.abs(var6.x()) < 1.0000001 && Math.abs(var6.y()) < 1.0000001 && Math.abs(var6.z()) < 1.0000001) {
-                Direction var8 = var3.getDirection();
-                this.player.resetLastActionTime();
-                int var9 = this.player.level.getMaxBuildHeight();
-                if (var5.getY() < var9) {
-                    if (this.awaitingPositionFromClient == null
-                        && this.player.distanceToSqr((double)var5.getX() + 0.5, (double)var5.getY() + 0.5, (double)var5.getZ() + 0.5) < 64.0
-                        && var0.mayInteract(this.player, var5)) {
-                        InteractionResult var10 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
-                        if (var8 == Direction.UP && !var10.consumesAction() && var5.getY() >= var9 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
-                            Component var11 = new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED);
-                            this.player.sendMessage(var11, ChatType.GAME_INFO, Util.NIL_UUID);
-                        } else if (var10.shouldSwing()) {
-                            this.player.swing(var1, true);
-                        }
-                    }
-                } else {
-                    Component var12 = new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED);
-                    this.player.sendMessage(var12, ChatType.GAME_INFO, Util.NIL_UUID);
+        BlockPos var4 = var3.getBlockPos();
+        Direction var5 = var3.getDirection();
+        this.player.resetLastActionTime();
+        int var6 = this.player.level.getMaxBuildHeight();
+        if (var4.getY() < var6) {
+            if (this.awaitingPositionFromClient == null
+                && this.player.distanceToSqr((double)var4.getX() + 0.5, (double)var4.getY() + 0.5, (double)var4.getZ() + 0.5) < 64.0
+                && var0.mayInteract(this.player, var4)) {
+                InteractionResult var7 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
+                if (var5 == Direction.UP && !var7.consumesAction() && var4.getY() >= var6 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
+                    Component var8 = new TranslatableComponent("build.tooHigh", var6 - 1).withStyle(ChatFormatting.RED);
+                    this.player.sendMessage(var8, ChatType.GAME_INFO, Util.NIL_UUID);
+                } else if (var7.shouldSwing()) {
+                    this.player.swing(var1, true);
                 }
-
-                this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5));
-                this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5.relative(var8)));
-            } else {
-                LOGGER.warn("Ignoring UseItemOnPacket from {}: Location {} too far away from hit block {}.", this.player.getGameProfile().getName(), var4, var5);
             }
         } else {
-            LOGGER.warn(
-                "Ignoring UseItemOnPacket from {}: hit position {} too far away from player {}.",
-                this.player.getGameProfile().getName(),
-                var5,
-                this.player.blockPosition()
-            );
+            Component var9 = new TranslatableComponent("build.tooHigh", var6 - 1).withStyle(ChatFormatting.RED);
+            this.player.sendMessage(var9, ChatType.GAME_INFO, Util.NIL_UUID);
         }
+
+        this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4));
+        this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4.relative(var5)));
     }
 
     @Override
@@ -1391,31 +1360,24 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             if (this.player.isSpectator()) {
                 this.player.containerMenu.sendAllDataToRemote();
             } else {
-                int var0 = param0.getSlotNum();
-                if (!this.player.containerMenu.isValidSlotIndex(var0)) {
-                    LOGGER.debug(
-                        "Player {} clicked invalid slot index: {}, available slots: {}", this.player.getName(), var0, this.player.containerMenu.slots.size()
-                    );
+                boolean var0 = param0.getStateId() != this.player.containerMenu.getStateId();
+                this.player.containerMenu.suppressRemoteUpdates();
+                this.player.containerMenu.clicked(param0.getSlotNum(), param0.getButtonNum(), param0.getClickType(), this.player);
+
+                for(Entry<ItemStack> var1 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
+                    this.player.containerMenu.setRemoteSlotNoCopy(var1.getIntKey(), var1.getValue());
+                }
+
+                this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());
+                this.player.containerMenu.resumeRemoteUpdates();
+                if (var0) {
+                    this.player.containerMenu.broadcastFullState();
                 } else {
-                    boolean var1 = param0.getStateId() != this.player.containerMenu.getStateId();
-                    this.player.containerMenu.suppressRemoteUpdates();
-                    this.player.containerMenu.clicked(var0, param0.getButtonNum(), param0.getClickType(), this.player);
-
-                    for(Entry<ItemStack> var2 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
-                        this.player.containerMenu.setRemoteSlotNoCopy(var2.getIntKey(), var2.getValue());
-                    }
-
-                    this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());
-                    this.player.containerMenu.resumeRemoteUpdates();
-                    if (var1) {
-                        this.player.containerMenu.broadcastFullState();
-                    } else {
-                        this.player.containerMenu.broadcastChanges();
-                    }
-
+                    this.player.containerMenu.broadcastChanges();
                 }
             }
         }
+
     }
 
     @Override
@@ -1437,10 +1399,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         this.player.resetLastActionTime();
         if (this.player.containerMenu.containerId == param0.getContainerId() && !this.player.isSpectator()) {
-            boolean var0 = this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
-            if (var0) {
-                this.player.containerMenu.broadcastChanges();
-            }
+            this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
+            this.player.containerMenu.broadcastChanges();
         }
 
     }

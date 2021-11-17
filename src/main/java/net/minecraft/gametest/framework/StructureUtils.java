@@ -2,7 +2,6 @@ package net.minecraft.gametest.framework;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -44,10 +43,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class StructureUtils {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final String DEFAULT_TEST_STRUCTURES_DIR = "gameteststructures";
     public static String testStructuresDir = "gameteststructures";
     private static final int HOW_MANY_CHUNKS_TO_LOAD_IN_EACH_DIRECTION_OF_STRUCTURE = 4;
@@ -275,9 +275,7 @@ public class StructureUtils {
 
     private static void clearBlock(int param0, BlockPos param1, ServerLevel param2) {
         BlockState var0 = null;
-        FlatLevelGeneratorSettings var1 = FlatLevelGeneratorSettings.getDefault(
-            param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param2.registryAccess().registryOrThrow(Registry.STRUCTURE_SET_REGISTRY)
-        );
+        FlatLevelGeneratorSettings var1 = FlatLevelGeneratorSettings.getDefault(param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY));
         List<BlockState> var2 = var1.getLayers();
         int var3 = param1.getY() - param2.getMinBuildHeight();
         if (param1.getY() < param0 && var3 > 0 && var3 <= var2.size()) {

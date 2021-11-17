@@ -1,6 +1,5 @@
 package net.minecraft.world.level;
 
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -13,7 +12,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
@@ -38,16 +36,16 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.NetherFortressFeature;
-import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class NaturalSpawner {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int MIN_SPAWN_DISTANCE = 24;
     public static final int SPAWN_DISTANCE_CHUNK = 8;
     public static final int SPAWN_DISTANCE_BLOCK = 128;
@@ -100,7 +98,7 @@ public final class NaturalSpawner {
     }
 
     static Biome getRoughBiome(BlockPos param0, ChunkAccess param1) {
-        return param1.getNoiseBiome(QuartPos.fromBlock(param0.getX()), QuartPos.fromBlock(param0.getY()), QuartPos.fromBlock(param0.getZ())).value();
+        return param1.getNoiseBiome(QuartPos.fromBlock(param0.getX()), QuartPos.fromBlock(param0.getY()), QuartPos.fromBlock(param0.getZ()));
     }
 
     public static void spawnForChunk(ServerLevel param0, LevelChunk param1, NaturalSpawner.SpawnState param2, boolean param3, boolean param4, boolean param5) {
@@ -211,11 +209,10 @@ public final class NaturalSpawner {
     private static boolean isRightDistanceToPlayerAndSpawnPoint(ServerLevel param0, ChunkAccess param1, BlockPos.MutableBlockPos param2, double param3) {
         if (param3 <= 576.0) {
             return false;
-        } else if (param0.getSharedSpawnPos()
-            .closerToCenterThan(new Vec3((double)param2.getX() + 0.5, (double)param2.getY(), (double)param2.getZ() + 0.5), 24.0)) {
+        } else if (param0.getSharedSpawnPos().closerThan(new Vec3((double)param2.getX() + 0.5, (double)param2.getY(), (double)param2.getZ() + 0.5), 24.0)) {
             return false;
         } else {
-            return Objects.equals(new ChunkPos(param2), param1.getPos()) || param0.isNaturalSpawningAllowed(param2);
+            return Objects.equals(new ChunkPos(param2), param1.getPos()) || param0.isPositionEntityTicking(param2);
         }
     }
 
@@ -274,8 +271,8 @@ public final class NaturalSpawner {
     private static Optional<MobSpawnSettings.SpawnerData> getRandomSpawnMobAt(
         ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Random param4, BlockPos param5
     ) {
-        Holder<Biome> var0 = param0.getBiome(param5);
-        return param3 == MobCategory.WATER_AMBIENT && Biome.getBiomeCategory(var0) == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F
+        Biome var0 = param0.getBiome(param5);
+        return param3 == MobCategory.WATER_AMBIENT && var0.getBiomeCategory() == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F
             ? Optional.empty()
             : mobsAt(param0, param1, param2, param3, param5, var0).getRandom(param4);
     }
@@ -287,7 +284,7 @@ public final class NaturalSpawner {
     }
 
     private static WeightedRandomList<MobSpawnSettings.SpawnerData> mobsAt(
-        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Holder<Biome> param5
+        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Biome param5
     ) {
         return isInNetherFortressBounds(param4, param0, param3, param1)
             ? NetherFortressFeature.FORTRESS_ENEMIES
@@ -295,14 +292,9 @@ public final class NaturalSpawner {
     }
 
     public static boolean isInNetherFortressBounds(BlockPos param0, ServerLevel param1, MobCategory param2, StructureFeatureManager param3) {
-        if (param2 == MobCategory.MONSTER && param1.getBlockState(param0.below()).is(Blocks.NETHER_BRICKS)) {
-            ConfiguredStructureFeature<?, ?> var0 = param3.registryAccess()
-                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY)
-                .get(BuiltinStructures.FORTRESS);
-            return var0 == null ? false : param3.getStructureAt(param0, var0).isValid();
-        } else {
-            return false;
-        }
+        return param2 == MobCategory.MONSTER
+            && param1.getBlockState(param0.below()).is(Blocks.NETHER_BRICKS)
+            && param3.getStructureAt(param0, StructureFeature.NETHER_BRIDGE).isValid();
     }
 
     private static BlockPos getRandomPosWithin(Level param0, LevelChunk param1) {
@@ -356,8 +348,8 @@ public final class NaturalSpawner {
         }
     }
 
-    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Holder<Biome> param1, ChunkPos param2, Random param3) {
-        MobSpawnSettings var0 = param1.value().getMobSettings();
+    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Biome param1, ChunkPos param2, Random param3) {
+        MobSpawnSettings var0 = param1.getMobSettings();
         WeightedRandomList<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
         if (!var1.isEmpty()) {
             int var2 = param2.getMinBlockX();

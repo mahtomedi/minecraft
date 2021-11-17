@@ -1,7 +1,6 @@
 package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collection;
@@ -14,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
@@ -52,10 +52,11 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.pathfinder.Path;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DebugPackets {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public static void sendGameTestAddMarker(ServerLevel param0, BlockPos param1, String param2, int param3, int param4) {
         FriendlyByteBuf var0 = new FriendlyByteBuf(Unpooled.buffer());
@@ -95,7 +96,7 @@ public class DebugPackets {
     public static void sendNeighborsUpdatePacket(Level param0, BlockPos param1) {
     }
 
-    public static void sendStructurePacket(WorldGenLevel param0, StructureStart param1) {
+    public static void sendStructurePacket(WorldGenLevel param0, StructureStart<?> param1) {
     }
 
     public static void sendGoalSelector(Level param0, Mob param1, GoalSelector param2) {
@@ -157,7 +158,7 @@ public class DebugPackets {
         if (param0 instanceof Villager) {
             Set<BlockPos> var7 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
                 .map(var0::getMemory)
-                .flatMap(Optional::stream)
+                .flatMap(Util::toStream)
                 .map(GlobalPos::pos)
                 .collect(Collectors.toSet());
             param1.writeCollection(var7, FriendlyByteBuf::writeBlockPos);
@@ -168,7 +169,7 @@ public class DebugPackets {
         if (param0 instanceof Villager) {
             Set<BlockPos> var8 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
                 .map(var0::getMemory)
-                .flatMap(Optional::stream)
+                .flatMap(Util::toStream)
                 .map(GlobalPos::pos)
                 .collect(Collectors.toSet());
             param1.writeCollection(var8, FriendlyByteBuf::writeBlockPos);

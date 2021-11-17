@@ -12,10 +12,8 @@ import net.minecraft.world.entity.raid.Raids;
 import net.minecraft.world.phys.Vec3;
 
 public class PathfindToRaidGoal<T extends Raider> extends Goal {
-    private static final int RECRUITMENT_SEARCH_TICK_DELAY = 20;
     private static final float SPEED_MODIFIER = 1.0F;
     private final T mob;
-    private int recruitmentTick;
 
     public PathfindToRaidGoal(T param0) {
         this.mob = param0;
@@ -43,8 +41,7 @@ public class PathfindToRaidGoal<T extends Raider> extends Goal {
     public void tick() {
         if (this.mob.hasActiveRaid()) {
             Raid var0 = this.mob.getCurrentRaid();
-            if (this.mob.tickCount > this.recruitmentTick) {
-                this.recruitmentTick = this.mob.tickCount + 20;
+            if (this.mob.tickCount % 20 == this.mob.getId() % 2) {
                 this.recruitNearby(var0);
             }
 

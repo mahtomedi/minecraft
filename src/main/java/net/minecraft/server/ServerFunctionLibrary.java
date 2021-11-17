@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -24,21 +23,23 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServerFunctionLibrary implements PreparableReloadListener {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String FILE_EXTENSION = ".mcfunction";
     private static final int PATH_PREFIX_LENGTH = "functions/".length();
     private static final int PATH_SUFFIX_LENGTH = ".mcfunction".length();
     private volatile Map<ResourceLocation, CommandFunction> functions = ImmutableMap.of();
     private final TagLoader<CommandFunction> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions");
-    private volatile Map<ResourceLocation, Tag<CommandFunction>> tags = Map.of();
+    private volatile TagCollection<CommandFunction> tags = TagCollection.empty();
     private final int functionCompilationLevel;
     private final CommandDispatcher<CommandSourceStack> dispatcher;
 
@@ -50,12 +51,12 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         return this.functions;
     }
 
-    public Tag<CommandFunction> getTag(ResourceLocation param0) {
-        return this.tags.getOrDefault(param0, Tag.empty());
+    public TagCollection<CommandFunction> getTags() {
+        return this.tags;
     }
 
-    public Iterable<ResourceLocation> getAvailableTags() {
-        return this.tags.keySet();
+    public Tag<CommandFunction> getTag(ResourceLocation param0) {
+        return this.tags.getTagOrEmpty(param0);
     }
 
     public ServerFunctionLibrary(int param0, CommandDispatcher<CommandSourceStack> param1) {

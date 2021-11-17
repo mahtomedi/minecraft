@@ -16,7 +16,8 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
@@ -30,7 +31,7 @@ import net.minecraft.world.level.ItemLike;
 public class ItemPredicate {
     public static final ItemPredicate ANY = new ItemPredicate();
     @Nullable
-    private final TagKey<Item> tag;
+    private final Tag<Item> tag;
     @Nullable
     private final Set<Item> items;
     private final MinMaxBounds.Ints count;
@@ -53,7 +54,7 @@ public class ItemPredicate {
     }
 
     public ItemPredicate(
-        @Nullable TagKey<Item> param0,
+        @Nullable Tag<Item> param0,
         @Nullable Set<Item> param1,
         MinMaxBounds.Ints param2,
         MinMaxBounds.Ints param3,
@@ -135,10 +136,11 @@ public class ItemPredicate {
                     var4 = var6.build();
                 }
 
-                TagKey<Item> var9 = null;
+                Tag<Item> var9 = null;
                 if (var0.has("tag")) {
                     ResourceLocation var10 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                    var9 = TagKey.create(Registry.ITEM_REGISTRY, var10);
+                    var9 = SerializationTags.getInstance()
+                        .getTagOrThrow(Registry.ITEM_REGISTRY, var10, param0x -> new JsonSyntaxException("Unknown item tag '" + param0x + "'"));
                 }
 
                 Potion var11 = null;
@@ -172,7 +174,12 @@ public class ItemPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty("tag", this.tag.location().toString());
+                var0.addProperty(
+                    "tag",
+                    SerializationTags.getInstance()
+                        .getIdOrThrow(Registry.ITEM_REGISTRY, this.tag, () -> new IllegalStateException("Unknown item tag"))
+                        .toString()
+                );
             }
 
             var0.add("count", this.count.serializeToJson());
@@ -227,7 +234,7 @@ public class ItemPredicate {
         @Nullable
         private Set<Item> items;
         @Nullable
-        private TagKey<Item> tag;
+        private Tag<Item> tag;
         private MinMaxBounds.Ints count = MinMaxBounds.Ints.ANY;
         private MinMaxBounds.Ints durability = MinMaxBounds.Ints.ANY;
         @Nullable
@@ -246,7 +253,7 @@ public class ItemPredicate {
             return this;
         }
 
-        public ItemPredicate.Builder of(TagKey<Item> param0) {
+        public ItemPredicate.Builder of(Tag<Item> param0) {
             this.tag = param0;
             return this;
         }

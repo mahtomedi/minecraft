@@ -1,16 +1,16 @@
 package net.minecraft.network.protocol.game;
 
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public record ClientboundBlockBreakAckPacket(BlockPos pos, BlockState state, ServerboundPlayerActionPacket.Action action, boolean allGood)
     implements Packet<ClientGamePacketListener> {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public ClientboundBlockBreakAckPacket(BlockPos param0, BlockState param1, ServerboundPlayerActionPacket.Action param2, boolean param3, String param4) {
         this(param0, param1, param2, param3);

@@ -59,10 +59,10 @@ public class FossilFeature extends Feature<FossilFeatureConfiguration> {
             return false;
         } else {
             var11.clearProcessors();
-            var4.fossilProcessors.value().list().forEach(var11::addProcessor);
+            var4.fossilProcessors.get().list().forEach(param1 -> var11.addProcessor(param1));
             var7.placeInWorld(var1, var18, var18, var11, var0, 4);
             var11.clearProcessors();
-            var4.overlayProcessors.value().list().forEach(var11::addProcessor);
+            var4.overlayProcessors.get().list().forEach(param1 -> var11.addProcessor(param1));
             var8.placeInWorld(var1, var18, var18, var11, var0, 4);
             return true;
         }

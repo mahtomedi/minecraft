@@ -1,15 +1,13 @@
 package net.minecraft.world.level.levelgen.heightproviders;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Random;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class UniformHeight extends HeightProvider {
     public static final Codec<UniformHeight> CODEC = RecordCodecBuilder.create(
@@ -19,10 +17,9 @@ public class UniformHeight extends HeightProvider {
                 )
                 .apply(param0, UniformHeight::new)
     );
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final VerticalAnchor minInclusive;
     private final VerticalAnchor maxInclusive;
-    private final LongSet warnedFor = new LongOpenHashSet();
 
     private UniformHeight(VerticalAnchor param0, VerticalAnchor param1) {
         this.minInclusive = param0;
@@ -38,10 +35,7 @@ public class UniformHeight extends HeightProvider {
         int var0 = this.minInclusive.resolveY(param1);
         int var1 = this.maxInclusive.resolveY(param1);
         if (var0 > var1) {
-            if (this.warnedFor.add((long)var0 << 32 | (long)var1)) {
-                LOGGER.warn("Empty height range: {}", this);
-            }
-
+            LOGGER.warn("Empty height range: {}", this);
             return var0;
         } else {
             return Mth.randomBetweenInclusive(param0, var0, var1);

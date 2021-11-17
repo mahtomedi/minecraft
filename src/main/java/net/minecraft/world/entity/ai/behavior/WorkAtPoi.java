@@ -26,7 +26,7 @@ public class WorkAtPoi extends Behavior<Villager> {
         } else {
             this.lastCheck = param0.getGameTime();
             GlobalPos var0 = param1.getBrain().getMemory(MemoryModuleType.JOB_SITE).get();
-            return var0.dimension() == param0.dimension() && var0.pos().closerToCenterThan(param1.position(), 1.73);
+            return var0.dimension() == param0.dimension() && var0.pos().closerThan(param1.position(), 1.73);
         }
     }
 
@@ -51,7 +51,7 @@ public class WorkAtPoi extends Behavior<Villager> {
             return false;
         } else {
             GlobalPos var1 = var0.get();
-            return var1.dimension() == param0.dimension() && var1.pos().closerToCenterThan(param1.position(), 1.73);
+            return var1.dimension() == param0.dimension() && var1.pos().closerThan(param1.position(), 1.73);
         }
     }
 }

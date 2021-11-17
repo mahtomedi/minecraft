@@ -1,7 +1,6 @@
 package net.minecraft.client.multiplayer;
 
 import com.google.common.collect.Maps;
-import com.mojang.logging.LogUtils;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
@@ -15,11 +14,12 @@ import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientAdvancements {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final Minecraft minecraft;
     private final AdvancementList advancements = new AdvancementList();
     private final Map<Advancement, AdvancementProgress> progress = Maps.newHashMap();

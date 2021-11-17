@@ -16,34 +16,34 @@ public class SpringFeature extends Feature<SpringConfiguration> {
         SpringConfiguration var0 = param0.config();
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
-        if (!var1.getBlockState(var2.above()).is(var0.validBlocks)) {
+        if (!var0.validBlocks.contains(var1.getBlockState(var2.above()).getBlock())) {
             return false;
-        } else if (var0.requiresBlockBelow && !var1.getBlockState(var2.below()).is(var0.validBlocks)) {
+        } else if (var0.requiresBlockBelow && !var0.validBlocks.contains(var1.getBlockState(var2.below()).getBlock())) {
             return false;
         } else {
             BlockState var3 = var1.getBlockState(var2);
-            if (!var3.isAir() && !var3.is(var0.validBlocks)) {
+            if (!var3.isAir() && !var0.validBlocks.contains(var3.getBlock())) {
                 return false;
             } else {
                 int var4 = 0;
                 int var5 = 0;
-                if (var1.getBlockState(var2.west()).is(var0.validBlocks)) {
+                if (var0.validBlocks.contains(var1.getBlockState(var2.west()).getBlock())) {
                     ++var5;
                 }
 
-                if (var1.getBlockState(var2.east()).is(var0.validBlocks)) {
+                if (var0.validBlocks.contains(var1.getBlockState(var2.east()).getBlock())) {
                     ++var5;
                 }
 
-                if (var1.getBlockState(var2.north()).is(var0.validBlocks)) {
+                if (var0.validBlocks.contains(var1.getBlockState(var2.north()).getBlock())) {
                     ++var5;
                 }
 
-                if (var1.getBlockState(var2.south()).is(var0.validBlocks)) {
+                if (var0.validBlocks.contains(var1.getBlockState(var2.south()).getBlock())) {
                     ++var5;
                 }
 
-                if (var1.getBlockState(var2.below()).is(var0.validBlocks)) {
+                if (var0.validBlocks.contains(var1.getBlockState(var2.below()).getBlock())) {
                     ++var5;
                 }
 

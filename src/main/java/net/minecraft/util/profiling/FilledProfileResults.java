@@ -3,7 +3,6 @@ package net.minecraft.util.profiling;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMaps;
 import java.io.Writer;
@@ -21,10 +20,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FilledProfileResults implements ProfileResults {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final ProfilerPathEntry EMPTY = new ProfilerPathEntry() {
         @Override
         public long getDuration() {

@@ -36,8 +36,8 @@ public class CritParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         super.tick();
-        this.gCol *= 0.96F;
-        this.bCol *= 0.9F;
+        this.gCol = (float)((double)this.gCol * 0.96);
+        this.bCol = (float)((double)this.bCol * 0.9);
     }
 
     @Override

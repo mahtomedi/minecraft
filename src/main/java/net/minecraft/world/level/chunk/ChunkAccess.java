@@ -2,7 +2,6 @@ package net.minecraft.world.level.chunk;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
@@ -21,7 +20,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -40,23 +38,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEventDispatcher;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
-import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.NoiseSampler;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.SerializableTickContainer;
 import net.minecraft.world.ticks.TickContainerAccess;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiomeSource, FeatureAccess {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private static final LongSet EMPTY_REFERENCE_SET = new LongOpenHashSet();
+    private static final Logger LOGGER = LogManager.getLogger();
     protected final ShortList[] postProcessing;
     protected volatile boolean unsaved;
     private volatile boolean isLightCorrect;
@@ -64,15 +61,15 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     private long inhabitedTime;
     @Nullable
     @Deprecated
-    private Holder<Biome> carverBiome;
+    private Biome carverBiome;
     @Nullable
     protected NoiseChunk noiseChunk;
     protected final UpgradeData upgradeData;
     @Nullable
     protected BlendingData blendingData;
     protected final Map<Heightmap.Types, Heightmap> heightmaps = Maps.newEnumMap(Heightmap.Types.class);
-    private final Map<ConfiguredStructureFeature<?, ?>, StructureStart> structureStarts = Maps.newHashMap();
-    private final Map<ConfiguredStructureFeature<?, ?>, LongSet> structuresRefences = Maps.newHashMap();
+    private final Map<StructureFeature<?>, StructureStart<?>> structureStarts = Maps.newHashMap();
+    private final Map<StructureFeature<?>, LongSet> structuresRefences = Maps.newHashMap();
     protected final Map<BlockPos, CompoundTag> pendingBlockEntities = Maps.newHashMap();
     protected final Map<BlockPos, BlockEntity> blockEntities = Maps.newHashMap();
     protected final LevelHeightAccessor levelHeightAccessor;
@@ -194,44 +191,44 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
 
     @Nullable
     @Override
-    public StructureStart getStartForFeature(ConfiguredStructureFeature<?, ?> param0) {
+    public StructureStart<?> getStartForFeature(StructureFeature<?> param0) {
         return this.structureStarts.get(param0);
     }
 
     @Override
-    public void setStartForFeature(ConfiguredStructureFeature<?, ?> param0, StructureStart param1) {
+    public void setStartForFeature(StructureFeature<?> param0, StructureStart<?> param1) {
         this.structureStarts.put(param0, param1);
         this.unsaved = true;
     }
 
-    public Map<ConfiguredStructureFeature<?, ?>, StructureStart> getAllStarts() {
+    public Map<StructureFeature<?>, StructureStart<?>> getAllStarts() {
         return Collections.unmodifiableMap(this.structureStarts);
     }
 
-    public void setAllStarts(Map<ConfiguredStructureFeature<?, ?>, StructureStart> param0) {
+    public void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> param0) {
         this.structureStarts.clear();
         this.structureStarts.putAll(param0);
         this.unsaved = true;
     }
 
     @Override
-    public LongSet getReferencesForFeature(ConfiguredStructureFeature<?, ?> param0) {
-        return this.structuresRefences.getOrDefault(param0, EMPTY_REFERENCE_SET);
+    public LongSet getReferencesForFeature(StructureFeature<?> param0) {
+        return this.structuresRefences.computeIfAbsent(param0, param0x -> new LongOpenHashSet());
     }
 
     @Override
-    public void addReferenceForFeature(ConfiguredStructureFeature<?, ?> param0, long param1) {
+    public void addReferenceForFeature(StructureFeature<?> param0, long param1) {
         this.structuresRefences.computeIfAbsent(param0, param0x -> new LongOpenHashSet()).add(param1);
         this.unsaved = true;
     }
 
     @Override
-    public Map<ConfiguredStructureFeature<?, ?>, LongSet> getAllReferences() {
+    public Map<StructureFeature<?>, LongSet> getAllReferences() {
         return Collections.unmodifiableMap(this.structuresRefences);
     }
 
     @Override
-    public void setAllReferences(Map<ConfiguredStructureFeature<?, ?>, LongSet> param0) {
+    public void setAllReferences(Map<StructureFeature<?>, LongSet> param0) {
         this.structuresRefences.clear();
         this.structuresRefences.putAll(param0);
         this.unsaved = true;
@@ -268,7 +265,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     public abstract void removeBlockEntity(BlockPos var1);
 
     public void markPosForPostprocessing(BlockPos param0) {
-        LOGGER.warn("Trying to mark a block for PostProcessing @ {}, but this operation is not supported.", param0);
+        LogManager.getLogger().warn("Trying to mark a block for PostProcessing @ {}, but this operation is not supported.", param0);
     }
 
     public ShortList[] getPostProcessing() {
@@ -356,7 +353,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     public NoiseChunk getOrCreateNoiseChunk(
-        NoiseRouter param0, Supplier<DensityFunctions.BeardifierOrMarker> param1, NoiseGeneratorSettings param2, Aquifer.FluidPicker param3, Blender param4
+        NoiseSampler param0, Supplier<NoiseChunk.NoiseFiller> param1, NoiseGeneratorSettings param2, Aquifer.FluidPicker param3, Blender param4
     ) {
         if (this.noiseChunk == null) {
             this.noiseChunk = NoiseChunk.forChunk(this, param0, param1, param2, param3, param4);
@@ -366,7 +363,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     @Deprecated
-    public Holder<Biome> carverBiome(Supplier<Holder<Biome>> param0) {
+    public Biome carverBiome(Supplier<Biome> param0) {
         if (this.carverBiome == null) {
             this.carverBiome = param0.get();
         }
@@ -375,7 +372,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
+    public Biome getNoiseBiome(int param0, int param1, int param2) {
         try {
             int var0 = QuartPos.fromBlock(this.getMinBuildHeight());
             int var1 = var0 + QuartPos.fromBlock(this.getHeight()) - 1;

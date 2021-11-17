@@ -1,6 +1,5 @@
 package net.minecraft.world.inventory;
 
-import com.mojang.logging.LogUtils;
 import java.util.Map;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.tags.BlockTags;
@@ -14,10 +13,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AnvilMenu extends ItemCombinerMenu {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final boolean DEBUG_COST = false;
     public static final int MAX_NAME_LENGTH = 50;
     private int repairItemCountCost;

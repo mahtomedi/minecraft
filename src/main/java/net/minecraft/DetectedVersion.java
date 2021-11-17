@@ -3,7 +3,6 @@ package net.minecraft;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.bridge.game.PackType;
-import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,10 +11,11 @@ import java.util.Date;
 import java.util.UUID;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.DataVersion;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DetectedVersion implements WorldVersion {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final WorldVersion BUILT_IN = new DetectedVersion();
     private final String id;
     private final String name;
@@ -29,14 +29,14 @@ public class DetectedVersion implements WorldVersion {
 
     private DetectedVersion() {
         this.id = UUID.randomUUID().toString().replaceAll("-", "");
-        this.name = "1.18.2-pre3";
+        this.name = "1.18-pre4";
         this.stable = false;
-        this.worldVersion = new DataVersion(2973, "main");
+        this.worldVersion = new DataVersion(2850, "main");
         this.protocolVersion = SharedConstants.getProtocolVersion();
         this.resourcePackVersion = 8;
-        this.dataPackVersion = 9;
+        this.dataPackVersion = 8;
         this.buildTime = new Date();
-        this.releaseTarget = "1.18.2";
+        this.releaseTarget = "1.18";
     }
 
     private DetectedVersion(JsonObject param0) {

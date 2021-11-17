@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import java.util.List;
 import java.util.Random;
@@ -15,7 +14,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
@@ -60,11 +58,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Block extends BlockBehaviour implements ItemLike {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private final Holder.Reference<Block> builtInRegistryHolder = Registry.BLOCK.createIntrusiveHolder(this);
+    protected static final Logger LOGGER = LogManager.getLogger();
     public static final IdMapper<BlockState> BLOCK_STATE_REGISTRY = new IdMapper<>();
     private static final LoadingCache<VoxelShape, Boolean> SHAPE_FULL_BLOCK_CACHE = CacheBuilder.newBuilder()
         .maximumSize(512L)
@@ -501,11 +499,6 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     protected ImmutableMap<BlockState, VoxelShape> getShapeForEachState(Function<BlockState, VoxelShape> param0) {
         return this.stateDefinition.getPossibleStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), param0));
-    }
-
-    @Deprecated
-    public Holder.Reference<Block> builtInRegistryHolder() {
-        return this.builtInRegistryHolder;
     }
 
     public static final class BlockStatePairKey {

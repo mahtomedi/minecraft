@@ -1,7 +1,6 @@
 package net.minecraft.recipebook;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.Iterator;
@@ -16,10 +15,11 @@ import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServerPlaceRecipe<C extends Container> implements PlaceRecipe<Integer> {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    protected static final Logger LOGGER = LogManager.getLogger();
     protected final StackedContents stackedContents = new StackedContents();
     protected Inventory inventory;
     protected RecipeBookMenu<C> menu;

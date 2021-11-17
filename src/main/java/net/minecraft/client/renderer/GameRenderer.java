@@ -15,8 +15,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.io.IOException;
@@ -42,7 +40,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -59,7 +56,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.material.FogType;
@@ -70,12 +66,13 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class GameRenderer implements ResourceManagerReloadListener, AutoCloseable {
     private static final ResourceLocation NAUSEA_LOCATION = new ResourceLocation("textures/misc/nausea.png");
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final boolean DEPTH_BUFFER_DEBUG = false;
     public static final float PROJECTION_Z_NEAR = 0.05F;
     private final Minecraft minecraft;
@@ -1081,8 +1078,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                         var1 = var5.getMenuProvider(this.minecraft.level, var4) != null;
                     } else {
                         BlockInWorld var6 = new BlockInWorld(this.minecraft.level, var4, false);
-                        Registry<Block> var7 = this.minecraft.level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY);
-                        var1 = !var2.isEmpty() && (var2.hasAdventureModeBreakTagForBlock(var7, var6) || var2.hasAdventureModePlaceTagForBlock(var7, var6));
+                        var1 = !var2.isEmpty()
+                            && (
+                                var2.hasAdventureModeBreakTagForBlock(this.minecraft.level.getTagManager(), var6)
+                                    || var2.hasAdventureModePlaceTagForBlock(this.minecraft.level.getTagManager(), var6)
+                            );
                     }
                 }
             }
@@ -1136,11 +1136,6 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         );
         param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));
         param2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot() + 180.0F));
-        Matrix3f var10 = param2.last().normal().copy();
-        if (var10.invert()) {
-            RenderSystem.setInverseViewRotationMatrix(var10);
-        }
-
         this.minecraft.levelRenderer.prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var3, this.minecraft.options.fov)));
         this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var9);
         this.minecraft.getProfiler().popPush("hand");

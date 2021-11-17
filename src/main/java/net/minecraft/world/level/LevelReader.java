@@ -4,7 +4,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.tags.FluidTags;
@@ -31,7 +30,7 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     BiomeManager getBiomeManager();
 
-    default Holder<Biome> getBiome(BlockPos param0) {
+    default Biome getBiome(BlockPos param0) {
         return this.getBiomeManager().getBiome(param0);
     }
 
@@ -47,16 +46,16 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     @Override
     default int getBlockTint(BlockPos param0, ColorResolver param1) {
-        return param1.getColor(this.getBiome(param0).value(), (double)param0.getX(), (double)param0.getZ());
+        return param1.getColor(this.getBiome(param0), (double)param0.getX(), (double)param0.getZ());
     }
 
     @Override
-    default Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
+    default Biome getNoiseBiome(int param0, int param1, int param2) {
         ChunkAccess var0 = this.getChunk(QuartPos.toSection(param0), QuartPos.toSection(param2), ChunkStatus.BIOMES, false);
         return var0 != null ? var0.getNoiseBiome(param0, param1, param2) : this.getUncachedNoiseBiome(param0, param1, param2);
     }
 
-    Holder<Biome> getUncachedNoiseBiome(int var1, int var2, int var3);
+    Biome getUncachedNoiseBiome(int var1, int var2, int var3);
 
     boolean isClientSide();
 

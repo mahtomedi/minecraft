@@ -545,10 +545,7 @@ public class Panda extends Animal {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (!this.level.isClientSide) {
-            this.sit(false);
-        }
-
+        this.sit(false);
         return super.hurt(param0, param1);
     }
 
@@ -1006,8 +1003,20 @@ public class Panda extends Animal {
         }
 
         @Override
-        protected boolean shouldPanic() {
-            return this.mob.isFreezing() || this.mob.isOnFire();
+        public boolean canUse() {
+            if (!this.panda.isOnFire()) {
+                return false;
+            } else {
+                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 5, 4);
+                if (var0 != null) {
+                    this.posX = (double)var0.getX();
+                    this.posY = (double)var0.getY();
+                    this.posZ = (double)var0.getZ();
+                    return true;
+                } else {
+                    return this.findRandomPosition();
+                }
+            }
         }
 
         @Override
@@ -1036,11 +1045,19 @@ public class Panda extends Animal {
                     return false;
                 } else {
                     float var0 = this.panda.getYRot() * (float) (Math.PI / 180.0);
-                    float var1 = -Mth.sin(var0);
-                    float var2 = Mth.cos(var0);
-                    int var3 = (double)Math.abs(var1) > 0.5 ? Mth.sign((double)var1) : 0;
-                    int var4 = (double)Math.abs(var2) > 0.5 ? Mth.sign((double)var2) : 0;
-                    if (this.panda.level.getBlockState(this.panda.blockPosition().offset(var3, -1, var4)).isAir()) {
+                    int var1 = 0;
+                    int var2 = 0;
+                    float var3 = -Mth.sin(var0);
+                    float var4 = Mth.cos(var0);
+                    if ((double)Math.abs(var3) > 0.5) {
+                        var1 = (int)((float)var1 + var3 / Math.abs(var3));
+                    }
+
+                    if ((double)Math.abs(var4) > 0.5) {
+                        var2 = (int)((float)var2 + var4 / Math.abs(var4));
+                    }
+
+                    if (this.panda.level.getBlockState(this.panda.blockPosition().offset(var1, -1, var2)).isAir()) {
                         return true;
                     } else if (this.panda.isPlayful() && this.panda.random.nextInt(reducedTickDelay(60)) == 1) {
                         return true;

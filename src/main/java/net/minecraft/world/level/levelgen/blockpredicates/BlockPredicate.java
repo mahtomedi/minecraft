@@ -4,11 +4,8 @@ import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -47,27 +44,15 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
     }
 
     static BlockPredicate matchesBlocks(List<Block> param0, Vec3i param1) {
-        return new MatchingBlocksPredicate(param1, HolderSet.direct(Block::builtInRegistryHolder, param0));
-    }
-
-    static BlockPredicate matchesBlocks(List<Block> param0) {
-        return matchesBlocks(param0, Vec3i.ZERO);
+        return new MatchingBlocksPredicate(param1, param0);
     }
 
     static BlockPredicate matchesBlock(Block param0, Vec3i param1) {
         return matchesBlocks(List.of(param0), param1);
     }
 
-    static BlockPredicate matchesTag(TagKey<Block> param0, Vec3i param1) {
-        return new MatchingBlockTagPredicate(param1, param0);
-    }
-
-    static BlockPredicate matchesTag(TagKey<Block> param0) {
-        return matchesTag(param0, Vec3i.ZERO);
-    }
-
     static BlockPredicate matchesFluids(List<Fluid> param0, Vec3i param1) {
-        return new MatchingFluidsPredicate(param1, HolderSet.direct(Fluid::builtInRegistryHolder, param0));
+        return new MatchingFluidsPredicate(param1, param0);
     }
 
     static BlockPredicate matchesFluid(Fluid param0, Vec3i param1) {
@@ -88,14 +73,6 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
 
     static BlockPredicate wouldSurvive(BlockState param0, Vec3i param1) {
         return new WouldSurvivePredicate(param1, param0);
-    }
-
-    static BlockPredicate hasSturdyFace(Vec3i param0, Direction param1) {
-        return new HasSturdyFacePredicate(param0, param1);
-    }
-
-    static BlockPredicate hasSturdyFace(Direction param0) {
-        return hasSturdyFace(Vec3i.ZERO, param0);
     }
 
     static BlockPredicate solid(Vec3i param0) {

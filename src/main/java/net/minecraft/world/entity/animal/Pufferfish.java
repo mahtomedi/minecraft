@@ -82,7 +82,7 @@ public class Pufferfish extends AbstractFish {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.setPuffState(Math.min(param0.getInt("PuffState"), 2));
+        this.setPuffState(param0.getInt("PuffState"));
     }
 
     @Override

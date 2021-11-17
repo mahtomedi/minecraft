@@ -8,7 +8,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -20,7 +19,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -107,7 +105,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         CarvingContext param0,
         C param1,
         ChunkAccess param2,
-        Function<BlockPos, Holder<Biome>> param3,
+        Function<BlockPos, Biome> param3,
         Aquifer param4,
         double param5,
         double param6,
@@ -127,37 +125,36 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             int var6 = Math.max(Mth.floor(param5 - param8) - var4 - 1, 0);
             int var7 = Math.min(Mth.floor(param5 + param8) - var4, 15);
             int var8 = Math.max(Mth.floor(param6 - param9) - 1, param0.getMinGenY() + 1);
-            int var9 = param2.isUpgrading() ? 0 : 7;
-            int var10 = Math.min(Mth.floor(param6 + param9) + 1, param0.getMinGenY() + param0.getGenDepth() - 1 - var9);
-            int var11 = Math.max(Mth.floor(param7 - param8) - var5 - 1, 0);
-            int var12 = Math.min(Mth.floor(param7 + param8) - var5, 15);
-            boolean var13 = false;
+            int var9 = Math.min(Mth.floor(param6 + param9) + 1, param0.getMinGenY() + param0.getGenDepth() - 2);
+            int var10 = Math.max(Mth.floor(param7 - param8) - var5 - 1, 0);
+            int var11 = Math.min(Mth.floor(param7 + param8) - var5, 15);
+            boolean var12 = false;
+            BlockPos.MutableBlockPos var13 = new BlockPos.MutableBlockPos();
             BlockPos.MutableBlockPos var14 = new BlockPos.MutableBlockPos();
-            BlockPos.MutableBlockPos var15 = new BlockPos.MutableBlockPos();
 
-            for(int var16 = var6; var16 <= var7; ++var16) {
-                int var17 = var0.getBlockX(var16);
-                double var18 = ((double)var17 + 0.5 - param5) / param8;
+            for(int var15 = var6; var15 <= var7; ++var15) {
+                int var16 = var0.getBlockX(var15);
+                double var17 = ((double)var16 + 0.5 - param5) / param8;
 
-                for(int var19 = var11; var19 <= var12; ++var19) {
-                    int var20 = var0.getBlockZ(var19);
-                    double var21 = ((double)var20 + 0.5 - param7) / param8;
-                    if (!(var18 * var18 + var21 * var21 >= 1.0)) {
-                        MutableBoolean var22 = new MutableBoolean(false);
+                for(int var18 = var10; var18 <= var11; ++var18) {
+                    int var19 = var0.getBlockZ(var18);
+                    double var20 = ((double)var19 + 0.5 - param7) / param8;
+                    if (!(var17 * var17 + var20 * var20 >= 1.0)) {
+                        MutableBoolean var21 = new MutableBoolean(false);
 
-                        for(int var23 = var10; var23 > var8; --var23) {
-                            double var24 = ((double)var23 - 0.5 - param6) / param9;
-                            if (!param11.shouldSkip(param0, var18, var24, var21, var23) && (!param10.get(var16, var23, var19) || isDebugEnabled(param1))) {
-                                param10.set(var16, var23, var19);
-                                var14.set(var17, var23, var20);
-                                var13 |= this.carveBlock(param0, param1, param2, param3, param10, var14, var15, param4, var22);
+                        for(int var22 = var9; var22 > var8; --var22) {
+                            double var23 = ((double)var22 - 0.5 - param6) / param9;
+                            if (!param11.shouldSkip(param0, var17, var23, var20, var22) && (!param10.get(var15, var22, var18) || isDebugEnabled(param1))) {
+                                param10.set(var15, var22, var18);
+                                var13.set(var16, var22, var19);
+                                var12 |= this.carveBlock(param0, param1, param2, param3, param10, var13, var14, param4, var21);
                             }
                         }
                     }
                 }
             }
 
-            return var13;
+            return var12;
         } else {
             return false;
         }
@@ -167,7 +164,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         CarvingContext param0,
         C param1,
         ChunkAccess param2,
-        Function<BlockPos, Holder<Biome>> param3,
+        Function<BlockPos, Biome> param3,
         CarvingMask param4,
         BlockPos.MutableBlockPos param5,
         BlockPos.MutableBlockPos param6,
@@ -214,7 +211,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         if (param2.getY() <= param1.lavaLevel.resolveY(param0)) {
             return LAVA.createLegacyBlock();
         } else {
-            BlockState var0 = param3.computeSubstance(new DensityFunction.SinglePointContext(param2.getX(), param2.getY(), param2.getZ()), 0.0);
+            BlockState var0 = param3.computeSubstance(param2.getX(), param2.getY(), param2.getZ(), 0.0, 0.0);
             if (var0 == null) {
                 return isDebugEnabled(param1) ? param1.debugSettings.getBarrierState() : null;
             } else {
@@ -235,7 +232,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     }
 
     public abstract boolean carve(
-        CarvingContext var1, C var2, ChunkAccess var3, Function<BlockPos, Holder<Biome>> var4, Random var5, Aquifer var6, ChunkPos var7, CarvingMask var8
+        CarvingContext var1, C var2, ChunkAccess var3, Function<BlockPos, Biome> var4, Random var5, Aquifer var6, ChunkPos var7, CarvingMask var8
     );
 
     public abstract boolean isStartChunk(C var1, Random var2);

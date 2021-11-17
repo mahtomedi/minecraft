@@ -18,12 +18,6 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
     @VisibleForDebug
     String parityString();
 
-    float min();
-
-    float max();
-
-    CubicSpline<C> mapAll(CubicSpline.CoordinateVisitor<C> var1);
-
     static <C> Codec<CubicSpline<C>> codec(Codec<ToFloatFunction<C>> param0) {
         MutableObject<Codec<CubicSpline<C>>> var0 = new MutableObject<>();
 
@@ -41,7 +35,7 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
         Codec<CubicSpline.Multipoint<C>> var2 = RecordCodecBuilder.create(
             param2 -> param2.group(
                         param0.fieldOf("coordinate").forGetter(CubicSpline.Multipoint::coordinate),
-                        ExtraCodecs.nonEmptyList(var1.listOf())
+                        var1.listOf()
                             .fieldOf("points")
                             .forGetter(
                                 param0x -> IntStream.range(0, param0x.locations.length)
@@ -143,30 +137,11 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
         public String parityString() {
             return String.format("k=%.3f", this.value);
         }
-
-        @Override
-        public float min() {
-            return this.value;
-        }
-
-        @Override
-        public float max() {
-            return this.value;
-        }
-
-        @Override
-        public CubicSpline<C> mapAll(CubicSpline.CoordinateVisitor<C> param0) {
-            return this;
-        }
-    }
-
-    public interface CoordinateVisitor<C> {
-        ToFloatFunction<C> visit(ToFloatFunction<C> var1);
     }
 
     @VisibleForDebug
     public static record Multipoint<C>(ToFloatFunction<C> coordinate, float[] locations, List<CubicSpline<C>> values, float[] derivatives)
-        implements CubicSpline<C> {
+        implements CubicSpline {
         public Multipoint(ToFloatFunction<C> param0, float[] param1, List<CubicSpline<C>> param2, float[] param3) {
             if (param1.length == param2.size() && param1.length == param3.length) {
                 this.coordinate = param0;
@@ -224,23 +199,6 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
                     .mapToObj(param0x -> String.format(Locale.ROOT, "%.3f", param0x))
                     .collect(Collectors.joining(", "))
                 + "]";
-        }
-
-        @Override
-        public float min() {
-            return (float)this.values().stream().mapToDouble(CubicSpline::min).min().orElseThrow();
-        }
-
-        @Override
-        public float max() {
-            return (float)this.values().stream().mapToDouble(CubicSpline::max).max().orElseThrow();
-        }
-
-        @Override
-        public CubicSpline<C> mapAll(CubicSpline.CoordinateVisitor<C> param0) {
-            return new CubicSpline.Multipoint<>(
-                param0.visit(this.coordinate), this.locations, this.values().stream().map(param1 -> param1.mapAll(param0)).toList(), this.derivatives
-            );
         }
     }
 }

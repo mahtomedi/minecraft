@@ -63,7 +63,7 @@ public class RecipeBookTabButton extends StateSwitchingButton {
             var2 += this.xDiffTex;
         }
 
-        if (this.isHoveredOrFocused()) {
+        if (this.isHovered()) {
             var3 += this.yDiffTex;
         }
 

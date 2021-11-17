@@ -69,12 +69,12 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
                     float var21 = 0.5F;
                     float var22 = 0.1F + (float)var8 * 0.2F;
                     if (var10 == 0) {
-                        var22 *= (float)var15 * 0.1F + 1.0F;
+                        var22 = (float)((double)var22 * ((double)var15 * 0.1 + 1.0));
                     }
 
                     float var23 = 0.1F + (float)var8 * 0.2F;
                     if (var10 == 0) {
-                        var23 *= ((float)var15 - 1.0F) * 0.1F + 1.0F;
+                        var23 *= (float)(var15 - 1) * 0.1F + 1.0F;
                     }
 
                     quad(var7, var6, var13, var14, var15, var16, var17, 0.45F, 0.45F, 0.5F, var22, var23, false, false, true, false);

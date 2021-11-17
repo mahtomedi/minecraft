@@ -1,14 +1,18 @@
 package net.minecraft.tags;
 
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 public class GameEventTags {
-    public static final TagKey<GameEvent> VIBRATIONS = create("vibrations");
-    public static final TagKey<GameEvent> IGNORE_VIBRATIONS_SNEAKING = create("ignore_vibrations_sneaking");
+    protected static final StaticTagHelper<GameEvent> HELPER = StaticTags.create(Registry.GAME_EVENT_REGISTRY, "tags/game_events");
+    public static final Tag.Named<GameEvent> VIBRATIONS = bind("vibrations");
+    public static final Tag.Named<GameEvent> IGNORE_VIBRATIONS_SNEAKING = bind("ignore_vibrations_sneaking");
 
-    private static TagKey<GameEvent> create(String param0) {
-        return TagKey.create(Registry.GAME_EVENT_REGISTRY, new ResourceLocation(param0));
+    private static Tag.Named<GameEvent> bind(String param0) {
+        return HELPER.bind(param0);
+    }
+
+    public static TagCollection<GameEvent> getAllTags() {
+        return HELPER.getAllTags();
     }
 }

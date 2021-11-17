@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsNews;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -24,11 +23,12 @@ import java.util.stream.Stream;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsDataFetcher {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final Minecraft minecraft;
     private final RealmsClient realmsClient;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
@@ -189,10 +189,9 @@ public class RealmsDataFetcher {
         this.servers = param0;
     }
 
-    public synchronized List<RealmsServer> removeItem(RealmsServer param0) {
+    public synchronized void removeItem(RealmsServer param0) {
         this.servers.remove(param0);
         this.removedServers.add(param0);
-        return ImmutableList.copyOf(this.servers);
     }
 
     private boolean isActive() {

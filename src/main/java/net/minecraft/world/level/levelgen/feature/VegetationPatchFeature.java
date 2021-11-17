@@ -7,7 +7,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -24,7 +27,7 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
         VegetationPatchConfiguration var1 = param0.config();
         Random var2 = param0.random();
         BlockPos var3 = param0.origin();
-        Predicate<BlockState> var4 = param1 -> param1.is(var1.replaceable);
+        Predicate<BlockState> var4 = getReplaceableTag(var1);
         int var5 = var1.xzRadius.sample(var2) + 1;
         int var6 = var1.xzRadius.sample(var2) + 1;
         Set<BlockPos> var7 = this.placeGroundPatch(var0, var1, var2, var3, var4, var5, var6);
@@ -96,7 +99,7 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
     }
 
     protected boolean placeVegetation(WorldGenLevel param0, VegetationPatchConfiguration param1, ChunkGenerator param2, Random param3, BlockPos param4) {
-        return param1.vegetationFeature.value().place(param0, param2, param3, param4.relative(param1.surface.getDirection().getOpposite()));
+        return param1.vegetationFeature.get().place(param0, param2, param3, param4.relative(param1.surface.getDirection().getOpposite()));
     }
 
     protected boolean placeGround(
@@ -116,5 +119,10 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
         }
 
         return true;
+    }
+
+    private static Predicate<BlockState> getReplaceableTag(VegetationPatchConfiguration param0) {
+        Tag<Block> var0 = BlockTags.getAllTags().getTag(param0.replaceable);
+        return var0 == null ? param0x -> true : param1 -> param1.is(var0);
     }
 }

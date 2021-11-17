@@ -3,19 +3,20 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.NoiseAffectingStructureFeature;
 import net.minecraft.world.level.levelgen.structure.StrongholdPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
-public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration> {
+public class StrongholdFeature extends NoiseAffectingStructureFeature<NoneFeatureConfiguration> {
     public StrongholdFeature(Codec<NoneFeatureConfiguration> param0) {
         super(param0, PieceGeneratorSupplier.simple(StrongholdFeature::checkLocation, StrongholdFeature::generatePieces));
     }
 
     private static boolean checkLocation(PieceGeneratorSupplier.Context<NoneFeatureConfiguration> param0x) {
-        return true;
+        return param0x.chunkGenerator().hasStronghold(param0x.chunkPos());
     }
 
     private static void generatePieces(StructurePiecesBuilder param0x, PieceGenerator.Context<NoneFeatureConfiguration> param1) {

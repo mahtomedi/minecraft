@@ -4,7 +4,6 @@ import com.google.common.primitives.Doubles;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -17,14 +16,11 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction8;
-import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,9 +40,7 @@ public class BlendingData {
             return 0;
         }
     };
-    protected static final int CELL_WIDTH = 4;
-    protected static final int CELL_HEIGHT = 8;
-    protected static final int CELL_RATIO = 2;
+    public static final int CELL_HEIGHT = 8;
     private static final int CELLS_PER_SECTION_Y = 2;
     private static final int QUARTS_PER_SECTION = QuartPos.fromBlock(16);
     private static final int CELL_HORIZONTAL_MAX_INDEX_INSIDE = QUARTS_PER_SECTION - 1;
@@ -71,8 +65,8 @@ public class BlendingData {
     protected static final double NO_VALUE = Double.MAX_VALUE;
     private final boolean oldNoise;
     private boolean hasCalculatedData;
+    private final boolean hasSavedHeights;
     private final double[] heights;
-    private final List<Holder<Biome>> biomes;
     private final transient double[][] densities;
     private final transient double[] floorDensities;
     private static final Codec<double[]> DOUBLE_ARRAY_CODEC = Codec.DOUBLE.listOf().xmap(Doubles::toArray, Doubles::asList);
@@ -97,11 +91,9 @@ public class BlendingData {
     private BlendingData(boolean param0, Optional<double[]> param1) {
         this.oldNoise = param0;
         this.heights = param1.orElse(Util.make(new double[CELL_COLUMN_COUNT], param0x -> Arrays.fill(param0x, Double.MAX_VALUE)));
+        this.hasSavedHeights = param1.isPresent();
         this.densities = new double[CELL_COLUMN_COUNT][];
         this.floorDensities = new double[CELL_HORIZONTAL_FLOOR_COUNT * CELL_HORIZONTAL_FLOOR_COUNT];
-        ObjectArrayList<Holder<Biome>> var0 = new ObjectArrayList<>(CELL_COLUMN_COUNT);
-        var0.size(CELL_COLUMN_COUNT);
-        this.biomes = var0;
     }
 
     public boolean oldNoise() {
@@ -142,32 +134,39 @@ public class BlendingData {
 
     private void calculateData(ChunkAccess param0, Set<Direction8> param1) {
         if (!this.hasCalculatedData) {
-            Arrays.fill(this.floorDensities, 1.0);
+            BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(0, AREA_WITH_OLD_GENERATION.getMinBuildHeight(), 0);
+
+            for(int var1 = 0; var1 < this.floorDensities.length; ++var1) {
+                var0.setX(Math.max(QuartPos.toBlock(this.getFloorX(var1)), 15));
+                var0.setZ(Math.max(QuartPos.toBlock(this.getFloorZ(var1)), 15));
+                this.floorDensities[var1] = isGround(param0, var0) ? 1.0 : -1.0;
+            }
+
             if (param1.contains(Direction8.NORTH) || param1.contains(Direction8.WEST) || param1.contains(Direction8.NORTH_WEST)) {
                 this.addValuesForColumn(getInsideIndex(0, 0), param0, 0, 0);
             }
 
             if (param1.contains(Direction8.NORTH)) {
-                for(int var0 = 1; var0 < QUARTS_PER_SECTION; ++var0) {
-                    this.addValuesForColumn(getInsideIndex(var0, 0), param0, 4 * var0, 0);
+                for(int var2 = 1; var2 < QUARTS_PER_SECTION; ++var2) {
+                    this.addValuesForColumn(getInsideIndex(var2, 0), param0, 4 * var2, 0);
                 }
             }
 
             if (param1.contains(Direction8.WEST)) {
-                for(int var1 = 1; var1 < QUARTS_PER_SECTION; ++var1) {
-                    this.addValuesForColumn(getInsideIndex(0, var1), param0, 0, 4 * var1);
+                for(int var3 = 1; var3 < QUARTS_PER_SECTION; ++var3) {
+                    this.addValuesForColumn(getInsideIndex(0, var3), param0, 0, 4 * var3);
                 }
             }
 
             if (param1.contains(Direction8.EAST)) {
-                for(int var2 = 1; var2 < QUARTS_PER_SECTION; ++var2) {
-                    this.addValuesForColumn(getOutsideIndex(CELL_HORIZONTAL_MAX_INDEX_OUTSIDE, var2), param0, 15, 4 * var2);
+                for(int var4 = 1; var4 < QUARTS_PER_SECTION; ++var4) {
+                    this.addValuesForColumn(getOutsideIndex(CELL_HORIZONTAL_MAX_INDEX_OUTSIDE, var4), param0, 15, 4 * var4);
                 }
             }
 
             if (param1.contains(Direction8.SOUTH)) {
-                for(int var3 = 0; var3 < QUARTS_PER_SECTION; ++var3) {
-                    this.addValuesForColumn(getOutsideIndex(var3, CELL_HORIZONTAL_MAX_INDEX_OUTSIDE), param0, 4 * var3, 15);
+                for(int var5 = 0; var5 < QUARTS_PER_SECTION; ++var5) {
+                    this.addValuesForColumn(getOutsideIndex(var5, CELL_HORIZONTAL_MAX_INDEX_OUTSIDE), param0, 4 * var5, 15);
                 }
             }
 
@@ -184,19 +183,17 @@ public class BlendingData {
     }
 
     private void addValuesForColumn(int param0, ChunkAccess param1, int param2, int param3) {
-        if (this.heights[param0] == Double.MAX_VALUE) {
+        if (!this.hasSavedHeights) {
             this.heights[param0] = (double)getHeightAtXZ(param1, param2, param3);
         }
 
-        this.densities[param0] = getDensityColumn(param1, param2, param3, Mth.floor(this.heights[param0]));
-        this.biomes
-            .set(param0, param1.getNoiseBiome(QuartPos.fromBlock(param2), QuartPos.fromBlock(Mth.floor(this.heights[param0])), QuartPos.fromBlock(param3)));
+        this.densities[param0] = getDensityColumn(param1, param2, param3);
     }
 
     private static int getHeightAtXZ(ChunkAccess param0, int param1, int param2) {
         int var0;
         if (param0.hasPrimedHeightmap(Heightmap.Types.WORLD_SURFACE_WG)) {
-            var0 = Math.min(param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, param1, param2) + 1, AREA_WITH_OLD_GENERATION.getMaxBuildHeight());
+            var0 = Math.min(param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, param1, param2), AREA_WITH_OLD_GENERATION.getMaxBuildHeight());
         } else {
             var0 = AREA_WITH_OLD_GENERATION.getMaxBuildHeight();
         }
@@ -214,40 +211,32 @@ public class BlendingData {
         return var2;
     }
 
-    private static double read1(ChunkAccess param0, BlockPos.MutableBlockPos param1) {
-        return isGround(param0, param1.move(Direction.DOWN)) ? 1.0 : -1.0;
-    }
-
-    private static double read7(ChunkAccess param0, BlockPos.MutableBlockPos param1) {
-        double var0 = 0.0;
-
-        for(int var1 = 0; var1 < 7; ++var1) {
-            var0 += read1(param0, param1);
-        }
-
-        return var0;
-    }
-
-    private static double[] getDensityColumn(ChunkAccess param0, int param1, int param2, int param3) {
+    private static double[] getDensityColumn(ChunkAccess param0, int param1, int param2) {
         double[] var0 = new double[cellCountPerColumn()];
-        Arrays.fill(var0, -1.0);
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param1, AREA_WITH_OLD_GENERATION.getMaxBuildHeight(), param2);
-        double var2 = read7(param0, var1);
+        int var1 = getColumnMinY();
+        double var2 = 30.0;
+        double var3 = 0.0;
+        double var4 = 0.0;
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
+        double var6 = 15.0;
 
-        for(int var3 = var0.length - 2; var3 >= 0; --var3) {
-            double var4 = read1(param0, var1);
-            double var5 = read7(param0, var1);
-            var0[var3] = (var2 + var4 + var5) / 15.0;
-            var2 = var5;
-        }
+        for(int var7 = AREA_WITH_OLD_GENERATION.getMaxBuildHeight() - 1; var7 >= AREA_WITH_OLD_GENERATION.getMinBuildHeight(); --var7) {
+            double var8 = isGround(param0, var5.set(param1, var7, param2)) ? 1.0 : -1.0;
+            int var9 = var7 % 8;
+            if (var9 == 0) {
+                double var10 = var3 / 15.0;
+                int var11 = var7 / 8 + 1;
+                var0[var11 - var1] = var10 * var2;
+                var3 = var4;
+                var4 = 0.0;
+                if (var10 > 0.0) {
+                    var2 = 1.0;
+                }
+            } else {
+                var4 += var8;
+            }
 
-        int var6 = Mth.intFloorDiv(param3, 8);
-        if (var6 >= 1 && var6 < var0.length) {
-            double var7 = ((double)param3 + 0.5) % 8.0 / 8.0;
-            double var8 = (1.0 - var7) / var7;
-            double var9 = Math.max(var8, 1.0) * 0.25;
-            var0[var6] = -var8 / var9;
-            var0[var6 - 1] = 1.0 / var9;
+            var3 += var8;
         }
 
         return var0;
@@ -295,18 +284,8 @@ public class BlendingData {
         }
     }
 
-    protected void iterateBiomes(int param0, int param1, BlendingData.BiomeConsumer param2) {
-        for(int var0 = 0; var0 < this.biomes.size(); ++var0) {
-            Holder<Biome> var1 = this.biomes.get(var0);
-            if (var1 != null) {
-                param2.consume(param0 + getX(var0), param1 + getZ(var0), var1);
-            }
-        }
-
-    }
-
     protected void iterateHeights(int param0, int param1, BlendingData.HeightConsumer param2) {
-        for(int var0 = 0; var0 < this.heights.length; ++var0) {
+        for(int var0 = 0; var0 < this.densities.length; ++var0) {
             double var1 = this.heights[var0];
             if (var1 != Double.MAX_VALUE) {
                 param2.consume(param0 + getX(var0), param1 + getZ(var0), var1);
@@ -332,10 +311,26 @@ public class BlendingData {
             }
         }
 
+        if (var0 >= param2 && var0 <= param3) {
+            for(int var8 = 0; var8 < this.floorDensities.length; ++var8) {
+                int var9 = this.getFloorX(var8);
+                int var10 = this.getFloorZ(var8);
+                param4.consume(var9, var0, var10, this.floorDensities[var8] * 0.1);
+            }
+        }
+
     }
 
     private int getFloorIndex(int param0, int param1) {
         return param0 * CELL_HORIZONTAL_FLOOR_COUNT + param1;
+    }
+
+    private int getFloorX(int param0) {
+        return param0 / CELL_HORIZONTAL_FLOOR_COUNT;
+    }
+
+    private int getFloorZ(int param0) {
+        return param0 % CELL_HORIZONTAL_FLOOR_COUNT;
     }
 
     private static int cellCountPerColumn() {
@@ -378,10 +373,6 @@ public class BlendingData {
 
     private static int zeroIfNegative(int param0) {
         return param0 & ~(param0 >> 31);
-    }
-
-    protected interface BiomeConsumer {
-        void consume(int var1, int var2, Holder<Biome> var3);
     }
 
     protected interface DensityConsumer {

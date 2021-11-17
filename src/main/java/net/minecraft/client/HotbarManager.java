@@ -1,7 +1,6 @@
 package net.minecraft.client;
 
 import com.mojang.datafixers.DataFixer;
-import com.mojang.logging.LogUtils;
 import java.io.File;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.player.inventory.Hotbar;
@@ -11,11 +10,12 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class HotbarManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final int NUM_HOTBAR_GROUPS = 9;
     private final File optionsFile;
     private final DataFixer fixerUpper;

@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
@@ -39,8 +38,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.visitors.FieldSelector;
-import net.minecraft.nbt.visitors.SkipFields;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.DirectoryLock;
@@ -53,10 +50,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LevelStorageSource {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
         .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
         .appendLiteral('-')
@@ -74,7 +72,6 @@ public class LevelStorageSource {
     private static final ImmutableList<String> OLD_SETTINGS_KEYS = ImmutableList.of(
         "RandomSeed", "generatorName", "generatorOptions", "generatorVersion", "legacy_custom_options", "MapFeatures", "BonusChest"
     );
-    private static final String TAG_DATA = "Data";
     final Path baseDir;
     private final Path backupDir;
     final DataFixer fixerUpper;
@@ -109,7 +106,7 @@ public class LevelStorageSource {
         Dynamic<T> var3 = param1.update(References.WORLD_GEN_SETTINGS, var0, param2, SharedConstants.getCurrentVersion().getWorldVersion());
         DataResult<WorldGenSettings> var4 = WorldGenSettings.CODEC.parse(var3);
         return Pair.of(var4.resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error)).orElseGet(() -> {
-            RegistryAccess var0x = RegistryAccess.readFromDisk(var3);
+            RegistryAccess var0x = RegistryAccess.RegistryHolder.readFromDisk(var3);
             return WorldGenSettings.makeDefault(var0x);
         }), var4.lifecycle());
     }
@@ -134,8 +131,8 @@ public class LevelStorageSource {
                     boolean var3;
                     try {
                         var3 = DirectoryLock.isLocked(var2.toPath());
-                    } catch (Exception var14) {
-                        LOGGER.warn("Failed to read {} lock", var2, var14);
+                    } catch (Exception var10) {
+                        LOGGER.warn("Failed to read {} lock", var2, var10);
                         continue;
                     }
 
@@ -144,22 +141,11 @@ public class LevelStorageSource {
                         if (var6 != null) {
                             var0.add(var6);
                         }
-                    } catch (OutOfMemoryError var12) {
+                    } catch (OutOfMemoryError var9) {
                         MemoryReserve.release();
                         System.gc();
-                        LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of memory trying to read summary of {}", var2);
-                        throw var12;
-                    } catch (StackOverflowError var13) {
-                        LOGGER.error(
-                            LogUtils.FATAL_MARKER,
-                            "Ran out of stack trying to read summary of {}. Assuming corruption; attempting to restore from from level.dat_old.",
-                            var2
-                        );
-                        File var9 = new File(var2, "level.dat");
-                        File var10 = new File(var2, "level.dat_old");
-                        File var11 = new File(var2, "level.dat_corrupted_" + LocalDateTime.now().format(FORMATTER));
-                        Util.safeReplaceOrMoveFile(var9, var10, var11, true);
-                        throw var13;
+                        LOGGER.fatal("Ran out of memory trying to read summary of {}", var2);
+                        throw var9;
                     }
                 }
             }
@@ -193,40 +179,37 @@ public class LevelStorageSource {
     @Nullable
     private static DataPackConfig getDataPacks(File param0, DataFixer param1) {
         try {
-            Tag var0 = readLightweightData(param0);
-            if (var0 instanceof CompoundTag var1) {
-                CompoundTag var2 = var1.getCompound("Data");
-                int var3 = var2.contains("DataVersion", 99) ? var2.getInt("DataVersion") : -1;
-                Dynamic<Tag> var4 = param1.update(
-                    DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var2), var3, SharedConstants.getCurrentVersion().getWorldVersion()
-                );
-                return var4.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
-            }
-        } catch (Exception var7) {
-            LOGGER.error("Exception reading {}", param0, var7);
+            CompoundTag var0 = NbtIo.readCompressed(param0);
+            CompoundTag var1 = var0.getCompound("Data");
+            var1.remove("Player");
+            int var2 = var1.contains("DataVersion", 99) ? var1.getInt("DataVersion") : -1;
+            Dynamic<Tag> var3 = param1.update(
+                DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var1), var2, SharedConstants.getCurrentVersion().getWorldVersion()
+            );
+            return var3.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
+        } catch (Exception var6) {
+            LOGGER.error("Exception reading {}", param0, var6);
+            return null;
         }
-
-        return null;
     }
 
-    static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1, Lifecycle param2) {
-        return (param3, param4) -> {
+    static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1) {
+        return (param2, param3) -> {
             try {
-                CompoundTag var0 = NbtIo.readCompressed(param3);
+                CompoundTag var0 = NbtIo.readCompressed(param2);
                 CompoundTag var1x = var0.getCompound("Data");
-                CompoundTag var2x = var1x.contains("Player", 10) ? var1x.getCompound("Player") : null;
+                CompoundTag var2 = var1x.contains("Player", 10) ? var1x.getCompound("Player") : null;
                 var1x.remove("Player");
                 int var3 = var1x.contains("DataVersion", 99) ? var1x.getInt("DataVersion") : -1;
-                Dynamic<Tag> var4 = param4.update(
+                Dynamic<Tag> var4 = param3.update(
                     DataFixTypes.LEVEL.getType(), new Dynamic<>(param0, var1x), var3, SharedConstants.getCurrentVersion().getWorldVersion()
                 );
-                Pair<WorldGenSettings, Lifecycle> var5 = readWorldGenSettings(var4, param4, var3);
+                Pair<WorldGenSettings, Lifecycle> var5 = readWorldGenSettings(var4, param3, var3);
                 LevelVersion var6 = LevelVersion.parse(var4);
                 LevelSettings var7 = LevelSettings.parse(var4, param1);
-                Lifecycle var8 = var5.getSecond().add(param2);
-                return PrimaryLevelData.parse(var4, param4, var3, var2x, var7, var6, var5.getFirst(), var8);
-            } catch (Exception var14) {
-                LOGGER.error("Exception reading {}", param3, var14);
+                return PrimaryLevelData.parse(var4, param3, var3, var2, var7, var6, var5.getFirst(), var5.getSecond());
+            } catch (Exception var12) {
+                LOGGER.error("Exception reading {}", param2, var12);
                 return null;
             }
         };
@@ -235,39 +218,29 @@ public class LevelStorageSource {
     BiFunction<File, DataFixer, LevelSummary> levelSummaryReader(File param0, boolean param1) {
         return (param2, param3) -> {
             try {
-                Tag var0 = readLightweightData(param2);
-                if (var0 instanceof CompoundTag var1x) {
-                    CompoundTag var2x = var1x.getCompound("Data");
-                    int var3 = var2x.contains("DataVersion", 99) ? var2x.getInt("DataVersion") : -1;
-                    Dynamic<Tag> var4 = param3.update(
-                        DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var2x), var3, SharedConstants.getCurrentVersion().getWorldVersion()
-                    );
-                    LevelVersion var5 = LevelVersion.parse(var4);
-                    int var6 = var5.levelDataVersion();
-                    if (var6 == 19132 || var6 == 19133) {
-                        boolean var7 = var6 != this.getStorageVersion();
-                        File var8 = new File(param0, "icon.png");
-                        DataPackConfig var9 = var4.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
-                        LevelSettings var10 = LevelSettings.parse(var4, var9);
-                        return new LevelSummary(var10, var5, param0.getName(), var7, param1, var8);
-                    }
+                CompoundTag var0 = NbtIo.readCompressed(param2);
+                CompoundTag var1x = var0.getCompound("Data");
+                var1x.remove("Player");
+                int var2x = var1x.contains("DataVersion", 99) ? var1x.getInt("DataVersion") : -1;
+                Dynamic<Tag> var3 = param3.update(
+                    DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var1x), var2x, SharedConstants.getCurrentVersion().getWorldVersion()
+                );
+                LevelVersion var4 = LevelVersion.parse(var3);
+                int var5 = var4.levelDataVersion();
+                if (var5 != 19132 && var5 != 19133) {
+                    return null;
                 } else {
-                    LOGGER.warn("Invalid root tag in {}", param2);
+                    boolean var6 = var5 != this.getStorageVersion();
+                    File var7 = new File(param0, "icon.png");
+                    DataPackConfig var8 = var3.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
+                    LevelSettings var9 = LevelSettings.parse(var3, var8);
+                    return new LevelSummary(var9, var4, param0.getName(), var6, param1, var7);
                 }
-
-                return null;
-            } catch (Exception var16) {
-                LOGGER.error("Exception reading {}", param2, var16);
+            } catch (Exception var15) {
+                LOGGER.error("Exception reading {}", param2, var15);
                 return null;
             }
         };
-    }
-
-    @Nullable
-    private static Tag readLightweightData(File param0) throws IOException {
-        SkipFields var0 = new SkipFields(new FieldSelector("Data", CompoundTag.TYPE, "Player"), new FieldSelector("Data", CompoundTag.TYPE, "WorldGenSettings"));
-        NbtIo.parseCompressed(param0, var0);
-        return var0.getResult();
     }
 
     public boolean isNewLevelIdAcceptable(String param0) {
@@ -339,9 +312,9 @@ public class LevelStorageSource {
         }
 
         @Nullable
-        public WorldData getDataTag(DynamicOps<Tag> param0, DataPackConfig param1, Lifecycle param2) {
+        public WorldData getDataTag(DynamicOps<Tag> param0, DataPackConfig param1) {
             this.checkLock();
-            return LevelStorageSource.this.readLevelData(this.levelPath.toFile(), LevelStorageSource.getLevelData(param0, param1, param2));
+            return LevelStorageSource.this.readLevelData(this.levelPath.toFile(), LevelStorageSource.getLevelData(param0, param1));
         }
 
         @Nullable
@@ -379,7 +352,6 @@ public class LevelStorageSource {
         public void deleteLevel() throws IOException {
             this.checkLock();
             final Path var0 = this.levelPath.resolve("session.lock");
-            LevelStorageSource.LOGGER.info("Deleting level {}", this.levelId);
 
             for(int var1 = 1; var1 <= 5; ++var1) {
                 LevelStorageSource.LOGGER.info("Attempt {}...", var1);

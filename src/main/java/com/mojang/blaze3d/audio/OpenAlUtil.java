@@ -1,17 +1,17 @@
 package com.mojang.blaze3d.audio;
 
-import com.mojang.logging.LogUtils;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.ALC10;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class OpenAlUtil {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static String alErrorToString(int param0) {
         switch(param0) {

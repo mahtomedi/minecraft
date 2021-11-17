@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer;
 
 import javax.annotation.Nullable;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -26,22 +25,19 @@ public class ViewArea {
     }
 
     protected void createChunks(ChunkRenderDispatcher param0) {
-        if (!Minecraft.getInstance().isSameThread()) {
-            throw new IllegalStateException("createChunks called from wrong thread: " + Thread.currentThread().getName());
-        } else {
-            int var0 = this.chunkGridSizeX * this.chunkGridSizeY * this.chunkGridSizeZ;
-            this.chunks = new ChunkRenderDispatcher.RenderChunk[var0];
+        int var0 = this.chunkGridSizeX * this.chunkGridSizeY * this.chunkGridSizeZ;
+        this.chunks = new ChunkRenderDispatcher.RenderChunk[var0];
 
-            for(int var1 = 0; var1 < this.chunkGridSizeX; ++var1) {
-                for(int var2 = 0; var2 < this.chunkGridSizeY; ++var2) {
-                    for(int var3 = 0; var3 < this.chunkGridSizeZ; ++var3) {
-                        int var4 = this.getChunkIndex(var1, var2, var3);
-                        this.chunks[var4] = param0.new RenderChunk(var4, var1 * 16, var2 * 16, var3 * 16);
-                    }
+        for(int var1 = 0; var1 < this.chunkGridSizeX; ++var1) {
+            for(int var2 = 0; var2 < this.chunkGridSizeY; ++var2) {
+                for(int var3 = 0; var3 < this.chunkGridSizeZ; ++var3) {
+                    int var4 = this.getChunkIndex(var1, var2, var3);
+                    this.chunks[var4] = param0.new RenderChunk(var4);
+                    this.chunks[var4].setOrigin(var1 * 16, var2 * 16, var3 * 16);
                 }
             }
-
         }
+
     }
 
     public void releaseAllBuffers() {
@@ -63,8 +59,8 @@ public class ViewArea {
     }
 
     public void repositionCamera(double param0, double param1) {
-        int var0 = Mth.ceil(param0);
-        int var1 = Mth.ceil(param1);
+        int var0 = Mth.floor(param0);
+        int var1 = Mth.floor(param1);
 
         for(int var2 = 0; var2 < this.chunkGridSizeX; ++var2) {
             int var3 = this.chunkGridSizeX * 16;
@@ -79,10 +75,7 @@ public class ViewArea {
                 for(int var10 = 0; var10 < this.chunkGridSizeY; ++var10) {
                     int var11 = this.level.getMinBuildHeight() + var10 * 16;
                     ChunkRenderDispatcher.RenderChunk var12 = this.chunks[this.getChunkIndex(var2, var10, var6)];
-                    BlockPos var13 = var12.getOrigin();
-                    if (var5 != var13.getX() || var11 != var13.getY() || var9 != var13.getZ()) {
-                        var12.setOrigin(var5, var11, var9);
-                    }
+                    var12.setOrigin(var5, var11, var9);
                 }
             }
         }

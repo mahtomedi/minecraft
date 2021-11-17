@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens.worldselection;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
@@ -11,10 +10,10 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.WorldStem;
 import net.minecraft.util.Mth;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.Level;
@@ -24,11 +23,12 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class OptimizeWorldScreen extends Screen {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Object2IntMap<ResourceKey<Level>> DIMENSION_COLORS = Util.make(new Object2IntOpenCustomHashMap<>(Util.identityStrategy()), param0 -> {
         param0.put(Level.OVERWORLD, -13408734);
         param0.put(Level.NETHER, -10075085);
@@ -42,17 +42,19 @@ public class OptimizeWorldScreen extends Screen {
     public static OptimizeWorldScreen create(
         Minecraft param0, BooleanConsumer param1, DataFixer param2, LevelStorageSource.LevelStorageAccess param3, boolean param4
     ) {
+        RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
+
         try {
-            OptimizeWorldScreen var7;
-            try (WorldStem var0 = param0.makeWorldStem(param3, false)) {
-                WorldData var1 = var0.worldData();
-                param3.saveDataTag(var0.registryAccess(), var1);
-                var7 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var1.worldGenSettings());
+            OptimizeWorldScreen var8;
+            try (Minecraft.ServerStem var1 = param0.makeServerStem(var0, Minecraft::loadDataPacks, Minecraft::loadWorldData, false, param3)) {
+                WorldData var2 = var1.worldData();
+                param3.saveDataTag(var0, var2);
+                var8 = new OptimizeWorldScreen(param1, param2, param3, var2.getLevelSettings(), param4, var2.worldGenSettings());
             }
 
-            return var7;
-        } catch (Exception var10) {
-            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var10);
+            return var8;
+        } catch (Exception var11) {
+            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var11);
             return null;
         }
     }

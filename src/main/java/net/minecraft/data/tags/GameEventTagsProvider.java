@@ -1,7 +1,9 @@
 package net.minecraft.data.tags;
 
+import java.nio.file.Path;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.GameEventTags;
 import net.minecraft.world.level.gameevent.GameEvent;
 
@@ -61,6 +63,11 @@ public class GameEventTagsProvider extends TagsProvider<GameEvent> {
                 GameEvent.WOLF_SHAKING
             );
         this.tag(GameEventTags.IGNORE_VIBRATIONS_SNEAKING).add(GameEvent.HIT_GROUND, GameEvent.PROJECTILE_SHOOT, GameEvent.STEP, GameEvent.SWIM);
+    }
+
+    @Override
+    protected Path getPath(ResourceLocation param0) {
+        return this.generator.getOutputFolder().resolve("data/" + param0.getNamespace() + "/tags/game_events/" + param0.getPath() + ".json");
     }
 
     @Override

@@ -1,6 +1,5 @@
 package net.minecraft.server.network;
 
-import com.mojang.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -9,10 +8,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import net.minecraft.server.MinecraftServer;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LegacyQueryHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final int FAKE_PROTOCOL_VERSION = 127;
     private final ServerConnectionListener serverConnectionListener;
 

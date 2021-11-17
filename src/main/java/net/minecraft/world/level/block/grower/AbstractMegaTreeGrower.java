@@ -3,7 +3,6 @@ package net.minecraft.world.level.block.grower;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -27,20 +26,19 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     }
 
     @Nullable
-    protected abstract Holder<? extends ConfiguredFeature<?, ?>> getConfiguredMegaFeature(Random var1);
+    protected abstract ConfiguredFeature<?, ?> getConfiguredMegaFeature(Random var1);
 
     public boolean placeMega(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
-        Holder<? extends ConfiguredFeature<?, ?>> var0 = this.getConfiguredMegaFeature(param4);
+        ConfiguredFeature<?, ?> var0 = this.getConfiguredMegaFeature(param4);
         if (var0 == null) {
             return false;
         } else {
-            ConfiguredFeature<?, ?> var1 = var0.value();
-            BlockState var2 = Blocks.AIR.defaultBlockState();
-            param0.setBlock(param2.offset(param5, 0, param6), var2, 4);
-            param0.setBlock(param2.offset(param5 + 1, 0, param6), var2, 4);
-            param0.setBlock(param2.offset(param5, 0, param6 + 1), var2, 4);
-            param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var2, 4);
-            if (var1.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
+            BlockState var1 = Blocks.AIR.defaultBlockState();
+            param0.setBlock(param2.offset(param5, 0, param6), var1, 4);
+            param0.setBlock(param2.offset(param5 + 1, 0, param6), var1, 4);
+            param0.setBlock(param2.offset(param5, 0, param6 + 1), var1, 4);
+            param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var1, 4);
+            if (var0.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
                 return true;
             } else {
                 param0.setBlock(param2.offset(param5, 0, param6), param3, 4);

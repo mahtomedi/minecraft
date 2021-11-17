@@ -1,6 +1,6 @@
 package net.minecraft.client.multiplayer;
 
-import com.mojang.logging.LogUtils;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +9,6 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,7 +16,6 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
@@ -25,11 +23,12 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientChunkCache extends ChunkSource {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final LevelChunk emptyChunk;
     private final LevelLightEngine lightEngine;
     volatile ClientChunkCache.Storage storage;
@@ -37,9 +36,7 @@ public class ClientChunkCache extends ChunkSource {
 
     public ClientChunkCache(ClientLevel param0, int param1) {
         this.level = param0;
-        this.emptyChunk = new EmptyLevelChunk(
-            param0, new ChunkPos(0, 0), param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS)
-        );
+        this.emptyChunk = new EmptyLevelChunk(param0, new ChunkPos(0, 0));
         this.lightEngine = new LevelLightEngine(this, true, param0.dimensionType().hasSkyLight());
         this.storage = new ClientChunkCache.Storage(calculateStorageRange(param1));
     }
@@ -111,7 +108,7 @@ public class ClientChunkCache extends ChunkSource {
     }
 
     @Override
-    public void tick(BooleanSupplier param0, boolean param1) {
+    public void tick(BooleanSupplier param0) {
     }
 
     public void updateViewCenter(int param0, int param1) {
@@ -212,7 +209,7 @@ public class ClientChunkCache extends ChunkSource {
         }
 
         private void dumpChunks(String param0) {
-            try (FileOutputStream var0 = new FileOutputStream(param0)) {
+            try (FileOutputStream var0 = new FileOutputStream(new File(param0))) {
                 int var1 = ClientChunkCache.this.storage.chunkRadius;
 
                 for(int var2 = this.viewCenterZ - var1; var2 <= this.viewCenterZ + var1; ++var2) {
@@ -225,7 +222,7 @@ public class ClientChunkCache extends ChunkSource {
                     }
                 }
             } catch (IOException var10) {
-                ClientChunkCache.LOGGER.error("Failed to dump chunks to file {}", param0, var10);
+                ClientChunkCache.LOGGER.error(var10);
             }
 
         }

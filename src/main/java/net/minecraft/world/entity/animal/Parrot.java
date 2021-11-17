@@ -178,7 +178,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     @Override
     public void aiStep() {
-        if (this.jukebox == null || !this.jukebox.closerToCenterThan(this.position(), 3.46) || !this.level.getBlockState(this.jukebox).is(Blocks.JUKEBOX)) {
+        if (this.jukebox == null || !this.jukebox.closerThan(this.position(), 3.46) || !this.level.getBlockState(this.jukebox).is(Blocks.JUKEBOX)) {
             this.partyParrot = false;
             this.jukebox = null;
         }
@@ -204,13 +204,13 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     private void calculateFlapping() {
         this.oFlap = this.flap;
         this.oFlapSpeed = this.flapSpeed;
-        this.flapSpeed += (float)(!this.onGround && !this.isPassenger() ? 4 : -1) * 0.3F;
+        this.flapSpeed = (float)((double)this.flapSpeed + (double)(!this.onGround && !this.isPassenger() ? 4 : -1) * 0.3);
         this.flapSpeed = Mth.clamp(this.flapSpeed, 0.0F, 1.0F);
         if (!this.onGround && this.flapping < 1.0F) {
             this.flapping = 1.0F;
         }
 
-        this.flapping *= 0.9F;
+        this.flapping = (float)((double)this.flapping * 0.9);
         Vec3 var0 = this.getDeltaMovement();
         if (!this.onGround && var0.y < 0.0) {
             this.setDeltaMovement(var0.multiply(1.0, 0.6, 1.0));
@@ -401,10 +401,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            if (!this.level.isClientSide) {
-                this.setOrderedToSit(false);
-            }
-
+            this.setOrderedToSit(false);
             return super.hurt(param0, param1);
         }
     }

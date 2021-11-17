@@ -1,7 +1,6 @@
 package net.minecraft;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -16,10 +15,11 @@ import java.util.concurrent.CompletionException;
 import net.minecraft.util.MemoryReserve;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CrashReport {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final String title;
     private final Throwable exception;
     private final List<CrashReportCategory> details = Lists.newArrayList();
@@ -186,7 +186,10 @@ public class CrashReport {
             }
 
             this.trackingStackTrace = var0.validateStackTrace(var3, var4);
-            if (var2 != null && var2.length >= var1 && 0 <= var5 && var5 < var2.length) {
+            if (var1 > 0 && !this.details.isEmpty()) {
+                CrashReportCategory var6 = this.details.get(this.details.size() - 1);
+                var6.trimStacktrace(var1);
+            } else if (var2 != null && var2.length >= var1 && 0 <= var5 && var5 < var2.length) {
                 this.uncategorizedStackTrace = new StackTraceElement[var5];
                 System.arraycopy(var2, 0, this.uncategorizedStackTrace, 0, this.uncategorizedStackTrace.length);
             } else {

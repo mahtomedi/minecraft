@@ -63,7 +63,7 @@ public class GlowLichenFeature extends Feature<GlowLichenConfiguration> {
 
         for(Direction var1 : param5) {
             BlockState var2 = param0.getBlockState(var0.setWithOffset(param1, var1));
-            if (var2.is(param3.canBePlacedOn)) {
+            if (param3.canBePlacedOn.contains(var2.getBlock())) {
                 GlowLichenBlock var3 = (GlowLichenBlock)Blocks.GLOW_LICHEN;
                 BlockState var4 = var3.getStateForPlacement(param2, param0, param1, var1);
                 if (var4 == null) {

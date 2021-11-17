@@ -9,19 +9,17 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -45,21 +43,23 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ChunkRenderDispatcher {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int MAX_WORKERS_32_BIT = 4;
     private static final VertexFormat VERTEX_FORMAT = DefaultVertexFormat.BLOCK;
     private static final int MAX_HIGH_PRIORITY_QUOTA = 2;
-    private final PriorityBlockingQueue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
-    private final Queue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchLowPriority = Queues.newLinkedBlockingDeque();
+    private final PriorityQueue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityQueue();
+    private final Queue<ChunkRenderDispatcher.RenderChunk.ChunkCompileTask> toBatchLowPriority = Queues.newArrayDeque();
     private int highPriorityQuota = 2;
     private final Queue<ChunkBufferBuilderPack> freeBuffers;
     private final Queue<Runnable> toUpload = Queues.newConcurrentLinkedQueue();
@@ -122,7 +122,7 @@ public class ChunkRenderDispatcher {
                     .whenComplete((param1x, param2x) -> {
                         if (param2x != null) {
                             CrashReport var0xx = CrashReport.forThrowable(param2x, "Batching chunks");
-                            Minecraft.getInstance().delayCrash(() -> Minecraft.getInstance().fillReport(var0xx));
+                            Minecraft.getInstance().delayCrash(Minecraft.getInstance().fillReport(var0xx));
                         } else {
                             this.mailbox.tell(() -> {
                                 if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
@@ -193,8 +193,8 @@ public class ChunkRenderDispatcher {
 
     }
 
-    public void rebuildChunkSync(ChunkRenderDispatcher.RenderChunk param0, RenderRegionCache param1) {
-        param0.compileSync(param1);
+    public void rebuildChunkSync(ChunkRenderDispatcher.RenderChunk param0) {
+        param0.compileSync();
     }
 
     public void blockUntilClear() {
@@ -295,7 +295,6 @@ public class ChunkRenderDispatcher {
         public static final int SIZE = 16;
         public final int index;
         public final AtomicReference<ChunkRenderDispatcher.CompiledChunk> compiled = new AtomicReference<>(ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
-        final AtomicInteger initialCompilationCancelCount = new AtomicInteger(0);
         @Nullable
         private ChunkRenderDispatcher.RenderChunk.RebuildTask lastRebuildTask;
         @Nullable
@@ -304,7 +303,7 @@ public class ChunkRenderDispatcher {
         private final Map<RenderType, VertexBuffer> buffers = RenderType.chunkBufferLayers()
             .stream()
             .collect(Collectors.toMap(param0x -> param0x, param0x -> new VertexBuffer()));
-        private AABB bb;
+        public AABB bb;
         private boolean dirty = true;
         final BlockPos.MutableBlockPos origin = new BlockPos.MutableBlockPos(-1, -1, -1);
         private final BlockPos.MutableBlockPos[] relativeOrigins = Util.make(new BlockPos.MutableBlockPos[6], param0x -> {
@@ -315,9 +314,8 @@ public class ChunkRenderDispatcher {
         });
         private boolean playerChanged;
 
-        public RenderChunk(int param1, int param2, int param3, int param4) {
+        public RenderChunk(int param1) {
             this.index = param1;
-            this.setOrigin(param2, param3, param4);
         }
 
         private boolean doesChunkExistAt(BlockPos param0) {
@@ -338,23 +336,21 @@ public class ChunkRenderDispatcher {
             }
         }
 
-        public AABB getBoundingBox() {
-            return this.bb;
-        }
-
         public VertexBuffer getBuffer(RenderType param0) {
             return this.buffers.get(param0);
         }
 
         public void setOrigin(int param0, int param1, int param2) {
-            this.reset();
-            this.origin.set(param0, param1, param2);
-            this.bb = new AABB((double)param0, (double)param1, (double)param2, (double)(param0 + 16), (double)(param1 + 16), (double)(param2 + 16));
+            if (param0 != this.origin.getX() || param1 != this.origin.getY() || param2 != this.origin.getZ()) {
+                this.reset();
+                this.origin.set(param0, param1, param2);
+                this.bb = new AABB((double)param0, (double)param1, (double)param2, (double)(param0 + 16), (double)(param1 + 16), (double)(param2 + 16));
 
-            for(Direction var0 : Direction.values()) {
-                this.relativeOrigins[var0.ordinal()].set(this.origin).move(var0, 16);
+                for(Direction var0 : Direction.values()) {
+                    this.relativeOrigins[var0.ordinal()].set(this.origin).move(var0, 16);
+                }
+
             }
-
         }
 
         protected double getDistToPlayerSqr() {
@@ -437,29 +433,25 @@ public class ChunkRenderDispatcher {
             if (this.lastResortTransparencyTask != null) {
                 this.lastResortTransparencyTask.cancel();
                 this.lastResortTransparencyTask = null;
+                var0 = true;
             }
 
             return var0;
         }
 
-        public ChunkRenderDispatcher.RenderChunk.ChunkCompileTask createCompileTask(RenderRegionCache param0) {
+        public ChunkRenderDispatcher.RenderChunk.ChunkCompileTask createCompileTask() {
             boolean var0 = this.cancelTasks();
             BlockPos var1 = this.origin.immutable();
             int var2 = 1;
-            RenderChunkRegion var3 = param0.createRegion(ChunkRenderDispatcher.this.level, var1.offset(-1, -1, -1), var1.offset(16, 16, 16), 1);
-            boolean var4 = this.compiled.get() == ChunkRenderDispatcher.CompiledChunk.UNCOMPILED;
-            if (var4 && var0) {
-                this.initialCompilationCancelCount.incrementAndGet();
-            }
-
+            RenderChunkRegion var3 = RenderChunkRegion.createIfNotEmpty(ChunkRenderDispatcher.this.level, var1.offset(-1, -1, -1), var1.offset(16, 16, 16), 1);
             this.lastRebuildTask = new ChunkRenderDispatcher.RenderChunk.RebuildTask(
-                this.getDistToPlayerSqr(), var3, !var4 || this.initialCompilationCancelCount.get() > 2
+                this.getDistToPlayerSqr(), var3, var0 || this.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED
             );
             return this.lastRebuildTask;
         }
 
-        public void rebuildChunkAsync(ChunkRenderDispatcher param0, RenderRegionCache param1) {
-            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.createCompileTask(param1);
+        public void rebuildChunkAsync(ChunkRenderDispatcher param0) {
+            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.createCompileTask();
             param0.schedule(var0);
         }
 
@@ -477,8 +469,8 @@ public class ChunkRenderDispatcher {
             ChunkRenderDispatcher.this.renderer.updateGlobalBlockEntities(var1, var0);
         }
 
-        public void compileSync(RenderRegionCache param0) {
-            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.createCompileTask(param0);
+        public void compileSync() {
+            ChunkRenderDispatcher.RenderChunk.ChunkCompileTask var0 = this.createCompileTask();
             var0.doTask(ChunkRenderDispatcher.this.fixedBuffers);
         }
 
@@ -548,15 +540,13 @@ public class ChunkRenderDispatcher {
                             );
                         return Util.sequenceFailFast(var6).handle((param1, param2) -> {
                             if (param2 != null && !(param2 instanceof CancellationException) && !(param2 instanceof InterruptedException)) {
-                                CrashReport var0x = CrashReport.forThrowable(param2, "Rendering chunk");
-                                Minecraft.getInstance().delayCrash(() -> var0x);
+                                Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param2, "Rendering chunk"));
                             }
 
                             if (this.isCancelled.get()) {
                                 return ChunkRenderDispatcher.ChunkTaskResult.CANCELLED;
                             } else {
                                 RenderChunk.this.compiled.set(var4);
-                                RenderChunk.this.initialCompilationCancelCount.set(0);
                                 ChunkRenderDispatcher.this.renderer.addRecentlyCompiledChunk(RenderChunk.this);
                                 return ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL;
                             }
@@ -588,39 +578,38 @@ public class ChunkRenderDispatcher {
                         }
 
                         if (var10.hasBlockEntity()) {
-                            BlockEntity var11 = var5.getBlockEntity(var9);
+                            BlockEntity var11 = var5.getBlockEntity(var9, LevelChunk.EntityCreationType.CHECK);
                             if (var11 != null) {
                                 this.handleBlockEntity(param3, var4, var11);
                             }
                         }
 
-                        BlockState var12 = var5.getBlockState(var9);
-                        FluidState var13 = var12.getFluidState();
-                        if (!var13.isEmpty()) {
-                            RenderType var14 = ItemBlockRenderTypes.getRenderLayer(var13);
-                            BufferBuilder var15 = param4.builder(var14);
-                            if (param3.hasLayer.add(var14)) {
-                                RenderChunk.this.beginLayer(var15);
+                        FluidState var12 = var5.getFluidState(var9);
+                        if (!var12.isEmpty()) {
+                            RenderType var13 = ItemBlockRenderTypes.getRenderLayer(var12);
+                            BufferBuilder var14 = param4.builder(var13);
+                            if (param3.hasLayer.add(var13)) {
+                                RenderChunk.this.beginLayer(var14);
                             }
 
-                            if (var8.renderLiquid(var9, var5, var15, var12, var13)) {
+                            if (var8.renderLiquid(var9, var5, var14, var12)) {
                                 param3.isCompletelyEmpty = false;
-                                param3.hasBlocks.add(var14);
+                                param3.hasBlocks.add(var13);
                             }
                         }
 
                         if (var10.getRenderShape() != RenderShape.INVISIBLE) {
-                            RenderType var16 = ItemBlockRenderTypes.getChunkRenderType(var10);
-                            BufferBuilder var17 = param4.builder(var16);
-                            if (param3.hasLayer.add(var16)) {
-                                RenderChunk.this.beginLayer(var17);
+                            RenderType var15 = ItemBlockRenderTypes.getChunkRenderType(var10);
+                            BufferBuilder var16 = param4.builder(var15);
+                            if (param3.hasLayer.add(var15)) {
+                                RenderChunk.this.beginLayer(var16);
                             }
 
                             var6.pushPose();
                             var6.translate((double)(var9.getX() & 15), (double)(var9.getY() & 15), (double)(var9.getZ() & 15));
-                            if (var8.renderBatched(var10, var9, var5, var6, var17, true, var7)) {
+                            if (var8.renderBatched(var10, var9, var5, var6, var16, true, var7)) {
                                 param3.isCompletelyEmpty = false;
-                                param3.hasBlocks.add(var16);
+                                param3.hasBlocks.add(var15);
                             }
 
                             var6.popPose();
@@ -628,9 +617,9 @@ public class ChunkRenderDispatcher {
                     }
 
                     if (param3.hasBlocks.contains(RenderType.translucent())) {
-                        BufferBuilder var18 = param4.builder(RenderType.translucent());
-                        var18.setQuadSortOrigin(param0 - (float)var1.getX(), param1 - (float)var1.getY(), param2 - (float)var1.getZ());
-                        param3.transparencyState = var18.getSortState();
+                        BufferBuilder var17 = param4.builder(RenderType.translucent());
+                        var17.setQuadSortOrigin(param0 - (float)var1.getX(), param1 - (float)var1.getY(), param2 - (float)var1.getZ());
+                        param3.transparencyState = var17.getSortState();
                     }
 
                     param3.hasLayer.stream().map(param4::builder).forEach(BufferBuilder::end);
@@ -712,8 +701,7 @@ public class ChunkRenderDispatcher {
                             return var6.handle(
                                 (param0x, param1) -> {
                                     if (param1 != null && !(param1 instanceof CancellationException) && !(param1 instanceof InterruptedException)) {
-                                        CrashReport var0x = CrashReport.forThrowable(param1, "Rendering chunk");
-                                        Minecraft.getInstance().delayCrash(() -> var0x);
+                                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param1, "Rendering chunk"));
                                     }
     
                                     return this.isCancelled.get()

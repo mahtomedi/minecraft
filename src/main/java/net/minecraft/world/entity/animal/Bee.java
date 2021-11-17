@@ -24,7 +24,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.VisibleForDebug;
@@ -654,7 +654,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     }
 
     @Override
-    protected void jumpInLiquid(TagKey<Fluid> param0) {
+    protected void jumpInLiquid(Tag<Fluid> param0) {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.01, 0.0));
     }
 
@@ -729,7 +729,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     class BeeEnterHiveGoal extends Bee.BaseBeeGoal {
         @Override
         public boolean canBeeUse() {
-            if (Bee.this.hasHive() && Bee.this.wantsToEnterHive() && Bee.this.hivePos.closerToCenterThan(Bee.this.position(), 2.0)) {
+            if (Bee.this.hasHive() && Bee.this.wantsToEnterHive() && Bee.this.hivePos.closerThan(Bee.this.position(), 2.0)) {
                 BlockEntity var0 = Bee.this.level.getBlockEntity(Bee.this.hivePos);
                 if (var0 instanceof BeehiveBlockEntity var1) {
                     if (!var1.isFull()) {

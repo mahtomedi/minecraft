@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.util.task;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -11,11 +10,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class OpenServerTask extends LongRunningTask {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final RealmsServer serverData;
     private final Screen returnScreen;
     private final boolean join;

@@ -1,84 +1,55 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import java.util.Map.Entry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ResourceOrTagLocationArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 
 public class LocateCommand {
-    private static final DynamicCommandExceptionType ERROR_FAILED = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.locate.failed", param0)
-    );
-    private static final DynamicCommandExceptionType ERROR_INVALID = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.locate.invalid", param0)
-    );
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.locate.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
-        param0.register(
-            Commands.literal("locate")
-                .requires(param0x -> param0x.hasPermission(2))
-                .then(
-                    Commands.argument("structure", ResourceOrTagLocationArgument.resourceOrTag(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY))
-                        .executes(param0x -> locate(param0x.getSource(), ResourceOrTagLocationArgument.getStructureFeature(param0x, "structure")))
-                )
-        );
+        LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("locate").requires(param0x -> param0x.hasPermission(2));
+
+        for(Entry<String, StructureFeature<?>> var1 : StructureFeature.STRUCTURES_REGISTRY.entrySet()) {
+            var0 = var0.then(Commands.literal(var1.getKey()).executes(param1 -> locate(param1.getSource(), var1.getValue())));
+        }
+
+        param0.register(var0);
     }
 
-    private static int locate(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<ConfiguredStructureFeature<?, ?>> param1) throws CommandSyntaxException {
-        Registry<ConfiguredStructureFeature<?, ?>> var0 = param0.getLevel().registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
-        HolderSet<ConfiguredStructureFeature<?, ?>> var1 = param1.unwrap()
-            .map(param1x -> var0.getHolder(param1x).map(param0x -> HolderSet.direct(param0x)), var0::getTag)
-            .orElseThrow(() -> ERROR_INVALID.create(param1.asPrintable()));
-        BlockPos var2 = new BlockPos(param0.getPosition());
-        ServerLevel var3 = param0.getLevel();
-        Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>> var4 = var3.getChunkSource()
-            .getGenerator()
-            .findNearestMapFeature(var3, var1, var2, 100, false);
-        if (var4 == null) {
-            throw ERROR_FAILED.create(param1.asPrintable());
+    private static int locate(CommandSourceStack param0, StructureFeature<?> param1) throws CommandSyntaxException {
+        BlockPos var0 = new BlockPos(param0.getPosition());
+        BlockPos var1 = param0.getLevel().findNearestMapFeature(param1, var0, 100, false);
+        if (var1 == null) {
+            throw ERROR_FAILED.create();
         } else {
-            return showLocateResult(param0, param1, var2, var4, "commands.locate.success");
+            return showLocateResult(param0, param1.getFeatureName(), var0, var1, "commands.locate.success");
         }
     }
 
-    public static int showLocateResult(
-        CommandSourceStack param0, ResourceOrTagLocationArgument.Result<?> param1, BlockPos param2, Pair<BlockPos, ? extends Holder<?>> param3, String param4
-    ) {
-        BlockPos var0 = param3.getFirst();
-        String var1 = param1.unwrap()
-            .map(
-                param0x -> param0x.location().toString(),
-                param1x -> "#"
-                        + param1x.location()
-                        + " ("
-                        + (String)param3.getSecond().unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]")
-                        + ")"
-            );
-        int var2 = Mth.floor(dist(param2.getX(), param2.getZ(), var0.getX(), var0.getZ()));
-        Component var3 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", var0.getX(), "~", var0.getZ()))
+    public static int showLocateResult(CommandSourceStack param0, String param1, BlockPos param2, BlockPos param3, String param4) {
+        int var0 = Mth.floor(dist(param2.getX(), param2.getZ(), param3.getX(), param3.getZ()));
+        Component var1 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", param3.getX(), "~", param3.getZ()))
             .withStyle(
                 param1x -> param1x.withColor(ChatFormatting.GREEN)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var0.getX() + " ~ " + var0.getZ()))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + param3.getX() + " ~ " + param3.getZ()))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
             );
-        param0.sendSuccess(new TranslatableComponent(param4, var1, var3, var2), false);
-        return var2;
+        param0.sendSuccess(new TranslatableComponent(param4, param1, var1, var0), false);
+        return var0;
     }
 
     private static float dist(int param0, int param1, int param2, int param3) {

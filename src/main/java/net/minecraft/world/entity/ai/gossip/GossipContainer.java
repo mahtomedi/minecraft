@@ -23,6 +23,7 @@ import java.util.function.DoublePredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.minecraft.Util;
 import net.minecraft.core.SerializableUUID;
 import net.minecraft.util.VisibleForDebug;
 
@@ -152,7 +153,7 @@ public class GossipContainer {
     public void update(Dynamic<?> param0) {
         param0.asStream()
             .map(GossipContainer.GossipEntry::load)
-            .flatMap(param0x -> param0x.result().stream())
+            .flatMap(param0x -> Util.toStream(param0x.result()))
             .forEach(param0x -> this.getOrCreate(param0x.target).entries.put(param0x.type, param0x.value));
     }
 

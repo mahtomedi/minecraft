@@ -1,6 +1,5 @@
 package net.minecraft.util.monitoring.jmx;
 
-import com.mojang.logging.LogUtils;
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
@@ -23,10 +22,11 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import net.minecraft.server.MinecraftServer;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class MinecraftServerStatistics implements DynamicMBean {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final MinecraftServer server;
     private final MBeanInfo mBeanInfo;
     private final Map<String, MinecraftServerStatistics.AttributeDescription> attributeDescriptionByName = Stream.of(

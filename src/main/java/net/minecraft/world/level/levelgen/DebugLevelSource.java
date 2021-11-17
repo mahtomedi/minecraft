@@ -1,9 +1,7 @@
 package net.minecraft.world.level.levelgen;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -11,7 +9,7 @@ import java.util.stream.StreamSupport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
-import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -29,14 +27,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
 
 public class DebugLevelSource extends ChunkGenerator {
-    public static final Codec<DebugLevelSource> CODEC = RecordCodecBuilder.create(
-        param0 -> commonCodec(param0)
-                .and(RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(param0x -> param0x.biomes))
-                .apply(param0, param0.stable(DebugLevelSource::new))
-    );
+    public static final Codec<DebugLevelSource> CODEC = RegistryLookupCodec.create(Registry.BIOME_REGISTRY)
+        .xmap(DebugLevelSource::new, DebugLevelSource::biomes)
+        .stable()
+        .codec();
     private static final int BLOCK_MARGIN = 2;
     private static final List<BlockState> ALL_BLOCKS = StreamSupport.stream(Registry.BLOCK.spliterator(), false)
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
@@ -49,9 +45,9 @@ public class DebugLevelSource extends ChunkGenerator {
     public static final int BARRIER_HEIGHT = 60;
     private final Registry<Biome> biomes;
 
-    public DebugLevelSource(Registry<StructureSet> param0, Registry<Biome> param1) {
-        super(param0, Optional.empty(), new FixedBiomeSource(param1.getOrCreateHolder(Biomes.PLAINS)));
-        this.biomes = param1;
+    public DebugLevelSource(Registry<Biome> param0) {
+        super(new FixedBiomeSource(param0.getOrThrow(Biomes.PLAINS)), new StructureSettings(false));
+        this.biomes = param0;
     }
 
     public Registry<Biome> biomes() {
@@ -106,10 +102,6 @@ public class DebugLevelSource extends ChunkGenerator {
         return new NoiseColumn(0, new BlockState[0]);
     }
 
-    @Override
-    public void addDebugScreenInfo(List<String> param0, BlockPos param1) {
-    }
-
     public static BlockState getBlockStateFor(int param0, int param1) {
         BlockState var0 = AIR;
         if (param0 > 0 && param1 > 0 && param0 % 2 != 0 && param1 % 2 != 0) {
@@ -128,7 +120,7 @@ public class DebugLevelSource extends ChunkGenerator {
 
     @Override
     public Climate.Sampler climateSampler() {
-        return Climate.empty();
+        return (param0, param1, param2) -> Climate.target(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
     }
 
     @Override

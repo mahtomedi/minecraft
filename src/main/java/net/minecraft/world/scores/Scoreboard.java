@@ -2,7 +2,6 @@ package net.minecraft.world.scores;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.logging.LogUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -16,10 +15,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import org.slf4j.Logger;
 
 public class Scoreboard {
-    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int DISPLAY_SLOT_LIST = 0;
     public static final int DISPLAY_SLOT_SIDEBAR = 1;
     public static final int DISPLAY_SLOT_BELOW_NAME = 2;
@@ -179,8 +176,7 @@ public class Scoreboard {
     public PlayerTeam addPlayerTeam(String param0) {
         PlayerTeam var0 = this.getPlayerTeam(param0);
         if (var0 != null) {
-            LOGGER.warn("Requested creation of existing team '{}'", param0);
-            return var0;
+            throw new IllegalArgumentException("A team with the name '" + param0 + "' already exists!");
         } else {
             var0 = new PlayerTeam(this, param0);
             this.teamsByName.put(param0, var0);

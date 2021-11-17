@@ -9,8 +9,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.storage.loot.ItemModifierManager;
@@ -29,6 +31,9 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PREDICATE = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("predicate.unknown", param0)
     );
+    private static final DynamicCommandExceptionType ERROR_UNKNOWN_ATTRIBUTE = new DynamicCommandExceptionType(
+        param0 -> new TranslatableComponent("attribute.unknown", param0)
+    );
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM_MODIFIER = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("item_modifier.unknown", param0)
     );
@@ -38,7 +43,7 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
     }
 
     public static Advancement getAdvancement(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        ResourceLocation var0 = getId(param0, param1);
+        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
         Advancement var1 = param0.getSource().getServer().getAdvancements().getAdvancement(var0);
         if (var1 == null) {
             throw ERROR_UNKNOWN_ADVANCEMENT.create(var0);
@@ -49,12 +54,12 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
 
     public static Recipe<?> getRecipe(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         RecipeManager var0 = param0.getSource().getServer().getRecipeManager();
-        ResourceLocation var1 = getId(param0, param1);
+        ResourceLocation var1 = param0.getArgument(param1, ResourceLocation.class);
         return var0.byKey(var1).orElseThrow(() -> ERROR_UNKNOWN_RECIPE.create(var1));
     }
 
     public static LootItemCondition getPredicate(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        ResourceLocation var0 = getId(param0, param1);
+        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
         PredicateManager var1 = param0.getSource().getServer().getPredicateManager();
         LootItemCondition var2 = var1.get(var0);
         if (var2 == null) {
@@ -65,7 +70,7 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
     }
 
     public static LootItemFunction getItemModifier(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        ResourceLocation var0 = getId(param0, param1);
+        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
         ItemModifierManager var1 = param0.getSource().getServer().getItemModifierManager();
         LootItemFunction var2 = var1.get(var0);
         if (var2 == null) {
@@ -73,6 +78,11 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
         } else {
             return var2;
         }
+    }
+
+    public static Attribute getAttribute(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
+        return Registry.ATTRIBUTE.getOptional(var0).orElseThrow(() -> ERROR_UNKNOWN_ATTRIBUTE.create(var0));
     }
 
     public static ResourceLocation getId(CommandContext<CommandSourceStack> param0, String param1) {

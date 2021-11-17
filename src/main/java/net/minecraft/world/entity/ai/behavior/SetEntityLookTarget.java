@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
@@ -17,7 +17,7 @@ public class SetEntityLookTarget extends Behavior<LivingEntity> {
     private final float maxDistSqr;
     private Optional<LivingEntity> nearestEntityMatchingTest = Optional.empty();
 
-    public SetEntityLookTarget(TagKey<EntityType<?>> param0, float param1) {
+    public SetEntityLookTarget(Tag<EntityType<?>> param0, float param1) {
         this(param1x -> param1x.getType().is(param0), param1);
     }
 

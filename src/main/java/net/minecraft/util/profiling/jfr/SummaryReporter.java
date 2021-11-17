@@ -1,19 +1,21 @@
 package net.minecraft.util.profiling.jfr;
 
-import com.mojang.logging.LogUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.profiling.jfr.parse.JfrStatsParser;
 import net.minecraft.util.profiling.jfr.parse.JfrStatsResult;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LifeCycle;
+import org.apache.logging.log4j.spi.LoggerContext;
+import org.apache.logging.log4j.util.Supplier;
 
 public class SummaryReporter {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final Runnable onDeregistration;
 
     protected SummaryReporter(Runnable param0) {
@@ -46,8 +48,8 @@ public class SummaryReporter {
     }
 
     private static void infoWithFallback(Supplier<String> param0) {
-        if (LogUtils.isLoggerActive()) {
-            LOGGER.info(param0.get());
+        if (log4jIsActive()) {
+            LOGGER.info(param0);
         } else {
             Bootstrap.realStdoutPrintln(param0.get());
         }
@@ -55,12 +57,21 @@ public class SummaryReporter {
     }
 
     private static void warnWithFallback(Supplier<String> param0, Throwable param1) {
-        if (LogUtils.isLoggerActive()) {
-            LOGGER.warn(param0.get(), param1);
+        if (log4jIsActive()) {
+            LOGGER.warn(param0, param1);
         } else {
             Bootstrap.realStdoutPrintln(param0.get());
             param1.printStackTrace(Bootstrap.STDOUT);
         }
 
+    }
+
+    private static boolean log4jIsActive() {
+        LoggerContext var0 = LogManager.getContext();
+        if (var0 instanceof LifeCycle var1) {
+            return !var1.isStopped();
+        } else {
+            return true;
+        }
     }
 }

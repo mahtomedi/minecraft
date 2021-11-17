@@ -2,7 +2,6 @@ package net.minecraft.server.packs.resources;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
@@ -18,10 +17,11 @@ import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FallbackResourceManager implements ResourceManager {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     protected final List<PackResources> fallbacks = Lists.newArrayList();
     private final PackType type;
     private final String namespace;

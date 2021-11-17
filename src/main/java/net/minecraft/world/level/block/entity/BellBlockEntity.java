@@ -109,7 +109,7 @@ public class BellBlockEntity extends BlockEntity {
 
         if (!this.level.isClientSide) {
             for(LivingEntity var2 : this.nearbyEntities) {
-                if (var2.isAlive() && !var2.isRemoved() && var0.closerToCenterThan(var2.position(), 32.0)) {
+                if (var2.isAlive() && !var2.isRemoved() && var0.closerThan(var2.position(), 32.0)) {
                     var2.getBrain().setMemory(MemoryModuleType.HEARD_BELL_TIME, this.level.getGameTime());
                 }
             }
@@ -119,7 +119,7 @@ public class BellBlockEntity extends BlockEntity {
 
     private static boolean areRaidersNearby(BlockPos param0, List<LivingEntity> param1) {
         for(LivingEntity var0 : param1) {
-            if (var0.isAlive() && !var0.isRemoved() && param0.closerToCenterThan(var0.position(), 32.0) && var0.getType().is(EntityTypeTags.RAIDERS)) {
+            if (var0.isAlive() && !var0.isRemoved() && param0.closerThan(var0.position(), 32.0) && var0.getType().is(EntityTypeTags.RAIDERS)) {
                 return true;
             }
         }
@@ -133,7 +133,7 @@ public class BellBlockEntity extends BlockEntity {
 
     private static void showBellParticles(Level param0x, BlockPos param1x, List<LivingEntity> param2x) {
         MutableInt var0 = new MutableInt(16700985);
-        int var1 = (int)param2x.stream().filter(param1xx -> param1x.closerToCenterThan(param1xx.position(), 48.0)).count();
+        int var1 = (int)param2x.stream().filter(param1xx -> param1x.closerThan(param1xx.position(), 48.0)).count();
         param2x.stream()
             .filter(param1xx -> isRaiderWithinRange(param1x, param1xx))
             .forEach(
@@ -160,7 +160,7 @@ public class BellBlockEntity extends BlockEntity {
     }
 
     private static boolean isRaiderWithinRange(BlockPos param0, LivingEntity param1) {
-        return param1.isAlive() && !param1.isRemoved() && param0.closerToCenterThan(param1.position(), 48.0) && param1.getType().is(EntityTypeTags.RAIDERS);
+        return param1.isAlive() && !param1.isRemoved() && param0.closerThan(param1.position(), 48.0) && param1.getType().is(EntityTypeTags.RAIDERS);
     }
 
     private static void glow(LivingEntity param0x) {

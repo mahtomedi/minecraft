@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.ai.village;
 
-import com.mojang.logging.LogUtils;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -14,10 +13,11 @@ import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class VillageSiege implements CustomSpawner {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private boolean hasSetupSiege;
     private VillageSiege.State siegeState = VillageSiege.State.SIEGE_DONE;
     private int zombiesToSpawn;
@@ -71,7 +71,7 @@ public class VillageSiege implements CustomSpawner {
         for(Player var0 : param0.players()) {
             if (!var0.isSpectator()) {
                 BlockPos var1 = var0.blockPosition();
-                if (param0.isVillage(var1) && Biome.getBiomeCategory(param0.getBiome(var1)) != Biome.BiomeCategory.MUSHROOM) {
+                if (param0.isVillage(var1) && param0.getBiome(var1).getBiomeCategory() != Biome.BiomeCategory.MUSHROOM) {
                     for(int var2 = 0; var2 < 10; ++var2) {
                         float var3 = param0.random.nextFloat() * (float) (Math.PI * 2);
                         this.spawnX = var1.getX() + Mth.floor(Mth.cos(var3) * 32.0F);

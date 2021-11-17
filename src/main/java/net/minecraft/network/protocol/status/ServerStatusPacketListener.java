@@ -1,8 +1,8 @@
 package net.minecraft.network.protocol.status;
 
-import net.minecraft.network.protocol.game.ServerPacketListener;
+import net.minecraft.network.PacketListener;
 
-public interface ServerStatusPacketListener extends ServerPacketListener {
+public interface ServerStatusPacketListener extends PacketListener {
     void handlePingRequest(ServerboundPingRequestPacket var1);
 
     void handleStatusRequest(ServerboundStatusRequestPacket var1);

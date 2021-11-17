@@ -1,6 +1,5 @@
 package net.minecraft;
 
-import com.google.common.base.Ticker;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -9,7 +8,6 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import java.io.File;
@@ -62,10 +60,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Util {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final int DEFAULT_MAX_THREADS = 255;
     private static final String MAX_THREADS_SYSTEM_PROPERTY = "max.bg.threads";
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
@@ -73,12 +72,6 @@ public class Util {
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
     private static final ExecutorService IO_POOL = makeIoExecutor();
     public static LongSupplier timeSource = System::nanoTime;
-    public static final Ticker TICKER = new Ticker() {
-        @Override
-        public long read() {
-            return Util.timeSource.getAsLong();
-        }
-    };
     public static final UUID NIL_UUID = new UUID(0L, 0L);
     public static final FileSystemProvider ZIP_FILE_SYSTEM_PROVIDER = FileSystemProvider.installedProviders()
         .stream()
@@ -355,15 +348,19 @@ public class Util {
         return Util.IdentityStrategy.INSTANCE;
     }
 
-    public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<V>> param0) {
-        if (param0.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        } else if (param0.size() == 1) {
-            return param0.get(0).thenApply(List::of);
-        } else {
-            CompletableFuture<Void> var0 = CompletableFuture.allOf(param0.toArray(new CompletableFuture[0]));
-            return var0.thenApply(param1 -> param0.stream().map(CompletableFuture::join).toList());
-        }
+    public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<? extends V>> param0) {
+        return param0.stream()
+            .reduce(CompletableFuture.completedFuture(Lists.newArrayList()), (param0x, param1) -> param1.thenCombine(param0x, (param0xx, param1x) -> {
+                    List<V> var0x = Lists.newArrayListWithCapacity(param1x.size() + 1);
+                    var0x.addAll(param1x);
+                    var0x.add(param0xx);
+                    return var0x;
+                }), (param0x, param1) -> param0x.thenCombine(param1, (param0xx, param1x) -> {
+                    List<V> var0x = Lists.newArrayListWithCapacity(param0xx.size() + param1x.size());
+                    var0x.addAll(param0xx);
+                    var0x.addAll(param1x);
+                    return var0x;
+                }));
     }
 
     public static <V> CompletableFuture<List<V>> sequenceFailFast(List<? extends CompletableFuture<? extends V>> param0) {
@@ -385,6 +382,10 @@ public class Util {
         return CompletableFuture.allOf(var1).applyToEither(var2, param1 -> var0);
     }
 
+    public static <T> Stream<T> toStream(Optional<? extends T> param0) {
+        return DataFixUtils.orElseGet(param0.map(Stream::of), Stream::empty);
+    }
+
     public static <T> Optional<T> ifElse(Optional<T> param0, Consumer<T> param1, Runnable param2) {
         if (param0.isPresent()) {
             param1.accept(param0.get());
@@ -401,14 +402,6 @@ public class Util {
 
     public static void logAndPauseIfInIde(String param0) {
         LOGGER.error(param0);
-        if (SharedConstants.IS_RUNNING_IN_IDE) {
-            doPause(param0);
-        }
-
-    }
-
-    public static void logAndPauseIfInIde(String param0, Throwable param1) {
-        LOGGER.error(param0, param1);
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             doPause(param0);
         }
@@ -456,10 +449,6 @@ public class Util {
 
     public static <T> T getRandom(List<T> param0, Random param1) {
         return param0.get(param1.nextInt(param0.size()));
-    }
-
-    public static <T> Optional<T> getRandomSafe(List<T> param0, Random param1) {
-        return param0.isEmpty() ? Optional.empty() : Optional.of(getRandom(param0, param1));
     }
 
     private static BooleanSupplier createRenamer(final Path param0, final Path param1) {
@@ -559,19 +548,11 @@ public class Util {
     }
 
     public static void safeReplaceFile(Path param0, Path param1, Path param2) {
-        safeReplaceOrMoveFile(param0, param1, param2, false);
-    }
-
-    public static void safeReplaceOrMoveFile(File param0, File param1, File param2, boolean param3) {
-        safeReplaceOrMoveFile(param0.toPath(), param1.toPath(), param2.toPath(), param3);
-    }
-
-    public static void safeReplaceOrMoveFile(Path param0, Path param1, Path param2, boolean param3) {
         int var0 = 10;
         if (!Files.exists(param0)
             || runWithRetries(10, "create backup " + param2, createDeleter(param2), createRenamer(param0, param2), createFileCreatedCheck(param2))) {
             if (runWithRetries(10, "remove old " + param0, createDeleter(param0), createFileDeletedCheck(param0))) {
-                if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0)) && !param3) {
+                if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0))) {
                     runWithRetries(10, "restore " + param0 + " from " + param2, createRenamer(param2, param0), createFileCreatedCheck(param0));
                 }
 

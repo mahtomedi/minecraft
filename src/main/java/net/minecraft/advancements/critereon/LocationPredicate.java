@@ -3,8 +3,8 @@ package net.minecraft.advancements.critereon;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -15,11 +15,12 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.CampfireBlock;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import org.slf4j.Logger;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LocationPredicate {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final LocationPredicate ANY = new LocationPredicate(
         MinMaxBounds.Doubles.ANY,
         MinMaxBounds.Doubles.ANY,
@@ -38,7 +39,7 @@ public class LocationPredicate {
     @Nullable
     private final ResourceKey<Biome> biome;
     @Nullable
-    private final ResourceKey<ConfiguredStructureFeature<?, ?>> feature;
+    private final StructureFeature<?> feature;
     @Nullable
     private final ResourceKey<Level> dimension;
     @Nullable
@@ -52,7 +53,7 @@ public class LocationPredicate {
         MinMaxBounds.Doubles param1,
         MinMaxBounds.Doubles param2,
         @Nullable ResourceKey<Biome> param3,
-        @Nullable ResourceKey<ConfiguredStructureFeature<?, ?>> param4,
+        @Nullable StructureFeature<?> param4,
         @Nullable ResourceKey<Level> param5,
         @Nullable Boolean param6,
         LightPredicate param7,
@@ -101,7 +102,7 @@ public class LocationPredicate {
         );
     }
 
-    public static LocationPredicate inFeature(ResourceKey<ConfiguredStructureFeature<?, ?>> param0) {
+    public static LocationPredicate inFeature(StructureFeature<?> param0) {
         return new LocationPredicate(
             MinMaxBounds.Doubles.ANY,
             MinMaxBounds.Doubles.ANY,
@@ -134,7 +135,10 @@ public class LocationPredicate {
         } else {
             BlockPos var0 = new BlockPos(param1, param2, param3);
             boolean var1 = param0.isLoaded(var0);
-            if (this.biome == null || var1 && param0.getBiome(var0).is(this.biome)) {
+            Optional<ResourceKey<Biome>> var2 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getResourceKey(param0.getBiome(var0));
+            if (!var2.isPresent()) {
+                return false;
+            } else if (this.biome == null || var1 && this.biome == var2.get()) {
                 if (this.feature == null || var1 && param0.structureFeatureManager().getStructureWithPieceAt(var0, this.feature).isValid()) {
                     if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
                         if (!this.light.matches(param0, var0)) {
@@ -177,7 +181,7 @@ public class LocationPredicate {
             }
 
             if (this.feature != null) {
-                var0.addProperty("feature", this.feature.location().toString());
+                var0.addProperty("feature", this.feature.getFeatureName());
             }
 
             if (this.biome != null) {
@@ -209,13 +213,7 @@ public class LocationPredicate {
                     .map(param0x -> ResourceKey.create(Registry.DIMENSION_REGISTRY, param0x))
                     .orElse(null)
                 : null;
-            ResourceKey<ConfiguredStructureFeature<?, ?>> var6 = var0.has("feature")
-                ? ResourceLocation.CODEC
-                    .parse(JsonOps.INSTANCE, var0.get("feature"))
-                    .resultOrPartial(LOGGER::error)
-                    .map(param0x -> ResourceKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, param0x))
-                    .orElse(null)
-                : null;
+            StructureFeature<?> var6 = var0.has("feature") ? StructureFeature.STRUCTURES_REGISTRY.get(GsonHelper.getAsString(var0, "feature")) : null;
             ResourceKey<Biome> var7 = null;
             if (var0.has("biome")) {
                 ResourceLocation var8 = new ResourceLocation(GsonHelper.getAsString(var0, "biome"));
@@ -239,7 +237,7 @@ public class LocationPredicate {
         @Nullable
         private ResourceKey<Biome> biome;
         @Nullable
-        private ResourceKey<ConfiguredStructureFeature<?, ?>> feature;
+        private StructureFeature<?> feature;
         @Nullable
         private ResourceKey<Level> dimension;
         @Nullable
@@ -272,7 +270,7 @@ public class LocationPredicate {
             return this;
         }
 
-        public LocationPredicate.Builder setFeature(@Nullable ResourceKey<ConfiguredStructureFeature<?, ?>> param0) {
+        public LocationPredicate.Builder setFeature(@Nullable StructureFeature<?> param0) {
             this.feature = param0;
             return this;
         }

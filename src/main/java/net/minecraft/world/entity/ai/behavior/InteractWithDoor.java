@@ -57,7 +57,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
         Node var2 = var0.getNextNode();
         BlockPos var3 = var1.asBlockPos();
         BlockState var4 = param0.getBlockState(var3);
-        if (var4.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
+        if (var4.is(BlockTags.WOODEN_DOORS)) {
             DoorBlock var5 = (DoorBlock)var4.getBlock();
             if (!var5.isOpen(var4)) {
                 var5.setOpen(param1, param0, var4, var3, true);
@@ -68,7 +68,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
 
         BlockPos var6 = var2.asBlockPos();
         BlockState var7 = param0.getBlockState(var6);
-        if (var7.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
+        if (var7.is(BlockTags.WOODEN_DOORS)) {
             DoorBlock var8 = (DoorBlock)var7.getBlock();
             if (!var8.isOpen(var7)) {
                 var8.setOpen(param1, param0, var7, var6, true);
@@ -92,7 +92,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
                         var1.remove();
                     } else {
                         BlockState var4 = param0.getBlockState(var3);
-                        if (!var4.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
+                        if (!var4.is(BlockTags.WOODEN_DOORS)) {
                             var1.remove();
                         } else {
                             DoorBlock var5 = (DoorBlock)var4.getBlock();
@@ -120,7 +120,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
                 .get()
                 .stream()
                 .filter(param1x -> param1x.getType() == param1.getType())
-                .filter(param1x -> param2.closerToCenterThan(param1x.position(), 2.0))
+                .filter(param1x -> param2.closerThan(param1x.position(), 2.0))
                 .anyMatch(param2x -> isMobComingThroughDoor(param0, param2x, param2));
     }
 
@@ -144,7 +144,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
     }
 
     private static boolean isDoorTooFarAway(ServerLevel param0, LivingEntity param1, GlobalPos param2) {
-        return param2.dimension() != param0.dimension() || !param2.pos().closerToCenterThan(param1.position(), 2.0);
+        return param2.dimension() != param0.dimension() || !param2.pos().closerThan(param1.position(), 2.0);
     }
 
     private void rememberDoorToClose(ServerLevel param0, LivingEntity param1, BlockPos param2) {

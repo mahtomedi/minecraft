@@ -9,7 +9,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import net.minecraft.Util;
 import net.minecraft.core.AxisCycle;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public final class Shapes {
@@ -213,6 +218,90 @@ public final class Shapes {
         }
 
         return param3;
+    }
+
+    public static double collide(Direction.Axis param0, AABB param1, LevelReader param2, double param3, CollisionContext param4, Iterable<VoxelShape> param5) {
+        return collide(param1, param2, param3, param4, AxisCycle.between(param0, Direction.Axis.Z), param5);
+    }
+
+    private static double collide(AABB param0, LevelReader param1, double param2, CollisionContext param3, AxisCycle param4, Iterable<VoxelShape> param5) {
+        if (param0.getXsize() < 1.0E-6 || param0.getYsize() < 1.0E-6 || param0.getZsize() < 1.0E-6) {
+            return param2;
+        } else if (Math.abs(param2) < 1.0E-7) {
+            return 0.0;
+        } else {
+            AxisCycle var0 = param4.inverse();
+            Direction.Axis var1 = var0.cycle(Direction.Axis.X);
+            Direction.Axis var2 = var0.cycle(Direction.Axis.Y);
+            Direction.Axis var3 = var0.cycle(Direction.Axis.Z);
+            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
+            int var5 = Mth.floor(param0.min(var1) - 1.0E-7) - 1;
+            int var6 = Mth.floor(param0.max(var1) + 1.0E-7) + 1;
+            int var7 = Mth.floor(param0.min(var2) - 1.0E-7) - 1;
+            int var8 = Mth.floor(param0.max(var2) + 1.0E-7) + 1;
+            double var9 = param0.min(var3) - 1.0E-7;
+            double var10 = param0.max(var3) + 1.0E-7;
+            boolean var11 = param2 > 0.0;
+            int var12 = var11 ? Mth.floor(param0.max(var3) - 1.0E-7) - 1 : Mth.floor(param0.min(var3) + 1.0E-7) + 1;
+            int var13 = lastC(param2, var9, var10);
+            int var14 = var11 ? 1 : -1;
+            int var15 = var12;
+
+            while(true) {
+                if (var11) {
+                    if (var15 > var13) {
+                        break;
+                    }
+                } else if (var15 < var13) {
+                    break;
+                }
+
+                for(int var16 = var5; var16 <= var6; ++var16) {
+                    for(int var17 = var7; var17 <= var8; ++var17) {
+                        int var18 = 0;
+                        if (var16 == var5 || var16 == var6) {
+                            ++var18;
+                        }
+
+                        if (var17 == var7 || var17 == var8) {
+                            ++var18;
+                        }
+
+                        if (var15 == var12 || var15 == var13) {
+                            ++var18;
+                        }
+
+                        if (var18 < 3) {
+                            var4.set(var0, var16, var17, var15);
+                            BlockState var19 = param1.getBlockState(var4);
+                            if ((var18 != 1 || var19.hasLargeCollisionShape()) && (var18 != 2 || var19.is(Blocks.MOVING_PISTON))) {
+                                param2 = var19.getCollisionShape(param1, var4, param3)
+                                    .collide(var3, param0.move((double)(-var4.getX()), (double)(-var4.getY()), (double)(-var4.getZ())), param2);
+                                if (Math.abs(param2) < 1.0E-7) {
+                                    return 0.0;
+                                }
+
+                                var13 = lastC(param2, var9, var10);
+                            }
+                        }
+                    }
+                }
+
+                var15 += var14;
+            }
+
+            double var20 = param2;
+
+            for(VoxelShape var21 : param5) {
+                var20 = var21.collide(var3, param0, var20);
+            }
+
+            return var20;
+        }
+    }
+
+    private static int lastC(double param0, double param1, double param2) {
+        return param0 > 0.0 ? Mth.floor(param2 + param0) + 1 : Mth.floor(param1 + param0) - 1;
     }
 
     public static boolean blockOccudes(VoxelShape param0, VoxelShape param1, Direction param2) {

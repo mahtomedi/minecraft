@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -15,8 +14,9 @@ import net.minecraft.CrashReport;
 import net.minecraft.SharedConstants;
 import net.minecraft.SystemReport;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.WorldStem;
+import net.minecraft.server.ServerResources;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -26,13 +26,15 @@ import net.minecraft.util.ModCheck;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class IntegratedServer extends MinecraftServer {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int MIN_SIM_DISTANCE = 2;
     private final Minecraft minecraft;
     private boolean paused = true;
@@ -48,18 +50,20 @@ public class IntegratedServer extends MinecraftServer {
     public IntegratedServer(
         Thread param0,
         Minecraft param1,
-        LevelStorageSource.LevelStorageAccess param2,
-        PackRepository param3,
-        WorldStem param4,
-        MinecraftSessionService param5,
-        GameProfileRepository param6,
-        GameProfileCache param7,
-        ChunkProgressListenerFactory param8
+        RegistryAccess.RegistryHolder param2,
+        LevelStorageSource.LevelStorageAccess param3,
+        PackRepository param4,
+        ServerResources param5,
+        WorldData param6,
+        MinecraftSessionService param7,
+        GameProfileRepository param8,
+        GameProfileCache param9,
+        ChunkProgressListenerFactory param10
     ) {
-        super(param0, param2, param3, param4, param1.getProxy(), param1.getFixerUpper(), param5, param6, param7, param8);
+        super(param0, param2, param3, param6, param4, param1.getProxy(), param1.getFixerUpper(), param5, param7, param8, param9, param10);
         this.setSingleplayerName(param1.getUser().getName());
         this.setDemo(param1.isDemo());
-        this.setPlayerList(new IntegratedPlayerList(this, this.registryAccess(), this.playerDataStorage));
+        this.setPlayerList(new IntegratedPlayerList(this, this.registryHolder, this.playerDataStorage));
         this.minecraft = param1;
     }
 
@@ -147,7 +151,7 @@ public class IntegratedServer extends MinecraftServer {
 
     @Override
     public void onServerCrash(CrashReport param0) {
-        this.minecraft.delayCrash(() -> param0);
+        this.minecraft.delayCrash(param0);
     }
 
     @Override

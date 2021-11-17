@@ -27,6 +27,11 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         super(param0, WoodlandMansionFeature::pieceGeneratorSupplier, WoodlandMansionFeature::afterPlace);
     }
 
+    @Override
+    protected boolean linearSeparation() {
+        return false;
+    }
+
     private static Optional<PieceGenerator<NoneFeatureConfiguration>> pieceGeneratorSupplier(PieceGeneratorSupplier.Context<NoneFeatureConfiguration> param0x) {
         WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
         var0.setLargeFeatureSeed(param0x.seed(), param0x.chunkPos().x, param0x.chunkPos().z);

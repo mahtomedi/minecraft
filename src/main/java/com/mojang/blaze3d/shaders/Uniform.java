@@ -2,8 +2,6 @@ package com.mojang.blaze3d.shaders;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
@@ -11,12 +9,13 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.system.MemoryUtil;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Uniform extends AbstractUniform implements AutoCloseable {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final int UT_INT1 = 0;
     public static final int UT_INT2 = 1;
     public static final int UT_INT3 = 2;
@@ -448,13 +447,6 @@ public class Uniform extends AbstractUniform implements AutoCloseable {
 
     @Override
     public final void set(Matrix4f param0) {
-        this.floatValues.position(0);
-        param0.store(this.floatValues);
-        this.markDirty();
-    }
-
-    @Override
-    public final void set(Matrix3f param0) {
         this.floatValues.position(0);
         param0.store(this.floatValues);
         this.markDirty();

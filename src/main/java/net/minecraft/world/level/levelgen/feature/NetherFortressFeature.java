@@ -6,6 +6,8 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.NetherBridgePieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -27,15 +29,19 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
     }
 
     private static boolean checkLocation(PieceGeneratorSupplier.Context<NoneFeatureConfiguration> param0x) {
-        return param0x.validBiome()
-            .test(
-                param0x.chunkGenerator()
-                    .getNoiseBiome(
-                        QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockX()),
-                        QuartPos.fromBlock(64),
-                        QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockZ())
-                    )
-            );
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
+        var0.setLargeFeatureSeed(param0x.seed(), param0x.chunkPos().x, param0x.chunkPos().z);
+        return var0.nextInt(5) >= 2
+            ? false
+            : param0x.validBiome()
+                .test(
+                    param0x.chunkGenerator()
+                        .getNoiseBiome(
+                            QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockX()),
+                            QuartPos.fromBlock(64),
+                            QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockZ())
+                        )
+                );
     }
 
     private static void generatePieces(StructurePiecesBuilder param0x, PieceGenerator.Context<NoneFeatureConfiguration> param1) {

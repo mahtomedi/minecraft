@@ -156,38 +156,38 @@ public final class BitSetDiscreteVoxelShape extends DiscreteVoxelShape {
     protected static void forAllBoxes(DiscreteVoxelShape param0, DiscreteVoxelShape.IntLineConsumer param1, boolean param2) {
         BitSetDiscreteVoxelShape var0 = new BitSetDiscreteVoxelShape(param0);
 
-        for(int var1 = 0; var1 < var0.ySize; ++var1) {
-            for(int var2 = 0; var2 < var0.xSize; ++var2) {
+        for(int var1 = 0; var1 < var0.xSize; ++var1) {
+            for(int var2 = 0; var2 < var0.ySize; ++var2) {
                 int var3 = -1;
 
                 for(int var4 = 0; var4 <= var0.zSize; ++var4) {
-                    if (var0.isFullWide(var2, var1, var4)) {
+                    if (var0.isFullWide(var1, var2, var4)) {
                         if (param2) {
                             if (var3 == -1) {
                                 var3 = var4;
                             }
                         } else {
-                            param1.consume(var2, var1, var4, var2 + 1, var1 + 1, var4 + 1);
+                            param1.consume(var1, var2, var4, var1 + 1, var2 + 1, var4 + 1);
                         }
                     } else if (var3 != -1) {
-                        int var5 = var2;
-                        int var6 = var1;
-                        var0.clearZStrip(var3, var4, var2, var1);
+                        int var5 = var1;
+                        int var6 = var2;
+                        var0.clearZStrip(var3, var4, var1, var2);
 
-                        while(var0.isZStripFull(var3, var4, var5 + 1, var1)) {
-                            var0.clearZStrip(var3, var4, var5 + 1, var1);
+                        while(var0.isZStripFull(var3, var4, var5 + 1, var2)) {
+                            var0.clearZStrip(var3, var4, var5 + 1, var2);
                             ++var5;
                         }
 
-                        while(var0.isXZRectangleFull(var2, var5 + 1, var3, var4, var6 + 1)) {
-                            for(int var7 = var2; var7 <= var5; ++var7) {
+                        while(var0.isXZRectangleFull(var1, var5 + 1, var3, var4, var6 + 1)) {
+                            for(int var7 = var1; var7 <= var5; ++var7) {
                                 var0.clearZStrip(var3, var4, var7, var6 + 1);
                             }
 
                             ++var6;
                         }
 
-                        param1.consume(var2, var1, var3, var5 + 1, var6 + 1, var4);
+                        param1.consume(var1, var2, var3, var5 + 1, var6 + 1, var4);
                         var3 = -1;
                     }
                 }

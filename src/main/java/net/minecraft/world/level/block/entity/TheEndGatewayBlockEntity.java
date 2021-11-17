@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block.entity;
 
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -28,10 +27,11 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int SPAWN_TIME = 200;
     private static final int COOLDOWN_TIME = 40;
     private static final int ATTENTION_INTERVAL = 2400;
@@ -205,7 +205,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         if (var2 == null) {
             var2 = new BlockPos(var0.x + 0.5, 75.0, var0.z + 0.5);
             LOGGER.debug("Failed to find a suitable block to teleport to, spawning an island on {}", var2);
-            EndFeatures.END_ISLAND.value().place(param0, param0.getChunkSource().getGenerator(), new Random(var2.asLong()), var2);
+            EndFeatures.END_ISLAND.place(param0, param0.getChunkSource().getGenerator(), new Random(var2.asLong()), var2);
         } else {
             LOGGER.debug("Found suitable block to teleport to: {}", var2);
         }
@@ -275,7 +275,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
             if (var7.is(Blocks.END_STONE)
                 && !param0.getBlockState(var8).isCollisionShapeFullBlock(param0, var8)
                 && !param0.getBlockState(var9).isCollisionShapeFullBlock(param0, var9)) {
-                double var10 = var6.distToCenterSqr(0.0, 0.0, 0.0);
+                double var10 = var6.distSqr(0.0, 0.0, 0.0, true);
                 if (var4 == null || var10 < var5) {
                     var4 = var6;
                     var5 = var10;
@@ -287,7 +287,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
     }
 
     private static void spawnGatewayPortal(ServerLevel param0, BlockPos param1, EndGatewayConfiguration param2) {
-        Feature.END_GATEWAY.place(param2, param0, param0.getChunkSource().getGenerator(), new Random(), param1);
+        Feature.END_GATEWAY.configured(param2).place(param0, param0.getChunkSource().getGenerator(), new Random(), param1);
     }
 
     @Override

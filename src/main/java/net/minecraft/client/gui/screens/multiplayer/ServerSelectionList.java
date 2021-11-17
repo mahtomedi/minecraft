@@ -6,7 +6,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
@@ -38,11 +37,12 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList.Entry> {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     static final ThreadPoolExecutor THREAD_POOL = new ScheduledThreadPoolExecutor(
         5,
         new ThreadFactoryBuilder()
@@ -428,10 +428,6 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             if (Screen.hasShiftDown()) {
                 ServerSelectionList var0 = this.screen.serverSelectionList;
                 int var1 = var0.children().indexOf(this);
-                if (var1 == -1) {
-                    return true;
-                }
-
                 if (param0 == 264 && var1 < this.screen.getServers().size() - 1 || param0 == 265 && var1 > 0) {
                     this.swap(var1, param0 == 264 ? var1 + 1 : var1 - 1);
                     return true;

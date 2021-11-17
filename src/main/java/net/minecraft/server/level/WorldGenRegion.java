@@ -1,6 +1,5 @@
 package net.minecraft.server.level;
 
-import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +10,6 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -43,6 +41,8 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -50,10 +50,11 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.WorldGenTickAccess;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class WorldGenRegion implements WorldGenLevel {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final List<ChunkAccess> cache;
     private final ChunkAccess center;
     private final int size;
@@ -176,7 +177,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public Holder<Biome> getUncachedNoiseBiome(int param0, int param1, int param2) {
+    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
         return this.level.getUncachedNoiseBiome(param0, param1, param2);
     }
 
@@ -448,6 +449,11 @@ public class WorldGenRegion implements WorldGenLevel {
     @Override
     public List<Player> players() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
+        return this.structureFeatureManager.startsForFeature(param0, param1);
     }
 
     @Override

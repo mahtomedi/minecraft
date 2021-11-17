@@ -98,7 +98,7 @@ public abstract class Property<T extends Comparable<T>> {
         return var0.<S>map(param1x -> param1.setValue(this, param1x)).setPartial(param1);
     }
 
-    public static record Value<T extends Comparable<T>>(Property<T> property, T value) {
+    public static record Value<T>(Property<T> property, T value) {
         public Value(Property<T> param0, T param1) {
             if (!param0.getPossibleValues().contains(param1)) {
                 throw new IllegalArgumentException("Value " + param1 + " does not belong to property " + param0);

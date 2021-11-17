@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import java.util.Collection;
@@ -53,7 +52,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -115,10 +113,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
-import org.slf4j.Logger;
 
 public abstract class LivingEntity extends Entity {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
     private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
     private static final UUID SPEED_MODIFIER_POWDER_SNOW_UUID = UUID.fromString("1eaf83ff-7207-4596-b37a-d7a07b3ec4ce");
@@ -2019,7 +2015,7 @@ public abstract class LivingEntity extends Entity {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04F, 0.0));
     }
 
-    protected void jumpInLiquid(TagKey<Fluid> param0) {
+    protected void jumpInLiquid(net.minecraft.tags.Tag<Fluid> param0) {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.04F, 0.0));
     }
 
@@ -2027,7 +2023,7 @@ public abstract class LivingEntity extends Entity {
         return 0.8F;
     }
 
-    public boolean canStandOnFluid(FluidState param0) {
+    public boolean canStandOnFluid(Fluid param0) {
         return false;
     }
 
@@ -2041,7 +2037,7 @@ public abstract class LivingEntity extends Entity {
             }
 
             FluidState var2 = this.level.getFluidState(this.blockPosition());
-            if (this.isInWater() && this.isAffectedByFluids() && !this.canStandOnFluid(var2)) {
+            if (this.isInWater() && this.isAffectedByFluids() && !this.canStandOnFluid(var2.getType())) {
                 double var3 = this.getY();
                 float var4 = this.isSprinting() ? 0.9F : this.getWaterSlowDown();
                 float var5 = 0.02F;
@@ -2076,7 +2072,7 @@ public abstract class LivingEntity extends Entity {
                 if (this.horizontalCollision && this.isFree(var8.x, var8.y + 0.6F - this.getY() + var3, var8.z)) {
                     this.setDeltaMovement(var8.x, 0.3F, var8.z);
                 }
-            } else if (this.isInLava() && this.isAffectedByFluids() && !this.canStandOnFluid(var2)) {
+            } else if (this.isInLava() && this.isAffectedByFluids() && !this.canStandOnFluid(var2.getType())) {
                 double var9 = this.getY();
                 this.moveRelative(0.02F, param0);
                 this.move(MoverType.SELF, this.getDeltaMovement());
@@ -2107,11 +2103,11 @@ public abstract class LivingEntity extends Entity {
                 double var15 = Math.sqrt(var13.x * var13.x + var13.z * var13.z);
                 double var16 = var12.horizontalDistance();
                 double var17 = var13.length();
-                double var18 = Math.cos((double)var14);
-                var18 = var18 * var18 * Math.min(1.0, var17 / 0.4);
-                var12 = this.getDeltaMovement().add(0.0, var0 * (-1.0 + var18 * 0.75), 0.0);
+                float var18 = Mth.cos(var14);
+                var18 = (float)((double)var18 * (double)var18 * Math.min(1.0, var17 / 0.4));
+                var12 = this.getDeltaMovement().add(0.0, var0 * (-1.0 + (double)var18 * 0.75), 0.0);
                 if (var12.y < 0.0 && var15 > 0.0) {
-                    double var19 = var12.y * -0.1 * var18;
+                    double var19 = var12.y * -0.1 * (double)var18;
                     var12 = var12.add(var13.x * var19 / var15, var19, var13.z * var19 / var15);
                 }
 
@@ -2512,7 +2508,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (this.lerpHeadSteps > 0) {
-            this.yHeadRot += (float)Mth.wrapDegrees(this.lyHeadRot - (double)this.yHeadRot) / (float)this.lerpHeadSteps;
+            this.yHeadRot = (float)((double)this.yHeadRot + Mth.wrapDegrees(this.lyHeadRot - (double)this.yHeadRot) / (double)this.lerpHeadSteps);
             --this.lerpHeadSteps;
         }
 
@@ -2704,6 +2700,14 @@ public abstract class LivingEntity extends Entity {
     protected void doAutoAttackOnTouch(LivingEntity param0) {
     }
 
+    public void startAutoSpinAttack(int param0) {
+        this.autoSpinAttackTicks = param0;
+        if (!this.level.isClientSide) {
+            this.setLivingEntityFlag(4, true);
+        }
+
+    }
+
     public boolean isAutoSpinAttack() {
         return (this.entityData.get(DATA_LIVING_ENTITY_FLAGS) & 4) != 0;
     }
@@ -2803,6 +2807,11 @@ public abstract class LivingEntity extends Entity {
     @Override
     public boolean isPushable() {
         return this.isAlive() && !this.isSpectator() && !this.onClimbable();
+    }
+
+    @Override
+    protected void markHurt() {
+        this.hurtMarked = this.random.nextDouble() >= this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
     }
 
     @Override
@@ -2988,22 +2997,20 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void completeUsingItem() {
-        if (!this.level.isClientSide || this.isUsingItem()) {
-            InteractionHand var0 = this.getUsedItemHand();
-            if (!this.useItem.equals(this.getItemInHand(var0))) {
-                this.releaseUsingItem();
-            } else {
-                if (!this.useItem.isEmpty() && this.isUsingItem()) {
-                    this.triggerItemUseEffects(this.useItem, 16);
-                    ItemStack var1 = this.useItem.finishUsingItem(this.level, this);
-                    if (var1 != this.useItem) {
-                        this.setItemInHand(var0, var1);
-                    }
-
-                    this.stopUsingItem();
+        InteractionHand var0 = this.getUsedItemHand();
+        if (!this.useItem.equals(this.getItemInHand(var0))) {
+            this.releaseUsingItem();
+        } else {
+            if (!this.useItem.isEmpty() && this.isUsingItem()) {
+                this.triggerItemUseEffects(this.useItem, 16);
+                ItemStack var1 = this.useItem.finishUsingItem(this.level, this);
+                if (var1 != this.useItem) {
+                    this.setItemInHand(var0, var1);
                 }
 
+                this.stopUsingItem();
             }
+
         }
     }
 

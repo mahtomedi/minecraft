@@ -17,7 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChatScreen extends Screen {
-    public static final double MOUSE_SCROLL_SPEED = 7.0;
+    public static final int MOUSE_SCROLL_SPEED = 7;
     private static final Component USAGE_TEXT = new TranslatableComponent("chat_screen.usage");
     private String historyBuffer = "";
     private int historyPos = -1;
@@ -99,10 +99,10 @@ public class ChatScreen extends Screen {
             this.moveInHistory(1);
             return true;
         } else if (param0 == 266) {
-            this.minecraft.gui.getChat().scrollChat(this.minecraft.gui.getChat().getLinesPerPage() - 1);
+            this.minecraft.gui.getChat().scrollChat((double)(this.minecraft.gui.getChat().getLinesPerPage() - 1));
             return true;
         } else if (param0 == 267) {
-            this.minecraft.gui.getChat().scrollChat(-this.minecraft.gui.getChat().getLinesPerPage() + 1);
+            this.minecraft.gui.getChat().scrollChat((double)(-this.minecraft.gui.getChat().getLinesPerPage() + 1));
             return true;
         } else {
             return false;
@@ -111,7 +111,14 @@ public class ChatScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double param0, double param1, double param2) {
-        param2 = Mth.clamp(param2, -1.0, 1.0);
+        if (param2 > 1.0) {
+            param2 = 1.0;
+        }
+
+        if (param2 < -1.0) {
+            param2 = -1.0;
+        }
+
         if (this.commandSuggestions.mouseScrolled(param2)) {
             return true;
         } else {
@@ -119,7 +126,7 @@ public class ChatScreen extends Screen {
                 param2 *= 7.0;
             }
 
-            this.minecraft.gui.getChat().scrollChat((int)param2);
+            this.minecraft.gui.getChat().scrollChat(param2);
             return true;
         }
     }

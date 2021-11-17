@@ -21,7 +21,7 @@ public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConf
         BlockPos var3 = param0.origin();
         ChunkGenerator var4 = param0.chunkGenerator();
         int var5 = var0.nextInt(var1.features.size());
-        PlacedFeature var6 = var1.features.get(var5).value();
+        PlacedFeature var6 = var1.features.get(var5).get();
         return var6.place(var2, var4, var0, var3);
     }
 }

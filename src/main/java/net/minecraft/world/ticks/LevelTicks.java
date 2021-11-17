@@ -262,17 +262,16 @@ public class LevelTicks<T> implements LevelTickAccess<T> {
 
     public void copyArea(BoundingBox param0, Vec3i param1) {
         List<ScheduledTick<T>> var0 = new ArrayList<>();
-        Predicate<ScheduledTick<T>> var1 = param1x -> param0.isInside(param1x.pos());
-        this.alreadyRunThisTick.stream().filter(var1).forEach(var0::add);
-        this.toRunThisTick.stream().filter(var1).forEach(var0::add);
-        this.forContainersInArea(param0, (param2, param3) -> param3.getAll().filter(var1).forEach(var0::add));
-        LongSummaryStatistics var2 = var0.stream().mapToLong(ScheduledTick::subTickOrder).summaryStatistics();
-        long var3 = var2.getMin();
-        long var4 = var2.getMax();
+        var0.addAll(this.alreadyRunThisTick);
+        var0.addAll(this.toRunThisTick);
+        this.forContainersInArea(param0, (param1x, param2) -> param2.getAll().forEach(var0::add));
+        LongSummaryStatistics var1 = var0.stream().mapToLong(ScheduledTick::subTickOrder).summaryStatistics();
+        long var2 = var1.getMin();
+        long var3 = var1.getMax();
         var0.forEach(
             param3 -> this.schedule(
                     new ScheduledTick<>(
-                        param3.type(), param3.pos().offset(param1), param3.triggerTick(), param3.priority(), param3.subTickOrder() - var3 + var4 + 1L
+                        param3.type(), param3.pos().offset(param1), param3.triggerTick(), param3.priority(), param3.subTickOrder() - var2 + var3 + 1L
                     )
                 )
         );

@@ -1,7 +1,7 @@
 package net.minecraft.server.packs;
 
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
+import com.google.gson.JsonParseException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +12,11 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractPackResources implements PackResources {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     protected final File file;
 
     public AbstractPackResources(File param0) {
@@ -73,7 +74,7 @@ public abstract class AbstractPackResources implements PackResources {
         JsonObject var1;
         try (BufferedReader var0 = new BufferedReader(new InputStreamReader(param1, StandardCharsets.UTF_8))) {
             var1 = GsonHelper.parse(var0);
-        } catch (Exception var9) {
+        } catch (JsonParseException | IOException var9) {
             LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var9);
             return null;
         }
@@ -83,7 +84,7 @@ public abstract class AbstractPackResources implements PackResources {
         } else {
             try {
                 return param0.fromJson(GsonHelper.getAsJsonObject(var1, param0.getMetadataSectionName()));
-            } catch (Exception var7) {
+            } catch (JsonParseException var7) {
                 LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var7);
                 return null;
             }

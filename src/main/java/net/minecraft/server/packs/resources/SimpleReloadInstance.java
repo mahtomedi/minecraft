@@ -15,6 +15,7 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
     private static final int PREPARATION_PROGRESS_WEIGHT = 2;
     private static final int EXTRA_RELOAD_PROGRESS_WEIGHT = 2;
     private static final int LISTENER_PROGRESS_WEIGHT = 1;
+    protected final ResourceManager resourceManager;
     protected final CompletableFuture<Unit> allPreparations = new CompletableFuture<>();
     protected final CompletableFuture<List<S>> allDone;
     final Set<PreparableReloadListener> preparingListeners;
@@ -47,6 +48,7 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
         SimpleReloadInstance.StateFactory<S> param4,
         CompletableFuture<Unit> param5
     ) {
+        this.resourceManager = param2;
         this.listenerCount = param3.size();
         this.startedTaskCounter.incrementAndGet();
         param5.thenRun(this.doneTaskCounter::incrementAndGet);
@@ -89,8 +91,8 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
     }
 
     @Override
-    public CompletableFuture<?> done() {
-        return this.allDone;
+    public CompletableFuture<Unit> done() {
+        return this.allDone.thenApply(param0 -> Unit.INSTANCE);
     }
 
     @Override
@@ -101,10 +103,17 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
         return var1 / var2;
     }
 
-    public static ReloadInstance create(
-        ResourceManager param0, List<PreparableReloadListener> param1, Executor param2, Executor param3, CompletableFuture<Unit> param4, boolean param5
-    ) {
-        return (ReloadInstance)(param5 ? new ProfiledReloadInstance(param0, param1, param2, param3, param4) : of(param0, param1, param2, param3, param4));
+    @Override
+    public boolean isDone() {
+        return this.allDone.isDone();
+    }
+
+    @Override
+    public void checkExceptions() {
+        if (this.allDone.isCompletedExceptionally()) {
+            this.allDone.join();
+        }
+
     }
 
     protected interface StateFactory<S> {

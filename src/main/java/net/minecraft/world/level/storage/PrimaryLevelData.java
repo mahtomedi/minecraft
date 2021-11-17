@@ -3,9 +3,7 @@ package net.minecraft.world.level.storage;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.util.Set;
 import java.util.UUID;
@@ -23,7 +21,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.Difficulty;
@@ -36,11 +34,11 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.timers.TimerCallbacks;
 import net.minecraft.world.level.timers.TimerQueue;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PrimaryLevelData implements ServerLevelData, WorldData {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    protected static final String PLAYER = "Player";
+    private static final Logger LOGGER = LogManager.getLogger();
     protected static final String WORLD_GEN_SETTINGS = "WorldGenSettings";
     private LevelSettings settings;
     private final WorldGenSettings worldGenSettings;
@@ -213,7 +211,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             param0.get("WanderingTraderId").read(SerializableUUID.CODEC).result().orElse(null),
             param0.get("ServerBrands")
                 .asStream()
-                .flatMap(param0x -> param0x.asString().result().stream())
+                .flatMap(param0x -> Util.toStream(param0x.asString().result()))
                 .collect(Collectors.toCollection(Sets::newLinkedHashSet)),
             new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS, param0.get("ScheduledEvents").asStream()),
             (CompoundTag)param0.get("CustomBossEvents").orElseEmptyMap().getValue(),
@@ -248,7 +246,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         var1.putString("Series", SharedConstants.getCurrentVersion().getDataVersion().getSeries());
         param1.put("Version", var1);
         param1.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-        DynamicOps<Tag> var2 = RegistryOps.create(NbtOps.INSTANCE, param0);
+        RegistryWriteOps<Tag> var2 = RegistryWriteOps.create(NbtOps.INSTANCE, param0);
         WorldGenSettings.CODEC
             .encodeStart(var2, this.worldGenSettings)
             .resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error))

@@ -20,7 +20,7 @@ public class SuggestionProviders {
     private static final Map<ResourceLocation, SuggestionProvider<SharedSuggestionProvider>> PROVIDERS_BY_NAME = Maps.newHashMap();
     private static final ResourceLocation DEFAULT_NAME = new ResourceLocation("ask_server");
     public static final SuggestionProvider<SharedSuggestionProvider> ASK_SERVER = register(
-        DEFAULT_NAME, (param0, param1) -> param0.getSource().customSuggestion(param0)
+        DEFAULT_NAME, (param0, param1) -> param0.getSource().customSuggestion(param0, param1)
     );
     public static final SuggestionProvider<CommandSourceStack> ALL_RECIPES = register(
         new ResourceLocation("all_recipes"), (param0, param1) -> SharedSuggestionProvider.suggestResource(param0.getSource().getRecipeNames(), param1)
@@ -28,6 +28,12 @@ public class SuggestionProviders {
     public static final SuggestionProvider<CommandSourceStack> AVAILABLE_SOUNDS = register(
         new ResourceLocation("available_sounds"),
         (param0, param1) -> SharedSuggestionProvider.suggestResource(param0.getSource().getAvailableSoundEvents(), param1)
+    );
+    public static final SuggestionProvider<CommandSourceStack> AVAILABLE_BIOMES = register(
+        new ResourceLocation("available_biomes"),
+        (param0, param1) -> SharedSuggestionProvider.suggestResource(
+                param0.getSource().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).keySet(), param1
+            )
     );
     public static final SuggestionProvider<CommandSourceStack> SUMMONABLE_ENTITIES = register(
         new ResourceLocation("summonable_entities"),

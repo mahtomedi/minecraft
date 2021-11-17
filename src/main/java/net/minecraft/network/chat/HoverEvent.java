@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,10 +21,11 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HoverEvent {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private final HoverEvent.Action<?> action;
     private final Object value;
 
@@ -195,7 +196,7 @@ public class HoverEvent {
                 EntityType<?> var2 = Registry.ENTITY_TYPE.get(new ResourceLocation(var0.getString("type")));
                 UUID var3 = UUID.fromString(var0.getString("id"));
                 return new HoverEvent.EntityTooltipInfo(var2, var3, var1);
-            } catch (Exception var5) {
+            } catch (CommandSyntaxException | JsonSyntaxException var5) {
                 return null;
             }
         }

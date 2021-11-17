@@ -2,8 +2,8 @@ package net.minecraft.world.level.biome;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class CheckerboardColumnBiomeSource extends BiomeSource {
     public static final Codec<CheckerboardColumnBiomeSource> CODEC = RecordCodecBuilder.create(
@@ -13,11 +13,11 @@ public class CheckerboardColumnBiomeSource extends BiomeSource {
                 )
                 .apply(param0, CheckerboardColumnBiomeSource::new)
     );
-    private final HolderSet<Biome> allowedBiomes;
+    private final List<Supplier<Biome>> allowedBiomes;
     private final int bitShift;
     private final int size;
 
-    public CheckerboardColumnBiomeSource(HolderSet<Biome> param0, int param1) {
+    public CheckerboardColumnBiomeSource(List<Supplier<Biome>> param0, int param1) {
         super(param0.stream());
         this.allowedBiomes = param0;
         this.bitShift = param1 + 2;
@@ -35,7 +35,7 @@ public class CheckerboardColumnBiomeSource extends BiomeSource {
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
-        return this.allowedBiomes.get(Math.floorMod((param0 >> this.bitShift) + (param2 >> this.bitShift), this.allowedBiomes.size()));
+    public Biome getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
+        return this.allowedBiomes.get(Math.floorMod((param0 >> this.bitShift) + (param2 >> this.bitShift), this.allowedBiomes.size())).get();
     }
 }

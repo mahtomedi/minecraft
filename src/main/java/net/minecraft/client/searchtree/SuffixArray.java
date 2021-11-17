@@ -2,7 +2,6 @@ package net.minecraft.client.searchtree;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.Arrays;
 import it.unimi.dsi.fastutil.Swapper;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -15,13 +14,14 @@ import java.util.List;
 import java.util.Set;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class SuffixArray<T> {
     private static final boolean DEBUG_COMPARISONS = Boolean.parseBoolean(System.getProperty("SuffixArray.printComparisons", "false"));
     private static final boolean DEBUG_ARRAY = Boolean.parseBoolean(System.getProperty("SuffixArray.printArray", "false"));
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int END_OF_TEXT_MARKER = -1;
     private static final int END_OF_DATA = -2;
     protected final List<T> list = Lists.newArrayList();

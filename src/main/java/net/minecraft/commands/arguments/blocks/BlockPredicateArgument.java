@@ -20,7 +20,10 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.tags.TagKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagContainer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,7 +48,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
             );
             return new BlockPredicateArgument.Result() {
                 @Override
-                public Predicate<BlockInWorld> create(Registry<Block> param0) {
+                public Predicate<BlockInWorld> create(TagContainer param0) {
                     return var1;
                 }
 
@@ -55,15 +58,14 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
                 }
             };
         } else {
-            final TagKey<Block> var2 = var0.getTag();
+            final ResourceLocation var2 = var0.getTag();
             return new BlockPredicateArgument.Result() {
                 @Override
-                public Predicate<BlockInWorld> create(Registry<Block> param0) throws CommandSyntaxException {
-                    if (!param0.isKnownTagName(var2)) {
-                        throw BlockPredicateArgument.ERROR_UNKNOWN_TAG.create(var2);
-                    } else {
-                        return new BlockPredicateArgument.TagPredicate(var2, var0.getVagueProperties(), var0.getNbt());
-                    }
+                public Predicate<BlockInWorld> create(TagContainer param0) throws CommandSyntaxException {
+                    Tag<Block> var0 = param0.getTagOrThrow(
+                        Registry.BLOCK_REGISTRY, var2, param0x -> BlockPredicateArgument.ERROR_UNKNOWN_TAG.create(param0x.toString())
+                    );
+                    return new BlockPredicateArgument.TagPredicate(var0, var0.getVagueProperties(), var0.getNbt());
                 }
 
                 @Override
@@ -75,8 +77,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
     }
 
     public static Predicate<BlockInWorld> getBlockPredicate(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return param0.getArgument(param1, BlockPredicateArgument.Result.class)
-            .create(param0.getSource().getServer().registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY));
+        return param0.getArgument(param1, BlockPredicateArgument.Result.class).create(param0.getSource().getServer().getTags());
     }
 
     @Override
@@ -90,7 +91,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
         } catch (CommandSyntaxException var6) {
         }
 
-        return var1.fillSuggestions(param1, Registry.BLOCK);
+        return var1.fillSuggestions(param1, BlockTags.getAllTags());
     }
 
     @Override
@@ -136,18 +137,18 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
     }
 
     public interface Result {
-        Predicate<BlockInWorld> create(Registry<Block> var1) throws CommandSyntaxException;
+        Predicate<BlockInWorld> create(TagContainer var1) throws CommandSyntaxException;
 
         boolean requiresNbt();
     }
 
     static class TagPredicate implements Predicate<BlockInWorld> {
-        private final TagKey<Block> tag;
+        private final Tag<Block> tag;
         @Nullable
         private final CompoundTag nbt;
         private final Map<String, String> vagueProperties;
 
-        TagPredicate(TagKey<Block> param0, Map<String, String> param1, @Nullable CompoundTag param2) {
+        TagPredicate(Tag<Block> param0, Map<String, String> param1, @Nullable CompoundTag param2) {
             this.tag = param0;
             this.vagueProperties = param1;
             this.nbt = param2;

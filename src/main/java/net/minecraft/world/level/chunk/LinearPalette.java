@@ -13,7 +13,7 @@ public class LinearPalette<T> implements Palette<T> {
     private final int bits;
     private int size;
 
-    private LinearPalette(IdMap<T> param0, int param1, PaletteResize<T> param2, List<T> param3) {
+    public LinearPalette(IdMap<T> param0, int param1, PaletteResize<T> param2, List<T> param3) {
         this.registry = param0;
         this.values = (T[])(new Object[1 << param1]);
         this.bits = param1;
@@ -25,14 +25,6 @@ public class LinearPalette<T> implements Palette<T> {
         }
 
         this.size = param3.size();
-    }
-
-    private LinearPalette(IdMap<T> param0, T[] param1, PaletteResize<T> param2, int param3, int param4) {
-        this.registry = param0;
-        this.values = param1;
-        this.resizeHandler = param2;
-        this.bits = param3;
-        this.size = param4;
     }
 
     public static <A> Palette<A> create(int param0, IdMap<A> param1, PaletteResize<A> param2, List<A> param3) {
@@ -82,7 +74,7 @@ public class LinearPalette<T> implements Palette<T> {
         this.size = param0.readVarInt();
 
         for(int var0 = 0; var0 < this.size; ++var0) {
-            this.values[var0] = this.registry.byIdOrThrow(param0.readVarInt());
+            this.values[var0] = this.registry.byId(param0.readVarInt());
         }
 
     }
@@ -111,10 +103,5 @@ public class LinearPalette<T> implements Palette<T> {
     @Override
     public int getSize() {
         return this.size;
-    }
-
-    @Override
-    public Palette<T> copy() {
-        return new LinearPalette<>(this.registry, (T[])((Object[])this.values.clone()), this.resizeHandler, this.bits, this.size);
     }
 }

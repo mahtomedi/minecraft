@@ -106,7 +106,15 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
         BlockState var1 = param0.setValue(DISTANCE, Integer.valueOf(var0)).setValue(BOTTOM, Boolean.valueOf(this.isBottom(param1, param2, var0)));
         if (var1.getValue(DISTANCE) == 7) {
             if (param0.getValue(DISTANCE) == 7) {
-                FallingBlockEntity.fall(param1, param2, var1);
+                param1.addFreshEntity(
+                    new FallingBlockEntity(
+                        param1,
+                        (double)param2.getX() + 0.5,
+                        (double)param2.getY(),
+                        (double)param2.getZ() + 0.5,
+                        var1.setValue(WATERLOGGED, Boolean.valueOf(false))
+                    )
+                );
             } else {
                 param1.destroyBlock(param2, true);
             }

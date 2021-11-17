@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
@@ -28,7 +27,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public interface RegistryResourceAccess {
     <E> Collection<ResourceKey<E>> listResources(ResourceKey<? extends Registry<E>> var1);
@@ -94,11 +94,11 @@ public interface RegistryResourceAccess {
     }
 
     public static final class InMemoryStorage implements RegistryResourceAccess {
-        private static final Logger LOGGER = LogUtils.getLogger();
+        private static final Logger LOGGER = LogManager.getLogger();
         private final Map<ResourceKey<?>, RegistryResourceAccess.InMemoryStorage.Entry> entries = Maps.newIdentityHashMap();
 
-        public <E> void add(RegistryAccess param0, ResourceKey<E> param1, Encoder<E> param2, int param3, E param4, Lifecycle param5) {
-            DataResult<JsonElement> var0 = param2.encodeStart(RegistryOps.create(JsonOps.INSTANCE, param0), param4);
+        public <E> void add(RegistryAccess.RegistryHolder param0, ResourceKey<E> param1, Encoder<E> param2, int param3, E param4, Lifecycle param5) {
+            DataResult<JsonElement> var0 = param2.encodeStart(RegistryWriteOps.create(JsonOps.INSTANCE, param0), param4);
             Optional<PartialResult<JsonElement>> var1 = var0.error();
             if (var1.isPresent()) {
                 LOGGER.error("Error adding element: {}", var1.get().message());

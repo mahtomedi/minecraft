@@ -1,6 +1,5 @@
 package net.minecraft.util.profiling.jfr;
 
-import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,10 +37,11 @@ import net.minecraft.util.profiling.jfr.event.ServerTickTimeEvent;
 import net.minecraft.util.profiling.jfr.event.WorldLoadFinishedEvent;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class JfrProfiler implements JvmProfiler {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final String ROOT_CATEGORY = "Minecraft";
     public static final String WORLD_GEN_CATEGORY = "World Generation";
     public static final String TICK_CATEGORY = "Ticking";

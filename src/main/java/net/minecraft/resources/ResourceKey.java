@@ -52,10 +52,6 @@ public class ResourceKey<T> {
         return this.location;
     }
 
-    public ResourceLocation registry() {
-        return this.registryName;
-    }
-
     public static <T> Function<ResourceLocation, ResourceKey<T>> elementKey(ResourceKey<? extends Registry<T>> param0) {
         return param1 -> create(param0, param1);
     }

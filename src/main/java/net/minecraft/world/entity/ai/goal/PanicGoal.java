@@ -11,7 +11,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.phys.Vec3;
 
 public class PanicGoal extends Goal {
-    public static final int WATER_CHECK_DISTANCE_VERTICAL = 1;
     protected final PathfinderMob mob;
     protected final double speedModifier;
     protected double posX;
@@ -27,11 +26,11 @@ public class PanicGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (!this.shouldPanic()) {
+        if (this.mob.getLastHurtByMob() == null && !this.mob.isOnFire()) {
             return false;
         } else {
             if (this.mob.isOnFire()) {
-                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 5);
+                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 5, 4);
                 if (var0 != null) {
                     this.posX = (double)var0.getX();
                     this.posY = (double)var0.getY();
@@ -42,10 +41,6 @@ public class PanicGoal extends Goal {
 
             return this.findRandomPosition();
         }
-    }
-
-    protected boolean shouldPanic() {
-        return this.mob.getLastHurtByMob() != null || this.mob.isFreezing() || this.mob.isOnFire();
     }
 
     protected boolean findRandomPosition() {
@@ -81,10 +76,7 @@ public class PanicGoal extends Goal {
     }
 
     @Nullable
-    protected BlockPos lookForWater(BlockGetter param0, Entity param1, int param2) {
-        BlockPos var0 = param1.blockPosition();
-        return !param0.getBlockState(var0).getCollisionShape(param0, var0).isEmpty()
-            ? null
-            : BlockPos.findClosestMatch(param1.blockPosition(), param2, 1, param1x -> param0.getFluidState(param1x).is(FluidTags.WATER)).orElse(null);
+    protected BlockPos lookForWater(BlockGetter param0, Entity param1, int param2, int param3) {
+        return BlockPos.findClosestMatch(param1.blockPosition(), param2, param3, param1x -> param0.getFluidState(param1x).is(FluidTags.WATER)).orElse(null);
     }
 }

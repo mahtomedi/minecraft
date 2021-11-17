@@ -1,11 +1,13 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
@@ -100,11 +102,11 @@ public class Drowned extends Zombie implements RangedAttackMob {
         if (!param1.getFluidState(param3.below()).is(FluidTags.WATER)) {
             return false;
         } else {
-            Holder<Biome> var0 = param1.getBiome(param3);
+            Optional<ResourceKey<Biome>> var0 = param1.getBiomeName(param3);
             boolean var1 = param1.getDifficulty() != Difficulty.PEACEFUL
                 && isDarkEnoughToSpawn(param1, param3, param4)
                 && (param2 == MobSpawnType.SPAWNER || param1.getFluidState(param3).is(FluidTags.WATER));
-            if (!var0.is(Biomes.RIVER) && !var0.is(Biomes.FROZEN_RIVER)) {
+            if (!Objects.equals(var0, Optional.of(Biomes.RIVER)) && !Objects.equals(var0, Optional.of(Biomes.FROZEN_RIVER))) {
                 return param4.nextInt(40) == 0 && isDeepEnoughToSpawn(param1, param3) && var1;
             } else {
                 return param4.nextInt(15) == 0 && var1;

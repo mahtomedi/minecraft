@@ -1,7 +1,6 @@
 package com.mojang.blaze3d.platform;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import javax.annotation.Nullable;
@@ -10,11 +9,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMonitorCallback;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final Long2ObjectMap<Monitor> monitors = new Long2ObjectOpenHashMap<>();
     private final MonitorCreator monitorCreator;
 
@@ -36,10 +33,8 @@ public class ScreenManager {
         RenderSystem.assertOnRenderThread();
         if (param1 == 262145) {
             this.monitors.put(param0x, this.monitorCreator.createMonitor(param0x));
-            LOGGER.debug("Monitor {} connected. Current monitors: {}", param0x, this.monitors);
         } else if (param1 == 262146) {
             this.monitors.remove(param0x);
-            LOGGER.debug("Monitor {} disconnected. Current monitors: {}", param0x, this.monitors);
         }
 
     }
@@ -62,31 +57,25 @@ public class ScreenManager {
             int var4 = var3 + param0.getScreenHeight();
             int var5 = -1;
             Monitor var6 = null;
-            long var7 = GLFW.glfwGetPrimaryMonitor();
-            LOGGER.debug("Selecting monitor - primary: {}, current monitors: {}", var7, this.monitors);
 
-            for(Monitor var8 : this.monitors.values()) {
-                int var9 = var8.getX();
-                int var10 = var9 + var8.getCurrentMode().getWidth();
-                int var11 = var8.getY();
-                int var12 = var11 + var8.getCurrentMode().getHeight();
-                int var13 = clamp(var1, var9, var10);
-                int var14 = clamp(var2, var9, var10);
-                int var15 = clamp(var3, var11, var12);
-                int var16 = clamp(var4, var11, var12);
-                int var17 = Math.max(0, var14 - var13);
-                int var18 = Math.max(0, var16 - var15);
-                int var19 = var17 * var18;
-                if (var19 > var5) {
-                    var6 = var8;
-                    var5 = var19;
-                } else if (var19 == var5 && var7 == var8.getMonitor()) {
-                    LOGGER.debug("Primary monitor {} is preferred to monitor {}", var8, var6);
-                    var6 = var8;
+            for(Monitor var7 : this.monitors.values()) {
+                int var8 = var7.getX();
+                int var9 = var8 + var7.getCurrentMode().getWidth();
+                int var10 = var7.getY();
+                int var11 = var10 + var7.getCurrentMode().getHeight();
+                int var12 = clamp(var1, var8, var9);
+                int var13 = clamp(var2, var8, var9);
+                int var14 = clamp(var3, var10, var11);
+                int var15 = clamp(var4, var10, var11);
+                int var16 = Math.max(0, var13 - var12);
+                int var17 = Math.max(0, var15 - var14);
+                int var18 = var16 * var17;
+                if (var18 > var5) {
+                    var6 = var7;
+                    var5 = var18;
                 }
             }
 
-            LOGGER.debug("Selected monitor: {}", var6);
             return var6;
         }
     }

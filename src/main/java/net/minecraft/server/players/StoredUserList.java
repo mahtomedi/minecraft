@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,10 +19,11 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    protected static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File file;
     private final Map<String, V> map = Maps.newHashMap();

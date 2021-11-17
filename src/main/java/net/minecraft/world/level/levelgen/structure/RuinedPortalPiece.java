@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.structure;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -31,8 +30,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.AlwaysTrueTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlackstoneReplaceProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockAgeProcessor;
@@ -46,10 +45,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.RuleProcessor
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RuinedPortalPiece extends TemplateStructurePiece {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final float PROBABILITY_OF_GOLD_GONE = 0.3F;
     private static final float PROBABILITY_OF_MAGMA_INSTEAD_OF_NETHERRACK = 0.07F;
     private static final float PROBABILITY_OF_MAGMA_INSTEAD_OF_LAVA = 0.2F;
@@ -121,7 +121,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
             .addProcessor(var0)
             .addProcessor(new RuleProcessor(var1))
             .addProcessor(new BlockAgeProcessor(param4.mossiness))
-            .addProcessor(new ProtectedBlockProcessor(BlockTags.FEATURES_CANNOT_REPLACE))
+            .addProcessor(new ProtectedBlockProcessor(BlockTags.FEATURES_CANNOT_REPLACE.getName()))
             .addProcessor(new LavaSubmergedBlockProcessor());
         if (param4.replaceWithBlackstone) {
             var2.addProcessor(BlackstoneReplaceProcessor.INSTANCE);

@@ -5,13 +5,10 @@ import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.nio.ByteBuffer;
@@ -34,14 +31,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallbackI;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 @DontObfuscate
 public class RenderSystem {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final ConcurrentLinkedQueue<RenderCall> recordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Tesselator RENDER_THREAD_TESSELATOR = new Tesselator();
     private static final int MINIMUM_ATLAS_TEXTURE_SIZE = 1024;
@@ -70,7 +68,6 @@ public class RenderSystem {
         param0.accept(param1 + 2);
         param0.accept(param1 + 1);
     });
-    private static Matrix3f inverseViewRotationMatrix = new Matrix3f();
     private static Matrix4f projectionMatrix = new Matrix4f();
     private static Matrix4f savedProjectionMatrix = new Matrix4f();
     private static PoseStack modelViewStack = new PoseStack();
@@ -81,7 +78,6 @@ public class RenderSystem {
     private static float shaderFogStart;
     private static float shaderFogEnd = 1.0F;
     private static final float[] shaderFogColor = new float[]{0.0F, 0.0F, 0.0F, 0.0F};
-    private static FogShape shaderFogShape = FogShape.SPHERE;
     private static final Vector3f[] shaderLightDirections = new Vector3f[2];
     private static float shaderGameTime;
     private static float shaderLineWidth = 1.0F;
@@ -427,20 +423,6 @@ public class RenderSystem {
     public static float[] getShaderFogColor() {
         assertOnRenderThread();
         return shaderFogColor;
-    }
-
-    public static void setShaderFogShape(FogShape param0) {
-        assertOnRenderThread();
-        _setShaderFogShape(param0);
-    }
-
-    private static void _setShaderFogShape(FogShape param0) {
-        shaderFogShape = param0;
-    }
-
-    public static FogShape getShaderFogShape() {
-        assertOnRenderThread();
-        return shaderFogShape;
     }
 
     public static void setShaderLights(Vector3f param0, Vector3f param1) {
@@ -827,16 +809,6 @@ public class RenderSystem {
 
     }
 
-    public static void setInverseViewRotationMatrix(Matrix3f param0) {
-        Matrix3f var0 = param0.copy();
-        if (!isOnRenderThread()) {
-            recordRenderCall(() -> inverseViewRotationMatrix = var0);
-        } else {
-            inverseViewRotationMatrix = var0;
-        }
-
-    }
-
     public static void setTextureMatrix(Matrix4f param0) {
         Matrix4f var0 = param0.copy();
         if (!isOnRenderThread()) {
@@ -895,11 +867,6 @@ public class RenderSystem {
     public static Matrix4f getProjectionMatrix() {
         assertOnRenderThread();
         return projectionMatrix;
-    }
-
-    public static Matrix3f getInverseViewRotationMatrix() {
-        assertOnRenderThread();
-        return inverseViewRotationMatrix;
     }
 
     public static Matrix4f getModelViewMatrix() {

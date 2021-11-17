@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.util.task;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.Backup;
 import com.mojang.realmsclient.exception.RealmsServiceException;
@@ -10,11 +9,9 @@ import com.mojang.realmsclient.gui.screens.RealmsGenericErrorScreen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class RestoreTask extends LongRunningTask {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final Backup backup;
     private final long worldId;
     private final RealmsConfigureWorldScreen lastScreen;

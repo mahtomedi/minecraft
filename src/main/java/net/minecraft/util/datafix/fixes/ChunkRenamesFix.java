@@ -36,8 +36,7 @@ public class ChunkRenamesFix extends DataFix {
             var1x = renameField(var1x, "Entities", "entities");
             var1x = renameField(var1x, "Sections", "sections");
             var1x = var1x.updateTyped(var2, var4, param0x -> renameField(param0x, "Starts", "starts"));
-            var1x = renameField(var1x, "Structures", "structures");
-            return var1x.update(DSL.remainderFinder(), param0x -> param0x.remove("Level"));
+            return renameField(var1x, "Structures", "structures");
         });
     }
 

@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import java.io.BufferedReader;
@@ -39,7 +38,6 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.HumanoidArm;
@@ -48,11 +46,12 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Options {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new Gson();
     private static final TypeToken<List<String>> RESOURCE_PACK_TYPE = new TypeToken<List<String>>() {
     };
@@ -130,7 +129,6 @@ public class Options {
     public boolean toggleCrouch;
     public boolean toggleSprint;
     public boolean skipMultiplayerWarning;
-    public boolean skipRealms32bitWarning;
     public boolean hideMatchedNames = true;
     public boolean showAutosaveIndicator = true;
     public final KeyMapping keyUp = new KeyMapping("key.forward", 87, "key.categories.movement");
@@ -281,14 +279,8 @@ public class Options {
         this.screenEffectScale = param0.process("screenEffectScale", this.screenEffectScale);
         this.fovEffectScale = param0.process("fovEffectScale", this.fovEffectScale);
         this.gamma = param0.process("gamma", this.gamma);
-        this.renderDistance = (int)Mth.clamp(
-            (double)param0.process("renderDistance", this.renderDistance), Option.RENDER_DISTANCE.getMinValue(), Option.RENDER_DISTANCE.getMaxValue()
-        );
-        this.simulationDistance = (int)Mth.clamp(
-            (double)param0.process("simulationDistance", this.simulationDistance),
-            Option.SIMULATION_DISTANCE.getMinValue(),
-            Option.SIMULATION_DISTANCE.getMaxValue()
-        );
+        this.renderDistance = param0.process("renderDistance", this.renderDistance);
+        this.simulationDistance = param0.process("simulationDistance", this.simulationDistance);
         this.entityDistanceScaling = param0.process("entityDistanceScaling", this.entityDistanceScaling);
         this.guiScale = param0.process("guiScale", this.guiScale);
         this.particles = param0.process("particles", this.particles, ParticleStatus::byId, ParticleStatus::getId);
@@ -332,7 +324,6 @@ public class Options {
         this.rawMouseInput = param0.process("rawMouseInput", this.rawMouseInput);
         this.glDebugVerbosity = param0.process("glDebugVerbosity", this.glDebugVerbosity);
         this.skipMultiplayerWarning = param0.process("skipMultiplayerWarning", this.skipMultiplayerWarning);
-        this.skipRealms32bitWarning = param0.process("skipRealms32bitWarning", this.skipRealms32bitWarning);
         this.hideMatchedNames = param0.process("hideMatchedNames", this.hideMatchedNames);
         this.joinedFirstServer = param0.process("joinedFirstServer", this.joinedFirstServer);
         this.hideBundleTutorial = param0.process("hideBundleTutorial", this.hideBundleTutorial);

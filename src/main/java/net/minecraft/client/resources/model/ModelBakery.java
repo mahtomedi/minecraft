@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.math.Transformation;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -67,7 +66,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Triple;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ModelBakery {
@@ -118,7 +118,7 @@ public class ModelBakery {
     });
     static final int SINGLETON_MODEL_GROUP = -1;
     private static final int INVISIBLE_MODEL_GROUP = 0;
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String BUILTIN_SLASH = "builtin/";
     private static final String BUILTIN_SLASH_GENERATED = "builtin/generated";
     private static final String BUILTIN_BLOCK_ENTITY = "builtin/entity";

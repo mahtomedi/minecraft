@@ -17,14 +17,12 @@ import com.mojang.blaze3d.shaders.Shader;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,13 +37,14 @@ import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ShaderInstance implements Shader, AutoCloseable {
     private static final String SHADER_PATH = "shaders/core/";
     private static final String SHADER_INCLUDE_PATH = "shaders/include/";
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
     private static final boolean ALWAYS_REAPPLY = true;
     private static ShaderInstance lastAppliedShader;
@@ -70,8 +69,6 @@ public class ShaderInstance implements Shader, AutoCloseable {
     @Nullable
     public final Uniform PROJECTION_MATRIX;
     @Nullable
-    public final Uniform INVERSE_VIEW_ROTATION_MATRIX;
-    @Nullable
     public final Uniform TEXTURE_MATRIX;
     @Nullable
     public final Uniform SCREEN_SIZE;
@@ -87,8 +84,6 @@ public class ShaderInstance implements Shader, AutoCloseable {
     public final Uniform FOG_END;
     @Nullable
     public final Uniform FOG_COLOR;
-    @Nullable
-    public final Uniform FOG_SHAPE;
     @Nullable
     public final Uniform LINE_WIDTH;
     @Nullable
@@ -190,7 +185,6 @@ public class ShaderInstance implements Shader, AutoCloseable {
         this.markDirty();
         this.MODEL_VIEW_MATRIX = this.getUniform("ModelViewMat");
         this.PROJECTION_MATRIX = this.getUniform("ProjMat");
-        this.INVERSE_VIEW_ROTATION_MATRIX = this.getUniform("IViewRotMat");
         this.TEXTURE_MATRIX = this.getUniform("TextureMat");
         this.SCREEN_SIZE = this.getUniform("ScreenSize");
         this.COLOR_MODULATOR = this.getUniform("ColorModulator");
@@ -199,7 +193,6 @@ public class ShaderInstance implements Shader, AutoCloseable {
         this.FOG_START = this.getUniform("FogStart");
         this.FOG_END = this.getUniform("FogEnd");
         this.FOG_COLOR = this.getUniform("FogColor");
-        this.FOG_SHAPE = this.getUniform("FogShape");
         this.LINE_WIDTH = this.getUniform("LineWidth");
         this.GAME_TIME = this.getUniform("GameTime");
         this.CHUNK_OFFSET = this.getUniform("ChunkOffset");
@@ -483,7 +476,7 @@ public class ShaderInstance implements Shader, AutoCloseable {
             } else if (var2 <= 7) {
                 var11.setSafe(var4[0], var4[1], var4[2], var4[3]);
             } else {
-                var11.set(Arrays.copyOfRange(var4, 0, var3));
+                var11.set(var4);
             }
 
             this.uniforms.add(var11);

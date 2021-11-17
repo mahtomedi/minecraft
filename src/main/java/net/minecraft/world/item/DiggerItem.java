@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -16,12 +16,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class DiggerItem extends TieredItem implements Vanishable {
-    private final TagKey<Block> blocks;
+    private final Tag<Block> blocks;
     protected final float speed;
     private final float attackDamageBaseline;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
-    protected DiggerItem(float param0, float param1, Tier param2, TagKey<Block> param3, Item.Properties param4) {
+    protected DiggerItem(float param0, float param1, Tier param2, Tag<Block> param3, Item.Properties param4) {
         super(param2, param4);
         this.blocks = param3;
         this.speed = param2.getSpeed();
@@ -37,7 +37,7 @@ public class DiggerItem extends TieredItem implements Vanishable {
 
     @Override
     public float getDestroySpeed(ItemStack param0, BlockState param1) {
-        return param1.is(this.blocks) ? this.speed : 1.0F;
+        return this.blocks.contains(param1.getBlock()) ? this.speed : 1.0F;
     }
 
     @Override

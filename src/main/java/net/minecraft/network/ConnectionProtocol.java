@@ -3,7 +3,6 @@ package net.minecraft.network;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -177,7 +176,7 @@ import net.minecraft.network.protocol.status.ClientboundStatusResponsePacket;
 import net.minecraft.network.protocol.status.ServerboundPingRequestPacket;
 import net.minecraft.network.protocol.status.ServerboundStatusRequestPacket;
 import net.minecraft.util.VisibleForDebug;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public enum ConnectionProtocol {
     HANDSHAKING(
@@ -468,7 +467,6 @@ public enum ConnectionProtocol {
     }
 
     static class PacketSet<T extends PacketListener> {
-        private static final Logger LOGGER = LogUtils.getLogger();
         final Object2IntMap<Class<? extends Packet<T>>> classToId = Util.make(new Object2IntOpenHashMap<>(), param0 -> param0.defaultReturnValue(-1));
         private final List<Function<FriendlyByteBuf, ? extends Packet<T>>> idToDeserializer = Lists.newArrayList();
 
@@ -477,7 +475,7 @@ public enum ConnectionProtocol {
             int var1 = this.classToId.put(param0, var0);
             if (var1 != -1) {
                 String var2 = "Packet " + param0 + " is already registered to ID " + var1;
-                LOGGER.error(LogUtils.FATAL_MARKER, var2);
+                LogManager.getLogger().fatal(var2);
                 throw new IllegalArgumentException(var2);
             } else {
                 this.idToDeserializer.add(param1);

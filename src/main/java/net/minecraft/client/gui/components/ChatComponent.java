@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import java.util.Deque;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -20,11 +19,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ChatComponent extends GuiComponent {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int MAX_CHAT_HISTORY = 100;
     private final Minecraft minecraft;
     private final List<String> recentChat = Lists.newArrayList();
@@ -164,7 +164,7 @@ public class ChatComponent extends GuiComponent {
         for(FormattedCharSequence var3 : var1) {
             if (var2 && this.chatScrollbarPos > 0) {
                 this.newMessageSinceScroll = true;
-                this.scrollChat(1);
+                this.scrollChat(1.0);
             }
 
             this.trimmedMessages.add(0, new GuiMessage<>(param2, var3, param1));
@@ -211,8 +211,8 @@ public class ChatComponent extends GuiComponent {
         this.newMessageSinceScroll = false;
     }
 
-    public void scrollChat(int param0) {
-        this.chatScrollbarPos += param0;
+    public void scrollChat(double param0) {
+        this.chatScrollbarPos = (int)((double)this.chatScrollbarPos + param0);
         int var0 = this.trimmedMessages.size();
         if (this.chatScrollbarPos > var0 - this.getLinesPerPage()) {
             this.chatScrollbarPos = var0 - this.getLinesPerPage();

@@ -54,7 +54,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         int var1 = this.mob.getBlockY();
         BlockState var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)var1, this.mob.getZ()));
-        if (!this.mob.canStandOnFluid(var2.getFluidState())) {
+        if (!this.mob.canStandOnFluid(var2.getFluidState().getType())) {
             if (this.canFloat() && this.mob.isInWater()) {
                 while(true) {
                     if (!var2.is(Blocks.WATER) && var2.getFluidState() != Fluids.WATER.getSource(false)) {
@@ -79,7 +79,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 var1 = var3.above().getY();
             }
         } else {
-            while(this.mob.canStandOnFluid(var2.getFluidState())) {
+            while(this.mob.canStandOnFluid(var2.getFluidState().getType())) {
                 var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)(++var1), this.mob.getZ()));
             }
 
@@ -477,10 +477,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
             if (var4 == BlockPathTypes.STICKY_HONEY) {
                 var3 = BlockPathTypes.STICKY_HONEY;
-            }
-
-            if (var4 == BlockPathTypes.POWDER_SNOW) {
-                var3 = BlockPathTypes.DANGER_POWDER_SNOW;
             }
         }
 

@@ -102,10 +102,6 @@ public class BufferUploader {
                 var6.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
             }
 
-            if (var6.INVERSE_VIEW_ROTATION_MATRIX != null) {
-                var6.INVERSE_VIEW_ROTATION_MATRIX.set(RenderSystem.getInverseViewRotationMatrix());
-            }
-
             if (var6.COLOR_MODULATOR != null) {
                 var6.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
             }
@@ -120,10 +116,6 @@ public class BufferUploader {
 
             if (var6.FOG_COLOR != null) {
                 var6.FOG_COLOR.set(RenderSystem.getShaderFogColor());
-            }
-
-            if (var6.FOG_SHAPE != null) {
-                var6.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
             }
 
             if (var6.TEXTURE_MATRIX != null) {

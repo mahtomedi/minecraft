@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +34,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -45,10 +44,11 @@ import net.minecraft.world.item.crafting.SimpleCookingSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RecipeProvider implements DataProvider {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final ImmutableList<ItemLike> COAL_SMELTABLES = ImmutableList.of(Items.COAL_ORE, Items.DEEPSLATE_COAL_ORE);
     private static final ImmutableList<ItemLike> IRON_SMELTABLES = ImmutableList.of(Items.IRON_ORE, Items.DEEPSLATE_IRON_ORE, Items.RAW_IRON);
@@ -2629,11 +2629,11 @@ public class RecipeProvider implements DataProvider {
             .save(param0, getItemName(param2) + "_smithing");
     }
 
-    private static void planksFromLog(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2) {
+    private static void planksFromLog(Consumer<FinishedRecipe> param0, ItemLike param1, Tag<Item> param2) {
         ShapelessRecipeBuilder.shapeless(param1, 4).requires(param2).group("planks").unlockedBy("has_log", has(param2)).save(param0);
     }
 
-    private static void planksFromLogs(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2) {
+    private static void planksFromLogs(Consumer<FinishedRecipe> param0, ItemLike param1, Tag<Item> param2) {
         ShapelessRecipeBuilder.shapeless(param1, 4).requires(param2).group("planks").unlockedBy("has_logs", has(param2)).save(param0);
     }
 
@@ -2977,7 +2977,7 @@ public class RecipeProvider implements DataProvider {
         return inventoryTrigger(ItemPredicate.Builder.item().of(param0).build());
     }
 
-    private static InventoryChangeTrigger.TriggerInstance has(TagKey<Item> param0) {
+    private static InventoryChangeTrigger.TriggerInstance has(Tag<Item> param0) {
         return inventoryTrigger(ItemPredicate.Builder.item().of(param0).build());
     }
 

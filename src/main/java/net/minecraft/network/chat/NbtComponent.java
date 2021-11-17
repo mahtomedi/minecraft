@@ -3,7 +3,6 @@ package net.minecraft.network.chat;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,10 +23,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class NbtComponent extends BaseComponent implements ContextAwareComponent {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     protected final boolean interpreting;
     protected final Optional<Component> separator;
     protected final String nbtPathPattern;

@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,15 +18,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagManager;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class TagsProvider<T> implements DataProvider {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     protected final DataGenerator generator;
     protected final Registry<T> registry;
@@ -48,8 +45,8 @@ public abstract class TagsProvider<T> implements DataProvider {
             .forEach(
                 (param1, param2) -> {
                     List<Tag.BuilderEntry> var0 = param2.getEntries()
-                        .filter(param0x -> !param0x.entry().verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
-                        .toList();
+                        .filter(param0x -> !param0x.getEntry().verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
+                        .collect(Collectors.toList());
                     if (!var0.isEmpty()) {
                         throw new IllegalArgumentException(
                             String.format(
@@ -83,18 +80,15 @@ public abstract class TagsProvider<T> implements DataProvider {
             );
     }
 
-    private Path getPath(ResourceLocation param0) {
-        ResourceKey<? extends Registry<T>> var0 = this.registry.key();
-        return this.generator.getOutputFolder().resolve("data/" + param0.getNamespace() + "/" + TagManager.getTagDir(var0) + "/" + param0.getPath() + ".json");
-    }
+    protected abstract Path getPath(ResourceLocation var1);
 
-    protected TagsProvider.TagAppender<T> tag(TagKey<T> param0) {
+    protected TagsProvider.TagAppender<T> tag(Tag.Named<T> param0) {
         Tag.Builder var0 = this.getOrCreateRawBuilder(param0);
         return new TagsProvider.TagAppender<>(var0, this.registry, "vanilla");
     }
 
-    protected Tag.Builder getOrCreateRawBuilder(TagKey<T> param0) {
-        return this.builders.computeIfAbsent(param0.location(), param0x -> new Tag.Builder());
+    protected Tag.Builder getOrCreateRawBuilder(Tag.Named<T> param0) {
+        return this.builders.computeIfAbsent(param0.getName(), param0x -> new Tag.Builder());
     }
 
     protected static class TagAppender<T> {
@@ -113,22 +107,13 @@ public abstract class TagsProvider<T> implements DataProvider {
             return this;
         }
 
-        @SafeVarargs
-        public final TagsProvider.TagAppender<T> add(ResourceKey<T>... param0) {
-            for(ResourceKey<T> var0 : param0) {
-                this.builder.addElement(var0.location(), this.source);
-            }
-
-            return this;
-        }
-
         public TagsProvider.TagAppender<T> addOptional(ResourceLocation param0) {
             this.builder.addOptionalElement(param0, this.source);
             return this;
         }
 
-        public TagsProvider.TagAppender<T> addTag(TagKey<T> param0) {
-            this.builder.addTag(param0.location(), this.source);
+        public TagsProvider.TagAppender<T> addTag(Tag.Named<T> param0) {
+            this.builder.addTag(param0.getName(), this.source);
             return this;
         }
 

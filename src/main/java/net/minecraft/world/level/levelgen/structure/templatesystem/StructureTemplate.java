@@ -401,8 +401,8 @@ public class StructureTemplate {
                 var2.put("Pos", var5);
                 var2.remove("UUID");
                 createEntityIgnoreException(param0, var2).ifPresent(param6x -> {
-                    float var0x = param6x.rotate(param3);
-                    var0x += param6x.mirror(param2) - param6x.getYRot();
+                    float var0x = param6x.mirror(param2);
+                    var0x += param6x.getYRot() - param6x.rotate(param3);
                     param6x.moveTo(var4.x, var4.y, var4.z, var0x, param6x.getXRot());
                     if (param6 && param6x instanceof Mob) {
                         ((Mob)param6x).finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.STRUCTURE, null, var2);

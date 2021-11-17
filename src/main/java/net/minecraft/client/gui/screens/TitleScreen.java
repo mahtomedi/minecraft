@@ -4,16 +4,12 @@ import com.google.common.util.concurrent.Runnables;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import com.mojang.math.Vector3f;
 import com.mojang.realmsclient.RealmsMainScreen;
-import com.mojang.realmsclient.client.RealmsClient;
-import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -23,12 +19,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.minecraft.client.gui.screens.multiplayer.Realms32bitWarningScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.renderer.CubeMap;
@@ -39,7 +32,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -49,13 +41,14 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class TitleScreen extends Screen {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String DEMO_LEVEL_ID = "Demo_World";
-    public static final Component COPYRIGHT_TEXT = new TextComponent("Copyright Mojang AB. Do not distribute!");
+    public static final String COPYRIGHT_TEXT = "Copyright Mojang AB. Do not distribute!";
     public static final CubeMap CUBE_MAP = new CubeMap(new ResourceLocation("textures/gui/title/background/panorama"));
     private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
     private static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
@@ -66,13 +59,11 @@ public class TitleScreen extends Screen {
     private static final ResourceLocation MINECRAFT_LOGO = new ResourceLocation("textures/gui/title/minecraft.png");
     private static final ResourceLocation MINECRAFT_EDITION = new ResourceLocation("textures/gui/title/edition.png");
     private Screen realmsNotificationsScreen;
+    private int copyrightWidth;
+    private int copyrightX;
     private final PanoramaRenderer panorama = new PanoramaRenderer(CUBE_MAP);
     private final boolean fading;
     private long fadeInStart;
-    @Nullable
-    private TitleScreen.Warning32Bit warning32Bit;
-    private RealmsClient realmsClient;
-    private boolean realms32bitWarningShown = false;
 
     public TitleScreen() {
         this(false);
@@ -82,7 +73,6 @@ public class TitleScreen extends Screen {
         super(new TranslatableComponent("narrator.screen.title"));
         this.fading = param0;
         this.minceraftEasterEgg = (double)new Random().nextFloat() < 1.0E-4;
-        this.realmsClient = RealmsClient.create();
     }
 
     private boolean realmsNotificationsEnabled() {
@@ -93,23 +83,6 @@ public class TitleScreen extends Screen {
     public void tick() {
         if (this.realmsNotificationsEnabled()) {
             this.realmsNotificationsScreen.tick();
-        }
-
-        this.showRealms32BitWarningIfNeeded();
-    }
-
-    private void showRealms32BitWarningIfNeeded() {
-        try {
-            if (this.warning32Bit != null
-                && !this.minecraft.options.skipRealms32bitWarning
-                && !this.realms32bitWarningShown
-                && this.warning32Bit.realmsSubscriptionFuture.getNow(false)) {
-                this.realms32bitWarningShown = true;
-                this.minecraft.setScreen(new Realms32bitWarningScreen(this));
-            }
-        } catch (CompletionException var2) {
-            LOGGER.warn("Failed to retrieve realms subscriptions", (Throwable)var2);
-            this.realms32bitWarningShown = true;
         }
 
     }
@@ -139,20 +112,20 @@ public class TitleScreen extends Screen {
             this.splash = this.minecraft.getSplashManager().getSplash();
         }
 
-        int var0 = this.font.width(COPYRIGHT_TEXT);
-        int var1 = this.width - var0 - 2;
-        int var2 = 24;
-        int var3 = this.height / 4 + 48;
+        this.copyrightWidth = this.font.width("Copyright Mojang AB. Do not distribute!");
+        this.copyrightX = this.width - this.copyrightWidth - 2;
+        int var0 = 24;
+        int var1 = this.height / 4 + 48;
         if (this.minecraft.isDemo()) {
-            this.createDemoMenuOptions(var3, 24);
+            this.createDemoMenuOptions(var1, 24);
         } else {
-            this.createNormalMenuOptions(var3, 24);
+            this.createNormalMenuOptions(var1, 24);
         }
 
         this.addRenderableWidget(
             new ImageButton(
                 this.width / 2 - 124,
-                var3 + 72 + 12,
+                var1 + 72 + 12,
                 20,
                 20,
                 0,
@@ -168,7 +141,7 @@ public class TitleScreen extends Screen {
         this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,
-                var3 + 72 + 12,
+                var1 + 72 + 12,
                 98,
                 20,
                 new TranslatableComponent("menu.options"),
@@ -176,12 +149,12 @@ public class TitleScreen extends Screen {
             )
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 + 2, var3 + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), param0 -> this.minecraft.stop())
+            new Button(this.width / 2 + 2, var1 + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), param0 -> this.minecraft.stop())
         );
         this.addRenderableWidget(
             new ImageButton(
                 this.width / 2 + 104,
-                var3 + 72 + 12,
+                var1 + 72 + 12,
                 20,
                 20,
                 0,
@@ -194,11 +167,6 @@ public class TitleScreen extends Screen {
                 new TranslatableComponent("narrator.button.accessibility")
             )
         );
-        this.addRenderableWidget(
-            new PlainTextButton(
-                var1, this.height - 10, var0, 10, COPYRIGHT_TEXT, param0 -> this.minecraft.setScreen(new WinScreen(false, Runnables.doNothing())), this.font
-            )
-        );
         this.minecraft.setConnectedToRealms(false);
         if (this.minecraft.options.realmsNotifications && this.realmsNotificationsScreen == null) {
             this.realmsNotificationsScreen = new RealmsNotificationsScreen();
@@ -208,27 +176,6 @@ public class TitleScreen extends Screen {
             this.realmsNotificationsScreen.init(this.minecraft, this.width, this.height);
         }
 
-        if (!this.minecraft.is64Bit()) {
-            CompletableFuture<Boolean> var4 = this.warning32Bit != null
-                ? this.warning32Bit.realmsSubscriptionFuture
-                : CompletableFuture.supplyAsync(this::hasRealmsSubscription, Util.backgroundExecutor());
-            this.warning32Bit = new TitleScreen.Warning32Bit(
-                MultiLineLabel.create(this.font, new TranslatableComponent("title.32bit.deprecation"), 350, 2), this.width / 2, var3 - 24, var4
-            );
-        }
-
-    }
-
-    private boolean hasRealmsSubscription() {
-        try {
-            return this.realmsClient
-                .listWorlds()
-                .servers
-                .stream()
-                .anyMatch(param0 -> param0.ownerUUID != null && !param0.expired && param0.ownerUUID.equals(this.minecraft.getUser().getUuid()));
-        } catch (RealmsServiceException var2) {
-            return false;
-        }
     }
 
     private void createNormalMenuOptions(int param0, int param1) {
@@ -281,7 +228,7 @@ public class TitleScreen extends Screen {
             if (var0) {
                 this.minecraft.loadLevel("Demo_World");
             } else {
-                RegistryAccess var0x = RegistryAccess.BUILTIN.get();
+                RegistryAccess.RegistryHolder var0x = RegistryAccess.builtin();
                 this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldGenSettings.demoSettings(var0x));
             }
 
@@ -380,11 +327,6 @@ public class TitleScreen extends Screen {
 
             RenderSystem.setShaderTexture(0, MINECRAFT_EDITION);
             blit(param0, var2 + 88, 67, 0.0F, 0.0F, 98, 14, 128, 16);
-            if (this.warning32Bit != null) {
-                this.warning32Bit.label.renderBackgroundCentered(param0, this.warning32Bit.x, this.warning32Bit.y, 9, 2, 1428160512);
-                this.warning32Bit.label.renderCentered(param0, this.warning32Bit.x, this.warning32Bit.y, 9, 16777215 | var5);
-            }
-
             if (this.splash != null) {
                 param0.pushPose();
                 param0.translate((double)(this.width / 2 + 90), 70.0, 0.0);
@@ -408,6 +350,10 @@ public class TitleScreen extends Screen {
             }
 
             drawString(param0, this.font, var7, 2, this.height - 10, 16777215 | var5);
+            drawString(param0, this.font, "Copyright Mojang AB. Do not distribute!", this.copyrightX, this.height - 10, 16777215 | var5);
+            if (param1 > this.copyrightX && param1 < this.copyrightX + this.copyrightWidth && param2 > this.height - 10 && param2 < this.height) {
+                fill(param0, this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | var5);
+            }
 
             for(GuiEventListener var8 : this.children()) {
                 if (var8 instanceof AbstractWidget) {
@@ -427,8 +373,17 @@ public class TitleScreen extends Screen {
     public boolean mouseClicked(double param0, double param1, int param2) {
         if (super.mouseClicked(param0, param1, param2)) {
             return true;
+        } else if (this.realmsNotificationsEnabled() && this.realmsNotificationsScreen.mouseClicked(param0, param1, param2)) {
+            return true;
         } else {
-            return this.realmsNotificationsEnabled() && this.realmsNotificationsScreen.mouseClicked(param0, param1, param2);
+            if (param0 > (double)this.copyrightX
+                && param0 < (double)(this.copyrightX + this.copyrightWidth)
+                && param1 > (double)(this.height - 10)
+                && param1 < (double)this.height) {
+                this.minecraft.setScreen(new WinScreen(false, Runnables.doNothing()));
+            }
+
+            return false;
         }
     }
 
@@ -451,9 +406,5 @@ public class TitleScreen extends Screen {
         }
 
         this.minecraft.setScreen(this);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static record Warning32Bit(MultiLineLabel label, int x, int y, CompletableFuture<Boolean> realmsSubscriptionFuture) {
     }
 }

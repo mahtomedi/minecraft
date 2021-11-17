@@ -4,9 +4,6 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -14,6 +11,7 @@ import java.net.Proxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -28,7 +26,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.obfuscate.DontObfuscate;
-import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.RegistryReadOps;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
@@ -53,10 +51,11 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @DontObfuscate
     public static void main(String[] param0) {
@@ -93,105 +92,105 @@ public class Main {
             Bootstrap.bootStrap();
             Bootstrap.validate();
             Util.startTimerHackThread();
-            Path var17 = Paths.get("server.properties");
-            DedicatedServerSettings var18 = new DedicatedServerSettings(var17);
-            var18.forceSave();
-            Path var19 = Paths.get("eula.txt");
-            Eula var20 = new Eula(var19);
+            RegistryAccess.RegistryHolder var17 = RegistryAccess.builtin();
+            Path var18 = Paths.get("server.properties");
+            DedicatedServerSettings var19 = new DedicatedServerSettings(var18);
+            var19.forceSave();
+            Path var20 = Paths.get("eula.txt");
+            Eula var21 = new Eula(var20);
             if (var16.has(var2)) {
-                LOGGER.info("Initialized '{}' and '{}'", var17.toAbsolutePath(), var19.toAbsolutePath());
+                LOGGER.info("Initialized '{}' and '{}'", var18.toAbsolutePath(), var20.toAbsolutePath());
                 return;
             }
 
-            if (!var20.hasAgreedToEULA()) {
+            if (!var21.hasAgreedToEULA()) {
                 LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
                 return;
             }
 
-            File var21 = new File(var16.valueOf(var10));
-            YggdrasilAuthenticationService var22 = new YggdrasilAuthenticationService(Proxy.NO_PROXY);
-            MinecraftSessionService var23 = var22.createMinecraftSessionService();
-            GameProfileRepository var24 = var22.createProfileRepository();
-            GameProfileCache var25 = new GameProfileCache(var24, new File(var21, MinecraftServer.USERID_CACHE_FILE.getName()));
-            String var26 = Optional.ofNullable(var16.valueOf(var11)).orElse(var18.getProperties().levelName);
-            LevelStorageSource var27 = LevelStorageSource.createDefault(var21.toPath());
-            LevelStorageSource.LevelStorageAccess var28 = var27.createAccess(var26);
-            LevelSummary var29 = var28.getSummary();
-            if (var29 != null) {
-                if (var29.requiresManualConversion()) {
+            File var22 = new File(var16.valueOf(var10));
+            YggdrasilAuthenticationService var23 = new YggdrasilAuthenticationService(Proxy.NO_PROXY);
+            MinecraftSessionService var24 = var23.createMinecraftSessionService();
+            GameProfileRepository var25 = var23.createProfileRepository();
+            GameProfileCache var26 = new GameProfileCache(var25, new File(var22, MinecraftServer.USERID_CACHE_FILE.getName()));
+            String var27 = Optional.ofNullable(var16.valueOf(var11)).orElse(var19.getProperties().levelName);
+            LevelStorageSource var28 = LevelStorageSource.createDefault(var22.toPath());
+            LevelStorageSource.LevelStorageAccess var29 = var28.createAccess(var27);
+            LevelSummary var30 = var29.getSummary();
+            if (var30 != null) {
+                if (var30.requiresManualConversion()) {
                     LOGGER.info("This world must be opened in an older version (like 1.6.4) to be safely converted");
                     return;
                 }
 
-                if (!var29.isCompatible()) {
+                if (!var30.isCompatible()) {
                     LOGGER.info("This world was created by an incompatible version.");
                     return;
                 }
             }
 
-            boolean var30 = var16.has(var7);
-            if (var30) {
+            DataPackConfig var31 = var29.getDataPacks();
+            boolean var32 = var16.has(var7);
+            if (var32) {
                 LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
             }
 
-            PackRepository var31 = new PackRepository(
+            PackRepository var33 = new PackRepository(
                 PackType.SERVER_DATA,
                 new ServerPacksSource(),
-                new FolderRepositorySource(var28.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
+                new FolderRepositorySource(var29.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
+            );
+            DataPackConfig var34 = MinecraftServer.configurePackRepository(var33, var31 == null ? DataPackConfig.DEFAULT : var31, var32);
+            CompletableFuture<ServerResources> var35 = ServerResources.loadResources(
+                var33.openAllSelected(),
+                var17,
+                Commands.CommandSelection.DEDICATED,
+                var19.getProperties().functionPermissionLevel,
+                Util.backgroundExecutor(),
+                Runnable::run
             );
 
-            WorldStem var33;
+            ServerResources var36;
             try {
-                WorldStem.InitConfig var32 = new WorldStem.InitConfig(
-                    var31, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel, var30
-                );
-                var33 = WorldStem.load(var32, () -> {
-                    DataPackConfig var0x = var28.getDataPacks();
-                    return var0x == null ? DataPackConfig.DEFAULT : var0x;
-                }, (param5, param6) -> {
-                    RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
-                    DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5);
-                    WorldData var2x = var28.getDataTag(var1x, param6, var0x.allElementsLifecycle());
-                    if (var2x != null) {
-                        return Pair.of(var2x, var0x.freeze());
-                    } else {
-                        LevelSettings var3x;
-                        WorldGenSettings var4x;
-                        if (var16.has(var3)) {
-                            var3x = MinecraftServer.DEMO_SETTINGS;
-                            var4x = WorldGenSettings.demoSettings(var0x);
-                        } else {
-                            DedicatedServerProperties var5x = var18.getProperties();
-                            var3x = new LevelSettings(var5x.levelName, var5x.gamemode, var5x.hardcore, var5x.difficulty, false, new GameRules(), param6);
-                            var4x = var16.has(var4) ? var5x.getWorldGenSettings(var0x).withBonusChest() : var5x.getWorldGenSettings(var0x);
-                        }
-
-                        PrimaryLevelData var13x = new PrimaryLevelData(var3x, var4x, Lifecycle.stable());
-                        return Pair.of(var13x, var0x.freeze());
-                    }
-                }, Util.backgroundExecutor(), Runnable::run).get();
-            } catch (Exception var381) {
+                var36 = var35.get();
+            } catch (Exception var43) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
-                    (Throwable)var381
+                    (Throwable)var43
                 );
-                var31.close();
+                var33.close();
                 return;
             }
 
-            var33.updateGlobals();
-            RegistryAccess.Frozen var36 = var33.registryAccess();
-            var18.getProperties().getWorldGenSettings(var36);
-            WorldData var37 = var33.worldData();
-            if (var16.has(var5)) {
-                forceUpgrade(var28, DataFixers.getDataFixer(), var16.has(var6), () -> true, var37.worldGenSettings());
+            var36.updateGlobals();
+            RegistryReadOps<Tag> var39 = RegistryReadOps.createAndLoad(NbtOps.INSTANCE, var36.getResourceManager(), var17);
+            var19.getProperties().getWorldGenSettings(var17);
+            WorldData var40 = var29.getDataTag(var39, var34);
+            if (var40 == null) {
+                LevelSettings var41;
+                WorldGenSettings var42;
+                if (var16.has(var3)) {
+                    var41 = MinecraftServer.DEMO_SETTINGS;
+                    var42 = WorldGenSettings.demoSettings(var17);
+                } else {
+                    DedicatedServerProperties var43 = var19.getProperties();
+                    var41 = new LevelSettings(var43.levelName, var43.gamemode, var43.hardcore, var43.difficulty, false, new GameRules(), var34);
+                    var42 = var16.has(var4) ? var43.getWorldGenSettings(var17).withBonusChest() : var43.getWorldGenSettings(var17);
+                }
+
+                var40 = new PrimaryLevelData(var41, var42, Lifecycle.stable());
             }
 
-            var28.saveDataTag(var36, var37);
-            final DedicatedServer var38 = MinecraftServer.spin(
-                param14 -> {
+            if (var16.has(var5)) {
+                forceUpgrade(var29, DataFixers.getDataFixer(), var16.has(var6), () -> true, var40.worldGenSettings());
+            }
+
+            var29.saveDataTag(var17, var40);
+            WorldData var46 = var40;
+            final DedicatedServer var47 = MinecraftServer.spin(
+                param16 -> {
                     DedicatedServer var0x = new DedicatedServer(
-                        param14, var28, var31, var33, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
+                        param16, var17, var29, var33, var36, var46, var19, DataFixers.getDataFixer(), var24, var25, var26, LoggerChunkProgressListener::new
                     );
                     var0x.setSingleplayerName(var16.valueOf(var9));
                     var0x.setPort(var16.valueOf(var12));
@@ -205,16 +204,16 @@ public class Main {
                     return var0x;
                 }
             );
-            Thread var39 = new Thread("Server Shutdown Thread") {
+            Thread var48 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var38.halt(true);
+                    var47.halt(true);
                 }
             };
-            var39.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var39);
-        } catch (Exception var391) {
-            LOGGER.error(LogUtils.FATAL_MARKER, "Failed to start the minecraft server", (Throwable)var391);
+            var48.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var48);
+        } catch (Exception var44) {
+            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var44);
         }
 
     }

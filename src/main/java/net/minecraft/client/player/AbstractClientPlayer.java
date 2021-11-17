@@ -129,7 +129,7 @@ public abstract class AbstractClientPlayer extends Player {
             var0 *= 1.1F;
         }
 
-        var0 *= ((float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) / this.getAbilities().getWalkingSpeed() + 1.0F) / 2.0F;
+        var0 = (float)((double)var0 * ((this.getAttributeValue(Attributes.MOVEMENT_SPEED) / (double)this.getAbilities().getWalkingSpeed() + 1.0) / 2.0));
         if (this.getAbilities().getWalkingSpeed() == 0.0F || Float.isNaN(var0) || Float.isInfinite(var0)) {
             var0 = 1.0F;
         }

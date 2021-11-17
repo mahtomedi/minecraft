@@ -11,7 +11,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 public interface PieceGenerator<C extends FeatureConfiguration> {
     void generatePieces(StructurePiecesBuilder var1, PieceGenerator.Context<C> var2);
 
-    public static record Context<C extends FeatureConfiguration>(
+    public static record Context<C>(
         C config,
         ChunkGenerator chunkGenerator,
         StructureManager structureManager,

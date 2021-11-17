@@ -1,7 +1,7 @@
 package net.minecraft.server;
 
-import com.mojang.logging.LogUtils;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,12 +12,12 @@ import net.minecraft.Util;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.selector.options.EntitySelectorOptions;
 import net.minecraft.commands.synchronization.ArgumentTypes;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.locale.Language;
+import net.minecraft.tags.StaticTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -31,12 +31,13 @@ import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Bootstrap {
     public static final PrintStream STDOUT = System.out;
     private static volatile boolean isBootstrapped;
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public static void bootStrap() {
         if (!isBootstrapped) {
@@ -54,7 +55,7 @@ public class Bootstrap {
                     DispenseItemBehavior.bootStrap();
                     CauldronInteraction.bootStrap();
                     ArgumentTypes.bootStrap();
-                    Registry.freezeBuiltins();
+                    StaticTags.bootStrap();
                     wrapStreams();
                 }
             }
@@ -131,15 +132,15 @@ public class Bootstrap {
             .stream()
             .forEach(
                 param0 -> {
-                    List<HolderSet<PlacedFeature>> var0 = param0.getGenerationSettings().features();
+                    List<List<Supplier<PlacedFeature>>> var0 = param0.getGenerationSettings().features();
                     var0.stream()
-                        .flatMap(HolderSet::stream)
+                        .flatMap(Collection::stream)
                         .forEach(
                             param0x -> {
-                                if (!((PlacedFeature)param0x.value()).placement().contains(BiomeFilter.biome())) {
+                                if (!((PlacedFeature)param0x.get()).getPlacement().contains(BiomeFilter.biome())) {
                                     Util.logAndPauseIfInIde(
                                         "Placed feature "
-                                            + BuiltinRegistries.PLACED_FEATURE.getResourceKey((PlacedFeature)param0x.value())
+                                            + BuiltinRegistries.PLACED_FEATURE.getResourceKey((PlacedFeature)param0x.get())
                                             + " is missing BiomeFilter.biome()"
                                     );
                                 }

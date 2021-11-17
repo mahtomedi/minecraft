@@ -1,15 +1,15 @@
 package net.minecraft.util.profiling;
 
-import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.LongSupplier;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SingleTickProfiler {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final LongSupplier realTime;
     private final long saveThreshold;
     private int tick;

@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
 import net.minecraft.data.worldgen.TerrainProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.VisibleForDebug;
 
 public final class OverworldBiomeBuilder {
     private static final float VALLEY_SIZE = 0.05F;
@@ -87,7 +86,7 @@ public final class OverworldBiomeBuilder {
         {null, null, null, null, null},
         {Biomes.ERODED_BADLANDS, Biomes.ERODED_BADLANDS, null, null, null}
     };
-    private final ResourceKey<Biome>[][] SHATTERED_BIOMES = new ResourceKey[][]{
+    private final ResourceKey<Biome>[][] EXTREME_HILLS = new ResourceKey[][]{
         {Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_FOREST, Biomes.WINDSWEPT_FOREST},
         {Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_FOREST, Biomes.WINDSWEPT_FOREST},
         {Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_FOREST, Biomes.WINDSWEPT_FOREST},
@@ -169,8 +168,8 @@ public final class OverworldBiomeBuilder {
                 ResourceKey<Biome> var5 = this.pickMiddleBiomeOrBadlandsIfHot(var0, var2, param1);
                 ResourceKey<Biome> var6 = this.pickMiddleBiomeOrBadlandsIfHotOrSlopeIfCold(var0, var2, param1);
                 ResourceKey<Biome> var7 = this.pickPlateauBiome(var0, var2, param1);
-                ResourceKey<Biome> var8 = this.pickShatteredBiome(var0, var2, param1);
-                ResourceKey<Biome> var9 = this.maybePickWindsweptSavannaBiome(var0, var2, param1, var8);
+                ResourceKey<Biome> var8 = this.pickExtremeHillsBiome(var0, var2, param1);
+                ResourceKey<Biome> var9 = this.maybePickShatteredBiome(var0, var2, param1, var8);
                 ResourceKey<Biome> var10 = this.pickPeakBiome(var0, var2, param1);
                 this.addSurfaceBiome(
                     param0, var1, var3, Climate.Parameter.span(this.coastContinentalness, this.farInlandContinentalness), this.erosions[0], param1, 0.0F, var10
@@ -244,8 +243,8 @@ public final class OverworldBiomeBuilder {
                 ResourceKey<Biome> var5 = this.pickMiddleBiomeOrBadlandsIfHot(var0, var2, param1);
                 ResourceKey<Biome> var6 = this.pickMiddleBiomeOrBadlandsIfHotOrSlopeIfCold(var0, var2, param1);
                 ResourceKey<Biome> var7 = this.pickPlateauBiome(var0, var2, param1);
-                ResourceKey<Biome> var8 = this.pickShatteredBiome(var0, var2, param1);
-                ResourceKey<Biome> var9 = this.maybePickWindsweptSavannaBiome(var0, var2, param1, var4);
+                ResourceKey<Biome> var8 = this.pickExtremeHillsBiome(var0, var2, param1);
+                ResourceKey<Biome> var9 = this.maybePickShatteredBiome(var0, var2, param1, var4);
                 ResourceKey<Biome> var10 = this.pickSlopeBiome(var0, var2, param1);
                 ResourceKey<Biome> var11 = this.pickPeakBiome(var0, var2, param1);
                 this.addSurfaceBiome(
@@ -349,10 +348,10 @@ public final class OverworldBiomeBuilder {
                 ResourceKey<Biome> var4 = this.pickMiddleBiome(var0, var2, param1);
                 ResourceKey<Biome> var5 = this.pickMiddleBiomeOrBadlandsIfHot(var0, var2, param1);
                 ResourceKey<Biome> var6 = this.pickMiddleBiomeOrBadlandsIfHotOrSlopeIfCold(var0, var2, param1);
-                ResourceKey<Biome> var7 = this.pickShatteredBiome(var0, var2, param1);
+                ResourceKey<Biome> var7 = this.pickExtremeHillsBiome(var0, var2, param1);
                 ResourceKey<Biome> var8 = this.pickPlateauBiome(var0, var2, param1);
                 ResourceKey<Biome> var9 = this.pickBeachBiome(var0, var2);
-                ResourceKey<Biome> var10 = this.maybePickWindsweptSavannaBiome(var0, var2, param1, var4);
+                ResourceKey<Biome> var10 = this.maybePickShatteredBiome(var0, var2, param1, var4);
                 ResourceKey<Biome> var11 = this.pickShatteredCoastBiome(var0, var2, param1);
                 ResourceKey<Biome> var12 = this.pickSlopeBiome(var0, var2, param1);
                 this.addSurfaceBiome(
@@ -483,7 +482,7 @@ public final class OverworldBiomeBuilder {
                 ResourceKey<Biome> var5 = this.pickMiddleBiomeOrBadlandsIfHot(var0, var2, param1);
                 ResourceKey<Biome> var6 = this.pickMiddleBiomeOrBadlandsIfHotOrSlopeIfCold(var0, var2, param1);
                 ResourceKey<Biome> var7 = this.pickBeachBiome(var0, var2);
-                ResourceKey<Biome> var8 = this.maybePickWindsweptSavannaBiome(var0, var2, param1, var4);
+                ResourceKey<Biome> var8 = this.maybePickShatteredBiome(var0, var2, param1, var4);
                 ResourceKey<Biome> var9 = this.pickShatteredCoastBiome(var0, var2, param1);
                 this.addSurfaceBiome(
                     param0, var1, var3, this.nearInlandContinentalness, Climate.Parameter.span(this.erosions[0], this.erosions[1]), param1, 0.0F, var5
@@ -685,13 +684,13 @@ public final class OverworldBiomeBuilder {
         return param0 == 0 ? this.pickSlopeBiome(param0, param1, param2) : this.pickMiddleBiomeOrBadlandsIfHot(param0, param1, param2);
     }
 
-    private ResourceKey<Biome> maybePickWindsweptSavannaBiome(int param0, int param1, Climate.Parameter param2, ResourceKey<Biome> param3) {
+    private ResourceKey<Biome> maybePickShatteredBiome(int param0, int param1, Climate.Parameter param2, ResourceKey<Biome> param3) {
         return param0 > 1 && param1 < 4 && param2.max() >= 0L ? Biomes.WINDSWEPT_SAVANNA : param3;
     }
 
     private ResourceKey<Biome> pickShatteredCoastBiome(int param0, int param1, Climate.Parameter param2) {
         ResourceKey<Biome> var0 = param2.max() >= 0L ? this.pickMiddleBiome(param0, param1, param2) : this.pickBeachBiome(param0, param1);
-        return this.maybePickWindsweptSavannaBiome(param0, param1, param2, var0);
+        return this.maybePickShatteredBiome(param0, param1, param2, var0);
     }
 
     private ResourceKey<Biome> pickBeachBiome(int param0, int param1) {
@@ -735,8 +734,8 @@ public final class OverworldBiomeBuilder {
         }
     }
 
-    private ResourceKey<Biome> pickShatteredBiome(int param0, int param1, Climate.Parameter param2) {
-        ResourceKey<Biome> var0 = this.SHATTERED_BIOMES[param0][param1];
+    private ResourceKey<Biome> pickExtremeHillsBiome(int param0, int param1, Climate.Parameter param2) {
+        ResourceKey<Biome> var0 = this.EXTREME_HILLS[param0][param1];
         return var0 == null ? this.pickMiddleBiome(param0, param1, param2) : var0;
     }
 
@@ -818,49 +817,5 @@ public final class OverworldBiomeBuilder {
         }
 
         return "?";
-    }
-
-    @VisibleForDebug
-    public Climate.Parameter[] getTemperatureThresholds() {
-        return this.temperatures;
-    }
-
-    @VisibleForDebug
-    public Climate.Parameter[] getHumidityThresholds() {
-        return this.humidities;
-    }
-
-    @VisibleForDebug
-    public Climate.Parameter[] getErosionThresholds() {
-        return this.erosions;
-    }
-
-    @VisibleForDebug
-    public Climate.Parameter[] getContinentalnessThresholds() {
-        return new Climate.Parameter[]{
-            this.mushroomFieldsContinentalness,
-            this.deepOceanContinentalness,
-            this.oceanContinentalness,
-            this.coastContinentalness,
-            this.nearInlandContinentalness,
-            this.midInlandContinentalness,
-            this.farInlandContinentalness
-        };
-    }
-
-    @VisibleForDebug
-    public Climate.Parameter[] getPeaksAndValleysThresholds() {
-        return new Climate.Parameter[]{
-            Climate.Parameter.span(-2.0F, TerrainShaper.peaksAndValleys(0.05F)),
-            Climate.Parameter.span(TerrainShaper.peaksAndValleys(0.05F), TerrainShaper.peaksAndValleys(0.26666668F)),
-            Climate.Parameter.span(TerrainShaper.peaksAndValleys(0.26666668F), TerrainShaper.peaksAndValleys(0.4F)),
-            Climate.Parameter.span(TerrainShaper.peaksAndValleys(0.4F), TerrainShaper.peaksAndValleys(0.56666666F)),
-            Climate.Parameter.span(TerrainShaper.peaksAndValleys(0.56666666F), 2.0F)
-        };
-    }
-
-    @VisibleForDebug
-    public Climate.Parameter[] getWeirdnessThresholds() {
-        return new Climate.Parameter[]{Climate.Parameter.span(-2.0F, 0.0F), Climate.Parameter.span(0.0F, 2.0F)};
     }
 }

@@ -7,7 +7,6 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.authlib.GameProfile;
-import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,10 +29,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.thread.ProcessorMailbox;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TextFilterClient implements AutoCloseable {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
     private static final ThreadFactory THREAD_FACTORY = param0 -> {
         Thread var0 = new Thread(param0);
@@ -46,27 +46,18 @@ public class TextFilterClient implements AutoCloseable {
     private final String authKey;
     private final int ruleId;
     private final String serverId;
-    private final String roomId;
     final TextFilterClient.IgnoreStrategy chatIgnoreStrategy;
     final ExecutorService workerPool;
 
-    private TextFilterClient(
-        URL param0, URL param1, URL param2, String param3, int param4, String param5, String param6, TextFilterClient.IgnoreStrategy param7, int param8
-    ) {
-        this.authKey = param3;
-        this.ruleId = param4;
-        this.serverId = param5;
-        this.roomId = param6;
-        this.chatIgnoreStrategy = param7;
-        this.chatEndpoint = param0;
-        this.joinEndpoint = param1;
-        this.leaveEndpoint = param2;
-        this.workerPool = Executors.newFixedThreadPool(param8, THREAD_FACTORY);
-    }
-
-    private static URL getEndpoint(URI param0, @Nullable JsonObject param1, String param2, String param3) throws MalformedURLException {
-        String var0 = param1 != null ? GsonHelper.getAsString(param1, param2, param3) : param3;
-        return param0.resolve("/" + var0).toURL();
+    private TextFilterClient(URI param0, String param1, int param2, String param3, TextFilterClient.IgnoreStrategy param4, int param5) throws MalformedURLException {
+        this.authKey = param1;
+        this.ruleId = param2;
+        this.serverId = param3;
+        this.chatIgnoreStrategy = param4;
+        this.chatEndpoint = param0.resolve("/v1/chat").toURL();
+        this.joinEndpoint = param0.resolve("/v1/join").toURL();
+        this.leaveEndpoint = param0.resolve("/v1/leave").toURL();
+        this.workerPool = Executors.newFixedThreadPool(param5, THREAD_FACTORY);
     }
 
     @Nullable
@@ -83,20 +74,13 @@ public class TextFilterClient implements AutoCloseable {
                 } else {
                     int var3 = GsonHelper.getAsInt(var0, "ruleId", 1);
                     String var4 = GsonHelper.getAsString(var0, "serverId", "");
-                    String var5 = GsonHelper.getAsString(var0, "roomId", "Java:Chat");
-                    int var6 = GsonHelper.getAsInt(var0, "hashesToDrop", -1);
-                    int var7 = GsonHelper.getAsInt(var0, "maxConcurrentRequests", 7);
-                    JsonObject var8 = GsonHelper.getAsJsonObject(var0, "endpoints", null);
-                    URL var9 = getEndpoint(var1, var8, "chat", "v1/chat");
-                    URL var10 = getEndpoint(var1, var8, "join", "v1/join");
-                    URL var11 = getEndpoint(var1, var8, "leave", "v1/leave");
-                    TextFilterClient.IgnoreStrategy var12 = TextFilterClient.IgnoreStrategy.select(var6);
-                    return new TextFilterClient(
-                        var9, var10, var11, Base64.getEncoder().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var5, var12, var7
-                    );
+                    int var5 = GsonHelper.getAsInt(var0, "hashesToDrop", -1);
+                    int var6 = GsonHelper.getAsInt(var0, "maxConcurrentRequests", 7);
+                    TextFilterClient.IgnoreStrategy var7 = TextFilterClient.IgnoreStrategy.select(var5);
+                    return new TextFilterClient(var1, Base64.getEncoder().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var7, var6);
                 }
-            } catch (Exception var14) {
-                LOGGER.warn("Failed to parse chat filter config {}", param0, var14);
+            } catch (Exception var9) {
+                LOGGER.warn("Failed to parse chat filter config {}", param0, var9);
                 return null;
             }
         }
@@ -105,7 +89,7 @@ public class TextFilterClient implements AutoCloseable {
     void processJoinOrLeave(GameProfile param0, URL param1, Executor param2) {
         JsonObject var0 = new JsonObject();
         var0.addProperty("server", this.serverId);
-        var0.addProperty("room", this.roomId);
+        var0.addProperty("room", "Chat");
         var0.addProperty("user_id", param0.getId().toString());
         var0.addProperty("user_display_name", param0.getName());
         param2.execute(() -> {
@@ -127,7 +111,7 @@ public class TextFilterClient implements AutoCloseable {
             JsonObject var0 = new JsonObject();
             var0.addProperty("rule", this.ruleId);
             var0.addProperty("server", this.serverId);
-            var0.addProperty("room", this.roomId);
+            var0.addProperty("room", "Chat");
             var0.addProperty("player", param0.getId().toString());
             var0.addProperty("player_display_name", param0.getName());
             var0.addProperty("text", param1);

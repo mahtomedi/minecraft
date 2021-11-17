@@ -7,7 +7,6 @@ import com.mojang.authlib.properties.PropertyMap.Serializer;
 import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
@@ -39,11 +38,12 @@ import net.minecraft.util.profiling.jfr.JvmProfiler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Main {
-    static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
 
     @DontObfuscate
     public static void main(String[] param0) {

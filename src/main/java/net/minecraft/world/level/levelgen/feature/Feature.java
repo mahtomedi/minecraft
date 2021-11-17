@@ -1,22 +1,20 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockColumnConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
@@ -157,19 +155,24 @@ public abstract class Feature<FC extends FeatureConfiguration> {
     }
 
     public Feature(Codec<FC> param0) {
-        this.configuredCodec = param0.fieldOf("config").xmap(param0x -> new ConfiguredFeature<>(this, param0x), ConfiguredFeature::config).codec();
+        this.configuredCodec = param0.fieldOf("config").xmap(param0x -> new ConfiguredFeature<>(this, param0x), param0x -> param0x.config).codec();
     }
 
     public Codec<ConfiguredFeature<FC, Feature<FC>>> configuredCodec() {
         return this.configuredCodec;
     }
 
+    public ConfiguredFeature<FC, ?> configured(FC param0) {
+        return new ConfiguredFeature<>(this, param0);
+    }
+
     protected void setBlock(LevelWriter param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2, 3);
     }
 
-    public static Predicate<BlockState> isReplaceable(TagKey<Block> param0) {
-        return param1 -> !param1.is(param0);
+    public static Predicate<BlockState> isReplaceable(ResourceLocation param0) {
+        Tag<Block> var0 = BlockTags.getAllTags().getTag(param0);
+        return var0 == null ? param0x -> true : param1 -> !param1.is(var0);
     }
 
     protected void safeSetBlock(WorldGenLevel param0, BlockPos param1, BlockState param2, Predicate<BlockState> param3) {
@@ -180,10 +183,6 @@ public abstract class Feature<FC extends FeatureConfiguration> {
     }
 
     public abstract boolean place(FeaturePlaceContext<FC> var1);
-
-    public boolean place(FC param0, WorldGenLevel param1, ChunkGenerator param2, Random param3, BlockPos param4) {
-        return param1.ensureCanWrite(param4) ? this.place(new FeaturePlaceContext<>(Optional.empty(), param1, param2, param3, param4, param0)) : false;
-    }
 
     protected static boolean isStone(BlockState param0) {
         return param0.is(BlockTags.BASE_STONE_OVERWORLD);

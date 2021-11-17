@@ -573,14 +573,14 @@ public class Mth {
     }
 
     public static double[] cumulativeSum(double... param0) {
-        double var0 = 0.0;
+        float var0 = 0.0F;
 
         for(double var1 : param0) {
-            var0 += var1;
+            var0 = (float)((double)var0 + var1);
         }
 
         for(int var2 = 0; var2 < param0.length; ++var2) {
-            param0[var2] /= var0;
+            param0[var2] /= (double)var0;
         }
 
         for(int var3 = 0; var3 < param0.length; ++var3) {
@@ -801,20 +801,12 @@ public class Mth {
         return param1 + (float)param0.nextGaussian() * param2;
     }
 
-    public static double lengthSquared(double param0, double param1) {
-        return param0 * param0 + param1 * param1;
-    }
-
     public static double length(double param0, double param1) {
-        return Math.sqrt(lengthSquared(param0, param1));
-    }
-
-    public static double lengthSquared(double param0, double param1, double param2) {
-        return param0 * param0 + param1 * param1 + param2 * param2;
+        return Math.sqrt(param0 * param0 + param1 * param1);
     }
 
     public static double length(double param0, double param1, double param2) {
-        return Math.sqrt(lengthSquared(param0, param1, param2));
+        return Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2);
     }
 
     public static int quantize(double param0, int param1) {

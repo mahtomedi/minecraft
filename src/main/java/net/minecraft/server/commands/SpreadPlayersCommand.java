@@ -7,7 +7,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.Dynamic4CommandExceptionType;
 import java.util.Collection;
 import java.util.Locale;
@@ -38,9 +37,6 @@ public class SpreadPlayersCommand {
     );
     private static final Dynamic4CommandExceptionType ERROR_FAILED_TO_SPREAD_ENTITIES = new Dynamic4CommandExceptionType(
         (param0, param1, param2, param3) -> new TranslatableComponent("commands.spreadplayers.failed.entities", param0, param1, param2, param3)
-    );
-    private static final Dynamic2CommandExceptionType ERROR_INVALID_MAX_HEIGHT = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.spreadplayers.failed.invalid.height", param0, param1)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -73,7 +69,7 @@ public class SpreadPlayersCommand {
                                         .then(
                                             Commands.literal("under")
                                                 .then(
-                                                    Commands.argument("maxHeight", IntegerArgumentType.integer())
+                                                    Commands.argument("maxHeight", IntegerArgumentType.integer(0))
                                                         .then(
                                                             Commands.argument("respectTeams", BoolArgumentType.bool())
                                                                 .then(
@@ -102,31 +98,21 @@ public class SpreadPlayersCommand {
     private static int spreadPlayers(
         CommandSourceStack param0, Vec2 param1, float param2, float param3, int param4, boolean param5, Collection<? extends Entity> param6
     ) throws CommandSyntaxException {
-        ServerLevel var0 = param0.getLevel();
-        int var1 = var0.getMinBuildHeight();
-        if (param4 < var1) {
-            throw ERROR_INVALID_MAX_HEIGHT.create(param4, var1);
-        } else {
-            Random var2 = new Random();
-            double var3 = (double)(param1.x - param3);
-            double var4 = (double)(param1.y - param3);
-            double var5 = (double)(param1.x + param3);
-            double var6 = (double)(param1.y + param3);
-            SpreadPlayersCommand.Position[] var7 = createInitialPositions(var2, param5 ? getNumberOfTeams(param6) : param6.size(), var3, var4, var5, var6);
-            spreadPositions(param1, (double)param2, var0, var2, var3, var4, var5, var6, param4, var7, param5);
-            double var8 = setPlayerPositions(param6, var0, var7, param4, param5);
-            param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.spreadplayers.success." + (param5 ? "teams" : "entities"),
-                    var7.length,
-                    param1.x,
-                    param1.y,
-                    String.format(Locale.ROOT, "%.2f", var8)
-                ),
-                true
-            );
-            return var7.length;
-        }
+        Random var0 = new Random();
+        double var1 = (double)(param1.x - param3);
+        double var2 = (double)(param1.y - param3);
+        double var3 = (double)(param1.x + param3);
+        double var4 = (double)(param1.y + param3);
+        SpreadPlayersCommand.Position[] var5 = createInitialPositions(var0, param5 ? getNumberOfTeams(param6) : param6.size(), var1, var2, var3, var4);
+        spreadPositions(param1, (double)param2, param0.getLevel(), var0, var1, var2, var3, var4, param4, var5, param5);
+        double var6 = setPlayerPositions(param6, param0.getLevel(), var5, param4, param5);
+        param0.sendSuccess(
+            new TranslatableComponent(
+                "commands.spreadplayers.success." + (param5 ? "teams" : "entities"), var5.length, param1.x, param1.y, String.format(Locale.ROOT, "%.2f", var6)
+            ),
+            true
+        );
+        return var5.length;
     }
 
     private static int getNumberOfTeams(Collection<? extends Entity> param0) {
