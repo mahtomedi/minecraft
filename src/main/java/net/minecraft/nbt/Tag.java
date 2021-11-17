@@ -40,4 +40,14 @@ public interface Tag {
     }
 
     void accept(TagVisitor var1);
+
+    StreamTagVisitor.ValueResult accept(StreamTagVisitor var1);
+
+    default void acceptAsRoot(StreamTagVisitor param0) {
+        StreamTagVisitor.ValueResult var0 = param0.visitRootEntry(this.getType());
+        if (var0 == StreamTagVisitor.ValueResult.CONTINUE) {
+            this.accept(param0);
+        }
+
+    }
 }

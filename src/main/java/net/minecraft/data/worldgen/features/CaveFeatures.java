@@ -155,14 +155,7 @@ public class CaveFeatures {
                     true,
                     0.5F,
                     List.of(
-                        Blocks.STONE.defaultBlockState(),
-                        Blocks.ANDESITE.defaultBlockState(),
-                        Blocks.DIORITE.defaultBlockState(),
-                        Blocks.GRANITE.defaultBlockState(),
-                        Blocks.DRIPSTONE_BLOCK.defaultBlockState(),
-                        Blocks.CALCITE.defaultBlockState(),
-                        Blocks.TUFF.defaultBlockState(),
-                        Blocks.DEEPSLATE.defaultBlockState()
+                        Blocks.STONE, Blocks.ANDESITE, Blocks.DIORITE, Blocks.GRANITE, Blocks.DRIPSTONE_BLOCK, Blocks.CALCITE, Blocks.TUFF, Blocks.DEEPSLATE
                     )
                 )
             )

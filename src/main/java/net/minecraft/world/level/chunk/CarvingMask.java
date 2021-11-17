@@ -8,10 +8,15 @@ import net.minecraft.world.level.ChunkPos;
 public class CarvingMask {
     private final int minY;
     private final BitSet mask;
+    private CarvingMask.Mask additionalMask = (param0x, param1x, param2) -> false;
 
     public CarvingMask(int param0, int param1) {
         this.minY = param1;
         this.mask = new BitSet(256 * param0);
+    }
+
+    public void setAdditionalMask(CarvingMask.Mask param0) {
+        this.additionalMask = param0;
     }
 
     public CarvingMask(long[] param0, int param1) {
@@ -28,7 +33,7 @@ public class CarvingMask {
     }
 
     public boolean get(int param0, int param1, int param2) {
-        return this.mask.get(this.getIndex(param0, param1, param2));
+        return this.additionalMask.test(param0, param1, param2) || this.mask.get(this.getIndex(param0, param1, param2));
     }
 
     public Stream<BlockPos> stream(ChunkPos param0) {
@@ -42,5 +47,9 @@ public class CarvingMask {
 
     public long[] toArray() {
         return this.mask.toLongArray();
+    }
+
+    public interface Mask {
+        boolean test(int var1, int var2, int var3);
     }
 }

@@ -20,9 +20,9 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap.Entry;
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -140,10 +140,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         int param11,
         boolean param12
     ) {
-        super(new File(param1.getDimensionPath(param0.dimension()), "region"), param2, param12);
+        super(param1.getDimensionPath(param0.dimension()).resolve("region"), param2, param12);
         this.structureManager = param3;
-        File var0 = param1.getDimensionPath(param0.dimension());
-        this.storageName = var0.getName();
+        Path var0 = param1.getDimensionPath(param0.dimension());
+        this.storageName = var0.getFileName().toString();
         this.level = param0;
         this.generator = param7;
         this.mainThreadExecutor = param5;
@@ -160,7 +160,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param10;
-        this.poiManager = new PoiManager(new File(var0, "poi"), param2, param12, param0);
+        this.poiManager = new PoiManager(var0.resolve("poi"), param2, param12, param0);
         this.setViewDistance(param11);
     }
 

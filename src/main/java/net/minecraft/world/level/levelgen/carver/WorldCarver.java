@@ -22,7 +22,6 @@ import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.ticks.ScheduledTick;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public abstract class WorldCarver<C extends CarverConfiguration> {
@@ -126,7 +125,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             int var6 = Math.max(Mth.floor(param5 - param8) - var4 - 1, 0);
             int var7 = Math.min(Mth.floor(param5 + param8) - var4, 15);
             int var8 = Math.max(Mth.floor(param6 - param9) - 1, param0.getMinGenY() + 1);
-            int var9 = Math.min(Mth.floor(param6 + param9) + 1, param0.getMinGenY() + param0.getGenDepth() - 8);
+            int var9 = Math.min(Mth.floor(param6 + param9) + 1, param0.getMinGenY() + param0.getGenDepth() - 2);
             int var10 = Math.max(Mth.floor(param7 - param8) - var5 - 1, 0);
             int var11 = Math.min(Mth.floor(param7 + param8) - var5, 15);
             boolean var12 = false;
@@ -186,7 +185,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             } else {
                 param2.setBlockState(param5, var1, false);
                 if (param7.shouldScheduleFluidUpdate() && !var1.getFluidState().isEmpty()) {
-                    param2.getFluidTicks().schedule(ScheduledTick.worldgen(var1.getFluidState().getType(), param5, 0L));
+                    param2.markPosForPostprocessing(param5);
                 }
 
                 if (param8.isTrue()) {
@@ -195,7 +194,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                         param0.topMaterial(param3, param2, param6, !var1.getFluidState().isEmpty()).ifPresent(param2x -> {
                             param2.setBlockState(param6, param2x, false);
                             if (!param2x.getFluidState().isEmpty()) {
-                                param2.getFluidTicks().schedule(ScheduledTick.worldgen(param2x.getFluidState().getType(), param6, 0L));
+                                param2.markPosForPostprocessing(param6);
                             }
 
                         });

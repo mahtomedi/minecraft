@@ -3,12 +3,11 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class GlowLichenConfiguration implements FeatureConfiguration {
     public static final Codec<GlowLichenConfiguration> CODEC = RecordCodecBuilder.create(
@@ -18,7 +17,7 @@ public class GlowLichenConfiguration implements FeatureConfiguration {
                     Codec.BOOL.fieldOf("can_place_on_ceiling").orElse(false).forGetter(param0x -> param0x.canPlaceOnCeiling),
                     Codec.BOOL.fieldOf("can_place_on_wall").orElse(false).forGetter(param0x -> param0x.canPlaceOnWall),
                     Codec.floatRange(0.0F, 1.0F).fieldOf("chance_of_spreading").orElse(0.5F).forGetter(param0x -> param0x.chanceOfSpreading),
-                    BlockState.CODEC.listOf().fieldOf("can_be_placed_on").forGetter(param0x -> new ArrayList<>(param0x.canBePlacedOn))
+                    Registry.BLOCK.byNameCodec().listOf().fieldOf("can_be_placed_on").forGetter(param0x -> param0x.canBePlacedOn)
                 )
                 .apply(param0, GlowLichenConfiguration::new)
     );
@@ -27,10 +26,10 @@ public class GlowLichenConfiguration implements FeatureConfiguration {
     public final boolean canPlaceOnCeiling;
     public final boolean canPlaceOnWall;
     public final float chanceOfSpreading;
-    public final List<BlockState> canBePlacedOn;
+    public final List<Block> canBePlacedOn;
     public final List<Direction> validDirections;
 
-    public GlowLichenConfiguration(int param0, boolean param1, boolean param2, boolean param3, float param4, List<BlockState> param5) {
+    public GlowLichenConfiguration(int param0, boolean param1, boolean param2, boolean param3, float param4, List<Block> param5) {
         this.searchRange = param0;
         this.canPlaceOnFloor = param1;
         this.canPlaceOnCeiling = param2;
@@ -51,9 +50,5 @@ public class GlowLichenConfiguration implements FeatureConfiguration {
         }
 
         this.validDirections = Collections.unmodifiableList(var0);
-    }
-
-    public boolean canBePlacedOn(Block param0) {
-        return this.canBePlacedOn.stream().anyMatch(param1 -> param1.is(param0));
     }
 }

@@ -12,19 +12,20 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.OceanRuinConfiguration;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class OceanRuinFeature extends StructureFeature<OceanRuinConfiguration> {
     public OceanRuinFeature(Codec<OceanRuinConfiguration> param0) {
-        super(param0, OceanRuinFeature::generatePieces);
+        super(
+            param0, PieceGeneratorSupplier.simple(PieceGeneratorSupplier.checkForBiomeOnTop(Heightmap.Types.OCEAN_FLOOR_WG), OceanRuinFeature::generatePieces)
+        );
     }
 
-    private static void generatePieces(StructurePiecesBuilder param0x, OceanRuinConfiguration param1, PieceGenerator.Context param2) {
-        if (param2.validBiomeOnTop(Heightmap.Types.OCEAN_FLOOR_WG)) {
-            BlockPos var0 = new BlockPos(param2.chunkPos().getMinBlockX(), 90, param2.chunkPos().getMinBlockZ());
-            Rotation var1 = Rotation.getRandom(param2.random());
-            OceanRuinPieces.addPieces(param2.structureManager(), var0, var1, param0x, param2.random(), param1);
-        }
+    private static void generatePieces(StructurePiecesBuilder param0x, PieceGenerator.Context<OceanRuinConfiguration> param1) {
+        BlockPos var0 = new BlockPos(param1.chunkPos().getMinBlockX(), 90, param1.chunkPos().getMinBlockZ());
+        Rotation var1 = Rotation.getRandom(param1.random());
+        OceanRuinPieces.addPieces(param1.structureManager(), var0, var1, param0x, param1.random(), param1.config());
     }
 
     public static enum Type implements StringRepresentable {

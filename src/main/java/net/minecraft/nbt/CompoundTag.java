@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -25,7 +26,7 @@ public class CompoundTag implements Tag {
     }, param0 -> new Dynamic<>(NbtOps.INSTANCE, param0));
     private static final int SELF_SIZE_IN_BITS = 384;
     private static final int MAP_ENTRY_SIZE_IN_BITS = 256;
-    public static final TagType<CompoundTag> TYPE = new TagType<CompoundTag>() {
+    public static final TagType<CompoundTag> TYPE = new TagType.VariableSize<CompoundTag>() {
         public CompoundTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(384L);
             if (param1 > 512) {
@@ -45,6 +46,64 @@ public class CompoundTag implements Tag {
 
                 return new CompoundTag(var0);
             }
+        }
+
+        @Override
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
+            byte var0;
+            label33:
+            while((var0 = param0.readByte()) != 0) {
+                TagType<?> var1 = TagTypes.getType(var0);
+                switch(param1.visitEntry(var1)) {
+                    case HALT:
+                        return StreamTagVisitor.ValueResult.HALT;
+                    case BREAK:
+                        StringTag.skipString(param0);
+                        var1.skip(param0);
+                        break label33;
+                    case SKIP:
+                        StringTag.skipString(param0);
+                        var1.skip(param0);
+                        break;
+                    default:
+                        String var2 = param0.readUTF();
+                        switch(param1.visitEntry(var1, var2)) {
+                            case HALT:
+                                return StreamTagVisitor.ValueResult.HALT;
+                            case BREAK:
+                                var1.skip(param0);
+                                break label33;
+                            case SKIP:
+                                var1.skip(param0);
+                                break;
+                            default:
+                                switch(var1.parse(param0, param1)) {
+                                    case HALT:
+                                        return StreamTagVisitor.ValueResult.HALT;
+                                    case BREAK:
+                                }
+                        }
+                }
+            }
+
+            if (var0 != 0) {
+                while((var0 = param0.readByte()) != 0) {
+                    StringTag.skipString(param0);
+                    TagTypes.getType(var0).skip(param0);
+                }
+            }
+
+            return param1.visitContainerEnd();
+        }
+
+        @Override
+        public void skip(DataInput param0) throws IOException {
+            byte var0;
+            while((var0 = param0.readByte()) != 0) {
+                StringTag.skipString(param0);
+                TagTypes.getType(var0).skip(param0);
+            }
+
         }
 
         @Override
@@ -434,5 +493,42 @@ public class CompoundTag implements Tag {
 
     protected Map<String, Tag> entries() {
         return Collections.unmodifiableMap(this.tags);
+    }
+
+    @Override
+    public StreamTagVisitor.ValueResult accept(StreamTagVisitor param0) {
+        for(Entry<String, Tag> var0 : this.tags.entrySet()) {
+            Tag var1 = var0.getValue();
+            TagType<?> var2 = var1.getType();
+            StreamTagVisitor.EntryResult var3 = param0.visitEntry(var2);
+            switch(var3) {
+                case HALT:
+                    return StreamTagVisitor.ValueResult.HALT;
+                case BREAK:
+                    return param0.visitContainerEnd();
+                case SKIP:
+                    break;
+                default:
+                    var3 = param0.visitEntry(var2, var0.getKey());
+                    switch(var3) {
+                        case HALT:
+                            return StreamTagVisitor.ValueResult.HALT;
+                        case BREAK:
+                            return param0.visitContainerEnd();
+                        case SKIP:
+                            break;
+                        default:
+                            StreamTagVisitor.ValueResult var4 = var1.accept(param0);
+                            switch(var4) {
+                                case HALT:
+                                    return StreamTagVisitor.ValueResult.HALT;
+                                case BREAK:
+                                    return param0.visitContainerEnd();
+                            }
+                    }
+            }
+        }
+
+        return param0.visitContainerEnd();
     }
 }

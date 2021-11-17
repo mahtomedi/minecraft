@@ -290,8 +290,8 @@ public class LevelStorageSource {
             return this.resources.computeIfAbsent(param0, param0x -> this.levelPath.resolve(param0x.getId()));
         }
 
-        public File getDimensionPath(ResourceKey<Level> param0) {
-            return DimensionType.getStorageFolder(param0, this.levelPath.toFile());
+        public Path getDimensionPath(ResourceKey<Level> param0) {
+            return DimensionType.getStorageFolder(param0, this.levelPath);
         }
 
         private void checkLock() {

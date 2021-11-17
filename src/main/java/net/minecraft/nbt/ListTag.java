@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class ListTag extends CollectionTag<Tag> {
     private static final int SELF_SIZE_IN_BITS = 296;
-    public static final TagType<ListTag> TYPE = new TagType<ListTag>() {
+    public static final TagType<ListTag> TYPE = new TagType.VariableSize<ListTag>() {
         public ListTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(296L);
             if (param1 > 512) {
@@ -32,6 +32,63 @@ public class ListTag extends CollectionTag<Tag> {
                     return new ListTag(var3, var0);
                 }
             }
+        }
+
+        @Override
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
+            TagType<?> var0 = TagTypes.getType(param0.readByte());
+            int var1 = param0.readInt();
+            switch(param1.visitList(var0, var1)) {
+                case HALT:
+                    return StreamTagVisitor.ValueResult.HALT;
+                case BREAK:
+                    var0.skip(param0, var1);
+                    return param1.visitContainerEnd();
+                default:
+                    int var2 = 0;
+
+                    while(true) {
+                        label41: {
+                            if (var2 < var1) {
+                                switch(param1.visitElement(var0, var2)) {
+                                    case HALT:
+                                        return StreamTagVisitor.ValueResult.HALT;
+                                    case BREAK:
+                                        var0.skip(param0);
+                                        break;
+                                    case SKIP:
+                                        var0.skip(param0);
+                                        break label41;
+                                    default:
+                                        switch(var0.parse(param0, param1)) {
+                                            case HALT:
+                                                return StreamTagVisitor.ValueResult.HALT;
+                                            case BREAK:
+                                                break;
+                                            default:
+                                                break label41;
+                                        }
+                                }
+                            }
+
+                            int var3 = var1 - 1 - var2;
+                            if (var3 > 0) {
+                                var0.skip(param0, var3);
+                            }
+
+                            return param1.visitContainerEnd();
+                        }
+
+                        ++var2;
+                    }
+            }
+        }
+
+        @Override
+        public void skip(DataInput param0) throws IOException {
+            TagType<?> var0 = TagTypes.getType(param0.readByte());
+            int var1 = param0.readInt();
+            var0.skip(param0, var1);
         }
 
         @Override
@@ -295,5 +352,38 @@ public class ListTag extends CollectionTag<Tag> {
     public void clear() {
         this.list.clear();
         this.type = 0;
+    }
+
+    @Override
+    public StreamTagVisitor.ValueResult accept(StreamTagVisitor param0) {
+        switch(param0.visitList(TagTypes.getType(this.type), this.list.size())) {
+            case HALT:
+                return StreamTagVisitor.ValueResult.HALT;
+            case BREAK:
+                return param0.visitContainerEnd();
+            default:
+                int var0 = 0;
+
+                while(var0 < this.list.size()) {
+                    Tag var1 = this.list.get(var0);
+                    switch(param0.visitElement(var1.getType(), var0)) {
+                        case HALT:
+                            return StreamTagVisitor.ValueResult.HALT;
+                        case BREAK:
+                            return param0.visitContainerEnd();
+                        default:
+                            switch(var1.accept(param0)) {
+                                case HALT:
+                                    return StreamTagVisitor.ValueResult.HALT;
+                                case BREAK:
+                                    return param0.visitContainerEnd();
+                            }
+                        case SKIP:
+                            ++var0;
+                    }
+                }
+
+                return param0.visitContainerEnd();
+        }
     }
 }

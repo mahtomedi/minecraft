@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenCustomHashMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ThreadFactory;
@@ -59,7 +60,7 @@ public class WorldUpgrader {
         this.eraseCache = param3;
         this.dataFixer = param1;
         this.levelStorage = param0;
-        this.overworldDataStorage = new DimensionDataStorage(new File(this.levelStorage.getDimensionPath(Level.OVERWORLD), "data"), param1);
+        this.overworldDataStorage = new DimensionDataStorage(this.levelStorage.getDimensionPath(Level.OVERWORLD).resolve("data").toFile(), param1);
         this.thread = THREAD_FACTORY.newThread(this::work);
         this.thread.setUncaughtExceptionHandler((param0x, param1x) -> {
             LOGGER.error("Error upgrading world", param1x);
@@ -98,8 +99,8 @@ public class WorldUpgrader {
             Builder<ResourceKey<Level>, ChunkStorage> var6 = ImmutableMap.builder();
 
             for(ResourceKey<Level> var7 : var1) {
-                File var8 = this.levelStorage.getDimensionPath(var7);
-                var6.put(var7, new ChunkStorage(new File(var8, "region"), this.dataFixer, true));
+                Path var8 = this.levelStorage.getDimensionPath(var7);
+                var6.put(var7, new ChunkStorage(var8.resolve("region"), this.dataFixer, true));
             }
 
             ImmutableMap<ResourceKey<Level>, ChunkStorage> var9 = var6.build();
@@ -190,7 +191,7 @@ public class WorldUpgrader {
     }
 
     private List<ChunkPos> getAllChunkPos(ResourceKey<Level> param0) {
-        File var0 = this.levelStorage.getDimensionPath(param0);
+        File var0 = this.levelStorage.getDimensionPath(param0).toFile();
         File var1 = new File(var0, "region");
         File[] var2 = var1.listFiles((param0x, param1) -> param1.endsWith(".mca"));
         if (var2 == null) {
@@ -204,7 +205,7 @@ public class WorldUpgrader {
                     int var6 = Integer.parseInt(var5.group(1)) << 5;
                     int var7 = Integer.parseInt(var5.group(2)) << 5;
 
-                    try (RegionFile var8 = new RegionFile(var4, var1, true)) {
+                    try (RegionFile var8 = new RegionFile(var4.toPath(), var1.toPath(), true)) {
                         for(int var9 = 0; var9 < 32; ++var9) {
                             for(int var10 = 0; var10 < 32; ++var10) {
                                 ChunkPos var11 = new ChunkPos(var9 + var6, var10 + var7);

@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -43,8 +44,10 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.NetherFossilFeature;
 import net.minecraft.world.level.levelgen.structure.OceanRuinFeature;
 import net.minecraft.world.level.levelgen.structure.PostPlacementProcessor;
+import net.minecraft.world.level.levelgen.structure.StructureCheckResult;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
@@ -113,7 +116,7 @@ public class StructureFeature<C extends FeatureConfiguration> {
     public static final List<StructureFeature<?>> NOISE_AFFECTING_FEATURES = ImmutableList.of(PILLAGER_OUTPOST, VILLAGE, NETHER_FOSSIL, STRONGHOLD);
     public static final int MAX_STRUCTURE_RANGE = 8;
     private final Codec<ConfiguredStructureFeature<C, StructureFeature<C>>> configuredStructureCodec;
-    private final PieceGenerator<C> pieceGenerator;
+    private final PieceGeneratorSupplier<C> pieceGenerator;
     private final PostPlacementProcessor postPlacementProcessor;
 
     private static <F extends StructureFeature<?>> F register(String param0, F param1, GenerationStep.Decoration param2) {
@@ -122,11 +125,11 @@ public class StructureFeature<C extends FeatureConfiguration> {
         return Registry.register(Registry.STRUCTURE_FEATURE, param0.toLowerCase(Locale.ROOT), param1);
     }
 
-    public StructureFeature(Codec<C> param0, PieceGenerator<C> param1) {
+    public StructureFeature(Codec<C> param0, PieceGeneratorSupplier<C> param1) {
         this(param0, param1, PostPlacementProcessor.NONE);
     }
 
-    public StructureFeature(Codec<C> param0, PieceGenerator<C> param1, PostPlacementProcessor param2) {
+    public StructureFeature(Codec<C> param0, PieceGeneratorSupplier<C> param1, PostPlacementProcessor param2) {
         this.configuredStructureCodec = param0.fieldOf("config")
             .xmap(param0x -> new ConfiguredStructureFeature<>(this, param0x), param0x -> param0x.config)
             .codec();
@@ -201,21 +204,28 @@ public class StructureFeature<C extends FeatureConfiguration> {
                         int var8 = var1 + var0 * var4;
                         int var9 = var2 + var0 * var6;
                         ChunkPos var10 = this.getPotentialFeatureChunk(param6, param5, var8, var9);
-                        ChunkAccess var11 = param0.getChunk(var10.x, var10.z, ChunkStatus.STRUCTURE_STARTS);
-                        StructureStart<?> var12 = param1.getStartForFeature(SectionPos.bottomOf(var11), this, var11);
-                        if (var12 != null && var12.isValid()) {
-                            if (param4 && var12.canBeReferenced()) {
-                                var12.addReference();
-                                return this.getLocatePos(var12.getChunkPos());
+                        StructureCheckResult var11 = param1.checkStructurePresence(var10, this, param4);
+                        if (var11 != StructureCheckResult.START_NOT_PRESENT) {
+                            if (!param4 && var11 == StructureCheckResult.START_PRESENT) {
+                                return this.getLocatePos(var10);
                             }
 
-                            if (!param4) {
-                                return this.getLocatePos(var12.getChunkPos());
-                            }
-                        }
+                            ChunkAccess var12 = param0.getChunk(var10.x, var10.z, ChunkStatus.STRUCTURE_STARTS);
+                            StructureStart<?> var13 = param1.getStartForFeature(SectionPos.bottomOf(var12), this, var12);
+                            if (var13 != null && var13.isValid()) {
+                                if (param4 && var13.canBeReferenced()) {
+                                    param1.addReference(var13);
+                                    return this.getLocatePos(var13.getChunkPos());
+                                }
 
-                        if (var3 == 0) {
-                            break;
+                                if (!param4) {
+                                    return this.getLocatePos(var13.getChunkPos());
+                                }
+                            }
+
+                            if (var3 == 0) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -253,10 +263,6 @@ public class StructureFeature<C extends FeatureConfiguration> {
         return new ChunkPos(var2 * var0 + var5, var3 * var0 + var6);
     }
 
-    protected boolean isFeatureChunk(ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, C param4, LevelHeightAccessor param5) {
-        return true;
-    }
-
     public StructureStart<?> generate(
         RegistryAccess param0,
         ChunkGenerator param1,
@@ -271,18 +277,38 @@ public class StructureFeature<C extends FeatureConfiguration> {
         Predicate<Biome> param10
     ) {
         ChunkPos var0 = this.getPotentialFeatureChunk(param7, param4, param5.x, param5.z);
-        if (param5.x == var0.x && param5.z == var0.z && this.isFeatureChunk(param1, param2, param4, param5, param8, param9)) {
-            StructurePiecesBuilder var1 = new StructurePiecesBuilder();
-            WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(0L));
-            var2.setLargeFeatureSeed(param4, param5.x, param5.z);
-            this.pieceGenerator.generatePieces(var1, param8, new PieceGenerator.Context(param0, param1, param3, param5, param10, param9, var2, param4));
-            StructureStart<C> var3 = new StructureStart<>(this, param5, param6, var1.build());
-            if (var3.isValid()) {
-                return var3;
+        if (param5.x == var0.x && param5.z == var0.z) {
+            Optional<PieceGenerator<C>> var1 = this.pieceGenerator
+                .createGenerator(new PieceGeneratorSupplier.Context<>(param1, param2, param4, param5, param8, param9, param10, param3, param0));
+            if (var1.isPresent()) {
+                StructurePiecesBuilder var2 = new StructurePiecesBuilder();
+                WorldgenRandom var3 = new WorldgenRandom(new LegacyRandomSource(0L));
+                var3.setLargeFeatureSeed(param4, param5.x, param5.z);
+                var1.get().generatePieces(var2, new PieceGenerator.Context<>(param8, param1, param3, param5, param9, var3, param4));
+                StructureStart<C> var4 = new StructureStart<>(this, param5, param6, var2.build());
+                if (var4.isValid()) {
+                    return var4;
+                }
             }
         }
 
         return StructureStart.INVALID_START;
+    }
+
+    public boolean canGenerate(
+        RegistryAccess param0,
+        ChunkGenerator param1,
+        BiomeSource param2,
+        StructureManager param3,
+        long param4,
+        ChunkPos param5,
+        C param6,
+        LevelHeightAccessor param7,
+        Predicate<Biome> param8
+    ) {
+        return this.pieceGenerator
+            .createGenerator(new PieceGeneratorSupplier.Context<>(param1, param2, param4, param5, param6, param7, param8, param3, param0))
+            .isPresent();
     }
 
     public PostPlacementProcessor getPostPlacementProcessor() {

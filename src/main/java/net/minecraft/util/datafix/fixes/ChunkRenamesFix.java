@@ -41,7 +41,8 @@ public class ChunkRenamesFix extends DataFix {
     }
 
     private static Typed<?> renameField(Typed<?> param0, String param1, String param2) {
-        return renameFieldHelper(param0, param1, param2, param0.getType().findFieldType(param1));
+        return renameFieldHelper(param0, param1, param2, param0.getType().findFieldType(param1))
+            .update(DSL.remainderFinder(), param1x -> param1x.remove(param1));
     }
 
     private static <A> Typed<?> renameFieldHelper(Typed<?> param0, String param1, String param2, Type<A> param3) {

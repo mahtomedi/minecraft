@@ -6,10 +6,13 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -134,6 +137,22 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     protected T get(int param0) {
         PalettedContainer.Data<T> var0 = this.data;
         return var0.palette.valueFor(var0.storage.get(param0));
+    }
+
+    public void getAll(Consumer<T> param0) {
+        Palette<T> var0 = this.data.palette();
+        if (var0 instanceof GlobalPalette var1) {
+            IntSet var2 = new IntArraySet();
+            this.data.storage.getAll(var2::add);
+            var2.forEach(param2 -> param0.accept(var1.valueFor(param2)));
+        } else {
+            int var3 = var0.getSize();
+
+            for(int var4 = 0; var4 < var3; ++var4) {
+                param0.accept(var0.valueFor(var4));
+            }
+        }
+
     }
 
     public void read(FriendlyByteBuf param0) {
@@ -313,7 +332,7 @@ public class PalettedContainer<T> implements PaletteResize<T> {
             public <A> PalettedContainer.Configuration<A> getConfiguration(IdMap<A> param0, int param1) {
                 return switch(param1) {
                     case 0 -> new PalettedContainer.Configuration(SINGLE_VALUE_PALETTE_FACTORY, param1);
-                    case 1, 2 -> new PalettedContainer.Configuration(LINEAR_PALETTE_FACTORY, param1);
+                    case 1, 2, 3 -> new PalettedContainer.Configuration(LINEAR_PALETTE_FACTORY, param1);
                     default -> new PalettedContainer.Configuration(PalettedContainer.Strategy.GLOBAL_PALETTE_FACTORY, Mth.ceillog2(param0.size()));
                 };
             }

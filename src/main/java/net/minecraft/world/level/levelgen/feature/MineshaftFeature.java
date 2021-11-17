@@ -8,62 +8,57 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.MineShaftPieces;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
     public MineshaftFeature(Codec<MineshaftConfiguration> param0) {
-        super(param0, MineshaftFeature::generatePieces);
+        super(param0, PieceGeneratorSupplier.simple(MineshaftFeature::checkLocation, MineshaftFeature::generatePieces));
     }
 
-    protected boolean isFeatureChunk(
-        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, MineshaftConfiguration param4, LevelHeightAccessor param5
-    ) {
+    private static boolean checkLocation(PieceGeneratorSupplier.Context<MineshaftConfiguration> param0x) {
         WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
-        var0.setLargeFeatureSeed(param2, param3.x, param3.z);
-        double var1 = (double)param4.probability;
-        return var0.nextDouble() < var1;
+        var0.setLargeFeatureSeed(param0x.seed(), param0x.chunkPos().x, param0x.chunkPos().z);
+        double var1 = (double)param0x.config().probability;
+        return var0.nextDouble() >= var1
+            ? false
+            : param0x.validBiome()
+                .test(
+                    param0x.chunkGenerator()
+                        .getNoiseBiome(
+                            QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockX()),
+                            QuartPos.fromBlock(50),
+                            QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockZ())
+                        )
+                );
     }
 
-    private static void generatePieces(StructurePiecesBuilder param0x, MineshaftConfiguration param1, PieceGenerator.Context param2) {
-        if (param2.validBiome()
-            .test(
-                param2.chunkGenerator()
-                    .getNoiseBiome(
-                        QuartPos.fromBlock(param2.chunkPos().getMiddleBlockX()),
-                        QuartPos.fromBlock(50),
-                        QuartPos.fromBlock(param2.chunkPos().getMiddleBlockZ())
-                    )
-            )) {
-            MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(
-                0, param2.random(), param2.chunkPos().getBlockX(2), param2.chunkPos().getBlockZ(2), param1.type
-            );
-            param0x.addPiece(var0);
-            var0.addChildren(var0, param0x, param2.random());
-            int var1 = param2.chunkGenerator().getSeaLevel();
-            if (param1.type == MineshaftFeature.Type.MESA) {
-                BlockPos var2 = param0x.getBoundingBox().getCenter();
-                int var3 = param2.chunkGenerator().getBaseHeight(var2.getX(), var2.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param2.heightAccessor());
-                int var4 = var3 <= var1 ? var1 : Mth.randomBetweenInclusive(param2.random(), var1, var3);
-                int var5 = var4 - var2.getY();
-                param0x.offsetPiecesVertically(var5);
-            } else {
-                param0x.moveBelowSeaLevel(var1, param2.chunkGenerator().getMinY(), param2.random(), 10);
-            }
-
+    private static void generatePieces(StructurePiecesBuilder param0x, PieceGenerator.Context<MineshaftConfiguration> param1) {
+        MineShaftPieces.MineShaftRoom var0 = new MineShaftPieces.MineShaftRoom(
+            0, param1.random(), param1.chunkPos().getBlockX(2), param1.chunkPos().getBlockZ(2), param1.config().type
+        );
+        param0x.addPiece(var0);
+        var0.addChildren(var0, param0x, param1.random());
+        int var1 = param1.chunkGenerator().getSeaLevel();
+        if (param1.config().type == MineshaftFeature.Type.MESA) {
+            BlockPos var2 = param0x.getBoundingBox().getCenter();
+            int var3 = param1.chunkGenerator().getBaseHeight(var2.getX(), var2.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param1.heightAccessor());
+            int var4 = var3 <= var1 ? var1 : Mth.randomBetweenInclusive(param1.random(), var1, var3);
+            int var5 = var4 - var2.getY();
+            param0x.offsetPiecesVertically(var5);
+        } else {
+            param0x.moveBelowSeaLevel(var1, param1.chunkGenerator().getMinY(), param1.random(), 10);
         }
+
     }
 
     public static enum Type implements StringRepresentable {

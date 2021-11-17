@@ -42,7 +42,8 @@ public class ChunkHeightAndBiomeFix extends DataFix {
     private static final int OLD_SECTION_COUNT = 16;
     private static final int NEW_SECTION_COUNT = 24;
     private static final int NEW_MIN_SECTION_Y = -4;
-    private static final int BITS_PER_SECTION = 64;
+    public static final int BLOCKS_PER_SECTION = 4096;
+    private static final int LONGS_PER_SECTION = 64;
     private static final int HEIGHTMAP_BITS = 9;
     private static final long HEIGHTMAP_MASK = 511L;
     private static final int HEIGHTMAP_OFFSET = 64;
@@ -437,7 +438,33 @@ public class ChunkHeightAndBiomeFix extends DataFix {
     }
 
     private static Dynamic<?> makeOptimizedPalettedContainer(Dynamic<?> param0, Dynamic<?> param1) {
-        return param0.asStream().count() == 1L ? makePalettedContainer(param0) : makePalettedContainer(param0, param1);
+        List<Dynamic<?>> var0 = param0.asStream().collect(Collectors.toCollection(ArrayList::new));
+        if (var0.size() == 1) {
+            return makePalettedContainer(param0);
+        } else {
+            param0 = padPaletteEntries(param0, param1, var0);
+            return makePalettedContainer(param0, param1);
+        }
+    }
+
+    private static Dynamic<?> padPaletteEntries(Dynamic<?> param0, Dynamic<?> param1, List<Dynamic<?>> param2) {
+        long var0 = param1.asLongStream().count() * 64L;
+        long var1 = var0 / 4096L;
+        int var2 = param2.size();
+        int var3 = ceillog2(var2);
+        if (var1 <= (long)var3) {
+            return param0;
+        } else {
+            Dynamic<?> var4 = param0.createMap(ImmutableMap.of(param0.createString("Name"), param0.createString("minecraft:air")));
+            int var5 = (1 << (int)(var1 - 1L)) + 1;
+            int var6 = var5 - var2;
+
+            for(int var7 = 0; var7 < var6; ++var7) {
+                param2.add(var4);
+            }
+
+            return param0.createList(param2.stream());
+        }
     }
 
     public static int ceillog2(int param0) {

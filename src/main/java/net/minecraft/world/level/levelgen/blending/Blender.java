@@ -2,26 +2,32 @@ package net.minecraft.world.level.levelgen.blending;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction8;
 import net.minecraft.core.QuartPos;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.TerrainInfo;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.ticks.ScheduledTick;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -49,6 +55,9 @@ public class Blender {
     private static final int DENSITY_BLENDING_RANGE_CHUNKS = QuartPos.toSection(5);
     private static final double BLENDING_FACTOR = 10.0;
     private static final double BLENDING_JAGGEDNESS = 0.0;
+    private static final double OLD_CHUNK_Y_RADIUS = (double)BlendingData.AREA_WITH_OLD_GENERATION.getHeight() / 2.0;
+    private static final double OLD_CHUNK_CENTER_Y = (double)BlendingData.AREA_WITH_OLD_GENERATION.getMinBuildHeight() + OLD_CHUNK_Y_RADIUS;
+    private static final double OLD_CHUNK_XZ_RADIUS = 8.0;
     private final WorldGenRegion region;
     private final List<Blender.PositionedBlendingData> heightData;
     private final List<Blender.PositionedBlendingData> densityData;
@@ -294,18 +303,84 @@ public class Blender {
     private static void generateBorderTick(ChunkAccess param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
         if (var0.is(BlockTags.LEAVES)) {
-            param0.getBlockTicks().schedule(ScheduledTick.worldgen(var0.getBlock(), param1, 0L));
+            param0.markPosForPostprocessing(param1);
         }
 
         FluidState var1 = param0.getFluidState(param1);
         if (!var1.isEmpty()) {
-            param0.getFluidTicks().schedule(ScheduledTick.worldgen(var1.getType(), param1, 0L));
+            param0.markPosForPostprocessing(param1);
         }
 
     }
 
+    public static void addAroundOldChunksCarvingMaskFilter(WorldGenLevel param0, ProtoChunk param1) {
+        ChunkPos var0 = param1.getPos();
+        Blender.DistanceGetter var1 = makeOldChunkDistanceGetter(param1.isOldNoiseGeneration(), BlendingData.sideByGenerationAge(param0, var0.x, var0.z, true));
+        if (var1 != null) {
+            CarvingMask.Mask var2 = (param1x, param2, param3) -> {
+                double var0x = (double)param1x + 0.5 + SHIFT_NOISE.getValue((double)param1x, (double)param2, (double)param3) * 4.0;
+                double var1x = (double)param2 + 0.5 + SHIFT_NOISE.getValue((double)param2, (double)param3, (double)param1x) * 4.0;
+                double var2x = (double)param3 + 0.5 + SHIFT_NOISE.getValue((double)param3, (double)param1x, (double)param2) * 4.0;
+                return var1.getDistance(var0x, var1x, var2x) < 4.0;
+            };
+            Stream.of(GenerationStep.Carving.values()).map(param1::getOrCreateCarvingMask).forEach(param1x -> param1x.setAdditionalMask(var2));
+        }
+    }
+
+    @Nullable
+    public static Blender.DistanceGetter makeOldChunkDistanceGetter(boolean param0, Set<Direction8> param1) {
+        if (!param0 && param1.isEmpty()) {
+            return null;
+        } else {
+            List<Blender.DistanceGetter> var0 = Lists.newArrayList();
+            if (param0) {
+                var0.add(makeOffsetOldChunkDistanceGetter(null));
+            }
+
+            param1.forEach(param1x -> var0.add(makeOffsetOldChunkDistanceGetter(param1x)));
+            return (param1x, param2, param3) -> {
+                double var0x = Double.POSITIVE_INFINITY;
+
+                for(Blender.DistanceGetter var1x : var0) {
+                    double var2x = var1x.getDistance(param1x, param2, param3);
+                    if (var2x < var0x) {
+                        var0x = var2x;
+                    }
+                }
+
+                return var0x;
+            };
+        }
+    }
+
+    private static Blender.DistanceGetter makeOffsetOldChunkDistanceGetter(@Nullable Direction8 param0) {
+        double var0 = 0.0;
+        double var1 = 0.0;
+        if (param0 != null) {
+            for(Direction var2 : param0.getDirections()) {
+                var0 += (double)(var2.getStepX() * 16);
+                var1 += (double)(var2.getStepZ() * 16);
+            }
+        }
+
+        double var3 = var0;
+        double var4 = var1;
+        return (param2, param3, param4) -> distanceToCube(param2 - 8.0 - var3, param3 - OLD_CHUNK_CENTER_Y, param4 - 8.0 - var4, 8.0, OLD_CHUNK_Y_RADIUS, 8.0);
+    }
+
+    private static double distanceToCube(double param0, double param1, double param2, double param3, double param4, double param5) {
+        double var0 = Math.abs(param0) - param3;
+        double var1 = Math.abs(param1) - param4;
+        double var2 = Math.abs(param2) - param5;
+        return Mth.length(Math.max(0.0, var0), Math.max(0.0, var1), Math.max(0.0, var2));
+    }
+
     interface CellValueGetter {
         double get(BlendingData var1, int var2, int var3, int var4);
+    }
+
+    public interface DistanceGetter {
+        double getDistance(double var1, double var3, double var5);
     }
 
     static record PositionedBlendingData(int chunkX, int chunkZ, BlendingData blendingData) {

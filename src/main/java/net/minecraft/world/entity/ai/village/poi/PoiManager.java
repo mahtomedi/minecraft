@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -38,7 +38,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     private final PoiManager.DistanceTracker distanceTracker;
     private final LongSet loadedChunks = new LongOpenHashSet();
 
-    public PoiManager(File param0, DataFixer param1, boolean param2, LevelHeightAccessor param3) {
+    public PoiManager(Path param0, DataFixer param1, boolean param2, LevelHeightAccessor param3) {
         super(param0, PoiSection::codec, PoiSection::new, param1, DataFixTypes.POI_CHUNK, param2, param3);
         this.distanceTracker = new PoiManager.DistanceTracker();
     }

@@ -2,6 +2,7 @@ package net.minecraft.world.level.chunk.storage;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,11 +11,20 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 import javax.annotation.Nullable;
+import net.minecraft.util.FastBufferedInputStream;
 
 public class RegionFileVersion {
     private static final Int2ObjectMap<RegionFileVersion> VERSIONS = new Int2ObjectOpenHashMap<>();
-    public static final RegionFileVersion VERSION_GZIP = register(new RegionFileVersion(1, GZIPInputStream::new, GZIPOutputStream::new));
-    public static final RegionFileVersion VERSION_DEFLATE = register(new RegionFileVersion(2, InflaterInputStream::new, DeflaterOutputStream::new));
+    public static final RegionFileVersion VERSION_GZIP = register(
+        new RegionFileVersion(
+            1, param0 -> new FastBufferedInputStream(new GZIPInputStream(param0)), param0 -> new BufferedOutputStream(new GZIPOutputStream(param0))
+        )
+    );
+    public static final RegionFileVersion VERSION_DEFLATE = register(
+        new RegionFileVersion(
+            2, param0 -> new FastBufferedInputStream(new InflaterInputStream(param0)), param0 -> new BufferedOutputStream(new DeflaterOutputStream(param0))
+        )
+    );
     public static final RegionFileVersion VERSION_NONE = register(new RegionFileVersion(3, param0 -> param0, param0 -> param0));
     private final int id;
     private final RegionFileVersion.StreamWrapper<InputStream> inputWrapper;

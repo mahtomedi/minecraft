@@ -11,8 +11,8 @@ import com.mojang.serialization.OptionalDynamic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -43,7 +43,7 @@ public class SectionStorage<R> implements AutoCloseable {
     protected final LevelHeightAccessor levelHeightAccessor;
 
     public SectionStorage(
-        File param0,
+        Path param0,
         Function<Runnable, Codec<R>> param1,
         Function<Runnable, R> param2,
         DataFixer param3,
@@ -56,7 +56,7 @@ public class SectionStorage<R> implements AutoCloseable {
         this.fixerUpper = param3;
         this.type = param4;
         this.levelHeightAccessor = param6;
-        this.worker = new IOWorker(param0, param5, param0.getName());
+        this.worker = new IOWorker(param0, param5, param0.getFileName().toString());
     }
 
     protected void tick(BooleanSupplier param0) {

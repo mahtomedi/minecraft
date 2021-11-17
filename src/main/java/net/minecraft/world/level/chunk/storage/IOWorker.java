@@ -2,8 +2,8 @@ package net.minecraft.world.level.chunk.storage;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StreamTagVisitor;
 import net.minecraft.util.Unit;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.util.thread.StrictQueue;
@@ -22,14 +23,14 @@ import net.minecraft.world.level.ChunkPos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class IOWorker implements AutoCloseable {
+public class IOWorker implements AutoCloseable, ChunkScanAccess {
     private static final Logger LOGGER = LogManager.getLogger();
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     private final ProcessorMailbox<StrictQueue.IntRunnable> mailbox;
     private final RegionFileStorage storage;
     private final Map<ChunkPos, IOWorker.PendingStore> pendingWrites = Maps.newLinkedHashMap();
 
-    protected IOWorker(File param0, boolean param1, String param2) {
+    protected IOWorker(Path param0, boolean param1, String param2) {
         this.storage = new RegionFileStorage(param0, param1);
         this.mailbox = new ProcessorMailbox<>(new StrictQueue.FixedPriorityQueue(IOWorker.Priority.values().length), Util.ioPool(), "IOWorker-" + param2);
     }
@@ -92,6 +93,27 @@ public class IOWorker implements AutoCloseable {
                     return Either.right(var2x);
                 }
             })) : var0.thenCompose(param0x -> this.submitTask(() -> Either.left(null)));
+    }
+
+    @Override
+    public CompletableFuture<Void> scanChunk(ChunkPos param0, StreamTagVisitor param1) {
+        return this.submitTask(() -> {
+            try {
+                IOWorker.PendingStore var1x = this.pendingWrites.get(param0);
+                if (var1x != null) {
+                    if (var1x.data != null) {
+                        var1x.data.acceptAsRoot(param1);
+                    }
+                } else {
+                    this.storage.scanChunk(param0, param1);
+                }
+
+                return Either.left(null);
+            } catch (Exception var4) {
+                LOGGER.warn("Failed to bulk scan chunk {}", param0, var4);
+                return Either.right(var4);
+            }
+        });
     }
 
     private <T> CompletableFuture<T> submitTask(Supplier<Either<T, Exception>> param0) {

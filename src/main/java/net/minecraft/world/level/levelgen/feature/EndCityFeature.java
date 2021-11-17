@@ -3,12 +3,12 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -16,24 +16,18 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import net.minecraft.world.level.levelgen.structure.EndCityPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 
 public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     private static final int RANDOM_SALT = 10387313;
 
     public EndCityFeature(Codec<NoneFeatureConfiguration> param0) {
-        super(param0, EndCityFeature::generatePieces);
+        super(param0, EndCityFeature::pieceGeneratorSupplier);
     }
 
     @Override
     protected boolean linearSeparation() {
         return false;
-    }
-
-    protected boolean isFeatureChunk(
-        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, NoneFeatureConfiguration param4, LevelHeightAccessor param5
-    ) {
-        return getYPositionForFeature(param3, param0, param5) >= 60;
     }
 
     private static int getYPositionForFeature(ChunkPos param0, ChunkGenerator param1, LevelHeightAccessor param2) {
@@ -59,19 +53,24 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         return Math.min(Math.min(var6, var7), Math.min(var8, var9));
     }
 
-    private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {
-        Rotation var0 = Rotation.getRandom(param2.random());
-        int var1 = getYPositionForFeature(param2.chunkPos(), param2.chunkGenerator(), param2.heightAccessor());
-        if (var1 >= 60) {
-            BlockPos var2 = param2.chunkPos().getMiddleBlockPosition(var1);
-            if (param2.validBiome()
-                .test(param2.chunkGenerator().getNoiseBiome(QuartPos.fromBlock(var2.getX()), QuartPos.fromBlock(var2.getY()), QuartPos.fromBlock(var2.getZ())))
-                )
-             {
-                List<StructurePiece> var3 = Lists.newArrayList();
-                EndCityPieces.startHouseTower(param2.structureManager(), var2, var0, var3, param2.random());
-                var3.forEach(param0x::addPiece);
-            }
+    private static Optional<PieceGenerator<NoneFeatureConfiguration>> pieceGeneratorSupplier(PieceGeneratorSupplier.Context<NoneFeatureConfiguration> param0x) {
+        int var0 = getYPositionForFeature(param0x.chunkPos(), param0x.chunkGenerator(), param0x.heightAccessor());
+        if (var0 < 60) {
+            return Optional.empty();
+        } else {
+            BlockPos var1 = param0x.chunkPos().getMiddleBlockPosition(var0);
+            return !param0x.validBiome()
+                    .test(
+                        param0x.chunkGenerator()
+                            .getNoiseBiome(QuartPos.fromBlock(var1.getX()), QuartPos.fromBlock(var1.getY()), QuartPos.fromBlock(var1.getZ()))
+                    )
+                ? Optional.empty()
+                : Optional.of((param1, param2) -> {
+                    Rotation var0x = Rotation.getRandom(param2.random());
+                    List<StructurePiece> var1x = Lists.newArrayList();
+                    EndCityPieces.startHouseTower(param2.structureManager(), var1, var0x, var1x, param2.random());
+                    var1x.forEach(param1::addPiece);
+                });
         }
     }
 }

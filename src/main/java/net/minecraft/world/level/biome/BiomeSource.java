@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,10 +21,12 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
@@ -34,7 +37,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 public abstract class BiomeSource implements BiomeResolver {
     public static final Codec<BiomeSource> CODEC = Registry.BIOME_SOURCE.byNameCodec().dispatchStable(BiomeSource::codec, Function.identity());
     private final List<Biome> possibleBiomes;
-    private final List<List<PlacedFeature>> featuresPerStep;
+    private final List<BiomeSource.StepFeatureData> featuresPerStep;
 
     protected BiomeSource(Stream<Supplier<Biome>> param0) {
         this(param0.map(Supplier::get).distinct().collect(ImmutableList.toImmutableList()));
@@ -45,7 +48,7 @@ public abstract class BiomeSource implements BiomeResolver {
         this.featuresPerStep = this.buildFeaturesPerStep(param0, true);
     }
 
-    private List<List<PlacedFeature>> buildFeaturesPerStep(List<Biome> param0, boolean param1) {
+    private List<BiomeSource.StepFeatureData> buildFeaturesPerStep(List<Biome> param0, boolean param1) {
         Object2IntMap<PlacedFeature> var0 = new Object2IntOpenHashMap<>();
         MutableInt var1 = new MutableInt(0);
 
@@ -103,7 +106,7 @@ public abstract class BiomeSource implements BiomeResolver {
 
                         try {
                             this.buildFeaturesPerStep(var17, false);
-                        } catch (IllegalStateException var181) {
+                        } catch (IllegalStateException var18) {
                             continue;
                         }
 
@@ -116,11 +119,19 @@ public abstract class BiomeSource implements BiomeResolver {
         }
 
         Collections.reverse(var15);
-        Builder<List<PlacedFeature>> var22 = ImmutableList.builder();
+        Builder<BiomeSource.StepFeatureData> var22 = ImmutableList.builder();
 
         for(int var23 = 0; var23 < var4; ++var23) {
             int var24 = var23;
-            var22.add(var15.stream().filter(param1x -> param1x.step() == var24).map(FeatureData::feature).collect(Collectors.toList()));
+            List<PlacedFeature> var25 = var15.stream().filter(param1x -> param1x.step() == var24).map(FeatureData::feature).collect(Collectors.toList());
+            int var26 = var25.size();
+            Object2IntMap<PlacedFeature> var27 = new Object2IntOpenCustomHashMap<>(var26, Util.identityStrategy());
+
+            for(int var28 = 0; var28 < var26; ++var28) {
+                var27.put(var25.get(var28), var28);
+            }
+
+            var22.add(new BiomeSource.StepFeatureData(var25, var27));
         }
 
         return var22.build();
@@ -214,7 +225,7 @@ public abstract class BiomeSource implements BiomeResolver {
     public void addMultinoiseDebugInfo(List<String> param0, BlockPos param1, Climate.Sampler param2) {
     }
 
-    public List<List<PlacedFeature>> featuresPerStep() {
+    public List<BiomeSource.StepFeatureData> featuresPerStep() {
         return this.featuresPerStep;
     }
 
@@ -223,5 +234,8 @@ public abstract class BiomeSource implements BiomeResolver {
         Registry.register(Registry.BIOME_SOURCE, "multi_noise", MultiNoiseBiomeSource.CODEC);
         Registry.register(Registry.BIOME_SOURCE, "checkerboard", CheckerboardColumnBiomeSource.CODEC);
         Registry.register(Registry.BIOME_SOURCE, "the_end", TheEndBiomeSource.CODEC);
+    }
+
+    public static record StepFeatureData(List<PlacedFeature> features, ToIntFunction<PlacedFeature> indexMapping) {
     }
 }

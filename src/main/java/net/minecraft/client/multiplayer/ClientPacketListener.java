@@ -662,6 +662,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             this.level.setSectionDirtyWithNeighbors(param1, var5, param2);
         }
 
+        this.level.setLightReady(param1, param2);
     }
 
     @Override
@@ -684,6 +685,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             }
 
             var0.enableLightSources(new ChunkPos(param0.getX(), param0.getZ()), false);
+            this.level.setLightReady(param0.getX(), param0.getZ());
         });
     }
 
@@ -2237,6 +2239,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         BitSet var5 = param2.getEmptyBlockYMask();
         Iterator<byte[]> var6 = param2.getBlockUpdates().iterator();
         this.readSectionList(param0, param1, var0, LightLayer.BLOCK, var4, var5, var6, param2.getTrustEdges());
+        this.level.setLightReady(param0, param1);
     }
 
     @Override

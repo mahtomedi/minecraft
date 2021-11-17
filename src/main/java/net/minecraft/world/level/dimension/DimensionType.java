@@ -5,7 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Function;
@@ -360,15 +360,15 @@ public class DimensionType {
         return this.equalTo(DEFAULT_END) ? "_end" : "";
     }
 
-    public static File getStorageFolder(ResourceKey<Level> param0, File param1) {
+    public static Path getStorageFolder(ResourceKey<Level> param0, Path param1) {
         if (param0 == Level.OVERWORLD) {
             return param1;
         } else if (param0 == Level.END) {
-            return new File(param1, "DIM1");
+            return param1.resolve("DIM1");
         } else {
             return param0 == Level.NETHER
-                ? new File(param1, "DIM-1")
-                : new File(param1, "dimensions/" + param0.location().getNamespace() + "/" + param0.location().getPath());
+                ? param1.resolve("DIM-1")
+                : param1.resolve("dimensions").resolve(param0.location().getNamespace()).resolve(param0.location().getPath());
         }
     }
 

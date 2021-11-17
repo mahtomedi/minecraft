@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -61,6 +62,11 @@ public class PlacedFeature {
 
     public Stream<ConfiguredFeature<?, ?>> getFeatures() {
         return this.feature.get().getFeatures();
+    }
+
+    @VisibleForDebug
+    public List<PlacementModifier> getPlacement() {
+        return this.placement;
     }
 
     @Override

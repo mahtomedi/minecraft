@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +36,7 @@ public class EntityStorage implements EntityPersistentStorage<Entity> {
     private final ProcessorMailbox<Runnable> entityDeserializerQueue;
     protected final DataFixer fixerUpper;
 
-    public EntityStorage(ServerLevel param0, File param1, DataFixer param2, boolean param3, Executor param4) {
+    public EntityStorage(ServerLevel param0, Path param1, DataFixer param2, boolean param3, Executor param4) {
         this.level = param0;
         this.fixerUpper = param2;
         this.entityDeserializerQueue = ProcessorMailbox.create(param4, "entity-deserializer");

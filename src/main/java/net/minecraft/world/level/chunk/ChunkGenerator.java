@@ -3,6 +3,10 @@ package net.minecraft.world.level.chunk;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -223,60 +227,87 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
             Map<Integer, List<StructureFeature<?>>> var3 = Registry.STRUCTURE_FEATURE
                 .stream()
                 .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
-            List<List<PlacedFeature>> var4 = this.biomeSource.featuresPerStep();
+            List<BiomeSource.StepFeatureData> var4 = this.biomeSource.featuresPerStep();
             WorldgenRandom var5 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
             long var6 = var5.setDecorationSeed(param0.getSeed(), var2.getX(), var2.getZ());
+            Set<Biome> var7 = new ObjectArraySet<>();
+            ChunkPos.rangeClosed(var1.chunk(), 1).forEach(param2x -> {
+                ChunkAccess var0x = param0.getChunk(param2x.x, param2x.z);
+
+                for(LevelChunkSection var1x : var0x.getSections()) {
+                    var1x.getBiomes().getAll(var7::add);
+                }
+
+            });
+            int var8 = var4.size();
 
             try {
-                Registry<PlacedFeature> var7 = param0.registryAccess().registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
-                Registry<StructureFeature<?>> var8 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
-                int var9 = Math.max(GenerationStep.Decoration.values().length, var4.size());
+                Registry<PlacedFeature> var9 = param0.registryAccess().registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+                Registry<StructureFeature<?>> var10 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY);
+                int var11 = Math.max(GenerationStep.Decoration.values().length, var8);
 
-                for(int var10 = 0; var10 < var9; ++var10) {
-                    int var11 = 0;
+                for(int var12 = 0; var12 < var11; ++var12) {
+                    int var13 = 0;
                     if (param2.shouldGenerateFeatures()) {
-                        for(StructureFeature<?> var13 : var3.getOrDefault(var10, Collections.emptyList())) {
-                            var5.setFeatureSeed(var6, var11, var10);
-                            Supplier<String> var14 = () -> var8.getResourceKey(var13).map(Object::toString).orElseGet(var13::toString);
+                        for(StructureFeature<?> var15 : var3.getOrDefault(var12, Collections.emptyList())) {
+                            var5.setFeatureSeed(var6, var13, var12);
+                            Supplier<String> var16 = () -> var10.getResourceKey(var15).map(Object::toString).orElseGet(var15::toString);
 
                             try {
-                                param0.setCurrentlyGenerating(var14);
-                                param2.startsForFeature(var1, var13)
+                                param0.setCurrentlyGenerating(var16);
+                                param2.startsForFeature(var1, var15)
                                     .forEach(param5 -> param5.placeInChunk(param0, param2, this, var5, getWritableArea(param1), var0));
-                            } catch (Exception var23) {
-                                CrashReport var16 = CrashReport.forThrowable(var23, "Feature placement");
-                                var16.addCategory("Feature").setDetail("Description", var14::get);
-                                throw new ReportedException(var16);
+                            } catch (Exception var281) {
+                                CrashReport var18 = CrashReport.forThrowable(var281, "Feature placement");
+                                var18.addCategory("Feature").setDetail("Description", var16::get);
+                                throw new ReportedException(var18);
                             }
 
-                            ++var11;
+                            ++var13;
                         }
                     }
 
-                    if (var4.size() > var10) {
-                        for(PlacedFeature var17 : var4.get(var10)) {
-                            Supplier<String> var18 = () -> var7.getResourceKey(var17).map(Object::toString).orElseGet(var17::toString);
-                            var5.setFeatureSeed(var6, var11, var10);
+                    if (var12 < var8) {
+                        IntSet var19 = new IntArraySet();
+
+                        for(Biome var20 : var7) {
+                            List<List<Supplier<PlacedFeature>>> var21 = var20.getGenerationSettings().features();
+                            if (var12 < var21.size()) {
+                                List<Supplier<PlacedFeature>> var22 = var21.get(var12);
+                                BiomeSource.StepFeatureData var23 = var4.get(var12);
+                                var22.stream().map(Supplier::get).forEach(param2x -> var19.add(var23.indexMapping().applyAsInt(param2x)));
+                            }
+                        }
+
+                        int var24 = var19.size();
+                        int[] var25 = var19.toIntArray();
+                        Arrays.sort(var25);
+                        BiomeSource.StepFeatureData var26 = var4.get(var12);
+
+                        for(int var27 = 0; var27 < var24; ++var27) {
+                            PlacedFeature var28 = var26.features().get(var25[var27]);
+                            Supplier<String> var29 = () -> var9.getResourceKey(var28).map(Object::toString).orElseGet(var28::toString);
+                            var5.setFeatureSeed(var6, var13, var12);
 
                             try {
-                                param0.setCurrentlyGenerating(var18);
-                                var17.placeWithBiomeCheck(param0, this, var5, var2);
-                            } catch (Exception var24) {
-                                CrashReport var20 = CrashReport.forThrowable(var24, "Feature placement");
-                                var20.addCategory("Feature").setDetail("Description", var18::get);
-                                throw new ReportedException(var20);
+                                param0.setCurrentlyGenerating(var29);
+                                var28.placeWithBiomeCheck(param0, this, var5, var2);
+                            } catch (Exception var291) {
+                                CrashReport var31 = CrashReport.forThrowable(var291, "Feature placement");
+                                var31.addCategory("Feature").setDetail("Description", var29::get);
+                                throw new ReportedException(var31);
                             }
 
-                            ++var11;
+                            ++var13;
                         }
                     }
                 }
 
                 param0.setCurrentlyGenerating(null);
-            } catch (Exception var25) {
-                CrashReport var22 = CrashReport.forThrowable(var25, "Biome decoration");
-                var22.addCategory("Generation").setDetail("CenterX", var0.x).setDetail("CenterZ", var0.z).setDetail("Seed", var6);
-                throw new ReportedException(var22);
+            } catch (Exception var30) {
+                CrashReport var33 = CrashReport.forThrowable(var30, "Biome decoration");
+                var33.addCategory("Generation").setDetail("CenterX", var0.x).setDetail("CenterZ", var0.z).setDetail("Seed", var6);
+                throw new ReportedException(var33);
             }
         }
     }

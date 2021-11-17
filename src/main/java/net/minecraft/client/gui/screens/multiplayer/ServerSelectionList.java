@@ -84,7 +84,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         ServerSelectionList.Entry var0 = this.getSelected();
-        return var0 != null ? var0.keyPressed(param0, param1, param2) : super.keyPressed(param0, param1, param2);
+        return var0 != null && var0.keyPressed(param0, param1, param2) || super.keyPressed(param0, param1, param2);
     }
 
     @Override

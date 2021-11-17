@@ -145,7 +145,7 @@ public class ChunkSerializer {
             LevelChunkTicks<Fluid> var25 = LevelChunkTicks.load(
                 param3.getList("fluid_ticks", 10), param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
-            var26 = new LevelChunk(param0.getLevel(), param2, var1, var24, var25, var20, var5, param2x -> postLoadChunk(param0, param3, param2x), var22);
+            var26 = new LevelChunk(param0.getLevel(), param2, var1, var24, var25, var20, var5, postLoadChunk(param0, param3), var22);
         } else {
             ProtoChunkTicks<Block> var27 = ProtoChunkTicks.load(
                 param3.getList("block_ticks", 10), param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
@@ -385,30 +385,38 @@ public class ChunkSerializer {
         return param0 != null ? ChunkStatus.byName(param0.getString("Status")).getChunkType() : ChunkStatus.ChunkType.PROTOCHUNK;
     }
 
-    private static void postLoadChunk(ServerLevel param0, CompoundTag param1, LevelChunk param2) {
-        if (param1.contains("entities", 9)) {
-            ListTag var0 = param1.getList("entities", 10);
-            if (!var0.isEmpty()) {
+    @Nullable
+    private static LevelChunk.PostLoadProcessor postLoadChunk(ServerLevel param0, CompoundTag param1) {
+        ListTag var0 = getListOfCompoundsOrNull(param1, "entities");
+        ListTag var1 = getListOfCompoundsOrNull(param1, "block_entities");
+        return var0 == null && var1 == null ? null : param3 -> {
+            if (var0 != null) {
                 param0.addLegacyChunkEntities(EntityType.loadEntitiesRecursive(var0, param0));
             }
-        }
 
-        ListTag var1 = param1.getList("block_entities", 10);
-
-        for(int var2 = 0; var2 < var1.size(); ++var2) {
-            CompoundTag var3 = var1.getCompound(var2);
-            boolean var4 = var3.getBoolean("keepPacked");
-            if (var4) {
-                param2.setBlockEntityNbt(var3);
-            } else {
-                BlockPos var5 = BlockEntity.getPosFromTag(var3);
-                BlockEntity var6 = BlockEntity.loadStatic(var5, param2.getBlockState(var5), var3);
-                if (var6 != null) {
-                    param2.setBlockEntity(var6);
+            if (var1 != null) {
+                for(int var0x = 0; var0x < var1.size(); ++var0x) {
+                    CompoundTag var1x = var1.getCompound(var0x);
+                    boolean var2x = var1x.getBoolean("keepPacked");
+                    if (var2x) {
+                        param3.setBlockEntityNbt(var1x);
+                    } else {
+                        BlockPos var3x = BlockEntity.getPosFromTag(var1x);
+                        BlockEntity var4 = BlockEntity.loadStatic(var3x, param3.getBlockState(var3x), var1x);
+                        if (var4 != null) {
+                            param3.setBlockEntity(var4);
+                        }
+                    }
                 }
             }
-        }
 
+        };
+    }
+
+    @Nullable
+    private static ListTag getListOfCompoundsOrNull(CompoundTag param0, String param1) {
+        ListTag var0 = param0.getList(param1, 10);
+        return var0.isEmpty() ? null : var0;
     }
 
     private static CompoundTag packStructureData(

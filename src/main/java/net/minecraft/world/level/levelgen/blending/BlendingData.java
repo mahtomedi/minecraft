@@ -20,6 +20,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -104,14 +105,14 @@ public class BlendingData {
         ChunkAccess var0 = param0.getChunk(param1, param2);
         BlendingData var1 = var0.getBlendingData();
         if (var1 != null && var1.oldNoise()) {
-            var1.calculateData(var0, getSidesWithNewGen(param0, param1, param2));
+            var1.calculateData(var0, sideByGenerationAge(param0, param1, param2, false));
             return var1;
         } else {
             return null;
         }
     }
 
-    private static Set<Direction8> getSidesWithNewGen(WorldGenRegion param0, int param1, int param2) {
+    public static Set<Direction8> sideByGenerationAge(WorldGenLevel param0, int param1, int param2, boolean param3) {
         Set<Direction8> var0 = EnumSet.noneOf(Direction8.class);
 
         for(Direction8 var1 : Direction8.values()) {
@@ -123,7 +124,7 @@ public class BlendingData {
                 var3 += var4.getStepZ();
             }
 
-            if (!param0.getChunk(var2, var3).isOldNoiseGeneration()) {
+            if (param0.getChunk(var2, var3).isOldNoiseGeneration() == param3) {
                 var0.add(var1);
             }
         }

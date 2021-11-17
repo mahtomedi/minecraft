@@ -38,6 +38,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -81,10 +82,9 @@ public class ServerChunkCache extends ChunkSource {
         this.level = param0;
         this.mainThreadProcessor = new ServerChunkCache.MainThreadExecutor(param0);
         this.mainThread = Thread.currentThread();
-        File var0 = param1.getDimensionPath(param0.dimension());
-        File var1 = new File(var0, "data");
-        var1.mkdirs();
-        this.dataStorage = new DimensionDataStorage(var1, param2);
+        File var0 = param1.getDimensionPath(param0.dimension()).resolve("data").toFile();
+        var0.mkdirs();
+        this.dataStorage = new DimensionDataStorage(var0, param2);
         this.chunkMap = new ChunkMap(param0, param1, param2, param3, param4, this.mainThreadProcessor, this, param5, param9, param10, param11, param6, param8);
         this.lightEngine = this.chunkMap.getLightEngine();
         this.distanceManager = this.chunkMap.getDistanceManager();
@@ -493,6 +493,10 @@ public class ServerChunkCache extends ChunkSource {
 
     public PoiManager getPoiManager() {
         return this.chunkMap.getPoiManager();
+    }
+
+    public ChunkScanAccess chunkScanner() {
+        return this.chunkMap.chunkScanner();
     }
 
     @Nullable

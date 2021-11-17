@@ -57,7 +57,6 @@ import net.minecraft.world.level.levelgen.feature.SwamplandHutFeature;
 import net.minecraft.world.level.levelgen.material.MaterialRuleList;
 import net.minecraft.world.level.levelgen.material.WorldGenMaterialRule;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
-import net.minecraft.world.ticks.ScheduledTick;
 
 public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     public static final Codec<NoiseBasedChunkGenerator> CODEC = RecordCodecBuilder.create(
@@ -371,7 +370,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                                     var3.update(var25, var19, var29, var31);
                                     if (var7.shouldScheduleFluidUpdate() && !var31.getFluidState().isEmpty()) {
                                         var8.set(var24, var19, var28);
-                                        param2.getFluidTicks().schedule(ScheduledTick.worldgen(var31.getFluidState().getType(), var8, 0L));
+                                        param2.markPosForPostprocessing(var8);
                                     }
                                 }
                             }

@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
@@ -12,16 +13,18 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.WoodlandMansionPieces;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfiguration> {
     public WoodlandMansionFeature(Codec<NoneFeatureConfiguration> param0) {
-        super(param0, WoodlandMansionFeature::generatePieces, WoodlandMansionFeature::afterPlace);
+        super(param0, WoodlandMansionFeature::pieceGeneratorSupplier, WoodlandMansionFeature::afterPlace);
     }
 
     @Override
@@ -29,31 +32,37 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         return false;
     }
 
-    private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {
-        Rotation var0 = Rotation.getRandom(param2.random());
-        int var1 = 5;
+    private static Optional<PieceGenerator<NoneFeatureConfiguration>> pieceGeneratorSupplier(PieceGeneratorSupplier.Context<NoneFeatureConfiguration> param0x) {
+        WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
+        var0.setLargeFeatureSeed(param0x.seed(), param0x.chunkPos().x, param0x.chunkPos().z);
+        Rotation var1 = Rotation.getRandom(var0);
         int var2 = 5;
-        if (var0 == Rotation.CLOCKWISE_90) {
-            var1 = -5;
-        } else if (var0 == Rotation.CLOCKWISE_180) {
-            var1 = -5;
+        int var3 = 5;
+        if (var1 == Rotation.CLOCKWISE_90) {
             var2 = -5;
-        } else if (var0 == Rotation.COUNTERCLOCKWISE_90) {
+        } else if (var1 == Rotation.CLOCKWISE_180) {
             var2 = -5;
+            var3 = -5;
+        } else if (var1 == Rotation.COUNTERCLOCKWISE_90) {
+            var3 = -5;
         }
 
-        int var3 = param2.chunkPos().getBlockX(7);
-        int var4 = param2.chunkPos().getBlockZ(7);
-        int[] var5 = param2.getCornerHeights(var3, var1, var4, var2);
-        int var6 = Math.min(Math.min(var5[0], var5[1]), Math.min(var5[2], var5[3]));
-        if (var6 >= 60) {
-            if (param2.validBiome()
-                .test(param2.chunkGenerator().getNoiseBiome(QuartPos.fromBlock(var3), QuartPos.fromBlock(var5[0]), QuartPos.fromBlock(var4)))) {
-                BlockPos var7 = new BlockPos(param2.chunkPos().getMiddleBlockX(), var6 + 1, param2.chunkPos().getMiddleBlockZ());
-                List<WoodlandMansionPieces.WoodlandMansionPiece> var8 = Lists.newLinkedList();
-                WoodlandMansionPieces.generateMansion(param2.structureManager(), var7, var0, var8, param2.random());
-                var8.forEach(param0x::addPiece);
-            }
+        int var4 = param0x.chunkPos().getBlockX(7);
+        int var5 = param0x.chunkPos().getBlockZ(7);
+        int[] var6 = param0x.getCornerHeights(var4, var2, var5, var3);
+        int var7 = Math.min(Math.min(var6[0], var6[1]), Math.min(var6[2], var6[3]));
+        if (var7 < 60) {
+            return Optional.empty();
+        } else if (!param0x.validBiome()
+            .test(param0x.chunkGenerator().getNoiseBiome(QuartPos.fromBlock(var4), QuartPos.fromBlock(var6[0]), QuartPos.fromBlock(var5)))) {
+            return Optional.empty();
+        } else {
+            BlockPos var8 = new BlockPos(param0x.chunkPos().getMiddleBlockX(), var7 + 1, param0x.chunkPos().getMiddleBlockZ());
+            return Optional.of((param3, param4) -> {
+                List<WoodlandMansionPieces.WoodlandMansionPiece> var0x = Lists.newLinkedList();
+                WoodlandMansionPieces.generateMansion(param4.structureManager(), var8, var1, var0x, var0);
+                var0x.forEach(param3::addPiece);
+            });
         }
     }
 

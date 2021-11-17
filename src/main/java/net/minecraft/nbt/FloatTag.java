@@ -8,10 +8,20 @@ import net.minecraft.util.Mth;
 public class FloatTag extends NumericTag {
     private static final int SELF_SIZE_IN_BITS = 96;
     public static final FloatTag ZERO = new FloatTag(0.0F);
-    public static final TagType<FloatTag> TYPE = new TagType<FloatTag>() {
+    public static final TagType<FloatTag> TYPE = new TagType.StaticSize<FloatTag>() {
         public FloatTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(96L);
             return FloatTag.valueOf(param0.readFloat());
+        }
+
+        @Override
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
+            return param1.visit(param0.readFloat());
+        }
+
+        @Override
+        public int size() {
+            return 4;
         }
 
         @Override
@@ -110,5 +120,10 @@ public class FloatTag extends NumericTag {
     @Override
     public Number getAsNumber() {
         return this.data;
+    }
+
+    @Override
+    public StreamTagVisitor.ValueResult accept(StreamTagVisitor param0) {
+        return param0.visit(this.data);
     }
 }

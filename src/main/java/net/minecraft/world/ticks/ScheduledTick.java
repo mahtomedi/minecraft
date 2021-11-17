@@ -51,8 +51,4 @@ public record ScheduledTick<T>(T type, BlockPos pos, long triggerTick, TickPrior
     public static <T> ScheduledTick<T> probe(T param0, BlockPos param1) {
         return new ScheduledTick<>(param0, param1, 0L, TickPriority.NORMAL, 0L);
     }
-
-    public static <T> ScheduledTick<T> worldgen(T param0, BlockPos param1, long param2) {
-        return new ScheduledTick<>(param0, param1, 0L, TickPriority.NORMAL, param2);
-    }
 }

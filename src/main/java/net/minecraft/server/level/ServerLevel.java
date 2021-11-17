@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -105,6 +104,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -123,6 +123,7 @@ import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureCheck;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.material.Fluid;
@@ -177,6 +178,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private final EndDragonFight dragonFight;
     final Int2ObjectMap<EnderDragonPart> dragonParts = new Int2ObjectOpenHashMap<>();
     private final StructureFeatureManager structureFeatureManager;
+    private final StructureCheck structureCheck;
     private final boolean tickTime;
 
     public ServerLevel(
@@ -200,7 +202,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.serverLevelData = param3;
         boolean var0 = param0.forceSynchronousWrites();
         DataFixer var1 = param0.getFixerUpper();
-        EntityPersistentStorage<Entity> var2 = new EntityStorage(this, new File(param2.getDimensionPath(param4), "entities"), var1, var0, param0);
+        EntityPersistentStorage<Entity> var2 = new EntityStorage(this, param2.getDimensionPath(param4).resolve("entities"), var1, var0, param0);
         this.entityManager = new PersistentEntitySectionManager<>(Entity.class, new ServerLevel.EntityCallbacks(), var2);
         this.chunkSource = new ServerChunkCache(
             this,
@@ -225,9 +227,13 @@ public class ServerLevel extends Level implements WorldGenLevel {
             param3.setGameType(param0.getDefaultGameType());
         }
 
-        this.structureFeatureManager = new StructureFeatureManager(this, param0.getWorldData().worldGenSettings());
+        long var3 = param0.getWorldData().worldGenSettings().seed();
+        this.structureCheck = new StructureCheck(
+            this.chunkSource.chunkScanner(), this.registryAccess(), param0.getStructureManager(), param4, param7, this, param7.getBiomeSource(), var3, var1
+        );
+        this.structureFeatureManager = new StructureFeatureManager(this, param0.getWorldData().worldGenSettings(), this.structureCheck);
         if (this.dimensionType().createDragonFight()) {
-            this.dragonFight = new EndDragonFight(this, param0.getWorldData().worldGenSettings().seed(), param0.getWorldData().endDragonFightData());
+            this.dragonFight = new EndDragonFight(this, var3, param0.getWorldData().endDragonFightData());
         } else {
             this.dragonFight = null;
         }
@@ -1461,6 +1467,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     public void startTickingChunk(LevelChunk param0) {
         param0.unpackTicks(this.getLevelData().getGameTime());
+    }
+
+    public void onStructureStartsAvailable(ChunkAccess param0) {
+        this.structureCheck.onStructureLoad(param0.getPos(), param0.getAllStarts());
     }
 
     @Override

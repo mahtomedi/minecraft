@@ -5,17 +5,14 @@ import java.util.List;
 import net.minecraft.core.QuartPos;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.NetherBridgePieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class NetherFortressFeature extends StructureFeature<NoneFeatureConfiguration> {
@@ -28,41 +25,37 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
     );
 
     public NetherFortressFeature(Codec<NoneFeatureConfiguration> param0) {
-        super(param0, NetherFortressFeature::generatePieces);
+        super(param0, PieceGeneratorSupplier.simple(NetherFortressFeature::checkLocation, NetherFortressFeature::generatePieces));
     }
 
-    protected boolean isFeatureChunk(
-        ChunkGenerator param0, BiomeSource param1, long param2, ChunkPos param3, NoneFeatureConfiguration param4, LevelHeightAccessor param5
-    ) {
+    private static boolean checkLocation(PieceGeneratorSupplier.Context<NoneFeatureConfiguration> param0x) {
         WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(0L));
-        var0.setLargeFeatureSeed(param2, param3.x, param3.z);
-        return var0.nextInt(5) < 2;
+        var0.setLargeFeatureSeed(param0x.seed(), param0x.chunkPos().x, param0x.chunkPos().z);
+        return var0.nextInt(5) >= 2
+            ? false
+            : param0x.validBiome()
+                .test(
+                    param0x.chunkGenerator()
+                        .getNoiseBiome(
+                            QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockX()),
+                            QuartPos.fromBlock(64),
+                            QuartPos.fromBlock(param0x.chunkPos().getMiddleBlockZ())
+                        )
+                );
     }
 
-    private static void generatePieces(StructurePiecesBuilder param0x, NoneFeatureConfiguration param1, PieceGenerator.Context param2) {
-        if (param2.validBiome()
-            .test(
-                param2.chunkGenerator()
-                    .getNoiseBiome(
-                        QuartPos.fromBlock(param2.chunkPos().getMiddleBlockX()),
-                        QuartPos.fromBlock(64),
-                        QuartPos.fromBlock(param2.chunkPos().getMiddleBlockZ())
-                    )
-            )) {
-            NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(
-                param2.random(), param2.chunkPos().getBlockX(2), param2.chunkPos().getBlockZ(2)
-            );
-            param0x.addPiece(var0);
-            var0.addChildren(var0, param0x, param2.random());
-            List<StructurePiece> var1 = var0.pendingChildren;
+    private static void generatePieces(StructurePiecesBuilder param0x, PieceGenerator.Context<NoneFeatureConfiguration> param1) {
+        NetherBridgePieces.StartPiece var0 = new NetherBridgePieces.StartPiece(param1.random(), param1.chunkPos().getBlockX(2), param1.chunkPos().getBlockZ(2));
+        param0x.addPiece(var0);
+        var0.addChildren(var0, param0x, param1.random());
+        List<StructurePiece> var1 = var0.pendingChildren;
 
-            while(!var1.isEmpty()) {
-                int var2 = param2.random().nextInt(var1.size());
-                StructurePiece var3 = var1.remove(var2);
-                var3.addChildren(var0, param0x, param2.random());
-            }
-
-            param0x.moveInsideHeights(param2.random(), 48, 70);
+        while(!var1.isEmpty()) {
+            int var2 = param1.random().nextInt(var1.size());
+            StructurePiece var3 = var1.remove(var2);
+            var3.addChildren(var0, param0x, param1.random());
         }
+
+        param0x.moveInsideHeights(param1.random(), 48, 70);
     }
 }

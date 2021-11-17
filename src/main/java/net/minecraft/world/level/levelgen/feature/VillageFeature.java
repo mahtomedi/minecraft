@@ -5,6 +5,6 @@ import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfigura
 
 public class VillageFeature extends JigsawFeature {
     public VillageFeature(Codec<JigsawConfiguration> param0) {
-        super(param0, 0, true, true);
+        super(param0, 0, true, true, param0x -> true);
     }
 }

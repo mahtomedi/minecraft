@@ -23,7 +23,6 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.material.Material;
-import net.minecraft.world.ticks.ScheduledTick;
 
 public class SurfaceSystem {
     private static final int HOW_FAR_BELOW_PRELIMINARY_SURFACE_LEVEL_TO_BUILD_SURFACE = 8;
@@ -107,7 +106,7 @@ public class SurfaceSystem {
                 if (param0 >= var0.getMinBuildHeight() && param0 < var0.getMaxBuildHeight()) {
                     param4.setBlockState(var0.setY(param0), param1, false);
                     if (!param1.getFluidState().isEmpty()) {
-                        param4.getFluidTicks().schedule(ScheduledTick.worldgen(param1.getFluidState().getType(), var0, 0L));
+                        param4.markPosForPostprocessing(var0);
                     }
                 }
 
@@ -166,9 +165,11 @@ public class SurfaceSystem {
                         ++var16;
                         int var24 = var20 - var18 + 1;
                         var5.updateY(var16, var24, var17, var10, var20, var11);
-                        BlockState var25 = var6.tryApply(var10, var20, var11);
-                        if (var25 != null) {
-                            var4.setBlock(var20, var25);
+                        if (var21 == this.defaultBlock) {
+                            BlockState var25 = var6.tryApply(var10, var20, var11);
+                            if (var25 != null) {
+                                var4.setBlock(var20, var25);
+                            }
                         }
                     }
                 }

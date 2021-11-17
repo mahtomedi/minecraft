@@ -550,6 +550,14 @@ public class ClientLevel extends Level {
         this.levelRenderer.setSectionDirtyWithNeighbors(param0, param1, param2);
     }
 
+    public void setLightReady(int param0, int param1) {
+        LevelChunk var0 = this.chunkSource.getChunk(param0, param1, false);
+        if (var0 != null) {
+            var0.setClientLightReady(true);
+        }
+
+    }
+
     @Override
     public void destroyBlockProgress(int param0, BlockPos param1, int param2) {
         this.levelRenderer.destroyBlockProgress(param0, param1, param2);

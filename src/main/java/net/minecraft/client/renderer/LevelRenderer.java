@@ -103,6 +103,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
@@ -419,32 +420,32 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             for(int var6 = 0; var6 < var5; ++var6) {
                 int var7 = var1.nextInt(21) - 10;
                 int var8 = var1.nextInt(21) - 10;
-                BlockPos var9 = var2.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var3.offset(var7, 0, var8)).below();
+                BlockPos var9 = var2.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var3.offset(var7, 0, var8));
                 Biome var10 = var2.getBiome(var9);
                 if (var9.getY() > var2.getMinBuildHeight()
                     && var9.getY() <= var3.getY() + 10
                     && var9.getY() >= var3.getY() - 10
                     && var10.getPrecipitation() == Biome.Precipitation.RAIN
                     && var10.getTemperature(var9) >= 0.15F) {
-                    var4 = var9;
+                    var4 = var9.below();
                     if (this.minecraft.options.particles == ParticleStatus.MINIMAL) {
                         break;
                     }
 
                     double var11 = var1.nextDouble();
                     double var12 = var1.nextDouble();
-                    BlockState var13 = var2.getBlockState(var9);
-                    FluidState var14 = var2.getFluidState(var9);
-                    VoxelShape var15 = var13.getCollisionShape(var2, var9);
+                    BlockState var13 = var2.getBlockState(var4);
+                    FluidState var14 = var2.getFluidState(var4);
+                    VoxelShape var15 = var13.getCollisionShape(var2, var4);
                     double var16 = var15.max(Direction.Axis.Y, var11, var12);
-                    double var17 = (double)var14.getHeight(var2, var9);
+                    double var17 = (double)var14.getHeight(var2, var4);
                     double var18 = Math.max(var16, var17);
                     ParticleOptions var19 = !var14.is(FluidTags.LAVA) && !var13.is(Blocks.MAGMA_BLOCK) && !CampfireBlock.isLitCampfire(var13)
                         ? ParticleTypes.RAIN
                         : ParticleTypes.SMOKE;
                     this.minecraft
                         .level
-                        .addParticle(var19, (double)var9.getX() + var11, (double)var9.getY() + var18, (double)var9.getZ() + var12, 0.0, 0.0, 0.0);
+                        .addParticle(var19, (double)var4.getX() + var11, (double)var4.getY() + var18, (double)var4.getZ() + var12, 0.0, 0.0, 0.0);
                 }
             }
 
@@ -2331,18 +2332,19 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
         for(LevelRenderer.RenderChunkInfo var2 : this.renderChunksInFrustum) {
             ChunkRenderDispatcher.RenderChunk var3 = var2.chunk;
-            if (var3.isDirty()) {
-                boolean var4 = false;
+            ChunkPos var4 = new ChunkPos(var3.getOrigin());
+            if (var3.isDirty() && this.level.getChunk(var4.x, var4.z).isClientLightReady()) {
+                boolean var5 = false;
                 if (this.minecraft.options.prioritizeChunkUpdates != PrioritizeChunkUpdates.NEARBY) {
                     if (this.minecraft.options.prioritizeChunkUpdates == PrioritizeChunkUpdates.PLAYER_AFFECTED) {
-                        var4 = var3.isDirtyFromPlayer();
+                        var5 = var3.isDirtyFromPlayer();
                     }
                 } else {
-                    BlockPos var5 = var3.getOrigin().offset(8, 8, 8);
-                    var4 = var5.distSqr(var0) < 768.0 || var3.isDirtyFromPlayer();
+                    BlockPos var6 = var3.getOrigin().offset(8, 8, 8);
+                    var5 = var6.distSqr(var0) < 768.0 || var3.isDirtyFromPlayer();
                 }
 
-                if (var4) {
+                if (var5) {
                     this.minecraft.getProfiler().push("build_near_sync");
                     this.chunkRenderDispatcher.rebuildChunkSync(var3);
                     var3.setNotDirty();
@@ -2357,9 +2359,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.chunkRenderDispatcher.uploadAllPendingUploads();
         this.minecraft.getProfiler().popPush("schedule_async_compile");
 
-        for(ChunkRenderDispatcher.RenderChunk var6 : var1) {
-            var6.rebuildChunkAsync(this.chunkRenderDispatcher);
-            var6.setNotDirty();
+        for(ChunkRenderDispatcher.RenderChunk var7 : var1) {
+            var7.rebuildChunkAsync(this.chunkRenderDispatcher);
+            var7.setNotDirty();
         }
 
         this.minecraft.getProfiler().pop();
