@@ -239,6 +239,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                 }
 
             });
+            var7.retainAll(this.biomeSource.possibleBiomes());
             int var8 = var4.size();
 
             try {
