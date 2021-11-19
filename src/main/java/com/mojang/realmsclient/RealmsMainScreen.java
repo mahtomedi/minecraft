@@ -1234,7 +1234,7 @@ public class RealmsMainScreen extends RealmsScreen {
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
             RenderSystem.setShaderTexture(0, RealmsMainScreen.CROSS_ICON_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            float var0 = this.isHovered() ? 12.0F : 0.0F;
+            float var0 = this.isHoveredOrFocused() ? 12.0F : 0.0F;
             blit(param0, this.x, this.y, 0.0F, var0, 12, 12, 12, 24);
             if (this.isMouseOver((double)param1, (double)param2)) {
                 RealmsMainScreen.this.setTooltip(this.getMessage());
@@ -1276,7 +1276,9 @@ public class RealmsMainScreen extends RealmsScreen {
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-            RealmsMainScreen.this.renderNews(param0, param1, param2, RealmsMainScreen.this.hasUnreadNews, this.x, this.y, this.isHovered(), this.active);
+            RealmsMainScreen.this.renderNews(
+                param0, param1, param2, RealmsMainScreen.this.hasUnreadNews, this.x, this.y, this.isHoveredOrFocused(), this.active
+            );
         }
     }
 
@@ -1294,7 +1296,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-            RealmsMainScreen.this.drawInvitationPendingIcon(param0, param1, param2, this.x, this.y, this.isHovered(), this.active);
+            RealmsMainScreen.this.drawInvitationPendingIcon(param0, param1, param2, this.x, this.y, this.isHoveredOrFocused(), this.active);
         }
     }
 
@@ -1549,7 +1551,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
-            RealmsMainScreen.this.renderMoreInfo(param0, param1, param2, this.x, this.y, this.isHovered());
+            RealmsMainScreen.this.renderMoreInfo(param0, param1, param2, this.x, this.y, this.isHoveredOrFocused());
         }
     }
 

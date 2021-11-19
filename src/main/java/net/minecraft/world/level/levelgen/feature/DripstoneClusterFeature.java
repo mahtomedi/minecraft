@@ -102,36 +102,40 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
                 if (var7.isPresent() && var14 && !this.isLava(param0, param2.atY(var7.getAsInt()))) {
                     int var15 = param9.dripstoneBlockLayerThickness.sample(param1);
                     this.replaceBlocksWithDripstoneBlocks(param0, param2.atY(var7.getAsInt()), var15, Direction.DOWN);
-                    var16 = Math.max(
-                        0, var12 + Mth.randomBetweenInclusive(param1, -param9.maxStalagmiteStalactiteHeightDiff, param9.maxStalagmiteStalactiteHeightDiff)
-                    );
+                    if (var1.isPresent()) {
+                        var16 = Math.max(
+                            0, var12 + Mth.randomBetweenInclusive(param1, -param9.maxStalagmiteStalactiteHeightDiff, param9.maxStalagmiteStalactiteHeightDiff)
+                        );
+                    } else {
+                        var16 = this.getDripstoneHeight(param1, param3, param4, param8, param7, param9);
+                    }
                 } else {
                     var16 = 0;
                 }
 
+                int var26;
                 int var25;
-                int var24;
                 if (var1.isPresent() && var7.isPresent() && var1.getAsInt() - var12 <= var7.getAsInt() + var16) {
-                    int var18 = var7.getAsInt();
-                    int var19 = var1.getAsInt();
-                    int var20 = Math.max(var19 - var12, var18 + 1);
-                    int var21 = Math.min(var18 + var16, var19 - 1);
-                    int var22 = Mth.randomBetweenInclusive(param1, var20, var21 + 1);
-                    int var23 = var22 - 1;
-                    var24 = var19 - var22;
-                    var25 = var23 - var18;
+                    int var19 = var7.getAsInt();
+                    int var20 = var1.getAsInt();
+                    int var21 = Math.max(var20 - var12, var19 + 1);
+                    int var22 = Math.min(var19 + var16, var20 - 1);
+                    int var23 = Mth.randomBetweenInclusive(param1, var21, var22 + 1);
+                    int var24 = var23 - 1;
+                    var25 = var20 - var23;
+                    var26 = var24 - var19;
                 } else {
-                    var24 = var12;
-                    var25 = var16;
+                    var25 = var12;
+                    var26 = var16;
                 }
 
-                boolean var28 = param1.nextBoolean() && var24 > 0 && var25 > 0 && var5.getHeight().isPresent() && var24 + var25 == var5.getHeight().getAsInt();
+                boolean var29 = param1.nextBoolean() && var25 > 0 && var26 > 0 && var5.getHeight().isPresent() && var25 + var26 == var5.getHeight().getAsInt();
                 if (var1.isPresent()) {
-                    DripstoneUtils.growPointedDripstone(param0, param2.atY(var1.getAsInt() - 1), Direction.DOWN, var24, var28);
+                    DripstoneUtils.growPointedDripstone(param0, param2.atY(var1.getAsInt() - 1), Direction.DOWN, var25, var29);
                 }
 
                 if (var7.isPresent()) {
-                    DripstoneUtils.growPointedDripstone(param0, param2.atY(var7.getAsInt() + 1), Direction.UP, var25, var28);
+                    DripstoneUtils.growPointedDripstone(param0, param2.atY(var7.getAsInt() + 1), Direction.UP, var26, var29);
                 }
 
             }

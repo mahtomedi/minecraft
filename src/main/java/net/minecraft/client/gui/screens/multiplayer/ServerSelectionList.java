@@ -428,6 +428,10 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             if (Screen.hasShiftDown()) {
                 ServerSelectionList var0 = this.screen.serverSelectionList;
                 int var1 = var0.children().indexOf(this);
+                if (var1 == -1) {
+                    return true;
+                }
+
                 if (param0 == 264 && var1 < this.screen.getServers().size() - 1 || param0 == 265 && var1 > 0) {
                     this.swap(var1, param0 == 264 ? var1 + 1 : var1 - 1);
                     return true;

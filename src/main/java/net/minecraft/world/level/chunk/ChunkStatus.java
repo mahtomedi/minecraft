@@ -127,8 +127,8 @@ public class ChunkStatus {
                         BelowZeroRetrogen var1x = var0x.getBelowZeroRetrogen();
                         if (var1x != null) {
                             BelowZeroRetrogen.replaceOldBedrock(var0x);
-                            if (var1x.hasAllBedrockMissing()) {
-                                BelowZeroRetrogen.removeBedrock(var0x);
+                            if (var1x.hasBedrockHoles()) {
+                                var1x.applyBedrockMask(var0x);
                             }
                         }
     

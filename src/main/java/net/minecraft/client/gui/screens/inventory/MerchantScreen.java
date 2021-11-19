@@ -214,7 +214,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             }
 
             for(MerchantScreen.TradeOfferButton var14 : this.tradeOfferButtons) {
-                if (var14.isHovered()) {
+                if (var14.isHoveredOrFocused()) {
                     var14.renderToolTip(param0, param1, param2);
                 }
 

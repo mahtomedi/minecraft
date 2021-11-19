@@ -1007,7 +1007,7 @@ public class Panda extends Animal {
             if (!this.panda.isOnFire()) {
                 return false;
             } else {
-                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 5, 4);
+                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 5);
                 if (var0 != null) {
                     this.posX = (double)var0.getX();
                     this.posY = (double)var0.getY();

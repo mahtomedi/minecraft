@@ -99,10 +99,11 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         var2.add(NoiseChunk::oreVeinify);
         this.materialRule = new MaterialRuleList(var2.build());
         Aquifer.FluidStatus var3 = new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState());
-        Aquifer.FluidStatus var4 = new Aquifer.FluidStatus(var0.seaLevel(), var0.getDefaultFluid());
-        Aquifer.FluidStatus var5 = new Aquifer.FluidStatus(var1.minY() - 1, Blocks.AIR.defaultBlockState());
-        this.globalFluidPicker = (param3x, param4x, param5) -> param4x < -54 ? var3 : var4;
-        this.surfaceSystem = new SurfaceSystem(this.sampler, param0, this.defaultBlock, var0.seaLevel(), param3, var0.getRandomSource());
+        int var4 = var0.seaLevel();
+        Aquifer.FluidStatus var5 = new Aquifer.FluidStatus(var4, var0.getDefaultFluid());
+        Aquifer.FluidStatus var6 = new Aquifer.FluidStatus(var1.minY() - 1, Blocks.AIR.defaultBlockState());
+        this.globalFluidPicker = (param4x, param5, param6) -> param5 < Math.min(-54, var4) ? var3 : var5;
+        this.surfaceSystem = new SurfaceSystem(param0, this.defaultBlock, var4, param3, var0.getRandomSource());
     }
 
     @Override
@@ -358,7 +359,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                                     var31 = this.defaultBlock;
                                 }
 
-                                var31 = this.debugPreliminarySurfaceLevel(var19, var24, var28, var31);
+                                var31 = this.debugPreliminarySurfaceLevel(var1, var24, var19, var28, var31);
                                 if (var31 != AIR && !SharedConstants.debugVoidTerrain(param2.getPos())) {
                                     if (var31.getLightEmission() != 0 && param2 instanceof ProtoChunk) {
                                         var8.set(var24, var19, var28);
@@ -385,8 +386,8 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         return param2;
     }
 
-    private BlockState debugPreliminarySurfaceLevel(int param0, int param1, int param2, BlockState param3) {
-        return param3;
+    private BlockState debugPreliminarySurfaceLevel(NoiseChunk param0, int param1, int param2, int param3, BlockState param4) {
+        return param4;
     }
 
     @Override

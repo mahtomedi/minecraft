@@ -100,7 +100,7 @@ public class GameModeSwitcherScreen extends Screen {
             for(GameModeSwitcherScreen.GameModeSlot var3 : this.slots) {
                 var3.render(param0, param1, param2, param3);
                 this.currentlyHovered.ifPresent(param1x -> var3.setSelected(param1x == var3.icon));
-                if (!var2 && var3.isHovered()) {
+                if (!var2 && var3.isHoveredOrFocused()) {
                     this.currentlyHovered = Optional.of(var3.icon);
                 }
             }
@@ -237,8 +237,8 @@ public class GameModeSwitcherScreen extends Screen {
         }
 
         @Override
-        public boolean isHovered() {
-            return super.isHovered() || this.isSelected;
+        public boolean isHoveredOrFocused() {
+            return super.isHoveredOrFocused() || this.isSelected;
         }
 
         public void setSelected(boolean param0) {

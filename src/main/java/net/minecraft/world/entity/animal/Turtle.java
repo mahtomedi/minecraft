@@ -587,7 +587,7 @@ public class Turtle extends Animal {
             if (this.mob.getLastHurtByMob() == null && !this.mob.isOnFire()) {
                 return false;
             } else {
-                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 7, 4);
+                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 7);
                 if (var0 != null) {
                     this.posX = (double)var0.getX();
                     this.posY = (double)var0.getY();

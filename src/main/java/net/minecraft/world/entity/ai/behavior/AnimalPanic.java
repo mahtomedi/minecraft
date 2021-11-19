@@ -58,6 +58,9 @@ public class AnimalPanic extends Behavior<PathfinderMob> {
     }
 
     private Optional<BlockPos> lookForWater(BlockGetter param0, Entity param1) {
-        return BlockPos.findClosestMatch(param1.blockPosition(), 5, 4, param1x -> param0.getFluidState(param1x).is(FluidTags.WATER));
+        BlockPos var0 = param1.blockPosition();
+        return !param0.getBlockState(var0).getCollisionShape(param0, var0).isEmpty()
+            ? Optional.empty()
+            : BlockPos.findClosestMatch(var0, 5, 1, param1x -> param0.getFluidState(param1x).is(FluidTags.WATER));
     }
 }

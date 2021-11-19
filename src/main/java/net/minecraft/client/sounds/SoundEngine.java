@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Options;
@@ -369,7 +370,10 @@ public class SoundEngine {
                                     .createHandle(var2x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
                                 ChannelAccess.ChannelHandle var16 = var15.join();
                                 if (var16 == null) {
-                                    LOGGER.warn("Failed to create new sound handle");
+                                    if (SharedConstants.IS_RUNNING_IN_IDE) {
+                                        LOGGER.warn("Failed to create new sound handle");
+                                    }
+
                                 } else {
                                     LOGGER.debug(MARKER, "Playing sound {} for event {}", var2x.getLocation(), var1x);
                                     this.soundDeleteTime.put(param0, this.tickCount + 20);

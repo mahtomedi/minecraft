@@ -76,20 +76,32 @@ public final class BelowZeroRetrogen {
         });
     }
 
-    public static void removeBedrock(ProtoChunk param0) {
+    public void applyBedrockMask(ProtoChunk param0) {
         LevelHeightAccessor var0 = param0.getHeightAccessorForGeneration();
         int var1 = var0.getMinBuildHeight();
         int var2 = var0.getMaxBuildHeight() - 1;
-        BlockPos.betweenClosed(0, var1, 0, 15, var2, 15).forEach(param1 -> param0.setBlockState(param1, Blocks.AIR.defaultBlockState(), false));
+
+        for(int var3 = 0; var3 < 16; ++var3) {
+            for(int var4 = 0; var4 < 16; ++var4) {
+                if (this.hasBedrockHole(var3, var4)) {
+                    BlockPos.betweenClosed(var3, var1, var4, var3, var2, var4)
+                        .forEach(param1 -> param0.setBlockState(param1, Blocks.AIR.defaultBlockState(), false));
+                }
+            }
+        }
+
     }
 
     public ChunkStatus targetStatus() {
         return this.targetStatus;
     }
 
-    public boolean hasAllBedrockMissing() {
-        int var0 = this.missingBedrock.size();
-        return var0 == 256 && var0 == this.missingBedrock.cardinality();
+    public boolean hasBedrockHoles() {
+        return !this.missingBedrock.isEmpty();
+    }
+
+    public boolean hasBedrockHole(int param0, int param1) {
+        return this.missingBedrock.get((param1 & 15) * 16 + (param0 & 15));
     }
 
     public static BiomeResolver getBiomeResolver(BiomeResolver param0, Registry<Biome> param1, ChunkAccess param2) {
