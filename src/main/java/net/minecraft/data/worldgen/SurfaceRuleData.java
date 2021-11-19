@@ -1,5 +1,7 @@
 package net.minecraft.data.worldgen;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -49,6 +51,10 @@ public class SurfaceRuleData {
     }
 
     public static SurfaceRules.RuleSource overworld() {
+        return overworldLike(true, false, true);
+    }
+
+    public static SurfaceRules.RuleSource overworldLike(boolean param0, boolean param1, boolean param2) {
         SurfaceRules.ConditionSource var0 = SurfaceRules.yBlockCheck(VerticalAnchor.absolute(97), 2);
         SurfaceRules.ConditionSource var1 = SurfaceRules.yBlockCheck(VerticalAnchor.absolute(256), 0);
         SurfaceRules.ConditionSource var2 = SurfaceRules.yStartCheck(VerticalAnchor.absolute(63), -1);
@@ -170,36 +176,33 @@ public class SurfaceRuleData {
             ),
             SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS),
-                SurfaceRules.ifTrue(
-                    SurfaceRules.stoneDepthCheck(15, false, false, CaveSurface.FLOOR),
-                    SurfaceRules.sequence(
-                        SurfaceRules.ifTrue(
-                            SurfaceRules.ON_FLOOR,
-                            SurfaceRules.sequence(
-                                SurfaceRules.ifTrue(var1, ORANGE_TERRACOTTA),
-                                SurfaceRules.ifTrue(
-                                    var3,
-                                    SurfaceRules.sequence(
-                                        SurfaceRules.ifTrue(var21, TERRACOTTA),
-                                        SurfaceRules.ifTrue(var22, TERRACOTTA),
-                                        SurfaceRules.ifTrue(var23, TERRACOTTA),
-                                        SurfaceRules.bandlands()
-                                    )
-                                ),
-                                SurfaceRules.ifTrue(var6, SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_CEILING, RED_SANDSTONE), RED_SAND)),
-                                SurfaceRules.ifTrue(SurfaceRules.not(var9), ORANGE_TERRACOTTA),
-                                SurfaceRules.ifTrue(var8, WHITE_TERRACOTTA),
-                                var14
-                            )
-                        ),
-                        SurfaceRules.ifTrue(
-                            var2,
-                            SurfaceRules.sequence(
-                                SurfaceRules.ifTrue(var5, SurfaceRules.ifTrue(SurfaceRules.not(var3), ORANGE_TERRACOTTA)), SurfaceRules.bandlands()
-                            )
-                        ),
-                        SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, SurfaceRules.ifTrue(var8, WHITE_TERRACOTTA))
-                    )
+                SurfaceRules.sequence(
+                    SurfaceRules.ifTrue(
+                        SurfaceRules.ON_FLOOR,
+                        SurfaceRules.sequence(
+                            SurfaceRules.ifTrue(var1, ORANGE_TERRACOTTA),
+                            SurfaceRules.ifTrue(
+                                var3,
+                                SurfaceRules.sequence(
+                                    SurfaceRules.ifTrue(var21, TERRACOTTA),
+                                    SurfaceRules.ifTrue(var22, TERRACOTTA),
+                                    SurfaceRules.ifTrue(var23, TERRACOTTA),
+                                    SurfaceRules.bandlands()
+                                )
+                            ),
+                            SurfaceRules.ifTrue(var6, SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_CEILING, RED_SANDSTONE), RED_SAND)),
+                            SurfaceRules.ifTrue(SurfaceRules.not(var9), ORANGE_TERRACOTTA),
+                            SurfaceRules.ifTrue(var8, WHITE_TERRACOTTA),
+                            var14
+                        )
+                    ),
+                    SurfaceRules.ifTrue(
+                        var2,
+                        SurfaceRules.sequence(
+                            SurfaceRules.ifTrue(var5, SurfaceRules.ifTrue(SurfaceRules.not(var3), ORANGE_TERRACOTTA)), SurfaceRules.bandlands()
+                        )
+                    ),
+                    SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, SurfaceRules.ifTrue(var8, WHITE_TERRACOTTA))
                 )
             ),
             SurfaceRules.ifTrue(
@@ -234,11 +237,21 @@ public class SurfaceRuleData {
                 )
             )
         );
-        return SurfaceRules.sequence(
-            SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(), VerticalAnchor.aboveBottom(5)), BEDROCK),
-            SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), var24),
-            SurfaceRules.ifTrue(SurfaceRules.verticalGradient("deepslate", VerticalAnchor.absolute(0), VerticalAnchor.absolute(8)), DEEPSLATE)
-        );
+        Builder<SurfaceRules.RuleSource> var25 = ImmutableList.builder();
+        if (param1) {
+            var25.add(
+                SurfaceRules.ifTrue(SurfaceRules.not(SurfaceRules.verticalGradient("bedrock_roof", VerticalAnchor.belowTop(5), VerticalAnchor.top())), BEDROCK)
+            );
+        }
+
+        if (param2) {
+            var25.add(SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(), VerticalAnchor.aboveBottom(5)), BEDROCK));
+        }
+
+        SurfaceRules.RuleSource var26 = SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), var24);
+        var25.add(param0 ? var26 : var24);
+        var25.add(SurfaceRules.ifTrue(SurfaceRules.verticalGradient("deepslate", VerticalAnchor.absolute(0), VerticalAnchor.absolute(8)), DEEPSLATE));
+        return SurfaceRules.sequence(var25.build().toArray(param0x -> new SurfaceRules.RuleSource[param0x]));
     }
 
     public static SurfaceRules.RuleSource nether() {

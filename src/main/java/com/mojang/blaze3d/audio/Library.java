@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.OptionalLong;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -260,7 +261,10 @@ public class Library {
         @Override
         public Channel acquire() {
             if (this.activeChannels.size() >= this.limit) {
-                Library.LOGGER.warn("Maximum sound pool size {} reached", this.limit);
+                if (SharedConstants.IS_RUNNING_IN_IDE) {
+                    Library.LOGGER.warn("Maximum sound pool size {} reached", this.limit);
+                }
+
                 return null;
             } else {
                 Channel var0 = Channel.create();

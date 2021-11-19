@@ -281,7 +281,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
                 var1 += this.width * 2;
             } else if (this.selected) {
                 var1 += this.width * 1;
-            } else if (this.isHovered()) {
+            } else if (this.isHoveredOrFocused()) {
                 var1 += this.width * 3;
             }
 

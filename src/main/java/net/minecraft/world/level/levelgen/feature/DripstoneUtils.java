@@ -75,15 +75,17 @@ public class DripstoneUtils {
     }
 
     protected static void growPointedDripstone(LevelAccessor param0, BlockPos param1, Direction param2, int param3, boolean param4) {
-        BlockPos.MutableBlockPos var0 = param1.mutable();
-        buildBaseToTipColumn(param2, param3, param4, param3x -> {
-            if (param3x.is(Blocks.POINTED_DRIPSTONE)) {
-                param3x = param3x.setValue(PointedDripstoneBlock.WATERLOGGED, Boolean.valueOf(param0.isWaterAt(var0)));
-            }
+        if (isDripstoneBase(param0.getBlockState(param1.relative(param2.getOpposite())))) {
+            BlockPos.MutableBlockPos var0 = param1.mutable();
+            buildBaseToTipColumn(param2, param3, param4, param3x -> {
+                if (param3x.is(Blocks.POINTED_DRIPSTONE)) {
+                    param3x = param3x.setValue(PointedDripstoneBlock.WATERLOGGED, Boolean.valueOf(param0.isWaterAt(var0)));
+                }
 
-            param0.setBlock(var0, param3x, 2);
-            var0.move(param2);
-        });
+                param0.setBlock(var0, param3x, 2);
+                var0.move(param2);
+            });
+        }
     }
 
     protected static boolean placeDripstoneBlockIfPossible(LevelAccessor param0, BlockPos param1) {

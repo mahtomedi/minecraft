@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen;
 
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import java.util.List;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -14,6 +14,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
 public class NoiseChunk {
+    private final NoiseSampler sampler;
     final NoiseSettings noiseSettings;
     final int cellCountXZ;
     final int cellCountY;
@@ -24,7 +25,7 @@ public class NoiseChunk {
     private final int firstNoiseZ;
     final List<NoiseChunk.NoiseInterpolator> interpolators;
     private final NoiseSampler.FlatNoiseData[][] noiseData;
-    private final Long2ObjectMap<TerrainInfo> terrainInfo = new Long2ObjectOpenHashMap<>();
+    private final Long2IntMap preliminarySurfaceLevel = new Long2IntOpenHashMap();
     private final Aquifer aquifer;
     private final NoiseChunk.BlockStateFiller baseNoise;
     private final NoiseChunk.BlockStateFiller oreVeins;
@@ -69,6 +70,7 @@ public class NoiseChunk {
         this.cellCountXZ = param0;
         this.cellCountY = param1;
         this.cellNoiseMinY = param2;
+        this.sampler = param3;
         int var0 = this.noiseSettings.getCellWidth();
         this.firstCellX = Math.floorDiv(param4, var0);
         this.firstCellZ = Math.floorDiv(param5, var0);
@@ -98,31 +100,25 @@ public class NoiseChunk {
         return this.noiseData[param0 - this.firstNoiseX][param1 - this.firstNoiseZ];
     }
 
-    public TerrainInfo terrainInfoWide(NoiseSampler param0, int param1, int param2) {
-        int var0 = param1 - this.firstNoiseX;
-        int var1 = param2 - this.firstNoiseZ;
-        int var2 = this.noiseData.length;
-        return var0 >= 0 && var1 >= 0 && var0 < var2 && var1 < var2
-            ? this.noiseData[var0][var1].terrainInfo()
-            : this.terrainInfo
-                .computeIfAbsent(
-                    ChunkPos.asLong(param1, param2), param1x -> param0.noiseData(ChunkPos.getX(param1x), ChunkPos.getZ(param1x), this.blender).terrainInfo()
-                );
+    public int preliminarySurfaceLevel(int param0, int param1) {
+        return this.preliminarySurfaceLevel
+            .computeIfAbsent(ChunkPos.asLong(QuartPos.fromBlock(param0), QuartPos.fromBlock(param1)), this::computePreliminarySurfaceLevel);
     }
 
-    public TerrainInfo terrainInfoInterpolated(int param0, int param1) {
-        int var0 = QuartPos.fromBlock(param0) - this.firstNoiseX;
-        int var1 = QuartPos.fromBlock(param1) - this.firstNoiseZ;
-        TerrainInfo var2 = this.noiseData[var0][var1].terrainInfo();
-        TerrainInfo var3 = this.noiseData[var0][var1 + 1].terrainInfo();
-        TerrainInfo var4 = this.noiseData[var0 + 1][var1].terrainInfo();
-        TerrainInfo var5 = this.noiseData[var0 + 1][var1 + 1].terrainInfo();
-        double var6 = (double)Math.floorMod(param0, 4) / 4.0;
-        double var7 = (double)Math.floorMod(param1, 4) / 4.0;
-        double var8 = Mth.lerp2(var6, var7, var2.offset(), var4.offset(), var3.offset(), var5.offset());
-        double var9 = Mth.lerp2(var6, var7, var2.factor(), var4.factor(), var3.factor(), var5.factor());
-        double var10 = Mth.lerp2(var6, var7, var2.jaggedness(), var4.jaggedness(), var3.jaggedness(), var5.jaggedness());
-        return new TerrainInfo(var8, var9, var10);
+    private int computePreliminarySurfaceLevel(long param0x) {
+        int var0 = ChunkPos.getX(param0x);
+        int var1 = ChunkPos.getZ(param0x);
+        int var2 = var0 - this.firstNoiseX;
+        int var3 = var1 - this.firstNoiseZ;
+        int var4 = this.noiseData.length;
+        TerrainInfo var5;
+        if (var2 >= 0 && var3 >= 0 && var2 < var4 && var3 < var4) {
+            var5 = this.noiseData[var2][var3].terrainInfo();
+        } else {
+            var5 = this.sampler.noiseData(var0, var1, this.blender).terrainInfo();
+        }
+
+        return this.sampler.getPreliminarySurfaceLevel(QuartPos.toBlock(var0), QuartPos.toBlock(var1), var5);
     }
 
     protected NoiseChunk.NoiseInterpolator createNoiseInterpolator(NoiseChunk.NoiseFiller param0) {

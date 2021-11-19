@@ -19,6 +19,7 @@ import net.minecraft.core.Direction8;
 import net.minecraft.core.QuartPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -40,7 +41,9 @@ public class BlendingData {
             return 0;
         }
     };
-    public static final int CELL_HEIGHT = 8;
+    protected static final int CELL_WIDTH = 4;
+    protected static final int CELL_HEIGHT = 8;
+    protected static final int CELL_RATIO = 2;
     private static final int CELLS_PER_SECTION_Y = 2;
     private static final int QUARTS_PER_SECTION = QuartPos.fromBlock(16);
     private static final int CELL_HORIZONTAL_MAX_INDEX_INSIDE = QUARTS_PER_SECTION - 1;
@@ -187,13 +190,13 @@ public class BlendingData {
             this.heights[param0] = (double)getHeightAtXZ(param1, param2, param3);
         }
 
-        this.densities[param0] = getDensityColumn(param1, param2, param3);
+        this.densities[param0] = getDensityColumn(param1, param2, param3, Mth.floor(this.heights[param0]));
     }
 
     private static int getHeightAtXZ(ChunkAccess param0, int param1, int param2) {
         int var0;
         if (param0.hasPrimedHeightmap(Heightmap.Types.WORLD_SURFACE_WG)) {
-            var0 = Math.min(param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, param1, param2), AREA_WITH_OLD_GENERATION.getMaxBuildHeight());
+            var0 = Math.min(param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, param1, param2) + 1, AREA_WITH_OLD_GENERATION.getMaxBuildHeight());
         } else {
             var0 = AREA_WITH_OLD_GENERATION.getMaxBuildHeight();
         }
@@ -211,32 +214,40 @@ public class BlendingData {
         return var2;
     }
 
-    private static double[] getDensityColumn(ChunkAccess param0, int param1, int param2) {
+    private static double read1(ChunkAccess param0, BlockPos.MutableBlockPos param1) {
+        return isGround(param0, param1.move(Direction.DOWN)) ? 1.0 : -1.0;
+    }
+
+    private static double read7(ChunkAccess param0, BlockPos.MutableBlockPos param1) {
+        double var0 = 0.0;
+
+        for(int var1 = 0; var1 < 7; ++var1) {
+            var0 += read1(param0, param1);
+        }
+
+        return var0;
+    }
+
+    private static double[] getDensityColumn(ChunkAccess param0, int param1, int param2, int param3) {
         double[] var0 = new double[cellCountPerColumn()];
-        int var1 = getColumnMinY();
-        double var2 = 30.0;
-        double var3 = 0.0;
-        double var4 = 0.0;
-        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
-        double var6 = 15.0;
+        Arrays.fill(var0, -1.0);
+        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param1, AREA_WITH_OLD_GENERATION.getMaxBuildHeight(), param2);
+        double var2 = read7(param0, var1);
 
-        for(int var7 = AREA_WITH_OLD_GENERATION.getMaxBuildHeight() - 1; var7 >= AREA_WITH_OLD_GENERATION.getMinBuildHeight(); --var7) {
-            double var8 = isGround(param0, var5.set(param1, var7, param2)) ? 1.0 : -1.0;
-            int var9 = var7 % 8;
-            if (var9 == 0) {
-                double var10 = var3 / 15.0;
-                int var11 = var7 / 8 + 1;
-                var0[var11 - var1] = var10 * var2;
-                var3 = var4;
-                var4 = 0.0;
-                if (var10 > 0.0) {
-                    var2 = 1.0;
-                }
-            } else {
-                var4 += var8;
-            }
+        for(int var3 = var0.length - 2; var3 >= 0; --var3) {
+            double var4 = read1(param0, var1);
+            double var5 = read7(param0, var1);
+            var0[var3] = (var2 + var4 + var5) / 15.0;
+            var2 = var5;
+        }
 
-            var3 += var8;
+        int var6 = Mth.intFloorDiv(param3, 8);
+        if (var6 >= 1) {
+            double var7 = ((double)param3 + 0.5) % 8.0 / 8.0;
+            double var8 = (1.0 - var7) / var7;
+            double var9 = Math.max(var8, 1.0) * 0.25;
+            var0[var6] = -var8 / var9;
+            var0[var6 - 1] = 1.0 / var9;
         }
 
         return var0;

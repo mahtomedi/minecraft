@@ -49,7 +49,7 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        int var0 = (this.isHovered() ? 2 : 1) * 20;
+        int var0 = (this.isHoveredOrFocused() ? 2 : 1) * 20;
         this.blit(param0, this.x + (int)(this.value * (double)(this.width - 8)), this.y, 0, 46 + var0, 4, 20);
         this.blit(param0, this.x + (int)(this.value * (double)(this.width - 8)) + 4, this.y, 196, 46 + var0, 4, 20);
     }

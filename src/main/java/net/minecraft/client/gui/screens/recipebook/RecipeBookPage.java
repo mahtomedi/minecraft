@@ -103,7 +103,7 @@ public class RecipeBookPage {
 
         for(RecipeButton var2 : this.buttons) {
             var2.render(param0, param3, param4, param5);
-            if (var2.visible && var2.isHovered()) {
+            if (var2.visible && var2.isHoveredOrFocused()) {
                 this.hoveredButton = var2;
             }
         }

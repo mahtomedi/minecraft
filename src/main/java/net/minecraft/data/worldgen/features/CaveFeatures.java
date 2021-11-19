@@ -127,14 +127,14 @@ public class CaveFeatures {
                                 .configured(new PointedDripstoneConfiguration(0.2F, 0.7F, 0.5F, 0.5F))
                                 .placed(
                                     EnvironmentScanPlacement.scanningFor(
-                                        Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_OR_WATER_PREDICATE, 12
+                                        Direction.DOWN, BlockPredicate.solid(Direction.DOWN.getNormal()), BlockPredicate.ONLY_IN_AIR_OR_WATER_PREDICATE, 12
                                     )
                                 ),
                         () -> Feature.POINTED_DRIPSTONE
                                 .configured(new PointedDripstoneConfiguration(0.2F, 0.7F, 0.5F, 0.5F))
                                 .placed(
                                     EnvironmentScanPlacement.scanningFor(
-                                        Direction.UP, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_OR_WATER_PREDICATE, 12
+                                        Direction.UP, BlockPredicate.solid(Direction.UP.getNormal()), BlockPredicate.ONLY_IN_AIR_OR_WATER_PREDICATE, 12
                                     )
                                 )
                     )
@@ -168,7 +168,7 @@ public class CaveFeatures {
                     () -> TreeFeatures.AZALEA_TREE.placed(),
                     3,
                     3,
-                    BlockTags.LUSH_GROUND_REPLACEABLE.getName(),
+                    BlockTags.AZALEA_ROOT_REPLACEABLE.getName(),
                     BlockStateProvider.simple(Blocks.ROOTED_DIRT),
                     20,
                     100,
@@ -176,7 +176,15 @@ public class CaveFeatures {
                     2,
                     BlockStateProvider.simple(Blocks.HANGING_ROOTS),
                     20,
-                    2
+                    2,
+                    BlockPredicate.allOf(
+                        BlockPredicate.anyOf(
+                            BlockPredicate.matchesBlocks(List.of(Blocks.AIR, Blocks.CAVE_AIR, Blocks.VOID_AIR, Blocks.WATER)),
+                            BlockPredicate.matchesTag(BlockTags.LEAVES),
+                            BlockPredicate.matchesTag(BlockTags.REPLACEABLE_PLANTS)
+                        ),
+                        BlockPredicate.matchesTag(BlockTags.AZALEA_GROWS_ON, Direction.DOWN.getNormal())
+                    )
                 )
             )
     );
@@ -259,7 +267,7 @@ public class CaveFeatures {
                 new VegetationPatchConfiguration(
                     BlockTags.MOSS_REPLACEABLE.getName(),
                     BlockStateProvider.simple(Blocks.MOSS_BLOCK),
-                    () -> MOSS_VEGETATION,
+                    () -> MOSS_VEGETATION.placed(),
                     CaveSurface.FLOOR,
                     ConstantInt.of(1),
                     0.0F,
@@ -277,7 +285,7 @@ public class CaveFeatures {
                 new VegetationPatchConfiguration(
                     BlockTags.MOSS_REPLACEABLE.getName(),
                     BlockStateProvider.simple(Blocks.MOSS_BLOCK),
-                    () -> MOSS_VEGETATION,
+                    () -> MOSS_VEGETATION.placed(),
                     CaveSurface.FLOOR,
                     ConstantInt.of(1),
                     0.0F,
@@ -310,7 +318,7 @@ public class CaveFeatures {
                 new VegetationPatchConfiguration(
                     BlockTags.LUSH_GROUND_REPLACEABLE.getName(),
                     BlockStateProvider.simple(Blocks.CLAY),
-                    () -> DRIPLEAF,
+                    () -> DRIPLEAF.placed(),
                     CaveSurface.FLOOR,
                     ConstantInt.of(3),
                     0.8F,
@@ -328,7 +336,7 @@ public class CaveFeatures {
                 new VegetationPatchConfiguration(
                     BlockTags.LUSH_GROUND_REPLACEABLE.getName(),
                     BlockStateProvider.simple(Blocks.CLAY),
-                    () -> DRIPLEAF,
+                    () -> DRIPLEAF.placed(),
                     CaveSurface.FLOOR,
                     ConstantInt.of(3),
                     0.8F,
@@ -341,7 +349,8 @@ public class CaveFeatures {
     );
     public static final ConfiguredFeature<RandomBooleanFeatureConfiguration, ?> LUSH_CAVES_CLAY = FeatureUtils.register(
         "lush_caves_clay",
-        Feature.RANDOM_BOOLEAN_SELECTOR.configured(new RandomBooleanFeatureConfiguration(() -> CLAY_WITH_DRIPLEAVES, () -> CLAY_POOL_WITH_DRIPLEAVES))
+        Feature.RANDOM_BOOLEAN_SELECTOR
+            .configured(new RandomBooleanFeatureConfiguration(() -> CLAY_WITH_DRIPLEAVES.placed(), () -> CLAY_POOL_WITH_DRIPLEAVES.placed()))
     );
     public static final ConfiguredFeature<VegetationPatchConfiguration, ?> MOSS_PATCH_CEILING = FeatureUtils.register(
         "moss_patch_ceiling",
@@ -350,7 +359,7 @@ public class CaveFeatures {
                 new VegetationPatchConfiguration(
                     BlockTags.MOSS_REPLACEABLE.getName(),
                     BlockStateProvider.simple(Blocks.MOSS_BLOCK),
-                    () -> CAVE_VINE_IN_MOSS,
+                    () -> CAVE_VINE_IN_MOSS.placed(),
                     CaveSurface.CEILING,
                     UniformInt.of(1, 2),
                     0.0F,

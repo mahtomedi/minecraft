@@ -25,7 +25,6 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.material.Material;
 
 public class SurfaceSystem {
-    private static final int HOW_FAR_BELOW_PRELIMINARY_SURFACE_LEVEL_TO_BUILD_SURFACE = 8;
     private static final BlockState WHITE_TERRACOTTA = Blocks.WHITE_TERRACOTTA.defaultBlockState();
     private static final BlockState ORANGE_TERRACOTTA = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
     private static final BlockState TERRACOTTA = Blocks.TERRACOTTA.defaultBlockState();
@@ -35,7 +34,6 @@ public class SurfaceSystem {
     private static final BlockState LIGHT_GRAY_TERRACOTTA = Blocks.LIGHT_GRAY_TERRACOTTA.defaultBlockState();
     private static final BlockState PACKED_ICE = Blocks.PACKED_ICE.defaultBlockState();
     private static final BlockState SNOW_BLOCK = Blocks.SNOW_BLOCK.defaultBlockState();
-    private final NoiseSampler sampler;
     private final BlockState defaultBlock;
     private final int seaLevel;
     private final BlockState[] clayBands;
@@ -53,24 +51,21 @@ public class SurfaceSystem {
     private final NormalNoise surfaceNoise;
     private final NormalNoise surfaceSecondaryNoise;
 
-    public SurfaceSystem(
-        NoiseSampler param0, Registry<NormalNoise.NoiseParameters> param1, BlockState param2, int param3, long param4, WorldgenRandom.Algorithm param5
-    ) {
-        this.sampler = param0;
-        this.noises = param1;
-        this.defaultBlock = param2;
-        this.seaLevel = param3;
-        this.randomFactory = param5.newInstance(param4).forkPositional();
-        this.clayBandsOffsetNoise = Noises.instantiate(param1, this.randomFactory, Noises.CLAY_BANDS_OFFSET);
+    public SurfaceSystem(Registry<NormalNoise.NoiseParameters> param0, BlockState param1, int param2, long param3, WorldgenRandom.Algorithm param4) {
+        this.noises = param0;
+        this.defaultBlock = param1;
+        this.seaLevel = param2;
+        this.randomFactory = param4.newInstance(param3).forkPositional();
+        this.clayBandsOffsetNoise = Noises.instantiate(param0, this.randomFactory, Noises.CLAY_BANDS_OFFSET);
         this.clayBands = generateBands(this.randomFactory.fromHashOf(new ResourceLocation("clay_bands")));
-        this.surfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.SURFACE);
-        this.surfaceSecondaryNoise = Noises.instantiate(param1, this.randomFactory, Noises.SURFACE_SECONDARY);
-        this.badlandsPillarNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_PILLAR);
-        this.badlandsPillarRoofNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_PILLAR_ROOF);
-        this.badlandsSurfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.BADLANDS_SURFACE);
-        this.icebergPillarNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_PILLAR);
-        this.icebergPillarRoofNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_PILLAR_ROOF);
-        this.icebergSurfaceNoise = Noises.instantiate(param1, this.randomFactory, Noises.ICEBERG_SURFACE);
+        this.surfaceNoise = Noises.instantiate(param0, this.randomFactory, Noises.SURFACE);
+        this.surfaceSecondaryNoise = Noises.instantiate(param0, this.randomFactory, Noises.SURFACE_SECONDARY);
+        this.badlandsPillarNoise = Noises.instantiate(param0, this.randomFactory, Noises.BADLANDS_PILLAR);
+        this.badlandsPillarRoofNoise = Noises.instantiate(param0, this.randomFactory, Noises.BADLANDS_PILLAR_ROOF);
+        this.badlandsSurfaceNoise = Noises.instantiate(param0, this.randomFactory, Noises.BADLANDS_SURFACE);
+        this.icebergPillarNoise = Noises.instantiate(param0, this.randomFactory, Noises.ICEBERG_PILLAR);
+        this.icebergPillarRoofNoise = Noises.instantiate(param0, this.randomFactory, Noises.ICEBERG_PILLAR_ROOF);
+        this.icebergSurfaceNoise = Noises.instantiate(param0, this.randomFactory, Noises.ICEBERG_SURFACE);
     }
 
     protected NormalNoise getOrCreateNoise(ResourceKey<NormalNoise.NoiseParameters> param0) {
@@ -180,11 +175,6 @@ public class SurfaceSystem {
             }
         }
 
-    }
-
-    protected int getMinSurfaceLevel(NoiseChunk param0, int param1, int param2) {
-        int var0 = this.sampler.getPreliminarySurfaceLevel(param1, param2, param0.terrainInfoInterpolated(param1, param2));
-        return var0 - 8;
     }
 
     protected int getSurfaceDepth(int param0, int param1) {

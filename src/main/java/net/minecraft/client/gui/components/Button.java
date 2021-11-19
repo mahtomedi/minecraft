@@ -33,7 +33,7 @@ public class Button extends AbstractButton {
     @Override
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         super.renderButton(param0, param1, param2, param3);
-        if (this.isHovered()) {
+        if (this.isHoveredOrFocused()) {
             this.renderToolTip(param0, param1, param2);
         }
 

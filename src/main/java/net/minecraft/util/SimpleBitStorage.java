@@ -1,10 +1,8 @@
 package net.minecraft.util;
 
 import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 public class SimpleBitStorage implements BitStorage {
     private static final int[] MAGIC = new int[]{
@@ -210,10 +208,34 @@ public class SimpleBitStorage implements BitStorage {
     private final int divideAdd;
     private final int divideShift;
 
-    public SimpleBitStorage(int param0, int param1, IntStream param2) {
+    public SimpleBitStorage(int param0, int param1, int[] param2) {
         this(param0, param1);
-        MutableInt var0 = new MutableInt();
-        param2.forEach(param1x -> this.set(var0.getAndIncrement(), param1x));
+        int var0 = 0;
+
+        int var1;
+        for(var1 = 0; var1 <= param1 - this.valuesPerLong; var1 += this.valuesPerLong) {
+            long var2 = 0L;
+
+            for(int var3 = this.valuesPerLong - 1; var3 >= 0; --var3) {
+                var2 <<= param0;
+                var2 |= (long)param2[var1 + var3] & this.mask;
+            }
+
+            this.data[var0++] = var2;
+        }
+
+        int var4 = param1 - var1;
+        if (var4 > 0) {
+            long var5 = 0L;
+
+            for(int var6 = var4 - 1; var6 >= 0; --var6) {
+                var5 <<= param0;
+                var5 |= (long)param2[var1 + var6] & this.mask;
+            }
+
+            this.data[var0] = var5;
+        }
+
     }
 
     public SimpleBitStorage(int param0, int param1) {
@@ -306,6 +328,34 @@ public class SimpleBitStorage implements BitStorage {
                 if (++var0 >= this.size) {
                     return;
                 }
+            }
+        }
+
+    }
+
+    @Override
+    public void unpack(int[] param0) {
+        int var0 = this.data.length;
+        int var1 = 0;
+
+        for(int var2 = 0; var2 < var0 - 1; ++var2) {
+            long var3 = this.data[var2];
+
+            for(int var4 = 0; var4 < this.valuesPerLong; ++var4) {
+                param0[var1 + var4] = (int)(var3 & this.mask);
+                var3 >>= this.bits;
+            }
+
+            var1 += this.valuesPerLong;
+        }
+
+        int var5 = this.size - var1;
+        if (var5 > 0) {
+            long var6 = this.data[var0 - 1];
+
+            for(int var7 = 0; var7 < var5; ++var7) {
+                param0[var1 + var7] = (int)(var6 & this.mask);
+                var6 >>= this.bits;
             }
         }
 

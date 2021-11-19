@@ -164,8 +164,8 @@ public class Blender {
             for(Blender.PositionedBlendingData var7 : this.densityData) {
                 var7.blendingData
                     .iterateDensities(
-                        QuartPos.fromSection(var7.chunkX), QuartPos.fromSection(var7.chunkZ), var1 - 2, var1 + 2, (param6, param7, param8, param9) -> {
-                            double var0x = Mth.length((double)(var0 - param6), (double)(var1 - param7), (double)(var2 - param8));
+                        QuartPos.fromSection(var7.chunkX), QuartPos.fromSection(var7.chunkZ), var1 - 1, var1 + 1, (param6, param7, param8, param9) -> {
+                            double var0x = Mth.length((double)(var0 - param6), (double)((var1 - param7) * 2), (double)(var2 - param8));
                             if (!(var0x > 2.0)) {
                                 if (var0x < var6.doubleValue()) {
                                     var6.setValue(var0x);

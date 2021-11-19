@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -22,12 +21,11 @@ public interface Aquifer {
         NormalNoise param4,
         NormalNoise param5,
         PositionalRandomFactory param6,
-        NoiseSampler param7,
+        int param7,
         int param8,
-        int param9,
-        Aquifer.FluidPicker param10
+        Aquifer.FluidPicker param9
     ) {
-        return new Aquifer.NoiseBasedAquifer(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
+        return new Aquifer.NoiseBasedAquifer(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
     static Aquifer createDisabled(final Aquifer.FluidPicker param0) {
@@ -90,7 +88,6 @@ public interface Aquifer {
         private final long[] aquiferLocationCache;
         private final Aquifer.FluidPicker globalFluidPicker;
         private boolean shouldScheduleFluidUpdate;
-        private final NoiseSampler sampler;
         private final int minGridX;
         private final int minGridY;
         private final int minGridZ;
@@ -108,10 +105,9 @@ public interface Aquifer {
             NormalNoise param4,
             NormalNoise param5,
             PositionalRandomFactory param6,
-            NoiseSampler param7,
+            int param7,
             int param8,
-            int param9,
-            Aquifer.FluidPicker param10
+            Aquifer.FluidPicker param9
         ) {
             this.noiseChunk = param0;
             this.barrierNoise = param2;
@@ -119,13 +115,12 @@ public interface Aquifer {
             this.fluidLevelSpreadNoise = param4;
             this.lavaNoise = param5;
             this.positionalRandomFactory = param6;
-            this.sampler = param7;
             this.minGridX = this.gridX(param1.getMinBlockX()) - 1;
-            this.globalFluidPicker = param10;
+            this.globalFluidPicker = param9;
             int var0 = this.gridX(param1.getMaxBlockX()) + 1;
             this.gridSizeX = var0 - this.minGridX + 1;
-            this.minGridY = this.gridY(param8) - 1;
-            int var1 = this.gridY(param8 + param9) + 1;
+            this.minGridY = this.gridY(param7) - 1;
+            int var1 = this.gridY(param7 + param8) + 1;
             int var2 = var1 - this.minGridY + 1;
             this.minGridZ = this.gridZ(param1.getMinBlockZ()) - 1;
             int var3 = this.gridZ(param1.getMaxBlockZ()) + 1;
@@ -354,8 +349,7 @@ public interface Aquifer {
             for(int[] var5 : SURFACE_SAMPLING_OFFSETS_IN_CHUNKS) {
                 int var6 = param0 + SectionPos.sectionToBlockCoord(var5[0]);
                 int var7 = param2 + SectionPos.sectionToBlockCoord(var5[1]);
-                int var8 = this.sampler
-                    .getPreliminarySurfaceLevel(var6, var7, this.noiseChunk.terrainInfoWide(this.sampler, QuartPos.fromBlock(var6), QuartPos.fromBlock(var7)));
+                int var8 = this.noiseChunk.preliminarySurfaceLevel(var6, var7);
                 int var9 = var8 + 8;
                 boolean var10 = var5[0] == 0 && var5[1] == 0;
                 if (var10 && var3 > var9) {

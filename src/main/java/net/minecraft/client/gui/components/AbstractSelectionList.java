@@ -358,6 +358,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             E var0 = this.getEntryAtPosition(param0, param1);
             if (var0 != null) {
                 if (var0.mouseClicked(param0, param1, param2)) {
+                    this.setFocused(var0);
                     this.setDragging(true);
                     return true;
                 }
