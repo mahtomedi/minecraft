@@ -34,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -94,7 +95,9 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
             int var0 = Mth.floor(this.getX());
             int var1 = Mth.floor(this.getY());
             int var2 = Mth.floor(this.getZ());
-            if (this.level.getBiome(new BlockPos(var0, 0, var2)).getTemperature(new BlockPos(var0, var1, var2)) > 1.0F) {
+            BlockPos var3 = new BlockPos(var0, var1, var2);
+            Biome var4 = this.level.getBiome(var3);
+            if (var4.shouldSnowGolemBurn(var3)) {
                 this.hurt(DamageSource.ON_FIRE, 1.0F);
             }
 
@@ -102,15 +105,15 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
                 return;
             }
 
-            BlockState var3 = Blocks.SNOW.defaultBlockState();
+            BlockState var5 = Blocks.SNOW.defaultBlockState();
 
-            for(int var4 = 0; var4 < 4; ++var4) {
-                var0 = Mth.floor(this.getX() + (double)((float)(var4 % 2 * 2 - 1) * 0.25F));
+            for(int var6 = 0; var6 < 4; ++var6) {
+                var0 = Mth.floor(this.getX() + (double)((float)(var6 % 2 * 2 - 1) * 0.25F));
                 var1 = Mth.floor(this.getY());
-                var2 = Mth.floor(this.getZ() + (double)((float)(var4 / 2 % 2 * 2 - 1) * 0.25F));
-                BlockPos var5 = new BlockPos(var0, var1, var2);
-                if (this.level.getBlockState(var5).isAir() && this.level.getBiome(var5).getTemperature(var5) < 0.8F && var3.canSurvive(this.level, var5)) {
-                    this.level.setBlockAndUpdate(var5, var3);
+                var2 = Mth.floor(this.getZ() + (double)((float)(var6 / 2 % 2 * 2 - 1) * 0.25F));
+                BlockPos var7 = new BlockPos(var0, var1, var2);
+                if (this.level.getBlockState(var7).isAir() && var5.canSurvive(this.level, var7)) {
+                    this.level.setBlockAndUpdate(var7, var5);
                 }
             }
         }

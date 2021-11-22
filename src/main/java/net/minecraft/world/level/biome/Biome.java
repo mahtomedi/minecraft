@@ -117,7 +117,8 @@ public final class Biome {
         }
     }
 
-    public final float getTemperature(BlockPos param0) {
+    @Deprecated
+    private float getTemperature(BlockPos param0) {
         long var0 = param0.asLong();
         Long2FloatLinkedOpenHashMap var1 = this.temperatureCache.get();
         float var2 = var1.get(var0);
@@ -139,7 +140,7 @@ public final class Biome {
     }
 
     public boolean shouldFreeze(LevelReader param0, BlockPos param1, boolean param2) {
-        if (this.getTemperature(param1) >= 0.15F) {
+        if (this.warmEnoughToRain(param1)) {
             return false;
         } else {
             if (param1.getY() >= param0.getMinBuildHeight()
@@ -166,12 +167,24 @@ public final class Biome {
         }
     }
 
-    public boolean isColdEnoughToSnow(BlockPos param0) {
-        return this.getTemperature(param0) < 0.15F;
+    public boolean coldEnoughToSnow(BlockPos param0) {
+        return !this.warmEnoughToRain(param0);
+    }
+
+    public boolean warmEnoughToRain(BlockPos param0) {
+        return this.getTemperature(param0) >= 0.15F;
+    }
+
+    public boolean shouldMeltFrozenOceanIcebergSlightly(BlockPos param0) {
+        return this.getTemperature(param0) > 0.1F;
+    }
+
+    public boolean shouldSnowGolemBurn(BlockPos param0) {
+        return this.getTemperature(param0) > 1.0F;
     }
 
     public boolean shouldSnow(LevelReader param0, BlockPos param1) {
-        if (!this.isColdEnoughToSnow(param1)) {
+        if (this.warmEnoughToRain(param1)) {
             return false;
         } else {
             if (param1.getY() >= param0.getMinBuildHeight()

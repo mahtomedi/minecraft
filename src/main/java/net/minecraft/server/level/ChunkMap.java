@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap.Entry;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
@@ -94,6 +95,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private static final byte CHUNK_TYPE_FULL = 1;
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int CHUNK_SAVED_PER_TICK = 200;
+    private static final int CHUNK_SAVED_EAGERLY_PER_TICK = 20;
     private static final int MIN_VIEW_DISTANCE = 3;
     public static final int MAX_VIEW_DISTANCE = 33;
     public static final int MAX_CHUNK_DISTANCE = 33 + ChunkStatus.maxDistance();
@@ -417,14 +419,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             this.processUnloads(() -> true);
             this.flushWorker();
         } else {
-            this.visibleChunkMap.values().stream().filter(ChunkHolder::wasAccessibleSinceLastSave).forEach(param0x -> {
-                ChunkAccess var0x = param0x.getChunkToSave().getNow(null);
-                if (var0x instanceof ImposterProtoChunk || var0x instanceof LevelChunk) {
-                    this.save(var0x);
-                    param0x.refreshAccessibility();
-                }
-
-            });
+            this.visibleChunkMap.values().forEach(this::saveChunkIfNeeded);
         }
 
     }
@@ -461,6 +456,15 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         while((param0.getAsBoolean() || var4 > 0) && (var2 = (long)this.unloadQueue.poll()) != null) {
             --var4;
             var2.run();
+        }
+
+        int var6 = 0;
+        ObjectIterator<ChunkHolder> var7 = this.visibleChunkMap.values().iterator();
+
+        while(var6 < 20 && param0.getAsBoolean() && var7.hasNext()) {
+            if (this.saveChunkIfNeeded(var7.next())) {
+                ++var6;
+            }
         }
 
     }
@@ -698,6 +702,21 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     public int getTickingGenerated() {
         return this.tickingGenerated.get();
+    }
+
+    private boolean saveChunkIfNeeded(ChunkHolder param0x) {
+        if (!param0x.wasAccessibleSinceLastSave()) {
+            return false;
+        } else {
+            ChunkAccess var0x = param0x.getChunkToSave().getNow(null);
+            if (!(var0x instanceof ImposterProtoChunk) && !(var0x instanceof LevelChunk)) {
+                return false;
+            } else {
+                boolean var1x = this.save(var0x);
+                param0x.refreshAccessibility();
+                return var1x;
+            }
+        }
     }
 
     private boolean save(ChunkAccess param0x) {

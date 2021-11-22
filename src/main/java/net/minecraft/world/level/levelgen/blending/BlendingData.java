@@ -68,7 +68,6 @@ public class BlendingData {
     protected static final double NO_VALUE = Double.MAX_VALUE;
     private final boolean oldNoise;
     private boolean hasCalculatedData;
-    private final boolean hasSavedHeights;
     private final double[] heights;
     private final transient double[][] densities;
     private final transient double[] floorDensities;
@@ -94,7 +93,6 @@ public class BlendingData {
     private BlendingData(boolean param0, Optional<double[]> param1) {
         this.oldNoise = param0;
         this.heights = param1.orElse(Util.make(new double[CELL_COLUMN_COUNT], param0x -> Arrays.fill(param0x, Double.MAX_VALUE)));
-        this.hasSavedHeights = param1.isPresent();
         this.densities = new double[CELL_COLUMN_COUNT][];
         this.floorDensities = new double[CELL_HORIZONTAL_FLOOR_COUNT * CELL_HORIZONTAL_FLOOR_COUNT];
     }
@@ -137,39 +135,32 @@ public class BlendingData {
 
     private void calculateData(ChunkAccess param0, Set<Direction8> param1) {
         if (!this.hasCalculatedData) {
-            BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(0, AREA_WITH_OLD_GENERATION.getMinBuildHeight(), 0);
-
-            for(int var1 = 0; var1 < this.floorDensities.length; ++var1) {
-                var0.setX(Math.max(QuartPos.toBlock(this.getFloorX(var1)), 15));
-                var0.setZ(Math.max(QuartPos.toBlock(this.getFloorZ(var1)), 15));
-                this.floorDensities[var1] = isGround(param0, var0) ? 1.0 : -1.0;
-            }
-
+            Arrays.fill(this.floorDensities, 1.0);
             if (param1.contains(Direction8.NORTH) || param1.contains(Direction8.WEST) || param1.contains(Direction8.NORTH_WEST)) {
                 this.addValuesForColumn(getInsideIndex(0, 0), param0, 0, 0);
             }
 
             if (param1.contains(Direction8.NORTH)) {
-                for(int var2 = 1; var2 < QUARTS_PER_SECTION; ++var2) {
-                    this.addValuesForColumn(getInsideIndex(var2, 0), param0, 4 * var2, 0);
+                for(int var0 = 1; var0 < QUARTS_PER_SECTION; ++var0) {
+                    this.addValuesForColumn(getInsideIndex(var0, 0), param0, 4 * var0, 0);
                 }
             }
 
             if (param1.contains(Direction8.WEST)) {
-                for(int var3 = 1; var3 < QUARTS_PER_SECTION; ++var3) {
-                    this.addValuesForColumn(getInsideIndex(0, var3), param0, 0, 4 * var3);
+                for(int var1 = 1; var1 < QUARTS_PER_SECTION; ++var1) {
+                    this.addValuesForColumn(getInsideIndex(0, var1), param0, 0, 4 * var1);
                 }
             }
 
             if (param1.contains(Direction8.EAST)) {
-                for(int var4 = 1; var4 < QUARTS_PER_SECTION; ++var4) {
-                    this.addValuesForColumn(getOutsideIndex(CELL_HORIZONTAL_MAX_INDEX_OUTSIDE, var4), param0, 15, 4 * var4);
+                for(int var2 = 1; var2 < QUARTS_PER_SECTION; ++var2) {
+                    this.addValuesForColumn(getOutsideIndex(CELL_HORIZONTAL_MAX_INDEX_OUTSIDE, var2), param0, 15, 4 * var2);
                 }
             }
 
             if (param1.contains(Direction8.SOUTH)) {
-                for(int var5 = 0; var5 < QUARTS_PER_SECTION; ++var5) {
-                    this.addValuesForColumn(getOutsideIndex(var5, CELL_HORIZONTAL_MAX_INDEX_OUTSIDE), param0, 4 * var5, 15);
+                for(int var3 = 0; var3 < QUARTS_PER_SECTION; ++var3) {
+                    this.addValuesForColumn(getOutsideIndex(var3, CELL_HORIZONTAL_MAX_INDEX_OUTSIDE), param0, 4 * var3, 15);
                 }
             }
 
@@ -186,7 +177,7 @@ public class BlendingData {
     }
 
     private void addValuesForColumn(int param0, ChunkAccess param1, int param2, int param3) {
-        if (!this.hasSavedHeights) {
+        if (this.heights[param0] == Double.MAX_VALUE) {
             this.heights[param0] = (double)getHeightAtXZ(param1, param2, param3);
         }
 
@@ -242,7 +233,7 @@ public class BlendingData {
         }
 
         int var6 = Mth.intFloorDiv(param3, 8);
-        if (var6 >= 1) {
+        if (var6 >= 1 && var6 < var0.length) {
             double var7 = ((double)param3 + 0.5) % 8.0 / 8.0;
             double var8 = (1.0 - var7) / var7;
             double var9 = Math.max(var8, 1.0) * 0.25;

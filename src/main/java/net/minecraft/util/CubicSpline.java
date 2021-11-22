@@ -35,7 +35,7 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
         Codec<CubicSpline.Multipoint<C>> var2 = RecordCodecBuilder.create(
             param2 -> param2.group(
                         param0.fieldOf("coordinate").forGetter(CubicSpline.Multipoint::coordinate),
-                        var1.listOf()
+                        ExtraCodecs.nonEmptyList(var1.listOf())
                             .fieldOf("points")
                             .forGetter(
                                 param0x -> IntStream.range(0, param0x.locations.length)
@@ -141,7 +141,7 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
 
     @VisibleForDebug
     public static record Multipoint<C>(ToFloatFunction<C> coordinate, float[] locations, List<CubicSpline<C>> values, float[] derivatives)
-        implements CubicSpline {
+        implements CubicSpline<C> {
         public Multipoint(ToFloatFunction<C> param0, float[] param1, List<CubicSpline<C>> param2, float[] param3) {
             if (param1.length == param2.size() && param1.length == param3.length) {
                 this.coordinate = param0;

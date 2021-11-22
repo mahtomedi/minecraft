@@ -249,48 +249,47 @@ public class SurfaceSystem {
     }
 
     private void frozenOceanExtension(int param0, Biome param1, BlockColumn param2, BlockPos.MutableBlockPos param3, int param4, int param5, int param6) {
-        float var0 = param1.getTemperature(param3.set(param4, 63, param5));
-        double var1 = 1.28;
-        double var2 = Math.min(
+        double var0 = 1.28;
+        double var1 = Math.min(
             Math.abs(this.icebergSurfaceNoise.getValue((double)param4, 0.0, (double)param5) * 8.25),
             this.icebergPillarNoise.getValue((double)param4 * 1.28, 0.0, (double)param5 * 1.28) * 15.0
         );
-        if (!(var2 <= 1.8)) {
-            double var3 = 1.17;
-            double var4 = 1.5;
-            double var5 = Math.abs(this.icebergPillarRoofNoise.getValue((double)param4 * 1.17, 0.0, (double)param5 * 1.17) * 1.5);
-            double var6 = Math.min(var2 * var2 * 1.2, Math.ceil(var5 * 40.0) + 14.0);
-            if (var0 > 0.1F) {
-                var6 -= 2.0;
+        if (!(var1 <= 1.8)) {
+            double var2 = 1.17;
+            double var3 = 1.5;
+            double var4 = Math.abs(this.icebergPillarRoofNoise.getValue((double)param4 * 1.17, 0.0, (double)param5 * 1.17) * 1.5);
+            double var5 = Math.min(var1 * var1 * 1.2, Math.ceil(var4 * 40.0) + 14.0);
+            if (param1.shouldMeltFrozenOceanIcebergSlightly(param3.set(param4, 63, param5))) {
+                var5 -= 2.0;
             }
 
-            double var7;
-            if (var6 > 2.0) {
-                var7 = (double)this.seaLevel - var6 - 7.0;
-                var6 += (double)this.seaLevel;
+            double var6;
+            if (var5 > 2.0) {
+                var6 = (double)this.seaLevel - var5 - 7.0;
+                var5 += (double)this.seaLevel;
             } else {
+                var5 = 0.0;
                 var6 = 0.0;
-                var7 = 0.0;
             }
 
-            double var9 = var6;
-            RandomSource var10 = this.randomFactory.at(param4, 0, param5);
-            int var11 = 2 + var10.nextInt(4);
-            int var12 = this.seaLevel + 18 + var10.nextInt(10);
-            int var13 = 0;
+            double var8 = var5;
+            RandomSource var9 = this.randomFactory.at(param4, 0, param5);
+            int var10 = 2 + var9.nextInt(4);
+            int var11 = this.seaLevel + 18 + var9.nextInt(10);
+            int var12 = 0;
 
-            for(int var14 = Math.max(param6, (int)var6 + 1); var14 >= param0; --var14) {
-                if (param2.getBlock(var14).isAir() && var14 < (int)var9 && var10.nextDouble() > 0.01
-                    || param2.getBlock(var14).getMaterial() == Material.WATER
-                        && var14 > (int)var7
-                        && var14 < this.seaLevel
-                        && var7 != 0.0
-                        && var10.nextDouble() > 0.15) {
-                    if (var13 <= var11 && var14 > var12) {
-                        param2.setBlock(var14, SNOW_BLOCK);
-                        ++var13;
+            for(int var13 = Math.max(param6, (int)var5 + 1); var13 >= param0; --var13) {
+                if (param2.getBlock(var13).isAir() && var13 < (int)var8 && var9.nextDouble() > 0.01
+                    || param2.getBlock(var13).getMaterial() == Material.WATER
+                        && var13 > (int)var6
+                        && var13 < this.seaLevel
+                        && var6 != 0.0
+                        && var9.nextDouble() > 0.15) {
+                    if (var12 <= var10 && var13 > var11) {
+                        param2.setBlock(var13, SNOW_BLOCK);
+                        ++var12;
                     } else {
-                        param2.setBlock(var14, PACKED_ICE);
+                        param2.setBlock(var13, PACKED_ICE);
                     }
                 }
             }

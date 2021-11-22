@@ -26,7 +26,7 @@ public interface PieceGeneratorSupplier<C extends FeatureConfiguration> {
         return param1 -> param1.validBiomeOnTop(param0);
     }
 
-    public static record Context<C>(
+    public static record Context<C extends FeatureConfiguration>(
         ChunkGenerator chunkGenerator,
         BiomeSource biomeSource,
         long seed,

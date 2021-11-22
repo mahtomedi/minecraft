@@ -251,7 +251,7 @@ public class ExtraCodecs {
         }
     }
 
-    static record LazyInitializedCodec<A, T>(Supplier<Codec<A>> delegate) implements Codec {
+    static record LazyInitializedCodec<A>(Supplier<Codec<A>> delegate) implements Codec<A> {
         LazyInitializedCodec(Supplier<Codec<A>> param0) {
             Supplier<Codec<A>> var2 = Suppliers.memoize(param0::get);
             this.delegate = var2;

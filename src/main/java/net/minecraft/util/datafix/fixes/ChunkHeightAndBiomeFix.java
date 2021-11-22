@@ -280,7 +280,7 @@ public class ChunkHeightAndBiomeFix extends DataFix {
                         ChunkProtoTickListFix.PoorMansPalettedContainer var3 = param4.get();
                         if (var3 != null) {
                             BitSet var4 = new BitSet(256);
-                            boolean var5 = false;
+                            boolean var5 = var2.equals("noise");
 
                             for(int var6 = 0; var6 < 16; ++var6) {
                                 for(int var7 = 0; var7 < 16; ++var7) {

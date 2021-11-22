@@ -19,7 +19,7 @@ public class WorldGenSettingsDisallowOldCustomWorldsFix extends DataFix {
         Type<?> var0 = this.getInputSchema().getType(References.WORLD_GEN_SETTINGS);
         OpticFinder<?> var1 = var0.findField("dimensions");
         return this.fixTypeEverywhereTyped(
-            "WorldGenSettingsDisallowOldCustomWorldsFix",
+            "WorldGenSettingsDisallowOldCustomWorldsFix_" + this.getOutputSchema().getVersionKey(),
             var0,
             param1 -> param1.updateTyped(
                     var1,
