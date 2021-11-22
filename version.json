@@ -1,15 +1,15 @@
 {
-    "id": "1.18-pre5",
-    "name": "1.18 Pre-release 5",
+    "id": "1.18-pre6",
+    "name": "1.18 Pre-release 6",
     "release_target": "1.18",
-    "world_version": 2851,
+    "world_version": 2853,
     "series_id": "main",
-    "protocol_version": 1073741877,
+    "protocol_version": 1073741878,
     "pack_version": {
         "resource": 8,
         "data": 8
     },
-    "build_time": "2021-11-19T15:45:07+00:00",
+    "build_time": "2021-11-22T17:07:04+00:00",
     "java_component": "java-runtime-beta",
     "java_version": 17,
     "stable": false

@@ -77,7 +77,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -410,6 +409,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void baseTick() {
         this.level.getProfiler().push("entityBaseTick");
+        this.feetBlockState = null;
         if (this.isPassenger() && this.getVehicle().isRemoved()) {
             this.stopRiding();
         }
@@ -780,63 +780,47 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     private Vec3 collide(Vec3 param0) {
         AABB var0 = this.getBoundingBox();
-        CollisionContext var1 = CollisionContext.of(this);
-        List<VoxelShape> var2 = this.level.getEntityCollisions(this, var0.expandTowards(param0));
-        Vec3 var3 = param0.lengthSqr() == 0.0 ? param0 : collideBoundingBoxHeuristically(this, param0, var0, this.level, var1, var2);
-        boolean var4 = param0.x != var3.x;
-        boolean var5 = param0.y != var3.y;
-        boolean var6 = param0.z != var3.z;
-        boolean var7 = this.onGround || var5 && param0.y < 0.0;
-        if (this.maxUpStep > 0.0F && var7 && (var4 || var6)) {
-            Vec3 var8 = collideBoundingBoxHeuristically(this, new Vec3(param0.x, (double)this.maxUpStep, param0.z), var0, this.level, var1, var2);
-            Vec3 var9 = collideBoundingBoxHeuristically(
-                this, new Vec3(0.0, (double)this.maxUpStep, 0.0), var0.expandTowards(param0.x, 0.0, param0.z), this.level, var1, var2
-            );
-            if (var9.y < (double)this.maxUpStep) {
-                Vec3 var10 = collideBoundingBoxHeuristically(this, new Vec3(param0.x, 0.0, param0.z), var0.move(var9), this.level, var1, var2).add(var9);
-                if (var10.horizontalDistanceSqr() > var8.horizontalDistanceSqr()) {
-                    var8 = var10;
+        List<VoxelShape> var1 = this.level.getEntityCollisions(this, var0.expandTowards(param0));
+        Vec3 var2 = param0.lengthSqr() == 0.0 ? param0 : collideBoundingBox(this, param0, var0, this.level, var1);
+        boolean var3 = param0.x != var2.x;
+        boolean var4 = param0.y != var2.y;
+        boolean var5 = param0.z != var2.z;
+        boolean var6 = this.onGround || var4 && param0.y < 0.0;
+        if (this.maxUpStep > 0.0F && var6 && (var3 || var5)) {
+            Vec3 var7 = collideBoundingBox(this, new Vec3(param0.x, (double)this.maxUpStep, param0.z), var0, this.level, var1);
+            Vec3 var8 = collideBoundingBox(this, new Vec3(0.0, (double)this.maxUpStep, 0.0), var0.expandTowards(param0.x, 0.0, param0.z), this.level, var1);
+            if (var8.y < (double)this.maxUpStep) {
+                Vec3 var9 = collideBoundingBox(this, new Vec3(param0.x, 0.0, param0.z), var0.move(var8), this.level, var1).add(var8);
+                if (var9.horizontalDistanceSqr() > var7.horizontalDistanceSqr()) {
+                    var7 = var9;
                 }
             }
 
-            if (var8.horizontalDistanceSqr() > var3.horizontalDistanceSqr()) {
-                return var8.add(collideBoundingBoxHeuristically(this, new Vec3(0.0, -var8.y + param0.y, 0.0), var0.move(var8), this.level, var1, var2));
+            if (var7.horizontalDistanceSqr() > var2.horizontalDistanceSqr()) {
+                return var7.add(collideBoundingBox(this, new Vec3(0.0, -var7.y + param0.y, 0.0), var0.move(var7), this.level, var1));
             }
         }
 
-        return var3;
+        return var2;
     }
 
-    public static Vec3 collideBoundingBoxHeuristically(
-        @Nullable Entity param0, Vec3 param1, AABB param2, Level param3, CollisionContext param4, List<VoxelShape> param5
-    ) {
-        boolean var0 = param1.x == 0.0;
-        boolean var1 = param1.y == 0.0;
-        boolean var2 = param1.z == 0.0;
-        WorldBorder var3 = param3.getWorldBorder();
-        boolean var4 = param0 != null && var3.isInsideCloseToBorder(param0, param2.expandTowards(param1));
-        boolean var5 = var0 && var1 || var0 && var2 || var1 && var2;
-        if (var5) {
-            List<VoxelShape> var6 = (List<VoxelShape>)(var4
-                ? ImmutableList.<VoxelShape>builderWithExpectedSize(param5.size() + 1).addAll(param5).add(var3.getCollisionShape()).build()
-                : param5);
-            return collideBoundingBox(param1, param2, param3, param4, var6);
-        } else {
-            Builder<VoxelShape> var7 = ImmutableList.builderWithExpectedSize(param5.size() + 1);
-            if (!param5.isEmpty()) {
-                var7.addAll(param5);
-            }
-
-            if (var4) {
-                var7.add(var3.getCollisionShape());
-            }
-
-            var7.addAll(param3.getBlockCollisions(param0, param2.expandTowards(param1)));
-            return collideBoundingBoxLegacy(param1, param2, var7.build());
+    public static Vec3 collideBoundingBox(@Nullable Entity param0, Vec3 param1, AABB param2, Level param3, List<VoxelShape> param4) {
+        Builder<VoxelShape> var0 = ImmutableList.builderWithExpectedSize(param4.size() + 1);
+        if (!param4.isEmpty()) {
+            var0.addAll(param4);
         }
+
+        WorldBorder var1 = param3.getWorldBorder();
+        boolean var2 = param0 != null && var1.isInsideCloseToBorder(param0, param2.expandTowards(param1));
+        if (var2) {
+            var0.add(var1.getCollisionShape());
+        }
+
+        var0.addAll(param3.getBlockCollisions(param0, param2.expandTowards(param1)));
+        return collideWithShapes(param1, param2, var0.build());
     }
 
-    private static Vec3 collideBoundingBoxLegacy(Vec3 param0, AABB param1, List<VoxelShape> param2) {
+    private static Vec3 collideWithShapes(Vec3 param0, AABB param1, List<VoxelShape> param2) {
         if (param2.isEmpty()) {
             return param0;
         } else {
@@ -871,39 +855,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
             return new Vec3(var0, var1, var2);
         }
-    }
-
-    private static Vec3 collideBoundingBox(Vec3 param0, AABB param1, LevelReader param2, CollisionContext param3, List<VoxelShape> param4) {
-        double var0 = param0.x;
-        double var1 = param0.y;
-        double var2 = param0.z;
-        if (var1 != 0.0) {
-            var1 = Shapes.collide(Direction.Axis.Y, param1, param2, var1, param3, param4);
-            if (var1 != 0.0) {
-                param1 = param1.move(0.0, var1, 0.0);
-            }
-        }
-
-        boolean var3 = Math.abs(var0) < Math.abs(var2);
-        if (var3 && var2 != 0.0) {
-            var2 = Shapes.collide(Direction.Axis.Z, param1, param2, var2, param3, param4);
-            if (var2 != 0.0) {
-                param1 = param1.move(0.0, 0.0, var2);
-            }
-        }
-
-        if (var0 != 0.0) {
-            var0 = Shapes.collide(Direction.Axis.X, param1, param2, var0, param3, param4);
-            if (!var3 && var0 != 0.0) {
-                param1 = param1.move(var0, 0.0, 0.0);
-            }
-        }
-
-        if (!var3 && var2 != 0.0) {
-            var2 = Shapes.collide(Direction.Axis.Z, param1, param2, var2, param3, param4);
-        }
-
-        return new Vec3(var0, var1, var2);
     }
 
     protected float nextStep() {

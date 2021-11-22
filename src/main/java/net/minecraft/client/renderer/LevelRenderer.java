@@ -308,8 +308,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         if (var18 != var19) {
                             Random var21 = new Random((long)(var12 * var12 * 3121 + var12 * 45238971 ^ var11 * var11 * 418711 + var11 * 13761));
                             var10.set(var12, var18, var11);
-                            float var22 = var16.getTemperature(var10);
-                            if (var22 >= 0.15F) {
+                            if (var16.warmEnoughToRain(var10)) {
                                 if (var8 != 0) {
                                     if (var8 >= 0) {
                                         var5.end();
@@ -320,33 +319,33 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                                     var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
                                 }
 
-                                int var23 = this.ticks + var12 * var12 * 3121 + var12 * 45238971 + var11 * var11 * 418711 + var11 * 13761 & 31;
-                                float var24 = -((float)var23 + param1) / 32.0F * (3.0F + var21.nextFloat());
-                                double var25 = (double)var12 + 0.5 - param2;
-                                double var26 = (double)var11 + 0.5 - param4;
-                                float var27 = (float)Math.sqrt(var25 * var25 + var26 * var26) / (float)var7;
-                                float var28 = ((1.0F - var27 * var27) * 0.5F + 0.5F) * var0;
+                                int var22 = this.ticks + var12 * var12 * 3121 + var12 * 45238971 + var11 * var11 * 418711 + var11 * 13761 & 31;
+                                float var23 = -((float)var22 + param1) / 32.0F * (3.0F + var21.nextFloat());
+                                double var24 = (double)var12 + 0.5 - param2;
+                                double var25 = (double)var11 + 0.5 - param4;
+                                float var26 = (float)Math.sqrt(var24 * var24 + var25 * var25) / (float)var7;
+                                float var27 = ((1.0F - var26 * var26) * 0.5F + 0.5F) * var0;
                                 var10.set(var12, var20, var11);
-                                int var29 = getLightColor(var1, var10);
+                                int var28 = getLightColor(var1, var10);
                                 var6.vertex((double)var12 - param2 - var14 + 0.5, (double)var19 - param3, (double)var11 - param4 - var15 + 0.5)
-                                    .uv(0.0F, (float)var18 * 0.25F + var24)
-                                    .color(1.0F, 1.0F, 1.0F, var28)
-                                    .uv2(var29)
+                                    .uv(0.0F, (float)var18 * 0.25F + var23)
+                                    .color(1.0F, 1.0F, 1.0F, var27)
+                                    .uv2(var28)
                                     .endVertex();
                                 var6.vertex((double)var12 - param2 + var14 + 0.5, (double)var19 - param3, (double)var11 - param4 + var15 + 0.5)
-                                    .uv(1.0F, (float)var18 * 0.25F + var24)
-                                    .color(1.0F, 1.0F, 1.0F, var28)
-                                    .uv2(var29)
+                                    .uv(1.0F, (float)var18 * 0.25F + var23)
+                                    .color(1.0F, 1.0F, 1.0F, var27)
+                                    .uv2(var28)
                                     .endVertex();
                                 var6.vertex((double)var12 - param2 + var14 + 0.5, (double)var18 - param3, (double)var11 - param4 + var15 + 0.5)
-                                    .uv(1.0F, (float)var19 * 0.25F + var24)
-                                    .color(1.0F, 1.0F, 1.0F, var28)
-                                    .uv2(var29)
+                                    .uv(1.0F, (float)var19 * 0.25F + var23)
+                                    .color(1.0F, 1.0F, 1.0F, var27)
+                                    .uv2(var28)
                                     .endVertex();
                                 var6.vertex((double)var12 - param2 - var14 + 0.5, (double)var18 - param3, (double)var11 - param4 - var15 + 0.5)
-                                    .uv(0.0F, (float)var19 * 0.25F + var24)
-                                    .color(1.0F, 1.0F, 1.0F, var28)
-                                    .uv2(var29)
+                                    .uv(0.0F, (float)var19 * 0.25F + var23)
+                                    .color(1.0F, 1.0F, 1.0F, var27)
+                                    .uv2(var28)
                                     .endVertex();
                             } else {
                                 if (var8 != 1) {
@@ -359,38 +358,38 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                                     var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
                                 }
 
-                                float var30 = -((float)(this.ticks & 511) + param1) / 512.0F;
-                                float var31 = (float)(var21.nextDouble() + (double)var9 * 0.01 * (double)((float)var21.nextGaussian()));
-                                float var32 = (float)(var21.nextDouble() + (double)(var9 * (float)var21.nextGaussian()) * 0.001);
-                                double var33 = (double)var12 + 0.5 - param2;
-                                double var34 = (double)var11 + 0.5 - param4;
-                                float var35 = (float)Math.sqrt(var33 * var33 + var34 * var34) / (float)var7;
-                                float var36 = ((1.0F - var35 * var35) * 0.3F + 0.5F) * var0;
+                                float var29 = -((float)(this.ticks & 511) + param1) / 512.0F;
+                                float var30 = (float)(var21.nextDouble() + (double)var9 * 0.01 * (double)((float)var21.nextGaussian()));
+                                float var31 = (float)(var21.nextDouble() + (double)(var9 * (float)var21.nextGaussian()) * 0.001);
+                                double var32 = (double)var12 + 0.5 - param2;
+                                double var33 = (double)var11 + 0.5 - param4;
+                                float var34 = (float)Math.sqrt(var32 * var32 + var33 * var33) / (float)var7;
+                                float var35 = ((1.0F - var34 * var34) * 0.3F + 0.5F) * var0;
                                 var10.set(var12, var20, var11);
-                                int var37 = getLightColor(var1, var10);
-                                int var38 = var37 >> 16 & 65535;
-                                int var39 = var37 & 65535;
+                                int var36 = getLightColor(var1, var10);
+                                int var37 = var36 >> 16 & 65535;
+                                int var38 = var36 & 65535;
+                                int var39 = (var37 * 3 + 240) / 4;
                                 int var40 = (var38 * 3 + 240) / 4;
-                                int var41 = (var39 * 3 + 240) / 4;
                                 var6.vertex((double)var12 - param2 - var14 + 0.5, (double)var19 - param3, (double)var11 - param4 - var15 + 0.5)
-                                    .uv(0.0F + var31, (float)var18 * 0.25F + var30 + var32)
-                                    .color(1.0F, 1.0F, 1.0F, var36)
-                                    .uv2(var41, var40)
+                                    .uv(0.0F + var30, (float)var18 * 0.25F + var29 + var31)
+                                    .color(1.0F, 1.0F, 1.0F, var35)
+                                    .uv2(var40, var39)
                                     .endVertex();
                                 var6.vertex((double)var12 - param2 + var14 + 0.5, (double)var19 - param3, (double)var11 - param4 + var15 + 0.5)
-                                    .uv(1.0F + var31, (float)var18 * 0.25F + var30 + var32)
-                                    .color(1.0F, 1.0F, 1.0F, var36)
-                                    .uv2(var41, var40)
+                                    .uv(1.0F + var30, (float)var18 * 0.25F + var29 + var31)
+                                    .color(1.0F, 1.0F, 1.0F, var35)
+                                    .uv2(var40, var39)
                                     .endVertex();
                                 var6.vertex((double)var12 - param2 + var14 + 0.5, (double)var18 - param3, (double)var11 - param4 + var15 + 0.5)
-                                    .uv(1.0F + var31, (float)var19 * 0.25F + var30 + var32)
-                                    .color(1.0F, 1.0F, 1.0F, var36)
-                                    .uv2(var41, var40)
+                                    .uv(1.0F + var30, (float)var19 * 0.25F + var29 + var31)
+                                    .color(1.0F, 1.0F, 1.0F, var35)
+                                    .uv2(var40, var39)
                                     .endVertex();
                                 var6.vertex((double)var12 - param2 - var14 + 0.5, (double)var18 - param3, (double)var11 - param4 - var15 + 0.5)
-                                    .uv(0.0F + var31, (float)var19 * 0.25F + var30 + var32)
-                                    .color(1.0F, 1.0F, 1.0F, var36)
-                                    .uv2(var41, var40)
+                                    .uv(0.0F + var30, (float)var19 * 0.25F + var29 + var31)
+                                    .color(1.0F, 1.0F, 1.0F, var35)
+                                    .uv2(var40, var39)
                                     .endVertex();
                             }
                         }
@@ -426,7 +425,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     && var9.getY() <= var3.getY() + 10
                     && var9.getY() >= var3.getY() - 10
                     && var10.getPrecipitation() == Biome.Precipitation.RAIN
-                    && var10.getTemperature(var9) >= 0.15F) {
+                    && var10.warmEnoughToRain(var9)) {
                     var4 = var9.below();
                     if (this.minecraft.options.particles == ParticleStatus.MINIMAL) {
                         break;

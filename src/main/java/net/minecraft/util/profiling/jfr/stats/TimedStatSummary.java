@@ -7,7 +7,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.util.profiling.jfr.Percentiles;
 
-public record TimedStatSummary<T>(T fastest, T slowest, @Nullable T secondSlowest, int count, Map<Integer, Double> percentilesNanos, Duration totalDuration) {
+public record TimedStatSummary<T extends TimedStat>(
+    T fastest, T slowest, @Nullable T secondSlowest, int count, Map<Integer, Double> percentilesNanos, Duration totalDuration
+) {
     public static <T extends TimedStat> TimedStatSummary<T> summary(List<T> param0) {
         if (param0.isEmpty()) {
             throw new IllegalArgumentException("No values");

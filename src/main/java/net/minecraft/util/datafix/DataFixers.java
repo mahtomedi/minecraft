@@ -841,6 +841,8 @@ public class DataFixers {
                 )
             )
         );
+        Schema var154 = param0.addSchema(2852, SAME_NAMESPACED);
+        param0.addFixer(new WorldGenSettingsDisallowOldCustomWorldsFix(var154));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

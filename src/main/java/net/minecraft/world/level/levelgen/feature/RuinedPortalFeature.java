@@ -140,7 +140,7 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
     }
 
     private static boolean isCold(BlockPos param0, Biome param1) {
-        return param1.getTemperature(param0) < 0.15F;
+        return param1.coldEnoughToSnow(param0);
     }
 
     private static int findSuitableY(

@@ -29,7 +29,7 @@ public record ClientboundLoginPacket(
     boolean showDeathScreen,
     boolean isDebug,
     boolean isFlat
-) implements Packet {
+) implements Packet<ClientGamePacketListener> {
     public ClientboundLoginPacket(FriendlyByteBuf param0) {
         this(
             param0.readInt(),

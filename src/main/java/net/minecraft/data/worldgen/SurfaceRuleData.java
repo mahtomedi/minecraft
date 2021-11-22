@@ -259,47 +259,49 @@ public class SurfaceRuleData {
         SurfaceRules.ConditionSource var1 = SurfaceRules.yBlockCheck(VerticalAnchor.absolute(32), 0);
         SurfaceRules.ConditionSource var2 = SurfaceRules.yStartCheck(VerticalAnchor.absolute(30), 0);
         SurfaceRules.ConditionSource var3 = SurfaceRules.not(SurfaceRules.yStartCheck(VerticalAnchor.absolute(35), 0));
-        SurfaceRules.ConditionSource var4 = SurfaceRules.hole();
-        SurfaceRules.ConditionSource var5 = SurfaceRules.noiseCondition(Noises.SOUL_SAND_LAYER, -0.012);
-        SurfaceRules.ConditionSource var6 = SurfaceRules.noiseCondition(Noises.GRAVEL_LAYER, -0.012);
-        SurfaceRules.ConditionSource var7 = SurfaceRules.noiseCondition(Noises.PATCH, -0.012);
-        SurfaceRules.ConditionSource var8 = SurfaceRules.noiseCondition(Noises.NETHERRACK, 0.54);
-        SurfaceRules.ConditionSource var9 = SurfaceRules.noiseCondition(Noises.NETHER_WART, 1.17);
-        SurfaceRules.ConditionSource var10 = SurfaceRules.noiseCondition(Noises.NETHER_STATE_SELECTOR, 0.0);
-        SurfaceRules.RuleSource var11 = SurfaceRules.ifTrue(var7, SurfaceRules.ifTrue(var2, SurfaceRules.ifTrue(var3, GRAVEL)));
+        SurfaceRules.ConditionSource var4 = SurfaceRules.yBlockCheck(VerticalAnchor.belowTop(5), 0);
+        SurfaceRules.ConditionSource var5 = SurfaceRules.hole();
+        SurfaceRules.ConditionSource var6 = SurfaceRules.noiseCondition(Noises.SOUL_SAND_LAYER, -0.012);
+        SurfaceRules.ConditionSource var7 = SurfaceRules.noiseCondition(Noises.GRAVEL_LAYER, -0.012);
+        SurfaceRules.ConditionSource var8 = SurfaceRules.noiseCondition(Noises.PATCH, -0.012);
+        SurfaceRules.ConditionSource var9 = SurfaceRules.noiseCondition(Noises.NETHERRACK, 0.54);
+        SurfaceRules.ConditionSource var10 = SurfaceRules.noiseCondition(Noises.NETHER_WART, 1.17);
+        SurfaceRules.ConditionSource var11 = SurfaceRules.noiseCondition(Noises.NETHER_STATE_SELECTOR, 0.0);
+        SurfaceRules.RuleSource var12 = SurfaceRules.ifTrue(var8, SurfaceRules.ifTrue(var2, SurfaceRules.ifTrue(var3, GRAVEL)));
         return SurfaceRules.sequence(
             SurfaceRules.ifTrue(SurfaceRules.verticalGradient("bedrock_floor", VerticalAnchor.bottom(), VerticalAnchor.aboveBottom(5)), BEDROCK),
             SurfaceRules.ifTrue(SurfaceRules.not(SurfaceRules.verticalGradient("bedrock_roof", VerticalAnchor.belowTop(5), VerticalAnchor.top())), BEDROCK),
+            SurfaceRules.ifTrue(var4, NETHERRACK),
             SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(Biomes.BASALT_DELTAS),
                 SurfaceRules.sequence(
                     SurfaceRules.ifTrue(SurfaceRules.UNDER_CEILING, BASALT),
-                    SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, SurfaceRules.sequence(var11, SurfaceRules.ifTrue(var10, BASALT), BLACKSTONE))
+                    SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, SurfaceRules.sequence(var12, SurfaceRules.ifTrue(var11, BASALT), BLACKSTONE))
                 )
             ),
             SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(Biomes.SOUL_SAND_VALLEY),
                 SurfaceRules.sequence(
-                    SurfaceRules.ifTrue(SurfaceRules.UNDER_CEILING, SurfaceRules.sequence(SurfaceRules.ifTrue(var10, SOUL_SAND), SOUL_SOIL)),
-                    SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, SurfaceRules.sequence(var11, SurfaceRules.ifTrue(var10, SOUL_SAND), SOUL_SOIL))
+                    SurfaceRules.ifTrue(SurfaceRules.UNDER_CEILING, SurfaceRules.sequence(SurfaceRules.ifTrue(var11, SOUL_SAND), SOUL_SOIL)),
+                    SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, SurfaceRules.sequence(var12, SurfaceRules.ifTrue(var11, SOUL_SAND), SOUL_SOIL))
                 )
             ),
             SurfaceRules.ifTrue(
                 SurfaceRules.ON_FLOOR,
                 SurfaceRules.sequence(
-                    SurfaceRules.ifTrue(SurfaceRules.not(var1), SurfaceRules.ifTrue(var4, LAVA)),
+                    SurfaceRules.ifTrue(SurfaceRules.not(var1), SurfaceRules.ifTrue(var5, LAVA)),
                     SurfaceRules.ifTrue(
                         SurfaceRules.isBiome(Biomes.WARPED_FOREST),
                         SurfaceRules.ifTrue(
-                            SurfaceRules.not(var8),
-                            SurfaceRules.ifTrue(var0, SurfaceRules.sequence(SurfaceRules.ifTrue(var9, WARPED_WART_BLOCK), WARPED_NYLIUM))
+                            SurfaceRules.not(var9),
+                            SurfaceRules.ifTrue(var0, SurfaceRules.sequence(SurfaceRules.ifTrue(var10, WARPED_WART_BLOCK), WARPED_NYLIUM))
                         )
                     ),
                     SurfaceRules.ifTrue(
                         SurfaceRules.isBiome(Biomes.CRIMSON_FOREST),
                         SurfaceRules.ifTrue(
-                            SurfaceRules.not(var8),
-                            SurfaceRules.ifTrue(var0, SurfaceRules.sequence(SurfaceRules.ifTrue(var9, NETHER_WART_BLOCK), CRIMSON_NYLIUM))
+                            SurfaceRules.not(var9),
+                            SurfaceRules.ifTrue(var0, SurfaceRules.sequence(SurfaceRules.ifTrue(var10, NETHER_WART_BLOCK), CRIMSON_NYLIUM))
                         )
                     )
                 )
@@ -310,9 +312,9 @@ public class SurfaceRuleData {
                     SurfaceRules.ifTrue(
                         SurfaceRules.UNDER_FLOOR,
                         SurfaceRules.ifTrue(
-                            var5,
+                            var6,
                             SurfaceRules.sequence(
-                                SurfaceRules.ifTrue(SurfaceRules.not(var4), SurfaceRules.ifTrue(var2, SurfaceRules.ifTrue(var3, SOUL_SAND))), NETHERRACK
+                                SurfaceRules.ifTrue(SurfaceRules.not(var5), SurfaceRules.ifTrue(var2, SurfaceRules.ifTrue(var3, SOUL_SAND))), NETHERRACK
                             )
                         )
                     ),
@@ -323,7 +325,7 @@ public class SurfaceRuleData {
                             SurfaceRules.ifTrue(
                                 var3,
                                 SurfaceRules.ifTrue(
-                                    var6, SurfaceRules.sequence(SurfaceRules.ifTrue(var1, GRAVEL), SurfaceRules.ifTrue(SurfaceRules.not(var4), GRAVEL))
+                                    var7, SurfaceRules.sequence(SurfaceRules.ifTrue(var1, GRAVEL), SurfaceRules.ifTrue(SurfaceRules.not(var5), GRAVEL))
                                 )
                             )
                         )
