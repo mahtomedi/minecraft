@@ -52,11 +52,11 @@ import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -228,7 +228,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                 .stream()
                 .collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
             List<BiomeSource.StepFeatureData> var4 = this.biomeSource.featuresPerStep();
-            WorldgenRandom var5 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
+            WorldgenRandom var5 = new WorldgenRandom(new XoroshiroRandomSource(RandomSupport.seedUniquifier()));
             long var6 = var5.setDecorationSeed(param0.getSeed(), var2.getX(), var2.getZ());
             Set<Biome> var7 = new ObjectArraySet<>();
             if (this instanceof FlatLevelSource) {
@@ -263,8 +263,8 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                                 param0.setCurrentlyGenerating(var16);
                                 param2.startsForFeature(var1, var15)
                                     .forEach(param5 -> param5.placeInChunk(param0, param2, this, var5, getWritableArea(param1), var0));
-                            } catch (Exception var281) {
-                                CrashReport var18 = CrashReport.forThrowable(var281, "Feature placement");
+                            } catch (Exception var291) {
+                                CrashReport var18 = CrashReport.forThrowable(var291, "Feature placement");
                                 var18.addCategory("Feature").setDetail("Description", var16::get);
                                 throw new ReportedException(var18);
                             }
@@ -291,29 +291,28 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                         BiomeSource.StepFeatureData var26 = var4.get(var12);
 
                         for(int var27 = 0; var27 < var24; ++var27) {
-                            PlacedFeature var28 = var26.features().get(var25[var27]);
-                            Supplier<String> var29 = () -> var9.getResourceKey(var28).map(Object::toString).orElseGet(var28::toString);
-                            var5.setFeatureSeed(var6, var13, var12);
+                            int var28 = var25[var27];
+                            PlacedFeature var29 = var26.features().get(var28);
+                            Supplier<String> var30 = () -> var9.getResourceKey(var29).map(Object::toString).orElseGet(var29::toString);
+                            var5.setFeatureSeed(var6, var28, var12);
 
                             try {
-                                param0.setCurrentlyGenerating(var29);
-                                var28.placeWithBiomeCheck(param0, this, var5, var2);
-                            } catch (Exception var291) {
-                                CrashReport var31 = CrashReport.forThrowable(var291, "Feature placement");
-                                var31.addCategory("Feature").setDetail("Description", var29::get);
-                                throw new ReportedException(var31);
+                                param0.setCurrentlyGenerating(var30);
+                                var29.placeWithBiomeCheck(param0, this, var5, var2);
+                            } catch (Exception var301) {
+                                CrashReport var32 = CrashReport.forThrowable(var301, "Feature placement");
+                                var32.addCategory("Feature").setDetail("Description", var30::get);
+                                throw new ReportedException(var32);
                             }
-
-                            ++var13;
                         }
                     }
                 }
 
                 param0.setCurrentlyGenerating(null);
-            } catch (Exception var30) {
-                CrashReport var33 = CrashReport.forThrowable(var30, "Biome decoration");
-                var33.addCategory("Generation").setDetail("CenterX", var0.x).setDetail("CenterZ", var0.z).setDetail("Seed", var6);
-                throw new ReportedException(var33);
+            } catch (Exception var31) {
+                CrashReport var34 = CrashReport.forThrowable(var31, "Biome decoration");
+                var34.addCategory("Generation").setDetail("CenterX", var0.x).setDetail("CenterZ", var0.z).setDetail("Seed", var6);
+                throw new ReportedException(var34);
             }
         }
     }

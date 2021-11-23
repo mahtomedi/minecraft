@@ -260,6 +260,10 @@ public class WorldGenSettings {
                 );
             case "debug_all_block_states":
                 return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, new DebugLevelSource(var10)));
+            case "amplified":
+                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeOverworld(param0, var6, NoiseGeneratorSettings.AMPLIFIED)));
+            case "largebiomes":
+                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeOverworld(param0, var6, NoiseGeneratorSettings.LARGE_BIOMES)));
             default:
                 return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeDefaultOverworld(param0, var6)));
         }

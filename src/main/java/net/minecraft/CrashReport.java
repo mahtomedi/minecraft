@@ -186,10 +186,7 @@ public class CrashReport {
             }
 
             this.trackingStackTrace = var0.validateStackTrace(var3, var4);
-            if (var1 > 0 && !this.details.isEmpty()) {
-                CrashReportCategory var6 = this.details.get(this.details.size() - 1);
-                var6.trimStacktrace(var1);
-            } else if (var2 != null && var2.length >= var1 && 0 <= var5 && var5 < var2.length) {
+            if (var2 != null && var2.length >= var1 && 0 <= var5 && var5 < var2.length) {
                 this.uncategorizedStackTrace = new StackTraceElement[var5];
                 System.arraycopy(var2, 0, this.uncategorizedStackTrace, 0, this.uncategorizedStackTrace.length);
             } else {
