@@ -607,6 +607,9 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                             var3x.setDetail("Location", String.format("%d,%d", var0.x, var0.z));
                             var3x.setDetail("Position hash", ChunkPos.asLong(var0.x, var0.z));
                             var3x.setDetail("Generator", this.generator);
+                            this.mainThreadExecutor.execute(() -> {
+                                throw new ReportedException(var2x);
+                            });
                             throw new ReportedException(var2x);
                         }
                     },
