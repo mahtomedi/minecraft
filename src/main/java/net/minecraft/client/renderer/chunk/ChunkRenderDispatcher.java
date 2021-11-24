@@ -43,7 +43,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -122,7 +121,7 @@ public class ChunkRenderDispatcher {
                     .whenComplete((param1x, param2x) -> {
                         if (param2x != null) {
                             CrashReport var0xx = CrashReport.forThrowable(param2x, "Batching chunks");
-                            Minecraft.getInstance().delayCrash(Minecraft.getInstance().fillReport(var0xx));
+                            Minecraft.getInstance().delayCrash(() -> Minecraft.getInstance().fillReport(var0xx));
                         } else {
                             this.mailbox.tell(() -> {
                                 if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
@@ -540,7 +539,8 @@ public class ChunkRenderDispatcher {
                             );
                         return Util.sequenceFailFast(var6).handle((param1, param2) -> {
                             if (param2 != null && !(param2 instanceof CancellationException) && !(param2 instanceof InterruptedException)) {
-                                Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param2, "Rendering chunk"));
+                                CrashReport var0x = CrashReport.forThrowable(param2, "Rendering chunk");
+                                Minecraft.getInstance().delayCrash(() -> var0x);
                             }
 
                             if (this.isCancelled.get()) {
@@ -578,7 +578,7 @@ public class ChunkRenderDispatcher {
                         }
 
                         if (var10.hasBlockEntity()) {
-                            BlockEntity var11 = var5.getBlockEntity(var9, LevelChunk.EntityCreationType.CHECK);
+                            BlockEntity var11 = var5.getBlockEntity(var9);
                             if (var11 != null) {
                                 this.handleBlockEntity(param3, var4, var11);
                             }
@@ -701,7 +701,8 @@ public class ChunkRenderDispatcher {
                             return var6.handle(
                                 (param0x, param1) -> {
                                     if (param1 != null && !(param1 instanceof CancellationException) && !(param1 instanceof InterruptedException)) {
-                                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param1, "Rendering chunk"));
+                                        CrashReport var0x = CrashReport.forThrowable(param1, "Rendering chunk");
+                                        Minecraft.getInstance().delayCrash(() -> var0x);
                                     }
     
                                     return this.isCancelled.get()

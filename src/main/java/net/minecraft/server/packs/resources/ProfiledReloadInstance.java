@@ -20,31 +20,25 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
     public ProfiledReloadInstance(
         ResourceManager param0, List<PreparableReloadListener> param1, Executor param2, Executor param3, CompletableFuture<Unit> param4
     ) {
-        super(
-            param2,
-            param3,
-            param0,
-            param1,
-            (param1x, param2x, param3x, param4x, param5) -> {
-                AtomicLong var0 = new AtomicLong();
-                AtomicLong var1x = new AtomicLong();
-                ActiveProfiler var2x = new ActiveProfiler(Util.timeSource, () -> 0, false);
-                ActiveProfiler var3x = new ActiveProfiler(Util.timeSource, () -> 0, false);
-                CompletableFuture<Void> var4x = param3x.reload(param1x, param2x, var2x, var3x, param2xx -> param4x.execute(() -> {
-                        long var0x = Util.getNanos();
-                        param2xx.run();
-                        var0.addAndGet(Util.getNanos() - var0x);
-                    }), param2xx -> param5.execute(() -> {
-                        long var0x = Util.getNanos();
-                        param2xx.run();
-                        var1x.addAndGet(Util.getNanos() - var0x);
-                    }));
-                return var4x.thenApplyAsync(
-                    param5x -> new ProfiledReloadInstance.State(param3x.getName(), var2x.getResults(), var3x.getResults(), var0, var1x), param3
-                );
-            },
-            param4
-        );
+        super(param2, param3, param0, param1, (param1x, param2x, param3x, param4x, param5) -> {
+            AtomicLong var0 = new AtomicLong();
+            AtomicLong var1x = new AtomicLong();
+            ActiveProfiler var2x = new ActiveProfiler(Util.timeSource, () -> 0, false);
+            ActiveProfiler var3x = new ActiveProfiler(Util.timeSource, () -> 0, false);
+            CompletableFuture<Void> var4x = param3x.reload(param1x, param2x, var2x, var3x, param2xx -> param4x.execute(() -> {
+                    long var0x = Util.getNanos();
+                    param2xx.run();
+                    var0.addAndGet(Util.getNanos() - var0x);
+                }), param2xx -> param5.execute(() -> {
+                    long var0x = Util.getNanos();
+                    param2xx.run();
+                    var1x.addAndGet(Util.getNanos() - var0x);
+                }));
+            return var4x.thenApplyAsync(param5x -> {
+                LOGGER.debug("Finished reloading " + param3x.getName());
+                return new ProfiledReloadInstance.State(param3x.getName(), var2x.getResults(), var3x.getResults(), var0, var1x);
+            }, param3);
+        }, param4);
         this.total.start();
         this.allDone.thenAcceptAsync(this::finish, param3);
     }

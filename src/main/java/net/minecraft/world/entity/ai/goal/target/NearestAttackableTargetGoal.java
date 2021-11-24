@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 
 public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetGoal {
+    private static final int DEFAULT_RANDOM_INTERVAL = 10;
     protected final Class<T> targetType;
     protected final int randomInterval;
     @Nullable
@@ -19,7 +20,11 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
     protected TargetingConditions targetConditions;
 
     public NearestAttackableTargetGoal(Mob param0, Class<T> param1, boolean param2) {
-        this(param0, param1, param2, false);
+        this(param0, param1, 10, param2, false, null);
+    }
+
+    public NearestAttackableTargetGoal(Mob param0, Class<T> param1, boolean param2, Predicate<LivingEntity> param3) {
+        this(param0, param1, 10, param2, false, param3);
     }
 
     public NearestAttackableTargetGoal(Mob param0, Class<T> param1, boolean param2, boolean param3) {

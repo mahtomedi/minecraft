@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -38,6 +37,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final Logger LOGGER = LogManager.getLogger();
     private Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes = ImmutableMap.of();
+    private Map<ResourceLocation, Recipe<?>> byName = ImmutableMap.of();
     private boolean hasErrors;
 
     public RecipeManager() {
@@ -47,19 +47,22 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> param0, ResourceManager param1, ProfilerFiller param2) {
         this.hasErrors = false;
         Map<RecipeType<?>, Builder<ResourceLocation, Recipe<?>>> var0 = Maps.newHashMap();
+        Builder<ResourceLocation, Recipe<?>> var1 = ImmutableMap.builder();
 
-        for(Entry<ResourceLocation, JsonElement> var1 : param0.entrySet()) {
-            ResourceLocation var2 = var1.getKey();
+        for(Entry<ResourceLocation, JsonElement> var2 : param0.entrySet()) {
+            ResourceLocation var3 = var2.getKey();
 
             try {
-                Recipe<?> var3 = fromJson(var2, GsonHelper.convertToJsonObject(var1.getValue(), "top element"));
-                var0.computeIfAbsent(var3.getType(), param0x -> ImmutableMap.builder()).put(var2, var3);
-            } catch (IllegalArgumentException | JsonParseException var9) {
-                LOGGER.error("Parsing error loading recipe {}", var2, var9);
+                Recipe<?> var4 = fromJson(var3, GsonHelper.convertToJsonObject(var2.getValue(), "top element"));
+                var0.computeIfAbsent(var4.getType(), param0x -> ImmutableMap.builder()).put(var3, var4);
+                var1.put(var3, var4);
+            } catch (IllegalArgumentException | JsonParseException var10) {
+                LOGGER.error("Parsing error loading recipe {}", var3, var10);
             }
         }
 
         this.recipes = var0.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0x -> param0x.getValue().build()));
+        this.byName = var1.build();
         LOGGER.info("Loaded {} recipes", var0.size());
     }
 
@@ -104,7 +107,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     }
 
     public Optional<? extends Recipe<?>> byKey(ResourceLocation param0) {
-        return this.recipes.values().stream().map(param1 -> param1.get(param0)).filter(Objects::nonNull).findFirst();
+        return Optional.ofNullable(this.byName.get(param0));
     }
 
     public Collection<Recipe<?>> getRecipes() {
@@ -126,13 +129,17 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     public void replaceRecipes(Iterable<Recipe<?>> param0) {
         this.hasErrors = false;
         Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> var0 = Maps.newHashMap();
-        param0.forEach(param1 -> {
-            Map<ResourceLocation, Recipe<?>> var0x = var0.computeIfAbsent(param1.getType(), param0x -> Maps.newHashMap());
-            Recipe<?> var1x = var0x.put(param1.getId(), param1);
-            if (var1x != null) {
-                throw new IllegalStateException("Duplicate recipe ignored with ID " + param1.getId());
+        Builder<ResourceLocation, Recipe<?>> var1 = ImmutableMap.builder();
+        param0.forEach(param2 -> {
+            Map<ResourceLocation, Recipe<?>> var0x = var0.computeIfAbsent(param2.getType(), param0x -> Maps.newHashMap());
+            ResourceLocation var1x = param2.getId();
+            Recipe<?> var2x = var0x.put(var1x, param2);
+            var1.put(var1x, param2);
+            if (var2x != null) {
+                throw new IllegalStateException("Duplicate recipe ignored with ID " + var1x);
             }
         });
         this.recipes = ImmutableMap.copyOf(var0);
+        this.byName = var1.build();
     }
 }

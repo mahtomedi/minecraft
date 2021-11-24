@@ -952,6 +952,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public SystemReport fillSystemReport(SystemReport param0) {
+        param0.setDetail("Server Running", () -> Boolean.toString(this.running));
         if (this.playerList != null) {
             param0.setDetail(
                 "Player Count", () -> this.playerList.getPlayerCount() + " / " + this.playerList.getMaxPlayers() + "; " + this.playerList.getPlayers()

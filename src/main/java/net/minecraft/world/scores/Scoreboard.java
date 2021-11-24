@@ -15,8 +15,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Scoreboard {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final int DISPLAY_SLOT_LIST = 0;
     public static final int DISPLAY_SLOT_SIDEBAR = 1;
     public static final int DISPLAY_SLOT_BELOW_NAME = 2;
@@ -176,7 +179,8 @@ public class Scoreboard {
     public PlayerTeam addPlayerTeam(String param0) {
         PlayerTeam var0 = this.getPlayerTeam(param0);
         if (var0 != null) {
-            throw new IllegalArgumentException("A team with the name '" + param0 + "' already exists!");
+            LOGGER.warn("Requested creation of existing team '{}'", param0);
+            return var0;
         } else {
             var0 = new PlayerTeam(this, param0);
             this.teamsByName.put(param0, var0);

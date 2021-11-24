@@ -468,6 +468,10 @@ public class Phantom extends FlyingMob implements Enemy {
     }
 
     class PhantomSweepAttackGoal extends Phantom.PhantomMoveTargetGoal {
+        private static final int CAT_SEARCH_TICK_DELAY = 20;
+        private boolean isScaredOfCat;
+        private int catSearchTick;
+
         @Override
         public boolean canUse() {
             return Phantom.this.getTarget() != null && Phantom.this.attackPhase == Phantom.AttackPhase.SWOOP;
@@ -480,26 +484,28 @@ public class Phantom extends FlyingMob implements Enemy {
                 return false;
             } else if (!var0.isAlive()) {
                 return false;
-            } else if (!(var0 instanceof Player) || !((Player)var0).isSpectator() && !((Player)var0).isCreative()) {
+            } else {
+                if (var0 instanceof Player var1 && (var0.isSpectator() || var1.isCreative())) {
+                    return false;
+                }
+
                 if (!this.canUse()) {
                     return false;
                 } else {
-                    if (Phantom.this.tickCount % 20 == Phantom.this.getId() % 2) {
-                        List<Cat> var1 = Phantom.this.level
+                    if (Phantom.this.tickCount > this.catSearchTick) {
+                        this.catSearchTick = Phantom.this.tickCount + 20;
+                        List<Cat> var2 = Phantom.this.level
                             .getEntitiesOfClass(Cat.class, Phantom.this.getBoundingBox().inflate(16.0), EntitySelector.ENTITY_STILL_ALIVE);
-                        if (!var1.isEmpty()) {
-                            for(Cat var2 : var1) {
-                                var2.hiss();
-                            }
 
-                            return false;
+                        for(Cat var3 : var2) {
+                            var3.hiss();
                         }
+
+                        this.isScaredOfCat = !var2.isEmpty();
                     }
 
-                    return true;
+                    return !this.isScaredOfCat;
                 }
-            } else {
-                return false;
             }
         }
 
