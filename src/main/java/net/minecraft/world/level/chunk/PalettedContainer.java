@@ -57,8 +57,13 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     public PalettedContainer(IdMap<T> param0, PalettedContainer.Strategy param1, PalettedContainer.Configuration<T> param2, BitStorage param3, List<T> param4) {
         this.registry = param0;
         this.strategy = param1;
-        Palette<T> var0 = param2.factory().create(param2.bits(), param0, this, param4);
-        this.data = new PalettedContainer.Data<>(param2, param3, var0);
+        this.data = new PalettedContainer.Data<>(param2, param3, param2.factory().create(param2.bits(), param0, this, param4));
+    }
+
+    private PalettedContainer(IdMap<T> param0, PalettedContainer.Strategy param1, PalettedContainer.Data<T> param2) {
+        this.registry = param0;
+        this.strategy = param1;
+        this.data = param2;
     }
 
     public PalettedContainer(IdMap<T> param0, T param1, PalettedContainer.Strategy param2) {
@@ -247,6 +252,12 @@ public class PalettedContainer<T> implements PaletteResize<T> {
 
     public boolean maybeHas(Predicate<T> param0) {
         return this.data.palette.maybeHas(param0);
+    }
+
+    public PalettedContainer<T> copy() {
+        return new PalettedContainer<>(
+            this.registry, this.strategy, new PalettedContainer.Data<>(this.data.configuration(), this.data.storage().copy(), this.data.palette().copy())
+        );
     }
 
     public void count(PalettedContainer.CountConsumer<T> param0) {

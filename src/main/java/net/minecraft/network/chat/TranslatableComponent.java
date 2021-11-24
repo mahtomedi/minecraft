@@ -1,10 +1,12 @@
 package net.minecraft.network.chat;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -20,7 +22,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
     private final Object[] args;
     @Nullable
     private Language decomposedWith;
-    private final List<FormattedText> decomposedParts = Lists.newArrayList();
+    private List<FormattedText> decomposedParts = ImmutableList.of();
     private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
 
     public TranslatableComponent(String param0) {
@@ -37,20 +39,20 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
         Language var0 = Language.getInstance();
         if (var0 != this.decomposedWith) {
             this.decomposedWith = var0;
-            this.decomposedParts.clear();
             String var1 = var0.getOrDefault(this.key);
 
             try {
-                this.decomposeTemplate(var1);
+                Builder<FormattedText> var2 = ImmutableList.builder();
+                this.decomposeTemplate(var1, var2::add);
+                this.decomposedParts = var2.build();
             } catch (TranslatableFormatException var4) {
-                this.decomposedParts.clear();
-                this.decomposedParts.add(FormattedText.of(var1));
+                this.decomposedParts = ImmutableList.of(FormattedText.of(var1));
             }
 
         }
     }
 
-    private void decomposeTemplate(String param0) {
+    private void decomposeTemplate(String param0, Consumer<FormattedText> param1) {
         Matcher var0 = FORMAT_PATTERN.matcher(param0);
 
         try {
@@ -67,13 +69,13 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                         throw new IllegalArgumentException();
                     }
 
-                    this.decomposedParts.add(FormattedText.of(var5));
+                    param1.accept(FormattedText.of(var5));
                 }
 
                 String var6 = var0.group(2);
                 String var7 = param0.substring(var3, var4);
                 if ("%".equals(var6) && "%%".equals(var7)) {
-                    this.decomposedParts.add(TEXT_PERCENT);
+                    param1.accept(TEXT_PERCENT);
                 } else {
                     if (!"s".equals(var6)) {
                         throw new TranslatableFormatException(this, "Unsupported format: '" + var7 + "'");
@@ -82,7 +84,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                     String var8 = var0.group(1);
                     int var9 = var8 != null ? Integer.parseInt(var8) - 1 : var1++;
                     if (var9 < this.args.length) {
-                        this.decomposedParts.add(this.getArgument(var9));
+                        param1.accept(this.getArgument(var9));
                     }
                 }
             }
@@ -93,11 +95,11 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                     throw new IllegalArgumentException();
                 }
 
-                this.decomposedParts.add(FormattedText.of(var10));
+                param1.accept(FormattedText.of(var10));
             }
 
-        } catch (IllegalArgumentException var111) {
-            throw new TranslatableFormatException(this, var111);
+        } catch (IllegalArgumentException var12) {
+            throw new TranslatableFormatException(this, var12);
         }
     }
 

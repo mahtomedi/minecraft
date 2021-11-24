@@ -21,6 +21,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryLookupCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.levelgen.NoiseSampler;
 import net.minecraft.world.level.levelgen.TerrainInfo;
@@ -29,14 +30,16 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 public class MultiNoiseBiomeSource extends BiomeSource {
     public static final MapCodec<MultiNoiseBiomeSource> DIRECT_CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
-                    RecordCodecBuilder.create(
-                            param0x -> param0x.group(
-                                        Climate.ParameterPoint.CODEC.fieldOf("parameters").forGetter(Pair::getFirst),
-                                        Biome.CODEC.fieldOf("biome").forGetter(Pair::getSecond)
-                                    )
-                                    .apply(param0x, Pair::of)
+                    ExtraCodecs.<Pair<Climate.ParameterPoint, T>>nonEmptyList(
+                            RecordCodecBuilder.create(
+                                    param0x -> param0x.group(
+                                                Climate.ParameterPoint.CODEC.fieldOf("parameters").forGetter(Pair::getFirst),
+                                                Biome.CODEC.fieldOf("biome").forGetter(Pair::getSecond)
+                                            )
+                                            .apply(param0x, Pair::of)
+                                )
+                                .listOf()
                         )
-                        .listOf()
                         .xmap(Climate.ParameterList::new, Climate.ParameterList::values)
                         .fieldOf("biomes")
                         .forGetter(param0x -> param0x.parameters)

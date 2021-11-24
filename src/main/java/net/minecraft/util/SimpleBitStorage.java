@@ -361,6 +361,11 @@ public class SimpleBitStorage implements BitStorage {
 
     }
 
+    @Override
+    public BitStorage copy() {
+        return new SimpleBitStorage(this.bits, this.size, (long[])this.data.clone());
+    }
+
     public static class InitializationException extends RuntimeException {
         InitializationException(String param0) {
             super(param0);

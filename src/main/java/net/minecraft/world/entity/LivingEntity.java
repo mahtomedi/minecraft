@@ -2997,20 +2997,22 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void completeUsingItem() {
-        InteractionHand var0 = this.getUsedItemHand();
-        if (!this.useItem.equals(this.getItemInHand(var0))) {
-            this.releaseUsingItem();
-        } else {
-            if (!this.useItem.isEmpty() && this.isUsingItem()) {
-                this.triggerItemUseEffects(this.useItem, 16);
-                ItemStack var1 = this.useItem.finishUsingItem(this.level, this);
-                if (var1 != this.useItem) {
-                    this.setItemInHand(var0, var1);
+        if (!this.level.isClientSide || this.isUsingItem()) {
+            InteractionHand var0 = this.getUsedItemHand();
+            if (!this.useItem.equals(this.getItemInHand(var0))) {
+                this.releaseUsingItem();
+            } else {
+                if (!this.useItem.isEmpty() && this.isUsingItem()) {
+                    this.triggerItemUseEffects(this.useItem, 16);
+                    ItemStack var1 = this.useItem.finishUsingItem(this.level, this);
+                    if (var1 != this.useItem) {
+                        this.setItemInHand(var0, var1);
+                    }
+
+                    this.stopUsingItem();
                 }
 
-                this.stopUsingItem();
             }
-
         }
     }
 
