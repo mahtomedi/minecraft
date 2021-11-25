@@ -75,11 +75,12 @@ public class ThreadingDetector {
 
     public static ReportedException makeThreadingException(String param0, @Nullable Thread param1) {
         String var0 = Stream.of(Thread.currentThread(), param1).filter(Objects::nonNull).map(ThreadingDetector::stackTrace).collect(Collectors.joining("\n"));
-        CrashReport var1 = new CrashReport("Accessing " + param0 + " from multiple threads", new IllegalStateException());
-        CrashReportCategory var2 = var1.addCategory("Thread dumps");
-        var2.setDetail("Thread dumps", var0);
+        String var1 = "Accessing " + param0 + " from multiple threads";
+        CrashReport var2 = new CrashReport(var1, new IllegalStateException(var1));
+        CrashReportCategory var3 = var2.addCategory("Thread dumps");
+        var3.setDetail("Thread dumps", var0);
         LOGGER.error("Thread dumps: \n" + var0);
-        return new ReportedException(var1);
+        return new ReportedException(var2);
     }
 
     private static String stackTrace(Thread param0x) {

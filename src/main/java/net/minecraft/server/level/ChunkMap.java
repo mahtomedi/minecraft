@@ -24,6 +24,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -290,33 +291,35 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> getChunkRangeFuture(
         ChunkPos param0, int param1, IntFunction<ChunkStatus> param2
     ) {
-        List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var0 = Lists.newArrayList();
-        int var1 = param0.x;
-        int var2 = param0.z;
+        List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var0 = new ArrayList<>();
+        List<ChunkHolder> var1 = new ArrayList<>();
+        int var2 = param0.x;
+        int var3 = param0.z;
 
-        for(int var3 = -param1; var3 <= param1; ++var3) {
-            for(int var4 = -param1; var4 <= param1; ++var4) {
-                int var5 = Math.max(Math.abs(var4), Math.abs(var3));
-                final ChunkPos var6 = new ChunkPos(var1 + var4, var2 + var3);
-                long var7 = var6.toLong();
-                ChunkHolder var8 = this.getUpdatingChunkIfPresent(var7);
-                if (var8 == null) {
+        for(int var4 = -param1; var4 <= param1; ++var4) {
+            for(int var5 = -param1; var5 <= param1; ++var5) {
+                int var6 = Math.max(Math.abs(var5), Math.abs(var4));
+                final ChunkPos var7 = new ChunkPos(var2 + var5, var3 + var4);
+                long var8 = var7.toLong();
+                ChunkHolder var9 = this.getUpdatingChunkIfPresent(var8);
+                if (var9 == null) {
                     return CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
                         @Override
                         public String toString() {
-                            return "Unloaded " + var6;
+                            return "Unloaded " + var7;
                         }
                     }));
                 }
 
-                ChunkStatus var9 = param2.apply(var5);
-                CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var10 = var8.getOrScheduleFuture(var9, this);
-                var0.add(var10);
+                ChunkStatus var10 = param2.apply(var6);
+                CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var11 = var9.getOrScheduleFuture(var10, this);
+                var1.add(var9);
+                var0.add(var11);
             }
         }
 
-        CompletableFuture<List<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var11 = Util.sequence(var0);
-        return var11.thenApply(param3 -> {
+        CompletableFuture<List<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var12 = Util.sequence(var0);
+        CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var13 = var12.thenApply(param3 -> {
             List<ChunkAccess> var0x = Lists.newArrayList();
             int var1x = 0;
 
@@ -327,7 +330,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     return Either.right(new ChunkHolder.ChunkLoadingFailure() {
                         @Override
                         public String toString() {
-                            return "Unloaded " + new ChunkPos(var1 + var4x % (param1 * 2 + 1), var2 + var4x / (param1 * 2 + 1)) + " " + var2x.right().get();
+                            return "Unloaded " + new ChunkPos(var2 + var4x % (param1 * 2 + 1), var3 + var4x / (param1 * 2 + 1)) + " " + var2x.right().get();
                         }
                     });
                 }
@@ -338,6 +341,12 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
             return Either.left(var0x);
         });
+
+        for(ChunkHolder var14 : var1) {
+            var14.addSaveDependency("getChunkRangeFuture " + param0 + " " + param1, var13);
+        }
+
+        return var13;
     }
 
     public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkPos param0) {

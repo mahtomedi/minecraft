@@ -3,7 +3,6 @@ package net.minecraft.world.level.chunk;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -261,9 +260,13 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     }
 
     public void count(PalettedContainer.CountConsumer<T> param0) {
-        Int2IntMap var0 = new Int2IntOpenHashMap();
-        this.data.storage.getAll(param1 -> var0.put(param1, var0.get(param1) + 1));
-        var0.int2IntEntrySet().forEach(param1 -> param0.accept(this.data.palette.valueFor(param1.getIntKey()), param1.getIntValue()));
+        if (this.data.palette.getSize() == 1) {
+            param0.accept(this.data.palette.valueFor(0), this.data.storage.getSize());
+        } else {
+            Int2IntOpenHashMap var0 = new Int2IntOpenHashMap();
+            this.data.storage.getAll(param1 -> var0.addTo(param1, 1));
+            var0.int2IntEntrySet().forEach(param1 -> param0.accept(this.data.palette.valueFor(param1.getIntKey()), param1.getIntValue()));
+        }
     }
 
     static record Configuration<T>(Palette.Factory factory, int bits) {
