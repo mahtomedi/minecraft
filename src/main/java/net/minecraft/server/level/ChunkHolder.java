@@ -273,6 +273,14 @@ public class ChunkHolder {
         }
     }
 
+    protected void addSaveDependency(String param0, CompletableFuture<?> param1) {
+        if (this.chunkToSaveHistory != null) {
+            this.chunkToSaveHistory.push(new ChunkHolder.ChunkSaveDebug(Thread.currentThread(), param1, param0));
+        }
+
+        this.chunkToSave = this.chunkToSave.thenCombine(param1, (param0x, param1x) -> param0x);
+    }
+
     private void updateChunkToSave(CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param0, String param1) {
         if (this.chunkToSaveHistory != null) {
             this.chunkToSaveHistory.push(new ChunkHolder.ChunkSaveDebug(Thread.currentThread(), param0, param1));
@@ -436,10 +444,10 @@ public class ChunkHolder {
 
     static final class ChunkSaveDebug {
         private final Thread thread;
-        private final CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> future;
+        private final CompletableFuture<?> future;
         private final String source;
 
-        ChunkSaveDebug(Thread param0, CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param1, String param2) {
+        ChunkSaveDebug(Thread param0, CompletableFuture<?> param1, String param2) {
             this.thread = param0;
             this.future = param1;
             this.source = param2;
