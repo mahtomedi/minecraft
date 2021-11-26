@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "6d90a50cc252b78f959b5d41c46f8d983efda594",
-      "size": 20038402,
-      "url": "https://launcher.mojang.com/v1/objects/6d90a50cc252b78f959b5d41c46f8d983efda594/client.jar"
+      "sha1": "060dd014d59c90d723db87f9c9cedb511f374a71",
+      "size": 20038747,
+      "url": "https://launcher.mojang.com/v1/objects/060dd014d59c90d723db87f9c9cedb511f374a71/client.jar"
     },
     "client_mappings": {
-      "sha1": "44441ef893cb6531e8322d257e8d03d5463fb810",
+      "sha1": "b64667a23e5ea5f0cc0547241c253d2a72a97c56",
       "size": 6610979,
-      "url": "https://launcher.mojang.com/v1/objects/44441ef893cb6531e8322d257e8d03d5463fb810/client.txt"
+      "url": "https://launcher.mojang.com/v1/objects/b64667a23e5ea5f0cc0547241c253d2a72a97c56/client.txt"
     },
     "server": {
-      "sha1": "96162b8d0af608bee2febe602bdb46942e85f6d8",
-      "size": 46323827,
-      "url": "https://launcher.mojang.com/v1/objects/96162b8d0af608bee2febe602bdb46942e85f6d8/server.jar"
+      "sha1": "9a03d2c4ec2c737ce9d17a43d3774cdc0ea21030",
+      "size": 46323763,
+      "url": "https://launcher.mojang.com/v1/objects/9a03d2c4ec2c737ce9d17a43d3774cdc0ea21030/server.jar"
     },
     "server_mappings": {
-      "sha1": "97dd4d70ba711b6dbd6f61b9c7dde9e02e4d00fd",
+      "sha1": "a36b4033a861c6e9bd3ced78b267e6aeaa75b639",
       "size": 5115917,
-      "url": "https://launcher.mojang.com/v1/objects/97dd4d70ba711b6dbd6f61b9c7dde9e02e4d00fd/server.txt"
+      "url": "https://launcher.mojang.com/v1/objects/a36b4033a861c6e9bd3ced78b267e6aeaa75b639/server.txt"
     }
   },
-  "id": "1.18-rc2",
+  "id": "1.18-rc3",
   "javaVersion": {
     "component": "java-runtime-beta",
     "majorVersion": 17
@@ -1334,7 +1334,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-11-26T10:02:04+00:00",
-  "time": "2021-11-26T10:02:04+00:00",
+  "releaseTime": "2021-11-26T15:51:56+00:00",
+  "time": "2021-11-26T15:51:56+00:00",
   "type": "snapshot"
 }
