@@ -235,7 +235,7 @@ public final class NoiseGeneratorSettings {
                 384,
                 new NoiseSamplingSettings(1.0, 1.0, 80.0, 160.0),
                 new NoiseSlider(-0.078125, 2, param0 ? 0 : 8),
-                new NoiseSlider(0.4, 3, 0),
+                new NoiseSlider(param0 ? 0.4 : 0.1171875, 3, 0),
                 1,
                 2,
                 false,
