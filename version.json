@@ -1,15 +1,15 @@
 {
-    "id": "1.18-rc3",
-    "name": "1.18 Release Candidate 3",
+    "id": "1.18-rc4",
+    "name": "1.18 Release Candidate 4",
     "release_target": "1.18",
-    "world_version": 2858,
+    "world_version": 2859,
     "series_id": "main",
-    "protocol_version": 1073741883,
+    "protocol_version": 1073741884,
     "pack_version": {
         "resource": 8,
         "data": 8
     },
-    "build_time": "2021-11-26T15:49:53+00:00",
+    "build_time": "2021-11-29T13:41:41+00:00",
     "java_component": "java-runtime-beta",
     "java_version": 17,
     "stable": false
