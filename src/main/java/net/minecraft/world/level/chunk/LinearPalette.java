@@ -82,7 +82,7 @@ public class LinearPalette<T> implements Palette<T> {
         this.size = param0.readVarInt();
 
         for(int var0 = 0; var0 < this.size; ++var0) {
-            this.values[var0] = this.registry.byId(param0.readVarInt());
+            this.values[var0] = this.registry.byIdOrThrow(param0.readVarInt());
         }
 
     }

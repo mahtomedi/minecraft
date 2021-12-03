@@ -239,7 +239,8 @@ public class FogRenderer {
                 var5 = 0.0F;
                 var6 = param2;
             } else {
-                var5 = param2 * 0.75F;
+                float var25 = Mth.clamp(param2 / 10.0F, 4.0F, 64.0F);
+                var5 = param2 - var25;
                 var6 = param2;
             }
 

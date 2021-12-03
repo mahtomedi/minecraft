@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -169,6 +170,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private final LevelTicks<Block> blockTicks = new LevelTicks<>(this::isPositionTickingWithEntitiesLoaded, this.getProfilerSupplier());
     private final LevelTicks<Fluid> fluidTicks = new LevelTicks<>(this::isPositionTickingWithEntitiesLoaded, this.getProfilerSupplier());
     final Set<Mob> navigatingMobs = new ObjectOpenHashSet<>();
+    volatile boolean isUpdatingNavigations;
     protected final Raids raids;
     private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet<>();
     private final List<BlockEventData> blockEventsToReschedule = new ArrayList<>(64);
@@ -900,17 +902,28 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     @Override
     public void sendBlockUpdated(BlockPos param0, BlockState param1, BlockState param2, int param3) {
-        this.getChunkSource().blockChanged(param0);
-        VoxelShape var0 = param1.getCollisionShape(this, param0);
-        VoxelShape var1 = param2.getCollisionShape(this, param0);
-        if (Shapes.joinIsNotEmpty(var0, var1, BooleanOp.NOT_SAME)) {
-            for(Mob var2 : this.navigatingMobs) {
-                PathNavigation var3 = var2.getNavigation();
-                if (!var3.hasDelayedRecomputation()) {
-                    var3.recomputePath(param0);
-                }
-            }
+        if (this.isUpdatingNavigations) {
+            String var0 = "recursive call to sendBlockUpdated";
+            throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("recursive call to sendBlockUpdated"));
+        } else {
+            this.getChunkSource().blockChanged(param0);
+            VoxelShape var1 = param1.getCollisionShape(this, param0);
+            VoxelShape var2 = param2.getCollisionShape(this, param0);
+            if (Shapes.joinIsNotEmpty(var1, var2, BooleanOp.NOT_SAME)) {
+                this.isUpdatingNavigations = true;
 
+                try {
+                    for(Mob var3 : this.navigatingMobs) {
+                        PathNavigation var4 = var3.getNavigation();
+                        if (!var4.hasDelayedRecomputation()) {
+                            var4.recomputePath(param0);
+                        }
+                    }
+                } finally {
+                    this.isUpdatingNavigations = false;
+                }
+
+            }
         }
     }
 
@@ -1518,18 +1531,23 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         public void onTrackingStart(Entity param0) {
             ServerLevel.this.getChunkSource().addEntity(param0);
-            if (param0 instanceof ServerPlayer) {
-                ServerLevel.this.players.add((ServerPlayer)param0);
+            if (param0 instanceof ServerPlayer var0) {
+                ServerLevel.this.players.add(var0);
                 ServerLevel.this.updateSleepingPlayerList();
             }
 
-            if (param0 instanceof Mob) {
-                ServerLevel.this.navigatingMobs.add((Mob)param0);
+            if (param0 instanceof Mob var1) {
+                if (ServerLevel.this.isUpdatingNavigations) {
+                    String var2 = "onTrackingStart called during navigation iteration";
+                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("onTrackingStart called during navigation iteration"));
+                }
+
+                ServerLevel.this.navigatingMobs.add(var1);
             }
 
-            if (param0 instanceof EnderDragon) {
-                for(EnderDragonPart var0 : ((EnderDragon)param0).getSubEntities()) {
-                    ServerLevel.this.dragonParts.put(var0.getId(), var0);
+            if (param0 instanceof EnderDragon var3) {
+                for(EnderDragonPart var4 : var3.getSubEntities()) {
+                    ServerLevel.this.dragonParts.put(var4.getId(), var4);
                 }
             }
 
@@ -1542,19 +1560,24 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 ServerLevel.this.updateSleepingPlayerList();
             }
 
-            if (param0 instanceof Mob) {
-                ServerLevel.this.navigatingMobs.remove(param0);
+            if (param0 instanceof Mob var1) {
+                if (ServerLevel.this.isUpdatingNavigations) {
+                    String var2 = "onTrackingStart called during navigation iteration";
+                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("onTrackingStart called during navigation iteration"));
+                }
+
+                ServerLevel.this.navigatingMobs.remove(var1);
             }
 
-            if (param0 instanceof EnderDragon) {
-                for(EnderDragonPart var1 : ((EnderDragon)param0).getSubEntities()) {
-                    ServerLevel.this.dragonParts.remove(var1.getId());
+            if (param0 instanceof EnderDragon var3) {
+                for(EnderDragonPart var4 : var3.getSubEntities()) {
+                    ServerLevel.this.dragonParts.remove(var4.getId());
                 }
             }
 
-            GameEventListenerRegistrar var2 = param0.getGameEventListenerRegistrar();
-            if (var2 != null) {
-                var2.onListenerRemoved(param0.level);
+            GameEventListenerRegistrar var5 = param0.getGameEventListenerRegistrar();
+            if (var5 != null) {
+                var5.onListenerRemoved(param0.level);
             }
 
         }

@@ -73,7 +73,7 @@ public class HashMapPalette<T> implements Palette<T> {
         int var0 = param0.readVarInt();
 
         for(int var1 = 0; var1 < var0; ++var1) {
-            this.values.add(this.registry.byId(param0.readVarInt()));
+            this.values.add(this.registry.byIdOrThrow(param0.readVarInt()));
         }
 
     }

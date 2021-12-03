@@ -1238,7 +1238,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         RenderSystem.setShader(GameRenderer::getPositionShader);
         this.renderSky(param0, param7, param1, () -> FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_SKY, var10, var11));
         var0.popPush("fog");
-        FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, Math.max(var10 - 16.0F, 32.0F), var11);
+        FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, Math.max(var10, 32.0F), var11);
         var0.popPush("terrain_setup");
         this.setupRender(param4, var8, var7, this.minecraft.player.isSpectator());
         var0.popPush("compilechunks");
