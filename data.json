@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "d49eb6caed53d23927648c97451503442f9e26fd",
-      "size": 20038427,
-      "url": "https://launcher.mojang.com/v1/objects/d49eb6caed53d23927648c97451503442f9e26fd/client.jar"
+      "sha1": "9561f774dcc8797a02a907fc79d946533fbb00c7",
+      "size": 20040679,
+      "url": "https://launcher.mojang.com/v1/objects/9561f774dcc8797a02a907fc79d946533fbb00c7/client.jar"
     },
     "client_mappings": {
-      "sha1": "e824c89c612c0b9cb438ef739c44726c59bbf679",
-      "size": 6610979,
-      "url": "https://launcher.mojang.com/v1/objects/e824c89c612c0b9cb438ef739c44726c59bbf679/client.txt"
+      "sha1": "2240862fdd181309bb3a34f8472bdb9154d928b6",
+      "size": 6611241,
+      "url": "https://launcher.mojang.com/v1/objects/2240862fdd181309bb3a34f8472bdb9154d928b6/client.txt"
     },
     "server": {
-      "sha1": "3cf24a8694aca6267883b17d934efacc5e44440d",
-      "size": 46323386,
-      "url": "https://launcher.mojang.com/v1/objects/3cf24a8694aca6267883b17d934efacc5e44440d/server.jar"
+      "sha1": "cd99e68b49c8a7db185d053518c6fb135cd04564",
+      "size": 46324717,
+      "url": "https://launcher.mojang.com/v1/objects/cd99e68b49c8a7db185d053518c6fb135cd04564/server.jar"
     },
     "server_mappings": {
-      "sha1": "a8fe854e35a69df7289d3f03fc0821f6363f2238",
-      "size": 5115917,
-      "url": "https://launcher.mojang.com/v1/objects/a8fe854e35a69df7289d3f03fc0821f6363f2238/server.txt"
+      "sha1": "8efe9d1d2db4f1a0d868dd0d1ea30b49b67d9394",
+      "size": 5116179,
+      "url": "https://launcher.mojang.com/v1/objects/8efe9d1d2db4f1a0d868dd0d1ea30b49b67d9394/server.txt"
     }
   },
-  "id": "1.18",
+  "id": "1.18.1-pre1",
   "javaVersion": {
     "component": "java-runtime-beta",
     "majorVersion": 17
@@ -1334,7 +1334,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-11-30T09:16:29+00:00",
-  "time": "2021-11-30T09:16:29+00:00",
-  "type": "release"
+  "releaseTime": "2021-12-03T13:45:38+00:00",
+  "time": "2021-12-03T13:45:38+00:00",
+  "type": "snapshot"
 }

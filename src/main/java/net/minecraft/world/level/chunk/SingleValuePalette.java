@@ -57,7 +57,7 @@ public class SingleValuePalette<T> implements Palette<T> {
 
     @Override
     public void read(FriendlyByteBuf param0) {
-        this.value = this.registry.byId(param0.readVarInt());
+        this.value = this.registry.byIdOrThrow(param0.readVarInt());
     }
 
     @Override

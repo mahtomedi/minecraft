@@ -194,6 +194,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         param1.setListener(this);
         this.player = param2;
         param2.connection = this;
+        this.keepAliveTime = Util.getMillis();
         param2.getTextFilter().join();
     }
 
