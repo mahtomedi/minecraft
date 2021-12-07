@@ -1,6 +1,5 @@
 package net.minecraft.commands.arguments;
 
-import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -37,7 +36,7 @@ public class ComponentArgument implements ArgumentType<Component> {
             } else {
                 return var0;
             }
-        } catch (JsonParseException var4) {
+        } catch (Exception var4) {
             String var2 = var4.getCause() != null ? var4.getCause().getMessage() : var4.getMessage();
             throw ERROR_INVALID_JSON.createWithContext(param0, var2);
         }

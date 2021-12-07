@@ -185,61 +185,28 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return var2 * var2 + var3 * var3;
     }
 
-    private static boolean isChunkInEuclideanRange(ChunkPos param0, ServerPlayer param1, boolean param2, int param3) {
-        int var1;
-        int var2;
-        if (param2) {
-            SectionPos var0 = param1.getLastSectionPos();
-            var1 = var0.x();
-            var2 = var0.z();
-        } else {
-            var1 = SectionPos.blockToSectionCoord(param1.getBlockX());
-            var2 = SectionPos.blockToSectionCoord(param1.getBlockZ());
-        }
-
-        return isChunkInEuclideanRange(param0, var1, var2, param3);
+    public static boolean isChunkInRange(int param0, int param1, int param2, int param3, int param4) {
+        int var0 = Math.max(0, Math.abs(param0 - param2) - 1);
+        int var1 = Math.max(0, Math.abs(param1 - param3) - 1);
+        int var2 = Math.max(0, Math.max(var0, var1) - 1);
+        int var3 = Math.min(var0, var1);
+        int var4 = var3 * var3 + var2 * var2;
+        int var5 = param4 - 1;
+        int var6 = var5 * var5;
+        return var4 <= var6;
     }
 
-    private static boolean isChunkInEuclideanRange(ChunkPos param0, int param1, int param2, int param3) {
-        int var0 = param0.x;
-        int var1 = param0.z;
-        return isChunkInEuclideanRange(var0, var1, param1, param2, param3);
-    }
-
-    public static boolean isChunkInEuclideanRange(int param0, int param1, int param2, int param3, int param4) {
-        int var0 = param0 - param2;
-        int var1 = param1 - param3;
-        int var2 = param4 * param4 + param4;
-        int var3 = var0 * var0 + var1 * var1;
-        return var3 <= var2;
-    }
-
-    private static boolean isChunkOnEuclideanBorder(ChunkPos param0, ServerPlayer param1, boolean param2, int param3) {
-        int var1;
-        int var2;
-        if (param2) {
-            SectionPos var0 = param1.getLastSectionPos();
-            var1 = var0.x();
-            var2 = var0.z();
-        } else {
-            var1 = SectionPos.blockToSectionCoord(param1.getBlockX());
-            var2 = SectionPos.blockToSectionCoord(param1.getBlockZ());
-        }
-
-        return isChunkOnEuclideanBorder(param0.x, param0.z, var1, var2, param3);
-    }
-
-    private static boolean isChunkOnEuclideanBorder(int param0, int param1, int param2, int param3, int param4) {
-        if (!isChunkInEuclideanRange(param0, param1, param2, param3, param4)) {
+    private static boolean isChunkOnRangeBorder(int param0, int param1, int param2, int param3, int param4) {
+        if (!isChunkInRange(param0, param1, param2, param3, param4)) {
             return false;
-        } else if (!isChunkInEuclideanRange(param0 + 1, param1, param2, param3, param4)) {
+        } else if (!isChunkInRange(param0 + 1, param1, param2, param3, param4)) {
             return true;
-        } else if (!isChunkInEuclideanRange(param0, param1 + 1, param2, param3, param4)) {
+        } else if (!isChunkInRange(param0, param1 + 1, param2, param3, param4)) {
             return true;
-        } else if (!isChunkInEuclideanRange(param0 - 1, param1, param2, param3, param4)) {
+        } else if (!isChunkInRange(param0 - 1, param1, param2, param3, param4)) {
             return true;
         } else {
-            return !isChunkInEuclideanRange(param0, param1 - 1, param2, param3, param4);
+            return !isChunkInRange(param0, param1 - 1, param2, param3, param4);
         }
     }
 
@@ -791,15 +758,16 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         if (var0 != this.viewDistance) {
             int var1 = this.viewDistance;
             this.viewDistance = var0;
-            this.distanceManager.updatePlayerTickets(this.viewDistance);
+            this.distanceManager.updatePlayerTickets(this.viewDistance + 1);
 
             for(ChunkHolder var2 : this.updatingChunkMap.values()) {
                 ChunkPos var3 = var2.getPos();
                 MutableObject<ClientboundLevelChunkWithLightPacket> var4 = new MutableObject<>();
                 this.getPlayers(var3, false).forEach(param3 -> {
-                    boolean var0x = isChunkInEuclideanRange(var3, param3, true, var1);
-                    boolean var1x = isChunkInEuclideanRange(var3, param3, true, this.viewDistance);
-                    this.updateChunkTracking(param3, var3, var4, var0x, var1x);
+                    SectionPos var0x = param3.getLastSectionPos();
+                    boolean var1x = isChunkInRange(var3.x, var3.z, var0x.x(), var0x.z(), var1);
+                    boolean var2x = isChunkInRange(var3.x, var3.z, var0x.x(), var0x.z(), this.viewDistance);
+                    this.updateChunkTracking(param3, var3, var4, var1x, var2x);
                 });
             }
         }
@@ -973,7 +941,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
         for(int var5 = var2 - this.viewDistance; var5 <= var2 + this.viewDistance; ++var5) {
             for(int var6 = var3 - this.viewDistance; var6 <= var3 + this.viewDistance; ++var6) {
-                if (isChunkInEuclideanRange(var5, var6, var2, var3, this.viewDistance)) {
+                if (isChunkInRange(var5, var6, var2, var3, this.viewDistance)) {
                     ChunkPos var7 = new ChunkPos(var5, var6);
                     this.updateChunkTracking(param0, var7, new MutableObject<>(), !param1, param1);
                 }
@@ -1040,31 +1008,28 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
             for(int var16 = var12; var16 <= var14; ++var16) {
                 for(int var17 = var13; var17 <= var15; ++var17) {
-                    ChunkPos var18 = new ChunkPos(var16, var17);
-                    boolean var19 = isChunkInEuclideanRange(var18, var10, var11, this.viewDistance);
-                    boolean var20 = isChunkInEuclideanRange(var18, var1, var2, this.viewDistance);
-                    this.updateChunkTracking(param0, var18, new MutableObject<>(), var19, var20);
+                    boolean var18 = isChunkInRange(var16, var17, var10, var11, this.viewDistance);
+                    boolean var19 = isChunkInRange(var16, var17, var1, var2, this.viewDistance);
+                    this.updateChunkTracking(param0, new ChunkPos(var16, var17), new MutableObject<>(), var18, var19);
                 }
             }
         } else {
-            for(int var21 = var10 - this.viewDistance; var21 <= var10 + this.viewDistance; ++var21) {
-                for(int var22 = var11 - this.viewDistance; var22 <= var11 + this.viewDistance; ++var22) {
-                    if (isChunkInEuclideanRange(var21, var22, var10, var11, this.viewDistance)) {
-                        ChunkPos var23 = new ChunkPos(var21, var22);
-                        boolean var24 = true;
-                        boolean var25 = false;
-                        this.updateChunkTracking(param0, var23, new MutableObject<>(), true, false);
+            for(int var20 = var10 - this.viewDistance; var20 <= var10 + this.viewDistance; ++var20) {
+                for(int var21 = var11 - this.viewDistance; var21 <= var11 + this.viewDistance; ++var21) {
+                    if (isChunkInRange(var20, var21, var10, var11, this.viewDistance)) {
+                        boolean var22 = true;
+                        boolean var23 = false;
+                        this.updateChunkTracking(param0, new ChunkPos(var20, var21), new MutableObject<>(), true, false);
                     }
                 }
             }
 
-            for(int var26 = var1 - this.viewDistance; var26 <= var1 + this.viewDistance; ++var26) {
-                for(int var27 = var2 - this.viewDistance; var27 <= var2 + this.viewDistance; ++var27) {
-                    if (isChunkInEuclideanRange(var26, var27, var1, var2, this.viewDistance)) {
-                        ChunkPos var28 = new ChunkPos(var26, var27);
-                        boolean var29 = false;
-                        boolean var30 = true;
-                        this.updateChunkTracking(param0, var28, new MutableObject<>(), false, true);
+            for(int var24 = var1 - this.viewDistance; var24 <= var1 + this.viewDistance; ++var24) {
+                for(int var25 = var2 - this.viewDistance; var25 <= var2 + this.viewDistance; ++var25) {
+                    if (isChunkInRange(var24, var25, var1, var2, this.viewDistance)) {
+                        boolean var26 = false;
+                        boolean var27 = true;
+                        this.updateChunkTracking(param0, new ChunkPos(var24, var25), new MutableObject<>(), false, true);
                     }
                 }
             }
@@ -1078,8 +1043,9 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         Builder<ServerPlayer> var1 = ImmutableList.builder();
 
         for(ServerPlayer var2 : var0) {
-            if (param1 && isChunkOnEuclideanBorder(param0, var2, true, this.viewDistance)
-                || !param1 && isChunkInEuclideanRange(param0, var2, true, this.viewDistance)) {
+            SectionPos var3 = var2.getLastSectionPos();
+            if (param1 && isChunkOnRangeBorder(param0.x, param0.z, var3.x(), var3.z(), this.viewDistance)
+                || !param1 && isChunkInRange(param0.x, param0.z, var3.x(), var3.z(), this.viewDistance)) {
                 var1.add(var2);
             }
         }

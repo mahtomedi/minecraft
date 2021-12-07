@@ -30,6 +30,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -181,7 +182,7 @@ public class RealmsClient {
         try {
             return RealmsClient.CompatibleVersionResponse.valueOf(var1);
         } catch (IllegalArgumentException var5) {
-            throw new RealmsServiceException(500, "Could not check compatible version, got response: " + var1, -1, "");
+            throw new RealmsServiceException(500, "Could not check compatible version, got response: " + var1);
         }
     }
 
@@ -388,24 +389,34 @@ public class RealmsClient {
                 } else if (var0 == 401) {
                     String var3 = param0.getHeader("WWW-Authenticate");
                     LOGGER.info("Could not authorize you against Realms server: {}", var3);
-                    throw new RealmsServiceException(var0, var3, -1, var3);
-                } else if (var2 != null && var2.length() != 0) {
-                    RealmsError var4 = RealmsError.create(var2);
-                    LOGGER.error(
-                        "Realms http code: {} -  error code: {} -  message: {} - raw body: {}", var0, var4.getErrorCode(), var4.getErrorMessage(), var2
-                    );
-                    throw new RealmsServiceException(var0, var2, var4);
+                    throw new RealmsServiceException(var0, var3);
                 } else {
-                    LOGGER.error("Realms error code: {} message: {}", var0, var2);
-                    throw new RealmsServiceException(var0, var2, var0, "");
+                    RealmsError var4 = RealmsError.parse(var2);
+                    if (var4 != null) {
+                        LOGGER.error(
+                            "Realms http code: {} -  error code: {} -  message: {} - raw body: {}", var0, var4.getErrorCode(), var4.getErrorMessage(), var2
+                        );
+                        throw new RealmsServiceException(var0, var2, var4);
+                    } else {
+                        LOGGER.error("Realms http code: {} - raw body (message failed to parse): {}", var0, var2);
+                        String var5 = getHttpCodeDescription(var0);
+                        throw new RealmsServiceException(var0, var5);
+                    }
                 }
             } else {
                 int var1 = param0.getRetryAfterHeader();
                 throw new RetryCallException(var1, var0);
             }
-        } catch (RealmsHttpException var51) {
-            throw new RealmsServiceException(500, "Could not connect to Realms: " + var51.getMessage(), -1, "");
+        } catch (RealmsHttpException var61) {
+            throw new RealmsServiceException(500, "Could not connect to Realms: " + var61.getMessage());
         }
+    }
+
+    private static String getHttpCodeDescription(int param0) {
+        return switch(param0) {
+            case 429 -> I18n.get("mco.errorMessage.serviceBusy");
+            default -> "Unknown error";
+        };
     }
 
     @OnlyIn(Dist.CLIENT)

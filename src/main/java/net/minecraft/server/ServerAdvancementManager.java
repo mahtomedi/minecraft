@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -40,7 +39,7 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
                 JsonObject var0x = GsonHelper.convertToJsonObject(param2x, "advancement");
                 Advancement.Builder var1x = Advancement.Builder.fromJson(var0x, new DeserializationContext(param1x, this.predicateManager));
                 var0.put(param1x, var1x);
-            } catch (IllegalArgumentException | JsonParseException var6) {
+            } catch (Exception var6) {
                 LOGGER.error("Parsing error loading custom advancement {}: {}", param1x, var6.getMessage());
             }
 

@@ -9,7 +9,7 @@ public class RetryCallException extends RealmsServiceException {
     public final int delaySeconds;
 
     public RetryCallException(int param0, int param1) {
-        super(param1, "Retry operation", -1, "");
+        super(param1, "Retry operation");
         if (param0 >= 0 && param0 <= 120) {
             this.delaySeconds = param0;
         } else {

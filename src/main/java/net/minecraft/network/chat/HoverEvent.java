@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +195,7 @@ public class HoverEvent {
                 EntityType<?> var2 = Registry.ENTITY_TYPE.get(new ResourceLocation(var0.getString("type")));
                 UUID var3 = UUID.fromString(var0.getString("id"));
                 return new HoverEvent.EntityTooltipInfo(var2, var3, var1);
-            } catch (CommandSyntaxException | JsonSyntaxException var5) {
+            } catch (Exception var5) {
                 return null;
             }
         }

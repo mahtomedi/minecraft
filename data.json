@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "9561f774dcc8797a02a907fc79d946533fbb00c7",
-      "size": 20040679,
-      "url": "https://launcher.mojang.com/v1/objects/9561f774dcc8797a02a907fc79d946533fbb00c7/client.jar"
+      "sha1": "e123b3b6b654213cd4f9f381dc17c1ad2f6b2fe2",
+      "size": 20042014,
+      "url": "https://launcher.mojang.com/v1/objects/e123b3b6b654213cd4f9f381dc17c1ad2f6b2fe2/client.jar"
     },
     "client_mappings": {
-      "sha1": "2240862fdd181309bb3a34f8472bdb9154d928b6",
-      "size": 6611241,
-      "url": "https://launcher.mojang.com/v1/objects/2240862fdd181309bb3a34f8472bdb9154d928b6/client.txt"
+      "sha1": "17cd609e90409b0b0eebf0ff0c969279bbe34c18",
+      "size": 6611303,
+      "url": "https://launcher.mojang.com/v1/objects/17cd609e90409b0b0eebf0ff0c969279bbe34c18/client.txt"
     },
     "server": {
-      "sha1": "cd99e68b49c8a7db185d053518c6fb135cd04564",
-      "size": 46324717,
-      "url": "https://launcher.mojang.com/v1/objects/cd99e68b49c8a7db185d053518c6fb135cd04564/server.jar"
+      "sha1": "fa98951fb1fa1ca04d8d6283e91e667d91e6410d",
+      "size": 46324167,
+      "url": "https://launcher.mojang.com/v1/objects/fa98951fb1fa1ca04d8d6283e91e667d91e6410d/server.jar"
     },
     "server_mappings": {
-      "sha1": "8efe9d1d2db4f1a0d868dd0d1ea30b49b67d9394",
-      "size": 5116179,
-      "url": "https://launcher.mojang.com/v1/objects/8efe9d1d2db4f1a0d868dd0d1ea30b49b67d9394/server.txt"
+      "sha1": "7d7bfa82af5af763e01919942b56062267edaf38",
+      "size": 5115460,
+      "url": "https://launcher.mojang.com/v1/objects/7d7bfa82af5af763e01919942b56062267edaf38/server.txt"
     }
   },
-  "id": "1.18.1-pre1",
+  "id": "1.18.1-rc1",
   "javaVersion": {
     "component": "java-runtime-beta",
     "majorVersion": 17
@@ -1334,7 +1334,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2021-12-03T13:45:38+00:00",
-  "time": "2021-12-03T13:45:38+00:00",
+  "releaseTime": "2021-12-07T15:52:47+00:00",
+  "time": "2021-12-07T15:52:47+00:00",
   "type": "snapshot"
 }

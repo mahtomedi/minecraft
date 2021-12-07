@@ -1,6 +1,5 @@
 package net.minecraft.util.datafix.fixes;
 
-import com.google.gson.JsonParseException;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
@@ -41,20 +40,20 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                                                         if (var1x == null) {
                                                             var1x = TextComponent.EMPTY;
                                                         }
-                                                    } catch (JsonParseException var6) {
+                                                    } catch (Exception var6) {
                                                     }
                     
                                                     if (var1x == null) {
                                                         try {
                                                             var1x = Component.Serializer.fromJson(var0x);
-                                                        } catch (JsonParseException var5) {
+                                                        } catch (Exception var5) {
                                                         }
                                                     }
                     
                                                     if (var1x == null) {
                                                         try {
                                                             var1x = Component.Serializer.fromJsonLenient(var0x);
-                                                        } catch (JsonParseException var4) {
+                                                        } catch (Exception var4) {
                                                         }
                                                     }
                     

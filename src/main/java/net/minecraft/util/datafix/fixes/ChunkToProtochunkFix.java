@@ -1,7 +1,5 @@
 package net.minecraft.util.datafix.fixes;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.TypeRewriteRule;
@@ -39,16 +37,20 @@ public class ChunkToProtochunkFix extends DataFix {
     }
 
     private static <T> Dynamic<T> fixChunkData(Dynamic<T> param0) {
-        boolean var0 = param0.get("TerrainPopulated").asBoolean(false)
-            && (param0.get("LightPopulated").asNumber().result().isEmpty() || param0.get("LightPopulated").asBoolean(false));
-        Dynamic<T> var1;
+        boolean var0 = param0.get("TerrainPopulated").asBoolean(false);
+        boolean var1 = param0.get("LightPopulated").asNumber().result().isEmpty() || param0.get("LightPopulated").asBoolean(false);
+        String var2;
         if (var0) {
-            var1 = repackTicks(repackBiomes(param0));
+            if (var1) {
+                var2 = "mobs_spawned";
+            } else {
+                var2 = "decorated";
+            }
         } else {
-            var1 = createEmptyChunk(param0);
+            var2 = "carved";
         }
 
-        return var1.set("Status", param0.createString(var0 ? "mobs_spawned" : "empty")).set("hasLegacyStructureData", param0.createBoolean(true));
+        return repackTicks(repackBiomes(param0)).set("Status", param0.createString(var2)).set("hasLegacyStructureData", param0.createBoolean(true));
     }
 
     private static <T> Dynamic<T> repackBiomes(Dynamic<T> param0) {
@@ -92,13 +94,6 @@ public class ChunkToProtochunkFix extends DataFix {
                 ),
             param0
         );
-    }
-
-    private static <T> Dynamic<T> createEmptyChunk(Dynamic<T> param0) {
-        Builder<Dynamic<T>, Dynamic<T>> var0 = ImmutableMap.builder();
-        param0.get("xPos").result().ifPresent(param2 -> var0.put(param0.createString("xPos"), param2));
-        param0.get("zPos").result().ifPresent(param2 -> var0.put(param0.createString("zPos"), param2));
-        return param0.createMap(var0.build());
     }
 
     private static short packOffsetCoordinates(int param0, int param1, int param2) {

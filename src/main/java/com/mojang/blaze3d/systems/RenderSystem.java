@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.nio.ByteBuffer;
@@ -68,6 +69,7 @@ public class RenderSystem {
         param0.accept(param1 + 2);
         param0.accept(param1 + 1);
     });
+    private static Matrix3f inverseViewRotationMatrix = new Matrix3f();
     private static Matrix4f projectionMatrix = new Matrix4f();
     private static Matrix4f savedProjectionMatrix = new Matrix4f();
     private static PoseStack modelViewStack = new PoseStack();
@@ -809,6 +811,16 @@ public class RenderSystem {
 
     }
 
+    public static void setInverseViewRotationMatrix(Matrix3f param0) {
+        Matrix3f var0 = param0.copy();
+        if (!isOnRenderThread()) {
+            recordRenderCall(() -> inverseViewRotationMatrix = var0);
+        } else {
+            inverseViewRotationMatrix = var0;
+        }
+
+    }
+
     public static void setTextureMatrix(Matrix4f param0) {
         Matrix4f var0 = param0.copy();
         if (!isOnRenderThread()) {
@@ -867,6 +879,11 @@ public class RenderSystem {
     public static Matrix4f getProjectionMatrix() {
         assertOnRenderThread();
         return projectionMatrix;
+    }
+
+    public static Matrix3f getInverseViewRotationMatrix() {
+        assertOnRenderThread();
+        return inverseViewRotationMatrix;
     }
 
     public static Matrix4f getModelViewMatrix() {
