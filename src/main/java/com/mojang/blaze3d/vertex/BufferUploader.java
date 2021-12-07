@@ -102,6 +102,10 @@ public class BufferUploader {
                 var6.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
             }
 
+            if (var6.INVERSE_VIEW_ROTATION_MATRIX != null) {
+                var6.INVERSE_VIEW_ROTATION_MATRIX.set(RenderSystem.getInverseViewRotationMatrix());
+            }
+
             if (var6.COLOR_MODULATOR != null) {
                 var6.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
             }

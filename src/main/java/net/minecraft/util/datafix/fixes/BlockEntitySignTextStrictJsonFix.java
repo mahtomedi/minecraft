@@ -57,20 +57,20 @@ public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
                     if (var1 == null) {
                         var1 = TextComponent.EMPTY;
                     }
-                } catch (JsonParseException var8) {
+                } catch (Exception var8) {
                 }
 
                 if (var1 == null) {
                     try {
                         var1 = Component.Serializer.fromJson(var0);
-                    } catch (JsonParseException var7) {
+                    } catch (Exception var7) {
                     }
                 }
 
                 if (var1 == null) {
                     try {
                         var1 = Component.Serializer.fromJsonLenient(var0);
-                    } catch (JsonParseException var6) {
+                    } catch (Exception var6) {
                     }
                 }
 

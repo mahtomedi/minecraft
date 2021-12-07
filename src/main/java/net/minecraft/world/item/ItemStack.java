@@ -3,7 +3,6 @@ package net.minecraft.world.item;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -546,7 +545,7 @@ public final class ItemStack {
                 }
 
                 var0.remove("Name");
-            } catch (JsonParseException var3) {
+            } catch (Exception var3) {
                 var0.remove("Name");
             }
         }
@@ -631,7 +630,7 @@ public final class ItemStack {
                             if (var8 != null) {
                                 var0.add(ComponentUtils.mergeStyles(var8, LORE_STYLE));
                             }
-                        } catch (JsonParseException var19) {
+                        } catch (Exception var19) {
                             var4.remove("Lore");
                         }
                     }

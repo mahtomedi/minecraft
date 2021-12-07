@@ -124,6 +124,10 @@ public class BeehiveBlockEntity extends BlockEntity {
     private List<Entity> releaseAllOccupants(BlockState param0, BeehiveBlockEntity.BeeReleaseStatus param1) {
         List<Entity> var0 = Lists.newArrayList();
         this.stored.removeIf(param3 -> releaseOccupant(this.level, this.worldPosition, param0, param3, var0, param1, this.savedFlowerPos));
+        if (!var0.isEmpty()) {
+            super.setChanged();
+        }
+
         return var0;
     }
 
@@ -163,6 +167,7 @@ public class BeehiveBlockEntity extends BlockEntity {
             }
 
             param0.discard();
+            super.setChanged();
         }
     }
 
@@ -182,7 +187,7 @@ public class BeehiveBlockEntity extends BlockEntity {
         if ((param0.isNight() || param0.isRaining()) && param5 != BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY) {
             return false;
         } else {
-            CompoundTag var0 = param3.entityData;
+            CompoundTag var0 = param3.entityData.copy();
             removeIgnoredBeeTags(var0);
             var0.put("HivePos", NbtUtils.writeBlockPos(param1));
             var0.putBoolean("NoGravity", true);
@@ -263,17 +268,24 @@ public class BeehiveBlockEntity extends BlockEntity {
     }
 
     private static void tickOccupants(Level param0, BlockPos param1, BlockState param2, List<BeehiveBlockEntity.BeeData> param3, @Nullable BlockPos param4) {
-        BeehiveBlockEntity.BeeData var1;
-        for(Iterator<BeehiveBlockEntity.BeeData> var0 = param3.iterator(); var0.hasNext(); ++var1.ticksInHive) {
-            var1 = var0.next();
-            if (var1.ticksInHive > var1.minOccupationTicks) {
-                BeehiveBlockEntity.BeeReleaseStatus var2 = var1.entityData.getBoolean("HasNectar")
+        boolean var0 = false;
+
+        BeehiveBlockEntity.BeeData var2;
+        for(Iterator<BeehiveBlockEntity.BeeData> var1 = param3.iterator(); var1.hasNext(); ++var2.ticksInHive) {
+            var2 = var1.next();
+            if (var2.ticksInHive > var2.minOccupationTicks) {
+                BeehiveBlockEntity.BeeReleaseStatus var3 = var2.entityData.getBoolean("HasNectar")
                     ? BeehiveBlockEntity.BeeReleaseStatus.HONEY_DELIVERED
                     : BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED;
-                if (releaseOccupant(param0, param1, param2, var1, null, var2, param4)) {
-                    var0.remove();
+                if (releaseOccupant(param0, param1, param2, var2, null, var3, param4)) {
+                    var0 = true;
+                    var1.remove();
                 }
             }
+        }
+
+        if (var0) {
+            setChanged(param0, param1, param2);
         }
 
     }
@@ -325,12 +337,13 @@ public class BeehiveBlockEntity extends BlockEntity {
         ListTag var0 = new ListTag();
 
         for(BeehiveBlockEntity.BeeData var1 : this.stored) {
-            var1.entityData.remove("UUID");
-            CompoundTag var2 = new CompoundTag();
-            var2.put("EntityData", var1.entityData);
-            var2.putInt("TicksInHive", var1.ticksInHive);
-            var2.putInt("MinOccupationTicks", var1.minOccupationTicks);
-            var0.add(var2);
+            CompoundTag var2 = var1.entityData.copy();
+            var2.remove("UUID");
+            CompoundTag var3 = new CompoundTag();
+            var3.put("EntityData", var2);
+            var3.putInt("TicksInHive", var1.ticksInHive);
+            var3.putInt("MinOccupationTicks", var1.minOccupationTicks);
+            var0.add(var3);
         }
 
         return var0;

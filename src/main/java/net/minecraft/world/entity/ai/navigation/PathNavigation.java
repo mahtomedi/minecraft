@@ -75,10 +75,6 @@ public abstract class PathNavigation {
         this.speedModifier = param0;
     }
 
-    public boolean hasDelayedRecomputation() {
-        return this.hasDelayedRecomputation;
-    }
-
     public void recomputePath() {
         if (this.level.getGameTime() - this.timeLastRecompute > 20L) {
             if (this.targetPos != null) {
@@ -360,14 +356,15 @@ public abstract class PathNavigation {
         return this.nodeEvaluator.canFloat();
     }
 
-    public void recomputePath(BlockPos param0) {
-        if (this.path != null && !this.path.isDone() && this.path.getNodeCount() != 0) {
+    public boolean shouldRecomputePath(BlockPos param0) {
+        if (this.hasDelayedRecomputation) {
+            return false;
+        } else if (this.path != null && !this.path.isDone() && this.path.getNodeCount() != 0) {
             Node var0 = this.path.getEndNode();
             Vec3 var1 = new Vec3(((double)var0.x + this.mob.getX()) / 2.0, ((double)var0.y + this.mob.getY()) / 2.0, ((double)var0.z + this.mob.getZ()) / 2.0);
-            if (param0.closerThan(var1, (double)(this.path.getNodeCount() - this.path.getNextNodeIndex()))) {
-                this.recomputePath();
-            }
-
+            return param0.closerThan(var1, (double)(this.path.getNodeCount() - this.path.getNextNodeIndex()));
+        } else {
+            return false;
         }
     }
 

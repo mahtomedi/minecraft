@@ -15,6 +15,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.io.IOException;
@@ -1136,6 +1137,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         );
         param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));
         param2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot() + 180.0F));
+        Matrix3f var10 = param2.last().normal().copy();
+        if (var10.invert()) {
+            RenderSystem.setInverseViewRotationMatrix(var10);
+        }
+
         this.minecraft.levelRenderer.prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var3, this.minecraft.options.fov)));
         this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var9);
         this.minecraft.getProfiler().popPush("hand");

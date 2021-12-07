@@ -1,7 +1,6 @@
 package net.minecraft.server.packs;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +73,7 @@ public abstract class AbstractPackResources implements PackResources {
         JsonObject var1;
         try (BufferedReader var0 = new BufferedReader(new InputStreamReader(param1, StandardCharsets.UTF_8))) {
             var1 = GsonHelper.parse(var0);
-        } catch (JsonParseException | IOException var9) {
+        } catch (Exception var9) {
             LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var9);
             return null;
         }
@@ -84,7 +83,7 @@ public abstract class AbstractPackResources implements PackResources {
         } else {
             try {
                 return param0.fromJson(GsonHelper.getAsJsonObject(var1, param0.getMetadataSectionName()));
-            } catch (JsonParseException var7) {
+            } catch (Exception var7) {
                 LOGGER.error("Couldn't load {} metadata", param0.getMetadataSectionName(), var7);
                 return null;
             }

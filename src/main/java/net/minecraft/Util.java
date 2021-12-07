@@ -408,6 +408,14 @@ public class Util {
 
     }
 
+    public static void logAndPauseIfInIde(String param0, Throwable param1) {
+        LOGGER.error(param0, param1);
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            doPause(param0);
+        }
+
+    }
+
     public static <T extends Throwable> T pauseInIde(T param0) {
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             LOGGER.error("Trying to throw a fatal exception, pausing in IDE", param0);

@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +69,8 @@ public class ShaderInstance implements Shader, AutoCloseable {
     public final Uniform MODEL_VIEW_MATRIX;
     @Nullable
     public final Uniform PROJECTION_MATRIX;
+    @Nullable
+    public final Uniform INVERSE_VIEW_ROTATION_MATRIX;
     @Nullable
     public final Uniform TEXTURE_MATRIX;
     @Nullable
@@ -185,6 +188,7 @@ public class ShaderInstance implements Shader, AutoCloseable {
         this.markDirty();
         this.MODEL_VIEW_MATRIX = this.getUniform("ModelViewMat");
         this.PROJECTION_MATRIX = this.getUniform("ProjMat");
+        this.INVERSE_VIEW_ROTATION_MATRIX = this.getUniform("IViewRotMat");
         this.TEXTURE_MATRIX = this.getUniform("TextureMat");
         this.SCREEN_SIZE = this.getUniform("ScreenSize");
         this.COLOR_MODULATOR = this.getUniform("ColorModulator");
@@ -476,7 +480,7 @@ public class ShaderInstance implements Shader, AutoCloseable {
             } else if (var2 <= 7) {
                 var11.setSafe(var4[0], var4[1], var4[2], var4[3]);
             } else {
-                var11.set(var4);
+                var11.set(Arrays.copyOfRange(var4, 0, var3));
             }
 
             this.uniforms.add(var11);
