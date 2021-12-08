@@ -939,8 +939,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
         }
 
-        for(int var5 = var2 - this.viewDistance; var5 <= var2 + this.viewDistance; ++var5) {
-            for(int var6 = var3 - this.viewDistance; var6 <= var3 + this.viewDistance; ++var6) {
+        for(int var5 = var2 - this.viewDistance - 1; var5 <= var2 + this.viewDistance + 1; ++var5) {
+            for(int var6 = var3 - this.viewDistance - 1; var6 <= var3 + this.viewDistance + 1; ++var6) {
                 if (isChunkInRange(var5, var6, var2, var3, this.viewDistance)) {
                     ChunkPos var7 = new ChunkPos(var5, var6);
                     this.updateChunkTracking(param0, var7, new MutableObject<>(), !param1, param1);
@@ -1001,10 +1001,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         int var10 = var3.x();
         int var11 = var3.z();
         if (Math.abs(var10 - var1) <= this.viewDistance * 2 && Math.abs(var11 - var2) <= this.viewDistance * 2) {
-            int var12 = Math.min(var1, var10) - this.viewDistance;
-            int var13 = Math.min(var2, var11) - this.viewDistance;
-            int var14 = Math.max(var1, var10) + this.viewDistance;
-            int var15 = Math.max(var2, var11) + this.viewDistance;
+            int var12 = Math.min(var1, var10) - this.viewDistance - 1;
+            int var13 = Math.min(var2, var11) - this.viewDistance - 1;
+            int var14 = Math.max(var1, var10) + this.viewDistance + 1;
+            int var15 = Math.max(var2, var11) + this.viewDistance + 1;
 
             for(int var16 = var12; var16 <= var14; ++var16) {
                 for(int var17 = var13; var17 <= var15; ++var17) {
@@ -1014,8 +1014,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 }
             }
         } else {
-            for(int var20 = var10 - this.viewDistance; var20 <= var10 + this.viewDistance; ++var20) {
-                for(int var21 = var11 - this.viewDistance; var21 <= var11 + this.viewDistance; ++var21) {
+            for(int var20 = var10 - this.viewDistance - 1; var20 <= var10 + this.viewDistance + 1; ++var20) {
+                for(int var21 = var11 - this.viewDistance - 1; var21 <= var11 + this.viewDistance + 1; ++var21) {
                     if (isChunkInRange(var20, var21, var10, var11, this.viewDistance)) {
                         boolean var22 = true;
                         boolean var23 = false;
@@ -1024,8 +1024,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 }
             }
 
-            for(int var24 = var1 - this.viewDistance; var24 <= var1 + this.viewDistance; ++var24) {
-                for(int var25 = var2 - this.viewDistance; var25 <= var2 + this.viewDistance; ++var25) {
+            for(int var24 = var1 - this.viewDistance - 1; var24 <= var1 + this.viewDistance + 1; ++var24) {
+                for(int var25 = var2 - this.viewDistance - 1; var25 <= var2 + this.viewDistance + 1; ++var25) {
                     if (isChunkInRange(var24, var25, var1, var2, this.viewDistance)) {
                         boolean var26 = false;
                         boolean var27 = true;
