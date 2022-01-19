@@ -178,15 +178,12 @@ public class SurfaceSystem {
     }
 
     protected int getSurfaceDepth(int param0, int param1) {
-        return this.getSurfaceDepth(this.surfaceNoise, param0, param1);
+        double var0 = this.surfaceNoise.getValue((double)param0, 0.0, (double)param1);
+        return (int)(var0 * 2.75 + 3.0 + this.randomFactory.at(param0, 0, param1).nextDouble() * 0.25);
     }
 
-    protected int getSurfaceSecondaryDepth(int param0, int param1) {
-        return this.getSurfaceDepth(this.surfaceSecondaryNoise, param0, param1);
-    }
-
-    private int getSurfaceDepth(NormalNoise param0, int param1, int param2) {
-        return (int)(param0.getValue((double)param1, 0.0, (double)param2) * 2.75 + 3.0 + this.randomFactory.at(param1, 0, param2).nextDouble() * 0.25);
+    protected double getSurfaceSecondary(int param0, int param1) {
+        return this.surfaceSecondaryNoise.getValue((double)param0, 0.0, (double)param1);
     }
 
     private boolean isStone(BlockState param0) {

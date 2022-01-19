@@ -2,6 +2,7 @@ package com.mojang.blaze3d.platform;
 
 import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,15 +17,14 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 @DontObfuscate
 public class TextureUtil {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int MIN_MIPMAP_LEVEL = 0;
     private static final int DEFAULT_IMAGE_BUFFER_SIZE = 8192;
 

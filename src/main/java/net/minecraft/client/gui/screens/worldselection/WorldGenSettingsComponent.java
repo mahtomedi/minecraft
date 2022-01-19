@@ -5,6 +5,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
@@ -46,14 +47,12 @@ import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class WorldGenSettingsComponent implements Widget {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component CUSTOM_WORLD_DESCRIPTION = new TranslatableComponent("generator.custom");
     private static final Component AMPLIFIED_HELP_TEXT = new TranslatableComponent("generator.amplified.info");
     private static final Component MAP_FEATURES_INFO = new TranslatableComponent("selectWorld.mapFeatures.info");
@@ -85,7 +84,7 @@ public class WorldGenSettingsComponent implements Widget {
         this.width = param0.width;
         this.seedEdit = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, new TranslatableComponent("selectWorld.enterSeed"));
         this.seedEdit.setValue(toString(this.seed));
-        this.seedEdit.setResponder(param0x -> this.seed = this.parseSeed());
+        this.seedEdit.setResponder(param0x -> this.seed = WorldGenSettings.parseSeed(this.seedEdit.getValue()));
         param0.addWidget(this.seedEdit);
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
@@ -281,34 +280,9 @@ public class WorldGenSettingsComponent implements Widget {
         return param0.isPresent() ? Long.toString(param0.getAsLong()) : "";
     }
 
-    private static OptionalLong parseLong(String param0) {
-        try {
-            return OptionalLong.of(Long.parseLong(param0));
-        } catch (NumberFormatException var2) {
-            return OptionalLong.empty();
-        }
-    }
-
     public WorldGenSettings makeSettings(boolean param0) {
-        OptionalLong var0 = this.parseSeed();
+        OptionalLong var0 = WorldGenSettings.parseSeed(this.seedEdit.getValue());
         return this.settings.withSeed(param0, var0);
-    }
-
-    private OptionalLong parseSeed() {
-        String var0 = this.seedEdit.getValue();
-        OptionalLong var1;
-        if (StringUtils.isEmpty(var0)) {
-            var1 = OptionalLong.empty();
-        } else {
-            OptionalLong var2 = parseLong(var0);
-            if (var2.isPresent() && var2.getAsLong() != 0L) {
-                var1 = var2;
-            } else {
-                var1 = OptionalLong.of((long)var0.hashCode());
-            }
-        }
-
-        return var1;
     }
 
     public boolean isDebug() {

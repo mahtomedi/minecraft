@@ -167,7 +167,7 @@ public class ClientLevel extends Level {
         this.getWorldBorder().tick();
         this.tickTime();
         this.getProfiler().push("blocks");
-        this.chunkSource.tick(param0);
+        this.chunkSource.tick(param0, true);
         this.getProfiler().pop();
     }
 

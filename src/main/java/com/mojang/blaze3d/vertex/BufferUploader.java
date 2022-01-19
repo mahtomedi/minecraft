@@ -122,6 +122,10 @@ public class BufferUploader {
                 var6.FOG_COLOR.set(RenderSystem.getShaderFogColor());
             }
 
+            if (var6.FOG_SHAPE != null) {
+                var6.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
+            }
+
             if (var6.TEXTURE_MATRIX != null) {
                 var6.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
             }

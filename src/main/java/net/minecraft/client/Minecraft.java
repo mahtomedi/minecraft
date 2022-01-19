@@ -30,6 +30,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Function4;
+import com.mojang.logging.LogUtils;
 import com.mojang.math.Matrix4f;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -248,14 +249,13 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements WindowEventHandler {
     private static Minecraft instance;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final boolean ON_OSX = Util.getPlatform() == Util.OS.OSX;
     private static final int MAX_TICKS_PER_UPDATE = 10;
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("default");
@@ -676,18 +676,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     this.emergencySave();
                     this.setScreen(new OutOfMemoryScreen());
                     System.gc();
-                    LOGGER.fatal("Out of memory", (Throwable)var4);
+                    LOGGER.error(LogUtils.FATAL_MARKER, "Out of memory", (Throwable)var4);
                     var0 = true;
                 }
             }
         } catch (ReportedException var51) {
             this.fillReport(var51.getReport());
             this.emergencySave();
-            LOGGER.fatal("Reported exception thrown!", (Throwable)var51);
+            LOGGER.error(LogUtils.FATAL_MARKER, "Reported exception thrown!", (Throwable)var51);
             crash(var51.getReport());
         } catch (Throwable var61) {
             CrashReport var6 = this.fillReport(new CrashReport("Unexpected error", var61));
-            LOGGER.fatal("Unreported exception thrown!", var61);
+            LOGGER.error(LogUtils.FATAL_MARKER, "Unreported exception thrown!", var61);
             this.emergencySave();
             crash(var6);
         }
@@ -1466,36 +1466,44 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
     }
 
-    private void startAttack() {
-        if (this.missTime <= 0) {
-            if (this.hitResult == null) {
-                LOGGER.error("Null returned as 'hitResult', this shouldn't happen!");
-                if (this.gameMode.hasMissTime()) {
-                    this.missTime = 10;
-                }
-
-            } else if (!this.player.isHandsBusy()) {
-                switch(this.hitResult.getType()) {
-                    case ENTITY:
-                        this.gameMode.attack(this.player, ((EntityHitResult)this.hitResult).getEntity());
-                        break;
-                    case BLOCK:
-                        BlockHitResult var0 = (BlockHitResult)this.hitResult;
-                        BlockPos var1 = var0.getBlockPos();
-                        if (!this.level.getBlockState(var1).isAir()) {
-                            this.gameMode.startDestroyBlock(var1, var0.getDirection());
-                            break;
-                        }
-                    case MISS:
-                        if (this.gameMode.hasMissTime()) {
-                            this.missTime = 10;
-                        }
-
-                        this.player.resetAttackStrengthTicker();
-                }
-
-                this.player.swing(InteractionHand.MAIN_HAND);
+    private boolean startAttack() {
+        if (this.missTime > 0) {
+            return false;
+        } else if (this.hitResult == null) {
+            LOGGER.error("Null returned as 'hitResult', this shouldn't happen!");
+            if (this.gameMode.hasMissTime()) {
+                this.missTime = 10;
             }
+
+            return false;
+        } else if (this.player.isHandsBusy()) {
+            return false;
+        } else {
+            boolean var0 = false;
+            switch(this.hitResult.getType()) {
+                case ENTITY:
+                    this.gameMode.attack(this.player, ((EntityHitResult)this.hitResult).getEntity());
+                    break;
+                case BLOCK:
+                    BlockHitResult var1 = (BlockHitResult)this.hitResult;
+                    BlockPos var2 = var1.getBlockPos();
+                    if (!this.level.getBlockState(var2).isAir()) {
+                        this.gameMode.startDestroyBlock(var2, var1.getDirection());
+                        if (this.level.getBlockState(var2).isAir()) {
+                            var0 = true;
+                        }
+                        break;
+                    }
+                case MISS:
+                    if (this.gameMode.hasMissTime()) {
+                        this.missTime = 10;
+                    }
+
+                    this.player.resetAttackStrengthTicker();
+            }
+
+            this.player.swing(InteractionHand.MAIN_HAND);
+            return var0;
         }
     }
 
@@ -1778,6 +1786,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.openChatScreen("/");
         }
 
+        boolean var4 = false;
         if (this.player.isUsingItem()) {
             if (!this.options.keyUse.isDown()) {
                 this.gameMode.releaseUsingItem(this.player);
@@ -1793,7 +1802,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         } else {
             while(this.options.keyAttack.consumeClick()) {
-                this.startAttack();
+                var4 |= this.startAttack();
             }
 
             while(this.options.keyUse.consumeClick()) {
@@ -1809,7 +1818,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.startUseItem();
         }
 
-        this.continueAttack(this.screen == null && this.options.keyAttack.isDown() && this.mouseHandler.isMouseGrabbed());
+        this.continueAttack(this.screen == null && !var4 && this.options.keyAttack.isDown() && this.mouseHandler.isMouseGrabbed());
     }
 
     public static DataPackConfig loadDataPacks(LevelStorageSource.LevelStorageAccess param0) {

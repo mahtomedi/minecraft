@@ -159,13 +159,17 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
     private boolean canPlacePool(WorldGenLevel param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
         if (!var0.is(Blocks.WATER) && !var0.is(Blocks.DRIPSTONE_BLOCK) && !var0.is(Blocks.POINTED_DRIPSTONE)) {
-            for(Direction var1 : Direction.Plane.HORIZONTAL) {
-                if (!this.canBeAdjacentToWater(param0, param1.relative(var1))) {
-                    return false;
+            if (param0.getBlockState(param1.above()).getFluidState().is(FluidTags.WATER)) {
+                return false;
+            } else {
+                for(Direction var1 : Direction.Plane.HORIZONTAL) {
+                    if (!this.canBeAdjacentToWater(param0, param1.relative(var1))) {
+                        return false;
+                    }
                 }
-            }
 
-            return this.canBeAdjacentToWater(param0, param1.below());
+                return this.canBeAdjacentToWater(param0, param1.below());
+            }
         } else {
             return false;
         }

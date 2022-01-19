@@ -2,8 +2,10 @@ package net.minecraft.server.level;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
@@ -33,11 +35,10 @@ import net.minecraft.util.thread.ProcessorHandle;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public abstract class DistanceManager {
-    static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final int ENTITY_TICKING_RANGE = 2;
     static final int PLAYER_TICKET_LEVEL = 33 + ChunkStatus.getDistance(ChunkStatus.FULL) - 2;
     private static final int INITIAL_TICKET_LIST_CAPACITY = 4;
@@ -287,7 +288,7 @@ public abstract class DistanceManager {
                 }
             }
         } catch (IOException var10) {
-            LOGGER.error(var10);
+            LOGGER.error("Failed to dump tickets to {}", param0, var10);
         }
 
     }
@@ -295,6 +296,39 @@ public abstract class DistanceManager {
     @VisibleForTesting
     TickingTracker tickingTracker() {
         return this.tickingTicketsTracker;
+    }
+
+    public void removeTicketsOnClosing() {
+        ImmutableSet<TicketType<?>> var0 = ImmutableSet.of(TicketType.UNKNOWN, TicketType.POST_TELEPORT, TicketType.LIGHT);
+        ObjectIterator<Entry<SortedArraySet<Ticket<?>>>> var1 = this.tickets.long2ObjectEntrySet().fastIterator();
+
+        while(var1.hasNext()) {
+            Entry<SortedArraySet<Ticket<?>>> var2 = var1.next();
+            Iterator<Ticket<?>> var3 = var2.getValue().iterator();
+            boolean var4 = false;
+
+            while(var3.hasNext()) {
+                Ticket<?> var5 = var3.next();
+                if (!var0.contains(var5.getType())) {
+                    var3.remove();
+                    var4 = true;
+                    this.tickingTicketsTracker.removeTicket(var2.getLongKey(), var5);
+                }
+            }
+
+            if (var4) {
+                this.ticketTracker.update(var2.getLongKey(), getTicketLevelAt(var2.getValue()), false);
+            }
+
+            if (var2.getValue().isEmpty()) {
+                var1.remove();
+            }
+        }
+
+    }
+
+    public boolean hasTickets() {
+        return !this.tickets.isEmpty();
     }
 
     class ChunkTicketTracker extends ChunkTracker {
@@ -394,7 +428,7 @@ public abstract class DistanceManager {
                     var0.write((var2.x + "\t" + var2.z + "\t" + var3 + "\n").getBytes(StandardCharsets.UTF_8));
                 }
             } catch (IOException var9) {
-                DistanceManager.LOGGER.error(var9);
+                DistanceManager.LOGGER.error("Failed to dump chunks to {}", param0, var9);
             }
 
         }

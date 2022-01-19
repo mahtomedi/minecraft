@@ -251,16 +251,17 @@ public class DebugScreenOverlay extends GuiComponent {
                     this.minecraft.getCameraEntity().getZ()
                 )
             );
-            var17.add(String.format("Block: %d %d %d", var6.getX(), var6.getY(), var6.getZ()));
+            var17.add(String.format("Block: %d %d %d [%d %d %d]", var6.getX(), var6.getY(), var6.getZ(), var6.getX() & 15, var6.getY() & 15, var6.getZ() & 15));
             var17.add(
                 String.format(
-                    "Chunk: %d %d %d in %d %d %d",
-                    var6.getX() & 15,
-                    var6.getY() & 15,
-                    var6.getZ() & 15,
-                    SectionPos.blockToSectionCoord(var6.getX()),
+                    "Chunk: %d %d %d [%d %d in r.%d.%d.mca]",
+                    var14.x,
                     SectionPos.blockToSectionCoord(var6.getY()),
-                    SectionPos.blockToSectionCoord(var6.getZ())
+                    var14.z,
+                    var14.getRegionLocalX(),
+                    var14.getRegionLocalZ(),
+                    var14.getRegionX(),
+                    var14.getRegionZ()
                 )
             );
             var17.add(

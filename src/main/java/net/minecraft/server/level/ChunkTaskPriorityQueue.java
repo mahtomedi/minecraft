@@ -34,7 +34,7 @@ public class ChunkTaskPriorityQueue<T> {
             Long2ObjectLinkedOpenHashMap<List<Optional<T>>> var0 = this.taskQueue.get(param0);
             List<Optional<T>> var1 = var0.remove(param1.toLong());
             if (param0 == this.firstQueue) {
-                while(this.firstQueue < PRIORITY_LEVEL_COUNT && this.taskQueue.get(this.firstQueue).isEmpty()) {
+                while(this.hasWork() && this.taskQueue.get(this.firstQueue).isEmpty()) {
                     ++this.firstQueue;
                 }
             }
@@ -68,7 +68,7 @@ public class ChunkTaskPriorityQueue<T> {
             }
         }
 
-        while(this.firstQueue < PRIORITY_LEVEL_COUNT && this.taskQueue.get(this.firstQueue).isEmpty()) {
+        while(this.hasWork() && this.taskQueue.get(this.firstQueue).isEmpty()) {
             ++this.firstQueue;
         }
 
@@ -83,7 +83,7 @@ public class ChunkTaskPriorityQueue<T> {
     public Stream<Either<T, Runnable>> pop() {
         if (this.acquired.size() >= this.maxTasks) {
             return null;
-        } else if (this.firstQueue >= PRIORITY_LEVEL_COUNT) {
+        } else if (!this.hasWork()) {
             return null;
         } else {
             int var0 = this.firstQueue;
@@ -91,12 +91,16 @@ public class ChunkTaskPriorityQueue<T> {
             long var2 = var1.firstLongKey();
             List<Optional<T>> var3 = var1.removeFirst();
 
-            while(this.firstQueue < PRIORITY_LEVEL_COUNT && this.taskQueue.get(this.firstQueue).isEmpty()) {
+            while(this.hasWork() && this.taskQueue.get(this.firstQueue).isEmpty()) {
                 ++this.firstQueue;
             }
 
             return var3.stream().map(param1 -> param1.map(Either::left).orElseGet(() -> Either.right(this.acquire(var2))));
         }
+    }
+
+    public boolean hasWork() {
+        return this.firstQueue < PRIORITY_LEVEL_COUNT;
     }
 
     @Override

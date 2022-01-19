@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import java.util.Arrays;
@@ -85,7 +86,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.border.WorldBorder;
@@ -101,6 +101,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -110,11 +111,10 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public abstract class Entity implements CommandSource, Nameable, EntityAccess {
-    protected static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final String ID_TAG = "id";
     public static final String PASSENGERS_TAG = "Passengers";
     private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger();
@@ -155,6 +155,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected boolean onGround;
     public boolean horizontalCollision;
     public boolean verticalCollision;
+    public boolean verticalCollisionBelow;
     public boolean minorHorizontalCollision;
     public boolean hurtMarked;
     protected Vec3 stuckSpeedMultiplier = Vec3.ZERO;
@@ -572,7 +573,18 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
             param1 = this.maybeBackOffFromEdge(param1, param0);
             Vec3 var0 = this.collide(param1);
-            if (var0.lengthSqr() > 1.0E-7) {
+            double var1 = var0.lengthSqr();
+            if (var1 > 1.0E-7) {
+                if (this.fallDistance != 0.0F && var1 >= 1.0) {
+                    BlockHitResult var2 = this.level
+                        .clip(
+                            new ClipContext(this.position(), this.position().add(var0), ClipContext.Block.FALLDAMAGE_RESETTING, ClipContext.Fluid.WATER, this)
+                        );
+                    if (var2.getType() != HitResult.Type.MISS) {
+                        this.resetFallDistance();
+                    }
+                }
+
                 this.setPos(this.getX() + var0.x, this.getY() + var0.y, this.getZ() + var0.z);
             }
 
@@ -580,6 +592,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.level.getProfiler().push("rest");
             this.horizontalCollision = !Mth.equal(param1.x, var0.x) || !Mth.equal(param1.z, var0.z);
             this.verticalCollision = param1.y != var0.y;
+            this.verticalCollisionBelow = this.verticalCollision && param1.y < 0.0;
             if (this.horizontalCollision) {
                 this.minorHorizontalCollision = this.isHorizontalCollisionMinor(var0);
             } else {
@@ -587,74 +600,74 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             this.onGround = this.verticalCollision && param1.y < 0.0;
-            BlockPos var1 = this.getOnPos();
-            BlockState var2 = this.level.getBlockState(var1);
-            this.checkFallDamage(var0.y, this.onGround, var2, var1);
+            BlockPos var3 = this.getOnPos();
+            BlockState var4 = this.level.getBlockState(var3);
+            this.checkFallDamage(var0.y, this.onGround, var4, var3);
             if (this.isRemoved()) {
                 this.level.getProfiler().pop();
             } else {
-                Vec3 var3 = this.getDeltaMovement();
+                Vec3 var5 = this.getDeltaMovement();
                 if (param1.x != var0.x) {
-                    this.setDeltaMovement(0.0, var3.y, var3.z);
+                    this.setDeltaMovement(0.0, var5.y, var5.z);
                 }
 
                 if (param1.z != var0.z) {
-                    this.setDeltaMovement(var3.x, var3.y, 0.0);
+                    this.setDeltaMovement(var5.x, var5.y, 0.0);
                 }
 
-                Block var4 = var2.getBlock();
+                Block var6 = var4.getBlock();
                 if (param1.y != var0.y) {
-                    var4.updateEntityAfterFallOn(this.level, this);
+                    var6.updateEntityAfterFallOn(this.level, this);
                 }
 
                 if (this.onGround && !this.isSteppingCarefully()) {
-                    var4.stepOn(this.level, var1, var2, this);
+                    var6.stepOn(this.level, var3, var4, this);
                 }
 
-                Entity.MovementEmission var5 = this.getMovementEmission();
-                if (var5.emitsAnything() && !this.isPassenger()) {
-                    double var6 = var0.x;
-                    double var7 = var0.y;
-                    double var8 = var0.z;
+                Entity.MovementEmission var7 = this.getMovementEmission();
+                if (var7.emitsAnything() && !this.isPassenger()) {
+                    double var8 = var0.x;
+                    double var9 = var0.y;
+                    double var10 = var0.z;
                     this.flyDist = (float)((double)this.flyDist + var0.length() * 0.6);
-                    if (!var2.is(BlockTags.CLIMBABLE) && !var2.is(Blocks.POWDER_SNOW)) {
-                        var7 = 0.0;
+                    if (!var4.is(BlockTags.CLIMBABLE) && !var4.is(Blocks.POWDER_SNOW)) {
+                        var9 = 0.0;
                     }
 
                     this.walkDist += (float)var0.horizontalDistance() * 0.6F;
-                    this.moveDist += (float)Math.sqrt(var6 * var6 + var7 * var7 + var8 * var8) * 0.6F;
-                    if (this.moveDist > this.nextStep && !var2.isAir()) {
+                    this.moveDist += (float)Math.sqrt(var8 * var8 + var9 * var9 + var10 * var10) * 0.6F;
+                    if (this.moveDist > this.nextStep && !var4.isAir()) {
                         this.nextStep = this.nextStep();
                         if (this.isInWater()) {
-                            if (var5.emitsSounds()) {
-                                Entity var9 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
-                                float var10 = var9 == this ? 0.35F : 0.4F;
-                                Vec3 var11 = var9.getDeltaMovement();
-                                float var12 = Math.min(1.0F, (float)Math.sqrt(var11.x * var11.x * 0.2F + var11.y * var11.y + var11.z * var11.z * 0.2F) * var10);
-                                this.playSwimSound(var12);
+                            if (var7.emitsSounds()) {
+                                Entity var11 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
+                                float var12 = var11 == this ? 0.35F : 0.4F;
+                                Vec3 var13 = var11.getDeltaMovement();
+                                float var14 = Math.min(1.0F, (float)Math.sqrt(var13.x * var13.x * 0.2F + var13.y * var13.y + var13.z * var13.z * 0.2F) * var12);
+                                this.playSwimSound(var14);
                             }
 
-                            if (var5.emitsEvents()) {
+                            if (var7.emitsEvents()) {
                                 this.gameEvent(GameEvent.SWIM);
                             }
                         } else {
-                            if (var5.emitsSounds()) {
-                                this.playAmethystStepSound(var2);
-                                this.playStepSound(var1, var2);
+                            if (var7.emitsSounds()) {
+                                this.playAmethystStepSound(var4);
+                                this.playStepSound(var3, var4);
                             }
 
-                            if (var5.emitsEvents() && !var2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
+                            if (var7.emitsEvents() && !var4.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
                                 this.gameEvent(GameEvent.STEP);
                             }
                         }
-                    } else if (var2.isAir()) {
+                    } else if (var4.isAir()) {
                         this.processFlappingMovement();
                     }
                 }
 
                 this.tryCheckInsideBlocks();
-                float var13 = this.getBlockSpeedFactor();
-                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var13, 1.0, (double)var13));
+                float var15 = this.getBlockSpeedFactor();
+                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var15, 1.0, (double)var15));
                 if (this.level
                     .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
                     .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))) {
@@ -1674,18 +1687,18 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (this.noPhysics) {
             return false;
         } else {
-            Vec3 var0 = this.getEyePosition();
-            float var1 = this.dimensions.width * 0.8F;
-            AABB var2 = AABB.ofSize(var0, (double)var1, 1.0E-6, (double)var1);
-            return this.level
-                .getBlockStates(var2)
-                .filter(Predicate.not(BlockBehaviour.BlockStateBase::isAir))
+            float var0 = this.dimensions.width * 0.8F;
+            AABB var1 = AABB.ofSize(this.getEyePosition(), (double)var0, 1.0E-6, (double)var0);
+            return BlockPos.betweenClosedStream(var1)
                 .anyMatch(
-                    param2 -> {
-                        BlockPos var0x = new BlockPos(var0);
-                        return param2.isSuffocating(this.level, var0x)
+                    param1 -> {
+                        BlockState var0x = this.level.getBlockState(param1);
+                        return !var0x.isAir()
+                            && var0x.isSuffocating(this.level, param1)
                             && Shapes.joinIsNotEmpty(
-                                param2.getCollisionShape(this.level, var0x).move(var0.x, var0.y, var0.z), Shapes.create(var2), BooleanOp.AND
+                                var0x.getCollisionShape(this.level, param1).move((double)param1.getX(), (double)param1.getY(), (double)param1.getZ()),
+                                Shapes.create(var1),
+                                BooleanOp.AND
                             );
                     }
                 );

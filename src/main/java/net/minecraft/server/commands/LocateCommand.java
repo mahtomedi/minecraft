@@ -1,42 +1,49 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import java.util.Map.Entry;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 
 public class LocateCommand {
-    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.locate.failed"));
+    private static final DynamicCommandExceptionType ERROR_FAILED = new DynamicCommandExceptionType(
+        param0 -> new TranslatableComponent("commands.locate.failed", param0)
+    );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
-        LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("locate").requires(param0x -> param0x.hasPermission(2));
-
-        for(Entry<String, StructureFeature<?>> var1 : StructureFeature.STRUCTURES_REGISTRY.entrySet()) {
-            var0 = var0.then(Commands.literal(var1.getKey()).executes(param1 -> locate(param1.getSource(), var1.getValue())));
-        }
-
-        param0.register(var0);
+        param0.register(
+            Commands.literal("locate")
+                .requires(param0x -> param0x.hasPermission(2))
+                .then(
+                    Commands.argument("structure", ResourceLocationArgument.id())
+                        .suggests(SuggestionProviders.AVAILABLE_STRUCTURES)
+                        .executes(param0x -> locate(param0x.getSource(), ResourceLocationArgument.getStructureFeature(param0x, "structure")))
+                )
+        );
     }
 
-    private static int locate(CommandSourceStack param0, StructureFeature<?> param1) throws CommandSyntaxException {
-        BlockPos var0 = new BlockPos(param0.getPosition());
-        BlockPos var1 = param0.getLevel().findNearestMapFeature(param1, var0, 100, false);
-        if (var1 == null) {
-            throw ERROR_FAILED.create();
+    private static int locate(CommandSourceStack param0, ResourceLocationArgument.LocatedResource<StructureFeature<?>> param1) throws CommandSyntaxException {
+        StructureFeature<?> var0 = param1.resource();
+        BlockPos var1 = new BlockPos(param0.getPosition());
+        BlockPos var2 = param0.getLevel().findNearestMapFeature(var0, var1, 100, false);
+        ResourceLocation var3 = param1.id();
+        if (var2 == null) {
+            throw ERROR_FAILED.create(var3);
         } else {
-            return showLocateResult(param0, param1.getFeatureName(), var0, var1, "commands.locate.success");
+            return showLocateResult(param0, var3.toString(), var1, var2, "commands.locate.success");
         }
     }
 

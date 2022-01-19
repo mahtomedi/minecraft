@@ -1,8 +1,12 @@
 package net.minecraft.server;
 
+import com.mojang.logging.LogUtils;
 import java.io.OutputStream;
+import org.slf4j.Logger;
 
 public class DebugLoggedPrintStream extends LoggedPrintStream {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public DebugLoggedPrintStream(String param0, OutputStream param1) {
         super(param0, param1);
     }

@@ -57,7 +57,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
         Node var2 = var0.getNextNode();
         BlockPos var3 = var1.asBlockPos();
         BlockState var4 = param0.getBlockState(var3);
-        if (var4.is(BlockTags.WOODEN_DOORS)) {
+        if (var4.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
             DoorBlock var5 = (DoorBlock)var4.getBlock();
             if (!var5.isOpen(var4)) {
                 var5.setOpen(param1, param0, var4, var3, true);
@@ -68,7 +68,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
 
         BlockPos var6 = var2.asBlockPos();
         BlockState var7 = param0.getBlockState(var6);
-        if (var7.is(BlockTags.WOODEN_DOORS)) {
+        if (var7.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
             DoorBlock var8 = (DoorBlock)var7.getBlock();
             if (!var8.isOpen(var7)) {
                 var8.setOpen(param1, param0, var7, var6, true);
@@ -92,7 +92,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
                         var1.remove();
                     } else {
                         BlockState var4 = param0.getBlockState(var3);
-                        if (!var4.is(BlockTags.WOODEN_DOORS)) {
+                        if (!var4.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
                             var1.remove();
                         } else {
                             DoorBlock var5 = (DoorBlock)var4.getBlock();

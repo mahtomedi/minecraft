@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -87,14 +88,13 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider {
     private static final byte CHUNK_TYPE_REPLACEABLE = -1;
     private static final byte CHUNK_TYPE_UNKNOWN = 0;
     private static final byte CHUNK_TYPE_FULL = 1;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final int CHUNK_SAVED_PER_TICK = 200;
     private static final int CHUNK_SAVED_EAGERLY_PER_TICK = 20;
     private static final int MIN_VIEW_DISTANCE = 3;
@@ -188,12 +188,12 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     public static boolean isChunkInRange(int param0, int param1, int param2, int param3, int param4) {
         int var0 = Math.max(0, Math.abs(param0 - param2) - 1);
         int var1 = Math.max(0, Math.abs(param1 - param3) - 1);
-        int var2 = Math.max(0, Math.max(var0, var1) - 1);
-        int var3 = Math.min(var0, var1);
-        int var4 = var3 * var3 + var2 * var2;
+        long var2 = (long)Math.max(0, Math.max(var0, var1) - 1);
+        long var3 = (long)Math.min(var0, var1);
+        long var4 = var3 * var3 + var2 * var2;
         int var5 = param4 - 1;
         int var6 = var5 * var5;
-        return var4 <= var6;
+        return var4 <= (long)var6;
     }
 
     private static boolean isChunkOnRangeBorder(int param0, int param1, int param2, int param3, int param4) {
@@ -410,6 +410,17 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         }
 
         var0.pop();
+    }
+
+    public boolean hasWork() {
+        return this.lightEngine.hasLightWork()
+            || !this.pendingUnloads.isEmpty()
+            || !this.updatingChunkMap.isEmpty()
+            || this.poiManager.hasWork()
+            || !this.toDrop.isEmpty()
+            || !this.unloadQueue.isEmpty()
+            || this.queueSorter.hasWork()
+            || this.distanceManager.hasTickets();
     }
 
     private void processUnloads(BooleanSupplier param0) {

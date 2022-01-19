@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
@@ -38,6 +39,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.visitors.FieldSelector;
+import net.minecraft.nbt.visitors.SkipFields;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.DirectoryLock;
@@ -50,11 +53,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class LevelStorageSource {
-    static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
         .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
         .appendLiteral('-')
@@ -72,6 +74,7 @@ public class LevelStorageSource {
     private static final ImmutableList<String> OLD_SETTINGS_KEYS = ImmutableList.of(
         "RandomSeed", "generatorName", "generatorOptions", "generatorVersion", "legacy_custom_options", "MapFeatures", "BonusChest"
     );
+    private static final String TAG_DATA = "Data";
     final Path baseDir;
     private final Path backupDir;
     final DataFixer fixerUpper;
@@ -144,7 +147,7 @@ public class LevelStorageSource {
                     } catch (OutOfMemoryError var9) {
                         MemoryReserve.release();
                         System.gc();
-                        LOGGER.fatal("Ran out of memory trying to read summary of {}", var2);
+                        LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of memory trying to read summary of {}", var2);
                         throw var9;
                     }
                 }
@@ -179,18 +182,20 @@ public class LevelStorageSource {
     @Nullable
     private static DataPackConfig getDataPacks(File param0, DataFixer param1) {
         try {
-            CompoundTag var0 = NbtIo.readCompressed(param0);
-            CompoundTag var1 = var0.getCompound("Data");
-            var1.remove("Player");
-            int var2 = var1.contains("DataVersion", 99) ? var1.getInt("DataVersion") : -1;
-            Dynamic<Tag> var3 = param1.update(
-                DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var1), var2, SharedConstants.getCurrentVersion().getWorldVersion()
-            );
-            return var3.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
-        } catch (Exception var6) {
-            LOGGER.error("Exception reading {}", param0, var6);
-            return null;
+            Tag var0 = readLightweightData(param0);
+            if (var0 instanceof CompoundTag var1) {
+                CompoundTag var2 = var1.getCompound("Data");
+                int var3 = var2.contains("DataVersion", 99) ? var2.getInt("DataVersion") : -1;
+                Dynamic<Tag> var4 = param1.update(
+                    DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var2), var3, SharedConstants.getCurrentVersion().getWorldVersion()
+                );
+                return var4.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
+            }
+        } catch (Exception var7) {
+            LOGGER.error("Exception reading {}", param0, var7);
         }
+
+        return null;
     }
 
     static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1) {
@@ -218,29 +223,39 @@ public class LevelStorageSource {
     BiFunction<File, DataFixer, LevelSummary> levelSummaryReader(File param0, boolean param1) {
         return (param2, param3) -> {
             try {
-                CompoundTag var0 = NbtIo.readCompressed(param2);
-                CompoundTag var1x = var0.getCompound("Data");
-                var1x.remove("Player");
-                int var2x = var1x.contains("DataVersion", 99) ? var1x.getInt("DataVersion") : -1;
-                Dynamic<Tag> var3 = param3.update(
-                    DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var1x), var2x, SharedConstants.getCurrentVersion().getWorldVersion()
-                );
-                LevelVersion var4 = LevelVersion.parse(var3);
-                int var5 = var4.levelDataVersion();
-                if (var5 != 19132 && var5 != 19133) {
-                    return null;
+                Tag var0 = readLightweightData(param2);
+                if (var0 instanceof CompoundTag var1x) {
+                    CompoundTag var2x = var1x.getCompound("Data");
+                    int var3 = var2x.contains("DataVersion", 99) ? var2x.getInt("DataVersion") : -1;
+                    Dynamic<Tag> var4 = param3.update(
+                        DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var2x), var3, SharedConstants.getCurrentVersion().getWorldVersion()
+                    );
+                    LevelVersion var5 = LevelVersion.parse(var4);
+                    int var6 = var5.levelDataVersion();
+                    if (var6 == 19132 || var6 == 19133) {
+                        boolean var7 = var6 != this.getStorageVersion();
+                        File var8 = new File(param0, "icon.png");
+                        DataPackConfig var9 = var4.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
+                        LevelSettings var10 = LevelSettings.parse(var4, var9);
+                        return new LevelSummary(var10, var5, param0.getName(), var7, param1, var8);
+                    }
                 } else {
-                    boolean var6 = var5 != this.getStorageVersion();
-                    File var7 = new File(param0, "icon.png");
-                    DataPackConfig var8 = var3.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
-                    LevelSettings var9 = LevelSettings.parse(var3, var8);
-                    return new LevelSummary(var9, var4, param0.getName(), var6, param1, var7);
+                    LOGGER.warn("Invalid root tag in {}", param2);
                 }
-            } catch (Exception var15) {
-                LOGGER.error("Exception reading {}", param2, var15);
+
+                return null;
+            } catch (Exception var16) {
+                LOGGER.error("Exception reading {}", param2, var16);
                 return null;
             }
         };
+    }
+
+    @Nullable
+    private static Tag readLightweightData(File param0) throws IOException {
+        SkipFields var0 = new SkipFields(new FieldSelector("Data", CompoundTag.TYPE, "Player"), new FieldSelector("Data", CompoundTag.TYPE, "WorldGenSettings"));
+        NbtIo.parseCompressed(param0, var0);
+        return var0.getResult();
     }
 
     public boolean isNewLevelIdAcceptable(String param0) {

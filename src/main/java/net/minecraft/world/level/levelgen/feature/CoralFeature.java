@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,6 +9,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,8 +25,8 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
         Random var0 = param0.random();
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
-        BlockState var3 = BlockTags.CORAL_BLOCKS.getRandomElement(var0).defaultBlockState();
-        return this.placeFeature(var1, var0, var2, var3);
+        Optional<Block> var3 = BlockTags.CORAL_BLOCKS.getRandomElement(var0);
+        return var3.isEmpty() ? false : this.placeFeature(var1, var0, var2, var3.get().defaultBlockState());
     }
 
     protected abstract boolean placeFeature(LevelAccessor var1, Random var2, BlockPos var3, BlockState var4);
@@ -35,7 +37,7 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
         if ((var1.is(Blocks.WATER) || var1.is(BlockTags.CORALS)) && param0.getBlockState(var0).is(Blocks.WATER)) {
             param0.setBlock(param2, param3, 3);
             if (param1.nextFloat() < 0.25F) {
-                param0.setBlock(var0, BlockTags.CORALS.getRandomElement(param1).defaultBlockState(), 2);
+                BlockTags.CORALS.getRandomElement(param1).ifPresent(param2x -> param0.setBlock(var0, param2x.defaultBlockState(), 2));
             } else if (param1.nextFloat() < 0.05F) {
                 param0.setBlock(var0, Blocks.SEA_PICKLE.defaultBlockState().setValue(SeaPickleBlock.PICKLES, Integer.valueOf(param1.nextInt(4) + 1)), 2);
             }
@@ -44,12 +46,14 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
                 if (param1.nextFloat() < 0.2F) {
                     BlockPos var3 = param2.relative(var2);
                     if (param0.getBlockState(var3).is(Blocks.WATER)) {
-                        BlockState var4 = BlockTags.WALL_CORALS.getRandomElement(param1).defaultBlockState();
-                        if (var4.hasProperty(BaseCoralWallFanBlock.FACING)) {
-                            var4 = var4.setValue(BaseCoralWallFanBlock.FACING, var2);
-                        }
+                        BlockTags.WALL_CORALS.getRandomElement(param1).ifPresent(param3x -> {
+                            BlockState var0x = param3x.defaultBlockState();
+                            if (var0x.hasProperty(BaseCoralWallFanBlock.FACING)) {
+                                var0x = var0x.setValue(BaseCoralWallFanBlock.FACING, var2);
+                            }
 
-                        param0.setBlock(var3, var4, 2);
+                            param0.setBlock(var3, var0x, 2);
+                        });
                     }
                 }
             }

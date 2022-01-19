@@ -17,6 +17,7 @@ import com.mojang.blaze3d.shaders.Shader;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.Closeable;
@@ -38,14 +39,13 @@ import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ShaderInstance implements Shader, AutoCloseable {
     private static final String SHADER_PATH = "shaders/core/";
     private static final String SHADER_INCLUDE_PATH = "shaders/include/";
-    static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
     private static final boolean ALWAYS_REAPPLY = true;
     private static ShaderInstance lastAppliedShader;
@@ -87,6 +87,8 @@ public class ShaderInstance implements Shader, AutoCloseable {
     public final Uniform FOG_END;
     @Nullable
     public final Uniform FOG_COLOR;
+    @Nullable
+    public final Uniform FOG_SHAPE;
     @Nullable
     public final Uniform LINE_WIDTH;
     @Nullable
@@ -197,6 +199,7 @@ public class ShaderInstance implements Shader, AutoCloseable {
         this.FOG_START = this.getUniform("FogStart");
         this.FOG_END = this.getUniform("FogEnd");
         this.FOG_COLOR = this.getUniform("FogColor");
+        this.FOG_SHAPE = this.getUniform("FogShape");
         this.LINE_WIDTH = this.getUniform("LineWidth");
         this.GAME_TIME = this.getUniform("GameTime");
         this.CHUNK_OFFSET = this.getUniform("ChunkOffset");

@@ -24,12 +24,18 @@ import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class SurfaceRules {
-    public static final SurfaceRules.ConditionSource ON_FLOOR = stoneDepthCheck(0, false, false, CaveSurface.FLOOR);
-    public static final SurfaceRules.ConditionSource UNDER_FLOOR = stoneDepthCheck(0, true, false, CaveSurface.FLOOR);
-    public static final SurfaceRules.ConditionSource ON_CEILING = stoneDepthCheck(0, false, false, CaveSurface.CEILING);
-    public static final SurfaceRules.ConditionSource UNDER_CEILING = stoneDepthCheck(0, true, false, CaveSurface.CEILING);
+    public static final SurfaceRules.ConditionSource ON_FLOOR = stoneDepthCheck(0, false, CaveSurface.FLOOR);
+    public static final SurfaceRules.ConditionSource UNDER_FLOOR = stoneDepthCheck(0, true, CaveSurface.FLOOR);
+    public static final SurfaceRules.ConditionSource DEEP_UNDER_FLOOR = stoneDepthCheck(0, true, 6, CaveSurface.FLOOR);
+    public static final SurfaceRules.ConditionSource VERY_DEEP_UNDER_FLOOR = stoneDepthCheck(0, true, 30, CaveSurface.FLOOR);
+    public static final SurfaceRules.ConditionSource ON_CEILING = stoneDepthCheck(0, false, CaveSurface.CEILING);
+    public static final SurfaceRules.ConditionSource UNDER_CEILING = stoneDepthCheck(0, true, CaveSurface.CEILING);
 
-    public static SurfaceRules.ConditionSource stoneDepthCheck(int param0, boolean param1, boolean param2, CaveSurface param3) {
+    public static SurfaceRules.ConditionSource stoneDepthCheck(int param0, boolean param1, CaveSurface param2) {
+        return new SurfaceRules.StoneDepthCheck(param0, param1, 0, param2);
+    }
+
+    public static SurfaceRules.ConditionSource stoneDepthCheck(int param0, boolean param1, int param2, CaveSurface param3) {
         return new SurfaceRules.StoneDepthCheck(param0, param1, param2, param3);
     }
 
@@ -237,7 +243,7 @@ public class SurfaceRules {
         int blockZ;
         int surfaceDepth;
         private long lastSurfaceDepth2Update = this.lastUpdateXZ - 1L;
-        private int surfaceSecondaryDepth;
+        private double surfaceSecondary;
         private long lastMinSurfaceLevelUpdate = this.lastUpdateXZ - 1L;
         private int minSurfaceLevel;
         long lastUpdateY = -9223372036854775807L;
@@ -285,13 +291,13 @@ public class SurfaceRules {
             this.stoneDepthAbove = param0;
         }
 
-        protected int getSurfaceSecondaryDepth() {
+        protected double getSurfaceSecondary() {
             if (this.lastSurfaceDepth2Update != this.lastUpdateXZ) {
                 this.lastSurfaceDepth2Update = this.lastUpdateXZ;
-                this.surfaceSecondaryDepth = this.system.getSurfaceSecondaryDepth(this.blockX, this.blockZ);
+                this.surfaceSecondary = this.system.getSurfaceSecondary(this.blockX, this.blockZ);
             }
 
-            return this.surfaceSecondaryDepth;
+            return this.surfaceSecondary;
         }
 
         private static int blockCoordToSurfaceCell(int param0) {
@@ -594,13 +600,13 @@ public class SurfaceRules {
         }
     }
 
-    static record StoneDepthCheck(int offset, boolean addSurfaceDepth, boolean addSurfaceSecondaryDepth, CaveSurface surfaceType)
+    static record StoneDepthCheck(int offset, boolean addSurfaceDepth, int secondaryDepthRange, CaveSurface surfaceType)
         implements SurfaceRules.ConditionSource {
         static final Codec<SurfaceRules.StoneDepthCheck> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         Codec.INT.fieldOf("offset").forGetter(SurfaceRules.StoneDepthCheck::offset),
                         Codec.BOOL.fieldOf("add_surface_depth").forGetter(SurfaceRules.StoneDepthCheck::addSurfaceDepth),
-                        Codec.BOOL.fieldOf("add_surface_secondary_depth").forGetter(SurfaceRules.StoneDepthCheck::addSurfaceSecondaryDepth),
+                        Codec.INT.fieldOf("secondary_depth_range").forGetter(SurfaceRules.StoneDepthCheck::secondaryDepthRange),
                         CaveSurface.CODEC.fieldOf("surface_type").forGetter(SurfaceRules.StoneDepthCheck::surfaceType)
                     )
                     .apply(param0, SurfaceRules.StoneDepthCheck::new)
@@ -621,11 +627,12 @@ public class SurfaceRules {
 
                 @Override
                 protected boolean compute() {
-                    return (var0 ? this.context.stoneDepthBelow : this.context.stoneDepthAbove)
-                        <= 1
-                            + StoneDepthCheck.this.offset
-                            + (StoneDepthCheck.this.addSurfaceDepth ? this.context.surfaceDepth : 0)
-                            + (StoneDepthCheck.this.addSurfaceSecondaryDepth ? this.context.getSurfaceSecondaryDepth() : 0);
+                    int var0 = var0 ? this.context.stoneDepthBelow : this.context.stoneDepthAbove;
+                    int var1 = StoneDepthCheck.this.addSurfaceDepth ? this.context.surfaceDepth : 0;
+                    int var2 = StoneDepthCheck.this.secondaryDepthRange == 0
+                        ? 0
+                        : (int)Mth.map(this.context.getSurfaceSecondary(), -1.0, 1.0, 0.0, (double)StoneDepthCheck.this.secondaryDepthRange);
+                    return var0 <= 1 + StoneDepthCheck.this.offset + var1 + var2;
                 }
             }
 

@@ -1,5 +1,6 @@
 package net.minecraft.network;
 
+import com.mojang.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -7,14 +8,10 @@ import java.io.IOException;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+import org.slf4j.Logger;
 
 public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final Marker MARKER = MarkerManager.getMarker("PACKET_SENT", Connection.PACKET_MARKER);
+    private static final Logger LOGGER = LogUtils.getLogger();
     private final PacketFlow flow;
 
     public PacketEncoder(PacketFlow param0) {
@@ -28,7 +25,13 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
         } else {
             Integer var1 = var0.getPacketId(this.flow, param1);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(MARKER, "OUT: [{}:{}] {}", param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get(), var1, param1.getClass().getName());
+                LOGGER.debug(
+                    Connection.PACKET_SENT_MARKER,
+                    "OUT: [{}:{}] {}",
+                    param0.channel().attr(Connection.ATTRIBUTE_PROTOCOL).get(),
+                    var1,
+                    param1.getClass().getName()
+                );
             }
 
             if (var1 == null) {
@@ -48,7 +51,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
                         JvmProfiler.INSTANCE.onPacketSent(var5, var1, param0.channel().remoteAddress(), var4);
                     }
                 } catch (Throwable var10) {
-                    LOGGER.error(var10);
+                    LOGGER.error("Error receiving packet {}", var1, var10);
                     if (param1.isSkippable()) {
                         throw new SkipPacketException(var10);
                     } else {
