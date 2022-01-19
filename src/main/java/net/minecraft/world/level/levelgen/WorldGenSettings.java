@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -31,8 +32,8 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 public class WorldGenSettings {
     public static final Codec<WorldGenSettings> CODEC = RecordCodecBuilder.create(
@@ -49,7 +50,7 @@ public class WorldGenSettings {
                     .apply(param0, param0.stable(WorldGenSettings::new))
         )
         .comapFlatMap(WorldGenSettings::guardExperimental, Function.identity());
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private final long seed;
     private final boolean generateFeatures;
     private final boolean generateBonusChest;
@@ -224,48 +225,37 @@ public class WorldGenSettings {
         String var4 = (String)param1.get("level-type");
         String var5 = Optional.ofNullable(var4).map(param0x -> param0x.toLowerCase(Locale.ROOT)).orElse("default");
         param1.put("level-type", var5);
-        long var6 = new Random().nextLong();
-        if (!var1.isEmpty()) {
-            try {
-                long var7 = Long.parseLong(var1);
-                if (var7 != 0L) {
-                    var6 = var7;
-                }
-            } catch (NumberFormatException var17) {
-                var6 = (long)var1.hashCode();
-            }
-        }
-
-        Registry<DimensionType> var9 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-        Registry<Biome> var10 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-        MappedRegistry<LevelStem> var11 = DimensionType.defaultDimensions(param0, var6);
+        long var6 = parseSeed(var1).orElse(new Random().nextLong());
+        Registry<DimensionType> var7 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+        Registry<Biome> var8 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
+        MappedRegistry<LevelStem> var9 = DimensionType.defaultDimensions(param0, var6);
         switch(var5) {
             case "flat":
-                JsonObject var12 = !var0.isEmpty() ? GsonHelper.parse(var0) : new JsonObject();
-                Dynamic<JsonElement> var13 = new Dynamic<>(JsonOps.INSTANCE, var12);
+                JsonObject var10 = !var0.isEmpty() ? GsonHelper.parse(var0) : new JsonObject();
+                Dynamic<JsonElement> var11 = new Dynamic<>(JsonOps.INSTANCE, var10);
                 return new WorldGenSettings(
                     var6,
                     var3,
                     false,
                     withOverworld(
+                        var7,
                         var9,
-                        var11,
                         new FlatLevelSource(
                             FlatLevelGeneratorSettings.CODEC
-                                .parse(var13)
+                                .parse(var11)
                                 .resultOrPartial(LOGGER::error)
-                                .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var10))
+                                .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var8))
                         )
                     )
                 );
             case "debug_all_block_states":
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, new DebugLevelSource(var10)));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var7, var9, new DebugLevelSource(var8)));
             case "amplified":
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeOverworld(param0, var6, NoiseGeneratorSettings.AMPLIFIED)));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var7, var9, makeOverworld(param0, var6, NoiseGeneratorSettings.AMPLIFIED)));
             case "largebiomes":
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeOverworld(param0, var6, NoiseGeneratorSettings.LARGE_BIOMES)));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var7, var9, makeOverworld(param0, var6, NoiseGeneratorSettings.LARGE_BIOMES)));
             default:
-                return new WorldGenSettings(var6, var3, false, withOverworld(var9, var11, makeDefaultOverworld(param0, var6)));
+                return new WorldGenSettings(var6, var3, false, withOverworld(var7, var9, makeDefaultOverworld(param0, var6)));
         }
     }
 
@@ -294,5 +284,18 @@ public class WorldGenSettings {
         }
 
         return var6;
+    }
+
+    public static OptionalLong parseSeed(String param0) {
+        param0 = param0.trim();
+        if (StringUtils.isEmpty(param0)) {
+            return OptionalLong.empty();
+        } else {
+            try {
+                return OptionalLong.of(Long.parseLong(param0));
+            } catch (NumberFormatException var2) {
+                return OptionalLong.of((long)param0.hashCode());
+            }
+        }
     }
 }

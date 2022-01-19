@@ -8,15 +8,10 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
 
 public class LocateBiomeCommand {
-    public static final DynamicCommandExceptionType ERROR_INVALID_BIOME = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.locatebiome.invalid", param0)
-    );
     private static final DynamicCommandExceptionType ERROR_BIOME_NOT_FOUND = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("commands.locatebiome.notFound", param0)
     );
@@ -30,20 +25,16 @@ public class LocateBiomeCommand {
                 .then(
                     Commands.argument("biome", ResourceLocationArgument.id())
                         .suggests(SuggestionProviders.AVAILABLE_BIOMES)
-                        .executes(param0x -> locateBiome(param0x.getSource(), param0x.getArgument("biome", ResourceLocation.class)))
+                        .executes(param0x -> locateBiome(param0x.getSource(), ResourceLocationArgument.getBiome(param0x, "biome")))
                 )
         );
     }
 
-    private static int locateBiome(CommandSourceStack param0, ResourceLocation param1) throws CommandSyntaxException {
-        Biome var0 = param0.getServer()
-            .registryAccess()
-            .registryOrThrow(Registry.BIOME_REGISTRY)
-            .getOptional(param1)
-            .orElseThrow(() -> ERROR_INVALID_BIOME.create(param1));
+    private static int locateBiome(CommandSourceStack param0, ResourceLocationArgument.LocatedResource<Biome> param1) throws CommandSyntaxException {
+        Biome var0 = param1.resource();
         BlockPos var1 = new BlockPos(param0.getPosition());
         BlockPos var2 = param0.getLevel().findNearestBiome(var0, var1, 6400, 8);
-        String var3 = param1.toString();
+        String var3 = param1.id().toString();
         if (var2 == null) {
             throw ERROR_BIOME_NOT_FOUND.create(var3);
         } else {

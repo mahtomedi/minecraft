@@ -2,6 +2,7 @@ package net.minecraft.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.mojang.logging.LogUtils;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
@@ -20,11 +21,10 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import net.minecraft.CrashReportCategory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class NativeModuleLister {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final int LANG_MASK = 65535;
     private static final int DEFAULT_LANG = 1033;
     private static final int CODEPAGE_MASK = -65536;
@@ -52,31 +52,36 @@ public class NativeModuleLister {
             IntByReference var0 = new IntByReference();
             int var1 = Version.INSTANCE.GetFileVersionInfoSize(param0, var0);
             if (var1 == 0) {
-                throw new Win32Exception(Native.getLastError());
+                int var2 = Native.getLastError();
+                if (var2 != 1813 && var2 != 1812) {
+                    throw new Win32Exception(var2);
+                } else {
+                    return Optional.empty();
+                }
             } else {
-                Pointer var2 = new Memory((long)var1);
-                if (!Version.INSTANCE.GetFileVersionInfo(param0, 0, var1, var2)) {
+                Pointer var3 = new Memory((long)var1);
+                if (!Version.INSTANCE.GetFileVersionInfo(param0, 0, var1, var3)) {
                     throw new Win32Exception(Native.getLastError());
                 } else {
-                    IntByReference var3 = new IntByReference();
-                    Pointer var4 = queryVersionValue(var2, "\\VarFileInfo\\Translation", var3);
-                    int[] var5 = var4.getIntArray(0L, var3.getValue() / 4);
-                    OptionalInt var6 = findLangAndCodepage(var5);
-                    if (!var6.isPresent()) {
+                    IntByReference var4 = new IntByReference();
+                    Pointer var5 = queryVersionValue(var3, "\\VarFileInfo\\Translation", var4);
+                    int[] var6 = var5.getIntArray(0L, var4.getValue() / 4);
+                    OptionalInt var7 = findLangAndCodepage(var6);
+                    if (!var7.isPresent()) {
                         return Optional.empty();
                     } else {
-                        int var7 = var6.getAsInt();
-                        int var8 = var7 & 65535;
-                        int var9 = (var7 & -65536) >> 16;
-                        String var10 = queryVersionString(var2, langTableKey("FileDescription", var8, var9), var3);
-                        String var11 = queryVersionString(var2, langTableKey("CompanyName", var8, var9), var3);
-                        String var12 = queryVersionString(var2, langTableKey("FileVersion", var8, var9), var3);
-                        return Optional.of(new NativeModuleLister.NativeModuleVersion(var10, var12, var11));
+                        int var8 = var7.getAsInt();
+                        int var9 = var8 & 65535;
+                        int var10 = (var8 & -65536) >> 16;
+                        String var11 = queryVersionString(var3, langTableKey("FileDescription", var9, var10), var4);
+                        String var12 = queryVersionString(var3, langTableKey("CompanyName", var9, var10), var4);
+                        String var13 = queryVersionString(var3, langTableKey("FileVersion", var9, var10), var4);
+                        return Optional.of(new NativeModuleLister.NativeModuleVersion(var11, var13, var12));
                     }
                 }
             }
-        } catch (Exception var14) {
-            LOGGER.info("Failed to find module info for {}", param0, var14);
+        } catch (Exception var141) {
+            LOGGER.info("Failed to find module info for {}", param0, var141);
             return Optional.empty();
         }
     }

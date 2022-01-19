@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Floats;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
+import com.mojang.logging.LogUtils;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
@@ -148,11 +149,10 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
-    static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final int LATENCY_CHECK_INTERVAL = 15000;
     public final Connection connection;
     private final MinecraftServer server;
@@ -207,7 +207,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.getYRot(), this.player.getXRot());
         ++this.tickCount;
         this.knownMovePacketCount = this.receivedMovePacketCount;
-        if (this.clientIsFloating && !this.player.isSleeping()) {
+        if (this.clientIsFloating && !this.player.isSleeping() && !this.player.isPassenger()) {
             if (++this.aboveGroundTickCount > 80) {
                 LOGGER.warn("{} was kicked for floating too long!", this.player.getName().getString());
                 this.disconnect(new TranslatableComponent("multiplayer.disconnect.flying"));
@@ -298,9 +298,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
     private <T, R> void filterTextPacket(T param0, Consumer<R> param1, BiFunction<TextFilter, T, CompletableFuture<R>> param2) {
         BlockableEventLoop<?> var0 = this.player.getLevel().getServer();
-        Consumer<R> var1 = param1x -> {
+        Consumer<R> var1 = param2x -> {
             if (this.getConnection().isConnected()) {
-                param1.accept(param1x);
+                try {
+                    param1.accept(param2x);
+                } catch (Exception var5x) {
+                    LOGGER.error("Failed to handle chat packet {}, suppressing error", param0, var5x);
+                }
             } else {
                 LOGGER.debug("Ignoring packet due to disconnection");
             }
@@ -369,6 +373,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 var10 = var5 - this.vehicleLastGoodX;
                 var11 = var6 - this.vehicleLastGoodY - 1.0E-6;
                 var12 = var7 - this.vehicleLastGoodZ;
+                boolean var16 = var0.verticalCollisionBelow;
                 var0.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
                 var10 = var5 - var0.getX();
                 var11 = var6 - var0.getY();
@@ -378,15 +383,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                 var12 = var7 - var0.getZ();
                 var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                boolean var17 = false;
+                boolean var18 = false;
                 if (var14 > 0.0625) {
-                    var17 = true;
+                    var18 = true;
                     LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", var0.getName().getString(), this.player.getName().getString(), Math.sqrt(var14));
                 }
 
                 var0.absMoveTo(var5, var6, var7, var8, var9);
-                boolean var18 = var1.noCollision(var0, var0.getBoundingBox().deflate(0.0625));
-                if (var15 && (var17 || !var18)) {
+                boolean var19 = var1.noCollision(var0, var0.getBoundingBox().deflate(0.0625));
+                if (var15 && (var18 || !var19)) {
                     var0.absMoveTo(var2, var3, var4, var8, var9);
                     this.connection.send(new ClientboundMoveVehiclePacket(var0));
                     return;
@@ -394,7 +399,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                 this.player.getLevel().getChunkSource().move(this.player);
                 this.player.checkMovementStatistics(this.player.getX() - var2, this.player.getY() - var3, this.player.getZ() - var4);
-                this.clientVehicleIsFloating = var11 >= -0.03125 && !this.server.isFlightAllowed() && this.noBlocksAround(var0);
+                this.clientVehicleIsFloating = var11 >= -0.03125
+                    && !var16
+                    && !this.server.isFlightAllowed()
+                    && !var0.isNoGravity()
+                    && this.noBlocksAround(var0);
                 this.vehicleLastGoodX = var0.getX();
                 this.vehicleLastGoodY = var0.getY();
                 this.vehicleLastGoodZ = var0.getZ();
@@ -861,6 +870,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                                 this.player.jumpFromGround();
                             }
 
+                            boolean var19 = this.player.verticalCollisionBelow;
                             this.player.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
                             var10 = var1 - this.player.getX();
                             var11 = var2 - this.player.getY();
@@ -870,26 +880,28 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                             var12 = var3 - this.player.getZ();
                             var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                            boolean var20 = false;
+                            boolean var21 = false;
                             if (!this.player.isChangingDimension()
                                 && var14 > 0.0625
                                 && !this.player.isSleeping()
                                 && !this.player.gameMode.isCreative()
                                 && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
-                                var20 = true;
+                                var21 = true;
                                 LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                             }
 
                             this.player.absMoveTo(var1, var2, var3, var4, var5);
                             if (this.player.noPhysics
                                 || this.player.isSleeping()
-                                || (!var20 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
+                                || (!var21 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
                                 this.clientIsFloating = var11 >= -0.03125
+                                    && !var19
                                     && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
                                     && !this.server.isFlightAllowed()
                                     && !this.player.getAbilities().mayfly
                                     && !this.player.hasEffect(MobEffects.LEVITATION)
                                     && !this.player.isFallFlying()
+                                    && !this.player.isAutoSpinAttack()
                                     && this.noBlocksAround(this.player);
                                 this.player.getLevel().getChunkSource().move(this.player);
                                 this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());

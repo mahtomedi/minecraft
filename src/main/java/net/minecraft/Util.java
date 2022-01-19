@@ -8,9 +8,9 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.Hash.Strategy;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -61,14 +61,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.lookup.StrSubstitutor;
+import org.slf4j.Logger;
 
 public class Util {
-    static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final int DEFAULT_MAX_THREADS = 255;
     private static final String MAX_THREADS_SYSTEM_PROPERTY = "max.bg.threads";
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
@@ -84,9 +80,6 @@ public class Util {
         .orElseThrow(() -> new IllegalStateException("No jar file system provider found"));
     private static Consumer<String> thePauser = param0 -> {
     };
-
-    public static void preInitLog4j() {
-    }
 
     public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
         return Collectors.toMap(Entry::getKey, Entry::getValue);
@@ -680,23 +673,6 @@ public class Util {
                 return "memoize/2[function=" + param0 + ", size=" + this.cache.size() + "]";
             }
         };
-    }
-
-    static {
-        System.setProperty("log4j2.formatMsgNoLookups", "true");
-        LoggerContext var0 = LoggerContext.getContext(false);
-        PropertyChangeListener var1 = param1 -> {
-            Configuration var0x = var0.getConfiguration();
-            if (var0x != null) {
-                StrSubstitutor var1x = var0x.getStrSubstitutor();
-                if (var1x != null) {
-                    var1x.setVariableResolver(null);
-                }
-            }
-
-        };
-        var1.propertyChange(null);
-        var0.addPropertyChangeListener(var1);
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

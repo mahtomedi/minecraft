@@ -1,5 +1,6 @@
 package net.minecraft.client.resources;
 
+import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,9 +14,11 @@ import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class DirectAssetIndex extends AssetIndex {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private final File assetsDirectory;
 
     public DirectAssetIndex(File param0) {

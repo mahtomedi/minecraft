@@ -34,11 +34,8 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public final class Biome {
-    public static final Logger LOGGER = LogManager.getLogger();
     public static final Codec<Biome> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Biome.ClimateSettings.CODEC.forGetter(param0x -> param0x.climateSettings),

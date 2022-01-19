@@ -209,7 +209,7 @@ public class BeehiveBlockEntity extends BlockEntity {
 
                             if (param5 == BeehiveBlockEntity.BeeReleaseStatus.HONEY_DELIVERED) {
                                 var5.dropOffNectar();
-                                if (param2.is(BlockTags.BEEHIVES)) {
+                                if (param2.is(BlockTags.BEEHIVES, param0x -> param0x.hasProperty(BeehiveBlock.HONEY_LEVEL))) {
                                     int var6 = getHoneyLevel(param2);
                                     if (var6 < 5) {
                                         int var7 = param0.random.nextInt(100) == 0 ? 2 : 1;

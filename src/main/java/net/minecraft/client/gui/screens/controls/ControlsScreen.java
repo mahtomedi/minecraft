@@ -14,6 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ControlsScreen extends OptionsSubScreen {
+    private static final int ROW_SPACING = 24;
+
     public ControlsScreen(Screen param0, Options param1) {
         super(param0, param1, new TranslatableComponent("controls.title"));
     }
@@ -46,7 +48,7 @@ public class ControlsScreen extends OptionsSubScreen {
         this.addRenderableWidget(Option.AUTO_JUMP.createButton(this.options, var0, var2, 150));
         var2 += 24;
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 29, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
+            new Button(this.width / 2 - 100, var2, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
     }
 

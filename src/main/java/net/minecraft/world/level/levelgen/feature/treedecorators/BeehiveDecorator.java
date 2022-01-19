@@ -1,10 +1,13 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
 import com.mojang.serialization.Codec;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -22,6 +25,11 @@ public class BeehiveDecorator extends TreeDecorator {
         .fieldOf("probability")
         .xmap(BeehiveDecorator::new, param0 -> param0.probability)
         .codec();
+    private static final Direction WORLDGEN_FACING = Direction.SOUTH;
+    private static final Direction[] SPAWN_DIRECTIONS = Direction.Plane.HORIZONTAL
+        .stream()
+        .filter(param0 -> param0 != WORLDGEN_FACING.getOpposite())
+        .toArray(param0 -> new Direction[param0]);
     private final float probability;
 
     public BeehiveDecorator(float param0) {
@@ -36,17 +44,21 @@ public class BeehiveDecorator extends TreeDecorator {
     @Override
     public void place(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, List<BlockPos> param3, List<BlockPos> param4) {
         if (!(param2.nextFloat() >= this.probability)) {
-            Direction var0 = BeehiveBlock.getRandomOffset(param2);
-            int var1 = !param4.isEmpty()
-                ? Math.max(param4.get(0).getY() - 1, param3.get(0).getY())
+            int var0 = !param4.isEmpty()
+                ? Math.max(param4.get(0).getY() - 1, param3.get(0).getY() + 1)
                 : Math.min(param3.get(0).getY() + 1 + param2.nextInt(3), param3.get(param3.size() - 1).getY());
-            List<BlockPos> var2 = param3.stream().filter(param1x -> param1x.getY() == var1).collect(Collectors.toList());
-            if (!var2.isEmpty()) {
-                BlockPos var3 = var2.get(param2.nextInt(var2.size()));
-                BlockPos var4 = var3.relative(var0);
-                if (Feature.isAir(param0, var4) && Feature.isAir(param0, var4.relative(Direction.SOUTH))) {
-                    param1.accept(var4, Blocks.BEE_NEST.defaultBlockState().setValue(BeehiveBlock.FACING, Direction.SOUTH));
-                    param0.getBlockEntity(var4, BlockEntityType.BEEHIVE).ifPresent(param1x -> {
+            List<BlockPos> var1 = param3.stream()
+                .filter(param1x -> param1x.getY() == var0)
+                .flatMap(param0x -> Stream.of(SPAWN_DIRECTIONS).map(param0x::relative))
+                .collect(Collectors.toList());
+            if (!var1.isEmpty()) {
+                Collections.shuffle(var1);
+                Optional<BlockPos> var2 = var1.stream()
+                    .filter(param1x -> Feature.isAir(param0, param1x) && Feature.isAir(param0, param1x.relative(WORLDGEN_FACING)))
+                    .findFirst();
+                if (!var2.isEmpty()) {
+                    param1.accept(var2.get(), Blocks.BEE_NEST.defaultBlockState().setValue(BeehiveBlock.FACING, WORLDGEN_FACING));
+                    param0.getBlockEntity(var2.get(), BlockEntityType.BEEHIVE).ifPresent(param1x -> {
                         int var0x = 2 + param2.nextInt(2);
 
                         for(int var1x = 0; var1x < var0x; ++var1x) {

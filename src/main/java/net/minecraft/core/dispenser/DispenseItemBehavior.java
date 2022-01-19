@@ -1,5 +1,6 @@
 package net.minecraft.core.dispenser;
 
+import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -69,11 +70,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public interface DispenseItemBehavior {
-    Logger LOGGER = LogManager.getLogger();
+    Logger LOGGER = LogUtils.getLogger();
     DispenseItemBehavior NOOP = (param0, param1) -> param1;
 
     ItemStack dispense(BlockSource var1, ItemStack var2);
@@ -522,41 +522,45 @@ public interface DispenseItemBehavior {
             DispenserBlock.registerBehavior(ShulkerBoxBlock.getBlockByColor(var5).asItem(), new ShulkerBoxDispenseBehavior());
         }
 
-        DispenserBlock.registerBehavior(Items.GLASS_BOTTLE.asItem(), new OptionalDispenseItemBehavior() {
-            private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
-
-            private ItemStack takeLiquid(BlockSource param0, ItemStack param1, ItemStack param2) {
-                param1.shrink(1);
-                if (param1.isEmpty()) {
-                    param0.getLevel().gameEvent(null, GameEvent.FLUID_PICKUP, param0.getPos());
-                    return param2.copy();
-                } else {
-                    if (param0.<DispenserBlockEntity>getEntity().addItem(param2.copy()) < 0) {
-                        this.defaultDispenseItemBehavior.dispense(param0, param2.copy());
+        DispenserBlock.registerBehavior(
+            Items.GLASS_BOTTLE.asItem(),
+            new OptionalDispenseItemBehavior() {
+                private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
+    
+                private ItemStack takeLiquid(BlockSource param0, ItemStack param1, ItemStack param2) {
+                    param1.shrink(1);
+                    if (param1.isEmpty()) {
+                        param0.getLevel().gameEvent(null, GameEvent.FLUID_PICKUP, param0.getPos());
+                        return param2.copy();
+                    } else {
+                        if (param0.<DispenserBlockEntity>getEntity().addItem(param2.copy()) < 0) {
+                            this.defaultDispenseItemBehavior.dispense(param0, param2.copy());
+                        }
+    
+                        return param1;
                     }
-
-                    return param1;
+                }
+    
+                @Override
+                public ItemStack execute(BlockSource param0, ItemStack param1) {
+                    this.setSuccess(false);
+                    ServerLevel var0 = param0.getLevel();
+                    BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
+                    BlockState var2 = var0.getBlockState(var1);
+                    if (var2.is(BlockTags.BEEHIVES, param0x -> param0x.hasProperty(BeehiveBlock.HONEY_LEVEL) && param0x.getBlock() instanceof BeehiveBlock)
+                        && var2.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
+                        ((BeehiveBlock)var2.getBlock()).releaseBeesAndResetHoneyLevel(var0, var2, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+                        this.setSuccess(true);
+                        return this.takeLiquid(param0, param1, new ItemStack(Items.HONEY_BOTTLE));
+                    } else if (var0.getFluidState(var1).is(FluidTags.WATER)) {
+                        this.setSuccess(true);
+                        return this.takeLiquid(param0, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
+                    } else {
+                        return super.execute(param0, param1);
+                    }
                 }
             }
-
-            @Override
-            public ItemStack execute(BlockSource param0, ItemStack param1) {
-                this.setSuccess(false);
-                ServerLevel var0 = param0.getLevel();
-                BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
-                BlockState var2 = var0.getBlockState(var1);
-                if (var2.is(BlockTags.BEEHIVES, param0x -> param0x.hasProperty(BeehiveBlock.HONEY_LEVEL)) && var2.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
-                    ((BeehiveBlock)var2.getBlock()).releaseBeesAndResetHoneyLevel(var0, var2, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
-                    this.setSuccess(true);
-                    return this.takeLiquid(param0, param1, new ItemStack(Items.HONEY_BOTTLE));
-                } else if (var0.getFluidState(var1).is(FluidTags.WATER)) {
-                    this.setSuccess(true);
-                    return this.takeLiquid(param0, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
-                } else {
-                    return super.execute(param0, param1);
-                }
-            }
-        });
+        );
         DispenserBlock.registerBehavior(Items.GLOWSTONE, new OptionalDispenseItemBehavior() {
             @Override
             public ItemStack execute(BlockSource param0, ItemStack param1) {

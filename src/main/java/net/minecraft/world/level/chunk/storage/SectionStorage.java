@@ -3,6 +3,7 @@ package net.minecraft.world.level.chunk.storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -27,11 +28,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class SectionStorage<R> implements AutoCloseable {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final String SECTIONS_TAG = "Sections";
     private final IOWorker worker;
     private final Long2ObjectMap<Optional<R>> storage = new Long2ObjectOpenHashMap<>();
@@ -60,11 +60,15 @@ public class SectionStorage<R> implements AutoCloseable {
     }
 
     protected void tick(BooleanSupplier param0) {
-        while(!this.dirty.isEmpty() && param0.getAsBoolean()) {
+        while(this.hasWork() && param0.getAsBoolean()) {
             ChunkPos var0 = SectionPos.of(this.dirty.firstLong()).chunk();
             this.writeColumn(var0);
         }
 
+    }
+
+    public boolean hasWork() {
+        return !this.dirty.isEmpty();
     }
 
     @Nullable
@@ -215,7 +219,7 @@ public class SectionStorage<R> implements AutoCloseable {
     }
 
     public void flush(ChunkPos param0) {
-        if (!this.dirty.isEmpty()) {
+        if (this.hasWork()) {
             for(int var0 = this.levelHeightAccessor.getMinSection(); var0 < this.levelHeightAccessor.getMaxSection(); ++var0) {
                 long var1 = getKey(param0, var0);
                 if (this.dirty.contains(var1)) {

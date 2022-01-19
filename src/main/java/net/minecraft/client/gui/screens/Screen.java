@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.logging.LogUtils;
 import com.mojang.math.Matrix4f;
 import java.io.File;
 import java.net.URI;
@@ -31,6 +32,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -53,12 +55,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class Screen extends AbstractContainerEventHandler implements Widget {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Set<String> ALLOWED_PROTOCOLS = Sets.newHashSet("http", "https");
     private static final int EXTRA_SPACE_AFTER_FIRST_TOOLTIP_LINE = 2;
     private static final Component USAGE_NARRATION = new TranslatableComponent("narrator.screen.usage");
@@ -615,6 +616,13 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
     public void narrationEnabled() {
         this.scheduleNarration(NARRATE_DELAY_NARRATOR_ENABLED, false);
+    }
+
+    protected static void hideWidgets(AbstractWidget... param0) {
+        for(AbstractWidget var0 : param0) {
+            var0.visible = false;
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -495,10 +495,11 @@ public class KeyboardHandler {
                     Blaze3D.youJustLostTheGame();
                 }
 
-                CrashReport var3 = new CrashReport("Manually triggered debug crash", new Throwable());
-                CrashReportCategory var4 = var3.addCategory("Manual crash details");
-                NativeModuleLister.addCrashSection(var4);
-                throw new ReportedException(var3);
+                String var3 = "Manually triggered debug crash";
+                CrashReport var4 = new CrashReport("Manually triggered debug crash", new Throwable("Manually triggered debug crash"));
+                CrashReportCategory var5 = var4.addCategory("Manual crash details");
+                NativeModuleLister.addCrashSection(var5);
+                throw new ReportedException(var4);
             }
 
             if (var2 >= 1000L) {

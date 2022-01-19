@@ -9,6 +9,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -42,6 +43,7 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -152,11 +154,10 @@ import net.minecraft.world.level.storage.loot.PredicateManager;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final String VANILLA_BRAND = "vanilla";
     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
     private static final int TICK_STATS_SPAN = 100;
@@ -252,7 +253,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     public static <S extends MinecraftServer> S spin(Function<Thread, S> param0) {
         AtomicReference<S> var0 = new AtomicReference<>();
         Thread var1 = new Thread(() -> var0.get().runServer(), "Server thread");
-        var1.setUncaughtExceptionHandler((param0x, param1) -> LOGGER.error(param1));
+        var1.setUncaughtExceptionHandler((param0x, param1) -> LOGGER.error("Uncaught exception in server thread", param1));
         if (Runtime.getRuntime().availableProcessors() > 4) {
             var1.setPriority(8);
         }
@@ -597,12 +598,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
         }
 
+        while(this.levels.values().stream().anyMatch(param0 -> param0.getChunkSource().chunkMap.hasWork())) {
+            this.nextTickTime = Util.getMillis() + 1L;
+
+            for(ServerLevel var1 : this.getAllLevels()) {
+                var1.getChunkSource().removeTicketsOnClosing();
+                var1.getChunkSource().tick(() -> true, false);
+            }
+
+            this.waitUntilNextTick();
+        }
+
         this.saveAllChunks(false, true, false);
 
-        for(ServerLevel var1 : this.getAllLevels()) {
-            if (var1 != null) {
+        for(ServerLevel var2 : this.getAllLevels()) {
+            if (var2 != null) {
                 try {
-                    var1.close();
+                    var2.close();
                 } catch (IOException var5) {
                     LOGGER.error("Exception closing the level", (Throwable)var5);
                 }
@@ -1231,6 +1243,15 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     @Override
     public boolean scheduleExecutables() {
         return super.scheduleExecutables() && !this.isStopped();
+    }
+
+    @Override
+    public void executeIfPossible(Runnable param0) {
+        if (this.isStopped()) {
+            throw new RejectedExecutionException("Server already shutting down");
+        } else {
+            super.executeIfPossible(param0);
+        }
     }
 
     @Override

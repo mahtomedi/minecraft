@@ -3,6 +3,7 @@ package net.minecraft.server.level;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -142,8 +143,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.LevelTicks;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class ServerLevel extends Level implements WorldGenLevel {
     public static final BlockPos END_SPAWN_POINT = new BlockPos(100, 50, 0);
@@ -155,7 +155,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private static final int MAX_THUNDER_DELAY_TIME = 180000;
     private static final int MIN_THUNDER_TIME = 3600;
     private static final int MAX_THUNDER_TIME = 15600;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final int EMPTY_TIME_NO_TICK = 300;
     private static final int MAX_SCHEDULED_TICKS_PER_TICK = 65536;
     final List<ServerPlayer> players = Lists.newArrayList();
@@ -296,7 +296,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         var0.popPush("raid");
         this.raids.tick();
         var0.popPush("chunkSource");
-        this.getChunkSource().tick(param0);
+        this.getChunkSource().tick(param0, true);
         var0.popPush("blockEvents");
         this.runBlockEvents();
         this.handlingTick = false;
@@ -1513,11 +1513,15 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public boolean isPositionEntityTicking(BlockPos param0) {
-        return this.entityManager.isPositionTicking(param0);
+        return this.entityManager.canPositionTick(param0) && this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(ChunkPos.asLong(param0));
     }
 
-    public boolean isPositionEntityTicking(ChunkPos param0) {
-        return this.entityManager.isPositionTicking(param0);
+    public boolean isNaturalSpawningAllowed(BlockPos param0) {
+        return this.entityManager.canPositionTick(param0);
+    }
+
+    public boolean isNaturalSpawningAllowed(ChunkPos param0) {
+        return this.entityManager.canPositionTick(param0);
     }
 
     final class EntityCallbacks implements LevelCallback<Entity> {
