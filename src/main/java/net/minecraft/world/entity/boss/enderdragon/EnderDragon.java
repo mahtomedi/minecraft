@@ -826,7 +826,7 @@ public class EnderDragon extends Mob implements Enemy {
         double var4;
         if (var1 == EnderDragonPhase.LANDING || var1 == EnderDragonPhase.TAKEOFF) {
             BlockPos var2 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            double var3 = Math.max(Math.sqrt(var2.distSqr(this.position(), true)) / 4.0, 1.0);
+            double var3 = Math.max(Math.sqrt(var2.distToCenterSqr(this.position())) / 4.0, 1.0);
             var4 = (double)param0 / var3;
         } else if (var0.isSitting()) {
             var4 = (double)param0;
@@ -845,7 +845,7 @@ public class EnderDragon extends Mob implements Enemy {
         Vec3 var7;
         if (var1 == EnderDragonPhase.LANDING || var1 == EnderDragonPhase.TAKEOFF) {
             BlockPos var2 = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
-            float var3 = Math.max((float)Math.sqrt(var2.distSqr(this.position(), true)) / 4.0F, 1.0F);
+            float var3 = Math.max((float)Math.sqrt(var2.distToCenterSqr(this.position())) / 4.0F, 1.0F);
             float var4 = 6.0F / var3;
             float var5 = this.getXRot();
             float var6 = 1.5F;

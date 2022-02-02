@@ -446,7 +446,7 @@ public class MineShaftPieces {
                     var0.move(Direction.DOWN);
                 }
 
-                if (this.canPlaceColumnOnTopOf(param0.getBlockState(var0))) {
+                if (this.canPlaceColumnOnTopOf(param0, var0, param0.getBlockState(var0))) {
                     while(var0.getY() < var1) {
                         var0.move(Direction.UP);
                         param0.setBlock(var0, param1, 2);
@@ -468,7 +468,7 @@ public class MineShaftPieces {
                         var0.setY(var1 - var2);
                         BlockState var5 = param0.getBlockState(var0);
                         boolean var6 = this.isReplaceableByStructures(var5) && !var5.is(Blocks.LAVA);
-                        if (!var6 && this.canPlaceColumnOnTopOf(var5)) {
+                        if (!var6 && this.canPlaceColumnOnTopOf(param0, var0, var5)) {
                             fillColumnBetween(param0, param1, var0, var1 - var2 + 1, var1);
                             return;
                         }
@@ -500,8 +500,8 @@ public class MineShaftPieces {
 
         }
 
-        private boolean canPlaceColumnOnTopOf(BlockState param0) {
-            return !param0.is(Blocks.RAIL) && !param0.is(Blocks.LAVA);
+        private boolean canPlaceColumnOnTopOf(LevelReader param0, BlockPos param1, BlockState param2) {
+            return param2.isFaceSturdy(param0, param1, Direction.UP);
         }
 
         private boolean canHangChainBelow(LevelReader param0, BlockPos param1, BlockState param2) {
@@ -931,7 +931,7 @@ public class MineShaftPieces {
             if (this.isInterior(param0, param3, param4, param5, param1)) {
                 BlockPos var0 = this.getWorldPos(param3, param4, param5);
                 BlockState var1 = param0.getBlockState(var0);
-                if (var1.isAir() || var1.is(Blocks.CHAIN)) {
+                if (!var1.isFaceSturdy(param0, var0, Direction.UP)) {
                     param0.setBlock(var0, param2, 2);
                 }
 

@@ -1003,20 +1003,8 @@ public class Panda extends Animal {
         }
 
         @Override
-        public boolean canUse() {
-            if (!this.panda.isOnFire()) {
-                return false;
-            } else {
-                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 5);
-                if (var0 != null) {
-                    this.posX = (double)var0.getX();
-                    this.posY = (double)var0.getY();
-                    this.posZ = (double)var0.getZ();
-                    return true;
-                } else {
-                    return this.findRandomPosition();
-                }
-            }
+        protected boolean shouldPanic() {
+            return this.mob.isFreezing() || this.mob.isOnFire();
         }
 
         @Override

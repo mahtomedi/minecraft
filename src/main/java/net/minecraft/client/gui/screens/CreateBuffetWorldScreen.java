@@ -1,7 +1,9 @@
 package net.minecraft.client.gui.screens;
 
+import com.ibm.icu.text.Collator;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -82,11 +84,13 @@ public class CreateBuffetWorldScreen extends Screen {
                 CreateBuffetWorldScreen.this.height - 37,
                 16
             );
+            Collator param0 = Collator.getInstance(Locale.getDefault());
             CreateBuffetWorldScreen.this.biomes
                 .entrySet()
                 .stream()
-                .sorted(Comparator.comparing(param0 -> param0.getKey().location().toString()))
-                .forEach(param0 -> this.addEntry(new CreateBuffetWorldScreen.BiomeList.Entry(param0.getValue())));
+                .map(param0x -> new CreateBuffetWorldScreen.BiomeList.Entry(param0x.getValue()))
+                .sorted(Comparator.comparing(param0x -> param0x.name.getString(), param0))
+                .forEach(param1 -> this.addEntry(param1));
         }
 
         @Override
@@ -106,7 +110,7 @@ public class CreateBuffetWorldScreen extends Screen {
         @OnlyIn(Dist.CLIENT)
         class Entry extends ObjectSelectionList.Entry<CreateBuffetWorldScreen.BiomeList.Entry> {
             final Biome biome;
-            private final Component name;
+            final Component name;
 
             public Entry(Biome param0) {
                 this.biome = param0;

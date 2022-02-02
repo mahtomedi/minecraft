@@ -19,7 +19,7 @@ public class AssignProfessionFromJobSite extends Behavior<Villager> {
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Villager param1) {
         BlockPos var0 = param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE).get().pos();
-        return var0.closerThan(param1.position(), 2.0) || param1.assignProfessionWhenSpawned();
+        return var0.closerToCenterThan(param1.position(), 2.0) || param1.assignProfessionWhenSpawned();
     }
 
     protected void start(ServerLevel param0, Villager param1, long param2) {

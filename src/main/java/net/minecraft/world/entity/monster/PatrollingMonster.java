@@ -181,7 +181,7 @@ public abstract class PatrollingMonster extends Monster {
                 List<PatrollingMonster> var2 = this.findPatrolCompanions();
                 if (this.mob.isPatrolling() && var2.isEmpty()) {
                     this.mob.setPatrolling(false);
-                } else if (var0 && this.mob.getPatrolTarget().closerThan(this.mob.position(), 10.0)) {
+                } else if (var0 && this.mob.getPatrolTarget().closerToCenterThan(this.mob.position(), 10.0)) {
                     this.mob.findPatrolTarget();
                 } else {
                     Vec3 var3 = Vec3.atBottomCenterOf(this.mob.getPatrolTarget());

@@ -275,7 +275,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
             if (var7.is(Blocks.END_STONE)
                 && !param0.getBlockState(var8).isCollisionShapeFullBlock(param0, var8)
                 && !param0.getBlockState(var9).isCollisionShapeFullBlock(param0, var9)) {
-                double var10 = var6.distSqr(0.0, 0.0, 0.0, true);
+                double var10 = var6.distToCenterSqr(0.0, 0.0, 0.0);
                 if (var4 == null || var10 < var5) {
                     var4 = var6;
                     var5 = var10;

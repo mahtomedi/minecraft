@@ -100,7 +100,7 @@ public class HarvestFarmland extends Behavior<Villager> {
     }
 
     protected void tick(ServerLevel param0, Villager param1, long param2) {
-        if (this.aboveFarmlandPos == null || this.aboveFarmlandPos.closerThan(param1.position(), 1.0)) {
+        if (this.aboveFarmlandPos == null || this.aboveFarmlandPos.closerToCenterThan(param1.position(), 1.0)) {
             if (this.aboveFarmlandPos != null && param2 > this.nextOkStartTime) {
                 BlockState var0 = param0.getBlockState(this.aboveFarmlandPos);
                 Block var1 = var0.getBlock();

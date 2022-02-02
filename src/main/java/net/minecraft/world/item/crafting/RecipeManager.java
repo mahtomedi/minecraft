@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -71,7 +70,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     }
 
     public <C extends Container, T extends Recipe<C>> Optional<T> getRecipeFor(RecipeType<T> param0, C param1, Level param2) {
-        return this.byType(param0).values().stream().flatMap(param3 -> Util.toStream(param0.tryMatch(param3, param2, param1))).findFirst();
+        return this.byType(param0).values().stream().flatMap(param3 -> param0.tryMatch(param3, param2, param1).stream()).findFirst();
     }
 
     public <C extends Container, T extends Recipe<C>> List<T> getAllRecipesFor(RecipeType<T> param0) {
@@ -82,7 +81,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
         return this.byType(param0)
             .values()
             .stream()
-            .flatMap(param3 -> Util.toStream(param0.tryMatch(param3, param2, param1)))
+            .flatMap(param3 -> param0.tryMatch(param3, param2, param1).stream())
             .sorted(Comparator.comparing(param0x -> param0x.getResultItem().getDescriptionId()))
             .collect(Collectors.toList());
     }

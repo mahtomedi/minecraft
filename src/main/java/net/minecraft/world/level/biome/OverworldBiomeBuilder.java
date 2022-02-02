@@ -704,7 +704,7 @@ public final class OverworldBiomeBuilder {
 
     private ResourceKey<Biome> pickBadlandsBiome(int param0, Climate.Parameter param1) {
         if (param0 < 2) {
-            return param1.max() < 0L ? Biomes.BADLANDS : Biomes.ERODED_BADLANDS;
+            return param1.max() < 0L ? Biomes.ERODED_BADLANDS : Biomes.BADLANDS;
         } else {
             return param0 < 3 ? Biomes.BADLANDS : Biomes.WOODED_BADLANDS;
         }

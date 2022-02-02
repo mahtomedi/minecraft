@@ -209,7 +209,8 @@ public final class NaturalSpawner {
     private static boolean isRightDistanceToPlayerAndSpawnPoint(ServerLevel param0, ChunkAccess param1, BlockPos.MutableBlockPos param2, double param3) {
         if (param3 <= 576.0) {
             return false;
-        } else if (param0.getSharedSpawnPos().closerThan(new Vec3((double)param2.getX() + 0.5, (double)param2.getY(), (double)param2.getZ() + 0.5), 24.0)) {
+        } else if (param0.getSharedSpawnPos()
+            .closerToCenterThan(new Vec3((double)param2.getX() + 0.5, (double)param2.getY(), (double)param2.getZ() + 0.5), 24.0)) {
             return false;
         } else {
             return Objects.equals(new ChunkPos(param2), param1.getPos()) || param0.isNaturalSpawningAllowed(param2);

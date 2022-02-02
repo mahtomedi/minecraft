@@ -63,7 +63,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         DripstoneClusterConfiguration param9
     ) {
         Optional<Column> var0 = Column.scan(
-            param0, param2, param9.floorToCeilingSearchRange, DripstoneUtils::isEmptyOrWater, DripstoneUtils::isDripstoneBaseOrLava
+            param0, param2, param9.floorToCeilingSearchRange, DripstoneUtils::isEmptyOrWater, DripstoneUtils::isNeitherEmptyNorWater
         );
         if (var0.isPresent()) {
             OptionalInt var1 = var0.get().getCeiling();
