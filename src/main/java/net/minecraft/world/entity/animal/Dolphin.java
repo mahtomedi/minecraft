@@ -367,7 +367,7 @@ public class Dolphin extends WaterAnimal {
 
     protected boolean closeToNextPos() {
         BlockPos var0 = this.getNavigation().getTargetPos();
-        return var0 != null ? var0.closerThan(this.position(), 12.0) : false;
+        return var0 != null ? var0.closerToCenterThan(this.position(), 12.0) : false;
     }
 
     @Override
@@ -412,7 +412,7 @@ public class Dolphin extends WaterAnimal {
         @Override
         public boolean canContinueToUse() {
             BlockPos var0 = this.dolphin.getTreasurePos();
-            return !new BlockPos((double)var0.getX(), this.dolphin.getY(), (double)var0.getZ()).closerThan(this.dolphin.position(), 4.0)
+            return !new BlockPos((double)var0.getX(), this.dolphin.getY(), (double)var0.getZ()).closerToCenterThan(this.dolphin.position(), 4.0)
                 && !this.stuck
                 && this.dolphin.getAirSupply() >= 100;
         }
@@ -446,7 +446,7 @@ public class Dolphin extends WaterAnimal {
         @Override
         public void stop() {
             BlockPos var0 = this.dolphin.getTreasurePos();
-            if (new BlockPos((double)var0.getX(), this.dolphin.getY(), (double)var0.getZ()).closerThan(this.dolphin.position(), 4.0) || this.stuck) {
+            if (new BlockPos((double)var0.getX(), this.dolphin.getY(), (double)var0.getZ()).closerToCenterThan(this.dolphin.position(), 4.0) || this.stuck) {
                 this.dolphin.setGotFish(false);
             }
 

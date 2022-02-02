@@ -29,7 +29,7 @@ public class StrollToPoi extends Behavior<PathfinderMob> {
         Optional<GlobalPos> var0 = param1.getBrain().getMemory(this.memoryType);
         return var0.isPresent()
             && param0.dimension() == var0.get().dimension()
-            && var0.get().pos().closerThan(param1.position(), (double)this.maxDistanceFromPoi);
+            && var0.get().pos().closerToCenterThan(param1.position(), (double)this.maxDistanceFromPoi);
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {

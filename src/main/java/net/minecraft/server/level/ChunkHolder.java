@@ -1,8 +1,10 @@
 package net.minecraft.server.level;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
@@ -257,6 +259,10 @@ public class ChunkHolder {
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1 = this.futures.get(var0);
         if (var1 != null) {
             Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2 = var1.getNow(null);
+            if (var2 == null && var1.isDone()) {
+                throw new IllegalStateException("future for status: " + param0 + " was incorrectly set to null at chunk: " + this.pos);
+            }
+
             boolean var3 = var2 != null && var2.right().isPresent();
             if (!var3) {
                 return var1;
@@ -424,13 +430,23 @@ public class ChunkHolder {
             CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1 = this.futures.get(var0);
             if (var1 != null) {
                 Optional<ChunkAccess> var2 = var1.getNow(UNLOADED_CHUNK).left();
-                if (var2.isPresent() && var2.get() instanceof ProtoChunk) {
+                if (!var2.isEmpty() && var2.get() instanceof ProtoChunk) {
                     this.futures.set(var0, CompletableFuture.completedFuture(Either.left(param0)));
                 }
             }
         }
 
         this.updateChunkToSave(CompletableFuture.completedFuture(Either.left(param0.getWrapped())), "replaceProto");
+    }
+
+    public List<Pair<ChunkStatus, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>>> getAllFutures() {
+        List<Pair<ChunkStatus, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>>> var0 = new ArrayList<>();
+
+        for(int var1 = 0; var1 < CHUNK_STATUSES.size(); ++var1) {
+            var0.add(Pair.of(CHUNK_STATUSES.get(var1), this.futures.get(var1)));
+        }
+
+        return var0;
     }
 
     public interface ChunkLoadingFailure {

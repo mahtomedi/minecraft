@@ -472,8 +472,8 @@ public class ChunkStatus {
         ) {
             if (param9 || !param8.getStatus().isOrAfter(param0)) {
                 this.doWork(param0, param2, param3, param7, param8);
-                if (param8 instanceof ProtoChunk) {
-                    ((ProtoChunk)param8).setStatus(param0);
+                if (param8 instanceof ProtoChunk var0) {
+                    var0.setStatus(param0);
                 }
             }
 

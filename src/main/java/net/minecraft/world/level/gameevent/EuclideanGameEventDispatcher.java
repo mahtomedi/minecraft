@@ -54,7 +54,7 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
         if (!var0.isPresent()) {
             return false;
         } else {
-            double var1 = var0.get().distSqr(param3, false);
+            double var1 = var0.get().distSqr(param3);
             int var2 = param4.getListenerRadius() * param4.getListenerRadius();
             return var1 <= (double)var2 && param4.handleGameEvent(param0, param1, param2, param3);
         }

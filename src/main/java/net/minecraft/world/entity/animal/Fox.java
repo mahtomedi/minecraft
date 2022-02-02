@@ -1115,8 +1115,8 @@ public class Fox extends Animal {
         }
 
         @Override
-        public boolean canUse() {
-            return !Fox.this.isDefending() && super.canUse();
+        public boolean shouldPanic() {
+            return !Fox.this.isDefending() && super.shouldPanic();
         }
     }
 

@@ -16,6 +16,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2LongMap;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -37,6 +39,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -97,6 +100,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int CHUNK_SAVED_PER_TICK = 200;
     private static final int CHUNK_SAVED_EAGERLY_PER_TICK = 20;
+    private static final int EAGER_CHUNK_SAVE_COOLDOWN_IN_MILLIS = 10000;
     private static final int MIN_VIEW_DISTANCE = 3;
     public static final int MAX_VIEW_DISTANCE = 33;
     public static final int MAX_CHUNK_DISTANCE = 33 + ChunkStatus.maxDistance();
@@ -125,6 +129,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final PlayerMap playerMap = new PlayerMap();
     private final Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
     private final Long2ByteMap chunkTypeCache = new Long2ByteOpenHashMap();
+    private final Long2LongMap chunkSaveCooldowns = new Long2LongOpenHashMap();
     private final Queue<Runnable> unloadQueue = Queues.newConcurrentLinkedQueue();
     int viewDistance;
 
@@ -291,6 +296,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             int var1x = 0;
 
             for(final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2x : param3) {
+                if (var2x == null) {
+                    this.debugFuturesAndThrow(new IllegalStateException("At least one of the chunk futures were null"));
+                }
+
                 Optional<ChunkAccess> var3x = var2x.left();
                 if (!var3x.isPresent()) {
                     final int var4x = var1x;
@@ -314,6 +323,26 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         }
 
         return var13;
+    }
+
+    public void debugFuturesAndThrow(IllegalStateException param0) {
+        StringBuilder var0 = new StringBuilder();
+        Consumer<ChunkHolder> var1 = param1 -> param1.getAllFutures().forEach(param2 -> {
+                ChunkStatus var0x = param2.getFirst();
+                CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1x = param2.getSecond();
+                if (var1x != null && var1x.isDone() && var1x.join() == null) {
+                    var0.append(param1.getPos()).append(" - status: ").append(var0x).append(" future: ").append(var1x).append(System.lineSeparator());
+                }
+
+            });
+        var0.append("Updating:").append(System.lineSeparator());
+        this.updatingChunkMap.values().forEach(var1);
+        var0.append("Visible:").append(System.lineSeparator());
+        this.visibleChunkMap.values().forEach(var1);
+        CrashReport var2 = CrashReport.forThrowable(param0, "Chunk loading");
+        CrashReportCategory var3 = var2.addCategory("Chunk loading");
+        var3.setDetail("Futures", var0);
+        throw new ReportedException(var2);
     }
 
     public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkPos param0) {
@@ -476,6 +505,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     this.lightEngine.updateChunkStatus(param3.getPos());
                     this.lightEngine.tryScheduleUpdate();
                     this.progressListener.onStatusChange(param3.getPos(), null);
+                    this.chunkSaveCooldowns.remove(param3.getPos().toLong());
                 }
 
             }
@@ -702,9 +732,20 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             if (!(var0x instanceof ImposterProtoChunk) && !(var0x instanceof LevelChunk)) {
                 return false;
             } else {
-                boolean var1x = this.save(var0x);
-                param0x.refreshAccessibility();
-                return var1x;
+                long var1x = var0x.getPos().toLong();
+                long var2 = this.chunkSaveCooldowns.getOrDefault(var1x, -1L);
+                long var3 = System.currentTimeMillis();
+                if (var3 < var2) {
+                    return false;
+                } else {
+                    boolean var4 = this.save(var0x);
+                    param0x.refreshAccessibility();
+                    if (var4) {
+                        this.chunkSaveCooldowns.put(var1x, var3 + 10000L);
+                    }
+
+                    return var4;
+                }
             }
         }
     }

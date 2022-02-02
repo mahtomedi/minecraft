@@ -203,31 +203,33 @@ public class Vec3i implements Comparable<Vec3i> {
     }
 
     public boolean closerThan(Vec3i param0, double param1) {
-        return this.distSqr((double)param0.getX(), (double)param0.getY(), (double)param0.getZ(), false) < param1 * param1;
+        return this.distSqr(param0) < Mth.square(param1);
     }
 
-    public boolean closerThan(Position param0, double param1) {
-        return this.distSqr(param0.x(), param0.y(), param0.z(), true) < param1 * param1;
+    public boolean closerToCenterThan(Position param0, double param1) {
+        return this.distToCenterSqr(param0) < Mth.square(param1);
     }
 
     public double distSqr(Vec3i param0) {
-        return this.distSqr((double)param0.getX(), (double)param0.getY(), (double)param0.getZ(), true);
+        return this.distToLowCornerSqr((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
     }
 
-    public double distSqr(Position param0, boolean param1) {
-        return this.distSqr(param0.x(), param0.y(), param0.z(), param1);
+    public double distToCenterSqr(Position param0) {
+        return this.distToCenterSqr(param0.x(), param0.y(), param0.z());
     }
 
-    public double distSqr(Vec3i param0, boolean param1) {
-        return this.distSqr((double)param0.x, (double)param0.y, (double)param0.z, param1);
+    public double distToCenterSqr(double param0, double param1, double param2) {
+        double var0 = (double)this.getX() + 0.5 - param0;
+        double var1 = (double)this.getY() + 0.5 - param1;
+        double var2 = (double)this.getZ() + 0.5 - param2;
+        return var0 * var0 + var1 * var1 + var2 * var2;
     }
 
-    public double distSqr(double param0, double param1, double param2, boolean param3) {
-        double var0 = param3 ? 0.5 : 0.0;
-        double var1 = (double)this.getX() + var0 - param0;
-        double var2 = (double)this.getY() + var0 - param1;
-        double var3 = (double)this.getZ() + var0 - param2;
-        return var1 * var1 + var2 * var2 + var3 * var3;
+    public double distToLowCornerSqr(double param0, double param1, double param2) {
+        double var0 = (double)this.getX() - param0;
+        double var1 = (double)this.getY() - param1;
+        double var2 = (double)this.getZ() - param2;
+        return var0 * var0 + var1 * var1 + var2 * var2;
     }
 
     public int distManhattan(Vec3i param0) {

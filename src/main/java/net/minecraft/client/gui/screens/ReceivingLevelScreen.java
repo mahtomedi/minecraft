@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,15 +34,19 @@ public class ReceivingLevelScreen extends Screen {
 
     @Override
     public void tick() {
-        if ((this.oneTickSkipped || System.currentTimeMillis() > this.createdAt + 2000L)
-            && this.minecraft.levelRenderer.isChunkCompiled(this.minecraft.player.blockPosition())) {
-            this.onClose();
-        }
+        boolean var0 = this.oneTickSkipped || System.currentTimeMillis() > this.createdAt + 2000L;
+        if (var0 && this.minecraft != null && this.minecraft.player != null) {
+            BlockPos var1 = this.minecraft.player.blockPosition();
+            boolean var2 = this.minecraft.level != null && this.minecraft.level.isOutsideBuildHeight(var1.getY());
+            if (var2 || this.minecraft.levelRenderer.isChunkCompiled(var1)) {
+                this.onClose();
+            }
 
-        if (this.loadingPacketsReceived) {
-            this.oneTickSkipped = true;
-        }
+            if (this.loadingPacketsReceived) {
+                this.oneTickSkipped = true;
+            }
 
+        }
     }
 
     public void loadingPacketsReceived() {

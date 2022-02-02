@@ -478,6 +478,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             if (var4 == BlockPathTypes.STICKY_HONEY) {
                 var3 = BlockPathTypes.STICKY_HONEY;
             }
+
+            if (var4 == BlockPathTypes.POWDER_SNOW) {
+                var3 = BlockPathTypes.POWDER_SNOW;
+            }
         }
 
         if (var3 == BlockPathTypes.WALKABLE) {

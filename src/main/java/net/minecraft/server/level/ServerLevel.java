@@ -1078,7 +1078,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
             return false;
         } else {
             BlockPos var0 = param0.blockPosition();
-            if (var0.closerThan(new Vec3(param2, param3, param4), param1 ? 512.0 : 32.0)) {
+            if (var0.closerToCenterThan(new Vec3(param2, param3, param4), param1 ? 512.0 : 32.0)) {
                 param0.connection.send(param5);
                 return true;
             } else {

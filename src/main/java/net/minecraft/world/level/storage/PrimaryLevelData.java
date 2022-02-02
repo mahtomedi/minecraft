@@ -212,7 +212,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             param0.get("WanderingTraderId").read(SerializableUUID.CODEC).result().orElse(null),
             param0.get("ServerBrands")
                 .asStream()
-                .flatMap(param0x -> Util.toStream(param0x.asString().result()))
+                .flatMap(param0x -> param0x.asString().result().stream())
                 .collect(Collectors.toCollection(Sets::newLinkedHashSet)),
             new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS, param0.get("ScheduledEvents").asStream()),
             (CompoundTag)param0.get("CustomBossEvents").orElseEmptyMap().getValue(),

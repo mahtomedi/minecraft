@@ -39,7 +39,7 @@ public class StrollToPoiList extends Behavior<Villager> {
                 this.targetPos = var2.get(param0.getRandom().nextInt(var2.size()));
                 return this.targetPos != null
                     && param0.dimension() == this.targetPos.dimension()
-                    && var1.get().pos().closerThan(param1.position(), (double)this.maxDistanceFromPoi);
+                    && var1.get().pos().closerToCenterThan(param1.position(), (double)this.maxDistanceFromPoi);
             }
         }
 

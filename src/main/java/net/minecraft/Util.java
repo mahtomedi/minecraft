@@ -382,10 +382,6 @@ public class Util {
         return CompletableFuture.allOf(var1).applyToEither(var2, param1 -> var0);
     }
 
-    public static <T> Stream<T> toStream(Optional<? extends T> param0) {
-        return DataFixUtils.orElseGet(param0.map(Stream::of), Stream::empty);
-    }
-
     public static <T> Optional<T> ifElse(Optional<T> param0, Consumer<T> param1, Runnable param2) {
         if (param0.isPresent()) {
             param1.accept(param0.get());

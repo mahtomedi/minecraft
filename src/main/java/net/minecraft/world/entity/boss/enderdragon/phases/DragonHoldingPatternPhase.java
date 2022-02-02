@@ -64,7 +64,7 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
             double var2 = 64.0;
             Player var3 = this.dragon.level.getNearestPlayer(NEW_TARGET_TARGETING, this.dragon, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ());
             if (var3 != null) {
-                var2 = var0.distSqr(var3.position(), true) / 512.0;
+                var2 = var0.distToCenterSqr(var3.position()) / 512.0;
             }
 
             if (var3 != null && (this.dragon.getRandom().nextInt(Mth.abs((int)var2) + 2) == 0 || this.dragon.getRandom().nextInt(var1 + 2) == 0)) {
