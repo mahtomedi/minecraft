@@ -5,17 +5,17 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.TagNetworkSerialization;
 
 public class ClientboundUpdateTagsPacket implements Packet<ClientGamePacketListener> {
-    private final Map<ResourceKey<? extends Registry<?>>, TagCollection.NetworkPayload> tags;
+    private final Map<ResourceKey<? extends Registry<?>>, TagNetworkSerialization.NetworkPayload> tags;
 
-    public ClientboundUpdateTagsPacket(Map<ResourceKey<? extends Registry<?>>, TagCollection.NetworkPayload> param0) {
+    public ClientboundUpdateTagsPacket(Map<ResourceKey<? extends Registry<?>>, TagNetworkSerialization.NetworkPayload> param0) {
         this.tags = param0;
     }
 
     public ClientboundUpdateTagsPacket(FriendlyByteBuf param0) {
-        this.tags = param0.readMap(param0x -> ResourceKey.createRegistryKey(param0x.readResourceLocation()), TagCollection.NetworkPayload::read);
+        this.tags = param0.readMap(param0x -> ResourceKey.createRegistryKey(param0x.readResourceLocation()), TagNetworkSerialization.NetworkPayload::read);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ClientboundUpdateTagsPacket implements Packet<ClientGamePacketListe
         param0.handleUpdateTags(this);
     }
 
-    public Map<ResourceKey<? extends Registry<?>>, TagCollection.NetworkPayload> getTags() {
+    public Map<ResourceKey<? extends Registry<?>>, TagNetworkSerialization.NetworkPayload> getTags() {
         return this.tags;
     }
 }

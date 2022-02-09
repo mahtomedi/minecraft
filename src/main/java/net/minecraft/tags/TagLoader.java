@@ -104,7 +104,7 @@ public class TagLoader<T> {
 
     }
 
-    public TagCollection<T> build(Map<ResourceLocation, Tag.Builder> param0) {
+    public Map<ResourceLocation, Tag<T>> build(Map<ResourceLocation, Tag.Builder> param0) {
         Map<ResourceLocation, Tag<T>> var0 = Maps.newHashMap();
         Function<ResourceLocation, Tag<T>> var1 = var0::get;
         Function<ResourceLocation, T> var2 = param0x -> this.idToValue.apply(param0x).orElse((T)null);
@@ -130,10 +130,10 @@ public class TagLoader<T> {
                                 .ifRight(param2x -> var0.put(param3x, param2x))
                     )
             );
-        return TagCollection.of(var0);
+        return var0;
     }
 
-    public TagCollection<T> loadAndBuild(ResourceManager param0) {
+    public Map<ResourceLocation, Tag<T>> loadAndBuild(ResourceManager param0) {
         return this.build(this.load(param0));
     }
 }

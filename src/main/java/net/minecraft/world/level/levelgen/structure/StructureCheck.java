@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -48,6 +49,7 @@ public class StructureCheck {
     private final ChunkScanAccess storageAccess;
     private final RegistryAccess registryAccess;
     private final Registry<Biome> biomes;
+    private final Registry<ConfiguredStructureFeature<?, ?>> structureConfigs;
     private final StructureManager structureManager;
     private final ResourceKey<Level> dimension;
     private final ChunkGenerator chunkGenerator;
@@ -79,6 +81,7 @@ public class StructureCheck {
         this.seed = param7;
         this.fixerUpper = param8;
         this.biomes = param1.ownedRegistryOrThrow(Registry.BIOME_REGISTRY);
+        this.structureConfigs = param1.ownedRegistryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
     }
 
     public <F extends StructureFeature<?>> StructureCheckResult checkStart(ChunkPos param0, F param1, boolean param2) {
@@ -92,10 +95,11 @@ public class StructureCheck {
                 return var2;
             } else {
                 boolean var3 = this.featureChecks.computeIfAbsent(param1, param0x -> new Long2BooleanOpenHashMap()).computeIfAbsent(var0, param2x -> {
-                    Multimap<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> var0x = this.chunkGenerator.getSettings().structures(param1);
+                    Multimap<ResourceKey<ConfiguredStructureFeature<?, ?>>, ResourceKey<Biome>> var0x = this.chunkGenerator.getSettings().structures(param1);
 
-                    for(Entry<ConfiguredStructureFeature<?, ?>, Collection<ResourceKey<Biome>>> var1x : var0x.asMap().entrySet()) {
-                        if (this.canCreateStructure(param0, var1x.getKey(), var1x.getValue())) {
+                    for(Entry<ResourceKey<ConfiguredStructureFeature<?, ?>>, Collection<ResourceKey<Biome>>> var1x : var0x.asMap().entrySet()) {
+                        Optional<ConfiguredStructureFeature<?, ?>> var2x = this.structureConfigs.getOptional(var1x.getKey());
+                        if (var2x.isPresent() && this.canCreateStructure(param0, var2x.get(), var1x.getValue())) {
                             return true;
                         }
                     }
@@ -110,10 +114,18 @@ public class StructureCheck {
     private <FC extends FeatureConfiguration, F extends StructureFeature<FC>> boolean canCreateStructure(
         ChunkPos param0, ConfiguredStructureFeature<FC, F> param1, Collection<ResourceKey<Biome>> param2
     ) {
-        Predicate<Biome> var0 = param1x -> this.biomes.getResourceKey(param1x).filter(param2::contains).isPresent();
+        Predicate<ResourceKey<Biome>> var0 = param2::contains;
         return param1.feature
             .canGenerate(
-                this.registryAccess, this.chunkGenerator, this.biomeSource, this.structureManager, this.seed, param0, param1.config, this.heightAccessor, var0
+                this.registryAccess,
+                this.chunkGenerator,
+                this.biomeSource,
+                this.structureManager,
+                this.seed,
+                param0,
+                param1.config,
+                this.heightAccessor,
+                param1x -> param1x.is(var0)
             );
     }
 

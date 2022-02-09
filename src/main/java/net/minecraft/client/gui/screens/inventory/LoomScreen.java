@@ -236,9 +236,9 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     public boolean mouseScrolled(double param0, double param1, double param2) {
         if (this.displayPatterns) {
             int var0 = TOTAL_PATTERN_ROWS - 4;
-            this.scrollOffs = (float)((double)this.scrollOffs - param2 / (double)var0);
-            this.scrollOffs = Mth.clamp(this.scrollOffs, 0.0F, 1.0F);
-            this.startIndex = 1 + (int)((double)(this.scrollOffs * (float)var0) + 0.5) * 4;
+            float var1 = (float)param2 / (float)var0;
+            this.scrollOffs = Mth.clamp(this.scrollOffs - var1, 0.0F, 1.0F);
+            this.startIndex = 1 + (int)(this.scrollOffs * (float)var0 + 0.5F) * 4;
         }
 
         return true;

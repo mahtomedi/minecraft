@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.locale.Language;
@@ -26,13 +27,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CreateBuffetWorldScreen extends Screen {
     private static final Component BIOME_SELECT_INFO = new TranslatableComponent("createWorld.customize.buffet.biome");
     private final Screen parent;
-    private final Consumer<Biome> applySettings;
+    private final Consumer<Holder<Biome>> applySettings;
     final Registry<Biome> biomes;
     private CreateBuffetWorldScreen.BiomeList list;
-    Biome biome;
+    Holder<Biome> biome;
     private Button doneButton;
 
-    public CreateBuffetWorldScreen(Screen param0, RegistryAccess param1, Consumer<Biome> param2, Biome param3) {
+    public CreateBuffetWorldScreen(Screen param0, RegistryAccess param1, Consumer<Holder<Biome>> param2, Holder<Biome> param3) {
         super(new TranslatableComponent("createWorld.customize.buffet.title"));
         this.parent = param0;
         this.applySettings = param2;
@@ -86,9 +87,8 @@ public class CreateBuffetWorldScreen extends Screen {
             );
             Collator param0 = Collator.getInstance(Locale.getDefault());
             CreateBuffetWorldScreen.this.biomes
-                .entrySet()
-                .stream()
-                .map(param0x -> new CreateBuffetWorldScreen.BiomeList.Entry(param0x.getValue()))
+                .holders()
+                .map(param0x -> new CreateBuffetWorldScreen.BiomeList.Entry(param0x))
                 .sorted(Comparator.comparing(param0x -> param0x.name.getString(), param0))
                 .forEach(param1 -> this.addEntry(param1));
         }
@@ -109,12 +109,12 @@ public class CreateBuffetWorldScreen extends Screen {
 
         @OnlyIn(Dist.CLIENT)
         class Entry extends ObjectSelectionList.Entry<CreateBuffetWorldScreen.BiomeList.Entry> {
-            final Biome biome;
+            final Holder.Reference<Biome> biome;
             final Component name;
 
-            public Entry(Biome param0) {
+            public Entry(Holder.Reference<Biome> param0) {
                 this.biome = param0;
-                ResourceLocation param1 = CreateBuffetWorldScreen.this.biomes.getKey(param0);
+                ResourceLocation param1 = param0.key().location();
                 String var0 = "biome." + param1.getNamespace() + "." + param1.getPath();
                 if (Language.getInstance().has(var0)) {
                     this.name = new TranslatableComponent(var0);

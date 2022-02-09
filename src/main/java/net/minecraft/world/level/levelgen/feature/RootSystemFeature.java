@@ -5,11 +5,8 @@ import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.RootSystemConfiguration;
@@ -72,7 +69,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
                     return false;
                 }
 
-                if (param2.treeFeature.get().place(param0, param1, param3, param4)) {
+                if (param2.treeFeature.value().place(param0, param1, param3, param4)) {
                     placeDirt(param5, param5.getY() + var0, param0, param2, param3);
                     return true;
                 }
@@ -97,12 +94,11 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
         WorldGenLevel param0, RootSystemConfiguration param1, Random param2, int param3, int param4, BlockPos.MutableBlockPos param5
     ) {
         int var0 = param1.rootRadius;
-        Tag<Block> var1 = BlockTags.getAllTags().getTag(param1.rootReplaceable);
-        Predicate<BlockState> var2 = var1 == null ? param0x -> true : param1x -> param1x.is(var1);
+        Predicate<BlockState> var1 = param1x -> param1x.is(param1.rootReplaceable);
 
-        for(int var3 = 0; var3 < param1.rootPlacementAttempts; ++var3) {
+        for(int var2 = 0; var2 < param1.rootPlacementAttempts; ++var2) {
             param5.setWithOffset(param5, param2.nextInt(var0) - param2.nextInt(var0), 0, param2.nextInt(var0) - param2.nextInt(var0));
-            if (var2.test(param0.getBlockState(param5))) {
+            if (var1.test(param0.getBlockState(param5))) {
                 param0.setBlock(param5, param1.rootStateProvider.getState(param2, param5), 2);
             }
 

@@ -1,11 +1,11 @@
 package net.minecraft.world.level.chunk;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,10 +28,11 @@ import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
-import net.minecraft.data.worldgen.StructureFeatures;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -40,6 +41,7 @@ import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -60,11 +62,13 @@ import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.StrongholdConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureCheckResult;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
@@ -72,8 +76,8 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
     protected final BiomeSource biomeSource;
     protected final BiomeSource runtimeBiomeSource;
     private final StructureSettings settings;
-    private final long strongholdSeed;
-    private final List<ChunkPos> strongholdPositions = Lists.newArrayList();
+    private final Map<ConcentricRingsStructurePlacement, ArrayList<ChunkPos>> ringPositions;
+    private final long seed;
 
     public ChunkGenerator(BiomeSource param0, StructureSettings param1) {
         this(param0, param0, param1, 0L);
@@ -83,72 +87,72 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         this.biomeSource = param0;
         this.runtimeBiomeSource = param1;
         this.settings = param2;
-        this.strongholdSeed = param3;
-    }
+        this.seed = param3;
+        this.ringPositions = new Object2ObjectArrayMap<>();
 
-    private void generateStrongholds() {
-        if (this.strongholdPositions.isEmpty()) {
-            StrongholdConfiguration var0 = this.settings.stronghold();
-            if (var0 != null && var0.count() != 0) {
-                List<Biome> var1 = Lists.newArrayList();
-
-                for(Biome var2 : this.biomeSource.possibleBiomes()) {
-                    if (validStrongholdBiome(var2)) {
-                        var1.add(var2);
-                    }
-                }
-
-                int var3 = var0.distance();
-                int var4 = var0.count();
-                int var5 = var0.spread();
-                Random var6 = new Random();
-                var6.setSeed(this.strongholdSeed);
-                double var7 = var6.nextDouble() * Math.PI * 2.0;
-                int var8 = 0;
-                int var9 = 0;
-
-                for(int var10 = 0; var10 < var4; ++var10) {
-                    double var11 = (double)(4 * var3 + var3 * var9 * 6) + (var6.nextDouble() - 0.5) * (double)var3 * 2.5;
-                    int var12 = (int)Math.round(Math.cos(var7) * var11);
-                    int var13 = (int)Math.round(Math.sin(var7) * var11);
-                    BlockPos var14 = this.biomeSource
-                        .findBiomeHorizontal(
-                            SectionPos.sectionToBlockCoord(var12, 8),
-                            0,
-                            SectionPos.sectionToBlockCoord(var13, 8),
-                            112,
-                            var1::contains,
-                            var6,
-                            this.climateSampler()
-                        );
-                    if (var14 != null) {
-                        var12 = SectionPos.blockToSectionCoord(var14.getX());
-                        var13 = SectionPos.blockToSectionCoord(var14.getZ());
-                    }
-
-                    this.strongholdPositions.add(new ChunkPos(var12, var13));
-                    var7 += (Math.PI * 2) / (double)var5;
-                    if (++var8 == var5) {
-                        ++var9;
-                        var8 = 0;
-                        var5 += 2 * var5 / (var9 + 1);
-                        var5 = Math.min(var5, var4 - var10);
-                        var7 += var6.nextDouble() * Math.PI * 2.0;
-                    }
-                }
-
+        for(Entry<StructureFeature<?>, StructurePlacement> var0 : param2.structureConfig().entrySet()) {
+            Object var9 = var0.getValue();
+            if (var9 instanceof ConcentricRingsStructurePlacement var1) {
+                this.ringPositions.put(var1, new ArrayList<>());
             }
         }
+
     }
 
-    private static boolean validStrongholdBiome(Biome param0) {
-        Biome.BiomeCategory var0 = param0.getBiomeCategory();
-        return var0 != Biome.BiomeCategory.OCEAN
-            && var0 != Biome.BiomeCategory.RIVER
-            && var0 != Biome.BiomeCategory.BEACH
-            && var0 != Biome.BiomeCategory.SWAMP
-            && var0 != Biome.BiomeCategory.NETHER
-            && var0 != Biome.BiomeCategory.THEEND;
+    protected void postInit() {
+        for(Entry<StructureFeature<?>, StructurePlacement> var0 : this.settings.structureConfig().entrySet()) {
+            Object var4 = var0.getValue();
+            if (var4 instanceof ConcentricRingsStructurePlacement var1) {
+                this.generateRingPositions(var0.getKey(), var1);
+            }
+        }
+
+    }
+
+    private void generateRingPositions(StructureFeature<?> param0, ConcentricRingsStructurePlacement param1) {
+        if (param1.count() != 0) {
+            Predicate<ResourceKey<Biome>> var0 = this.settings.structures(param0).values().stream().collect(Collectors.toUnmodifiableSet())::contains;
+            List<ChunkPos> var1 = this.getRingPositionsFor(param1);
+            int var2 = param1.distance();
+            int var3 = param1.count();
+            int var4 = param1.spread();
+            Random var5 = new Random();
+            var5.setSeed(this.seed);
+            double var6 = var5.nextDouble() * Math.PI * 2.0;
+            int var7 = 0;
+            int var8 = 0;
+
+            for(int var9 = 0; var9 < var3; ++var9) {
+                double var10 = (double)(4 * var2 + var2 * var8 * 6) + (var5.nextDouble() - 0.5) * (double)var2 * 2.5;
+                int var11 = (int)Math.round(Math.cos(var6) * var10);
+                int var12 = (int)Math.round(Math.sin(var6) * var10);
+                BlockPos var13 = this.biomeSource
+                    .findBiomeHorizontal(
+                        SectionPos.sectionToBlockCoord(var11, 8),
+                        0,
+                        SectionPos.sectionToBlockCoord(var12, 8),
+                        112,
+                        param1x -> param1x.is(var0),
+                        var5,
+                        this.climateSampler()
+                    );
+                if (var13 != null) {
+                    var11 = SectionPos.blockToSectionCoord(var13.getX());
+                    var12 = SectionPos.blockToSectionCoord(var13.getZ());
+                }
+
+                var1.add(new ChunkPos(var11, var12));
+                var6 += (Math.PI * 2) / (double)var4;
+                if (++var7 == var4) {
+                    ++var8;
+                    var7 = 0;
+                    var4 += 2 * var4 / (var8 + 1);
+                    var4 = Math.min(var4, var3 - var9);
+                    var6 += var5.nextDouble() * Math.PI * 2.0;
+                }
+            }
+
+        }
     }
 
     protected abstract Codec<? extends ChunkGenerator> codec();
@@ -171,7 +175,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
     public abstract Climate.Sampler climateSampler();
 
     @Override
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
+    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
         return this.getBiomeSource().getNoiseBiome(param0, param1, param2, this.climateSampler());
     }
 
@@ -181,42 +185,107 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
 
     @Nullable
     public BlockPos findNearestMapFeature(ServerLevel param0, StructureFeature<?> param1, BlockPos param2, int param3, boolean param4) {
-        if (param1 == StructureFeature.STRONGHOLD) {
-            this.generateStrongholds();
-            BlockPos var0 = null;
-            double var1 = Double.MAX_VALUE;
-            BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
-
-            for(ChunkPos var3 : this.strongholdPositions) {
-                var2.set(SectionPos.sectionToBlockCoord(var3.x, 8), 32, SectionPos.sectionToBlockCoord(var3.z, 8));
-                double var4 = var2.distSqr(param2);
-                if (var0 == null) {
-                    var0 = new BlockPos(var2);
-                    var1 = var4;
-                } else if (var4 < var1) {
-                    var0 = new BlockPos(var2);
-                    var1 = var4;
-                }
-            }
-
-            return var0;
-        } else {
-            StructureFeatureConfiguration var5 = this.settings.getConfig(param1);
-            ImmutableMultimap<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> var6 = this.settings.structures(param1);
-            if (var5 != null && !var6.isEmpty()) {
-                Registry<Biome> var7 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-                Set<ResourceKey<Biome>> var8 = this.runtimeBiomeSource
-                    .possibleBiomes()
-                    .stream()
-                    .flatMap(param1x -> var7.getResourceKey(param1x).stream())
-                    .collect(Collectors.toSet());
-                return var6.values().stream().noneMatch(var8::contains)
-                    ? null
-                    : param1.getNearestGeneratedFeature(param0, param0.structureFeatureManager(), param2, param3, param4, param0.getSeed(), var5);
-            } else {
+        StructurePlacement var0 = this.settings.getConfig(param1);
+        Collection<ResourceKey<Biome>> var1 = this.settings.structures(param1).values();
+        if (var0 != null && !var1.isEmpty()) {
+            Set<ResourceKey<Biome>> var2 = this.runtimeBiomeSource
+                .possibleBiomes()
+                .flatMap(param0x -> param0x.unwrapKey().stream())
+                .collect(Collectors.toSet());
+            if (var1.stream().noneMatch(var2::contains)) {
                 return null;
+            } else if (var0 instanceof ConcentricRingsStructurePlacement var3) {
+                return this.getNearestGeneratedStructure(param2, var3);
+            } else if (var0 instanceof RandomSpreadStructurePlacement var4) {
+                return getNearestGeneratedStructure(param1, param0, param0.structureFeatureManager(), param2, param3, param4, param0.getSeed(), var4);
+            } else {
+                throw new IllegalStateException("Invalid structure placement type");
+            }
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private BlockPos getNearestGeneratedStructure(BlockPos param0, ConcentricRingsStructurePlacement param1) {
+        List<ChunkPos> var0 = this.getRingPositionsFor(param1);
+        BlockPos var1 = null;
+        double var2 = Double.MAX_VALUE;
+        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
+
+        for(ChunkPos var4 : var0) {
+            var3.set(SectionPos.sectionToBlockCoord(var4.x, 8), 32, SectionPos.sectionToBlockCoord(var4.z, 8));
+            double var5 = var3.distSqr(param0);
+            if (var1 == null) {
+                var1 = new BlockPos(var3);
+                var2 = var5;
+            } else if (var5 < var2) {
+                var1 = new BlockPos(var3);
+                var2 = var5;
             }
         }
+
+        return var1;
+    }
+
+    @Nullable
+    private static BlockPos getNearestGeneratedStructure(
+        StructureFeature<?> param0,
+        LevelReader param1,
+        StructureFeatureManager param2,
+        BlockPos param3,
+        int param4,
+        boolean param5,
+        long param6,
+        RandomSpreadStructurePlacement param7
+    ) {
+        int var0 = param7.spacing();
+        int var1 = SectionPos.blockToSectionCoord(param3.getX());
+        int var2 = SectionPos.blockToSectionCoord(param3.getZ());
+
+        for(int var3 = 0; var3 <= param4; ++var3) {
+            for(int var4 = -var3; var4 <= var3; ++var4) {
+                boolean var5 = var4 == -var3 || var4 == var3;
+
+                for(int var6 = -var3; var6 <= var3; ++var6) {
+                    boolean var7 = var6 == -var3 || var6 == var3;
+                    if (var5 || var7) {
+                        int var8 = var1 + var0 * var4;
+                        int var9 = var2 + var0 * var6;
+                        ChunkPos var10 = param7.getPotentialFeatureChunk(param6, var8, var9);
+                        StructureCheckResult var11 = param2.checkStructurePresence(var10, param0, param5);
+                        if (var11 != StructureCheckResult.START_NOT_PRESENT) {
+                            if (!param5 && var11 == StructureCheckResult.START_PRESENT) {
+                                return StructureFeature.getLocatePos(param7, var10);
+                            }
+
+                            ChunkAccess var12 = param1.getChunk(var10.x, var10.z, ChunkStatus.STRUCTURE_STARTS);
+                            StructureStart<?> var13 = param2.getStartForFeature(SectionPos.bottomOf(var12), param0, var12);
+                            if (var13 != null && var13.isValid()) {
+                                if (param5 && var13.canBeReferenced()) {
+                                    param2.addReference(var13);
+                                    return StructureFeature.getLocatePos(param7, var13.getChunkPos());
+                                }
+
+                                if (!param5) {
+                                    return StructureFeature.getLocatePos(param7, var13.getChunkPos());
+                                }
+                            }
+
+                            if (var3 == 0) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (var3 == 0) {
+                    break;
+                }
+            }
+        }
+
+        return null;
     }
 
     public void applyBiomeDecoration(WorldGenLevel param0, ChunkAccess param1, StructureFeatureManager param2) {
@@ -232,17 +301,17 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
             long var6 = var5.setDecorationSeed(param0.getSeed(), var2.getX(), var2.getZ());
             Set<Biome> var7 = new ObjectArraySet<>();
             if (this instanceof FlatLevelSource) {
-                var7.addAll(this.biomeSource.possibleBiomes());
+                this.biomeSource.possibleBiomes().map(Holder::value).forEach(var7::add);
             } else {
                 ChunkPos.rangeClosed(var1.chunk(), 1).forEach(param2x -> {
                     ChunkAccess var0x = param0.getChunk(param2x.x, param2x.z);
 
                     for(LevelChunkSection var1x : var0x.getSections()) {
-                        var1x.getBiomes().getAll(var7::add);
+                        var1x.getBiomes().getAll(param1x -> var7.add(param1x.value()));
                     }
 
                 });
-                var7.retainAll(this.biomeSource.possibleBiomes());
+                var7.retainAll(this.biomeSource.possibleBiomes().map(Holder::value).collect(Collectors.toSet()));
             }
 
             int var8 = var4.size();
@@ -277,11 +346,11 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                         IntSet var19 = new IntArraySet();
 
                         for(Biome var20 : var7) {
-                            List<List<Supplier<PlacedFeature>>> var21 = var20.getGenerationSettings().features();
+                            List<HolderSet<PlacedFeature>> var21 = var20.getGenerationSettings().features();
                             if (var12 < var21.size()) {
-                                List<Supplier<PlacedFeature>> var22 = var21.get(var12);
+                                HolderSet<PlacedFeature> var22 = var21.get(var12);
                                 BiomeSource.StepFeatureData var23 = var4.get(var12);
-                                var22.stream().map(Supplier::get).forEach(param2x -> var19.add(var23.indexMapping().applyAsInt(param2x)));
+                                var22.stream().map(Holder::value).forEach(param2x -> var19.add(var23.indexMapping().applyAsInt(param2x)));
                             }
                         }
 
@@ -345,67 +414,41 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
 
     public abstract int getGenDepth();
 
-    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
-        return param0.getMobSettings().getMobs(param2);
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+        return param0.value().getMobSettings().getMobs(param2);
     }
 
     public void createStructures(RegistryAccess param0, StructureFeatureManager param1, ChunkAccess param2, StructureManager param3, long param4) {
         ChunkPos var0 = param2.getPos();
         SectionPos var1 = SectionPos.bottomOf(param2);
-        StructureFeatureConfiguration var2 = this.settings.getConfig(StructureFeature.STRONGHOLD);
-        if (var2 != null) {
-            StructureStart<?> var3 = param1.getStartForFeature(var1, StructureFeature.STRONGHOLD, param2);
-            if (var3 == null || !var3.isValid()) {
-                StructureStart<?> var4 = StructureFeatures.STRONGHOLD
-                    .generate(
-                        param0,
-                        this,
-                        this.biomeSource,
-                        param3,
-                        param4,
-                        var0,
-                        fetchReferences(param1, param2, var1, StructureFeature.STRONGHOLD),
-                        var2,
-                        param2,
-                        ChunkGenerator::validStrongholdBiome
-                    );
-                param1.setStartForFeature(var1, StructureFeature.STRONGHOLD, var4, param2);
-            }
-        }
+        Registry<ConfiguredStructureFeature<?, ?>> var2 = param0.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
 
-        Registry<Biome> var5 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-
-        label48:
-        for(StructureFeature<?> var6 : Registry.STRUCTURE_FEATURE) {
-            if (var6 != StructureFeature.STRONGHOLD) {
-                StructureFeatureConfiguration var7 = this.settings.getConfig(var6);
-                if (var7 != null) {
-                    StructureStart<?> var8 = param1.getStartForFeature(var1, var6, param2);
-                    if (var8 == null || !var8.isValid()) {
-                        int var9 = fetchReferences(param1, param2, var1, var6);
-
-                        for(Entry<ConfiguredStructureFeature<?, ?>, Collection<ResourceKey<Biome>>> var10 : this.settings.structures(var6).asMap().entrySet()) {
-                            StructureStart<?> var11 = var10.getKey()
-                                .generate(
-                                    param0,
-                                    this,
-                                    this.biomeSource,
-                                    param3,
-                                    param4,
-                                    var0,
-                                    var9,
-                                    var7,
-                                    param2,
-                                    param2x -> this.validBiome(var5, var10.getValue()::contains, param2x)
-                                );
-                            if (var11.isValid()) {
-                                param1.setStartForFeature(var1, var6, var11, param2);
-                                continue label48;
+        label45:
+        for(StructureFeature<?> var3 : Registry.STRUCTURE_FEATURE) {
+            StructurePlacement var4 = this.settings.getConfig(var3);
+            if (var4 != null) {
+                StructureStart<?> var5 = param1.getStartForFeature(var1, var3, param2);
+                if (var5 == null || !var5.isValid()) {
+                    int var6 = fetchReferences(param1, param2, var1, var3);
+                    if (var4.isFeatureChunk(this, var0.x, var0.z)) {
+                        for(Entry<ResourceKey<ConfiguredStructureFeature<?, ?>>, Collection<ResourceKey<Biome>>> var7 : this.settings
+                            .structures(var3)
+                            .asMap()
+                            .entrySet()) {
+                            Optional<ConfiguredStructureFeature<?, ?>> var8 = var2.getOptional(var7.getKey());
+                            if (!var8.isEmpty()) {
+                                Predicate<ResourceKey<Biome>> var9 = Set.copyOf(var7.getValue())::contains;
+                                StructureStart<?> var10 = var8.get()
+                                    .generate(param0, this, this.biomeSource, param3, param4, var0, var6, param2, param1x -> this.adjustBiome(param1x).is(var9));
+                                if (var10.isValid()) {
+                                    param1.setStartForFeature(var1, var3, var10, param2);
+                                    continue label45;
+                                }
                             }
                         }
-
-                        param1.setStartForFeature(var1, var6, StructureStart.INVALID_START, param2);
                     }
+
+                    param1.setStartForFeature(var1, var3, StructureStart.INVALID_START, param2);
                 }
             }
         }
@@ -417,8 +460,8 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         return var0 != null ? var0.getReferences() : 0;
     }
 
-    protected boolean validBiome(Registry<Biome> param0, Predicate<ResourceKey<Biome>> param1, Biome param2) {
-        return param0.getResourceKey(param2).filter(param1).isPresent();
+    protected Holder<Biome> adjustBiome(Holder<Biome> param0) {
+        return param0;
     }
 
     public void createReferences(WorldGenLevel param0, StructureFeatureManager param1, ChunkAccess param2) {
@@ -472,9 +515,12 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         return this.getBaseHeight(param0, param1, param2, param3) - 1;
     }
 
-    public boolean hasStronghold(ChunkPos param0) {
-        this.generateStrongholds();
-        return this.strongholdPositions.contains(param0);
+    public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement param0) {
+        return this.ringPositions.get(param0);
+    }
+
+    public long seed() {
+        return this.seed;
     }
 
     static {

@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -59,7 +60,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -68,6 +69,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
@@ -178,10 +180,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
     protected boolean wasTouchingWater;
-    protected Object2DoubleMap<Tag<Fluid>> fluidHeight = new Object2DoubleArrayMap<>(2);
+    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight = new Object2DoubleArrayMap<>(2);
     protected boolean wasEyeInWater;
-    @Nullable
-    protected Tag<Fluid> fluidOnEyes;
+    private final Set<TagKey<Fluid>> fluidOnEyes = new HashSet<>();
     public int invulnerableTime;
     protected boolean firstTick = true;
     protected final SynchedEntityData entityData;
@@ -629,7 +630,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     double var8 = var0.x;
                     double var9 = var0.y;
                     double var10 = var0.z;
-                    this.flyDist = (float)((double)this.flyDist + var0.length() * 0.6);
+                    this.flyDist += (float)(var0.length() * 0.6);
                     if (!var4.is(BlockTags.CLIMBABLE) && !var4.is(Blocks.POWDER_SNOW)) {
                         var9 = 0.0;
                     }
@@ -944,9 +945,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     private void playAmethystStepSound(BlockState param0) {
         if (param0.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20) {
-            this.crystalSoundIntensity = (float)(
-                (double)this.crystalSoundIntensity * Math.pow(0.997F, (double)(this.tickCount - this.lastCrystalSoundPlayTick))
-            );
+            this.crystalSoundIntensity *= (float)Math.pow(0.997, (double)(this.tickCount - this.lastCrystalSoundPlayTick));
             this.crystalSoundIntensity = Math.min(1.0F, this.crystalSoundIntensity + 0.07F);
             float var0 = 0.5F + this.crystalSoundIntensity * this.random.nextFloat() * 1.2F;
             float var1 = 0.1F + this.crystalSoundIntensity * 1.2F;
@@ -1009,7 +1008,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
             this.resetFallDistance();
         } else if (param0 < 0.0) {
-            this.fallDistance = (float)((double)this.fallDistance - param0);
+            this.fallDistance -= (float)param0;
         }
 
     }
@@ -1095,7 +1094,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     private void updateFluidOnEyes() {
         this.wasEyeInWater = this.isEyeInFluid(FluidTags.WATER);
-        this.fluidOnEyes = null;
+        this.fluidOnEyes.clear();
         double var0 = this.getEyeY() - 0.11111111F;
         Entity var1 = this.getVehicle();
         if (var1 instanceof Boat var2 && !var2.isUnderWater() && var2.getBoundingBox().maxY >= var0 && var2.getBoundingBox().minY <= var0) {
@@ -1104,16 +1103,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
         BlockPos var3 = new BlockPos(this.getX(), var0, this.getZ());
         FluidState var4 = this.level.getFluidState(var3);
-
-        for(Tag<Fluid> var5 : FluidTags.getStaticTags()) {
-            if (var4.is(var5)) {
-                double var6 = (double)((float)var3.getY() + var4.getHeight(this.level, var3));
-                if (var6 > var0) {
-                    this.fluidOnEyes = var5;
-                }
-
-                return;
-            }
+        double var5 = (double)((float)var3.getY() + var4.getHeight(this.level, var3));
+        if (var5 > var0) {
+            var4.getTags().forEach(this.fluidOnEyes::add);
         }
 
     }
@@ -1185,8 +1177,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
-    public boolean isEyeInFluid(Tag<Fluid> param0) {
-        return this.fluidOnEyes == param0;
+    public boolean isEyeInFluid(TagKey<Fluid> param0) {
+        return this.fluidOnEyes.contains(param0);
     }
 
     public boolean isInLava() {
@@ -1864,6 +1856,16 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public Vec3 getLookAngle() {
         return this.calculateViewVector(this.getXRot(), this.getYRot());
+    }
+
+    public Vec3 getHandHoldingItemAngle(Item param0) {
+        if (this instanceof Player var0) {
+            boolean var1 = var0.getOffhandItem().is(param0);
+            HumanoidArm var2 = var1 ? var0.getMainArm().getOpposite() : var0.getMainArm();
+            return this.calculateViewVector(0.0F, this.getYRot() + (float)(var2 == HumanoidArm.RIGHT ? 80 : -80)).scale(0.5);
+        } else {
+            return Vec3.ZERO;
+        }
     }
 
     public Vec2 getRotationVector() {
@@ -2650,9 +2652,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public float mirror(Mirror param0) {
         float var0 = Mth.wrapDegrees(this.getYRot());
         switch(param0) {
-            case LEFT_RIGHT:
-                return -var0;
             case FRONT_BACK:
+                return -var0;
+            case LEFT_RIGHT:
                 return 180.0F - var0;
             default:
                 return var0;
@@ -2819,7 +2821,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.yRotO = this.getYRot();
     }
 
-    public boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> param0, double param1) {
+    public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> param0, double param1) {
         if (this.touchingUnloadedChunk()) {
             return false;
         } else {
@@ -2895,7 +2897,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return !this.level.hasChunksAt(var1, var3, var2, var4);
     }
 
-    public double getFluidHeight(Tag<Fluid> param0) {
+    public double getFluidHeight(TagKey<Fluid> param0) {
         return this.fluidHeight.getDouble(param0);
     }
 
@@ -3059,7 +3061,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean canFreeze() {
-        return !EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES.contains(this.getType());
+        return !this.getType().is(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES);
     }
 
     public boolean isFreezing() {

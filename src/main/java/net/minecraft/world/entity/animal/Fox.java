@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -53,6 +54,7 @@ import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal;
 import net.minecraft.world.entity.ai.goal.FleeSunGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
@@ -146,6 +148,7 @@ public class Fox extends Animal {
         this.turtleEggTargetGoal = new NearestAttackableTargetGoal<>(this, Turtle.class, 10, false, false, Turtle.BABY_ON_LAND_SELECTOR);
         this.fishTargetGoal = new NearestAttackableTargetGoal<>(this, AbstractFish.class, 20, false, false, param0 -> param0 instanceof AbstractSchoolingFish);
         this.goalSelector.addGoal(0, new Fox.FoxFloatGoal());
+        this.goalSelector.addGoal(0, new ClimbOnTopOfPowderSnowGoal(this, this.level));
         this.goalSelector.addGoal(1, new Fox.FaceplantGoal());
         this.goalSelector.addGoal(2, new Fox.FoxPanicGoal(2.2));
         this.goalSelector.addGoal(3, new Fox.FoxBreedGoal(1.0));
@@ -307,7 +310,7 @@ public class Fox extends Animal {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        Biome var0 = param0.getBiome(this.blockPosition());
+        Holder<Biome> var0 = param0.getBiome(this.blockPosition());
         Fox.Type var1 = Fox.Type.byBiome(var0);
         boolean var2 = false;
         if (param3 instanceof Fox.FoxGroupData) {
@@ -1526,8 +1529,8 @@ public class Fox extends Animal {
             return BY_ID[param0];
         }
 
-        public static Fox.Type byBiome(Biome param0) {
-            return param0.getPrecipitation() == Biome.Precipitation.SNOW ? SNOW : RED;
+        public static Fox.Type byBiome(Holder<Biome> param0) {
+            return param0.value().getPrecipitation() == Biome.Precipitation.SNOW ? SNOW : RED;
         }
     }
 }

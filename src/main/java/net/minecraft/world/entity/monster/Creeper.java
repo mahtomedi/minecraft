@@ -82,7 +82,7 @@ public class Creeper extends Monster implements PowerableMob {
     @Override
     public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
         boolean var0 = super.causeFallDamage(param0, param1, param2);
-        this.swell = (int)((float)this.swell + param0 * 1.5F);
+        this.swell += (int)(param0 * 1.5F);
         if (this.swell > this.maxSwell - 5) {
             this.swell = this.maxSwell - 5;
         }

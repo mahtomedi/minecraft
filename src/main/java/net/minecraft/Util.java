@@ -348,19 +348,15 @@ public class Util {
         return Util.IdentityStrategy.INSTANCE;
     }
 
-    public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<? extends V>> param0) {
-        return param0.stream()
-            .reduce(CompletableFuture.completedFuture(Lists.newArrayList()), (param0x, param1) -> param1.thenCombine(param0x, (param0xx, param1x) -> {
-                    List<V> var0x = Lists.newArrayListWithCapacity(param1x.size() + 1);
-                    var0x.addAll(param1x);
-                    var0x.add(param0xx);
-                    return var0x;
-                }), (param0x, param1) -> param0x.thenCombine(param1, (param0xx, param1x) -> {
-                    List<V> var0x = Lists.newArrayListWithCapacity(param0xx.size() + param1x.size());
-                    var0x.addAll(param0xx);
-                    var0x.addAll(param1x);
-                    return var0x;
-                }));
+    public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<V>> param0) {
+        if (param0.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        } else if (param0.size() == 1) {
+            return param0.get(0).thenApply(List::of);
+        } else {
+            CompletableFuture<Void> var0 = CompletableFuture.allOf(param0.toArray(new CompletableFuture[0]));
+            return var0.thenApply(param1 -> param0.stream().map(CompletableFuture::join).toList());
+        }
     }
 
     public static <V> CompletableFuture<List<V>> sequenceFailFast(List<? extends CompletableFuture<? extends V>> param0) {
@@ -453,6 +449,10 @@ public class Util {
 
     public static <T> T getRandom(List<T> param0, Random param1) {
         return param0.get(param1.nextInt(param0.size()));
+    }
+
+    public static <T> Optional<T> getRandomSafe(List<T> param0, Random param1) {
+        return param0.isEmpty() ? Optional.empty() : Optional.of(getRandom(param0, param1));
     }
 
     private static BooleanSupplier createRenamer(final Path param0, final Path param1) {

@@ -39,10 +39,10 @@ import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.FrameTimer;
@@ -54,6 +54,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.state.BlockState;
@@ -301,9 +302,7 @@ public class DebugScreenOverlay extends GuiComponent {
 
                 var17.add(var24.toString());
                 if (var6.getY() >= this.minecraft.level.getMinBuildHeight() && var6.getY() < this.minecraft.level.getMaxBuildHeight()) {
-                    var17.add(
-                        "Biome: " + this.minecraft.level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getKey(this.minecraft.level.getBiome(var6))
-                    );
+                    var17.add("Biome: " + printBiome(this.minecraft.level.getBiome(var6)));
                     long var27 = 0L;
                     float var28 = 0.0F;
                     if (var23 != null) {
@@ -358,6 +357,10 @@ public class DebugScreenOverlay extends GuiComponent {
             );
             return var17;
         }
+    }
+
+    private static String printBiome(Holder<Biome> param0) {
+        return param0.unwrap().map(param0x -> param0x.location().toString(), param0x -> "[unregistered " + param0x + "]");
     }
 
     @Nullable
@@ -438,32 +441,28 @@ public class DebugScreenOverlay extends GuiComponent {
                     var4.add(this.getPropertyValueString(var7));
                 }
 
-                for(ResourceLocation var8 : this.minecraft.getConnection().getTags().getOrEmpty(Registry.BLOCK_REGISTRY).getMatchingTags(var6.getBlock())) {
-                    var4.add("#" + var8);
-                }
+                var6.getTags().map(param0 -> "#" + param0.location()).forEach(var4::add);
             }
 
             if (this.liquid.getType() == HitResult.Type.BLOCK) {
-                BlockPos var9 = ((BlockHitResult)this.liquid).getBlockPos();
-                FluidState var10 = this.minecraft.level.getFluidState(var9);
+                BlockPos var8 = ((BlockHitResult)this.liquid).getBlockPos();
+                FluidState var9 = this.minecraft.level.getFluidState(var8);
                 var4.add("");
-                var4.add(ChatFormatting.UNDERLINE + "Targeted Fluid: " + var9.getX() + ", " + var9.getY() + ", " + var9.getZ());
-                var4.add(String.valueOf(Registry.FLUID.getKey(var10.getType())));
+                var4.add(ChatFormatting.UNDERLINE + "Targeted Fluid: " + var8.getX() + ", " + var8.getY() + ", " + var8.getZ());
+                var4.add(String.valueOf(Registry.FLUID.getKey(var9.getType())));
 
-                for(Entry<Property<?>, Comparable<?>> var11 : var10.getValues().entrySet()) {
-                    var4.add(this.getPropertyValueString(var11));
+                for(Entry<Property<?>, Comparable<?>> var10 : var9.getValues().entrySet()) {
+                    var4.add(this.getPropertyValueString(var10));
                 }
 
-                for(ResourceLocation var12 : this.minecraft.getConnection().getTags().getOrEmpty(Registry.FLUID_REGISTRY).getMatchingTags(var10.getType())) {
-                    var4.add("#" + var12);
-                }
+                var9.getTags().map(param0 -> "#" + param0.location()).forEach(var4::add);
             }
 
-            Entity var13 = this.minecraft.crosshairPickEntity;
-            if (var13 != null) {
+            Entity var11 = this.minecraft.crosshairPickEntity;
+            if (var11 != null) {
                 var4.add("");
                 var4.add(ChatFormatting.UNDERLINE + "Targeted Entity");
-                var4.add(String.valueOf(Registry.ENTITY_TYPE.getKey(var13.getType())));
+                var4.add(String.valueOf(Registry.ENTITY_TYPE.getKey(var11.getType())));
             }
 
             return var4;

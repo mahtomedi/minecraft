@@ -4,6 +4,7 @@ import com.google.common.primitives.Doubles;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction8;
+import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
@@ -70,7 +72,7 @@ public class BlendingData {
     private final boolean oldNoise;
     private boolean hasCalculatedData;
     private final double[] heights;
-    private final Biome[] biomes;
+    private final List<Holder<Biome>> biomes;
     private final transient double[][] densities;
     private final transient double[] floorDensities;
     private static final Codec<double[]> DOUBLE_ARRAY_CODEC = Codec.DOUBLE.listOf().xmap(Doubles::toArray, Doubles::asList);
@@ -97,7 +99,9 @@ public class BlendingData {
         this.heights = param1.orElse(Util.make(new double[CELL_COLUMN_COUNT], param0x -> Arrays.fill(param0x, Double.MAX_VALUE)));
         this.densities = new double[CELL_COLUMN_COUNT][];
         this.floorDensities = new double[CELL_HORIZONTAL_FLOOR_COUNT * CELL_HORIZONTAL_FLOOR_COUNT];
-        this.biomes = new Biome[CELL_COLUMN_COUNT];
+        ObjectArrayList<Holder<Biome>> var0 = new ObjectArrayList<>(CELL_COLUMN_COUNT);
+        var0.size(CELL_COLUMN_COUNT);
+        this.biomes = var0;
     }
 
     public boolean oldNoise() {
@@ -185,7 +189,8 @@ public class BlendingData {
         }
 
         this.densities[param0] = getDensityColumn(param1, param2, param3, Mth.floor(this.heights[param0]));
-        this.biomes[param0] = param1.getNoiseBiome(QuartPos.fromBlock(param2), QuartPos.fromBlock(Mth.floor(this.heights[param0])), QuartPos.fromBlock(param3));
+        this.biomes
+            .set(param0, param1.getNoiseBiome(QuartPos.fromBlock(param2), QuartPos.fromBlock(Mth.floor(this.heights[param0])), QuartPos.fromBlock(param3)));
     }
 
     private static int getHeightAtXZ(ChunkAccess param0, int param1, int param2) {
@@ -291,8 +296,8 @@ public class BlendingData {
     }
 
     protected void iterateBiomes(int param0, int param1, BlendingData.BiomeConsumer param2) {
-        for(int var0 = 0; var0 < this.biomes.length; ++var0) {
-            Biome var1 = this.biomes[var0];
+        for(int var0 = 0; var0 < this.biomes.size(); ++var0) {
+            Holder<Biome> var1 = this.biomes.get(var0);
             if (var1 != null) {
                 param2.consume(param0 + getX(var0), param1 + getZ(var0), var1);
             }
@@ -376,7 +381,7 @@ public class BlendingData {
     }
 
     protected interface BiomeConsumer {
-        void consume(int var1, int var2, Biome var3);
+        void consume(int var1, int var2, Holder<Biome> var3);
     }
 
     protected interface DensityConsumer {

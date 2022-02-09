@@ -732,7 +732,7 @@ public class ServerPlayer extends Player {
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        param0.dimensionType(),
+                        param0.dimensionTypeRegistration(),
                         param0.dimension(),
                         BiomeManager.obfuscateSeed(param0.getSeed()),
                         this.gameMode.getGameModeForPlayer(),
@@ -1450,7 +1450,7 @@ public class ServerPlayer extends Player {
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        param0.dimensionType(),
+                        param0.dimensionTypeRegistration(),
                         param0.dimension(),
                         BiomeManager.obfuscateSeed(param0.getSeed()),
                         this.gameMode.getGameModeForPlayer(),

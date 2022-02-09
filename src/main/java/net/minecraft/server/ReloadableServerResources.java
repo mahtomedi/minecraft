@@ -1,26 +1,32 @@
 package net.minecraft.server;
 
+import com.mojang.logging.LogUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
-import net.minecraft.tags.TagContainer;
+import net.minecraft.server.packs.resources.SimpleReloadInstance;
+import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagManager;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.ItemModifierManager;
 import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.PredicateManager;
+import org.slf4j.Logger;
 
-public class ServerResources implements AutoCloseable {
+public class ReloadableServerResources {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final CompletableFuture<Unit> DATA_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
-    private final ReloadableResourceManager resources = new SimpleReloadableResourceManager(PackType.SERVER_DATA);
     private final Commands commands;
     private final RecipeManager recipes = new RecipeManager();
     private final TagManager tagManager;
@@ -30,17 +36,10 @@ public class ServerResources implements AutoCloseable {
     private final ServerAdvancementManager advancements = new ServerAdvancementManager(this.predicateManager);
     private final ServerFunctionLibrary functionLibrary;
 
-    public ServerResources(RegistryAccess param0, Commands.CommandSelection param1, int param2) {
+    public ReloadableServerResources(RegistryAccess.Frozen param0, Commands.CommandSelection param1, int param2) {
         this.tagManager = new TagManager(param0);
         this.commands = new Commands(param1);
         this.functionLibrary = new ServerFunctionLibrary(param2, this.commands.getDispatcher());
-        this.resources.registerReloadListener(this.tagManager);
-        this.resources.registerReloadListener(this.predicateManager);
-        this.resources.registerReloadListener(this.recipes);
-        this.resources.registerReloadListener(this.lootTables);
-        this.resources.registerReloadListener(this.itemModifierManager);
-        this.resources.registerReloadListener(this.functionLibrary);
-        this.resources.registerReloadListener(this.advancements);
     }
 
     public ServerFunctionLibrary getFunctionLibrary() {
@@ -59,10 +58,6 @@ public class ServerResources implements AutoCloseable {
         return this.itemModifierManager;
     }
 
-    public TagContainer getTags() {
-        return this.tagManager.getTags();
-    }
-
     public RecipeManager getRecipeManager() {
         return this.recipes;
     }
@@ -75,29 +70,30 @@ public class ServerResources implements AutoCloseable {
         return this.advancements;
     }
 
-    public ResourceManager getResourceManager() {
-        return this.resources;
+    public List<PreparableReloadListener> listeners() {
+        return List.of(this.tagManager, this.predicateManager, this.recipes, this.lootTables, this.itemModifierManager, this.functionLibrary, this.advancements);
     }
 
-    public static CompletableFuture<ServerResources> loadResources(
-        List<PackResources> param0, RegistryAccess param1, Commands.CommandSelection param2, int param3, Executor param4, Executor param5
+    public static CompletableFuture<ReloadableServerResources> loadResources(
+        ResourceManager param0, RegistryAccess.Frozen param1, Commands.CommandSelection param2, int param3, Executor param4, Executor param5
     ) {
-        ServerResources var0 = new ServerResources(param1, param2, param3);
-        CompletableFuture<Unit> var1 = var0.resources.reload(param4, param5, param0, DATA_RELOAD_INITIAL_TASK);
-        return var1.whenComplete((param1x, param2x) -> {
-            if (param2x != null) {
-                var0.close();
-            }
-
-        }).thenApply(param1x -> var0);
+        ReloadableServerResources var0 = new ReloadableServerResources(param1, param2, param3);
+        return SimpleReloadInstance.create(param0, var0.listeners(), param4, param5, DATA_RELOAD_INITIAL_TASK, LOGGER.isDebugEnabled())
+            .done()
+            .thenApply(param1x -> var0);
     }
 
-    public void updateGlobals() {
-        this.tagManager.getTags().bindToGlobal();
+    public void updateRegistryTags(RegistryAccess param0) {
+        this.tagManager.getResult().forEach(param1 -> updateRegistryTags(param0, param1));
+        Blocks.rebuildCache();
     }
 
-    @Override
-    public void close() {
-        this.resources.close();
+    private static <T> void updateRegistryTags(RegistryAccess param0, TagManager.LoadResult<T> param1) {
+        ResourceKey<? extends Registry<T>> var0 = param1.key();
+        Map<TagKey<T>, List<Holder<T>>> var1 = param1.tags()
+            .entrySet()
+            .stream()
+            .collect(Collectors.toUnmodifiableMap(param1x -> TagKey.create(var0, param1x.getKey()), param0x -> param0x.getValue().getValues()));
+        param0.registryOrThrow(var0).bindTags(var1);
     }
 }

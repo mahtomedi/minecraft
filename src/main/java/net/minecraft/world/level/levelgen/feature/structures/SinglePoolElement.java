@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.worldgen.ProcessorLists;
 import net.minecraft.resources.ResourceLocation;
@@ -39,14 +39,14 @@ public class SinglePoolElement extends StructurePoolElement {
         param0 -> param0.group(templateCodec(), processorsCodec(), projectionCodec()).apply(param0, SinglePoolElement::new)
     );
     protected final Either<ResourceLocation, StructureTemplate> template;
-    protected final Supplier<StructureProcessorList> processors;
+    protected final Holder<StructureProcessorList> processors;
 
     private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> param0, DynamicOps<T> param1, T param2) {
         Optional<ResourceLocation> var0 = param0.left();
         return !var0.isPresent() ? DataResult.error("Can not serialize a runtime pool element") : ResourceLocation.CODEC.encode(var0.get(), param1, param2);
     }
 
-    protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Supplier<StructureProcessorList>> processorsCodec() {
+    protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Holder<StructureProcessorList>> processorsCodec() {
         return StructureProcessorType.LIST_CODEC.fieldOf("processors").forGetter(param0 -> param0.processors);
     }
 
@@ -55,7 +55,7 @@ public class SinglePoolElement extends StructurePoolElement {
     }
 
     protected SinglePoolElement(
-        Either<ResourceLocation, StructureTemplate> param0, Supplier<StructureProcessorList> param1, StructureTemplatePool.Projection param2
+        Either<ResourceLocation, StructureTemplate> param0, Holder<StructureProcessorList> param1, StructureTemplatePool.Projection param2
     ) {
         super(param2);
         this.template = param0;
@@ -63,7 +63,7 @@ public class SinglePoolElement extends StructurePoolElement {
     }
 
     public SinglePoolElement(StructureTemplate param0) {
-        this(Either.right(param0), () -> ProcessorLists.EMPTY, StructureTemplatePool.Projection.RIGID);
+        this(Either.right(param0), ProcessorLists.EMPTY, StructureTemplatePool.Projection.RIGID);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class SinglePoolElement extends StructurePoolElement {
             var0.addProcessor(JigsawReplacementProcessor.INSTANCE);
         }
 
-        this.processors.get().list().forEach(var0::addProcessor);
+        this.processors.value().list().forEach(var0::addProcessor);
         this.getProjection().getProcessors().forEach(var0::addProcessor);
         return var0;
     }

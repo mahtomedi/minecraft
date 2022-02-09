@@ -8,7 +8,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 
 public class LocateBiomeCommand {
@@ -31,14 +33,13 @@ public class LocateBiomeCommand {
     }
 
     private static int locateBiome(CommandSourceStack param0, ResourceLocationArgument.LocatedResource<Biome> param1) throws CommandSyntaxException {
-        Biome var0 = param1.resource();
-        BlockPos var1 = new BlockPos(param0.getPosition());
-        BlockPos var2 = param0.getLevel().findNearestBiome(var0, var1, 6400, 8);
-        String var3 = param1.id().toString();
-        if (var2 == null) {
-            throw ERROR_BIOME_NOT_FOUND.create(var3);
+        BlockPos var0 = new BlockPos(param0.getPosition());
+        BlockPos var1 = param0.getLevel().findNearestBiome(ResourceKey.create(Registry.BIOME_REGISTRY, param1.id()), var0, 6400, 8);
+        String var2 = param1.id().toString();
+        if (var1 == null) {
+            throw ERROR_BIOME_NOT_FOUND.create(var2);
         } else {
-            return LocateCommand.showLocateResult(param0, var3, var1, var2, "commands.locatebiome.success");
+            return LocateCommand.showLocateResult(param0, var2, var0, var1, "commands.locatebiome.success");
         }
     }
 }

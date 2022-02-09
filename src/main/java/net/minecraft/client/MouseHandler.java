@@ -129,17 +129,17 @@ public class MouseHandler {
                     }
 
                     this.accumulatedScroll += var0;
-                    float var3 = (float)((int)this.accumulatedScroll);
-                    if (var3 == 0.0F) {
+                    int var3 = (int)this.accumulatedScroll;
+                    if (var3 == 0) {
                         return;
                     }
 
                     this.accumulatedScroll -= (double)var3;
                     if (this.minecraft.player.isSpectator()) {
                         if (this.minecraft.gui.getSpectatorGui().isMenuActive()) {
-                            this.minecraft.gui.getSpectatorGui().onMouseScrolled((double)(-var3));
+                            this.minecraft.gui.getSpectatorGui().onMouseScrolled(-var3);
                         } else {
-                            float var4 = Mth.clamp(this.minecraft.player.getAbilities().getFlyingSpeed() + var3 * 0.005F, 0.0F, 0.2F);
+                            float var4 = Mth.clamp(this.minecraft.player.getAbilities().getFlyingSpeed() + (float)var3 * 0.005F, 0.0F, 0.2F);
                             this.minecraft.player.getAbilities().setFlyingSpeed(var4);
                         }
                     } else {

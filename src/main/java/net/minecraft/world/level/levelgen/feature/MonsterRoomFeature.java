@@ -32,7 +32,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
-        Predicate<BlockState> var0 = Feature.isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE.getName());
+        Predicate<BlockState> var0 = Feature.isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE);
         BlockPos var1 = param0.origin();
         Random var2 = param0.random();
         WorldGenLevel var3 = param0.level();

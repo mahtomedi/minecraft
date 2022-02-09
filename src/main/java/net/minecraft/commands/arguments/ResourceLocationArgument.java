@@ -102,7 +102,7 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
         CommandContext<CommandSourceStack> param0, String param1, ResourceKey<Registry<T>> param2, DynamicCommandExceptionType param3
     ) throws CommandSyntaxException {
         ResourceLocation var0 = getId(param0, param1);
-        T var1 = param0.getSource().getServer().registryAccess().registryOrThrow(param2).getOptional(var0).orElseThrow(() -> param3.create(var0));
+        T var1 = param0.getSource().getServer().registryAccess().<T>registryOrThrow(param2).getOptional(var0).orElseThrow(() -> param3.create(var0));
         return new ResourceLocationArgument.LocatedResource<>(var0, var1);
     }
 

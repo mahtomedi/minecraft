@@ -129,11 +129,11 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
         return this.menu != null;
     }
 
-    public void onMouseScrolled(double param0) {
-        int var0 = this.menu.getSelectedSlot() + (int)param0;
+    public void onMouseScrolled(int param0) {
+        int var0 = this.menu.getSelectedSlot() + param0;
 
         while(var0 >= 0 && var0 <= 8 && (this.menu.getItem(var0) == SpectatorMenu.EMPTY_SLOT || !this.menu.getItem(var0).isEnabled())) {
-            var0 = (int)((double)var0 + param0);
+            var0 += param0;
         }
 
         if (var0 >= 0 && var0 <= 8) {

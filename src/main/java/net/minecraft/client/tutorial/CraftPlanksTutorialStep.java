@@ -2,11 +2,13 @@ package net.minecraft.client.tutorial;
 
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -71,9 +73,9 @@ public class CraftPlanksTutorialStep implements TutorialStepInstance {
 
     }
 
-    public static boolean hasCraftedPlanksPreviously(LocalPlayer param0, Tag<Item> param1) {
-        for(Item var0 : param1.getValues()) {
-            if (param0.getStats().getValue(Stats.ITEM_CRAFTED.get(var0)) > 0) {
+    public static boolean hasCraftedPlanksPreviously(LocalPlayer param0, TagKey<Item> param1) {
+        for(Holder<Item> var0 : Registry.ITEM.getTagOrEmpty(param1)) {
+            if (param0.getStats().getValue(Stats.ITEM_CRAFTED.get(var0.value())) > 0) {
                 return true;
             }
         }

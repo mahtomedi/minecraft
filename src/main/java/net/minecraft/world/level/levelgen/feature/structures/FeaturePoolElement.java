@@ -5,10 +5,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.FrontAndTop;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -28,10 +28,10 @@ public class FeaturePoolElement extends StructurePoolElement {
         param0 -> param0.group(PlacedFeature.CODEC.fieldOf("feature").forGetter(param0x -> param0x.feature), projectionCodec())
                 .apply(param0, FeaturePoolElement::new)
     );
-    private final Supplier<PlacedFeature> feature;
+    private final Holder<PlacedFeature> feature;
     private final CompoundTag defaultJigsawNBT;
 
-    protected FeaturePoolElement(Supplier<PlacedFeature> param0, StructureTemplatePool.Projection param1) {
+    protected FeaturePoolElement(Holder<PlacedFeature> param0, StructureTemplatePool.Projection param1) {
         super(param1);
         this.feature = param0;
         this.defaultJigsawNBT = this.fillDefaultJigsawNBT();
@@ -86,7 +86,7 @@ public class FeaturePoolElement extends StructurePoolElement {
         Random param8,
         boolean param9
     ) {
-        return this.feature.get().place(param1, param3, param8, param4);
+        return this.feature.value().place(param1, param3, param8, param4);
     }
 
     @Override
@@ -96,6 +96,6 @@ public class FeaturePoolElement extends StructurePoolElement {
 
     @Override
     public String toString() {
-        return "Feature[" + this.feature.get() + "]";
+        return "Feature[" + this.feature + "]";
     }
 }

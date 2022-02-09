@@ -9,6 +9,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,6 +17,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
@@ -35,7 +37,9 @@ public class ClientChunkCache extends ChunkSource {
 
     public ClientChunkCache(ClientLevel param0, int param1) {
         this.level = param0;
-        this.emptyChunk = new EmptyLevelChunk(param0, new ChunkPos(0, 0));
+        this.emptyChunk = new EmptyLevelChunk(
+            param0, new ChunkPos(0, 0), param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS)
+        );
         this.lightEngine = new LevelLightEngine(this, true, param0.dimensionType().hasSkyLight());
         this.storage = new ClientChunkCache.Storage(calculateStorageRange(param1));
     }

@@ -30,7 +30,7 @@ public class SnowAndFreezeFeature extends Feature<NoneFeatureConfiguration> {
                 int var8 = var0.getHeight(Heightmap.Types.MOTION_BLOCKING, var6, var7);
                 var2.set(var6, var8, var7);
                 var3.set(var2).move(Direction.DOWN, 1);
-                Biome var9 = var0.getBiome(var2);
+                Biome var9 = var0.getBiome(var2).value();
                 if (var9.shouldFreeze(var0, var3, false)) {
                     var0.setBlock(var3, Blocks.ICE.defaultBlockState(), 2);
                 }

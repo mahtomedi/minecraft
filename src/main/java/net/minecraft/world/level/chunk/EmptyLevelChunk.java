@@ -2,7 +2,7 @@ package net.minecraft.world.level.chunk;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.data.worldgen.biome.Biomes;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -14,8 +14,11 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 public class EmptyLevelChunk extends LevelChunk {
-    public EmptyLevelChunk(Level param0, ChunkPos param1) {
+    private final Holder<Biome> biome;
+
+    public EmptyLevelChunk(Level param0, ChunkPos param1, Holder<Biome> param2) {
         super(param0, param1);
+        this.biome = param2;
     }
 
     @Override
@@ -73,7 +76,7 @@ public class EmptyLevelChunk extends LevelChunk {
     }
 
     @Override
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
-        return Biomes.PLAINS;
+    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
+        return this.biome;
     }
 }

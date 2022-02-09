@@ -213,7 +213,7 @@ public class Witch extends Raider implements RangedAttackMob {
         }
 
         if (param0.isMagic()) {
-            param1 = (float)((double)param1 * 0.15);
+            param1 *= 0.15F;
         }
 
         return param1;

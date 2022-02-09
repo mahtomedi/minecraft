@@ -109,7 +109,7 @@ public class Squid extends WaterAnimal {
             if (this.level.isClientSide) {
                 this.tentacleMovement = (float) (Math.PI * 2);
             } else {
-                this.tentacleMovement = (float)((double)this.tentacleMovement - (Math.PI * 2));
+                this.tentacleMovement -= (float) (Math.PI * 2);
                 if (this.random.nextInt(10) == 0) {
                     this.tentacleSpeed = 1.0F / (this.random.nextFloat() + 1.0F) * 0.2F;
                 }
@@ -142,7 +142,7 @@ public class Squid extends WaterAnimal {
             double var2 = var1.horizontalDistance();
             this.yBodyRot += (-((float)Mth.atan2(var1.x, var1.z)) * (180.0F / (float)Math.PI) - this.yBodyRot) * 0.1F;
             this.setYRot(this.yBodyRot);
-            this.zBodyRot = (float)((double)this.zBodyRot + Math.PI * (double)this.rotateSpeed * 1.5);
+            this.zBodyRot += (float) Math.PI * this.rotateSpeed * 1.5F;
             this.xBodyRot += (-((float)Mth.atan2(var2, var1.y)) * (180.0F / (float)Math.PI) - this.xBodyRot) * 0.1F;
         } else {
             this.tentacleAngle = Mth.abs(Mth.sin(this.tentacleMovement)) * (float) Math.PI * 0.25F;
@@ -157,7 +157,7 @@ public class Squid extends WaterAnimal {
                 this.setDeltaMovement(0.0, var3 * 0.98F, 0.0);
             }
 
-            this.xBodyRot = (float)((double)this.xBodyRot + (double)(-90.0F - this.xBodyRot) * 0.02);
+            this.xBodyRot += (-90.0F - this.xBodyRot) * 0.02F;
         }
 
     }
@@ -258,13 +258,13 @@ public class Squid extends WaterAnimal {
                     double var4 = var1.length();
                     if (var4 > 0.0) {
                         var1.normalize();
-                        float var5 = 3.0F;
+                        double var5 = 3.0;
                         if (var4 > 5.0) {
-                            var5 = (float)((double)var5 - (var4 - 5.0) / 5.0);
+                            var5 -= (var4 - 5.0) / 5.0;
                         }
 
-                        if (var5 > 0.0F) {
-                            var1 = var1.scale((double)var5);
+                        if (var5 > 0.0) {
+                            var1 = var1.scale(var5);
                         }
                     }
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -122,55 +123,54 @@ public class SurfaceSystem {
                 int var11 = var3 + var9;
                 int var12 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
                 var0.setX(var10).setZ(var11);
-                Biome var13 = param0.getBiome(var7.set(var10, param2 ? 0 : var12, var11));
-                ResourceKey<Biome> var14 = param1.getResourceKey(var13).orElseThrow(() -> new IllegalStateException("Unregistered biome: " + var13));
-                if (var14 == Biomes.ERODED_BADLANDS) {
+                Holder<Biome> var13 = param0.getBiome(var7.set(var10, param2 ? 0 : var12, var11));
+                if (var13.is(Biomes.ERODED_BADLANDS)) {
                     this.erodedBadlandsExtension(var4, var10, var11, var12, param4);
                 }
 
-                int var15 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
+                int var14 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
                 var5.updateXZ(var10, var11);
-                int var16 = 0;
-                int var17 = Integer.MIN_VALUE;
-                int var18 = Integer.MAX_VALUE;
-                int var19 = param4.getMinBuildHeight();
+                int var15 = 0;
+                int var16 = Integer.MIN_VALUE;
+                int var17 = Integer.MAX_VALUE;
+                int var18 = param4.getMinBuildHeight();
 
-                for(int var20 = var15; var20 >= var19; --var20) {
-                    BlockState var21 = var4.getBlock(var20);
-                    if (var21.isAir()) {
-                        var16 = 0;
-                        var17 = Integer.MIN_VALUE;
-                    } else if (!var21.getFluidState().isEmpty()) {
-                        if (var17 == Integer.MIN_VALUE) {
-                            var17 = var20 + 1;
+                for(int var19 = var14; var19 >= var18; --var19) {
+                    BlockState var20 = var4.getBlock(var19);
+                    if (var20.isAir()) {
+                        var15 = 0;
+                        var16 = Integer.MIN_VALUE;
+                    } else if (!var20.getFluidState().isEmpty()) {
+                        if (var16 == Integer.MIN_VALUE) {
+                            var16 = var19 + 1;
                         }
                     } else {
-                        if (var18 >= var20) {
-                            var18 = DimensionType.WAY_BELOW_MIN_Y;
+                        if (var17 >= var19) {
+                            var17 = DimensionType.WAY_BELOW_MIN_Y;
 
-                            for(int var22 = var20 - 1; var22 >= var19 - 1; --var22) {
-                                BlockState var23 = var4.getBlock(var22);
-                                if (!this.isStone(var23)) {
-                                    var18 = var22 + 1;
+                            for(int var21 = var19 - 1; var21 >= var18 - 1; --var21) {
+                                BlockState var22 = var4.getBlock(var21);
+                                if (!this.isStone(var22)) {
+                                    var17 = var21 + 1;
                                     break;
                                 }
                             }
                         }
 
-                        ++var16;
-                        int var24 = var20 - var18 + 1;
-                        var5.updateY(var16, var24, var17, var10, var20, var11);
-                        if (var21 == this.defaultBlock) {
-                            BlockState var25 = var6.tryApply(var10, var20, var11);
-                            if (var25 != null) {
-                                var4.setBlock(var20, var25);
+                        ++var15;
+                        int var23 = var19 - var17 + 1;
+                        var5.updateY(var15, var23, var16, var10, var19, var11);
+                        if (var20 == this.defaultBlock) {
+                            BlockState var24 = var6.tryApply(var10, var19, var11);
+                            if (var24 != null) {
+                                var4.setBlock(var19, var24);
                             }
                         }
                     }
                 }
 
-                if (var14 == Biomes.FROZEN_OCEAN || var14 == Biomes.DEEP_FROZEN_OCEAN) {
-                    this.frozenOceanExtension(var5.getMinSurfaceLevel(), var13, var4, var7, var10, var11, var12);
+                if (var13.is(Biomes.FROZEN_OCEAN) || var13.is(Biomes.DEEP_FROZEN_OCEAN)) {
+                    this.frozenOceanExtension(var5.getMinSurfaceLevel(), var13.value(), var4, var7, var10, var11, var12);
                 }
             }
         }
@@ -194,7 +194,7 @@ public class SurfaceSystem {
     public Optional<BlockState> topMaterial(
         SurfaceRules.RuleSource param0,
         CarvingContext param1,
-        Function<BlockPos, Biome> param2,
+        Function<BlockPos, Holder<Biome>> param2,
         ChunkAccess param3,
         NoiseChunk param4,
         BlockPos param5,

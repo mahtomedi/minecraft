@@ -1,9 +1,13 @@
 package net.minecraft.client.gui.screens.worldselection;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +41,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.ServerResources;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.WorldStem;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -51,6 +56,8 @@ import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.PrimaryLevelData;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -66,6 +73,7 @@ public class CreateWorldScreen extends Screen {
     private static final Component NAME_LABEL = new TranslatableComponent("selectWorld.enterName");
     private static final Component OUTPUT_DIR_INFO = new TranslatableComponent("selectWorld.resultFolder");
     private static final Component COMMANDS_INFO = new TranslatableComponent("selectWorld.allowCommands.info");
+    @Nullable
     private final Screen lastScreen;
     private EditBox nameEdit;
     String resultFolder;
@@ -95,38 +103,39 @@ public class CreateWorldScreen extends Screen {
     private GameRules gameRules = new GameRules();
     public final WorldGenSettingsComponent worldGenSettingsComponent;
 
-    public CreateWorldScreen(
-        @Nullable Screen param0,
-        LevelSettings param1,
-        WorldGenSettings param2,
-        @Nullable Path param3,
-        DataPackConfig param4,
-        RegistryAccess.RegistryHolder param5
-    ) {
-        this(param0, param4, new WorldGenSettingsComponent(param5, param2, WorldPreset.of(param2), OptionalLong.of(param2.seed())));
-        this.initName = param1.levelName();
-        this.commands = param1.allowCommands();
-        this.commandsChanged = true;
-        this.difficulty = param1.difficulty();
-        this.gameRules.assignFrom(param1.gameRules(), null);
-        if (param1.hardcore()) {
-            this.gameMode = CreateWorldScreen.SelectedGameMode.HARDCORE;
-        } else if (param1.gameType().isSurvival()) {
-            this.gameMode = CreateWorldScreen.SelectedGameMode.SURVIVAL;
-        } else if (param1.gameType().isCreative()) {
-            this.gameMode = CreateWorldScreen.SelectedGameMode.CREATIVE;
-        }
-
-        this.tempDataPackDir = param3;
-    }
-
-    public static CreateWorldScreen create(@Nullable Screen param0) {
-        RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
+    public static CreateWorldScreen createFresh(@Nullable Screen param0) {
+        RegistryAccess.Frozen var0 = RegistryAccess.BUILTIN.get();
         return new CreateWorldScreen(
             param0,
             DataPackConfig.DEFAULT,
             new WorldGenSettingsComponent(var0, WorldGenSettings.makeDefault(var0), Optional.of(WorldPreset.NORMAL), OptionalLong.empty())
         );
+    }
+
+    public static CreateWorldScreen createFromExisting(@Nullable Screen param0, WorldStem param1, @Nullable Path param2) {
+        WorldData var0 = param1.worldData();
+        LevelSettings var1 = var0.getLevelSettings();
+        WorldGenSettings var2 = var0.worldGenSettings();
+        RegistryAccess.Frozen var3 = param1.registryAccess();
+        DataPackConfig var4 = var1.getDataPackConfig();
+        CreateWorldScreen var5 = new CreateWorldScreen(
+            param0, var4, new WorldGenSettingsComponent(var3, var2, WorldPreset.of(var2), OptionalLong.of(var2.seed()))
+        );
+        var5.initName = var1.levelName();
+        var5.commands = var1.allowCommands();
+        var5.commandsChanged = true;
+        var5.difficulty = var1.difficulty();
+        var5.gameRules.assignFrom(var1.gameRules(), null);
+        if (var1.hardcore()) {
+            var5.gameMode = CreateWorldScreen.SelectedGameMode.HARDCORE;
+        } else if (var1.gameType().isSurvival()) {
+            var5.gameMode = CreateWorldScreen.SelectedGameMode.SURVIVAL;
+        } else if (var1.gameType().isCreative()) {
+            var5.gameMode = CreateWorldScreen.SelectedGameMode.CREATIVE;
+        }
+
+        var5.tempDataPackDir = param2;
+        return var5;
     }
 
     private CreateWorldScreen(@Nullable Screen param0, DataPackConfig param1, WorldGenSettingsComponent param2) {
@@ -266,24 +275,21 @@ public class CreateWorldScreen extends Screen {
         if (this.copyTempDataPackDirToNewWorld()) {
             this.cleanupTempResources();
             WorldGenSettings var0 = this.worldGenSettingsComponent.makeSettings(this.hardCore);
-            LevelSettings var2;
-            if (var0.isDebug()) {
-                GameRules var1 = new GameRules();
-                var1.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
-                var2 = new LevelSettings(this.nameEdit.getValue().trim(), GameType.SPECTATOR, false, Difficulty.PEACEFUL, true, var1, DataPackConfig.DEFAULT);
-            } else {
-                var2 = new LevelSettings(
-                    this.nameEdit.getValue().trim(),
-                    this.gameMode.gameType,
-                    this.hardCore,
-                    this.getEffectiveDifficulty(),
-                    this.commands && !this.hardCore,
-                    this.gameRules,
-                    this.dataPacks
-                );
-            }
+            LevelSettings var1 = this.createLevelSettings(var0.isDebug());
+            this.minecraft.createLevel(this.resultFolder, var1, this.worldGenSettingsComponent.registryHolder(), var0);
+        }
+    }
 
-            this.minecraft.createLevel(this.resultFolder, var2, this.worldGenSettingsComponent.registryHolder(), var0);
+    private LevelSettings createLevelSettings(boolean param0) {
+        String var0 = this.nameEdit.getValue().trim();
+        if (param0) {
+            GameRules var1 = new GameRules();
+            var1.getRule(GameRules.RULE_DAYLIGHT).set(false, null);
+            return new LevelSettings(var0, GameType.SPECTATOR, false, Difficulty.PEACEFUL, true, var1, DataPackConfig.DEFAULT);
+        } else {
+            return new LevelSettings(
+                var0, this.gameMode.gameType, this.hardCore, this.getEffectiveDifficulty(), this.commands && !this.hardCore, this.gameRules, this.dataPacks
+            );
         }
     }
 
@@ -458,11 +464,23 @@ public class CreateWorldScreen extends Screen {
             this.dataPacks = var2;
         } else {
             this.minecraft.tell(() -> this.minecraft.setScreen(new GenericDirtMessageScreen(new TranslatableComponent("dataPack.validation.working"))));
-            ServerResources.loadResources(
-                    param0.openAllSelected(),
-                    this.worldGenSettingsComponent.registryHolder(),
-                    Commands.CommandSelection.INTEGRATED,
-                    2,
+            WorldStem.load(
+                    new WorldStem.InitConfig(param0, Commands.CommandSelection.INTEGRATED, 2, false),
+                    () -> var2,
+                    (param0x, param1) -> {
+                        RegistryAccess var0xx = this.worldGenSettingsComponent.registryHolder();
+                        RegistryAccess.Writable var1x = RegistryAccess.builtinCopy();
+                        DynamicOps<JsonElement> var2x = RegistryOps.create(JsonOps.INSTANCE, var0xx);
+                        DynamicOps<JsonElement> var3x = RegistryOps.createAndLoad(JsonOps.INSTANCE, var1x, param0x);
+                        DataResult<WorldGenSettings> var4x = WorldGenSettings.CODEC
+                            .encodeStart(var2x, this.worldGenSettingsComponent.makeSettings(this.hardCore))
+                            .flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x));
+                        WorldGenSettings var5 = (WorldGenSettings)var4x.getOrThrow(
+                            false, Util.prefix("Error parsing worldgen settings after loading data packs: ", LOGGER::error)
+                        );
+                        LevelSettings var6 = this.createLevelSettings(var5.isDebug());
+                        return Pair.of(new PrimaryLevelData(var6, var5, var4x.lifecycle()), var1x.freeze());
+                    },
                     Util.backgroundExecutor(),
                     this.minecraft
                 )

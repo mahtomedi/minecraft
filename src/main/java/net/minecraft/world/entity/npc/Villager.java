@@ -111,7 +111,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Nullable
     private Player lastTradedPlayer;
     private boolean chasing;
-    private byte foodLevel;
+    private int foodLevel;
     private final GossipContainer gossips = new GossipContainer();
     private long lastGossipTime;
     private long lastGossipDecayTime;
@@ -484,7 +484,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             .encodeStart(NbtOps.INSTANCE, this.getVillagerData())
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("VillagerData", param1));
-        param0.putByte("FoodLevel", this.foodLevel);
+        param0.putByte("FoodLevel", (byte)this.foodLevel);
         param0.put("Gossips", this.gossips.store(NbtOps.INSTANCE).getValue());
         param0.putInt("Xp", this.villagerXp);
         param0.putLong("LastRestock", this.lastRestockGameTime);
@@ -686,7 +686,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                         int var3 = var1.getCount();
 
                         for(int var4 = var3; var4 > 0; --var4) {
-                            this.foodLevel = (byte)(this.foodLevel + var2);
+                            this.foodLevel += var2;
                             this.getInventory().removeItem(var0, 1);
                             if (!this.hungry()) {
                                 return;
@@ -704,7 +704,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     private void digestFood(int param0) {
-        this.foodLevel = (byte)(this.foodLevel - param0);
+        this.foodLevel -= param0;
     }
 
     public void eatAndDigestFood() {
@@ -759,7 +759,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         if (param2 == MobSpawnType.COMMAND || param2 == MobSpawnType.SPAWN_EGG || param2 == MobSpawnType.SPAWNER || param2 == MobSpawnType.DISPENSER) {
-            this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiomeName(this.blockPosition()))));
+            this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(this.blockPosition()))));
         }
 
         if (param2 == MobSpawnType.STRUCTURE) {
@@ -773,7 +773,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         double var0 = this.random.nextDouble();
         VillagerType var1;
         if (var0 < 0.5) {
-            var1 = VillagerType.byBiome(param0.getBiomeName(this.blockPosition()));
+            var1 = VillagerType.byBiome(param0.getBiome(this.blockPosition()));
         } else if (var0 < 0.75) {
             var1 = this.getVillagerData().getType();
         } else {

@@ -75,9 +75,9 @@ public class ElytraModel<T extends LivingEntity> extends AgeableListModel<T> {
 
         this.leftWing.y = var2;
         if (param0 instanceof AbstractClientPlayer var7) {
-            var7.elytraRotX = (float)((double)var7.elytraRotX + (double)(var0 - var7.elytraRotX) * 0.1);
-            var7.elytraRotY = (float)((double)var7.elytraRotY + (double)(var3 - var7.elytraRotY) * 0.1);
-            var7.elytraRotZ = (float)((double)var7.elytraRotZ + (double)(var1 - var7.elytraRotZ) * 0.1);
+            var7.elytraRotX += (var0 - var7.elytraRotX) * 0.1F;
+            var7.elytraRotY += (var3 - var7.elytraRotY) * 0.1F;
+            var7.elytraRotZ += (var1 - var7.elytraRotZ) * 0.1F;
             this.leftWing.xRot = var7.elytraRotX;
             this.leftWing.yRot = var7.elytraRotY;
             this.leftWing.zRot = var7.elytraRotZ;

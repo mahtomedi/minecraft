@@ -2,15 +2,19 @@ package net.minecraft.util;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.Codec.ResultFunction;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,7 +23,9 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 import net.minecraft.Util;
+import net.minecraft.core.HolderSet;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 public class ExtraCodecs {
@@ -166,42 +172,61 @@ public class ExtraCodecs {
         return param0.flatXmap(nonEmptyListCheck(), nonEmptyListCheck());
     }
 
-    public static <T> Function<List<Supplier<T>>, DataResult<List<Supplier<T>>>> nonNullSupplierListCheck() {
-        return param0 -> {
-            List<String> var0 = Lists.newArrayList();
-
-            for(int var1 = 0; var1 < param0.size(); ++var1) {
-                Supplier<T> var2 = param0.get(var1);
-
-                try {
-                    if (var2.get() == null) {
-                        var0.add("Missing value [" + var1 + "] : " + var2);
-                    }
-                } catch (Exception var5) {
-                    var0.add("Invalid value [" + var1 + "]: " + var2 + ", message: " + var5.getMessage());
-                }
-            }
-
-            return !var0.isEmpty() ? DataResult.error(String.join("; ", var0)) : DataResult.success(param0, Lifecycle.stable());
-        };
+    public static <T> Function<HolderSet<T>, DataResult<HolderSet<T>>> nonEmptyHolderSetCheck() {
+        return param0 -> param0.unwrap().right().filter(List::isEmpty).isPresent() ? DataResult.error("List must have contents") : DataResult.success(param0);
     }
 
-    public static <T> Function<Supplier<T>, DataResult<Supplier<T>>> nonNullSupplierCheck() {
-        return param0 -> {
-            try {
-                if (param0.get() == null) {
-                    return DataResult.error("Missing value: " + param0);
-                }
-            } catch (Exception var2) {
-                return DataResult.error("Invalid value: " + param0 + ", message: " + var2.getMessage());
-            }
-
-            return DataResult.success(param0, Lifecycle.stable());
-        };
+    public static <T> Codec<HolderSet<T>> nonEmptyHolderSet(Codec<HolderSet<T>> param0) {
+        return param0.flatXmap(nonEmptyHolderSetCheck(), nonEmptyHolderSetCheck());
     }
 
     public static <A> Codec<A> lazyInitializedCodec(Supplier<Codec<A>> param0) {
         return new ExtraCodecs.LazyInitializedCodec<>(param0);
+    }
+
+    public static <E> MapCodec<E> retrieveContext(final Function<DynamicOps<?>, DataResult<E>> param0) {
+        class ContextRetrievalCodec extends MapCodec<E> {
+            @Override
+            public <T> RecordBuilder<T> encode(E param0x, DynamicOps<T> param1, RecordBuilder<T> param2) {
+                return param2;
+            }
+
+            @Override
+            public <T> DataResult<E> decode(DynamicOps<T> param0x, MapLike<T> param1) {
+                return param0.apply(param0);
+            }
+
+            @Override
+            public String toString() {
+                return "ContextRetrievalCodec[" + param0 + "]";
+            }
+
+            @Override
+            public <T> Stream<T> keys(DynamicOps<T> param0x) {
+                return Stream.empty();
+            }
+        }
+
+        return new ContextRetrievalCodec();
+    }
+
+    public static <E, L extends Collection<E>, T> Function<L, DataResult<L>> ensureHomogenous(Function<E, T> param0) {
+        return param1 -> {
+            Iterator<E> var0x = param1.iterator();
+            if (var0x.hasNext()) {
+                T var1 = param0.apply((E)var0x.next());
+
+                while(var0x.hasNext()) {
+                    E var2 = (E)var0x.next();
+                    T var3 = param0.apply(var2);
+                    if (var3 != var1) {
+                        return DataResult.error("Mixed type list: element " + var2 + " had type " + var3 + ", but list is of type " + var1);
+                    }
+                }
+            }
+
+            return DataResult.success(param1, Lifecycle.stable());
+        };
     }
 
     static final class EitherCodec<F, S> implements Codec<Either<F, S>> {

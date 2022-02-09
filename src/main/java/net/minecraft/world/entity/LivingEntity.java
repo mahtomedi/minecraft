@@ -53,6 +53,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -2018,7 +2019,7 @@ public abstract class LivingEntity extends Entity {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04F, 0.0));
     }
 
-    protected void jumpInLiquid(net.minecraft.tags.Tag<Fluid> param0) {
+    protected void jumpInLiquid(TagKey<Fluid> param0) {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.04F, 0.0));
     }
 
@@ -2026,7 +2027,7 @@ public abstract class LivingEntity extends Entity {
         return 0.8F;
     }
 
-    public boolean canStandOnFluid(Fluid param0) {
+    public boolean canStandOnFluid(FluidState param0) {
         return false;
     }
 
@@ -2040,7 +2041,7 @@ public abstract class LivingEntity extends Entity {
             }
 
             FluidState var2 = this.level.getFluidState(this.blockPosition());
-            if (this.isInWater() && this.isAffectedByFluids() && !this.canStandOnFluid(var2.getType())) {
+            if (this.isInWater() && this.isAffectedByFluids() && !this.canStandOnFluid(var2)) {
                 double var3 = this.getY();
                 float var4 = this.isSprinting() ? 0.9F : this.getWaterSlowDown();
                 float var5 = 0.02F;
@@ -2075,7 +2076,7 @@ public abstract class LivingEntity extends Entity {
                 if (this.horizontalCollision && this.isFree(var8.x, var8.y + 0.6F - this.getY() + var3, var8.z)) {
                     this.setDeltaMovement(var8.x, 0.3F, var8.z);
                 }
-            } else if (this.isInLava() && this.isAffectedByFluids() && !this.canStandOnFluid(var2.getType())) {
+            } else if (this.isInLava() && this.isAffectedByFluids() && !this.canStandOnFluid(var2)) {
                 double var9 = this.getY();
                 this.moveRelative(0.02F, param0);
                 this.move(MoverType.SELF, this.getDeltaMovement());
@@ -2106,11 +2107,11 @@ public abstract class LivingEntity extends Entity {
                 double var15 = Math.sqrt(var13.x * var13.x + var13.z * var13.z);
                 double var16 = var12.horizontalDistance();
                 double var17 = var13.length();
-                float var18 = Mth.cos(var14);
-                var18 = (float)((double)var18 * (double)var18 * Math.min(1.0, var17 / 0.4));
-                var12 = this.getDeltaMovement().add(0.0, var0 * (-1.0 + (double)var18 * 0.75), 0.0);
+                double var18 = Math.cos((double)var14);
+                var18 = var18 * var18 * Math.min(1.0, var17 / 0.4);
+                var12 = this.getDeltaMovement().add(0.0, var0 * (-1.0 + var18 * 0.75), 0.0);
                 if (var12.y < 0.0 && var15 > 0.0) {
-                    double var19 = var12.y * -0.1 * (double)var18;
+                    double var19 = var12.y * -0.1 * var18;
                     var12 = var12.add(var13.x * var19 / var15, var19, var13.z * var19 / var15);
                 }
 
@@ -2511,7 +2512,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (this.lerpHeadSteps > 0) {
-            this.yHeadRot = (float)((double)this.yHeadRot + Mth.wrapDegrees(this.lyHeadRot - (double)this.yHeadRot) / (double)this.lerpHeadSteps);
+            this.yHeadRot += (float)Mth.wrapDegrees(this.lyHeadRot - (double)this.yHeadRot) / (float)this.lerpHeadSteps;
             --this.lerpHeadSteps;
         }
 
@@ -2701,14 +2702,6 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void doAutoAttackOnTouch(LivingEntity param0) {
-    }
-
-    public void startAutoSpinAttack(int param0) {
-        this.autoSpinAttackTicks = param0;
-        if (!this.level.isClientSide) {
-            this.setLivingEntityFlag(4, true);
-        }
-
     }
 
     public boolean isAutoSpinAttack() {

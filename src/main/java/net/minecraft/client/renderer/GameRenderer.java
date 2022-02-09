@@ -42,6 +42,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -58,6 +59,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.material.FogType;
@@ -1079,11 +1081,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                         var1 = var5.getMenuProvider(this.minecraft.level, var4) != null;
                     } else {
                         BlockInWorld var6 = new BlockInWorld(this.minecraft.level, var4, false);
-                        var1 = !var2.isEmpty()
-                            && (
-                                var2.hasAdventureModeBreakTagForBlock(this.minecraft.level.getTagManager(), var6)
-                                    || var2.hasAdventureModePlaceTagForBlock(this.minecraft.level.getTagManager(), var6)
-                            );
+                        Registry<Block> var7 = this.minecraft.level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY);
+                        var1 = !var2.isEmpty() && (var2.hasAdventureModeBreakTagForBlock(var7, var6) || var2.hasAdventureModePlaceTagForBlock(var7, var6));
                     }
                 }
             }

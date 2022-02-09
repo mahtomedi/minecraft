@@ -21,6 +21,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import org.slf4j.Logger;
 
 public abstract class TagsProvider<T> implements DataProvider {
@@ -45,8 +46,8 @@ public abstract class TagsProvider<T> implements DataProvider {
             .forEach(
                 (param1, param2) -> {
                     List<Tag.BuilderEntry> var0 = param2.getEntries()
-                        .filter(param0x -> !param0x.getEntry().verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
-                        .collect(Collectors.toList());
+                        .filter(param0x -> !param0x.entry().verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
+                        .toList();
                     if (!var0.isEmpty()) {
                         throw new IllegalArgumentException(
                             String.format(
@@ -82,13 +83,13 @@ public abstract class TagsProvider<T> implements DataProvider {
 
     protected abstract Path getPath(ResourceLocation var1);
 
-    protected TagsProvider.TagAppender<T> tag(Tag.Named<T> param0) {
+    protected TagsProvider.TagAppender<T> tag(TagKey<T> param0) {
         Tag.Builder var0 = this.getOrCreateRawBuilder(param0);
         return new TagsProvider.TagAppender<>(var0, this.registry, "vanilla");
     }
 
-    protected Tag.Builder getOrCreateRawBuilder(Tag.Named<T> param0) {
-        return this.builders.computeIfAbsent(param0.getName(), param0x -> new Tag.Builder());
+    protected Tag.Builder getOrCreateRawBuilder(TagKey<T> param0) {
+        return this.builders.computeIfAbsent(param0.location(), param0x -> new Tag.Builder());
     }
 
     protected static class TagAppender<T> {
@@ -112,8 +113,8 @@ public abstract class TagsProvider<T> implements DataProvider {
             return this;
         }
 
-        public TagsProvider.TagAppender<T> addTag(Tag.Named<T> param0) {
-            this.builder.addTag(param0.getName(), this.source);
+        public TagsProvider.TagAppender<T> addTag(TagKey<T> param0) {
+            this.builder.addTag(param0.location(), this.source);
             return this;
         }
 

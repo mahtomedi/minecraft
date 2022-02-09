@@ -573,14 +573,14 @@ public class Mth {
     }
 
     public static double[] cumulativeSum(double... param0) {
-        float var0 = 0.0F;
+        double var0 = 0.0;
 
         for(double var1 : param0) {
-            var0 = (float)((double)var0 + var1);
+            var0 += var1;
         }
 
         for(int var2 = 0; var2 < param0.length; ++var2) {
-            param0[var2] /= (double)var0;
+            param0[var2] /= var0;
         }
 
         for(int var3 = 0; var3 < param0.length; ++var3) {

@@ -19,6 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -189,7 +190,10 @@ public abstract class Player extends LivingEntity {
             return false;
         } else {
             ItemStack var0 = this.getMainHandItem();
-            return var0.isEmpty() || !var0.hasAdventureModeBreakTagForBlock(param0.getTagManager(), new BlockInWorld(param0, param1, false));
+            return var0.isEmpty()
+                || !var0.hasAdventureModeBreakTagForBlock(
+                    param0.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), new BlockInWorld(param0, param1, false)
+                );
         }
     }
 
@@ -505,7 +509,7 @@ public abstract class Player extends LivingEntity {
         super.aiStep();
         this.flyingSpeed = 0.02F;
         if (this.isSprinting()) {
-            this.flyingSpeed = (float)((double)this.flyingSpeed + 0.005999999865889549);
+            this.flyingSpeed += 0.006F;
         }
 
         this.setSpeed((float)this.getAttributeValue(Attributes.MOVEMENT_SPEED));
@@ -592,6 +596,15 @@ public abstract class Player extends LivingEntity {
     public void increaseScore(int param0) {
         int var0 = this.getScore();
         this.entityData.set(DATA_SCORE_ID, var0 + param0);
+    }
+
+    public void startAutoSpinAttack(int param0) {
+        this.autoSpinAttackTicks = param0;
+        if (!this.level.isClientSide) {
+            this.removeEntitiesOnShoulder();
+            this.setLivingEntityFlag(4, true);
+        }
+
     }
 
     @Override
@@ -1700,7 +1713,7 @@ public abstract class Player extends LivingEntity {
         } else {
             BlockPos var0 = param0.relative(param1.getOpposite());
             BlockInWorld var1 = new BlockInWorld(this.level, var0, false);
-            return param2.hasAdventureModePlaceTagForBlock(this.level.getTagManager(), var1);
+            return param2.hasAdventureModePlaceTagForBlock(this.level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), var1);
         }
     }
 

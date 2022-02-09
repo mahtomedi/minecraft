@@ -13,21 +13,17 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -40,18 +36,17 @@ import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeat
 import net.minecraft.world.level.levelgen.feature.configurations.RangeConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RuinedPortalConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.NetherFossilFeature;
 import net.minecraft.world.level.levelgen.structure.OceanRuinFeature;
 import net.minecraft.world.level.levelgen.structure.PostPlacementProcessor;
-import net.minecraft.world.level.levelgen.structure.StructureCheckResult;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import org.slf4j.Logger;
 
@@ -182,85 +177,8 @@ public class StructureFeature<C extends FeatureConfiguration> {
         return new ConfiguredStructureFeature<>(this, param0);
     }
 
-    public BlockPos getLocatePos(ChunkPos param0) {
-        return new BlockPos(param0.getMinBlockX(), 0, param0.getMinBlockZ());
-    }
-
-    @Nullable
-    public BlockPos getNearestGeneratedFeature(
-        LevelReader param0, StructureFeatureManager param1, BlockPos param2, int param3, boolean param4, long param5, StructureFeatureConfiguration param6
-    ) {
-        int var0 = param6.spacing();
-        int var1 = SectionPos.blockToSectionCoord(param2.getX());
-        int var2 = SectionPos.blockToSectionCoord(param2.getZ());
-
-        for(int var3 = 0; var3 <= param3; ++var3) {
-            for(int var4 = -var3; var4 <= var3; ++var4) {
-                boolean var5 = var4 == -var3 || var4 == var3;
-
-                for(int var6 = -var3; var6 <= var3; ++var6) {
-                    boolean var7 = var6 == -var3 || var6 == var3;
-                    if (var5 || var7) {
-                        int var8 = var1 + var0 * var4;
-                        int var9 = var2 + var0 * var6;
-                        ChunkPos var10 = this.getPotentialFeatureChunk(param6, param5, var8, var9);
-                        StructureCheckResult var11 = param1.checkStructurePresence(var10, this, param4);
-                        if (var11 != StructureCheckResult.START_NOT_PRESENT) {
-                            if (!param4 && var11 == StructureCheckResult.START_PRESENT) {
-                                return this.getLocatePos(var10);
-                            }
-
-                            ChunkAccess var12 = param0.getChunk(var10.x, var10.z, ChunkStatus.STRUCTURE_STARTS);
-                            StructureStart<?> var13 = param1.getStartForFeature(SectionPos.bottomOf(var12), this, var12);
-                            if (var13 != null && var13.isValid()) {
-                                if (param4 && var13.canBeReferenced()) {
-                                    param1.addReference(var13);
-                                    return this.getLocatePos(var13.getChunkPos());
-                                }
-
-                                if (!param4) {
-                                    return this.getLocatePos(var13.getChunkPos());
-                                }
-                            }
-
-                            if (var3 == 0) {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (var3 == 0) {
-                    break;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    protected boolean linearSeparation() {
-        return true;
-    }
-
-    public final ChunkPos getPotentialFeatureChunk(StructureFeatureConfiguration param0, long param1, int param2, int param3) {
-        int var0 = param0.spacing();
-        int var1 = param0.separation();
-        int var2 = Math.floorDiv(param2, var0);
-        int var3 = Math.floorDiv(param3, var0);
-        WorldgenRandom var4 = new WorldgenRandom(new LegacyRandomSource(0L));
-        var4.setLargeFeatureWithSalt(param1, var2, var3, param0.salt());
-        int var5;
-        int var6;
-        if (this.linearSeparation()) {
-            var5 = var4.nextInt(var0 - var1);
-            var6 = var4.nextInt(var0 - var1);
-        } else {
-            var5 = (var4.nextInt(var0 - var1) + var4.nextInt(var0 - var1)) / 2;
-            var6 = (var4.nextInt(var0 - var1) + var4.nextInt(var0 - var1)) / 2;
-        }
-
-        return new ChunkPos(var2 * var0 + var5, var3 * var0 + var6);
+    public static BlockPos getLocatePos(RandomSpreadStructurePlacement param0, ChunkPos param1) {
+        return new BlockPos(param1.getMinBlockX(), 0, param1.getMinBlockZ()).offset(param0.locateOffset());
     }
 
     public StructureStart<?> generate(
@@ -271,24 +189,20 @@ public class StructureFeature<C extends FeatureConfiguration> {
         long param4,
         ChunkPos param5,
         int param6,
-        StructureFeatureConfiguration param7,
-        C param8,
-        LevelHeightAccessor param9,
-        Predicate<Biome> param10
+        C param7,
+        LevelHeightAccessor param8,
+        Predicate<Holder<Biome>> param9
     ) {
-        ChunkPos var0 = this.getPotentialFeatureChunk(param7, param4, param5.x, param5.z);
-        if (param5.x == var0.x && param5.z == var0.z) {
-            Optional<PieceGenerator<C>> var1 = this.pieceGenerator
-                .createGenerator(new PieceGeneratorSupplier.Context<>(param1, param2, param4, param5, param8, param9, param10, param3, param0));
-            if (var1.isPresent()) {
-                StructurePiecesBuilder var2 = new StructurePiecesBuilder();
-                WorldgenRandom var3 = new WorldgenRandom(new LegacyRandomSource(0L));
-                var3.setLargeFeatureSeed(param4, param5.x, param5.z);
-                var1.get().generatePieces(var2, new PieceGenerator.Context<>(param8, param1, param3, param5, param9, var3, param4));
-                StructureStart<C> var4 = new StructureStart<>(this, param5, param6, var2.build());
-                if (var4.isValid()) {
-                    return var4;
-                }
+        Optional<PieceGenerator<C>> var0 = this.pieceGenerator
+            .createGenerator(new PieceGeneratorSupplier.Context<>(param1, param2, param4, param5, param7, param8, param9, param3, param0));
+        if (var0.isPresent()) {
+            StructurePiecesBuilder var1 = new StructurePiecesBuilder();
+            WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(0L));
+            var2.setLargeFeatureSeed(param4, param5.x, param5.z);
+            var0.get().generatePieces(var1, new PieceGenerator.Context<>(param7, param1, param3, param5, param8, var2, param4));
+            StructureStart<C> var3 = new StructureStart<>(this, param5, param6, var1.build());
+            if (var3.isValid()) {
+                return var3;
             }
         }
 
@@ -304,7 +218,7 @@ public class StructureFeature<C extends FeatureConfiguration> {
         ChunkPos param5,
         C param6,
         LevelHeightAccessor param7,
-        Predicate<Biome> param8
+        Predicate<Holder<Biome>> param8
     ) {
         return this.pieceGenerator
             .createGenerator(new PieceGeneratorSupplier.Context<>(param1, param2, param4, param5, param6, param7, param8, param3, param0))

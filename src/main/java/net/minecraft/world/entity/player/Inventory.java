@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Nameable;
@@ -147,15 +147,8 @@ public class Inventory implements Container, Nameable {
     }
 
     public void swapPaint(double param0) {
-        if (param0 > 0.0) {
-            param0 = 1.0;
-        }
-
-        if (param0 < 0.0) {
-            param0 = -1.0;
-        }
-
-        this.selected = (int)((double)this.selected - param0);
+        int var0 = (int)Math.signum(param0);
+        this.selected -= var0;
 
         while(this.selected < 0) {
             this.selected += 9;
@@ -568,7 +561,7 @@ public class Inventory implements Container, Nameable {
         return false;
     }
 
-    public boolean contains(Tag<Item> param0) {
+    public boolean contains(TagKey<Item> param0) {
         for(List<ItemStack> var0 : this.compartments) {
             for(ItemStack var1 : var0) {
                 if (!var1.isEmpty() && var1.is(param0)) {

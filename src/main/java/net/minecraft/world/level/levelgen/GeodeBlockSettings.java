@@ -3,8 +3,10 @@ package net.minecraft.world.level.levelgen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
@@ -15,8 +17,8 @@ public class GeodeBlockSettings {
     public final BlockStateProvider middleLayerProvider;
     public final BlockStateProvider outerLayerProvider;
     public final List<BlockState> innerPlacements;
-    public final ResourceLocation cannotReplace;
-    public final ResourceLocation invalidBlocks;
+    public final TagKey<Block> cannotReplace;
+    public final TagKey<Block> invalidBlocks;
     public static final Codec<GeodeBlockSettings> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     BlockStateProvider.CODEC.fieldOf("filling_provider").forGetter(param0x -> param0x.fillingProvider),
@@ -25,8 +27,8 @@ public class GeodeBlockSettings {
                     BlockStateProvider.CODEC.fieldOf("middle_layer_provider").forGetter(param0x -> param0x.middleLayerProvider),
                     BlockStateProvider.CODEC.fieldOf("outer_layer_provider").forGetter(param0x -> param0x.outerLayerProvider),
                     ExtraCodecs.nonEmptyList(BlockState.CODEC.listOf()).fieldOf("inner_placements").forGetter(param0x -> param0x.innerPlacements),
-                    ResourceLocation.CODEC.fieldOf("cannot_replace").forGetter(param0x -> param0x.cannotReplace),
-                    ResourceLocation.CODEC.fieldOf("invalid_blocks").forGetter(param0x -> param0x.invalidBlocks)
+                    TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("cannot_replace").forGetter(param0x -> param0x.cannotReplace),
+                    TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("invalid_blocks").forGetter(param0x -> param0x.invalidBlocks)
                 )
                 .apply(param0, GeodeBlockSettings::new)
     );
@@ -38,8 +40,8 @@ public class GeodeBlockSettings {
         BlockStateProvider param3,
         BlockStateProvider param4,
         List<BlockState> param5,
-        ResourceLocation param6,
-        ResourceLocation param7
+        TagKey<Block> param6,
+        TagKey<Block> param7
     ) {
         this.fillingProvider = param0;
         this.innerLayerProvider = param1;

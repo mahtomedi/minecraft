@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -177,7 +178,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
+    public Holder<Biome> getUncachedNoiseBiome(int param0, int param1, int param2) {
         return this.level.getUncachedNoiseBiome(param0, param1, param2);
     }
 

@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction8;
+import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.WorldGenRegion;
@@ -222,17 +223,17 @@ public class Blender {
 
     public BiomeResolver getBiomeResolver(BiomeResolver param0) {
         return (param1, param2, param3, param4) -> {
-            Biome var0 = this.blendBiome(param1, param3);
+            Holder<Biome> var0 = this.blendBiome(param1, param3);
             return var0 == null ? param0.getNoiseBiome(param1, param2, param3, param4) : var0;
         };
     }
 
     @Nullable
-    private Biome blendBiome(int param0, int param1) {
+    private Holder<Biome> blendBiome(int param0, int param1) {
         double var0 = (double)param0 + SHIFT_NOISE.getValue((double)param0, 0.0, (double)param1) * 12.0;
         double var1 = (double)param1 + SHIFT_NOISE.getValue((double)param1, (double)param0, 0.0) * 12.0;
         MutableDouble var2 = new MutableDouble(Double.POSITIVE_INFINITY);
-        MutableObject<Biome> var3 = new MutableObject<>();
+        MutableObject<Holder<Biome>> var3 = new MutableObject<>();
         this.blendingData
             .forEach(
                 (param4, param5) -> param5.iterateBiomes(

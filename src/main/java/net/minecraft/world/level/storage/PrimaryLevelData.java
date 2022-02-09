@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.util.Set;
 import java.util.UUID;
@@ -22,7 +23,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryWriteOps;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.Difficulty;
@@ -247,7 +248,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         var1.putString("Series", SharedConstants.getCurrentVersion().getDataVersion().getSeries());
         param1.put("Version", var1);
         param1.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
-        RegistryWriteOps<Tag> var2 = RegistryWriteOps.create(NbtOps.INSTANCE, param0);
+        DynamicOps<Tag> var2 = RegistryOps.create(NbtOps.INSTANCE, param0);
         WorldGenSettings.CODEC
             .encodeStart(var2, this.worldGenSettings)
             .resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error))

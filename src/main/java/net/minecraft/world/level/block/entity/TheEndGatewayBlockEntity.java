@@ -205,7 +205,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         if (var2 == null) {
             var2 = new BlockPos(var0.x + 0.5, 75.0, var0.z + 0.5);
             LOGGER.debug("Failed to find a suitable block to teleport to, spawning an island on {}", var2);
-            EndFeatures.END_ISLAND.place(param0, param0.getChunkSource().getGenerator(), new Random(var2.asLong()), var2);
+            EndFeatures.END_ISLAND.value().place(param0, param0.getChunkSource().getGenerator(), new Random(var2.asLong()), var2);
         } else {
             LOGGER.debug("Found suitable block to teleport to: {}", var2);
         }
@@ -287,7 +287,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
     }
 
     private static void spawnGatewayPortal(ServerLevel param0, BlockPos param1, EndGatewayConfiguration param2) {
-        Feature.END_GATEWAY.configured(param2).place(param0, param0.getChunkSource().getGenerator(), new Random(), param1);
+        Feature.END_GATEWAY.place(param2, param0, param0.getChunkSource().getGenerator(), new Random(), param1);
     }
 
     @Override

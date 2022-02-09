@@ -75,13 +75,13 @@ public class Chicken extends Animal {
         super.aiStep();
         this.oFlap = this.flap;
         this.oFlapSpeed = this.flapSpeed;
-        this.flapSpeed = (float)((double)this.flapSpeed + (double)(this.onGround ? -1 : 4) * 0.3);
+        this.flapSpeed += (this.onGround ? -1.0F : 4.0F) * 0.3F;
         this.flapSpeed = Mth.clamp(this.flapSpeed, 0.0F, 1.0F);
         if (!this.onGround && this.flapping < 1.0F) {
             this.flapping = 1.0F;
         }
 
-        this.flapping = (float)((double)this.flapping * 0.9);
+        this.flapping *= 0.9F;
         Vec3 var0 = this.getDeltaMovement();
         if (!this.onGround && var0.y < 0.0) {
             this.setDeltaMovement(var0.multiply(1.0, 0.6, 1.0));

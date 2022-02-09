@@ -24,12 +24,12 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.RegistryWriteOps;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.WorldStem;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
@@ -125,37 +125,34 @@ public class EditWorldScreen extends Screen {
                 20,
                 new TranslatableComponent("selectWorld.edit.export_worldgen_settings"),
                 param0 -> {
-                    RegistryAccess.RegistryHolder var0x = RegistryAccess.builtin();
+                    DataResult<String> var3;
+                    try (WorldStem var0x = this.minecraft.makeWorldStem(this.levelAccess, false)) {
+                        DynamicOps<JsonElement> var1x = RegistryOps.create(JsonOps.INSTANCE, var0x.registryAccess());
+                        DataResult<JsonElement> var2x = WorldGenSettings.CODEC.encodeStart(var1x, var0x.worldData().worldGenSettings());
+                        var3 = var2x.flatMap(param0x -> {
+                            Path var0x = this.levelAccess.getLevelPath(LevelResource.ROOT).resolve("worldgen_settings_export.json");
         
-                    DataResult<String> var4;
-                    try (Minecraft.ServerStem var1x = this.minecraft
-                            .makeServerStem(var0x, Minecraft::loadDataPacks, Minecraft::loadWorldData, false, this.levelAccess)) {
-                        DynamicOps<JsonElement> var2x = RegistryWriteOps.create(JsonOps.INSTANCE, var0x);
-                        DataResult<JsonElement> var3x = WorldGenSettings.CODEC.encodeStart(var2x, var1x.worldData().worldGenSettings());
-                        var4 = var3x.flatMap(param0x -> {
-                            Path var0xx = this.levelAccess.getLevelPath(LevelResource.ROOT).resolve("worldgen_settings_export.json");
-        
-                            try (JsonWriter var1x = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0xx, StandardCharsets.UTF_8))) {
-                                WORLD_GEN_SETTINGS_GSON.toJson(param0x, var1x);
+                            try (JsonWriter var2xx = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0x, StandardCharsets.UTF_8))) {
+                                WORLD_GEN_SETTINGS_GSON.toJson(param0x, var2xx);
                             } catch (JsonIOException | IOException var8x) {
                                 return DataResult.error("Error writing file: " + var8x.getMessage());
                             }
         
-                            return DataResult.success(var0xx.toString());
+                            return DataResult.success(var0x.toString());
                         });
-                    } catch (Exception var91) {
-                        LOGGER.warn("Could not parse level data", (Throwable)var91);
-                        var4 = DataResult.error("Could not parse level data: " + var91.getMessage());
+                    } catch (Exception var81) {
+                        LOGGER.warn("Could not parse level data", (Throwable)var81);
+                        var3 = DataResult.error("Could not parse level data: " + var81.getMessage());
                     }
         
-                    Component var8 = new TextComponent(var4.get().map(Function.identity(), PartialResult::message));
-                    Component var9 = new TranslatableComponent(
-                        var4.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
+                    Component var7 = new TextComponent(var3.get().map(Function.identity(), PartialResult::message));
+                    Component var8 = new TranslatableComponent(
+                        var3.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
                     );
-                    var4.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
+                    var3.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
                     this.minecraft
                         .getToasts()
-                        .addToast(SystemToast.multiline(this.minecraft, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var9, var8));
+                        .addToast(SystemToast.multiline(this.minecraft, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var8, var7));
                 }
             )
         );

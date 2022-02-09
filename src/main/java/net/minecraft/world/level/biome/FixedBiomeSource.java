@@ -6,20 +6,16 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 
 public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseBiomeSource {
     public static final Codec<FixedBiomeSource> CODEC = Biome.CODEC.fieldOf("biome").xmap(FixedBiomeSource::new, param0 -> param0.biome).stable().codec();
-    private final Supplier<Biome> biome;
+    private final Holder<Biome> biome;
 
-    public FixedBiomeSource(Biome param0) {
-        this(() -> param0);
-    }
-
-    public FixedBiomeSource(Supplier<Biome> param0) {
-        super(ImmutableList.of(param0.get()));
+    public FixedBiomeSource(Holder<Biome> param0) {
+        super(ImmutableList.of(param0));
         this.biome = param0;
     }
 
@@ -34,21 +30,21 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
     }
 
     @Override
-    public Biome getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
-        return this.biome.get();
+    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
+        return this.biome;
     }
 
     @Override
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
-        return this.biome.get();
+    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
+        return this.biome;
     }
 
     @Nullable
     @Override
     public BlockPos findBiomeHorizontal(
-        int param0, int param1, int param2, int param3, int param4, Predicate<Biome> param5, Random param6, boolean param7, Climate.Sampler param8
+        int param0, int param1, int param2, int param3, int param4, Predicate<Holder<Biome>> param5, Random param6, boolean param7, Climate.Sampler param8
     ) {
-        if (param5.test(this.biome.get())) {
+        if (param5.test(this.biome)) {
             return param7
                 ? new BlockPos(param0, param1, param2)
                 : new BlockPos(param0 - param3 + param6.nextInt(param3 * 2 + 1), param1, param2 - param3 + param6.nextInt(param3 * 2 + 1));
@@ -58,7 +54,7 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
     }
 
     @Override
-    public Set<Biome> getBiomesWithin(int param0, int param1, int param2, int param3, Climate.Sampler param4) {
-        return Sets.newHashSet(this.biome.get());
+    public Set<Holder<Biome>> getBiomesWithin(int param0, int param1, int param2, int param3, Climate.Sampler param4) {
+        return Sets.newHashSet(Set.of(this.biome));
     }
 }

@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.structure.pieces;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
@@ -33,7 +34,7 @@ public interface PieceGeneratorSupplier<C extends FeatureConfiguration> {
         ChunkPos chunkPos,
         C config,
         LevelHeightAccessor heightAccessor,
-        Predicate<Biome> validBiome,
+        Predicate<Holder<Biome>> validBiome,
         StructureManager structureManager,
         RegistryAccess registryAccess
     ) {
@@ -41,7 +42,7 @@ public interface PieceGeneratorSupplier<C extends FeatureConfiguration> {
             int var0 = this.chunkPos.getMiddleBlockX();
             int var1 = this.chunkPos.getMiddleBlockZ();
             int var2 = this.chunkGenerator.getFirstOccupiedHeight(var0, var1, param0, this.heightAccessor);
-            Biome var3 = this.chunkGenerator.getNoiseBiome(QuartPos.fromBlock(var0), QuartPos.fromBlock(var2), QuartPos.fromBlock(var1));
+            Holder<Biome> var3 = this.chunkGenerator.getNoiseBiome(QuartPos.fromBlock(var0), QuartPos.fromBlock(var2), QuartPos.fromBlock(var1));
             return this.validBiome.test(var3);
         }
 

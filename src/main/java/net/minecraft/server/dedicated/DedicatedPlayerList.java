@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 public class DedicatedPlayerList extends PlayerList {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public DedicatedPlayerList(DedicatedServer param0, RegistryAccess.RegistryHolder param1, PlayerDataStorage param2) {
+    public DedicatedPlayerList(DedicatedServer param0, RegistryAccess.Frozen param1, PlayerDataStorage param2) {
         super(param0, param1, param2, param0.getProperties().maxPlayers);
         DedicatedServerProperties var0 = param0.getProperties();
         this.setViewDistance(var0.viewDistance);

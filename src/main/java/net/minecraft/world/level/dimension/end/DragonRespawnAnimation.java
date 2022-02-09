@@ -72,8 +72,7 @@ public enum DragonRespawnAnimation {
                         );
                         SpikeConfiguration var9 = new SpikeConfiguration(true, ImmutableList.of(var5), new BlockPos(0, 128, 0));
                         Feature.END_SPIKE
-                            .configured(var9)
-                            .place(param0, param0.getChunkSource().getGenerator(), new Random(), new BlockPos(var5.getCenterX(), 45, var5.getCenterZ()));
+                            .place(var9, param0, param0.getChunkSource().getGenerator(), new Random(), new BlockPos(var5.getCenterX(), 45, var5.getCenterZ()));
                     }
                 } else if (var1) {
                     param1.setRespawnStage(SUMMONING_DRAGON);
