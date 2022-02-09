@@ -129,7 +129,7 @@
                   }
                 },
                 {
-                  "type": "minecraft:jump_boost",
+                  "type": "minecraft:saturation",
                   "duration": {
                     "type": "minecraft:uniform",
                     "min": 7.0,
@@ -137,7 +137,7 @@
                   }
                 },
                 {
-                  "type": "minecraft:saturation",
+                  "type": "minecraft:night_vision",
                   "duration": {
                     "type": "minecraft:uniform",
                     "min": 7.0,
@@ -153,7 +153,7 @@
                   }
                 },
                 {
-                  "type": "minecraft:night_vision",
+                  "type": "minecraft:jump_boost",
                   "duration": {
                     "type": "minecraft:uniform",
                     "min": 7.0,

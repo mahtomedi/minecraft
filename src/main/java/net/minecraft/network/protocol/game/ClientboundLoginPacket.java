@@ -3,6 +3,7 @@ package net.minecraft.network.protocol.game;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,8 +19,8 @@ public record ClientboundLoginPacket(
     GameType gameType,
     @Nullable GameType previousGameType,
     Set<ResourceKey<Level>> levels,
-    RegistryAccess.RegistryHolder registryHolder,
-    DimensionType dimensionType,
+    RegistryAccess.Frozen registryHolder,
+    Holder<DimensionType> dimensionType,
     ResourceKey<Level> dimension,
     long seed,
     int maxPlayers,
@@ -37,8 +38,8 @@ public record ClientboundLoginPacket(
             GameType.byId(param0.readByte()),
             GameType.byNullableId(param0.readByte()),
             param0.readCollection(Sets::newHashSetWithExpectedSize, param0x -> ResourceKey.create(Registry.DIMENSION_REGISTRY, param0x.readResourceLocation())),
-            param0.readWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC),
-            param0.readWithCodec(DimensionType.CODEC).get(),
+            param0.readWithCodec(RegistryAccess.NETWORK_CODEC).freeze(),
+            param0.readWithCodec(DimensionType.CODEC),
             ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation()),
             param0.readLong(),
             param0.readVarInt(),
@@ -58,8 +59,8 @@ public record ClientboundLoginPacket(
         param0.writeByte(this.gameType.getId());
         param0.writeByte(GameType.getNullableId(this.previousGameType));
         param0.writeCollection(this.levels, (param0x, param1) -> param0x.writeResourceLocation(param1.location()));
-        param0.writeWithCodec(RegistryAccess.RegistryHolder.NETWORK_CODEC, this.registryHolder);
-        param0.writeWithCodec(DimensionType.CODEC, () -> this.dimensionType);
+        param0.writeWithCodec(RegistryAccess.NETWORK_CODEC, this.registryHolder);
+        param0.writeWithCodec(DimensionType.CODEC, this.dimensionType);
         param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);
         param0.writeVarInt(this.maxPlayers);

@@ -290,7 +290,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     double var14 = (double)this.rainSizeX[var13] * 0.5;
                     double var15 = (double)this.rainSizeZ[var13] * 0.5;
                     var10.set((double)var12, param3, (double)var11);
-                    Biome var16 = var1.getBiome(var10);
+                    Biome var16 = var1.getBiome(var10).value();
                     if (var16.getPrecipitation() != Biome.Precipitation.NONE) {
                         int var17 = var1.getHeight(Heightmap.Types.MOTION_BLOCKING, var12, var11);
                         int var18 = var3 - var7;
@@ -423,7 +423,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 int var7 = var1.nextInt(21) - 10;
                 int var8 = var1.nextInt(21) - 10;
                 BlockPos var9 = var2.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var3.offset(var7, 0, var8));
-                Biome var10 = var2.getBiome(var9);
+                Biome var10 = var2.getBiome(var9).value();
                 if (var9.getY() > var2.getMinBuildHeight()
                     && var9.getY() <= var3.getY() + 10
                     && var9.getY() >= var3.getY() - 10

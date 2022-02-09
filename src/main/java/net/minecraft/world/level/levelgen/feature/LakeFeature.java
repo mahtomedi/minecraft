@@ -139,7 +139,7 @@ public class LakeFeature extends Feature<LakeFeature.Configuration> {
                         for(int var39 = 0; var39 < 16; ++var39) {
                             int var40 = 4;
                             BlockPos var41 = var0.offset(var38, 4, var39);
-                            if (var1.getBiome(var41).shouldFreeze(var1, var41, false) && this.canReplaceBlock(var1.getBlockState(var41))) {
+                            if (var1.getBiome(var41).value().shouldFreeze(var1, var41, false) && this.canReplaceBlock(var1.getBlockState(var41))) {
                                 var1.setBlock(var41, Blocks.ICE.defaultBlockState(), 2);
                             }
                         }

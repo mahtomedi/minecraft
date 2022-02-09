@@ -8,8 +8,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
 public class EntityCollisionContext implements CollisionContext {
@@ -22,11 +20,11 @@ public class EntityCollisionContext implements CollisionContext {
     private final boolean descending;
     private final double entityBottom;
     private final ItemStack heldItem;
-    private final Predicate<Fluid> canStandOnFluid;
+    private final Predicate<FluidState> canStandOnFluid;
     @Nullable
     private final Entity entity;
 
-    protected EntityCollisionContext(boolean param0, double param1, ItemStack param2, Predicate<Fluid> param3, @Nullable Entity param4) {
+    protected EntityCollisionContext(boolean param0, double param1, ItemStack param2, Predicate<FluidState> param3, @Nullable Entity param4) {
         this.descending = param0;
         this.entityBottom = param1;
         this.heldItem = param2;
@@ -51,8 +49,8 @@ public class EntityCollisionContext implements CollisionContext {
     }
 
     @Override
-    public boolean canStandOnFluid(FluidState param0, FlowingFluid param1) {
-        return this.canStandOnFluid.test(param1) && !param0.getType().isSame(param1);
+    public boolean canStandOnFluid(FluidState param0, FluidState param1) {
+        return this.canStandOnFluid.test(param1) && !param0.getType().isSame(param1.getType());
     }
 
     @Override

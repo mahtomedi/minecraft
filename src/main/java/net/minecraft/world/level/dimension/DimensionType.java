@@ -9,8 +9,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -19,7 +19,7 @@ import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -62,7 +62,7 @@ public class DimensionType {
                         Codec.intRange(MIN_Y, MAX_Y).fieldOf("min_y").forGetter(DimensionType::minY),
                         Codec.intRange(16, Y_SIZE).fieldOf("height").forGetter(DimensionType::height),
                         Codec.intRange(0, Y_SIZE).fieldOf("logical_height").forGetter(DimensionType::logicalHeight),
-                        ResourceLocation.CODEC.fieldOf("infiniburn").forGetter(param0x -> param0x.infiniburn),
+                        TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("infiniburn").forGetter(param0x -> param0x.infiniburn),
                         ResourceLocation.CODEC.fieldOf("effects").orElse(OVERWORLD_EFFECTS).forGetter(param0x -> param0x.effectsLocation),
                         Codec.FLOAT.fieldOf("ambient_light").forGetter(param0x -> param0x.ambientLight)
                     )
@@ -89,47 +89,15 @@ public class DimensionType {
         -64,
         384,
         384,
-        BlockTags.INFINIBURN_OVERWORLD.getName(),
+        BlockTags.INFINIBURN_OVERWORLD,
         OVERWORLD_EFFECTS,
         0.0F
     );
     protected static final DimensionType DEFAULT_NETHER = create(
-        OptionalLong.of(18000L),
-        false,
-        true,
-        true,
-        false,
-        8.0,
-        false,
-        true,
-        false,
-        true,
-        false,
-        0,
-        256,
-        128,
-        BlockTags.INFINIBURN_NETHER.getName(),
-        NETHER_EFFECTS,
-        0.1F
+        OptionalLong.of(18000L), false, true, true, false, 8.0, false, true, false, true, false, 0, 256, 128, BlockTags.INFINIBURN_NETHER, NETHER_EFFECTS, 0.1F
     );
     protected static final DimensionType DEFAULT_END = create(
-        OptionalLong.of(6000L),
-        false,
-        false,
-        false,
-        false,
-        1.0,
-        true,
-        false,
-        false,
-        false,
-        true,
-        0,
-        256,
-        256,
-        BlockTags.INFINIBURN_END.getName(),
-        END_EFFECTS,
-        0.0F
+        OptionalLong.of(6000L), false, false, false, false, 1.0, true, false, false, false, true, 0, 256, 256, BlockTags.INFINIBURN_END, END_EFFECTS, 0.0F
     );
     public static final ResourceKey<DimensionType> OVERWORLD_CAVES_LOCATION = ResourceKey.create(
         Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation("overworld_caves")
@@ -149,11 +117,11 @@ public class DimensionType {
         -64,
         384,
         384,
-        BlockTags.INFINIBURN_OVERWORLD.getName(),
+        BlockTags.INFINIBURN_OVERWORLD,
         OVERWORLD_EFFECTS,
         0.0F
     );
-    public static final Codec<Supplier<DimensionType>> CODEC = RegistryFileCodec.create(Registry.DIMENSION_TYPE_REGISTRY, DIRECT_CODEC);
+    public static final Codec<Holder<DimensionType>> CODEC = RegistryFileCodec.create(Registry.DIMENSION_TYPE_REGISTRY, DIRECT_CODEC);
     private final OptionalLong fixedTime;
     private final boolean hasSkylight;
     private final boolean hasCeiling;
@@ -168,7 +136,7 @@ public class DimensionType {
     private final int minY;
     private final int height;
     private final int logicalHeight;
-    private final ResourceLocation infiniburn;
+    private final TagKey<Block> infiniburn;
     private final ResourceLocation effectsLocation;
     private final float ambientLight;
     private final transient float[] brightnessRamp;
@@ -201,7 +169,7 @@ public class DimensionType {
         int param10,
         int param11,
         int param12,
-        ResourceLocation param13,
+        TagKey<Block> param13,
         ResourceLocation param14,
         float param15
     ) {
@@ -223,7 +191,7 @@ public class DimensionType {
         int param11,
         int param12,
         int param13,
-        ResourceLocation param14,
+        TagKey<Block> param14,
         ResourceLocation param15,
         float param16
     ) {
@@ -252,7 +220,7 @@ public class DimensionType {
         int param11,
         int param12,
         int param13,
-        ResourceLocation param14,
+        TagKey<Block> param14,
         ResourceLocation param15,
         float param16
     ) {
@@ -309,8 +277,8 @@ public class DimensionType {
         return Level.RESOURCE_KEY_CODEC.parse(param0);
     }
 
-    public static RegistryAccess registerBuiltin(RegistryAccess param0) {
-        WritableRegistry<DimensionType> var0 = param0.ownedRegistryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+    public static RegistryAccess.Writable registerBuiltin(RegistryAccess.Writable param0) {
+        WritableRegistry<DimensionType> var0 = param0.ownedWritableRegistryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         var0.register(OVERWORLD_LOCATION, DEFAULT_OVERWORLD, Lifecycle.stable());
         var0.register(OVERWORLD_CAVES_LOCATION, DEFAULT_OVERWORLD_CAVES, Lifecycle.stable());
         var0.register(NETHER_LOCATION, DEFAULT_NETHER, Lifecycle.stable());
@@ -318,12 +286,12 @@ public class DimensionType {
         return param0;
     }
 
-    public static MappedRegistry<LevelStem> defaultDimensions(RegistryAccess param0, long param1) {
+    public static Registry<LevelStem> defaultDimensions(RegistryAccess param0, long param1) {
         return defaultDimensions(param0, param1, true);
     }
 
-    public static MappedRegistry<LevelStem> defaultDimensions(RegistryAccess param0, long param1, boolean param2) {
-        MappedRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
+    public static Registry<LevelStem> defaultDimensions(RegistryAccess param0, long param1, boolean param2) {
+        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental(), null);
         Registry<DimensionType> var1 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         Registry<Biome> var2 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
         Registry<NoiseGeneratorSettings> var3 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
@@ -331,9 +299,9 @@ public class DimensionType {
         var0.register(
             LevelStem.NETHER,
             new LevelStem(
-                () -> var1.getOrThrow(NETHER_LOCATION),
+                var1.getOrCreateHolder(NETHER_LOCATION),
                 new NoiseBasedChunkGenerator(
-                    var4, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(var2, param2), param1, () -> var3.getOrThrow(NoiseGeneratorSettings.NETHER)
+                    var4, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(var2, param2), param1, var3.getOrCreateHolder(NoiseGeneratorSettings.NETHER)
                 )
             ),
             Lifecycle.stable()
@@ -341,8 +309,8 @@ public class DimensionType {
         var0.register(
             LevelStem.END,
             new LevelStem(
-                () -> var1.getOrThrow(END_LOCATION),
-                new NoiseBasedChunkGenerator(var4, new TheEndBiomeSource(var2, param1), param1, () -> var3.getOrThrow(NoiseGeneratorSettings.END))
+                var1.getOrCreateHolder(END_LOCATION),
+                new NoiseBasedChunkGenerator(var4, new TheEndBiomeSource(var2, param1), param1, var3.getOrCreateHolder(NoiseGeneratorSettings.END))
             ),
             Lifecycle.stable()
         );
@@ -442,9 +410,8 @@ public class DimensionType {
         return this.brightnessRamp[param0];
     }
 
-    public Tag<Block> infiniburn() {
-        Tag<Block> var0 = BlockTags.getAllTags().getTag(this.infiniburn);
-        return (Tag<Block>)(var0 != null ? var0 : BlockTags.INFINIBURN_OVERWORLD);
+    public TagKey<Block> infiniburn() {
+        return this.infiniburn;
     }
 
     public ResourceLocation effectsLocation() {

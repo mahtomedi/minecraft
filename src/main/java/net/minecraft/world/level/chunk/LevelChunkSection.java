@@ -1,6 +1,7 @@
 package net.minecraft.world.level.chunk;
 
 import java.util.function.Predicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -23,9 +24,9 @@ public class LevelChunkSection {
     private short tickingBlockCount;
     private short tickingFluidCount;
     private final PalettedContainer<BlockState> states;
-    private final PalettedContainer<Biome> biomes;
+    private final PalettedContainer<Holder<Biome>> biomes;
 
-    public LevelChunkSection(int param0, PalettedContainer<BlockState> param1, PalettedContainer<Biome> param2) {
+    public LevelChunkSection(int param0, PalettedContainer<BlockState> param1, PalettedContainer<Holder<Biome>> param2) {
         this.bottomBlockY = getBottomBlockY(param0);
         this.states = param1;
         this.biomes = param2;
@@ -35,7 +36,7 @@ public class LevelChunkSection {
     public LevelChunkSection(int param0, Registry<Biome> param1) {
         this.bottomBlockY = getBottomBlockY(param0);
         this.states = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES);
-        this.biomes = new PalettedContainer<>(param1, param1.getOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
+        this.biomes = new PalettedContainer<>(param1.asHolderIdMap(), param1.getHolderOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
     }
 
     public static int getBottomBlockY(int param0) {
@@ -118,33 +119,42 @@ public class LevelChunkSection {
     }
 
     public void recalcBlockCounts() {
-        this.nonEmptyBlockCount = 0;
-        this.tickingBlockCount = 0;
-        this.tickingFluidCount = 0;
-        this.states.count((param0, param1) -> {
-            FluidState var0 = param0.getFluidState();
-            if (!param0.isAir()) {
-                this.nonEmptyBlockCount = (short)(this.nonEmptyBlockCount + param1);
-                if (param0.isRandomlyTicking()) {
-                    this.tickingBlockCount = (short)(this.tickingBlockCount + param1);
-                }
-            }
+        class BlockCounter implements PalettedContainer.CountConsumer<BlockState> {
+            public int nonEmptyBlockCount;
+            public int tickingBlockCount;
+            public int tickingFluidCount;
 
-            if (!var0.isEmpty()) {
-                this.nonEmptyBlockCount = (short)(this.nonEmptyBlockCount + param1);
-                if (var0.isRandomlyTicking()) {
-                    this.tickingFluidCount = (short)(this.tickingFluidCount + param1);
+            public void accept(BlockState param0, int param1) {
+                FluidState var0 = param0.getFluidState();
+                if (!param0.isAir()) {
+                    this.nonEmptyBlockCount += param1;
+                    if (param0.isRandomlyTicking()) {
+                        this.tickingBlockCount += param1;
+                    }
                 }
-            }
 
-        });
+                if (!var0.isEmpty()) {
+                    this.nonEmptyBlockCount += param1;
+                    if (var0.isRandomlyTicking()) {
+                        this.tickingFluidCount += param1;
+                    }
+                }
+
+            }
+        }
+
+        BlockCounter var0 = new BlockCounter();
+        this.states.count(var0);
+        this.nonEmptyBlockCount = (short)var0.nonEmptyBlockCount;
+        this.tickingBlockCount = (short)var0.tickingBlockCount;
+        this.tickingFluidCount = (short)var0.tickingFluidCount;
     }
 
     public PalettedContainer<BlockState> getStates() {
         return this.states;
     }
 
-    public PalettedContainer<Biome> getBiomes() {
+    public PalettedContainer<Holder<Biome>> getBiomes() {
         return this.biomes;
     }
 
@@ -168,12 +178,12 @@ public class LevelChunkSection {
         return this.states.maybeHas(param0);
     }
 
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
+    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
         return this.biomes.get(param0, param1, param2);
     }
 
     public void fillBiomesFromNoise(BiomeResolver param0, Climate.Sampler param1, int param2, int param3) {
-        PalettedContainer<Biome> var0 = this.getBiomes();
+        PalettedContainer<Holder<Biome>> var0 = this.getBiomes();
         var0.acquire();
 
         try {

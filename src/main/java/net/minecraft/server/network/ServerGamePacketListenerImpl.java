@@ -129,6 +129,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BaseCommandBlock;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -1030,29 +1031,46 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         InteractionHand var1 = param0.getHand();
         ItemStack var2 = this.player.getItemInHand(var1);
         BlockHitResult var3 = param0.getHitResult();
-        BlockPos var4 = var3.getBlockPos();
-        Direction var5 = var3.getDirection();
-        this.player.resetLastActionTime();
-        int var6 = this.player.level.getMaxBuildHeight();
-        if (var4.getY() < var6) {
-            if (this.awaitingPositionFromClient == null
-                && this.player.distanceToSqr((double)var4.getX() + 0.5, (double)var4.getY() + 0.5, (double)var4.getZ() + 0.5) < 64.0
-                && var0.mayInteract(this.player, var4)) {
-                InteractionResult var7 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
-                if (var5 == Direction.UP && !var7.consumesAction() && var4.getY() >= var6 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
-                    Component var8 = new TranslatableComponent("build.tooHigh", var6 - 1).withStyle(ChatFormatting.RED);
-                    this.player.sendMessage(var8, ChatType.GAME_INFO, Util.NIL_UUID);
-                } else if (var7.shouldSwing()) {
-                    this.player.swing(var1, true);
+        Vec3 var4 = var3.getLocation();
+        BlockPos var5 = var3.getBlockPos();
+        Vec3 var6 = var4.subtract(Vec3.atCenterOf(var5));
+        if (this.player.level.getServer() != null
+            && this.player.chunkPosition().getChessboardDistance(new ChunkPos(var5)) < this.player.level.getServer().getPlayerList().getViewDistance()) {
+            double var7 = 1.0000001;
+            if (Math.abs(var6.x()) < 1.0000001 && Math.abs(var6.y()) < 1.0000001 && Math.abs(var6.z()) < 1.0000001) {
+                Direction var8 = var3.getDirection();
+                this.player.resetLastActionTime();
+                int var9 = this.player.level.getMaxBuildHeight();
+                if (var5.getY() < var9) {
+                    if (this.awaitingPositionFromClient == null
+                        && this.player.distanceToSqr((double)var5.getX() + 0.5, (double)var5.getY() + 0.5, (double)var5.getZ() + 0.5) < 64.0
+                        && var0.mayInteract(this.player, var5)) {
+                        InteractionResult var10 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
+                        if (var8 == Direction.UP && !var10.consumesAction() && var5.getY() >= var9 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
+                            Component var11 = new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED);
+                            this.player.sendMessage(var11, ChatType.GAME_INFO, Util.NIL_UUID);
+                        } else if (var10.shouldSwing()) {
+                            this.player.swing(var1, true);
+                        }
+                    }
+                } else {
+                    Component var12 = new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED);
+                    this.player.sendMessage(var12, ChatType.GAME_INFO, Util.NIL_UUID);
                 }
+
+                this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5));
+                this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5.relative(var8)));
+            } else {
+                LOGGER.warn("Ignoring UseItemOnPacket from {}: Location {} too far away from hit block {}.", this.player.getGameProfile().getName(), var4, var5);
             }
         } else {
-            Component var9 = new TranslatableComponent("build.tooHigh", var6 - 1).withStyle(ChatFormatting.RED);
-            this.player.sendMessage(var9, ChatType.GAME_INFO, Util.NIL_UUID);
+            LOGGER.warn(
+                "Ignoring UseItemOnPacket from {}: hit position {} too far away from player {}.",
+                this.player.getGameProfile().getName(),
+                var5,
+                this.player.blockPosition()
+            );
         }
-
-        this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4));
-        this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4.relative(var5)));
     }
 
     @Override

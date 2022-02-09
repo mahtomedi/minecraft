@@ -13,7 +13,7 @@ import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -40,7 +40,7 @@ public class ShapelessRecipeBuilder implements RecipeBuilder {
         return new ShapelessRecipeBuilder(param0, param1);
     }
 
-    public ShapelessRecipeBuilder requires(Tag<Item> param0) {
+    public ShapelessRecipeBuilder requires(TagKey<Item> param0) {
         return this.requires(Ingredient.of(param0));
     }
 

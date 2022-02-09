@@ -46,10 +46,10 @@ public interface DyeableLeatherItem {
                 float var7 = (float)(var6 >> 16 & 0xFF) / 255.0F;
                 float var8 = (float)(var6 >> 8 & 0xFF) / 255.0F;
                 float var9 = (float)(var6 & 0xFF) / 255.0F;
-                var2 = (int)((float)var2 + Math.max(var7, Math.max(var8, var9)) * 255.0F);
-                var1[0] = (int)((float)var1[0] + var7 * 255.0F);
-                var1[1] = (int)((float)var1[1] + var8 * 255.0F);
-                var1[2] = (int)((float)var1[2] + var9 * 255.0F);
+                var2 += (int)(Math.max(var7, Math.max(var8, var9)) * 255.0F);
+                var1[0] += (int)(var7 * 255.0F);
+                var1[1] += (int)(var8 * 255.0F);
+                var1[2] += (int)(var9 * 255.0F);
                 ++var3;
             }
 

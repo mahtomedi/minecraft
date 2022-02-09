@@ -285,7 +285,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
 
     @Override
     public boolean isFood(ItemStack param0) {
-        return ItemTags.AXOLOTL_TEMPT_ITEMS.contains(param0.getItem());
+        return param0.is(ItemTags.AXOLOTL_TEMPT_ITEMS);
     }
 
     @Override

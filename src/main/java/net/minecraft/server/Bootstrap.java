@@ -2,7 +2,6 @@ package net.minecraft.server;
 
 import com.mojang.logging.LogUtils;
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,12 +12,12 @@ import net.minecraft.Util;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.selector.options.EntitySelectorOptions;
 import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.locale.Language;
-import net.minecraft.tags.StaticTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -55,7 +54,7 @@ public class Bootstrap {
                     DispenseItemBehavior.bootStrap();
                     CauldronInteraction.bootStrap();
                     ArgumentTypes.bootStrap();
-                    StaticTags.bootStrap();
+                    Registry.freezeBuiltins();
                     wrapStreams();
                 }
             }
@@ -132,15 +131,15 @@ public class Bootstrap {
             .stream()
             .forEach(
                 param0 -> {
-                    List<List<Supplier<PlacedFeature>>> var0 = param0.getGenerationSettings().features();
+                    List<HolderSet<PlacedFeature>> var0 = param0.getGenerationSettings().features();
                     var0.stream()
-                        .flatMap(Collection::stream)
+                        .flatMap(HolderSet::stream)
                         .forEach(
                             param0x -> {
-                                if (!((PlacedFeature)param0x.get()).getPlacement().contains(BiomeFilter.biome())) {
+                                if (!((PlacedFeature)param0x.value()).placement().contains(BiomeFilter.biome())) {
                                     Util.logAndPauseIfInIde(
                                         "Placed feature "
-                                            + BuiltinRegistries.PLACED_FEATURE.getResourceKey((PlacedFeature)param0x.get())
+                                            + BuiltinRegistries.PLACED_FEATURE.getResourceKey((PlacedFeature)param0x.value())
                                             + " is missing BiomeFilter.biome()"
                                     );
                                 }

@@ -2,7 +2,7 @@ package net.minecraft.data.worldgen;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import net.minecraft.core.Holder;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
@@ -25,124 +25,125 @@ import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.structure.OceanRuinFeature;
 
 public class StructureFeatures {
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> PILLAGER_OUTPOST = register(
-        "pillager_outpost", StructureFeature.PILLAGER_OUTPOST.configured(new JigsawConfiguration(() -> PillagerOutpostPools.START, 7))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> PILLAGER_OUTPOST = register(
+        "pillager_outpost", StructureFeature.PILLAGER_OUTPOST.configured(new JigsawConfiguration(PillagerOutpostPools.START, 7))
     );
-    private static final ConfiguredStructureFeature<MineshaftConfiguration, ? extends StructureFeature<MineshaftConfiguration>> MINESHAFT = register(
+    private static final Holder<ConfiguredStructureFeature<MineshaftConfiguration, ?>> MINESHAFT = register(
         "mineshaft", StructureFeature.MINESHAFT.configured(new MineshaftConfiguration(0.004F, MineshaftFeature.Type.NORMAL))
     );
-    private static final ConfiguredStructureFeature<MineshaftConfiguration, ? extends StructureFeature<MineshaftConfiguration>> MINESHAFT_MESA = register(
+    private static final Holder<ConfiguredStructureFeature<MineshaftConfiguration, ?>> MINESHAFT_MESA = register(
         "mineshaft_mesa", StructureFeature.MINESHAFT.configured(new MineshaftConfiguration(0.004F, MineshaftFeature.Type.MESA))
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> WOODLAND_MANSION = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> WOODLAND_MANSION = register(
         "mansion", StructureFeature.WOODLAND_MANSION.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> JUNGLE_TEMPLE = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> JUNGLE_TEMPLE = register(
         "jungle_pyramid", StructureFeature.JUNGLE_TEMPLE.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> DESERT_PYRAMID = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> DESERT_PYRAMID = register(
         "desert_pyramid", StructureFeature.DESERT_PYRAMID.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> IGLOO = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> IGLOO = register(
         "igloo", StructureFeature.IGLOO.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<ShipwreckConfiguration, ? extends StructureFeature<ShipwreckConfiguration>> SHIPWRECK = register(
+    private static final Holder<ConfiguredStructureFeature<ShipwreckConfiguration, ?>> SHIPWRECK = register(
         "shipwreck", StructureFeature.SHIPWRECK.configured(new ShipwreckConfiguration(false))
     );
-    private static final ConfiguredStructureFeature<ShipwreckConfiguration, ? extends StructureFeature<ShipwreckConfiguration>> SHIPWRECK_BEACHED = register(
+    private static final Holder<ConfiguredStructureFeature<ShipwreckConfiguration, ?>> SHIPWRECK_BEACHED = register(
         "shipwreck_beached", StructureFeature.SHIPWRECK.configured(new ShipwreckConfiguration(true))
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> SWAMP_HUT = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> SWAMP_HUT = register(
         "swamp_hut", StructureFeature.SWAMP_HUT.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    public static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> STRONGHOLD = register(
+    public static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> STRONGHOLD = register(
         "stronghold", StructureFeature.STRONGHOLD.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> OCEAN_MONUMENT = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> OCEAN_MONUMENT = register(
         "monument", StructureFeature.OCEAN_MONUMENT.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<OceanRuinConfiguration, ? extends StructureFeature<OceanRuinConfiguration>> OCEAN_RUIN_COLD = register(
+    private static final Holder<ConfiguredStructureFeature<OceanRuinConfiguration, ?>> OCEAN_RUIN_COLD = register(
         "ocean_ruin_cold", StructureFeature.OCEAN_RUIN.configured(new OceanRuinConfiguration(OceanRuinFeature.Type.COLD, 0.3F, 0.9F))
     );
-    private static final ConfiguredStructureFeature<OceanRuinConfiguration, ? extends StructureFeature<OceanRuinConfiguration>> OCEAN_RUIN_WARM = register(
+    private static final Holder<ConfiguredStructureFeature<OceanRuinConfiguration, ?>> OCEAN_RUIN_WARM = register(
         "ocean_ruin_warm", StructureFeature.OCEAN_RUIN.configured(new OceanRuinConfiguration(OceanRuinFeature.Type.WARM, 0.3F, 0.9F))
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> NETHER_BRIDGE = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> NETHER_BRIDGE = register(
         "fortress", StructureFeature.NETHER_BRIDGE.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<RangeConfiguration, ? extends StructureFeature<RangeConfiguration>> NETHER_FOSSIL = register(
+    private static final Holder<ConfiguredStructureFeature<RangeConfiguration, ?>> NETHER_FOSSIL = register(
         "nether_fossil",
         StructureFeature.NETHER_FOSSIL.configured(new RangeConfiguration(UniformHeight.of(VerticalAnchor.absolute(32), VerticalAnchor.belowTop(2))))
     );
-    private static final ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> END_CITY = register(
+    private static final Holder<ConfiguredStructureFeature<NoneFeatureConfiguration, ?>> END_CITY = register(
         "end_city", StructureFeature.END_CITY.configured(NoneFeatureConfiguration.INSTANCE)
     );
-    private static final ConfiguredStructureFeature<ProbabilityFeatureConfiguration, ? extends StructureFeature<ProbabilityFeatureConfiguration>> BURIED_TREASURE = register(
+    private static final Holder<ConfiguredStructureFeature<ProbabilityFeatureConfiguration, ?>> BURIED_TREASURE = register(
         "buried_treasure", StructureFeature.BURIED_TREASURE.configured(new ProbabilityFeatureConfiguration(0.01F))
     );
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> BASTION_REMNANT = register(
-        "bastion_remnant", StructureFeature.BASTION_REMNANT.configured(new JigsawConfiguration(() -> BastionPieces.START, 6))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> BASTION_REMNANT = register(
+        "bastion_remnant", StructureFeature.BASTION_REMNANT.configured(new JigsawConfiguration(BastionPieces.START, 6))
     );
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> VILLAGE_PLAINS = register(
-        "village_plains", StructureFeature.VILLAGE.configured(new JigsawConfiguration(() -> PlainVillagePools.START, 6))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> VILLAGE_PLAINS = register(
+        "village_plains", StructureFeature.VILLAGE.configured(new JigsawConfiguration(PlainVillagePools.START, 6))
     );
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> VILLAGE_DESERT = register(
-        "village_desert", StructureFeature.VILLAGE.configured(new JigsawConfiguration(() -> DesertVillagePools.START, 6))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> VILLAGE_DESERT = register(
+        "village_desert", StructureFeature.VILLAGE.configured(new JigsawConfiguration(DesertVillagePools.START, 6))
     );
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> VILLAGE_SAVANNA = register(
-        "village_savanna", StructureFeature.VILLAGE.configured(new JigsawConfiguration(() -> SavannaVillagePools.START, 6))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> VILLAGE_SAVANNA = register(
+        "village_savanna", StructureFeature.VILLAGE.configured(new JigsawConfiguration(SavannaVillagePools.START, 6))
     );
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> VILLAGE_SNOWY = register(
-        "village_snowy", StructureFeature.VILLAGE.configured(new JigsawConfiguration(() -> SnowyVillagePools.START, 6))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> VILLAGE_SNOWY = register(
+        "village_snowy", StructureFeature.VILLAGE.configured(new JigsawConfiguration(SnowyVillagePools.START, 6))
     );
-    private static final ConfiguredStructureFeature<JigsawConfiguration, ? extends StructureFeature<JigsawConfiguration>> VILLAGE_TAIGA = register(
-        "village_taiga", StructureFeature.VILLAGE.configured(new JigsawConfiguration(() -> TaigaVillagePools.START, 6))
+    private static final Holder<ConfiguredStructureFeature<JigsawConfiguration, ?>> VILLAGE_TAIGA = register(
+        "village_taiga", StructureFeature.VILLAGE.configured(new JigsawConfiguration(TaigaVillagePools.START, 6))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_STANDARD = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_STANDARD = register(
         "ruined_portal", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.STANDARD))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_DESERT = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_DESERT = register(
         "ruined_portal_desert", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.DESERT))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_JUNGLE = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_JUNGLE = register(
         "ruined_portal_jungle", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.JUNGLE))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_SWAMP = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_SWAMP = register(
         "ruined_portal_swamp", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.SWAMP))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_MOUNTAIN = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_MOUNTAIN = register(
         "ruined_portal_mountain", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.MOUNTAIN))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_OCEAN = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_OCEAN = register(
         "ruined_portal_ocean", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.OCEAN))
     );
-    private static final ConfiguredStructureFeature<RuinedPortalConfiguration, ? extends StructureFeature<RuinedPortalConfiguration>> RUINED_PORTAL_NETHER = register(
+    private static final Holder<ConfiguredStructureFeature<RuinedPortalConfiguration, ?>> RUINED_PORTAL_NETHER = register(
         "ruined_portal_nether", StructureFeature.RUINED_PORTAL.configured(new RuinedPortalConfiguration(RuinedPortalFeature.Type.NETHER))
     );
 
-    public static ConfiguredStructureFeature<?, ?> bootstrap() {
+    public static Holder<? extends ConfiguredStructureFeature<?, ?>> bootstrap() {
         return MINESHAFT;
     }
 
-    private static <FC extends FeatureConfiguration, F extends StructureFeature<FC>> ConfiguredStructureFeature<FC, F> register(
+    private static <FC extends FeatureConfiguration, F extends StructureFeature<FC>> Holder<ConfiguredStructureFeature<FC, ?>> register(
         String param0, ConfiguredStructureFeature<FC, F> param1
     ) {
-        return BuiltinRegistries.register(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, param0, param1);
+        return BuiltinRegistries.registerExact(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE, param0, param1);
     }
 
     private static void register(
-        BiConsumer<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> param0, ConfiguredStructureFeature<?, ?> param1, Set<ResourceKey<Biome>> param2
+        StructureFeatures.StructureConfigConsumer param0, Holder<? extends ConfiguredStructureFeature<?, ?>> param1, Set<ResourceKey<Biome>> param2
     ) {
-        param2.forEach(param2x -> param0.accept(param1, param2x));
+        param2.forEach(param2x -> register(param0, param1, param2x));
     }
 
     private static void register(
-        BiConsumer<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> param0, ConfiguredStructureFeature<?, ?> param1, ResourceKey<Biome> param2
+        StructureFeatures.StructureConfigConsumer param0, Holder<? extends ConfiguredStructureFeature<?, ?>> param1, ResourceKey<Biome> param2
     ) {
-        param0.accept(param1, param2);
+        Holder<ConfiguredStructureFeature<?, ?>> var0 = Holder.hackyErase(param1);
+        param0.accept(var0.value().feature, var0.unwrapKey().orElseThrow(), param2);
     }
 
-    public static void registerStructures(BiConsumer<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> param0) {
+    public static void registerStructures(StructureFeatures.StructureConfigConsumer param0) {
         Set<ResourceKey<Biome>> var0 = ImmutableSet.<ResourceKey<Biome>>builder()
             .add(Biomes.DEEP_FROZEN_OCEAN)
             .add(Biomes.DEEP_COLD_OCEAN)
@@ -201,6 +202,44 @@ public class StructureFeatures {
             .add(Biomes.SOUL_SAND_VALLEY)
             .add(Biomes.CRIMSON_FOREST)
             .add(Biomes.WARPED_FOREST)
+            .build();
+        Set<ResourceKey<Biome>> var11 = ImmutableSet.<ResourceKey<Biome>>builder()
+            .add(Biomes.THE_VOID)
+            .add(Biomes.PLAINS)
+            .add(Biomes.SUNFLOWER_PLAINS)
+            .add(Biomes.SNOWY_PLAINS)
+            .add(Biomes.ICE_SPIKES)
+            .add(Biomes.DESERT)
+            .add(Biomes.FOREST)
+            .add(Biomes.FLOWER_FOREST)
+            .add(Biomes.BIRCH_FOREST)
+            .add(Biomes.DARK_FOREST)
+            .add(Biomes.OLD_GROWTH_BIRCH_FOREST)
+            .add(Biomes.OLD_GROWTH_PINE_TAIGA)
+            .add(Biomes.OLD_GROWTH_SPRUCE_TAIGA)
+            .add(Biomes.TAIGA)
+            .add(Biomes.SNOWY_TAIGA)
+            .add(Biomes.SAVANNA)
+            .add(Biomes.SAVANNA_PLATEAU)
+            .add(Biomes.WINDSWEPT_HILLS)
+            .add(Biomes.WINDSWEPT_GRAVELLY_HILLS)
+            .add(Biomes.WINDSWEPT_FOREST)
+            .add(Biomes.WINDSWEPT_SAVANNA)
+            .add(Biomes.JUNGLE)
+            .add(Biomes.SPARSE_JUNGLE)
+            .add(Biomes.BAMBOO_JUNGLE)
+            .add(Biomes.BADLANDS)
+            .add(Biomes.ERODED_BADLANDS)
+            .add(Biomes.WOODED_BADLANDS)
+            .add(Biomes.MEADOW)
+            .add(Biomes.GROVE)
+            .add(Biomes.SNOWY_SLOPES)
+            .add(Biomes.FROZEN_PEAKS)
+            .add(Biomes.JAGGED_PEAKS)
+            .add(Biomes.STONY_PEAKS)
+            .add(Biomes.MUSHROOM_FIELDS)
+            .add(Biomes.DRIPSTONE_CAVES)
+            .add(Biomes.LUSH_CAVES)
             .build();
         register(param0, BURIED_TREASURE, var2);
         register(param0, DESERT_PYRAMID, Biomes.DESERT);
@@ -280,6 +319,7 @@ public class StructureFeatures {
         register(param0, VILLAGE_SNOWY, Biomes.SNOWY_PLAINS);
         register(param0, VILLAGE_TAIGA, Biomes.TAIGA);
         register(param0, WOODLAND_MANSION, Biomes.DARK_FOREST);
+        register(param0, STRONGHOLD, var11);
         register(param0, NETHER_BRIDGE, var10);
         register(param0, NETHER_FOSSIL, Biomes.SOUL_SAND_VALLEY);
         register(param0, BASTION_REMNANT, Biomes.CRIMSON_FOREST);
@@ -289,5 +329,10 @@ public class StructureFeatures {
         register(param0, RUINED_PORTAL_NETHER, var10);
         register(param0, END_CITY, Biomes.END_HIGHLANDS);
         register(param0, END_CITY, Biomes.END_MIDLANDS);
+    }
+
+    @FunctionalInterface
+    public interface StructureConfigConsumer {
+        void accept(StructureFeature<?> var1, ResourceKey<ConfiguredStructureFeature<?, ?>> var2, ResourceKey<Biome> var3);
     }
 }

@@ -59,7 +59,7 @@ public class Boat extends Entity {
     public static final int PADDLE_LEFT = 0;
     public static final int PADDLE_RIGHT = 1;
     private static final int TIME_TO_EJECT = 60;
-    private static final double PADDLE_SPEED = (float) (Math.PI / 8);
+    private static final float PADDLE_SPEED = (float) (Math.PI / 8);
     public static final double PADDLE_SOUND_TIME = (float) (Math.PI / 4);
     public static final int BUBBLE_TIME = 60;
     private final float[] paddlePositions = new float[2];
@@ -308,7 +308,7 @@ public class Boat extends Entity {
             if (this.getPaddleState(var0)) {
                 if (!this.isSilent()
                     && (double)(this.paddlePositions[var0] % (float) (Math.PI * 2)) <= (float) (Math.PI / 4)
-                    && ((double)this.paddlePositions[var0] + (float) (Math.PI / 8)) % (float) (Math.PI * 2) >= (float) (Math.PI / 4)) {
+                    && (double)((this.paddlePositions[var0] + (float) (Math.PI / 8)) % (float) (Math.PI * 2)) >= (float) (Math.PI / 4)) {
                     SoundEvent var1 = this.getPaddleSound();
                     if (var1 != null) {
                         Vec3 var2 = this.getViewVector(1.0F);
@@ -330,7 +330,7 @@ public class Boat extends Entity {
                     }
                 }
 
-                this.paddlePositions[var0] = (float)((double)this.paddlePositions[var0] + (float) (Math.PI / 8));
+                this.paddlePositions[var0] += (float) (Math.PI / 8);
             } else {
                 this.paddlePositions[var0] = 0.0F;
             }
@@ -439,9 +439,7 @@ public class Boat extends Entity {
     }
 
     public float getRowingTime(int param0, float param1) {
-        return this.getPaddleState(param0)
-            ? (float)Mth.clampedLerp((double)this.paddlePositions[param0] - (float) (Math.PI / 8), (double)this.paddlePositions[param0], (double)param1)
-            : 0.0F;
+        return this.getPaddleState(param0) ? Mth.clampedLerp(this.paddlePositions[param0] - (float) (Math.PI / 8), this.paddlePositions[param0], param1) : 0.0F;
     }
 
     private Boat.Status getStatus() {
@@ -688,7 +686,7 @@ public class Boat extends Entity {
                 }
 
                 if (param0 instanceof Animal) {
-                    var0 = (float)((double)var0 + 0.2);
+                    var0 += 0.2F;
                 }
             }
 
@@ -808,7 +806,7 @@ public class Boat extends Entity {
 
                 this.resetFallDistance();
             } else if (!this.level.getFluidState(this.blockPosition().below()).is(FluidTags.WATER) && param0 < 0.0) {
-                this.fallDistance = (float)((double)this.fallDistance - param0);
+                this.fallDistance -= (float)param0;
             }
 
         }

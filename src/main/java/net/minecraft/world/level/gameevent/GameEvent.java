@@ -1,6 +1,8 @@
 package net.minecraft.world.level.gameevent;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
 
 public class GameEvent {
     public static final GameEvent BLOCK_ATTACH = register("block_attach");
@@ -51,6 +53,7 @@ public class GameEvent {
     public static final int DEFAULT_NOTIFICATION_RADIUS = 16;
     private final String name;
     private final int notificationRadius;
+    private final Holder.Reference<GameEvent> builtInRegistryHolder = Registry.GAME_EVENT.createIntrusiveHolder(this);
 
     public GameEvent(String param0, int param1) {
         this.name = param0;
@@ -76,5 +79,14 @@ public class GameEvent {
     @Override
     public String toString() {
         return "Game Event{ " + this.name + " , " + this.notificationRadius + "}";
+    }
+
+    @Deprecated
+    public Holder.Reference<GameEvent> builtInRegistryHolder() {
+        return this.builtInRegistryHolder;
+    }
+
+    public boolean is(TagKey<GameEvent> param0) {
+        return this.builtInRegistryHolder.is(param0);
     }
 }

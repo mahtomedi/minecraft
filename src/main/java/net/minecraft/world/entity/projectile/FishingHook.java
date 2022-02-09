@@ -302,7 +302,7 @@ public class FishingHook extends Projectile {
         } else if (this.timeUntilHooked > 0) {
             this.timeUntilHooked -= var1;
             if (this.timeUntilHooked > 0) {
-                this.fishAngle = (float)((double)this.fishAngle + this.random.nextGaussian() * 4.0);
+                this.fishAngle += (float)(this.random.nextGaussian() * 4.0);
                 float var3 = this.fishAngle * (float) (Math.PI / 180.0);
                 float var4 = Mth.sin(var3);
                 float var5 = Mth.cos(var3);
@@ -352,19 +352,19 @@ public class FishingHook extends Projectile {
             this.timeUntilLured -= var1;
             float var13 = 0.15F;
             if (this.timeUntilLured < 20) {
-                var13 = (float)((double)var13 + (double)(20 - this.timeUntilLured) * 0.05);
+                var13 += (float)(20 - this.timeUntilLured) * 0.05F;
             } else if (this.timeUntilLured < 40) {
-                var13 = (float)((double)var13 + (double)(40 - this.timeUntilLured) * 0.02);
+                var13 += (float)(40 - this.timeUntilLured) * 0.02F;
             } else if (this.timeUntilLured < 60) {
-                var13 = (float)((double)var13 + (double)(60 - this.timeUntilLured) * 0.01);
+                var13 += (float)(60 - this.timeUntilLured) * 0.01F;
             }
 
             if (this.random.nextFloat() < var13) {
                 float var14 = Mth.nextFloat(this.random, 0.0F, 360.0F) * (float) (Math.PI / 180.0);
                 float var15 = Mth.nextFloat(this.random, 25.0F, 60.0F);
-                double var16 = this.getX() + (double)(Mth.sin(var14) * var15 * 0.1F);
+                double var16 = this.getX() + (double)(Mth.sin(var14) * var15) * 0.1;
                 double var17 = (double)((float)Mth.floor(this.getY()) + 1.0F);
-                double var18 = this.getZ() + (double)(Mth.cos(var14) * var15 * 0.1F);
+                double var18 = this.getZ() + (double)(Mth.cos(var14) * var15) * 0.1;
                 BlockState var19 = var0.getBlockState(new BlockPos(var16, var17 - 1.0, var18));
                 if (var19.is(Blocks.WATER)) {
                     var0.sendParticles(ParticleTypes.SPLASH, var16, var17, var18, 2 + this.random.nextInt(2), 0.1F, 0.0, 0.1F, 0.0);

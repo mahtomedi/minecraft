@@ -1,15 +1,15 @@
 {
-    "id": "22w05a",
-    "name": "22w05a",
+    "id": "22w06a",
+    "name": "22w06a",
     "release_target": "1.18.2",
-    "world_version": 2967,
+    "world_version": 2968,
     "series_id": "main",
-    "protocol_version": 1073741890,
+    "protocol_version": 1073741891,
     "pack_version": {
         "resource": 8,
         "data": 8
     },
-    "build_time": "2022-02-02T16:06:33+00:00",
+    "build_time": "2022-02-09T16:45:52+00:00",
     "java_component": "java-runtime-beta",
     "java_version": 17,
     "stable": false

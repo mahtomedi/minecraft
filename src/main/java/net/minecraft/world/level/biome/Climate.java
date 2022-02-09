@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -138,24 +139,27 @@ public class Climate {
             return this.values;
         }
 
-        public T findValue(Climate.TargetPoint param0, T param1) {
+        public T findValue(Climate.TargetPoint param0) {
             return this.findValueIndex(param0);
         }
 
         @VisibleForTesting
-        public T findValueBruteForce(Climate.TargetPoint param0, T param1) {
-            long var0 = Long.MAX_VALUE;
-            T var1 = param1;
+        public T findValueBruteForce(Climate.TargetPoint param0) {
+            Iterator<Pair<Climate.ParameterPoint, T>> var0 = this.values().iterator();
+            Pair<Climate.ParameterPoint, T> var1 = var0.next();
+            long var2 = var1.getFirst().fitness(param0);
+            T var3 = var1.getSecond();
 
-            for(Pair<Climate.ParameterPoint, T> var2 : this.values()) {
-                long var3 = var2.getFirst().fitness(param0);
-                if (var3 < var0) {
-                    var0 = var3;
-                    var1 = var2.getSecond();
+            while(var0.hasNext()) {
+                Pair<Climate.ParameterPoint, T> var4 = var0.next();
+                long var5 = var4.getFirst().fitness(param0);
+                if (var5 < var2) {
+                    var2 = var5;
+                    var3 = var4.getSecond();
                 }
             }
 
-            return var1;
+            return var3;
         }
 
         public T findValueIndex(Climate.TargetPoint param0) {

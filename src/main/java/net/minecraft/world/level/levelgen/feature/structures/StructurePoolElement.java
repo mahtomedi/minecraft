@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.worldgen.ProcessorLists;
@@ -88,23 +89,23 @@ public abstract class StructurePoolElement {
     }
 
     public static Function<StructureTemplatePool.Projection, LegacySinglePoolElement> legacy(String param0) {
-        return param1 -> new LegacySinglePoolElement(Either.left(new ResourceLocation(param0)), () -> ProcessorLists.EMPTY, param1);
+        return param1 -> new LegacySinglePoolElement(Either.left(new ResourceLocation(param0)), ProcessorLists.EMPTY, param1);
     }
 
-    public static Function<StructureTemplatePool.Projection, LegacySinglePoolElement> legacy(String param0, StructureProcessorList param1) {
-        return param2 -> new LegacySinglePoolElement(Either.left(new ResourceLocation(param0)), () -> param1, param2);
+    public static Function<StructureTemplatePool.Projection, LegacySinglePoolElement> legacy(String param0, Holder<StructureProcessorList> param1) {
+        return param2 -> new LegacySinglePoolElement(Either.left(new ResourceLocation(param0)), param1, param2);
     }
 
     public static Function<StructureTemplatePool.Projection, SinglePoolElement> single(String param0) {
-        return param1 -> new SinglePoolElement(Either.left(new ResourceLocation(param0)), () -> ProcessorLists.EMPTY, param1);
+        return param1 -> new SinglePoolElement(Either.left(new ResourceLocation(param0)), ProcessorLists.EMPTY, param1);
     }
 
-    public static Function<StructureTemplatePool.Projection, SinglePoolElement> single(String param0, StructureProcessorList param1) {
-        return param2 -> new SinglePoolElement(Either.left(new ResourceLocation(param0)), () -> param1, param2);
+    public static Function<StructureTemplatePool.Projection, SinglePoolElement> single(String param0, Holder<StructureProcessorList> param1) {
+        return param2 -> new SinglePoolElement(Either.left(new ResourceLocation(param0)), param1, param2);
     }
 
-    public static Function<StructureTemplatePool.Projection, FeaturePoolElement> feature(PlacedFeature param0) {
-        return param1 -> new FeaturePoolElement(() -> param0, param1);
+    public static Function<StructureTemplatePool.Projection, FeaturePoolElement> feature(Holder<PlacedFeature> param0) {
+        return param1 -> new FeaturePoolElement(param0, param1);
     }
 
     public static Function<StructureTemplatePool.Projection, ListPoolElement> list(

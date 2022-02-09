@@ -1,13 +1,12 @@
 package net.minecraft.world.item;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
@@ -17,7 +16,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -93,15 +91,23 @@ public class BoneMealItem extends Item {
                         }
                     }
 
-                    Optional<ResourceKey<Biome>> var5 = param1.getBiomeName(var2);
-                    if (Objects.equals(var5, Optional.of(Biomes.WARM_OCEAN))) {
+                    Holder<Biome> var5 = param1.getBiome(var2);
+                    if (var5.is(Biomes.WARM_OCEAN)) {
                         if (var1 == 0 && param3 != null && param3.getAxis().isHorizontal()) {
-                            var3 = BlockTags.WALL_CORALS.getRandomElement(param1.random).map(Block::defaultBlockState).orElse(var3);
+                            var3 = Registry.BLOCK
+                                .getTag(BlockTags.WALL_CORALS)
+                                .flatMap(param1x -> param1x.getRandomElement(param1.random))
+                                .map(param0x -> param0x.value().defaultBlockState())
+                                .orElse(var3);
                             if (var3.hasProperty(BaseCoralWallFanBlock.FACING)) {
                                 var3 = var3.setValue(BaseCoralWallFanBlock.FACING, param3);
                             }
                         } else if (var0.nextInt(4) == 0) {
-                            var3 = BlockTags.UNDERWATER_BONEMEALS.getRandomElement(var0).map(Block::defaultBlockState).orElse(var3);
+                            var3 = Registry.BLOCK
+                                .getTag(BlockTags.UNDERWATER_BONEMEALS)
+                                .flatMap(param1x -> param1x.getRandomElement(param1.random))
+                                .map(param0x -> param0x.value().defaultBlockState())
+                                .orElse(var3);
                         }
                     }
 

@@ -96,7 +96,7 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
             int var1 = Mth.floor(this.getY());
             int var2 = Mth.floor(this.getZ());
             BlockPos var3 = new BlockPos(var0, var1, var2);
-            Biome var4 = this.level.getBiome(var3);
+            Biome var4 = this.level.getBiome(var3).value();
             if (var4.shouldSnowGolemBurn(var3)) {
                 this.hurt(DamageSource.ON_FIRE, 1.0F);
             }

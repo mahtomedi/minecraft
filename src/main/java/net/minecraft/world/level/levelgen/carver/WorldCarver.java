@@ -8,6 +8,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -105,7 +106,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         CarvingContext param0,
         C param1,
         ChunkAccess param2,
-        Function<BlockPos, Biome> param3,
+        Function<BlockPos, Holder<Biome>> param3,
         Aquifer param4,
         double param5,
         double param6,
@@ -165,7 +166,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         CarvingContext param0,
         C param1,
         ChunkAccess param2,
-        Function<BlockPos, Biome> param3,
+        Function<BlockPos, Holder<Biome>> param3,
         CarvingMask param4,
         BlockPos.MutableBlockPos param5,
         BlockPos.MutableBlockPos param6,
@@ -233,7 +234,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     }
 
     public abstract boolean carve(
-        CarvingContext var1, C var2, ChunkAccess var3, Function<BlockPos, Biome> var4, Random var5, Aquifer var6, ChunkPos var7, CarvingMask var8
+        CarvingContext var1, C var2, ChunkAccess var3, Function<BlockPos, Holder<Biome>> var4, Random var5, Aquifer var6, ChunkPos var7, CarvingMask var8
     );
 
     public abstract boolean isStartChunk(C var1, Random var2);

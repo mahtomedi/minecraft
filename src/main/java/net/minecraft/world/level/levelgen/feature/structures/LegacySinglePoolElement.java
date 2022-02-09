@@ -3,7 +3,7 @@ package net.minecraft.world.level.levelgen.feature.structures;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.function.Supplier;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -18,7 +18,7 @@ public class LegacySinglePoolElement extends SinglePoolElement {
     );
 
     protected LegacySinglePoolElement(
-        Either<ResourceLocation, StructureTemplate> param0, Supplier<StructureProcessorList> param1, StructureTemplatePool.Projection param2
+        Either<ResourceLocation, StructureTemplate> param0, Holder<StructureProcessorList> param1, StructureTemplatePool.Projection param2
     ) {
         super(param0, param1, param2);
     }

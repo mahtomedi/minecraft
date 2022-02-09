@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
@@ -50,19 +51,19 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
             }
 
             if (var5.isAir()) {
-                PlacedFeature var7;
+                Holder<PlacedFeature> var7;
                 if (param1.nextInt(8) == 0) {
-                    List<ConfiguredFeature<?, ?>> var6 = param0.getBiome(var3).getGenerationSettings().getFlowerFeatures();
+                    List<ConfiguredFeature<?, ?>> var6 = param0.getBiome(var3).value().getGenerationSettings().getFlowerFeatures();
                     if (var6.isEmpty()) {
                         continue;
                     }
 
-                    var7 = ((RandomPatchConfiguration)var6.get(0).config()).feature().get();
+                    var7 = ((RandomPatchConfiguration)var6.get(0).config()).feature();
                 } else {
                     var7 = VegetationPlacements.GRASS_BONEMEAL;
                 }
 
-                var7.place(param0, param0.getChunkSource().getGenerator(), param1, var3);
+                var7.value().place(param0, param0.getChunkSource().getGenerator(), param1, var3);
             }
         }
 

@@ -81,7 +81,7 @@ public class EnderDragon extends Mob implements Enemy {
     private final EndDragonFight dragonFight;
     private final EnderDragonPhaseManager phaseManager;
     private int growlTime = 100;
-    private int sittingDamageReceived;
+    private float sittingDamageReceived;
     private final Node[] nodes = new Node[24];
     private final int[] nodeAdjacency = new int[24];
     private final BinaryHeap openSet = new BinaryHeap();
@@ -266,11 +266,11 @@ public class EnderDragon extends Mob implements Enemy {
                             .normalize();
                         float var20 = Math.max(((float)var19.dot(var18) + 0.5F) / 1.5F, 0.0F);
                         if (Math.abs(var12) > 1.0E-5F || Math.abs(var14) > 1.0E-5F) {
-                            double var21 = Mth.clamp(
-                                Mth.wrapDegrees(180.0 - Mth.atan2(var12, var14) * 180.0F / (float)Math.PI - (double)this.getYRot()), -50.0, 50.0
+                            float var21 = Mth.clamp(
+                                Mth.wrapDegrees(180.0F - (float)Mth.atan2(var12, var14) * (180.0F / (float)Math.PI) - this.getYRot()), -50.0F, 50.0F
                             );
                             this.yRotA *= 0.8F;
-                            this.yRotA = (float)((double)this.yRotA + var21 * (double)var10.getTurnSpeed());
+                            this.yRotA += var21 * var10.getTurnSpeed();
                             this.setYRot(this.getYRot() + this.yRotA * 0.1F);
                         }
 
@@ -506,9 +506,9 @@ public class EnderDragon extends Mob implements Enemy {
                     }
 
                     if (this.phaseManager.getCurrentPhase().isSitting()) {
-                        this.sittingDamageReceived = (int)((float)this.sittingDamageReceived + (var0 - this.getHealth()));
-                        if ((float)this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
-                            this.sittingDamageReceived = 0;
+                        this.sittingDamageReceived = this.sittingDamageReceived + var0 - this.getHealth();
+                        if (this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
+                            this.sittingDamageReceived = 0.0F;
                             this.phaseManager.setPhase(EnderDragonPhase.TAKEOFF);
                         }
                     }

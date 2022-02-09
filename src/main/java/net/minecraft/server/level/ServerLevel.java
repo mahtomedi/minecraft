@@ -36,6 +36,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
@@ -62,7 +63,6 @@ import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.players.SleepStatus;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagContainer;
 import net.minecraft.util.CsvOutput;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
@@ -190,7 +190,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         LevelStorageSource.LevelStorageAccess param2,
         ServerLevelData param3,
         ResourceKey<Level> param4,
-        DimensionType param5,
+        Holder<DimensionType> param5,
         ChunkProgressListener param6,
         ChunkGenerator param7,
         boolean param8,
@@ -253,7 +253,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Override
-    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
+    public Holder<Biome> getUncachedNoiseBiome(int param0, int param1, int param2) {
         return this.getChunkSource().getGenerator().getNoiseBiome(param0, param1, param2);
     }
 
@@ -422,7 +422,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         if (this.random.nextInt(16) == 0) {
             BlockPos var10 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.getBlockRandomPos(var2, 0, var3, 15));
             BlockPos var11 = var10.below();
-            Biome var12 = this.getBiome(var10);
+            Biome var12 = this.getBiome(var10).value();
             if (var12.shouldFreeze(this, var11)) {
                 this.setBlockAndUpdate(var11, Blocks.ICE.defaultBlockState());
             }
@@ -433,7 +433,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 }
 
                 BlockState var13 = this.getBlockState(var11);
-                Biome.Precipitation var14 = this.getBiome(var10).getPrecipitation();
+                Biome.Precipitation var14 = var12.getPrecipitation();
                 if (var14 == Biome.Precipitation.RAIN && var12.coldEnoughToSnow(var11)) {
                     var14 = Biome.Precipitation.SNOW;
                 }
@@ -588,17 +588,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
             this.oThunderLevel = this.thunderLevel;
             if (this.levelData.isThundering()) {
-                this.thunderLevel = (float)((double)this.thunderLevel + 0.01);
+                this.thunderLevel += 0.01F;
             } else {
-                this.thunderLevel = (float)((double)this.thunderLevel - 0.01);
+                this.thunderLevel -= 0.01F;
             }
 
             this.thunderLevel = Mth.clamp(this.thunderLevel, 0.0F, 1.0F);
             this.oRainLevel = this.rainLevel;
             if (this.levelData.isRaining()) {
-                this.rainLevel = (float)((double)this.rainLevel + 0.01);
+                this.rainLevel += 0.01F;
             } else {
-                this.rainLevel = (float)((double)this.rainLevel - 0.01);
+                this.rainLevel -= 0.01F;
             }
 
             this.rainLevel = Mth.clamp(this.rainLevel, 0.0F, 1.0F);
@@ -1113,7 +1113,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Nullable
-    public BlockPos findNearestBiome(Biome param0, BlockPos param1, int param2, int param3) {
+    public BlockPos findNearestBiome(ResourceKey<Biome> param0, BlockPos param1, int param2, int param3) {
         return this.getChunkSource()
             .getGenerator()
             .getBiomeSource()
@@ -1123,7 +1123,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 param1.getZ(),
                 param2,
                 param3,
-                param1x -> param1x == param0,
+                param1x -> param1x.is(param0),
                 this.random,
                 true,
                 this.getChunkSource().getGenerator().climateSampler()
@@ -1133,11 +1133,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Override
     public RecipeManager getRecipeManager() {
         return this.server.getRecipeManager();
-    }
-
-    @Override
-    public TagContainer getTagManager() {
-        return this.server.getTags();
     }
 
     @Override

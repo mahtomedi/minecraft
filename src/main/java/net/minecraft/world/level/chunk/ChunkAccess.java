@@ -21,6 +21,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -61,7 +62,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     private long inhabitedTime;
     @Nullable
     @Deprecated
-    private Biome carverBiome;
+    private Holder<Biome> carverBiome;
     @Nullable
     protected NoiseChunk noiseChunk;
     protected final UpgradeData upgradeData;
@@ -363,7 +364,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     @Deprecated
-    public Biome carverBiome(Supplier<Biome> param0) {
+    public Holder<Biome> carverBiome(Supplier<Holder<Biome>> param0) {
         if (this.carverBiome == null) {
             this.carverBiome = param0.get();
         }
@@ -372,7 +373,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     @Override
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
+    public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
         try {
             int var0 = QuartPos.fromBlock(this.getMinBuildHeight());
             int var1 = var0 + QuartPos.fromBlock(this.getHeight()) - 1;

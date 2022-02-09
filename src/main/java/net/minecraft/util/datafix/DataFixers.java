@@ -143,6 +143,7 @@ import net.minecraft.util.datafix.fixes.StatsCounterFix;
 import net.minecraft.util.datafix.fixes.StatsRenameFix;
 import net.minecraft.util.datafix.fixes.StriderGravityFix;
 import net.minecraft.util.datafix.fixes.StructureReferenceCountFix;
+import net.minecraft.util.datafix.fixes.StructureSettingsFlattenFix;
 import net.minecraft.util.datafix.fixes.TeamDisplayNameFix;
 import net.minecraft.util.datafix.fixes.TrappedChestBlockEntityFix;
 import net.minecraft.util.datafix.fixes.VillagerDataFix;
@@ -846,6 +847,8 @@ public class DataFixers {
         );
         Schema var155 = param0.addSchema(2852, SAME_NAMESPACED);
         param0.addFixer(new WorldGenSettingsDisallowOldCustomWorldsFix(var155));
+        Schema var156 = param0.addSchema(2967, SAME_NAMESPACED);
+        param0.addFixer(new StructureSettingsFlattenFix(var156));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

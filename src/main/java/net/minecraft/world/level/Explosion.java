@@ -126,12 +126,12 @@ public class Explosion {
             int var6 = 0;
             int var7 = 0;
 
-            for(float var8 = 0.0F; var8 <= 1.0F; var8 = (float)((double)var8 + var1)) {
-                for(float var9 = 0.0F; var9 <= 1.0F; var9 = (float)((double)var9 + var2)) {
-                    for(float var10 = 0.0F; var10 <= 1.0F; var10 = (float)((double)var10 + var3)) {
-                        double var11 = Mth.lerp((double)var8, var0.minX, var0.maxX);
-                        double var12 = Mth.lerp((double)var9, var0.minY, var0.maxY);
-                        double var13 = Mth.lerp((double)var10, var0.minZ, var0.maxZ);
+            for(double var8 = 0.0; var8 <= 1.0; var8 += var1) {
+                for(double var9 = 0.0; var9 <= 1.0; var9 += var2) {
+                    for(double var10 = 0.0; var10 <= 1.0; var10 += var3) {
+                        double var11 = Mth.lerp(var8, var0.minX, var0.maxX);
+                        double var12 = Mth.lerp(var9, var0.minY, var0.maxY);
+                        double var13 = Mth.lerp(var10, var0.minZ, var0.maxZ);
                         Vec3 var14 = new Vec3(var11 + var4, var12, var13 + var5);
                         if (param1.level.clip(new ClipContext(var14, param0, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, param1)).getType()
                             == HitResult.Type.MISS) {

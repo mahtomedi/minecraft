@@ -228,7 +228,7 @@ public class TitleScreen extends Screen {
             if (var0) {
                 this.minecraft.loadLevel("Demo_World");
             } else {
-                RegistryAccess.RegistryHolder var0x = RegistryAccess.builtin();
+                RegistryAccess var0x = RegistryAccess.BUILTIN.get();
                 this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldGenSettings.demoSettings(var0x));
             }
 

@@ -227,8 +227,9 @@ public class MapItem extends ComplexItem {
 
                 for(int var5 = 0; var5 < 128 * var1; ++var5) {
                     for(int var6 = 0; var6 < 128 * var1; ++var6) {
-                        Biome.BiomeCategory var7 = param0.getBiome(new BlockPos((var2 / var1 - 64) * var1 + var6, 0, (var3 / var1 - 64) * var1 + var5))
-                            .getBiomeCategory();
+                        Biome.BiomeCategory var7 = Biome.getBiomeCategory(
+                            param0.getBiome(new BlockPos((var2 / var1 - 64) * var1 + var6, 0, (var3 / var1 - 64) * var1 + var5))
+                        );
                         var4[var5 * 128 * var1 + var6] = var7 == Biome.BiomeCategory.OCEAN
                             || var7 == Biome.BiomeCategory.RIVER
                             || var7 == Biome.BiomeCategory.SWAMP;

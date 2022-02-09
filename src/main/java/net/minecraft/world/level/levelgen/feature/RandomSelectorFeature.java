@@ -26,6 +26,6 @@ public class RandomSelectorFeature extends Feature<RandomFeatureConfiguration> {
             }
         }
 
-        return var0.defaultFeature.get().place(var2, var3, var1, var4);
+        return var0.defaultFeature.value().place(var2, var3, var1, var4);
     }
 }

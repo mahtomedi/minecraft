@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
@@ -87,7 +88,7 @@ public class ChunkSerializer {
         }
 
         Registry<Biome> var9 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        Codec<PalettedContainer<Biome>> var10 = makeBiomeCodec(var9);
+        Codec<PalettedContainer<Holder<Biome>>> var10 = makeBiomeCodec(var9);
 
         for(int var11 = 0; var11 < var3.size(); ++var11) {
             CompoundTag var12 = var3.getCompound(var11);
@@ -103,13 +104,13 @@ public class ChunkSerializer {
                     var15 = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES);
                 }
 
-                PalettedContainer<Biome> var17;
+                PalettedContainer<Holder<Biome>> var17;
                 if (var12.contains("biomes", 10)) {
                     var17 = var10.parse(NbtOps.INSTANCE, var12.getCompound("biomes"))
                         .promotePartial(param2x -> logErrors(param2, var13, param2x))
                         .getOrThrow(false, LOGGER::error);
                 } else {
-                    var17 = new PalettedContainer<>(var9, var9.getOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
+                    var17 = new PalettedContainer<>(var9.asHolderIdMap(), var9.getHolderOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
                 }
 
                 LevelChunkSection var19 = new LevelChunkSection(var13, var15, var17);
@@ -260,8 +261,10 @@ public class ChunkSerializer {
         LOGGER.error("Recoverable errors when loading section [" + param0.x + ", " + param1 + ", " + param0.z + "]: " + param2);
     }
 
-    private static Codec<PalettedContainer<Biome>> makeBiomeCodec(Registry<Biome> param0) {
-        return PalettedContainer.codec(param0, param0.byNameCodec(), PalettedContainer.Strategy.SECTION_BIOMES, param0.getOrThrow(Biomes.PLAINS));
+    private static Codec<PalettedContainer<Holder<Biome>>> makeBiomeCodec(Registry<Biome> param0) {
+        return PalettedContainer.codec(
+            param0.asHolderIdMap(), param0.holderByNameCodec(), PalettedContainer.Strategy.SECTION_BIOMES, param0.getHolderOrThrow(Biomes.PLAINS)
+        );
     }
 
     public static CompoundTag write(ServerLevel param0, ChunkAccess param1) {
@@ -296,7 +299,7 @@ public class ChunkSerializer {
         ListTag var6 = new ListTag();
         LevelLightEngine var7 = param0.getChunkSource().getLightEngine();
         Registry<Biome> var8 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        Codec<PalettedContainer<Biome>> var9 = makeBiomeCodec(var8);
+        Codec<PalettedContainer<Holder<Biome>>> var9 = makeBiomeCodec(var8);
         boolean var10 = param1.isLightCorrect();
 
         for(int var11 = var7.getMinLightSection(); var11 < var7.getMaxLightSection(); ++var11) {

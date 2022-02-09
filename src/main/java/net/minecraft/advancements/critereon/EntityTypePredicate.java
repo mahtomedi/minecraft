@@ -8,8 +8,7 @@ import com.google.gson.JsonSyntaxException;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 
@@ -36,10 +35,7 @@ public abstract class EntityTypePredicate {
             String var0 = GsonHelper.convertToString(param0, "type");
             if (var0.startsWith("#")) {
                 ResourceLocation var1 = new ResourceLocation(var0.substring(1));
-                return new EntityTypePredicate.TagPredicate(
-                    SerializationTags.getInstance()
-                        .getTagOrThrow(Registry.ENTITY_TYPE_REGISTRY, var1, param0x -> new JsonSyntaxException("Unknown entity tag '" + param0x + "'"))
-                );
+                return new EntityTypePredicate.TagPredicate(TagKey.create(Registry.ENTITY_TYPE_REGISTRY, var1));
             } else {
                 ResourceLocation var2 = new ResourceLocation(var0);
                 EntityType<?> var3 = Registry.ENTITY_TYPE
@@ -60,14 +56,14 @@ public abstract class EntityTypePredicate {
         return new EntityTypePredicate.TypePredicate(param0);
     }
 
-    public static EntityTypePredicate of(Tag<EntityType<?>> param0) {
+    public static EntityTypePredicate of(TagKey<EntityType<?>> param0) {
         return new EntityTypePredicate.TagPredicate(param0);
     }
 
     static class TagPredicate extends EntityTypePredicate {
-        private final Tag<EntityType<?>> tag;
+        private final TagKey<EntityType<?>> tag;
 
-        public TagPredicate(Tag<EntityType<?>> param0) {
+        public TagPredicate(TagKey<EntityType<?>> param0) {
             this.tag = param0;
         }
 
@@ -78,11 +74,7 @@ public abstract class EntityTypePredicate {
 
         @Override
         public JsonElement serializeToJson() {
-            return new JsonPrimitive(
-                "#"
-                    + SerializationTags.getInstance()
-                        .getIdOrThrow(Registry.ENTITY_TYPE_REGISTRY, this.tag, () -> new IllegalStateException("Unknown entity type tag"))
-            );
+            return new JsonPrimitive("#" + this.tag.location());
         }
     }
 

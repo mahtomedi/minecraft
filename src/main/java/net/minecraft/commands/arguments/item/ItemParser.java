@@ -15,7 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 public class ItemParser {
@@ -27,7 +27,7 @@ public class ItemParser {
     );
     private static final char SYNTAX_START_NBT = '{';
     private static final char SYNTAX_TAG = '#';
-    private static final BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (param0, param1) -> param0.buildFuture(
+    private static final BiFunction<SuggestionsBuilder, Registry<Item>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (param0, param1) -> param0.buildFuture(
             
         );
     private final StringReader reader;
@@ -35,9 +35,10 @@ public class ItemParser {
     private Item item;
     @Nullable
     private CompoundTag nbt;
-    private ResourceLocation tag = new ResourceLocation("");
+    @Nullable
+    private TagKey<Item> tag;
     private int tagCursor;
-    private BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
+    private BiFunction<SuggestionsBuilder, Registry<Item>, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
 
     public ItemParser(StringReader param0, boolean param1) {
         this.reader = param0;
@@ -53,7 +54,7 @@ public class ItemParser {
         return this.nbt;
     }
 
-    public ResourceLocation getTag() {
+    public TagKey<Item> getTag() {
         return this.tag;
     }
 
@@ -73,7 +74,7 @@ public class ItemParser {
             this.suggestions = this::suggestTag;
             this.reader.expect('#');
             this.tagCursor = this.reader.getCursor();
-            this.tag = ResourceLocation.read(this.reader);
+            this.tag = TagKey.create(Registry.ITEM_REGISTRY, ResourceLocation.read(this.reader));
         }
     }
 
@@ -98,7 +99,7 @@ public class ItemParser {
         return this;
     }
 
-    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder param0, TagCollection<Item> param1) {
+    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder param0, Registry<Item> param1) {
         if (param0.getRemaining().isEmpty()) {
             param0.suggest(String.valueOf('{'));
         }
@@ -106,19 +107,19 @@ public class ItemParser {
         return param0.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0, TagCollection<Item> param1) {
-        return SharedSuggestionProvider.suggestResource(param1.getAvailableTags(), param0.createOffset(this.tagCursor));
+    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0, Registry<Item> param1) {
+        return SharedSuggestionProvider.suggestResource(param1.getTagNames().map(TagKey::location), param0.createOffset(this.tagCursor));
     }
 
-    private CompletableFuture<Suggestions> suggestItemIdOrTag(SuggestionsBuilder param0, TagCollection<Item> param1) {
+    private CompletableFuture<Suggestions> suggestItemIdOrTag(SuggestionsBuilder param0, Registry<Item> param1) {
         if (this.forTesting) {
-            SharedSuggestionProvider.suggestResource(param1.getAvailableTags(), param0, String.valueOf('#'));
+            SharedSuggestionProvider.suggestResource(param1.getTagNames().map(TagKey::location), param0, String.valueOf('#'));
         }
 
         return SharedSuggestionProvider.suggestResource(Registry.ITEM.keySet(), param0);
     }
 
-    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder param0, TagCollection<Item> param1) {
+    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder param0, Registry<Item> param1) {
         return this.suggestions.apply(param0.createOffset(this.reader.getCursor()), param1);
     }
 }

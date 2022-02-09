@@ -2,6 +2,7 @@ package net.minecraft.gametest.framework;
 
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Lifecycle;
 import java.net.Proxy;
@@ -12,11 +13,12 @@ import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.SystemReport;
 import net.minecraft.Util;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerResources;
+import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -35,6 +37,7 @@ import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
+import net.minecraft.world.level.storage.WorldData;
 import org.slf4j.Logger;
 
 public class GameTestServer extends MinecraftServer {
@@ -52,74 +55,61 @@ public class GameTestServer extends MinecraftServer {
     @Nullable
     private MultipleTestTracker testTracker;
 
-    public GameTestServer(
-        Thread param0,
-        LevelStorageSource.LevelStorageAccess param1,
-        PackRepository param2,
-        ServerResources param3,
-        Collection<GameTestBatch> param4,
-        BlockPos param5,
-        RegistryAccess.RegistryHolder param6
+    public static GameTestServer create(
+        Thread param0, LevelStorageSource.LevelStorageAccess param1, PackRepository param2, Collection<GameTestBatch> param3, BlockPos param4
     ) {
-        this(
-            param0,
-            param1,
-            param2,
-            param3,
-            param4,
-            param5,
-            param6,
-            param6.registryOrThrow(Registry.BIOME_REGISTRY),
-            param6.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
-        );
+        if (param3.isEmpty()) {
+            throw new IllegalArgumentException("No test batches were given!");
+        } else {
+            WorldStem.InitConfig var0 = new WorldStem.InitConfig(param2, Commands.CommandSelection.DEDICATED, 4, false);
+
+            try {
+                WorldStem var1 = WorldStem.load(
+                        var0,
+                        () -> DataPackConfig.DEFAULT,
+                        (param0x, param1x) -> {
+                            RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
+                            Registry<Biome> var1x = var0x.registryOrThrow(Registry.BIOME_REGISTRY);
+                            Registry<DimensionType> var2x = var0x.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+                            WorldData var3x = new PrimaryLevelData(
+                                TEST_SETTINGS,
+                                new WorldGenSettings(
+                                    0L,
+                                    false,
+                                    false,
+                                    WorldGenSettings.withOverworld(
+                                        var2x, DimensionType.defaultDimensions(var0x, 0L), new FlatLevelSource(FlatLevelGeneratorSettings.getDefault(var1x))
+                                    )
+                                ),
+                                Lifecycle.stable()
+                            );
+                            return Pair.of(var3x, var0x);
+                        },
+                        Util.backgroundExecutor(),
+                        Runnable::run
+                    )
+                    .get();
+                var1.updateGlobals();
+                return new GameTestServer(param0, param1, param2, var1, param3, param4);
+            } catch (Exception var7) {
+                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var7);
+                System.exit(-1);
+                throw new IllegalStateException();
+            }
+        }
     }
 
     private GameTestServer(
-        Thread param0,
-        LevelStorageSource.LevelStorageAccess param1,
-        PackRepository param2,
-        ServerResources param3,
-        Collection<GameTestBatch> param4,
-        BlockPos param5,
-        RegistryAccess.RegistryHolder param6,
-        Registry<Biome> param7,
-        Registry<DimensionType> param8
+        Thread param0, LevelStorageSource.LevelStorageAccess param1, PackRepository param2, WorldStem param3, Collection<GameTestBatch> param4, BlockPos param5
     ) {
-        super(
-            param0,
-            param6,
-            param1,
-            new PrimaryLevelData(
-                TEST_SETTINGS,
-                new WorldGenSettings(
-                    0L,
-                    false,
-                    false,
-                    WorldGenSettings.withOverworld(
-                        param8, DimensionType.defaultDimensions(param6, 0L), new FlatLevelSource(FlatLevelGeneratorSettings.getDefault(param7))
-                    )
-                ),
-                Lifecycle.stable()
-            ),
-            param2,
-            Proxy.NO_PROXY,
-            DataFixers.getDataFixer(),
-            param3,
-            null,
-            null,
-            null,
-            LoggerChunkProgressListener::new
-        );
+        super(param0, param1, param2, param3, Proxy.NO_PROXY, DataFixers.getDataFixer(), null, null, null, LoggerChunkProgressListener::new);
         this.testBatches = Lists.newArrayList(param4);
         this.spawnPos = param5;
-        if (param4.isEmpty()) {
-            throw new IllegalArgumentException("No test batches were given!");
-        }
     }
 
     @Override
     public boolean initServer() {
-        this.setPlayerList(new PlayerList(this, this.registryHolder, this.playerDataStorage, 1) {
+        this.setPlayerList(new PlayerList(this, this.registryAccess(), this.playerDataStorage, 1) {
         });
         this.loadLevel();
         ServerLevel var0 = this.overworld();

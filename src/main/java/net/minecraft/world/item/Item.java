@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -54,6 +55,7 @@ public class Item implements ItemLike {
     public static final int MAX_STACK_SIZE = 64;
     public static final int EAT_DURATION = 32;
     public static final int MAX_BAR_WIDTH = 13;
+    private final Holder.Reference<Item> builtInRegistryHolder = Registry.ITEM.createIntrusiveHolder(this);
     @Nullable
     protected final CreativeModeTab category;
     private final Rarity rarity;
@@ -95,6 +97,11 @@ public class Item implements ItemLike {
             }
         }
 
+    }
+
+    @Deprecated
+    public Holder.Reference<Item> builtInRegistryHolder() {
+        return this.builtInRegistryHolder;
     }
 
     public void onUseTick(Level param0, LivingEntity param1, ItemStack param2, int param3) {

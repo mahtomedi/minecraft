@@ -297,7 +297,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
             for(final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2x : param3) {
                 if (var2x == null) {
-                    this.debugFuturesAndThrow(new IllegalStateException("At least one of the chunk futures were null"));
+                    throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
                 }
 
                 Optional<ChunkAccess> var3x = var2x.left();
@@ -325,13 +325,13 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return var13;
     }
 
-    public void debugFuturesAndThrow(IllegalStateException param0) {
+    public ReportedException debugFuturesAndCreateReportedException(IllegalStateException param0, String param1) {
         StringBuilder var0 = new StringBuilder();
-        Consumer<ChunkHolder> var1 = param1 -> param1.getAllFutures().forEach(param2 -> {
+        Consumer<ChunkHolder> var1 = param1x -> param1x.getAllFutures().forEach(param2 -> {
                 ChunkStatus var0x = param2.getFirst();
                 CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1x = param2.getSecond();
                 if (var1x != null && var1x.isDone() && var1x.join() == null) {
-                    var0.append(param1.getPos()).append(" - status: ").append(var0x).append(" future: ").append(var1x).append(System.lineSeparator());
+                    var0.append(param1x.getPos()).append(" - status: ").append(var0x).append(" future: ").append(var1x).append(System.lineSeparator());
                 }
 
             });
@@ -341,8 +341,9 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         this.visibleChunkMap.values().forEach(var1);
         CrashReport var2 = CrashReport.forThrowable(param0, "Chunk loading");
         CrashReportCategory var3 = var2.addCategory("Chunk loading");
+        var3.setDetail("Details", param1);
         var3.setDetail("Futures", var0);
-        throw new ReportedException(var2);
+        return new ReportedException(var2);
     }
 
     public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkPos param0) {

@@ -150,6 +150,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     public void handleHello(ServerboundHelloPacket param0) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
         this.gameProfile = param0.getGameProfile();
+        Validate.validState(isValidUsername(this.gameProfile.getName()), "Invalid characters in username");
         if (this.server.usesAuthentication() && !this.connection.isMemoryConnection()) {
             this.state = ServerLoginPacketListenerImpl.State.KEY;
             this.connection.send(new ClientboundHelloPacket("", this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
@@ -157,6 +158,10 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
             this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
         }
 
+    }
+
+    public static boolean isValidUsername(String param0) {
+        return param0.chars().filter(param0x -> param0x <= 32 || param0x >= 127).findAny().isEmpty();
     }
 
     @Override

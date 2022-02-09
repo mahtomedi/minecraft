@@ -400,7 +400,7 @@ public class EndDragonFight {
 
     private void spawnNewGateway(BlockPos param0) {
         this.level.levelEvent(3000, param0, 0);
-        EndFeatures.END_GATEWAY_DELAYED.place(this.level, this.level.getChunkSource().getGenerator(), new Random(), param0);
+        EndFeatures.END_GATEWAY_DELAYED.value().place(this.level, this.level.getChunkSource().getGenerator(), new Random(), param0);
     }
 
     private void spawnExitPortal(boolean param0) {
@@ -413,7 +413,7 @@ public class EndDragonFight {
             }
         }
 
-        var0.configured(FeatureConfiguration.NONE).place(this.level, this.level.getChunkSource().getGenerator(), new Random(), this.portalLocation);
+        var0.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), new Random(), this.portalLocation);
     }
 
     private EnderDragon createNewDragon() {

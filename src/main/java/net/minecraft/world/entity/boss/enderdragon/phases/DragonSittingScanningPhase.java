@@ -50,7 +50,7 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
                         var8 = 40.0F;
                     }
 
-                    this.dragon.yRotA = (float)((double)this.dragon.yRotA + var7 * (double)(0.7F / var8 / var9));
+                    this.dragon.yRotA += (float)var7 * (0.7F / var8 / var9);
                     this.dragon.setYRot(this.dragon.getYRot() + this.dragon.yRotA);
                 }
             }

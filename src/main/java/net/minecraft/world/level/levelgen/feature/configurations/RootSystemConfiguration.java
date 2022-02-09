@@ -2,8 +2,10 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.function.Supplier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -14,7 +16,7 @@ public class RootSystemConfiguration implements FeatureConfiguration {
                     PlacedFeature.CODEC.fieldOf("feature").forGetter(param0x -> param0x.treeFeature),
                     Codec.intRange(1, 64).fieldOf("required_vertical_space_for_tree").forGetter(param0x -> param0x.requiredVerticalSpaceForTree),
                     Codec.intRange(1, 64).fieldOf("root_radius").forGetter(param0x -> param0x.rootRadius),
-                    ResourceLocation.CODEC.fieldOf("root_replaceable").forGetter(param0x -> param0x.rootReplaceable),
+                    TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("root_replaceable").forGetter(param0x -> param0x.rootReplaceable),
                     BlockStateProvider.CODEC.fieldOf("root_state_provider").forGetter(param0x -> param0x.rootStateProvider),
                     Codec.intRange(1, 256).fieldOf("root_placement_attempts").forGetter(param0x -> param0x.rootPlacementAttempts),
                     Codec.intRange(1, 4096).fieldOf("root_column_max_height").forGetter(param0x -> param0x.rootColumnMaxHeight),
@@ -27,10 +29,10 @@ public class RootSystemConfiguration implements FeatureConfiguration {
                 )
                 .apply(param0, RootSystemConfiguration::new)
     );
-    public final Supplier<PlacedFeature> treeFeature;
+    public final Holder<PlacedFeature> treeFeature;
     public final int requiredVerticalSpaceForTree;
     public final int rootRadius;
-    public final ResourceLocation rootReplaceable;
+    public final TagKey<Block> rootReplaceable;
     public final BlockStateProvider rootStateProvider;
     public final int rootPlacementAttempts;
     public final int rootColumnMaxHeight;
@@ -42,10 +44,10 @@ public class RootSystemConfiguration implements FeatureConfiguration {
     public final BlockPredicate allowedTreePosition;
 
     public RootSystemConfiguration(
-        Supplier<PlacedFeature> param0,
+        Holder<PlacedFeature> param0,
         int param1,
         int param2,
-        ResourceLocation param3,
+        TagKey<Block> param3,
         BlockStateProvider param4,
         int param5,
         int param6,

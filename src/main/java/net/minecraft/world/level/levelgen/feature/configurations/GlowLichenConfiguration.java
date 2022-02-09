@@ -6,7 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryCodecs;
 import net.minecraft.world.level.block.Block;
 
 public class GlowLichenConfiguration implements FeatureConfiguration {
@@ -17,7 +19,7 @@ public class GlowLichenConfiguration implements FeatureConfiguration {
                     Codec.BOOL.fieldOf("can_place_on_ceiling").orElse(false).forGetter(param0x -> param0x.canPlaceOnCeiling),
                     Codec.BOOL.fieldOf("can_place_on_wall").orElse(false).forGetter(param0x -> param0x.canPlaceOnWall),
                     Codec.floatRange(0.0F, 1.0F).fieldOf("chance_of_spreading").orElse(0.5F).forGetter(param0x -> param0x.chanceOfSpreading),
-                    Registry.BLOCK.byNameCodec().listOf().fieldOf("can_be_placed_on").forGetter(param0x -> param0x.canBePlacedOn)
+                    RegistryCodecs.homogeneousList(Registry.BLOCK_REGISTRY).fieldOf("can_be_placed_on").forGetter(param0x -> param0x.canBePlacedOn)
                 )
                 .apply(param0, GlowLichenConfiguration::new)
     );
@@ -26,10 +28,10 @@ public class GlowLichenConfiguration implements FeatureConfiguration {
     public final boolean canPlaceOnCeiling;
     public final boolean canPlaceOnWall;
     public final float chanceOfSpreading;
-    public final List<Block> canBePlacedOn;
+    public final HolderSet<Block> canBePlacedOn;
     public final List<Direction> validDirections;
 
-    public GlowLichenConfiguration(int param0, boolean param1, boolean param2, boolean param3, float param4, List<Block> param5) {
+    public GlowLichenConfiguration(int param0, boolean param1, boolean param2, boolean param3, float param4, HolderSet<Block> param5) {
         this.searchRange = param0;
         this.canPlaceOnFloor = param1;
         this.canPlaceOnCeiling = param2;

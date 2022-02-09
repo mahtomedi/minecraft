@@ -24,7 +24,6 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec2;
@@ -39,7 +38,7 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
     private static final int PATH_SUFFIX_LENGTH = ".mcfunction".length();
     private volatile Map<ResourceLocation, CommandFunction> functions = ImmutableMap.of();
     private final TagLoader<CommandFunction> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions");
-    private volatile TagCollection<CommandFunction> tags = TagCollection.empty();
+    private volatile Map<ResourceLocation, Tag<CommandFunction>> tags = Map.of();
     private final int functionCompilationLevel;
     private final CommandDispatcher<CommandSourceStack> dispatcher;
 
@@ -51,12 +50,12 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         return this.functions;
     }
 
-    public TagCollection<CommandFunction> getTags() {
-        return this.tags;
+    public Tag<CommandFunction> getTag(ResourceLocation param0) {
+        return this.tags.getOrDefault(param0, Tag.empty());
     }
 
-    public Tag<CommandFunction> getTag(ResourceLocation param0) {
-        return this.tags.getTagOrEmpty(param0);
+    public Iterable<ResourceLocation> getAvailableTags() {
+        return this.tags.keySet();
     }
 
     public ServerFunctionLibrary(int param0, CommandDispatcher<CommandSourceStack> param1) {

@@ -97,8 +97,8 @@ public interface RegistryResourceAccess {
         private static final Logger LOGGER = LogUtils.getLogger();
         private final Map<ResourceKey<?>, RegistryResourceAccess.InMemoryStorage.Entry> entries = Maps.newIdentityHashMap();
 
-        public <E> void add(RegistryAccess.RegistryHolder param0, ResourceKey<E> param1, Encoder<E> param2, int param3, E param4, Lifecycle param5) {
-            DataResult<JsonElement> var0 = param2.encodeStart(RegistryWriteOps.create(JsonOps.INSTANCE, param0), param4);
+        public <E> void add(RegistryAccess param0, ResourceKey<E> param1, Encoder<E> param2, int param3, E param4, Lifecycle param5) {
+            DataResult<JsonElement> var0 = param2.encodeStart(RegistryOps.create(JsonOps.INSTANCE, param0), param4);
             Optional<PartialResult<JsonElement>> var1 = var0.error();
             if (var1.isPresent()) {
                 LOGGER.error("Error adding element: {}", var1.get().message());

@@ -368,9 +368,9 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
                 this.neck.y = var3;
                 this.neck.z = var4;
                 this.neck.x = var2;
-                var3 = (float)((double)var3 + Math.sin((double)this.neck.xRot) * 10.0);
-                var4 = (float)((double)var4 - Math.cos((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
-                var2 = (float)((double)var2 - Math.sin((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
+                var3 += Mth.sin(this.neck.xRot) * 10.0F;
+                var4 -= Mth.cos(this.neck.yRot) * Mth.cos(this.neck.xRot) * 10.0F;
+                var2 -= Mth.sin(this.neck.yRot) * Mth.cos(this.neck.xRot) * 10.0F;
                 this.neck.render(param0, param1, param2, param3, 1.0F, 1.0F, 1.0F, param7);
             }
 
@@ -428,7 +428,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
                 param7
             );
             param0.popPose();
-            float var15 = -((float)Math.sin((double)(var0 * (float) (Math.PI * 2)))) * 0.0F;
+            float var15 = -Mth.sin(var0 * (float) (Math.PI * 2)) * 0.0F;
             var9 = var0 * (float) (Math.PI * 2);
             var3 = 10.0F;
             var4 = 60.0F;
@@ -437,16 +437,16 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
 
             for(int var16 = 0; var16 < 12; ++var16) {
                 var13 = this.entity.getLatencyPos(12 + var16, this.a);
-                var15 = (float)((double)var15 + Math.sin((double)((float)var16 * 0.45F + var9)) * 0.05F);
+                var15 += Mth.sin((float)var16 * 0.45F + var9) * 0.05F;
                 this.neck.yRot = (Mth.rotWrap(var13[0] - var6[0]) * 1.5F + 180.0F) * (float) (Math.PI / 180.0);
                 this.neck.xRot = var15 + (float)(var13[1] - var6[1]) * (float) (Math.PI / 180.0) * 1.5F * 5.0F;
                 this.neck.zRot = Mth.rotWrap(var13[0] - (double)var8) * (float) (Math.PI / 180.0) * 1.5F;
                 this.neck.y = var3;
                 this.neck.z = var4;
                 this.neck.x = var2;
-                var3 = (float)((double)var3 + Math.sin((double)this.neck.xRot) * 10.0);
-                var4 = (float)((double)var4 - Math.cos((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
-                var2 = (float)((double)var2 - Math.sin((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
+                var3 += Mth.sin(this.neck.xRot) * 10.0F;
+                var4 -= Mth.cos(this.neck.yRot) * Mth.cos(this.neck.xRot) * 10.0F;
+                var2 -= Mth.sin(this.neck.yRot) * Mth.cos(this.neck.xRot) * 10.0F;
                 this.neck.render(param0, param1, param2, param3, 1.0F, 1.0F, 1.0F, param7);
             }
 

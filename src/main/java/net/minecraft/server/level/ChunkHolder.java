@@ -43,6 +43,7 @@ public class ChunkHolder {
         UNLOADED_CHUNK
     );
     public static final Either<LevelChunk, ChunkHolder.ChunkLoadingFailure> UNLOADED_LEVEL_CHUNK = Either.right(ChunkHolder.ChunkLoadingFailure.UNLOADED);
+    private static final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> NOT_DONE_YET = Either.right(ChunkHolder.ChunkLoadingFailure.UNLOADED);
     private static final CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> UNLOADED_LEVEL_CHUNK_FUTURE = CompletableFuture.completedFuture(
         UNLOADED_LEVEL_CHUNK
     );
@@ -258,13 +259,13 @@ public class ChunkHolder {
         int var0 = param0.getIndex();
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1 = this.futures.get(var0);
         if (var1 != null) {
-            Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2 = var1.getNow(null);
-            if (var2 == null && var1.isDone()) {
-                throw new IllegalStateException("future for status: " + param0 + " was incorrectly set to null at chunk: " + this.pos);
+            Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2 = var1.getNow(NOT_DONE_YET);
+            if (var2 == null) {
+                String var3 = "value in future for status: " + param0 + " was incorrectly set to null at chunk: " + this.pos;
+                throw param1.debugFuturesAndCreateReportedException(new IllegalStateException("null value previously set for chunk status"), var3);
             }
 
-            boolean var3 = var2 != null && var2.right().isPresent();
-            if (!var3) {
+            if (var2 == NOT_DONE_YET || var2.right().isEmpty()) {
                 return var1;
             }
         }

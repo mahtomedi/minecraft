@@ -8,6 +8,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
@@ -36,7 +37,7 @@ public class FogRenderer {
         Entity var1 = param0.getEntity();
         if (var0 == FogType.WATER) {
             long var2 = Util.getMillis();
-            int var3 = param2.getBiome(new BlockPos(param0.getPosition())).getWaterFogColor();
+            int var3 = param2.getBiome(new BlockPos(param0.getPosition())).value().getWaterFogColor();
             if (biomeChangedTime < 0L) {
                 targetBiomeFog = var3;
                 previousBiomeFog = var3;
@@ -85,7 +86,7 @@ public class FogRenderer {
             Vec3 var22 = CubicSampler.gaussianSampleVec3(
                 var21,
                 (param3x, param4x, param5) -> param2.effects()
-                        .getBrightnessDependentFogColor(Vec3.fromRGB24(var20.getNoiseBiomeAtQuart(param3x, param4x, param5).getFogColor()), var19)
+                        .getBrightnessDependentFogColor(Vec3.fromRGB24(var20.getNoiseBiomeAtQuart(param3x, param4x, param5).value().getFogColor()), var19)
             );
             fogRed = (float)var22.x();
             fogGreen = (float)var22.y();
@@ -132,25 +133,25 @@ public class FogRenderer {
             biomeChangedTime = -1L;
         }
 
-        double var32 = (param0.getPosition().y - (double)param2.getMinBuildHeight()) * param2.getLevelData().getClearColorScale();
+        float var32 = ((float)param0.getPosition().y - (float)param2.getMinBuildHeight()) * param2.getLevelData().getClearColorScale();
         if (param0.getEntity() instanceof LivingEntity && ((LivingEntity)param0.getEntity()).hasEffect(MobEffects.BLINDNESS)) {
             int var33 = ((LivingEntity)param0.getEntity()).getEffect(MobEffects.BLINDNESS).getDuration();
             if (var33 < 20) {
-                var32 = (double)(1.0F - (float)var33 / 20.0F);
+                var32 = 1.0F - (float)var33 / 20.0F;
             } else {
-                var32 = 0.0;
+                var32 = 0.0F;
             }
         }
 
-        if (var32 < 1.0 && var0 != FogType.LAVA && var0 != FogType.POWDER_SNOW) {
-            if (var32 < 0.0) {
-                var32 = 0.0;
+        if (var32 < 1.0F && var0 != FogType.LAVA && var0 != FogType.POWDER_SNOW) {
+            if (var32 < 0.0F) {
+                var32 = 0.0F;
             }
 
             var32 *= var32;
-            fogRed = (float)((double)fogRed * var32);
-            fogGreen = (float)((double)fogGreen * var32);
-            fogBlue = (float)((double)fogBlue * var32);
+            fogRed *= var32;
+            fogGreen *= var32;
+            fogBlue *= var32;
         }
 
         if (param4 > 0.0F) {
@@ -226,8 +227,8 @@ public class FogRenderer {
             var4 = 96.0F;
             if (var1 instanceof LocalPlayer var21) {
                 var4 *= Math.max(0.25F, var21.getWaterVision());
-                Biome var22 = var21.level.getBiome(var21.blockPosition());
-                if (var22.getBiomeCategory() == Biome.BiomeCategory.SWAMP) {
+                Holder<Biome> var22 = var21.level.getBiome(var21.blockPosition());
+                if (Biome.getBiomeCategory(var22) == Biome.BiomeCategory.SWAMP) {
                     var4 *= 0.85F;
                 }
             }

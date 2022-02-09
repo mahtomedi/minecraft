@@ -18,7 +18,7 @@ public class EndIslandFeature extends Feature<NoneFeatureConfiguration> {
         WorldGenLevel var0 = param0.level();
         Random var1 = param0.random();
         BlockPos var2 = param0.origin();
-        float var3 = (float)(var1.nextInt(3) + 4);
+        float var3 = (float)var1.nextInt(3) + 4.0F;
 
         for(int var4 = 0; var3 > 0.5F; --var4) {
             for(int var5 = Mth.floor(-var3); var5 <= Mth.ceil(var3); ++var5) {
@@ -29,7 +29,7 @@ public class EndIslandFeature extends Feature<NoneFeatureConfiguration> {
                 }
             }
 
-            var3 = (float)((double)var3 - ((double)var1.nextInt(2) + 0.5));
+            var3 -= (float)var1.nextInt(2) + 0.5F;
         }
 
         return true;

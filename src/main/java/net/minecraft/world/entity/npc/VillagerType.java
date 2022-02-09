@@ -2,8 +2,8 @@ package net.minecraft.world.entity.npc;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.Optional;
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -63,7 +63,7 @@ public final class VillagerType {
         return Registry.register(Registry.VILLAGER_TYPE, new ResourceLocation(param0), new VillagerType(param0));
     }
 
-    public static VillagerType byBiome(Optional<ResourceKey<Biome>> param0) {
-        return param0.<VillagerType>flatMap(param0x -> Optional.ofNullable(BY_BIOME.get(param0x))).orElse(PLAINS);
+    public static VillagerType byBiome(Holder<Biome> param0) {
+        return param0.unwrapKey().map(BY_BIOME::get).orElse(PLAINS);
     }
 }

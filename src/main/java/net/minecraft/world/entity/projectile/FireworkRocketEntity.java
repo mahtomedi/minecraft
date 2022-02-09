@@ -110,6 +110,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
             }
 
             if (this.attachedToEntity != null) {
+                Vec3 var4;
                 if (this.attachedToEntity.isFallFlying()) {
                     Vec3 var0 = this.attachedToEntity.getLookAngle();
                     double var1 = 1.5;
@@ -123,25 +124,28 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
                                 var0.z * 0.1 + (var0.z * 1.5 - var3.z) * 0.5
                             )
                         );
+                    var4 = this.attachedToEntity.getHandHoldingItemAngle(Items.FIREWORK_ROCKET);
+                } else {
+                    var4 = Vec3.ZERO;
                 }
 
-                this.setPos(this.attachedToEntity.getX(), this.attachedToEntity.getY(), this.attachedToEntity.getZ());
+                this.setPos(this.attachedToEntity.getX() + var4.x, this.attachedToEntity.getY() + var4.y, this.attachedToEntity.getZ() + var4.z);
                 this.setDeltaMovement(this.attachedToEntity.getDeltaMovement());
             }
         } else {
             if (!this.isShotAtAngle()) {
-                double var4 = this.horizontalCollision ? 1.0 : 1.15;
-                this.setDeltaMovement(this.getDeltaMovement().multiply(var4, 1.0, var4).add(0.0, 0.04, 0.0));
+                double var6 = this.horizontalCollision ? 1.0 : 1.15;
+                this.setDeltaMovement(this.getDeltaMovement().multiply(var6, 1.0, var6).add(0.0, 0.04, 0.0));
             }
 
-            Vec3 var5 = this.getDeltaMovement();
-            this.move(MoverType.SELF, var5);
-            this.setDeltaMovement(var5);
+            Vec3 var7 = this.getDeltaMovement();
+            this.move(MoverType.SELF, var7);
+            this.setDeltaMovement(var7);
         }
 
-        HitResult var6 = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult var8 = ProjectileUtil.getHitResult(this, this::canHitEntity);
         if (!this.noPhysics) {
-            this.onHit(var6);
+            this.onHit(var8);
             this.hasImpulse = true;
         }
 
@@ -156,7 +160,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
                 .addParticle(
                     ParticleTypes.FIREWORK,
                     this.getX(),
-                    this.getY() - 0.3,
+                    this.getY(),
                     this.getZ(),
                     this.random.nextGaussian() * 0.05,
                     -this.getDeltaMovement().y * 0.5,

@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -139,8 +140,8 @@ public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfigurat
             );
     }
 
-    private static boolean isCold(BlockPos param0, Biome param1) {
-        return param1.coldEnoughToSnow(param0);
+    private static boolean isCold(BlockPos param0, Holder<Biome> param1) {
+        return param1.value().coldEnoughToSnow(param0);
     }
 
     private static int findSuitableY(

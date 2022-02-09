@@ -19,7 +19,7 @@ public class BiomeFilter extends PlacementFilter {
     @Override
     protected boolean shouldPlace(PlacementContext param0, Random param1, BlockPos param2) {
         PlacedFeature var0 = param0.topFeature().orElseThrow(() -> new IllegalStateException("Tried to biome check an unregistered feature"));
-        Biome var1 = param0.getLevel().getBiome(param2);
+        Biome var1 = param0.getLevel().getBiome(param2).value();
         return var1.getGenerationSettings().hasFeature(var0);
     }
 

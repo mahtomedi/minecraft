@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
@@ -17,9 +18,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class FungusBlock extends BushBlock implements BonemealableBlock {
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 9.0, 12.0);
     private static final double BONEMEAL_SUCCESS_PROBABILITY = 0.4;
-    private final Supplier<ConfiguredFeature<HugeFungusConfiguration, ?>> feature;
+    private final Supplier<Holder<ConfiguredFeature<HugeFungusConfiguration, ?>>> feature;
 
-    protected FungusBlock(BlockBehaviour.Properties param0, Supplier<ConfiguredFeature<HugeFungusConfiguration, ?>> param1) {
+    protected FungusBlock(BlockBehaviour.Properties param0, Supplier<Holder<ConfiguredFeature<HugeFungusConfiguration, ?>>> param1) {
         super(param0);
         this.feature = param1;
     }
@@ -36,7 +37,7 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public boolean isValidBonemealTarget(BlockGetter param0, BlockPos param1, BlockState param2, boolean param3) {
-        Block var0 = ((HugeFungusConfiguration)this.feature.get().config).validBaseState.getBlock();
+        Block var0 = this.feature.get().value().config().validBaseState.getBlock();
         BlockState var1 = param0.getBlockState(param1.below());
         return var1.is(var0);
     }
@@ -48,6 +49,6 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
-        this.feature.get().place(param0, param0.getChunkSource().getGenerator(), param1, param2);
+        this.feature.get().value().place(param0, param0.getChunkSource().getGenerator(), param1, param2);
     }
 }
