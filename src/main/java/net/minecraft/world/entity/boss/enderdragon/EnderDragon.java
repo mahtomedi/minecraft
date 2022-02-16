@@ -521,7 +521,7 @@ public class EnderDragon extends Mob implements Enemy {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (param0 instanceof EntityDamageSource && ((EntityDamageSource)param0).isThorns()) {
+        if (param0 instanceof EntityDamageSource && ((EntityDamageSource)param0).isThorns() && !this.level.isClientSide) {
             this.hurt(this.body, param0, param1);
         }
 

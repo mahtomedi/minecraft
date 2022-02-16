@@ -182,6 +182,8 @@ public class ExperienceOrb extends Entity {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
+        } else if (this.level.isClientSide) {
+            return true;
         } else {
             this.markHurt();
             this.health = (int)((float)this.health - param1);

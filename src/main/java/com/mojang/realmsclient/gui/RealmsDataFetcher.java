@@ -189,9 +189,10 @@ public class RealmsDataFetcher {
         this.servers = param0;
     }
 
-    public synchronized void removeItem(RealmsServer param0) {
+    public synchronized List<RealmsServer> removeItem(RealmsServer param0) {
         this.servers.remove(param0);
         this.removedServers.add(param0);
+        return ImmutableList.copyOf(this.servers);
     }
 
     private boolean isActive() {

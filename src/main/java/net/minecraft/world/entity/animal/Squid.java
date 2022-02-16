@@ -165,7 +165,10 @@ public class Squid extends WaterAnimal {
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (super.hurt(param0, param1) && this.getLastHurtByMob() != null) {
-            this.spawnInk();
+            if (!this.level.isClientSide) {
+                this.spawnInk();
+            }
+
             return true;
         } else {
             return false;

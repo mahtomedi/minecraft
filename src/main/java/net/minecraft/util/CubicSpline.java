@@ -18,6 +18,10 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
     @VisibleForDebug
     String parityString();
 
+    float min();
+
+    float max();
+
     static <C> Codec<CubicSpline<C>> codec(Codec<ToFloatFunction<C>> param0) {
         MutableObject<Codec<CubicSpline<C>>> var0 = new MutableObject<>();
 
@@ -137,6 +141,16 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
         public String parityString() {
             return String.format("k=%.3f", this.value);
         }
+
+        @Override
+        public float min() {
+            return this.value;
+        }
+
+        @Override
+        public float max() {
+            return this.value;
+        }
     }
 
     @VisibleForDebug
@@ -199,6 +213,16 @@ public interface CubicSpline<C> extends ToFloatFunction<C> {
                     .mapToObj(param0x -> String.format(Locale.ROOT, "%.3f", param0x))
                     .collect(Collectors.joining(", "))
                 + "]";
+        }
+
+        @Override
+        public float min() {
+            return (float)this.values().stream().mapToDouble(CubicSpline::min).min().orElseThrow();
+        }
+
+        @Override
+        public float max() {
+            return (float)this.values().stream().mapToDouble(CubicSpline::max).max().orElseThrow();
         }
     }
 }

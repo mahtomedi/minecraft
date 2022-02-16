@@ -24,7 +24,7 @@ public class RegistryDumpReport implements DataProvider {
     @Override
     public void run(HashCache param0) throws IOException {
         JsonObject var0 = new JsonObject();
-        Registry.REGISTRY.keySet().forEach(param1 -> var0.add(param1.toString(), dumpRegistry(Registry.REGISTRY.get(param1))));
+        Registry.REGISTRY.holders().forEach(param1 -> var0.add(param1.key().location().toString(), dumpRegistry(param1.value())));
         Path var1 = this.generator.getOutputFolder().resolve("reports/registries.json");
         DataProvider.save(GSON, param0, var0, var1);
     }
@@ -39,15 +39,13 @@ public class RegistryDumpReport implements DataProvider {
         int var2 = Registry.REGISTRY.getId(param0);
         var0.addProperty("protocol_id", var2);
         JsonObject var3 = new JsonObject();
-
-        for(ResourceLocation var4 : param0.keySet()) {
-            T var5 = param0.get(var4);
-            int var6 = param0.getId(var5);
-            JsonObject var7 = new JsonObject();
-            var7.addProperty("protocol_id", var6);
-            var3.add(var4.toString(), var7);
-        }
-
+        param0.holders().forEach(param2 -> {
+            T var0x = param2.value();
+            int var1x = param0.getId(var0x);
+            JsonObject var2x = new JsonObject();
+            var2x.addProperty("protocol_id", var1x);
+            var3.add(param2.key().location().toString(), var2x);
+        });
         var0.add("entries", var3);
         return var0;
     }

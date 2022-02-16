@@ -1391,24 +1391,31 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             if (this.player.isSpectator()) {
                 this.player.containerMenu.sendAllDataToRemote();
             } else {
-                boolean var0 = param0.getStateId() != this.player.containerMenu.getStateId();
-                this.player.containerMenu.suppressRemoteUpdates();
-                this.player.containerMenu.clicked(param0.getSlotNum(), param0.getButtonNum(), param0.getClickType(), this.player);
-
-                for(Entry<ItemStack> var1 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
-                    this.player.containerMenu.setRemoteSlotNoCopy(var1.getIntKey(), var1.getValue());
-                }
-
-                this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());
-                this.player.containerMenu.resumeRemoteUpdates();
-                if (var0) {
-                    this.player.containerMenu.broadcastFullState();
+                int var0 = param0.getSlotNum();
+                if (!this.player.containerMenu.isValidSlotIndex(var0)) {
+                    LOGGER.debug(
+                        "Player {} clicked invalid slot index: {}, available slots: {}", this.player.getName(), var0, this.player.containerMenu.slots.size()
+                    );
                 } else {
-                    this.player.containerMenu.broadcastChanges();
+                    boolean var1 = param0.getStateId() != this.player.containerMenu.getStateId();
+                    this.player.containerMenu.suppressRemoteUpdates();
+                    this.player.containerMenu.clicked(var0, param0.getButtonNum(), param0.getClickType(), this.player);
+
+                    for(Entry<ItemStack> var2 : Int2ObjectMaps.fastIterable(param0.getChangedSlots())) {
+                        this.player.containerMenu.setRemoteSlotNoCopy(var2.getIntKey(), var2.getValue());
+                    }
+
+                    this.player.containerMenu.setRemoteCarried(param0.getCarriedItem());
+                    this.player.containerMenu.resumeRemoteUpdates();
+                    if (var1) {
+                        this.player.containerMenu.broadcastFullState();
+                    } else {
+                        this.player.containerMenu.broadcastChanges();
+                    }
+
                 }
             }
         }
-
     }
 
     @Override
@@ -1430,8 +1437,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         this.player.resetLastActionTime();
         if (this.player.containerMenu.containerId == param0.getContainerId() && !this.player.isSpectator()) {
-            this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
-            this.player.containerMenu.broadcastChanges();
+            boolean var0 = this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
+            if (var0) {
+                this.player.containerMenu.broadcastChanges();
+            }
         }
 
     }

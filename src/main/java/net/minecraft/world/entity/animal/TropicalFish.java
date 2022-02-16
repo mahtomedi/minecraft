@@ -25,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Blocks;
 
 public class TropicalFish extends AbstractSchoolingFish {
     public static final String BUCKET_VARIANT_TAG = "BucketVariantTag";
@@ -249,6 +250,7 @@ public class TropicalFish extends AbstractSchoolingFish {
         EntityType<TropicalFish> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
     ) {
         return param1.getFluidState(param3.below()).is(FluidTags.WATER)
+            && param1.getBlockState(param3.above()).is(Blocks.WATER)
             && (param1.getBiome(param3).is(Biomes.LUSH_CAVES) || WaterAnimal.checkSurfaceWaterAnimalSpawnRules(param0, param1, param2, param3, param4));
     }
 

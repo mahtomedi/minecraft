@@ -19,9 +19,11 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagManager;
 import org.slf4j.Logger;
 
 public abstract class TagsProvider<T> implements DataProvider {
@@ -81,7 +83,10 @@ public abstract class TagsProvider<T> implements DataProvider {
             );
     }
 
-    protected abstract Path getPath(ResourceLocation var1);
+    private Path getPath(ResourceLocation param0) {
+        ResourceKey<? extends Registry<T>> var0 = this.registry.key();
+        return this.generator.getOutputFolder().resolve("data/" + param0.getNamespace() + "/" + TagManager.getTagDir(var0) + "/" + param0.getPath() + ".json");
+    }
 
     protected TagsProvider.TagAppender<T> tag(TagKey<T> param0) {
         Tag.Builder var0 = this.getOrCreateRawBuilder(param0);
@@ -105,6 +110,15 @@ public abstract class TagsProvider<T> implements DataProvider {
 
         public TagsProvider.TagAppender<T> add(T param0) {
             this.builder.addElement(this.registry.getKey(param0), this.source);
+            return this;
+        }
+
+        @SafeVarargs
+        public final TagsProvider.TagAppender<T> add(ResourceKey<T>... param0) {
+            for(ResourceKey<T> var0 : param0) {
+                this.builder.addElement(var0.location(), this.source);
+            }
+
             return this;
         }
 

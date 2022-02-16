@@ -27,6 +27,8 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
 
     boolean contains(Holder<T> var1);
 
+    boolean isValidInRegistry(Registry<T> var1);
+
     @SafeVarargs
     static <T> HolderSet.Direct<T> direct(Holder<T>... param0) {
         return new HolderSet.Direct<>(List.of(param0));
@@ -112,14 +114,21 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
         public Holder<T> get(int param0) {
             return this.contents().get(param0);
         }
+
+        @Override
+        public boolean isValidInRegistry(Registry<T> param0) {
+            return true;
+        }
     }
 
     public static class Named<T> extends HolderSet.ListBacked<T> {
+        private final Registry<T> registry;
         private final TagKey<T> key;
         private List<Holder<T>> contents = List.of();
 
-        Named(TagKey<T> param0) {
-            this.key = param0;
+        Named(Registry<T> param0, TagKey<T> param1) {
+            this.registry = param0;
+            this.key = param1;
         }
 
         void bind(List<Holder<T>> param0) {
@@ -148,6 +157,11 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
         @Override
         public String toString() {
             return "NamedSet(" + this.key + ")[" + this.contents + "]";
+        }
+
+        @Override
+        public boolean isValidInRegistry(Registry<T> param0) {
+            return this.registry == param0;
         }
     }
 }

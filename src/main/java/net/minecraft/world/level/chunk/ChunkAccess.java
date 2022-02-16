@@ -40,10 +40,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEventDispatcher;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseSampler;
+import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -354,7 +355,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     public NoiseChunk getOrCreateNoiseChunk(
-        NoiseSampler param0, Supplier<NoiseChunk.NoiseFiller> param1, NoiseGeneratorSettings param2, Aquifer.FluidPicker param3, Blender param4
+        NoiseRouter param0, Supplier<DensityFunction> param1, NoiseGeneratorSettings param2, Aquifer.FluidPicker param3, Blender param4
     ) {
         if (this.noiseChunk == null) {
             this.noiseChunk = NoiseChunk.forChunk(this, param0, param1, param2, param3, param4);

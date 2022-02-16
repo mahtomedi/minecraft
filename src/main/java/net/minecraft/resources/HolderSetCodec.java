@@ -60,9 +60,18 @@ public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
     }
 
     public <T> DataResult<T> encode(HolderSet<E> param0, DynamicOps<T> param1, T param2) {
-        return param1 instanceof RegistryOps
-            ? this.registryAwareCodec.encode(param0.unwrap().mapRight(List::copyOf), param1, param2)
-            : this.encodeWithoutRegistry(param0, param1, param2);
+        if (param1 instanceof RegistryOps var0) {
+            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            if (var1.isPresent()) {
+                if (!param0.isValidInRegistry(var1.get())) {
+                    return DataResult.error("HolderSet " + param0 + " is not valid in current registry set");
+                }
+
+                return this.registryAwareCodec.encode(param0.unwrap().mapRight(List::copyOf), param1, param2);
+            }
+        }
+
+        return this.encodeWithoutRegistry(param0, param1, param2);
     }
 
     private <T> DataResult<Pair<HolderSet<E>, T>> decodeWithoutRegistry(DynamicOps<T> param0, T param1) {

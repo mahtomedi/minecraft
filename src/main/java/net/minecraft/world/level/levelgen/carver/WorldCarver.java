@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -213,7 +214,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         if (param2.getY() <= param1.lavaLevel.resolveY(param0)) {
             return LAVA.createLegacyBlock();
         } else {
-            BlockState var0 = param3.computeSubstance(param2.getX(), param2.getY(), param2.getZ(), 0.0, 0.0);
+            BlockState var0 = param3.computeSubstance(new DensityFunction.SinglePointContext(param2.getX(), param2.getY(), param2.getZ()), 0.0);
             if (var0 == null) {
                 return isDebugEnabled(param1) ? param1.debugSettings.getBarrierState() : null;
             } else {

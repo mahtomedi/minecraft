@@ -1,6 +1,7 @@
 package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DataFix;
+import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
@@ -36,10 +37,13 @@ public class StructureSettingsFlattenFix extends DataFix {
 
     private static Dynamic<?> fixStructures(Dynamic<?> param0) {
         Dynamic<?> var0 = param0.get("structures")
-            .result()
-            .get()
+            .orElseEmptyMap()
             .updateMapValues(param1 -> param1.mapSecond(param1x -> param1x.set("type", param0.createString("minecraft:random_spread"))));
-        Dynamic<?> var1 = param0.get("stronghold").result().get().set("type", param0.createString("minecraft:concentric_rings"));
-        return var0.set("minecraft:stronghold", var1);
+        return DataFixUtils.orElse(
+            param0.get("stronghold")
+                .result()
+                .map(param2 -> var0.set("minecraft:stronghold", param2.set("type", param0.createString("minecraft:concentric_rings")))),
+            var0
+        );
     }
 }

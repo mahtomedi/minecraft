@@ -545,7 +545,10 @@ public class Panda extends Animal {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        this.sit(false);
+        if (!this.level.isClientSide) {
+            this.sit(false);
+        }
+
         return super.hurt(param0, param1);
     }
 
