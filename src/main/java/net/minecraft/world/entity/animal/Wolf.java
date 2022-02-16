@@ -301,7 +301,10 @@ public class Wolf extends TamableAnimal implements NeutralMob {
             return false;
         } else {
             Entity var0 = param0.getEntity();
-            this.setOrderedToSit(false);
+            if (!this.level.isClientSide) {
+                this.setOrderedToSit(false);
+            }
+
             if (var0 != null && !(var0 instanceof Player) && !(var0 instanceof AbstractArrow)) {
                 param1 = (param1 + 1.0F) / 2.0F;
             }

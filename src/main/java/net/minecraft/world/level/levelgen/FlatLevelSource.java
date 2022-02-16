@@ -7,6 +7,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
@@ -20,18 +22,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
 public class FlatLevelSource extends ChunkGenerator {
     public static final Codec<FlatLevelSource> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(FlatLevelGeneratorSettings.CODEC.fieldOf("settings").forGetter(FlatLevelSource::settings))
+        param0 -> param0.group(
+                    RegistryOps.retrieveRegistry(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY).forGetter(param0x -> param0x.configuredStructures),
+                    FlatLevelGeneratorSettings.CODEC.fieldOf("settings").forGetter(FlatLevelSource::settings)
+                )
                 .apply(param0, param0.stable(FlatLevelSource::new))
     );
     private final FlatLevelGeneratorSettings settings;
 
-    public FlatLevelSource(FlatLevelGeneratorSettings param0) {
-        super(new FixedBiomeSource(param0.getBiomeFromSettings()), new FixedBiomeSource(param0.getBiome()), param0.structureSettings(), 0L);
-        this.settings = param0;
+    public FlatLevelSource(Registry<ConfiguredStructureFeature<?, ?>> param0, FlatLevelGeneratorSettings param1) {
+        super(param0, new FixedBiomeSource(param1.getBiomeFromSettings()), new FixedBiomeSource(param1.getBiome()), param1.structureSettings(), 0L);
+        this.settings = param1;
     }
 
     @Override
@@ -115,8 +121,12 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
+    public void addDebugScreenInfo(List<String> param0, BlockPos param1) {
+    }
+
+    @Override
     public Climate.Sampler climateSampler() {
-        return (param0, param1, param2) -> Climate.target(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+        return Climate.empty();
     }
 
     @Override

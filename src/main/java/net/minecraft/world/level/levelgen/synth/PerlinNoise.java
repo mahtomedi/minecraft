@@ -24,6 +24,7 @@ public class PerlinNoise {
     private final DoubleList amplitudes;
     private final double lowestFreqValueFactor;
     private final double lowestFreqInputFactor;
+    private final double maxValue;
 
     @Deprecated
     public static PerlinNoise createLegacyForBlendedNoise(RandomSource param0, IntStream param1) {
@@ -124,6 +125,11 @@ public class PerlinNoise {
 
         this.lowestFreqInputFactor = Math.pow(2.0, (double)(-var1));
         this.lowestFreqValueFactor = Math.pow(2.0, (double)(var0 - 1)) / (Math.pow(2.0, (double)var0) - 1.0);
+        this.maxValue = this.edgeValue(2.0);
+    }
+
+    protected double maxValue() {
+        return this.maxValue;
     }
 
     private static void skipOctave(RandomSource param0) {
@@ -149,6 +155,26 @@ public class PerlinNoise {
 
             var1 *= 2.0;
             var2 /= 2.0;
+        }
+
+        return var0;
+    }
+
+    public double maxBrokenValue(double param0) {
+        return this.edgeValue(param0 + 2.0);
+    }
+
+    private double edgeValue(double param0) {
+        double var0 = 0.0;
+        double var1 = this.lowestFreqValueFactor;
+
+        for(int var2 = 0; var2 < this.noiseLevels.length; ++var2) {
+            ImprovedNoise var3 = this.noiseLevels[var2];
+            if (var3 != null) {
+                var0 += this.amplitudes.getDouble(var2) * param0 * var1;
+            }
+
+            var1 /= 2.0;
         }
 
         return var0;

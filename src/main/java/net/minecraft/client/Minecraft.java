@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -308,9 +309,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final FontManager fontManager;
     private final SplashManager splashManager;
     private final GpuWarnlistManager gpuWarnlistManager;
-    private final PeriodicNotificationManager regionalCompliancies = new PeriodicNotificationManager(
-        REGIONAL_COMPLIANCIES, param0x -> Locale.getDefault().getISO3Country().equals(param0x)
-    );
+    private final PeriodicNotificationManager regionalCompliancies = new PeriodicNotificationManager(REGIONAL_COMPLIANCIES, Minecraft::countryEqualsISO3);
     private final MinecraftSessionService minecraftSessionService;
     private final UserApiService userApiService;
     private final SkinManager skinManager;
@@ -572,6 +571,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.setScreen(new TitleScreen(true));
         }
 
+    }
+
+    private static boolean countryEqualsISO3(Object param0x) {
+        try {
+            return Locale.getDefault().getISO3Country().equals(param0x);
+        } catch (MissingResourceException var2) {
+            return false;
+        }
     }
 
     public void updateTitle() {
@@ -1086,7 +1093,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 fps,
                 (double)this.options.framerateLimit == Option.FRAMERATE_LIMIT.getMaxValue() ? "inf" : this.options.framerateLimit,
                 this.options.enableVsync ? " vsync" : "",
-                this.options.graphicsMode.toString(),
+                this.options.graphicsMode,
                 this.options.renderClouds == CloudStatus.OFF ? "" : (this.options.renderClouds == CloudStatus.FAST ? " fast-clouds" : " fancy-clouds"),
                 this.options.biomeBlendRadius
             );

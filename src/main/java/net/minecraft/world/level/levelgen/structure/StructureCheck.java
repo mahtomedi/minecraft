@@ -1,6 +1,5 @@
 package net.minecraft.world.level.levelgen.structure;
 
-import com.google.common.collect.Multimap;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.Long2BooleanMap;
@@ -10,15 +9,12 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -95,11 +91,8 @@ public class StructureCheck {
                 return var2;
             } else {
                 boolean var3 = this.featureChecks.computeIfAbsent(param1, param0x -> new Long2BooleanOpenHashMap()).computeIfAbsent(var0, param2x -> {
-                    Multimap<ResourceKey<ConfiguredStructureFeature<?, ?>>, ResourceKey<Biome>> var0x = this.chunkGenerator.getSettings().structures(param1);
-
-                    for(Entry<ResourceKey<ConfiguredStructureFeature<?, ?>>, Collection<ResourceKey<Biome>>> var1x : var0x.asMap().entrySet()) {
-                        Optional<ConfiguredStructureFeature<?, ?>> var2x = this.structureConfigs.getOptional(var1x.getKey());
-                        if (var2x.isPresent() && this.canCreateStructure(param0, var2x.get(), var1x.getValue())) {
+                    for(Holder.Reference<ConfiguredStructureFeature<?, ?>> var1x : this.chunkGenerator.getAllConfigurationsFor(param1)) {
+                        if (this.canCreateStructure(param0, var1x.value())) {
                             return true;
                         }
                     }
@@ -112,9 +105,8 @@ public class StructureCheck {
     }
 
     private <FC extends FeatureConfiguration, F extends StructureFeature<FC>> boolean canCreateStructure(
-        ChunkPos param0, ConfiguredStructureFeature<FC, F> param1, Collection<ResourceKey<Biome>> param2
+        ChunkPos param0, ConfiguredStructureFeature<FC, F> param1
     ) {
-        Predicate<ResourceKey<Biome>> var0 = param2::contains;
         return param1.feature
             .canGenerate(
                 this.registryAccess,
@@ -125,7 +117,7 @@ public class StructureCheck {
                 param0,
                 param1.config,
                 this.heightAccessor,
-                param1x -> param1x.is(var0)
+                param1.biomes()::contains
             );
     }
 

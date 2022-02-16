@@ -18,7 +18,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.PrioritizeChunkUpdates;
 import net.minecraft.client.color.block.BlockTintCache;
 import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -826,11 +825,6 @@ public class ClientLevel extends Level {
 
     public int getServerSimulationDistance() {
         return this.serverSimulationDistance;
-    }
-
-    @Override
-    public boolean shouldDelayFallingBlockEntityRemoval(Entity.RemovalReason param0) {
-        return param0 == Entity.RemovalReason.DISCARDED && this.minecraft.options.prioritizeChunkUpdates != PrioritizeChunkUpdates.NEARBY;
     }
 
     @OnlyIn(Dist.CLIENT)

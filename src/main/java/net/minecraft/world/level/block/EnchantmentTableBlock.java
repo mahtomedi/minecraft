@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -30,9 +31,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class EnchantmentTableBlock extends BaseEntityBlock {
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 12.0, 16.0);
+    public static final List<BlockPos> BOOKSHELF_OFFSETS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2)
+        .filter(param0 -> Math.abs(param0.getX()) == 2 || Math.abs(param0.getZ()) == 2)
+        .map(BlockPos::immutable)
+        .toList();
 
     protected EnchantmentTableBlock(BlockBehaviour.Properties param0) {
         super(param0);
+    }
+
+    public static boolean isValidBookShelf(Level param0, BlockPos param1, BlockPos param2) {
+        return param0.getBlockState(param1.offset(param2)).is(Blocks.BOOKSHELF)
+            && param0.isEmptyBlock(param1.offset(param2.getX() / 2, param2.getY(), param2.getZ() / 2));
     }
 
     @Override
@@ -49,32 +59,17 @@ public class EnchantmentTableBlock extends BaseEntityBlock {
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         super.animateTick(param0, param1, param2, param3);
 
-        for(int var0 = -2; var0 <= 2; ++var0) {
-            for(int var1 = -2; var1 <= 2; ++var1) {
-                if (var0 > -2 && var0 < 2 && var1 == -1) {
-                    var1 = 2;
-                }
-
-                if (param3.nextInt(16) == 0) {
-                    for(int var2 = 0; var2 <= 1; ++var2) {
-                        BlockPos var3 = param2.offset(var0, var2, var1);
-                        if (param1.getBlockState(var3).is(Blocks.BOOKSHELF)) {
-                            if (!param1.isEmptyBlock(param2.offset(var0 / 2, 0, var1 / 2))) {
-                                break;
-                            }
-
-                            param1.addParticle(
-                                ParticleTypes.ENCHANT,
-                                (double)param2.getX() + 0.5,
-                                (double)param2.getY() + 2.0,
-                                (double)param2.getZ() + 0.5,
-                                (double)((float)var0 + param3.nextFloat()) - 0.5,
-                                (double)((float)var2 - param3.nextFloat() - 1.0F),
-                                (double)((float)var1 + param3.nextFloat()) - 0.5
-                            );
-                        }
-                    }
-                }
+        for(BlockPos var0 : BOOKSHELF_OFFSETS) {
+            if (param3.nextInt(16) == 0 && isValidBookShelf(param1, param2, var0)) {
+                param1.addParticle(
+                    ParticleTypes.ENCHANT,
+                    (double)param2.getX() + 0.5,
+                    (double)param2.getY() + 2.0,
+                    (double)param2.getZ() + 0.5,
+                    (double)((float)var0.getX() + param3.nextFloat()) - 0.5,
+                    (double)((float)var0.getY() - param3.nextFloat() - 1.0F),
+                    (double)((float)var0.getZ() + param3.nextFloat()) - 0.5
+                );
             }
         }
 

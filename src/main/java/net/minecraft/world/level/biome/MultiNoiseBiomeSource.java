@@ -9,7 +9,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,9 +22,6 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.VisibleForDebug;
-import net.minecraft.world.level.levelgen.NoiseSampler;
-import net.minecraft.world.level.levelgen.TerrainInfo;
-import net.minecraft.world.level.levelgen.blending.Blender;
 
 public class MultiNoiseBiomeSource extends BiomeSource {
     public static final MapCodec<MultiNoiseBiomeSource> DIRECT_CODEC = RecordCodecBuilder.mapCodec(
@@ -94,7 +90,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
     }
 
     @Override
-    public void addMultinoiseDebugInfo(List<String> param0, BlockPos param1, Climate.Sampler param2) {
+    public void addDebugInfo(List<String> param0, BlockPos param1, Climate.Sampler param2) {
         int var0 = QuartPos.fromBlock(param1.getX());
         int var1 = QuartPos.fromBlock(param1.getY());
         int var2 = QuartPos.fromBlock(param1.getZ());
@@ -105,46 +101,19 @@ public class MultiNoiseBiomeSource extends BiomeSource {
         float var7 = Climate.unquantizeCoord(var3.humidity());
         float var8 = Climate.unquantizeCoord(var3.weirdness());
         double var9 = (double)TerrainShaper.peaksAndValleys(var8);
-        DecimalFormat var10 = new DecimalFormat("0.000");
-        param0.add(
-            "Multinoise C: "
-                + var10.format((double)var4)
-                + " E: "
-                + var10.format((double)var5)
-                + " T: "
-                + var10.format((double)var6)
-                + " H: "
-                + var10.format((double)var7)
-                + " W: "
-                + var10.format((double)var8)
-        );
-        OverworldBiomeBuilder var11 = new OverworldBiomeBuilder();
+        OverworldBiomeBuilder var10 = new OverworldBiomeBuilder();
         param0.add(
             "Biome builder PV: "
                 + OverworldBiomeBuilder.getDebugStringForPeaksAndValleys(var9)
                 + " C: "
-                + var11.getDebugStringForContinentalness((double)var4)
+                + var10.getDebugStringForContinentalness((double)var4)
                 + " E: "
-                + var11.getDebugStringForErosion((double)var5)
+                + var10.getDebugStringForErosion((double)var5)
                 + " T: "
-                + var11.getDebugStringForTemperature((double)var6)
+                + var10.getDebugStringForTemperature((double)var6)
                 + " H: "
-                + var11.getDebugStringForHumidity((double)var7)
+                + var10.getDebugStringForHumidity((double)var7)
         );
-        if (param2 instanceof NoiseSampler) {
-            NoiseSampler var12 = (NoiseSampler)param2;
-            TerrainInfo var13 = var12.terrainInfo(param1.getX(), param1.getZ(), var4, var8, var5, Blender.empty());
-            param0.add(
-                "Terrain PV: "
-                    + var10.format(var9)
-                    + " O: "
-                    + var10.format(var13.offset())
-                    + " F: "
-                    + var10.format(var13.factor())
-                    + " JA: "
-                    + var10.format(var13.jaggedness())
-            );
-        }
     }
 
     public static class Preset {

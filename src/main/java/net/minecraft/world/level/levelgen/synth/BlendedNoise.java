@@ -3,11 +3,11 @@ package net.minecraft.world.level.levelgen.synth;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.stream.IntStream;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.NoiseChunk;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseSamplingSettings;
 import net.minecraft.world.level.levelgen.RandomSource;
 
-public class BlendedNoise implements NoiseChunk.NoiseFiller {
+public class BlendedNoise implements DensityFunction.SimpleFunction {
     private final PerlinNoise minLimitNoise;
     private final PerlinNoise maxLimitNoise;
     private final PerlinNoise mainNoise;
@@ -17,6 +17,7 @@ public class BlendedNoise implements NoiseChunk.NoiseFiller {
     private final double yMainScale;
     private final int cellWidth;
     private final int cellHeight;
+    private final double maxValue;
 
     private BlendedNoise(PerlinNoise param0, PerlinNoise param1, PerlinNoise param2, NoiseSamplingSettings param3, int param4, int param5) {
         this.minLimitNoise = param0;
@@ -28,6 +29,7 @@ public class BlendedNoise implements NoiseChunk.NoiseFiller {
         this.yMainScale = this.yScale / param3.yFactor();
         this.cellWidth = param4;
         this.cellHeight = param5;
+        this.maxValue = param0.maxBrokenValue(this.yScale);
     }
 
     public BlendedNoise(RandomSource param0, NoiseSamplingSettings param1, int param2, int param3) {
@@ -42,10 +44,10 @@ public class BlendedNoise implements NoiseChunk.NoiseFiller {
     }
 
     @Override
-    public double calculateNoise(int param0, int param1, int param2) {
-        int var0 = Math.floorDiv(param0, this.cellWidth);
-        int var1 = Math.floorDiv(param1, this.cellHeight);
-        int var2 = Math.floorDiv(param2, this.cellWidth);
+    public double compute(DensityFunction.FunctionContext param0) {
+        int var0 = Math.floorDiv(param0.blockX(), this.cellWidth);
+        int var1 = Math.floorDiv(param0.blockY(), this.cellHeight);
+        int var2 = Math.floorDiv(param0.blockZ(), this.cellWidth);
         double var3 = 0.0;
         double var4 = 0.0;
         double var5 = 0.0;
@@ -96,6 +98,16 @@ public class BlendedNoise implements NoiseChunk.NoiseFiller {
         }
 
         return Mth.clampedLerp(var3 / 512.0, var4 / 512.0, var10) / 128.0;
+    }
+
+    @Override
+    public double minValue() {
+        return -this.maxValue();
+    }
+
+    @Override
+    public double maxValue() {
+        return this.maxValue;
     }
 
     @VisibleForTesting

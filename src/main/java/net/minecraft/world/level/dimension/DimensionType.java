@@ -28,6 +28,7 @@ import net.minecraft.world.level.biome.TheEndBiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class DimensionType {
@@ -294,14 +295,15 @@ public class DimensionType {
         WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental(), null);
         Registry<DimensionType> var1 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
         Registry<Biome> var2 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-        Registry<NoiseGeneratorSettings> var3 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
-        Registry<NormalNoise.NoiseParameters> var4 = param0.registryOrThrow(Registry.NOISE_REGISTRY);
+        Registry<ConfiguredStructureFeature<?, ?>> var3 = param0.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
+        Registry<NoiseGeneratorSettings> var4 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
+        Registry<NormalNoise.NoiseParameters> var5 = param0.registryOrThrow(Registry.NOISE_REGISTRY);
         var0.register(
             LevelStem.NETHER,
             new LevelStem(
                 var1.getOrCreateHolder(NETHER_LOCATION),
                 new NoiseBasedChunkGenerator(
-                    var4, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(var2, param2), param1, var3.getOrCreateHolder(NoiseGeneratorSettings.NETHER)
+                    var5, var3, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(var2, param2), param1, var4.getOrCreateHolder(NoiseGeneratorSettings.NETHER)
                 )
             ),
             Lifecycle.stable()
@@ -310,7 +312,7 @@ public class DimensionType {
             LevelStem.END,
             new LevelStem(
                 var1.getOrCreateHolder(END_LOCATION),
-                new NoiseBasedChunkGenerator(var4, new TheEndBiomeSource(var2, param1), param1, var3.getOrCreateHolder(NoiseGeneratorSettings.END))
+                new NoiseBasedChunkGenerator(var5, var3, new TheEndBiomeSource(var2, param1), param1, var4.getOrCreateHolder(NoiseGeneratorSettings.END))
             ),
             Lifecycle.stable()
         );

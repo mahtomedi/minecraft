@@ -575,6 +575,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
         return MultiNoiseBiomeSource.Preset.OVERWORLD
             .biomeSource(BuiltinRegistries.BIOME)
             .possibleBiomes()
+            .stream()
             .flatMap(param0 -> param0.unwrapKey().stream())
             .collect(Collectors.toList());
     }

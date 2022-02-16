@@ -2,7 +2,9 @@ package net.minecraft.world.inventory;
 
 import java.util.List;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +21,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EnchantmentTableBlock;
 
 public class EnchantmentMenu extends AbstractContainerMenu {
     private final Container enchantSlots = new SimpleContainer(2) {
@@ -87,70 +90,39 @@ public class EnchantmentMenu extends AbstractContainerMenu {
         if (param0 == this.enchantSlots) {
             ItemStack var0 = param0.getItem(0);
             if (!var0.isEmpty() && var0.isEnchantable()) {
-                this.access
-                    .execute(
-                        (param1, param2) -> {
-                            int var0x = 0;
-        
-                            for(int var1x = -1; var1x <= 1; ++var1x) {
-                                for(int var2 = -1; var2 <= 1; ++var2) {
-                                    if ((var1x != 0 || var2 != 0)
-                                        && param1.isEmptyBlock(param2.offset(var2, 0, var1x))
-                                        && param1.isEmptyBlock(param2.offset(var2, 1, var1x))) {
-                                        if (param1.getBlockState(param2.offset(var2 * 2, 0, var1x * 2)).is(Blocks.BOOKSHELF)) {
-                                            ++var0x;
-                                        }
-        
-                                        if (param1.getBlockState(param2.offset(var2 * 2, 1, var1x * 2)).is(Blocks.BOOKSHELF)) {
-                                            ++var0x;
-                                        }
-        
-                                        if (var2 != 0 && var1x != 0) {
-                                            if (param1.getBlockState(param2.offset(var2 * 2, 0, var1x)).is(Blocks.BOOKSHELF)) {
-                                                ++var0x;
-                                            }
-        
-                                            if (param1.getBlockState(param2.offset(var2 * 2, 1, var1x)).is(Blocks.BOOKSHELF)) {
-                                                ++var0x;
-                                            }
-        
-                                            if (param1.getBlockState(param2.offset(var2, 0, var1x * 2)).is(Blocks.BOOKSHELF)) {
-                                                ++var0x;
-                                            }
-        
-                                            if (param1.getBlockState(param2.offset(var2, 1, var1x * 2)).is(Blocks.BOOKSHELF)) {
-                                                ++var0x;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-        
-                            this.random.setSeed((long)this.enchantmentSeed.get());
-        
-                            for(int var3 = 0; var3 < 3; ++var3) {
-                                this.costs[var3] = EnchantmentHelper.getEnchantmentCost(this.random, var3, var0x, var0);
-                                this.enchantClue[var3] = -1;
-                                this.levelClue[var3] = -1;
-                                if (this.costs[var3] < var3 + 1) {
-                                    this.costs[var3] = 0;
-                                }
-                            }
-        
-                            for(int var4 = 0; var4 < 3; ++var4) {
-                                if (this.costs[var4] > 0) {
-                                    List<EnchantmentInstance> var5 = this.getEnchantmentList(var0, var4, this.costs[var4]);
-                                    if (var5 != null && !var5.isEmpty()) {
-                                        EnchantmentInstance var6 = var5.get(this.random.nextInt(var5.size()));
-                                        this.enchantClue[var4] = Registry.ENCHANTMENT.getId(var6.enchantment);
-                                        this.levelClue[var4] = var6.level;
-                                    }
-                                }
-                            }
-        
-                            this.broadcastChanges();
+                this.access.execute((param1, param2) -> {
+                    int var0x = 0;
+
+                    for(BlockPos var1x : EnchantmentTableBlock.BOOKSHELF_OFFSETS) {
+                        if (EnchantmentTableBlock.isValidBookShelf(param1, param2, var1x)) {
+                            ++var0x;
                         }
-                    );
+                    }
+
+                    this.random.setSeed((long)this.enchantmentSeed.get());
+
+                    for(int var2 = 0; var2 < 3; ++var2) {
+                        this.costs[var2] = EnchantmentHelper.getEnchantmentCost(this.random, var2, var0x, var0);
+                        this.enchantClue[var2] = -1;
+                        this.levelClue[var2] = -1;
+                        if (this.costs[var2] < var2 + 1) {
+                            this.costs[var2] = 0;
+                        }
+                    }
+
+                    for(int var3 = 0; var3 < 3; ++var3) {
+                        if (this.costs[var3] > 0) {
+                            List<EnchantmentInstance> var4 = this.getEnchantmentList(var0, var3, this.costs[var3]);
+                            if (var4 != null && !var4.isEmpty()) {
+                                EnchantmentInstance var5 = var4.get(this.random.nextInt(var4.size()));
+                                this.enchantClue[var3] = Registry.ENCHANTMENT.getId(var5.enchantment);
+                                this.levelClue[var3] = var5.level;
+                            }
+                        }
+                    }
+
+                    this.broadcastChanges();
+                });
             } else {
                 for(int var1 = 0; var1 < 3; ++var1) {
                     this.costs[var1] = 0;
@@ -164,61 +136,66 @@ public class EnchantmentMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player param0, int param1) {
-        ItemStack var0 = this.enchantSlots.getItem(0);
-        ItemStack var1 = this.enchantSlots.getItem(1);
-        int var2 = param1 + 1;
-        if ((var1.isEmpty() || var1.getCount() < var2) && !param0.getAbilities().instabuild) {
-            return false;
-        } else if (this.costs[param1] <= 0
-            || var0.isEmpty()
-            || (param0.experienceLevel < var2 || param0.experienceLevel < this.costs[param1]) && !param0.getAbilities().instabuild) {
-            return false;
-        } else {
-            this.access.execute((param5, param6) -> {
-                ItemStack var0x = var0;
-                List<EnchantmentInstance> var1x = this.getEnchantmentList(var0, param1, this.costs[param1]);
-                if (!var1x.isEmpty()) {
-                    param0.onEnchantmentPerformed(var0, var2);
-                    boolean var2x = var0.is(Items.BOOK);
-                    if (var2x) {
-                        var0x = new ItemStack(Items.ENCHANTED_BOOK);
-                        CompoundTag var4x = var0.getTag();
-                        if (var4x != null) {
-                            var0x.setTag(var4x.copy());
-                        }
-
-                        this.enchantSlots.setItem(0, var0x);
-                    }
-
-                    for(int var4 = 0; var4 < var1x.size(); ++var4) {
-                        EnchantmentInstance var5x = var1x.get(var4);
+        if (param1 >= 0 && param1 < this.costs.length) {
+            ItemStack var0 = this.enchantSlots.getItem(0);
+            ItemStack var1 = this.enchantSlots.getItem(1);
+            int var2 = param1 + 1;
+            if ((var1.isEmpty() || var1.getCount() < var2) && !param0.getAbilities().instabuild) {
+                return false;
+            } else if (this.costs[param1] <= 0
+                || var0.isEmpty()
+                || (param0.experienceLevel < var2 || param0.experienceLevel < this.costs[param1]) && !param0.getAbilities().instabuild) {
+                return false;
+            } else {
+                this.access.execute((param5, param6) -> {
+                    ItemStack var0x = var0;
+                    List<EnchantmentInstance> var1x = this.getEnchantmentList(var0, param1, this.costs[param1]);
+                    if (!var1x.isEmpty()) {
+                        param0.onEnchantmentPerformed(var0, var2);
+                        boolean var2x = var0.is(Items.BOOK);
                         if (var2x) {
-                            EnchantedBookItem.addEnchantment(var0x, var5x);
-                        } else {
-                            var0x.enchant(var5x.enchantment, var5x.level);
+                            var0x = new ItemStack(Items.ENCHANTED_BOOK);
+                            CompoundTag var4x = var0.getTag();
+                            if (var4x != null) {
+                                var0x.setTag(var4x.copy());
+                            }
+
+                            this.enchantSlots.setItem(0, var0x);
                         }
-                    }
 
-                    if (!param0.getAbilities().instabuild) {
-                        var1.shrink(var2);
-                        if (var1.isEmpty()) {
-                            this.enchantSlots.setItem(1, ItemStack.EMPTY);
+                        for(int var4 = 0; var4 < var1x.size(); ++var4) {
+                            EnchantmentInstance var5x = var1x.get(var4);
+                            if (var2x) {
+                                EnchantedBookItem.addEnchantment(var0x, var5x);
+                            } else {
+                                var0x.enchant(var5x.enchantment, var5x.level);
+                            }
                         }
+
+                        if (!param0.getAbilities().instabuild) {
+                            var1.shrink(var2);
+                            if (var1.isEmpty()) {
+                                this.enchantSlots.setItem(1, ItemStack.EMPTY);
+                            }
+                        }
+
+                        param0.awardStat(Stats.ENCHANT_ITEM);
+                        if (param0 instanceof ServerPlayer) {
+                            CriteriaTriggers.ENCHANTED_ITEM.trigger((ServerPlayer)param0, var0x, var2);
+                        }
+
+                        this.enchantSlots.setChanged();
+                        this.enchantmentSeed.set(param0.getEnchantmentSeed());
+                        this.slotsChanged(this.enchantSlots);
+                        param5.playSound(null, param6, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, param5.random.nextFloat() * 0.1F + 0.9F);
                     }
 
-                    param0.awardStat(Stats.ENCHANT_ITEM);
-                    if (param0 instanceof ServerPlayer) {
-                        CriteriaTriggers.ENCHANTED_ITEM.trigger((ServerPlayer)param0, var0x, var2);
-                    }
-
-                    this.enchantSlots.setChanged();
-                    this.enchantmentSeed.set(param0.getEnchantmentSeed());
-                    this.slotsChanged(this.enchantSlots);
-                    param5.playSound(null, param6, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, param5.random.nextFloat() * 0.1F + 0.9F);
-                }
-
-            });
-            return true;
+                });
+                return true;
+            }
+        } else {
+            Util.logAndPauseIfInIde(param0.getName() + " pressed invalid button id: " + param1);
+            return false;
         }
     }
 

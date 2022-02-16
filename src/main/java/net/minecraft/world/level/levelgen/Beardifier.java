@@ -11,13 +11,13 @@ import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
-import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
-public class Beardifier implements NoiseChunk.NoiseFiller {
+public class Beardifier implements DensityFunction.SimpleFunction {
     public static final int BEARD_KERNEL_RADIUS = 12;
     private static final int BEARD_KERNEL_SIZE = 24;
     private static final float[] BEARD_KERNEL = Util.make(new float[13824], param0 -> {
@@ -73,35 +73,48 @@ public class Beardifier implements NoiseChunk.NoiseFiller {
     }
 
     @Override
-    public double calculateNoise(int param0, int param1, int param2) {
-        double var0 = 0.0;
+    public double compute(DensityFunction.FunctionContext param0) {
+        int var0 = param0.blockX();
+        int var1 = param0.blockY();
+        int var2 = param0.blockZ();
+        double var3 = 0.0;
 
         while(this.pieceIterator.hasNext()) {
-            StructurePiece var1 = this.pieceIterator.next();
-            BoundingBox var2 = var1.getBoundingBox();
-            int var3 = Math.max(0, Math.max(var2.minX() - param0, param0 - var2.maxX()));
-            int var4 = param1 - (var2.minY() + (var1 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var1).getGroundLevelDelta() : 0));
-            int var5 = Math.max(0, Math.max(var2.minZ() - param2, param2 - var2.maxZ()));
-            NoiseEffect var6 = var1.getNoiseEffect();
-            if (var6 == NoiseEffect.BURY) {
-                var0 += getBuryContribution(var3, var4, var5);
-            } else if (var6 == NoiseEffect.BEARD) {
-                var0 += getBeardContribution(var3, var4, var5) * 0.8;
+            StructurePiece var4 = this.pieceIterator.next();
+            BoundingBox var5 = var4.getBoundingBox();
+            int var6 = Math.max(0, Math.max(var5.minX() - var0, var0 - var5.maxX()));
+            int var7 = var1 - (var5.minY() + (var4 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var4).getGroundLevelDelta() : 0));
+            int var8 = Math.max(0, Math.max(var5.minZ() - var2, var2 - var5.maxZ()));
+            NoiseEffect var9 = var4.getNoiseEffect();
+            if (var9 == NoiseEffect.BURY) {
+                var3 += getBuryContribution(var6, var7, var8);
+            } else if (var9 == NoiseEffect.BEARD) {
+                var3 += getBeardContribution(var6, var7, var8) * 0.8;
             }
         }
 
         this.pieceIterator.back(this.rigids.size());
 
         while(this.junctionIterator.hasNext()) {
-            JigsawJunction var7 = this.junctionIterator.next();
-            int var8 = param0 - var7.getSourceX();
-            int var9 = param1 - var7.getSourceGroundY();
-            int var10 = param2 - var7.getSourceZ();
-            var0 += getBeardContribution(var8, var9, var10) * 0.4;
+            JigsawJunction var10 = this.junctionIterator.next();
+            int var11 = var0 - var10.getSourceX();
+            int var12 = var1 - var10.getSourceGroundY();
+            int var13 = var2 - var10.getSourceZ();
+            var3 += getBeardContribution(var11, var12, var13) * 0.4;
         }
 
         this.junctionIterator.back(this.junctions.size());
-        return var0;
+        return var3;
+    }
+
+    @Override
+    public double minValue() {
+        return Double.NEGATIVE_INFINITY;
+    }
+
+    @Override
+    public double maxValue() {
+        return Double.POSITIVE_INFINITY;
     }
 
     private static double getBuryContribution(int param0, int param1, int param2) {

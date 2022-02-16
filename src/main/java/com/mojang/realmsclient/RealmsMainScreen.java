@@ -727,8 +727,7 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     void removeServer(RealmsServer param0) {
-        REALMS_DATA_FETCHER.removeItem(param0);
-        this.realmsServers.remove(param0);
+        this.realmsServers = REALMS_DATA_FETCHER.removeItem(param0);
         this.realmSelectionList.children().removeIf(param1 -> {
             RealmsServer var0 = param1.getServer();
             return var0 != null && var0.id == param0.id;

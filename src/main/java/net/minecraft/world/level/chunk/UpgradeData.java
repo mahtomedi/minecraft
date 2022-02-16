@@ -9,12 +9,18 @@ import java.util.EnumSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction8;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
@@ -31,6 +37,9 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.ChestType;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.ticks.SavedTick;
 import org.slf4j.Logger;
 
 public class UpgradeData {
@@ -39,6 +48,8 @@ public class UpgradeData {
     private static final String TAG_INDICES = "Indices";
     private static final Direction8[] DIRECTIONS = Direction8.values();
     private final EnumSet<Direction8> sides = EnumSet.noneOf(Direction8.class);
+    private final List<SavedTick<Block>> neighborBlockTicks = Lists.newArrayList();
+    private final List<SavedTick<Fluid>> neighborFluidTicks = Lists.newArrayList();
     private final int[][] index;
     static final Map<Block, UpgradeData.BlockFixer> MAP = new IdentityHashMap<>();
     static final Set<UpgradeData.BlockFixer> CHUNKY_FIXERS = Sets.newHashSet();
@@ -68,6 +79,27 @@ public class UpgradeData {
             }
         }
 
+        loadTicks(
+            param0,
+            "neighbor_block_ticks",
+            param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)).or(() -> Optional.of(Blocks.AIR)),
+            this.neighborBlockTicks
+        );
+        loadTicks(
+            param0,
+            "neighbor_fluid_ticks",
+            param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)).or(() -> Optional.of(Fluids.EMPTY)),
+            this.neighborFluidTicks
+        );
+    }
+
+    private static <T> void loadTicks(CompoundTag param0, String param1, Function<String, Optional<T>> param2, List<SavedTick<T>> param3) {
+        if (param0.contains(param1, 9)) {
+            for(Tag var1 : param0.getList(param1, 10)) {
+                SavedTick.loadTick((CompoundTag)var1, param2).ifPresent(param3::add);
+            }
+        }
+
     }
 
     public void upgrade(LevelChunk param0) {
@@ -78,6 +110,14 @@ public class UpgradeData {
         }
 
         Level var1 = param0.getLevel();
+        this.neighborBlockTicks.forEach(param1 -> {
+            Block var0x = param1.type() == Blocks.AIR ? var1.getBlockState(param1.pos()).getBlock() : param1.type();
+            var1.scheduleTick(param1.pos(), var0x, param1.delay(), param1.priority());
+        });
+        this.neighborFluidTicks.forEach(param1 -> {
+            Fluid var0x = param1.type() == Fluids.EMPTY ? var1.getFluidState(param1.pos()).getType() : param1.type();
+            var1.scheduleTick(param1.pos(), var0x, param1.delay(), param1.priority());
+        });
         CHUNKY_FIXERS.forEach(param1 -> param1.processChunk(var1));
     }
 
@@ -196,6 +236,18 @@ public class UpgradeData {
         }
 
         var0.putByte("Sides", (byte)var4);
+        if (!this.neighborBlockTicks.isEmpty()) {
+            ListTag var6 = new ListTag();
+            this.neighborBlockTicks.forEach(param1 -> var6.add(param1.save(param0x -> Registry.BLOCK.getKey(param0x).toString())));
+            var0.put("neighbor_block_ticks", var6);
+        }
+
+        if (!this.neighborFluidTicks.isEmpty()) {
+            ListTag var7 = new ListTag();
+            this.neighborFluidTicks.forEach(param1 -> var7.add(param1.save(param0x -> Registry.FLUID.getKey(param0x).toString())));
+            var0.put("neighbor_fluid_ticks", var7);
+        }
+
         return var0;
     }
 

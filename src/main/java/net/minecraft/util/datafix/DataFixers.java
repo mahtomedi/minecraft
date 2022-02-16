@@ -124,6 +124,7 @@ import net.minecraft.util.datafix.fixes.OptionsKeyLwjgl3Fix;
 import net.minecraft.util.datafix.fixes.OptionsKeyTranslationFix;
 import net.minecraft.util.datafix.fixes.OptionsLowerCaseLanguageFix;
 import net.minecraft.util.datafix.fixes.OptionsRenameFieldFix;
+import net.minecraft.util.datafix.fixes.OverreachingTickFix;
 import net.minecraft.util.datafix.fixes.PlayerUUIDFix;
 import net.minecraft.util.datafix.fixes.RecipesFix;
 import net.minecraft.util.datafix.fixes.RecipesRenameFix;
@@ -826,6 +827,7 @@ public class DataFixers {
         Schema var152 = param0.addSchema(2842, V2842::new);
         param0.addFixer(new ChunkRenamesFix(var152));
         Schema var153 = param0.addSchema(2843, SAME_NAMESPACED);
+        param0.addFixer(new OverreachingTickFix(var153));
         param0.addFixer(new RenameBiomesFix(var153, false, "Remove Deep Warm Ocean", Map.of("minecraft:deep_warm_ocean", "minecraft:warm_ocean")));
         Schema var154 = param0.addSchema(2846, SAME_NAMESPACED);
         param0.addFixer(

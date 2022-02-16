@@ -27,21 +27,25 @@ public record WorldStem(
     public static CompletableFuture<WorldStem> load(
         WorldStem.InitConfig param0, WorldStem.DataPackConfigSupplier param1, WorldStem.WorldDataSupplier param2, Executor param3, Executor param4
     ) {
-        DataPackConfig var0 = param1.get();
-        DataPackConfig var1 = MinecraftServer.configurePackRepository(param0.packRepository(), var0, param0.safeMode());
-        List<PackResources> var2 = param0.packRepository().openAllSelected();
-        CloseableResourceManager var3 = new MultiPackResourceManager(PackType.SERVER_DATA, var2);
-        Pair<WorldData, RegistryAccess.Frozen> var4 = param2.get(var3, var1);
-        WorldData var5 = var4.getFirst();
-        RegistryAccess.Frozen var6 = var4.getSecond();
-        return ReloadableServerResources.loadResources(var3, var6, param0.commandSelection(), param0.functionCompilationLevel(), param3, param4)
-            .whenComplete((param1x, param2x) -> {
-                if (param2x != null) {
-                    var3.close();
-                }
+        try {
+            DataPackConfig var0 = param1.get();
+            DataPackConfig var1 = MinecraftServer.configurePackRepository(param0.packRepository(), var0, param0.safeMode());
+            List<PackResources> var2 = param0.packRepository().openAllSelected();
+            CloseableResourceManager var3 = new MultiPackResourceManager(PackType.SERVER_DATA, var2);
+            Pair<WorldData, RegistryAccess.Frozen> var4 = param2.get(var3, var1);
+            WorldData var5 = var4.getFirst();
+            RegistryAccess.Frozen var6 = var4.getSecond();
+            return ReloadableServerResources.loadResources(var3, var6, param0.commandSelection(), param0.functionCompilationLevel(), param3, param4)
+                .whenComplete((param1x, param2x) -> {
+                    if (param2x != null) {
+                        var3.close();
+                    }
     
-            })
-            .thenApply(param3x -> new WorldStem(var3, param3x, var6, var5));
+                })
+                .thenApply(param3x -> new WorldStem(var3, param3x, var6, var5));
+        } catch (Exception var12) {
+            return CompletableFuture.failedFuture(var12);
+        }
     }
 
     @Override

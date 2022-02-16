@@ -29,10 +29,12 @@ public class ConfiguredStructureFeature<FC extends FeatureConfiguration, F exten
     );
     public final F feature;
     public final FC config;
+    public final HolderSet<Biome> biomes;
 
-    public ConfiguredStructureFeature(F param0, FC param1) {
+    public ConfiguredStructureFeature(F param0, FC param1, HolderSet<Biome> param2) {
         this.feature = param0;
         this.config = param1;
+        this.biomes = param2;
     }
 
     public StructureStart<?> generate(
@@ -47,5 +49,9 @@ public class ConfiguredStructureFeature<FC extends FeatureConfiguration, F exten
         Predicate<Holder<Biome>> param8
     ) {
         return this.feature.generate(param0, param1, param2, param3, param4, param5, param6, this.config, param7, param8);
+    }
+
+    public HolderSet<Biome> biomes() {
+        return this.biomes;
     }
 }

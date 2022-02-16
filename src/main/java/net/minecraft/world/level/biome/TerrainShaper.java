@@ -338,7 +338,7 @@ public final class TerrainShaper {
         return this.jaggednessSampler.apply(param0);
     }
 
-    public TerrainShaper.Point makePoint(float param0, float param1, float param2) {
+    public static TerrainShaper.Point makePoint(float param0, float param1, float param2) {
         return new TerrainShaper.Point(param0, param1, peaksAndValleys(param2), param2);
     }
 

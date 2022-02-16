@@ -1,10 +1,8 @@
 package net.minecraft.data.tags;
 
-import java.nio.file.Path;
 import java.util.function.Function;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
@@ -189,11 +187,6 @@ public class ItemTagsProvider extends TagsProvider<Item> {
         Tag.Builder var0 = this.getOrCreateRawBuilder(param1);
         Tag.Builder var1 = this.blockTags.apply(param0);
         var1.getEntries().forEach(var0::add);
-    }
-
-    @Override
-    protected Path getPath(ResourceLocation param0) {
-        return this.generator.getOutputFolder().resolve("data/" + param0.getNamespace() + "/tags/items/" + param0.getPath() + ".json");
     }
 
     @Override

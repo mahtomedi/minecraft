@@ -970,8 +970,4 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public long nextSubTickCount() {
         return (long)(this.subTickCount++);
     }
-
-    public boolean shouldDelayFallingBlockEntityRemoval(Entity.RemovalReason param0) {
-        return false;
-    }
 }
