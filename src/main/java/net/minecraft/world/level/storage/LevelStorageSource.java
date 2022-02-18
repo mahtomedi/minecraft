@@ -134,8 +134,8 @@ public class LevelStorageSource {
                     boolean var3;
                     try {
                         var3 = DirectoryLock.isLocked(var2.toPath());
-                    } catch (Exception var10) {
-                        LOGGER.warn("Failed to read {} lock", var2, var10);
+                    } catch (Exception var11) {
+                        LOGGER.warn("Failed to read {} lock", var2, var11);
                         continue;
                     }
 
@@ -149,6 +149,9 @@ public class LevelStorageSource {
                         System.gc();
                         LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of memory trying to read summary of {}", var2);
                         throw var9;
+                    } catch (StackOverflowError var10) {
+                        LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of stack trying to read summary of {}", var2);
+                        throw var10;
                     }
                 }
             }

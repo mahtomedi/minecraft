@@ -32,7 +32,7 @@ public class PerlinNoise {
     }
 
     @Deprecated
-    public static PerlinNoise createLegacyForLegacyNormalNoise(RandomSource param0, int param1, DoubleList param2) {
+    public static PerlinNoise createLegacyForLegacyNetherBiome(RandomSource param0, int param1, DoubleList param2) {
         return new PerlinNoise(param0, Pair.of(param1, param2), false);
     }
 

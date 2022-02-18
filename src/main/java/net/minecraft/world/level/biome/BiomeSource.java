@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
@@ -176,19 +177,21 @@ public abstract class BiomeSource implements BiomeResolver {
     }
 
     @Nullable
-    public BlockPos findBiomeHorizontal(int param0, int param1, int param2, int param3, Predicate<Holder<Biome>> param4, Random param5, Climate.Sampler param6) {
+    public Pair<BlockPos, Holder<Biome>> findBiomeHorizontal(
+        int param0, int param1, int param2, int param3, Predicate<Holder<Biome>> param4, Random param5, Climate.Sampler param6
+    ) {
         return this.findBiomeHorizontal(param0, param1, param2, param3, 1, param4, param5, false, param6);
     }
 
     @Nullable
-    public BlockPos findBiomeHorizontal(
+    public Pair<BlockPos, Holder<Biome>> findBiomeHorizontal(
         int param0, int param1, int param2, int param3, int param4, Predicate<Holder<Biome>> param5, Random param6, boolean param7, Climate.Sampler param8
     ) {
         int var0 = QuartPos.fromBlock(param0);
         int var1 = QuartPos.fromBlock(param2);
         int var2 = QuartPos.fromBlock(param3);
         int var3 = QuartPos.fromBlock(param1);
-        BlockPos var4 = null;
+        Pair<BlockPos, Holder<Biome>> var4 = null;
         int var5 = 0;
         int var6 = param7 ? 0 : var2;
 
@@ -206,12 +209,15 @@ public abstract class BiomeSource implements BiomeResolver {
 
                     int var12 = var0 + var10;
                     int var13 = var1 + var8;
-                    if (param5.test(this.getNoiseBiome(var12, var3, var13, param8))) {
+                    Holder<Biome> var14 = this.getNoiseBiome(var12, var3, var13, param8);
+                    if (param5.test(var14)) {
                         if (var4 == null || param6.nextInt(var5 + 1) == 0) {
-                            var4 = new BlockPos(QuartPos.toBlock(var12), param1, QuartPos.toBlock(var13));
+                            BlockPos var15 = new BlockPos(QuartPos.toBlock(var12), param1, QuartPos.toBlock(var13));
                             if (param7) {
-                                return var4;
+                                return Pair.of(var15, var14);
                             }
+
+                            var4 = Pair.of(var15, var14);
                         }
 
                         ++var5;

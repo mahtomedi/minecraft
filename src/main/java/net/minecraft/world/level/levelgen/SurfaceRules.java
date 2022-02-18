@@ -181,6 +181,25 @@ public class SurfaceRules {
 
             return new BiomeCondition();
         }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (this == param0) {
+                return true;
+            } else {
+                return param0 instanceof SurfaceRules.BiomeConditionSource var0 ? this.biomes.equals(var0.biomes) : false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return this.biomes.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "BiomeConditionSource[biomes=" + this.biomes + "]";
+        }
     }
 
     static record BlockRuleSource(BlockState resultState, SurfaceRules.StateRule rule) implements SurfaceRules.RuleSource {

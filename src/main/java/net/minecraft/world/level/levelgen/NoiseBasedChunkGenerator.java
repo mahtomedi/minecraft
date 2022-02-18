@@ -24,8 +24,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.util.VisibleForDebug;
-import net.minecraft.util.random.WeightedRandomList;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NaturalSpawner;
@@ -37,7 +35,6 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.TerrainShaper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,22 +46,19 @@ import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.feature.NetherFortressFeature;
-import net.minecraft.world.level.levelgen.feature.OceanMonumentFeature;
-import net.minecraft.world.level.levelgen.feature.PillagerOutpostFeature;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.SwamplandHutFeature;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     public static final Codec<NoiseBasedChunkGenerator> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(param0x -> param0x.noises),
-                    RegistryOps.retrieveRegistry(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY).forGetter(param0x -> param0x.configuredStructures),
-                    BiomeSource.CODEC.fieldOf("biome_source").forGetter(param0x -> param0x.biomeSource),
-                    Codec.LONG.fieldOf("seed").stable().forGetter(param0x -> param0x.seed),
-                    NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(param0x -> param0x.settings)
+        param0 -> commonCodec(param0)
+                .and(
+                    param0.group(
+                        RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(param0x -> param0x.noises),
+                        BiomeSource.CODEC.fieldOf("biome_source").forGetter(param0x -> param0x.biomeSource),
+                        Codec.LONG.fieldOf("seed").stable().forGetter(param0x -> param0x.seed),
+                        NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(param0x -> param0x.settings)
+                    )
                 )
                 .apply(param0, param0.stable(NoiseBasedChunkGenerator::new))
     );
@@ -80,46 +74,42 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     private final Aquifer.FluidPicker globalFluidPicker;
 
     public NoiseBasedChunkGenerator(
-        Registry<NormalNoise.NoiseParameters> param0,
-        Registry<ConfiguredStructureFeature<?, ?>> param1,
-        BiomeSource param2,
-        long param3,
-        Holder<NoiseGeneratorSettings> param4
+        Registry<StructureSet> param0, Registry<NormalNoise.NoiseParameters> param1, BiomeSource param2, long param3, Holder<NoiseGeneratorSettings> param4
     ) {
         this(param0, param1, param2, param2, param3, param4);
     }
 
     private NoiseBasedChunkGenerator(
-        Registry<NormalNoise.NoiseParameters> param0,
-        Registry<ConfiguredStructureFeature<?, ?>> param1,
+        Registry<StructureSet> param0,
+        Registry<NormalNoise.NoiseParameters> param1,
         BiomeSource param2,
         BiomeSource param3,
         long param4,
         Holder<NoiseGeneratorSettings> param5
     ) {
-        super(param1, param2, param3, param5.value().structureSettings(), param4);
-        this.noises = param0;
+        super(param0, Optional.empty(), param2, param3, param4);
+        this.noises = param1;
         this.seed = param4;
         this.settings = param5;
         NoiseGeneratorSettings var0 = this.settings.value();
-        this.defaultBlock = var0.getDefaultBlock();
+        this.defaultBlock = var0.defaultBlock();
         NoiseSettings var1 = var0.noiseSettings();
-        this.router = NoiseRouterData.createNoiseRouter(var1, var0.isNoiseCavesEnabled(), var0.isNoodleCavesEnabled(), param4, param0, var0.getRandomSource());
+        this.router = var0.createNoiseRouter(param1, param4);
         this.sampler = new Climate.Sampler(
             this.router.temperature(),
             this.router.humidity(),
-            this.router.continentalness(),
+            this.router.continents(),
             this.router.erosion(),
             this.router.depth(),
-            this.router.weirdness(),
+            this.router.ridges(),
             this.router.spawnTarget()
         );
         Aquifer.FluidStatus var2 = new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState());
         int var3 = var0.seaLevel();
-        Aquifer.FluidStatus var4 = new Aquifer.FluidStatus(var3, var0.getDefaultFluid());
+        Aquifer.FluidStatus var4 = new Aquifer.FluidStatus(var3, var0.defaultFluid());
         Aquifer.FluidStatus var5 = new Aquifer.FluidStatus(var1.minY() - 1, Blocks.AIR.defaultBlockState());
         this.globalFluidPicker = (param4x, param5x, param6) -> param5x < Math.min(-54, var3) ? var2 : var4;
-        this.surfaceSystem = new SurfaceSystem(param0, this.defaultBlock, var3, param4, var0.getRandomSource());
+        this.surfaceSystem = new SurfaceSystem(param1, this.defaultBlock, var3, param4, var0.getRandomSource());
     }
 
     @Override
@@ -155,7 +145,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
     @Override
     public ChunkGenerator withSeed(long param0) {
-        return new NoiseBasedChunkGenerator(this.noises, this.configuredStructures, this.biomeSource.withSeed(param0), param0, this.settings);
+        return new NoiseBasedChunkGenerator(this.structureSets, this.noises, this.biomeSource.withSeed(param0), param0, this.settings);
     }
 
     public boolean stable(long param0, ResourceKey<NoiseGeneratorSettings> param1) {
@@ -194,14 +184,14 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     public void addDebugScreenInfo(List<String> param0, BlockPos param1) {
         DecimalFormat var0 = new DecimalFormat("0.000");
         DensityFunction.SinglePointContext var1 = new DensityFunction.SinglePointContext(param1.getX(), param1.getY(), param1.getZ());
-        double var2 = this.router.weirdness().compute(var1);
+        double var2 = this.router.ridges().compute(var1);
         param0.add(
             "NoiseRouter T: "
                 + var0.format(this.router.temperature().compute(var1))
                 + " H: "
                 + var0.format(this.router.humidity().compute(var1))
                 + " C: "
-                + var0.format(this.router.continentalness().compute(var1))
+                + var0.format(this.router.continents().compute(var1))
                 + " E: "
                 + var0.format(this.router.erosion().compute(var1))
                 + " D: "
@@ -211,9 +201,9 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
                 + " PV: "
                 + var0.format((double)TerrainShaper.peaksAndValleys((float)var2))
                 + " AS: "
-                + var0.format(this.router.initialDensityNoJaggedness().compute(var1))
+                + var0.format(this.router.initialDensityWithoutJaggedness().compute(var1))
                 + " N: "
-                + var0.format(this.router.fullNoise().compute(var1))
+                + var0.format(this.router.finalDensity().compute(var1))
         );
     }
 
@@ -456,42 +446,6 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     @Override
     public int getMinY() {
         return this.settings.value().noiseSettings().minY();
-    }
-
-    @Override
-    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
-        if (!param1.hasAnyStructureAt(param3)) {
-            return super.getMobsAt(param0, param1, param2, param3);
-        } else {
-            if (param1.getStructureWithPieceAt(param3, StructureFeature.SWAMP_HUT).isValid()) {
-                if (param2 == MobCategory.MONSTER) {
-                    return SwamplandHutFeature.SWAMPHUT_ENEMIES;
-                }
-
-                if (param2 == MobCategory.CREATURE) {
-                    return SwamplandHutFeature.SWAMPHUT_ANIMALS;
-                }
-            }
-
-            if (param2 == MobCategory.MONSTER) {
-                if (param1.getStructureAt(param3, StructureFeature.PILLAGER_OUTPOST).isValid()) {
-                    return PillagerOutpostFeature.OUTPOST_ENEMIES;
-                }
-
-                if (param1.getStructureAt(param3, StructureFeature.OCEAN_MONUMENT).isValid()) {
-                    return OceanMonumentFeature.MONUMENT_ENEMIES;
-                }
-
-                if (param1.getStructureWithPieceAt(param3, StructureFeature.NETHER_BRIDGE).isValid()) {
-                    return NetherFortressFeature.FORTRESS_ENEMIES;
-                }
-            }
-
-            return (param2 == MobCategory.UNDERGROUND_WATER_CREATURE || param2 == MobCategory.AXOLOTLS)
-                    && param1.getStructureAt(param3, StructureFeature.OCEAN_MONUMENT).isValid()
-                ? MobSpawnSettings.EMPTY_MOB_LIST
-                : super.getMobsAt(param0, param1, param2, param3);
-        }
     }
 
     @Override

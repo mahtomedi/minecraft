@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.ConfiguredStructureTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EndPortalFrameBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -70,18 +70,15 @@ public class EnderEyeItem extends Item {
             return InteractionResultHolder.pass(var0);
         } else {
             param1.startUsingItem(param2);
-            if (param0 instanceof ServerLevel) {
-                BlockPos var2 = ((ServerLevel)param0)
-                    .getChunkSource()
-                    .getGenerator()
-                    .findNearestMapFeature((ServerLevel)param0, StructureFeature.STRONGHOLD, param1.blockPosition(), 100, false);
-                if (var2 != null) {
-                    EyeOfEnder var3 = new EyeOfEnder(param0, param1.getX(), param1.getY(0.5), param1.getZ());
-                    var3.setItem(var0);
-                    var3.signalTo(var2);
-                    param0.addFreshEntity(var3);
+            if (param0 instanceof ServerLevel var2) {
+                BlockPos var3 = var2.findNearestMapFeature(ConfiguredStructureTags.EYE_OF_ENDER_LOCATED, param1.blockPosition(), 100, false);
+                if (var3 != null) {
+                    EyeOfEnder var4 = new EyeOfEnder(param0, param1.getX(), param1.getY(0.5), param1.getZ());
+                    var4.setItem(var0);
+                    var4.signalTo(var3);
+                    param0.addFreshEntity(var4);
                     if (param1 instanceof ServerPlayer) {
-                        CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayer)param1, var2);
+                        CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayer)param1, var3);
                     }
 
                     param0.playSound(

@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList.Builder;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
     private final Blender blender;
     private final NoiseChunk.FlatCache blendAlpha;
     private final NoiseChunk.FlatCache blendOffset;
+    private final DensityFunctions.BeardifierOrMarker beardifier;
     private long lastBlendingDataPos = ChunkPos.INVALID_CHUNK_POS;
     private Blender.BlendingOutput lastBlendingOutput = new Blender.BlendingOutput(1.0, 0.0);
     final int noiseSizeXZ;
@@ -79,7 +81,12 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
     };
 
     public static NoiseChunk forChunk(
-        ChunkAccess param0, NoiseRouter param1, Supplier<DensityFunction> param2, NoiseGeneratorSettings param3, Aquifer.FluidPicker param4, Blender param5
+        ChunkAccess param0,
+        NoiseRouter param1,
+        Supplier<DensityFunctions.BeardifierOrMarker> param2,
+        NoiseGeneratorSettings param3,
+        Aquifer.FluidPicker param4,
+        Blender param5
     ) {
         ChunkPos var0 = param0.getPos();
         NoiseSettings var1 = param3.noiseSettings();
@@ -93,7 +100,7 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
     public static NoiseChunk forColumn(
         int param0, int param1, int param2, int param3, NoiseRouter param4, NoiseGeneratorSettings param5, Aquifer.FluidPicker param6
     ) {
-        return new NoiseChunk(1, param3, param2, param4, param0, param1, DensityFunctions.zero(), param5, param6, Blender.empty());
+        return new NoiseChunk(1, param3, param2, param4, param0, param1, DensityFunctions.BeardifierMarker.INSTANCE, param5, param6, Blender.empty());
     }
 
     private NoiseChunk(
@@ -103,7 +110,7 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         NoiseRouter param3,
         int param4,
         int param5,
-        DensityFunction param6,
+        DensityFunctions.BeardifierOrMarker param6,
         NoiseGeneratorSettings param7,
         Aquifer.FluidPicker param8,
         Blender param9
@@ -122,6 +129,7 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         this.firstNoiseZ = QuartPos.fromBlock(param5);
         this.noiseSizeXZ = QuartPos.fromBlock(param0 * this.cellWidth);
         this.blender = param9;
+        this.beardifier = param6;
         this.blendAlpha = new NoiseChunk.FlatCache(new NoiseChunk.BlendAlpha(), false);
         this.blendOffset = new NoiseChunk.FlatCache(new NoiseChunk.BlendOffset(), false);
 
@@ -158,9 +166,10 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         }
 
         Builder<NoiseChunk.BlockStateFiller> var9 = ImmutableList.builder();
-        DensityFunction var10 = DensityFunctions.cacheAllInCell(DensityFunctions.add(param3.fullNoise(), param6)).mapAll(this::wrap);
+        DensityFunction var10 = DensityFunctions.cacheAllInCell(DensityFunctions.add(param3.finalDensity(), DensityFunctions.BeardifierMarker.INSTANCE))
+            .mapAll(this::wrap);
         var9.add(param1x -> this.aquifer.computeSubstance(param1x, var10.compute(param1x)));
-        if (param7.isOreVeinsEnabled()) {
+        if (param7.oreVeinsEnabled()) {
             var9.add(
                 OreVeinifier.create(
                     param3.veinToggle().mapAll(this::wrap),
@@ -172,17 +181,17 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         }
 
         this.blockStateRule = new MaterialRuleList(var9.build());
-        this.initialDensityNoJaggedness = param3.initialDensityNoJaggedness().mapAll(this::wrap);
+        this.initialDensityNoJaggedness = param3.initialDensityWithoutJaggedness().mapAll(this::wrap);
     }
 
     protected Climate.Sampler cachedClimateSampler(NoiseRouter param0) {
         return new Climate.Sampler(
             param0.temperature().mapAll(this::wrap),
             param0.humidity().mapAll(this::wrap),
-            param0.continentalness().mapAll(this::wrap),
+            param0.continents().mapAll(this::wrap),
             param0.erosion().mapAll(this::wrap),
             param0.depth().mapAll(this::wrap),
-            param0.weirdness().mapAll(this::wrap),
+            param0.ridges().mapAll(this::wrap),
             param0.spawnTarget()
         );
     }
@@ -356,11 +365,11 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
     private DensityFunction wrapNew(DensityFunction param0x) {
         if (param0x instanceof DensityFunctions.Marker var0x) {
             return (DensityFunction)(switch(var0x.type()) {
-                case Interpolated -> new NoiseChunk.NoiseInterpolator(var0x.function());
-                case FlatCache -> new NoiseChunk.FlatCache(var0x.function(), true);
-                case Cache2D -> new NoiseChunk.Cache2D(var0x.function());
-                case CacheOnce -> new NoiseChunk.CacheOnce(var0x.function());
-                case CacheAllInCell -> new NoiseChunk.CacheAllInCell(var0x.function());
+                case Interpolated -> new NoiseChunk.NoiseInterpolator(var0x.wrapped());
+                case FlatCache -> new NoiseChunk.FlatCache(var0x.wrapped(), true);
+                case Cache2D -> new NoiseChunk.Cache2D(var0x.wrapped());
+                case CacheOnce -> new NoiseChunk.CacheOnce(var0x.wrapped());
+                case CacheAllInCell -> new NoiseChunk.CacheAllInCell(var0x.wrapped());
             });
         } else {
             if (this.blender != Blender.empty()) {
@@ -373,7 +382,11 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
                 }
             }
 
-            return param0x;
+            if (param0x == DensityFunctions.BeardifierMarker.INSTANCE) {
+                return this.beardifier;
+            } else {
+                return param0x instanceof DensityFunctions.HolderHolder var1x ? var1x.function().value() : param0x;
+            }
         }
     }
 
@@ -402,6 +415,11 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         public double maxValue() {
             return 1.0;
         }
+
+        @Override
+        public Codec<? extends DensityFunction> codec() {
+            return DensityFunctions.BlendAlpha.CODEC;
+        }
     }
 
     class BlendOffset implements NoiseChunk.NoiseChunkDensityFunction {
@@ -429,6 +447,11 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         public double maxValue() {
             return Double.POSITIVE_INFINITY;
         }
+
+        @Override
+        public Codec<? extends DensityFunction> codec() {
+            return DensityFunctions.BlendOffset.CODEC;
+        }
     }
 
     @FunctionalInterface
@@ -437,7 +460,7 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         BlockState calculate(DensityFunction.FunctionContext var1);
     }
 
-    static class Cache2D implements NoiseChunk.NoiseChunkDensityFunction {
+    static class Cache2D implements DensityFunctions.MarkerOrMarked, NoiseChunk.NoiseChunkDensityFunction {
         private final DensityFunction function;
         private long lastPos2D = ChunkPos.INVALID_CHUNK_POS;
         private double lastValue;
@@ -470,9 +493,14 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         public DensityFunction wrapped() {
             return this.function;
         }
+
+        @Override
+        public DensityFunctions.Marker.Type type() {
+            return DensityFunctions.Marker.Type.Cache2D;
+        }
     }
 
-    class CacheAllInCell implements NoiseChunk.NoiseChunkDensityFunction {
+    class CacheAllInCell implements DensityFunctions.MarkerOrMarked, NoiseChunk.NoiseChunkDensityFunction {
         final DensityFunction noiseFiller;
         final double[] values;
 
@@ -512,9 +540,14 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         public DensityFunction wrapped() {
             return this.noiseFiller;
         }
+
+        @Override
+        public DensityFunctions.Marker.Type type() {
+            return DensityFunctions.Marker.Type.CacheAllInCell;
+        }
     }
 
-    class CacheOnce implements NoiseChunk.NoiseChunkDensityFunction {
+    class CacheOnce implements DensityFunctions.MarkerOrMarked, NoiseChunk.NoiseChunkDensityFunction {
         private final DensityFunction function;
         private long lastCounter;
         private long lastArrayCounter;
@@ -562,9 +595,14 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         public DensityFunction wrapped() {
             return this.function;
         }
+
+        @Override
+        public DensityFunctions.Marker.Type type() {
+            return DensityFunctions.Marker.Type.CacheOnce;
+        }
     }
 
-    class FlatCache implements NoiseChunk.NoiseChunkDensityFunction {
+    class FlatCache implements DensityFunctions.MarkerOrMarked, NoiseChunk.NoiseChunkDensityFunction {
         private final DensityFunction noiseFiller;
         final double[][] values;
 
@@ -605,6 +643,11 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         public DensityFunction wrapped() {
             return this.noiseFiller;
         }
+
+        @Override
+        public DensityFunctions.Marker.Type type() {
+            return DensityFunctions.Marker.Type.FlatCache;
+        }
     }
 
     interface NoiseChunkDensityFunction extends DensityFunction {
@@ -626,7 +669,7 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
         }
     }
 
-    public class NoiseInterpolator implements NoiseChunk.NoiseChunkDensityFunction {
+    public class NoiseInterpolator implements DensityFunctions.MarkerOrMarked, NoiseChunk.NoiseChunkDensityFunction {
         double[][] slice0;
         double[][] slice1;
         private final DensityFunction noiseFiller;
@@ -735,6 +778,11 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
             double[][] var0 = this.slice0;
             this.slice0 = this.slice1;
             this.slice1 = var0;
+        }
+
+        @Override
+        public DensityFunctions.Marker.Type type() {
+            return DensityFunctions.Marker.Type.Interpolated;
         }
     }
 }

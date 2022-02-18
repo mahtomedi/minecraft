@@ -95,7 +95,7 @@ public class DebugPackets {
     public static void sendNeighborsUpdatePacket(Level param0, BlockPos param1) {
     }
 
-    public static void sendStructurePacket(WorldGenLevel param0, StructureStart<?> param1) {
+    public static void sendStructurePacket(WorldGenLevel param0, StructureStart param1) {
     }
 
     public static void sendGoalSelector(Level param0, Mob param1, GoalSelector param2) {

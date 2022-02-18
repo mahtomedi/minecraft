@@ -29,22 +29,10 @@ public class SuggestionProviders {
         new ResourceLocation("available_sounds"),
         (param0, param1) -> SharedSuggestionProvider.suggestResource(param0.getSource().getAvailableSoundEvents(), param1)
     );
-    public static final SuggestionProvider<CommandSourceStack> AVAILABLE_BIOMES = register(
-        new ResourceLocation("available_biomes"),
-        (param0, param1) -> SharedSuggestionProvider.suggestResource(
-                param0.getSource().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).keySet(), param1
-            )
-    );
     public static final SuggestionProvider<CommandSourceStack> AVAILABLE_FEATURES = register(
         new ResourceLocation("available_features"),
         (param0, param1) -> SharedSuggestionProvider.suggestResource(
                 param0.getSource().registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).keySet(), param1
-            )
-    );
-    public static final SuggestionProvider<CommandSourceStack> AVAILABLE_STRUCTURES = register(
-        new ResourceLocation("available_structures"),
-        (param0, param1) -> SharedSuggestionProvider.suggestResource(
-                param0.getSource().registryAccess().registryOrThrow(Registry.STRUCTURE_FEATURE_REGISTRY).keySet(), param1
             )
     );
     public static final SuggestionProvider<CommandSourceStack> SUMMONABLE_ENTITIES = register(

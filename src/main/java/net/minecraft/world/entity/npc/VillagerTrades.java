@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -16,6 +15,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ConfiguredStructureTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
@@ -40,7 +41,7 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
@@ -336,12 +337,16 @@ public class VillagerTrades {
                         2,
                         new VillagerTrades.ItemListing[]{
                             new VillagerTrades.EmeraldForItems(Items.GLASS_PANE, 11, 16, 10),
-                            new VillagerTrades.TreasureMapForEmeralds(13, StructureFeature.OCEAN_MONUMENT, MapDecoration.Type.MONUMENT, 12, 5)
+                            new VillagerTrades.TreasureMapForEmeralds(
+                                13, ConfiguredStructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5
+                            )
                         },
                         3,
                         new VillagerTrades.ItemListing[]{
                             new VillagerTrades.EmeraldForItems(Items.COMPASS, 1, 12, 20),
-                            new VillagerTrades.TreasureMapForEmeralds(14, StructureFeature.WOODLAND_MANSION, MapDecoration.Type.MANSION, 12, 10)
+                            new VillagerTrades.TreasureMapForEmeralds(
+                                14, ConfiguredStructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10
+                            )
                         },
                         4,
                         new VillagerTrades.ItemListing[]{
@@ -1011,17 +1016,21 @@ public class VillagerTrades {
 
     static class TreasureMapForEmeralds implements VillagerTrades.ItemListing {
         private final int emeraldCost;
-        private final StructureFeature<?> destination;
+        private final TagKey<ConfiguredStructureFeature<?, ?>> destination;
+        private final String displayName;
         private final MapDecoration.Type destinationType;
         private final int maxUses;
         private final int villagerXp;
 
-        public TreasureMapForEmeralds(int param0, StructureFeature<?> param1, MapDecoration.Type param2, int param3, int param4) {
+        public TreasureMapForEmeralds(
+            int param0, TagKey<ConfiguredStructureFeature<?, ?>> param1, String param2, MapDecoration.Type param3, int param4, int param5
+        ) {
             this.emeraldCost = param0;
             this.destination = param1;
-            this.destinationType = param2;
-            this.maxUses = param3;
-            this.villagerXp = param4;
+            this.displayName = param2;
+            this.destinationType = param3;
+            this.maxUses = param4;
+            this.villagerXp = param5;
         }
 
         @Nullable
@@ -1036,7 +1045,7 @@ public class VillagerTrades {
                     ItemStack var2 = MapItem.create(var0, var1.getX(), var1.getZ(), (byte)2, true, true);
                     MapItem.renderBiomePreviewMap(var0, var2);
                     MapItemSavedData.addTargetDecoration(var2, var1, "+", this.destinationType);
-                    var2.setHoverName(new TranslatableComponent("filled_map." + this.destination.getFeatureName().toLowerCase(Locale.ROOT)));
+                    var2.setHoverName(new TranslatableComponent(this.displayName));
                     return new MerchantOffer(
                         new ItemStack(Items.EMERALD, this.emeraldCost), new ItemStack(Items.COMPASS), var2, this.maxUses, this.villagerXp, 0.2F
                     );

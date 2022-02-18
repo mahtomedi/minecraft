@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.structure.placement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
@@ -17,7 +18,8 @@ public record ConcentricRingsStructurePlacement(int distance, int spread, int co
 
     @Override
     public boolean isFeatureChunk(ChunkGenerator param0, int param1, int param2) {
-        return param0.getRingPositionsFor(this).contains(new ChunkPos(param1, param2));
+        List<ChunkPos> var0 = param0.getRingPositionsFor(this);
+        return var0 == null ? false : var0.contains(new ChunkPos(param1, param2));
     }
 
     @Override

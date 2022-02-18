@@ -34,8 +34,8 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
@@ -71,7 +71,7 @@ public class GameTestServer extends MinecraftServer {
                         (param0x, param1x) -> {
                             RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
                             Registry<Biome> var1x = var0x.registryOrThrow(Registry.BIOME_REGISTRY);
-                            Registry<ConfiguredStructureFeature<?, ?>> var2x = var0x.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
+                            Registry<StructureSet> var2x = var0x.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
                             Registry<DimensionType> var3x = var0x.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
                             WorldData var4x = new PrimaryLevelData(
                                 TEST_SETTINGS,

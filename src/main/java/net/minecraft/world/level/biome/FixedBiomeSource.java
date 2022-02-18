@@ -2,6 +2,7 @@ package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import java.util.Random;
 import java.util.Set;
@@ -41,13 +42,13 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
 
     @Nullable
     @Override
-    public BlockPos findBiomeHorizontal(
+    public Pair<BlockPos, Holder<Biome>> findBiomeHorizontal(
         int param0, int param1, int param2, int param3, int param4, Predicate<Holder<Biome>> param5, Random param6, boolean param7, Climate.Sampler param8
     ) {
         if (param5.test(this.biome)) {
             return param7
-                ? new BlockPos(param0, param1, param2)
-                : new BlockPos(param0 - param3 + param6.nextInt(param3 * 2 + 1), param1, param2 - param3 + param6.nextInt(param3 * 2 + 1));
+                ? Pair.of(new BlockPos(param0, param1, param2), this.biome)
+                : Pair.of(new BlockPos(param0 - param3 + param6.nextInt(param3 * 2 + 1), param1, param2 - param3 + param6.nextInt(param3 * 2 + 1)), this.biome);
         } else {
             return null;
         }

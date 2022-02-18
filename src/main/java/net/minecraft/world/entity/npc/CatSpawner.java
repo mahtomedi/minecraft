@@ -3,6 +3,7 @@ package net.minecraft.world.entity.npc;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -14,6 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.phys.AABB;
 
@@ -46,7 +49,10 @@ public class CatSpawner implements CustomSpawner {
                                 return this.spawnInVillage(param0, var4);
                             }
 
-                            if (param0.structureFeatureManager().getStructureWithPieceAt(var4, StructureFeature.SWAMP_HUT).isValid()) {
+                            Registry<ConfiguredStructureFeature<?, ?>> var6 = param0.registryAccess()
+                                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
+                            if (ChunkGenerator.allConfigurations(var6, StructureFeature.SWAMP_HUT)
+                                .anyMatch(param2x -> param0.structureFeatureManager().getStructureWithPieceAt(var4, param2x).isValid())) {
                                 return this.spawnInHut(param0, var4);
                             }
                         }
