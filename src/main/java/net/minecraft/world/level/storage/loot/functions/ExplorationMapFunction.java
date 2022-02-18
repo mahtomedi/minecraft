@@ -8,13 +8,16 @@ import com.mojang.logging.LogUtils;
 import java.util.Locale;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ConfiguredStructureTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -26,19 +29,21 @@ import org.slf4j.Logger;
 
 public class ExplorationMapFunction extends LootItemConditionalFunction {
     static final Logger LOGGER = LogUtils.getLogger();
-    public static final StructureFeature<?> DEFAULT_FEATURE = StructureFeature.BURIED_TREASURE;
+    public static final TagKey<ConfiguredStructureFeature<?, ?>> DEFAULT_FEATURE = ConfiguredStructureTags.ON_TREASURE_MAPS;
     public static final String DEFAULT_DECORATION_NAME = "mansion";
     public static final MapDecoration.Type DEFAULT_DECORATION = MapDecoration.Type.MANSION;
     public static final byte DEFAULT_ZOOM = 2;
     public static final int DEFAULT_SEARCH_RADIUS = 50;
     public static final boolean DEFAULT_SKIP_EXISTING = true;
-    final StructureFeature<?> destination;
+    final TagKey<ConfiguredStructureFeature<?, ?>> destination;
     final MapDecoration.Type mapDecoration;
     final byte zoom;
     final int searchRadius;
     final boolean skipKnownStructures;
 
-    ExplorationMapFunction(LootItemCondition[] param0, StructureFeature<?> param1, MapDecoration.Type param2, byte param3, int param4, boolean param5) {
+    ExplorationMapFunction(
+        LootItemCondition[] param0, TagKey<ConfiguredStructureFeature<?, ?>> param1, MapDecoration.Type param2, byte param3, int param4, boolean param5
+    ) {
         super(param0);
         this.destination = param1;
         this.mapDecoration = param2;
@@ -70,7 +75,6 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
                     ItemStack var3 = MapItem.create(var1, var2.getX(), var2.getZ(), this.zoom, true, true);
                     MapItem.renderBiomePreviewMap(var1, var3);
                     MapItemSavedData.addTargetDecoration(var3, var2, "+", this.mapDecoration);
-                    var3.setHoverName(new TranslatableComponent("filled_map." + this.destination.getFeatureName().toLowerCase(Locale.ROOT)));
                     return var3;
                 }
             }
@@ -84,7 +88,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<ExplorationMapFunction.Builder> {
-        private StructureFeature<?> destination = ExplorationMapFunction.DEFAULT_FEATURE;
+        private TagKey<ConfiguredStructureFeature<?, ?>> destination = ExplorationMapFunction.DEFAULT_FEATURE;
         private MapDecoration.Type mapDecoration = ExplorationMapFunction.DEFAULT_DECORATION;
         private byte zoom = 2;
         private int searchRadius = 50;
@@ -94,7 +98,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
             return this;
         }
 
-        public ExplorationMapFunction.Builder setDestination(StructureFeature<?> param0) {
+        public ExplorationMapFunction.Builder setDestination(TagKey<ConfiguredStructureFeature<?, ?>> param0) {
             this.destination = param0;
             return this;
         }
@@ -131,7 +135,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
         public void serialize(JsonObject param0, ExplorationMapFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             if (!param1.destination.equals(ExplorationMapFunction.DEFAULT_FEATURE)) {
-                param0.add("destination", param2.serialize(param1.destination.getFeatureName()));
+                param0.addProperty("destination", param1.destination.location().toString());
             }
 
             if (param1.mapDecoration != ExplorationMapFunction.DEFAULT_DECORATION) {
@@ -153,7 +157,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
         }
 
         public ExplorationMapFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            StructureFeature<?> var0 = readStructure(param0);
+            TagKey<ConfiguredStructureFeature<?, ?>> var0 = readStructure(param0);
             String var1 = param0.has("decoration") ? GsonHelper.getAsString(param0, "decoration") : "mansion";
             MapDecoration.Type var2 = ExplorationMapFunction.DEFAULT_DECORATION;
 
@@ -170,16 +174,13 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
             return new ExplorationMapFunction(param2, var0, var2, var4, var5, var6);
         }
 
-        private static StructureFeature<?> readStructure(JsonObject param0) {
+        private static TagKey<ConfiguredStructureFeature<?, ?>> readStructure(JsonObject param0) {
             if (param0.has("destination")) {
                 String var0 = GsonHelper.getAsString(param0, "destination");
-                StructureFeature<?> var1 = StructureFeature.STRUCTURES_REGISTRY.get(var0.toLowerCase(Locale.ROOT));
-                if (var1 != null) {
-                    return var1;
-                }
+                return TagKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, new ResourceLocation(var0));
+            } else {
+                return ExplorationMapFunction.DEFAULT_FEATURE;
             }
-
-            return ExplorationMapFunction.DEFAULT_FEATURE;
         }
     }
 }

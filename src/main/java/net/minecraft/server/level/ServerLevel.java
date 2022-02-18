@@ -3,6 +3,7 @@ package net.minecraft.server.level;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -37,6 +38,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
@@ -63,6 +65,7 @@ import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.players.SleepStatus;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.CsvOutput;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
@@ -124,10 +127,9 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistrar;
 import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureCheck;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -1106,27 +1108,31 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Nullable
-    public BlockPos findNearestMapFeature(StructureFeature<?> param0, BlockPos param1, int param2, boolean param3) {
-        return !this.server.getWorldData().worldGenSettings().generateFeatures()
-            ? null
-            : this.getChunkSource().getGenerator().findNearestMapFeature(this, param0, param1, param2, param3);
+    public BlockPos findNearestMapFeature(TagKey<ConfiguredStructureFeature<?, ?>> param0, BlockPos param1, int param2, boolean param3) {
+        if (!this.server.getWorldData().worldGenSettings().generateFeatures()) {
+            return null;
+        } else {
+            Optional<HolderSet.Named<ConfiguredStructureFeature<?, ?>>> var0 = this.registryAccess()
+                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY)
+                .getTag(param0);
+            if (var0.isEmpty()) {
+                return null;
+            } else {
+                Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>> var1 = this.getChunkSource()
+                    .getGenerator()
+                    .findNearestMapFeature(this, var0.get(), param1, param2, param3);
+                return var1 != null ? var1.getFirst() : null;
+            }
+        }
     }
 
     @Nullable
-    public BlockPos findNearestBiome(ResourceKey<Biome> param0, BlockPos param1, int param2, int param3) {
+    public Pair<BlockPos, Holder<Biome>> findNearestBiome(Predicate<Holder<Biome>> param0, BlockPos param1, int param2, int param3) {
         return this.getChunkSource()
             .getGenerator()
             .getBiomeSource()
             .findBiomeHorizontal(
-                param1.getX(),
-                param1.getY(),
-                param1.getZ(),
-                param2,
-                param3,
-                param1x -> param1x.is(param0),
-                this.random,
-                true,
-                this.getChunkSource().getGenerator().climateSampler()
+                param1.getX(), param1.getY(), param1.getZ(), param2, param3, param0, this.random, true, this.getChunkSource().getGenerator().climateSampler()
             );
     }
 
@@ -1409,11 +1415,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Nullable
     public EndDragonFight dragonFight() {
         return this.dragonFight;
-    }
-
-    @Override
-    public List<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
-        return this.structureFeatureManager().startsForFeature(param0, param1);
     }
 
     @Override

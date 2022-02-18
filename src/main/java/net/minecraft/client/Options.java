@@ -130,6 +130,7 @@ public class Options {
     public boolean toggleCrouch;
     public boolean toggleSprint;
     public boolean skipMultiplayerWarning;
+    public boolean skipRealms32bitWarning;
     public boolean hideMatchedNames = true;
     public boolean showAutosaveIndicator = true;
     public final KeyMapping keyUp = new KeyMapping("key.forward", 87, "key.categories.movement");
@@ -331,6 +332,7 @@ public class Options {
         this.rawMouseInput = param0.process("rawMouseInput", this.rawMouseInput);
         this.glDebugVerbosity = param0.process("glDebugVerbosity", this.glDebugVerbosity);
         this.skipMultiplayerWarning = param0.process("skipMultiplayerWarning", this.skipMultiplayerWarning);
+        this.skipRealms32bitWarning = param0.process("skipRealms32bitWarning", this.skipRealms32bitWarning);
         this.hideMatchedNames = param0.process("hideMatchedNames", this.hideMatchedNames);
         this.joinedFirstServer = param0.process("joinedFirstServer", this.joinedFirstServer);
         this.hideBundleTutorial = param0.process("hideBundleTutorial", this.hideBundleTutorial);

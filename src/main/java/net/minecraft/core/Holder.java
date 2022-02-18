@@ -2,6 +2,7 @@ package net.minecraft.core;
 
 import com.mojang.datafixers.util.Either;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -214,6 +215,30 @@ public interface Holder<T> {
         @Override
         public String toString() {
             return "Reference{" + this.key + "=" + this.value + "}";
+        }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (this == param0) {
+                return true;
+            } else if (!(param0 instanceof Holder.Reference)) {
+                return false;
+            } else {
+                Holder.Reference var0 = (Holder.Reference)param0;
+                if (this.key != null && var0.key != null && this.value != null && var0.value != null) {
+                    return this.registry.key().equals(var0.registry.key())
+                        && this.type == var0.type
+                        && this.key.equals(var0.key)
+                        && this.value.equals(var0.value);
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.registry.key(), this.type, this.key, this.value);
         }
 
         static enum Type {

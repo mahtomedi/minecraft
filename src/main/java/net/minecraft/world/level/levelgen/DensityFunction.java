@@ -1,9 +1,20 @@
 package net.minecraft.world.level.levelgen;
 
+import com.mojang.serialization.Codec;
 import java.util.function.Function;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
 public interface DensityFunction {
+    Codec<DensityFunction> DIRECT_CODEC = DensityFunctions.DIRECT_CODEC;
+    Codec<Holder<DensityFunction>> CODEC = RegistryFileCodec.create(Registry.DENSITY_FUNCTION_REGISTRY, DIRECT_CODEC);
+    Codec<DensityFunction> HOLDER_HELPER_CODEC = CODEC.xmap(
+        DensityFunctions.HolderHolder::new,
+        param0 -> (Holder<DensityFunction>)(param0 instanceof DensityFunctions.HolderHolder var0 ? var0.function() : new Holder.Direct<>(param0))
+    );
+
     double compute(DensityFunction.FunctionContext var1);
 
     void fillArray(double[] var1, DensityFunction.ContextProvider var2);
@@ -13,6 +24,8 @@ public interface DensityFunction {
     double minValue();
 
     double maxValue();
+
+    Codec<? extends DensityFunction> codec();
 
     default DensityFunction clamp(double param0, double param1) {
         return new DensityFunctions.Clamp(this, param0, param1);

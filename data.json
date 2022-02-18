@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "eaa192ef48f382efca1ea9bf437399c641f4357a",
-      "size": 20173060,
-      "url": "https://launcher.mojang.com/v1/objects/eaa192ef48f382efca1ea9bf437399c641f4357a/client.jar"
+      "sha1": "501e50015fd24332cd78010a5e57ba42ded41131",
+      "size": 20246324,
+      "url": "https://launcher.mojang.com/v1/objects/501e50015fd24332cd78010a5e57ba42ded41131/client.jar"
     },
     "client_mappings": {
-      "sha1": "353d2154e9a9987d6dc8d1367a7f2386dbb03001",
-      "size": 6660210,
-      "url": "https://launcher.mojang.com/v1/objects/353d2154e9a9987d6dc8d1367a7f2386dbb03001/client.txt"
+      "sha1": "4a6984727e1a3133b9eb54f78d4b01705c7465fb",
+      "size": 6708350,
+      "url": "https://launcher.mojang.com/v1/objects/4a6984727e1a3133b9eb54f78d4b01705c7465fb/client.txt"
     },
     "server": {
-      "sha1": "8131d9e36640d40ce8464c58035f35475579e897",
-      "size": 46516523,
-      "url": "https://launcher.mojang.com/v1/objects/8131d9e36640d40ce8464c58035f35475579e897/server.jar"
+      "sha1": "c3e2734bafdb017efab854b01c66dd795722a332",
+      "size": 46581211,
+      "url": "https://launcher.mojang.com/v1/objects/c3e2734bafdb017efab854b01c66dd795722a332/server.jar"
     },
     "server_mappings": {
-      "sha1": "5fb67255bafc8813b5b89ed7c2127c2167e3e614",
-      "size": 5160536,
-      "url": "https://launcher.mojang.com/v1/objects/5fb67255bafc8813b5b89ed7c2127c2167e3e614/server.txt"
+      "sha1": "ee44979b031f2e937dd4737ebcfbddd553aee52d",
+      "size": 5205865,
+      "url": "https://launcher.mojang.com/v1/objects/ee44979b031f2e937dd4737ebcfbddd553aee52d/server.txt"
     }
   },
-  "id": "22w07a",
+  "id": "1.18.2-pre1",
   "javaVersion": {
     "component": "java-runtime-beta",
     "majorVersion": 17
@@ -1345,7 +1345,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2022-02-16T16:13:58+00:00",
-  "time": "2022-02-16T16:13:58+00:00",
+  "releaseTime": "2022-02-18T16:00:32+00:00",
+  "time": "2022-02-18T16:00:32+00:00",
   "type": "snapshot"
 }

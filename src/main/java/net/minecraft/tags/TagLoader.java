@@ -124,7 +124,7 @@ public class TagLoader<T> {
                                     param1x -> LOGGER.error(
                                             "Couldn't load tag {} as it is missing following references: {}",
                                             param3x,
-                                            param1x.stream().map(Objects::toString).collect(Collectors.joining(","))
+                                            param1x.stream().map(Objects::toString).collect(Collectors.joining(", "))
                                         )
                                 )
                                 .ifRight(param2x -> var0.put(param3x, param2x))

@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
@@ -22,21 +21,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 
 public class FlatLevelSource extends ChunkGenerator {
     public static final Codec<FlatLevelSource> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    RegistryOps.retrieveRegistry(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY).forGetter(param0x -> param0x.configuredStructures),
-                    FlatLevelGeneratorSettings.CODEC.fieldOf("settings").forGetter(FlatLevelSource::settings)
-                )
+        param0 -> commonCodec(param0)
+                .and(FlatLevelGeneratorSettings.CODEC.fieldOf("settings").forGetter(FlatLevelSource::settings))
                 .apply(param0, param0.stable(FlatLevelSource::new))
     );
     private final FlatLevelGeneratorSettings settings;
 
-    public FlatLevelSource(Registry<ConfiguredStructureFeature<?, ?>> param0, FlatLevelGeneratorSettings param1) {
-        super(param0, new FixedBiomeSource(param1.getBiomeFromSettings()), new FixedBiomeSource(param1.getBiome()), param1.structureSettings(), 0L);
+    public FlatLevelSource(Registry<StructureSet> param0, FlatLevelGeneratorSettings param1) {
+        super(param0, param1.structureOverrides(), new FixedBiomeSource(param1.getBiomeFromSettings()), new FixedBiomeSource(param1.getBiome()), 0L);
         this.settings = param1;
     }
 

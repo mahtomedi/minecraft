@@ -1846,8 +1846,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                         .<JsonElement>encodeStart(var1x, param3)
                         .setLifecycle(Lifecycle.stable())
                         .flatMap(param1x -> WorldGenSettings.CODEC.parse(var2x, param1x));
-                    WorldGenSettings var4x = var3x.resultOrPartial(Util.prefix("Error reading worldgen settings after loading data packs: ", LOGGER::error))
-                        .orElse(param3);
+                    WorldGenSettings var4x = (WorldGenSettings)var3x.getOrThrow(
+                        false, Util.prefix("Error reading worldgen settings after loading data packs: ", LOGGER::error)
+                    );
                     return Pair.of(new PrimaryLevelData(param1, var4x, var3x.lifecycle()), var0x.freeze());
                 },
             false,

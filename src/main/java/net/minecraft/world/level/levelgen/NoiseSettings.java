@@ -6,6 +6,7 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Function;
 import net.minecraft.core.QuartPos;
+import net.minecraft.data.worldgen.TerrainProvider;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.TerrainShaper;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -42,6 +43,58 @@ public record NoiseSettings(
                     .apply(param0, NoiseSettings::new)
         )
         .comapFlatMap(NoiseSettings::guardY, Function.identity());
+    static final NoiseSettings NETHER_NOISE_SETTINGS = create(
+        0,
+        128,
+        new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0),
+        new NoiseSlider(0.9375, 3, 0),
+        new NoiseSlider(2.5, 4, -1),
+        1,
+        2,
+        false,
+        false,
+        false,
+        TerrainProvider.nether()
+    );
+    static final NoiseSettings END_NOISE_SETTINGS = create(
+        0,
+        128,
+        new NoiseSamplingSettings(2.0, 1.0, 80.0, 160.0),
+        new NoiseSlider(-23.4375, 64, -46),
+        new NoiseSlider(-0.234375, 7, 1),
+        2,
+        1,
+        true,
+        false,
+        false,
+        TerrainProvider.end()
+    );
+    static final NoiseSettings CAVES_NOISE_SETTINGS = create(
+        -64,
+        192,
+        new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0),
+        new NoiseSlider(0.9375, 3, 0),
+        new NoiseSlider(2.5, 4, -1),
+        1,
+        2,
+        false,
+        false,
+        false,
+        TerrainProvider.caves()
+    );
+    static final NoiseSettings FLOATING_ISLANDS_NOISE_SETTINGS = create(
+        0,
+        256,
+        new NoiseSamplingSettings(2.0, 1.0, 80.0, 160.0),
+        new NoiseSlider(-23.4375, 64, -46),
+        new NoiseSlider(-0.234375, 7, 1),
+        2,
+        1,
+        false,
+        false,
+        false,
+        TerrainProvider.floatingIslands()
+    );
 
     private static DataResult<NoiseSettings> guardY(NoiseSettings param0) {
         if (param0.minY() + param0.height() > DimensionType.MAX_Y + 1) {
@@ -71,6 +124,22 @@ public record NoiseSettings(
             throw new IllegalStateException(param0x.message());
         });
         return var0;
+    }
+
+    static NoiseSettings overworldNoiseSettings(boolean param0, boolean param1) {
+        return create(
+            -64,
+            384,
+            new NoiseSamplingSettings(1.0, 1.0, 80.0, 160.0),
+            new NoiseSlider(-0.078125, 2, param0 ? 0 : 8),
+            new NoiseSlider(param0 ? 0.4 : 0.1171875, 3, 0),
+            1,
+            2,
+            false,
+            param0,
+            param1,
+            TerrainProvider.overworld(param0)
+        );
     }
 
     public int getCellHeight() {

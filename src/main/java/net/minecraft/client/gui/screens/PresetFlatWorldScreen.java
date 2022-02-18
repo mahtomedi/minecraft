@@ -2,23 +2,25 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -33,11 +35,10 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.StructureSettings;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -129,7 +130,7 @@ public class PresetFlatWorldScreen extends Screen {
             if (var1.isEmpty()) {
                 return FlatLevelGeneratorSettings.getDefault(param0);
             } else {
-                FlatLevelGeneratorSettings var2 = param2.withLayers(var1, param2.structureSettings());
+                FlatLevelGeneratorSettings var2 = param2.withLayers(var1, param2.structureOverrides());
                 ResourceKey<Biome> var3 = DEFAULT_BIOME;
                 if (var0.hasNext()) {
                     try {
@@ -240,41 +241,40 @@ public class PresetFlatWorldScreen extends Screen {
         Component param0,
         ItemLike param1,
         ResourceKey<Biome> param2,
-        List<StructureFeature<?>> param3,
+        Set<ResourceKey<StructureSet>> param3,
         boolean param4,
         boolean param5,
-        boolean param6,
-        FlatLayerInfo... param7
+        FlatLayerInfo... param6
     ) {
-        PRESETS.add(new PresetFlatWorldScreen.PresetInfo(param1.asItem(), param0, param6x -> {
-            Map<StructureFeature<?>, StructurePlacement> var0x = Maps.newHashMap();
-
-            for(StructureFeature<?> var3x : param3) {
-                var0x.put(var3x, StructureSettings.DEFAULTS.get(var3x));
-            }
-
-            if (param4) {
-                var0x.put(StructureFeature.STRONGHOLD, StructureSettings.DEFAULT_STRONGHOLD);
-            }
-
-            StructureSettings var2 = new StructureSettings(var0x);
-            FlatLevelGeneratorSettings var3 = new FlatLevelGeneratorSettings(var2, param6x);
-            if (param5) {
-                var3.setDecoration();
-            }
-
-            if (param6) {
-                var3.setAddLakes();
-            }
-
-            for(int var4x = param7.length - 1; var4x >= 0; --var4x) {
-                var3.getLayersInfo().add(param7[var4x]);
-            }
-
-            var3.setBiome(param6x.getOrCreateHolder(param2));
-            var3.updateLayers();
-            return var3.withStructureSettings(var2);
-        }));
+        PRESETS.add(
+            new PresetFlatWorldScreen.PresetInfo(
+                param1.asItem(),
+                param0,
+                param5x -> {
+                    Registry<Biome> var0x = param5x.registryOrThrow(Registry.BIOME_REGISTRY);
+                    Registry<StructureSet> var1x = param5x.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
+                    HolderSet.Direct<StructureSet> var2x = HolderSet.direct(
+                        param3.stream().flatMap(param1x -> var1x.getHolder(param1x).stream()).collect(Collectors.toList())
+                    );
+                    FlatLevelGeneratorSettings var3x = new FlatLevelGeneratorSettings(Optional.of(var2x), var0x);
+                    if (param4) {
+                        var3x.setDecoration();
+                    }
+        
+                    if (param5) {
+                        var3x.setAddLakes();
+                    }
+        
+                    for(int var4x = param6.length - 1; var4x >= 0; --var4x) {
+                        var3x.getLayersInfo().add(param6[var4x]);
+                    }
+        
+                    var3x.setBiome(var0x.getOrCreateHolder(param2));
+                    var3x.updateLayers();
+                    return var3x;
+                }
+            )
+        );
     }
 
     static {
@@ -282,8 +282,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.classic_flat"),
             Blocks.GRASS_BLOCK,
             Biomes.PLAINS,
-            Arrays.asList(StructureFeature.VILLAGE),
-            false,
+            Set.of(BuiltinStructureSets.VILLAGES),
             false,
             false,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
@@ -294,8 +293,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.tunnelers_dream"),
             Blocks.STONE,
             Biomes.WINDSWEPT_HILLS,
-            Arrays.asList(StructureFeature.MINESHAFT),
-            true,
+            Set.of(BuiltinStructureSets.MINESHAFTS, BuiltinStructureSets.STRONGHOLDS),
             true,
             false,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
@@ -307,8 +305,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.water_world"),
             Items.WATER_BUCKET,
             Biomes.DEEP_OCEAN,
-            Arrays.asList(StructureFeature.OCEAN_RUIN, StructureFeature.SHIPWRECK, StructureFeature.OCEAN_MONUMENT),
-            false,
+            Set.of(BuiltinStructureSets.OCEAN_RUINS, BuiltinStructureSets.SHIPWRECKS, BuiltinStructureSets.OCEAN_MONUMENTS),
             false,
             false,
             new FlatLayerInfo(90, Blocks.WATER),
@@ -322,8 +319,13 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.overworld"),
             Blocks.GRASS,
             Biomes.PLAINS,
-            Arrays.asList(StructureFeature.VILLAGE, StructureFeature.MINESHAFT, StructureFeature.PILLAGER_OUTPOST, StructureFeature.RUINED_PORTAL),
-            true,
+            Set.of(
+                BuiltinStructureSets.VILLAGES,
+                BuiltinStructureSets.MINESHAFTS,
+                BuiltinStructureSets.PILLAGER_OUTPOSTS,
+                BuiltinStructureSets.RUINED_PORTALS,
+                BuiltinStructureSets.STRONGHOLDS
+            ),
             true,
             true,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
@@ -335,8 +337,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.snowy_kingdom"),
             Blocks.SNOW,
             Biomes.SNOWY_PLAINS,
-            Arrays.asList(StructureFeature.VILLAGE, StructureFeature.IGLOO),
-            false,
+            Set.of(BuiltinStructureSets.VILLAGES, BuiltinStructureSets.IGLOOS),
             false,
             false,
             new FlatLayerInfo(1, Blocks.SNOW),
@@ -349,8 +350,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.bottomless_pit"),
             Items.FEATHER,
             Biomes.PLAINS,
-            Arrays.asList(StructureFeature.VILLAGE),
-            false,
+            Set.of(BuiltinStructureSets.VILLAGES),
             false,
             false,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
@@ -361,8 +361,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.desert"),
             Blocks.SAND,
             Biomes.DESERT,
-            Arrays.asList(StructureFeature.VILLAGE, StructureFeature.DESERT_PYRAMID, StructureFeature.MINESHAFT),
-            true,
+            Set.of(BuiltinStructureSets.VILLAGES, BuiltinStructureSets.DESERT_PYRAMIDS, BuiltinStructureSets.MINESHAFTS, BuiltinStructureSets.STRONGHOLDS),
             true,
             false,
             new FlatLayerInfo(8, Blocks.SAND),
@@ -374,8 +373,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.redstone_ready"),
             Items.REDSTONE,
             Biomes.DESERT,
-            Collections.emptyList(),
-            false,
+            Set.of(),
             false,
             false,
             new FlatLayerInfo(116, Blocks.SANDSTONE),
@@ -386,8 +384,7 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.the_void"),
             Blocks.BARRIER,
             Biomes.THE_VOID,
-            Collections.emptyList(),
-            false,
+            Set.of(),
             true,
             false,
             new FlatLayerInfo(1, Blocks.AIR)
@@ -398,9 +395,9 @@ public class PresetFlatWorldScreen extends Screen {
     static class PresetInfo {
         public final Item icon;
         public final Component name;
-        public final Function<Registry<Biome>, FlatLevelGeneratorSettings> settings;
+        public final Function<RegistryAccess, FlatLevelGeneratorSettings> settings;
 
-        public PresetInfo(Item param0, Component param1, Function<Registry<Biome>, FlatLevelGeneratorSettings> param2) {
+        public PresetInfo(Item param0, Component param1, Function<RegistryAccess, FlatLevelGeneratorSettings> param2) {
             this.icon = param0;
             this.name = param1;
             this.settings = param2;
@@ -479,12 +476,9 @@ public class PresetFlatWorldScreen extends Screen {
 
             void select() {
                 PresetsList.this.setSelected(this);
-                Registry<Biome> var0 = PresetFlatWorldScreen.this.parent
-                    .parent
-                    .worldGenSettingsComponent
-                    .registryHolder()
-                    .registryOrThrow(Registry.BIOME_REGISTRY);
-                PresetFlatWorldScreen.this.settings = this.preset.settings.apply(var0);
+                PresetFlatWorldScreen.this.settings = this.preset
+                    .settings
+                    .apply(PresetFlatWorldScreen.this.parent.parent.worldGenSettingsComponent.registryHolder());
                 PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.save(PresetFlatWorldScreen.this.settings));
                 PresetFlatWorldScreen.this.export.moveCursorToStart();
             }

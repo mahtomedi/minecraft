@@ -36,6 +36,7 @@ import net.minecraft.commands.arguments.OperationArgument;
 import net.minecraft.commands.arguments.ParticleArgument;
 import net.minecraft.commands.arguments.RangeArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.ResourceOrTagLocationArgument;
 import net.minecraft.commands.arguments.ScoreHolderArgument;
 import net.minecraft.commands.arguments.ScoreboardSlotArgument;
 import net.minecraft.commands.arguments.SlotArgument;
@@ -72,7 +73,7 @@ public class ArgumentTypes {
         } else if (BY_NAME.containsKey(var0)) {
             throw new IllegalArgumentException("'" + var0 + "' is already a registered serializer!");
         } else {
-            ArgumentTypes.Entry<T> var1 = new ArgumentTypes.Entry<>(param1, param2, var0);
+            ArgumentTypes.Entry<T> var1 = new ArgumentTypes.Entry<>(param2, var0);
             BY_CLASS.put(param1, var1);
             BY_NAME.put(var0, var1);
         }
@@ -118,11 +119,16 @@ public class ArgumentTypes {
         register("dimension", DimensionArgument.class, new EmptyArgumentSerializer<>(DimensionArgument::dimension));
         register("time", TimeArgument.class, new EmptyArgumentSerializer<>(TimeArgument::time));
         register("uuid", UuidArgument.class, new EmptyArgumentSerializer<>(UuidArgument::uuid));
+        register("resource_or_tag", fixClassType(ResourceOrTagLocationArgument.class), new ResourceOrTagLocationArgument.Serializer());
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             register("test_argument", TestFunctionArgument.class, new EmptyArgumentSerializer<>(TestFunctionArgument::testFunctionArgument));
             register("test_class", TestClassNameArgument.class, new EmptyArgumentSerializer<>(TestClassNameArgument::testClassName));
         }
 
+    }
+
+    private static <T extends ArgumentType<?>> Class<T> fixClassType(Class<? super T> param0) {
+        return (Class<T>)param0;
     }
 
     @Nullable
@@ -245,14 +251,12 @@ public class ArgumentTypes {
     }
 
     static class Entry<T extends ArgumentType<?>> {
-        public final Class<T> clazz;
         public final ArgumentSerializer<T> serializer;
         public final ResourceLocation name;
 
-        Entry(Class<T> param0, ArgumentSerializer<T> param1, ResourceLocation param2) {
-            this.clazz = param0;
-            this.serializer = param1;
-            this.name = param2;
+        Entry(ArgumentSerializer<T> param0, ResourceLocation param1) {
+            this.serializer = param0;
+            this.name = param1;
         }
     }
 }
