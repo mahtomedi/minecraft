@@ -76,12 +76,11 @@ public final class LevelStem {
             Optional<LevelStem> var1 = param1.getOptional(NETHER);
             Optional<LevelStem> var2 = param1.getOptional(END);
             if (!var0.isEmpty() && !var1.isEmpty() && !var2.isEmpty()) {
-                if (!var0.get().typeHolder().value().equalTo(DimensionType.DEFAULT_OVERWORLD)
-                    && var0.get().typeHolder().value() != DimensionType.DEFAULT_OVERWORLD_CAVES) {
+                if (!var0.get().typeHolder().is(DimensionType.OVERWORLD_LOCATION) && !var0.get().typeHolder().is(DimensionType.OVERWORLD_CAVES_LOCATION)) {
                     return false;
-                } else if (!var1.get().typeHolder().value().equalTo(DimensionType.DEFAULT_NETHER)) {
+                } else if (!var1.get().typeHolder().is(DimensionType.NETHER_LOCATION)) {
                     return false;
-                } else if (!var2.get().typeHolder().value().equalTo(DimensionType.DEFAULT_END)) {
+                } else if (!var2.get().typeHolder().is(DimensionType.END_LOCATION)) {
                     return false;
                 } else if (var1.get().generator() instanceof NoiseBasedChunkGenerator var3 && var2.get().generator() instanceof NoiseBasedChunkGenerator var4) {
                     if (!var3.stable(param0, NoiseGeneratorSettings.NETHER)) {

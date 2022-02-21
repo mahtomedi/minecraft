@@ -82,7 +82,7 @@ public class GameTestServer extends MinecraftServer {
                                     WorldGenSettings.withOverworld(
                                         var3x,
                                         DimensionType.defaultDimensions(var0x, 0L),
-                                        new FlatLevelSource(var2x, FlatLevelGeneratorSettings.getDefault(var1x))
+                                        new FlatLevelSource(var2x, FlatLevelGeneratorSettings.getDefault(var1x, var2x))
                                     )
                                 ),
                                 Lifecycle.stable()

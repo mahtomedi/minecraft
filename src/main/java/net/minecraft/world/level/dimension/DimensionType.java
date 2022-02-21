@@ -325,11 +325,6 @@ public class DimensionType {
         return var0 / var1;
     }
 
-    @Deprecated
-    public String getFileSuffix() {
-        return this.equalTo(DEFAULT_END) ? "_end" : "";
-    }
-
     public static Path getStorageFolder(ResourceKey<Level> param0, Path param1) {
         if (param0 == Level.OVERWORLD) {
             return param1;
@@ -418,29 +413,5 @@ public class DimensionType {
 
     public ResourceLocation effectsLocation() {
         return this.effectsLocation;
-    }
-
-    public boolean equalTo(DimensionType param0) {
-        if (this == param0) {
-            return true;
-        } else {
-            return this.hasSkylight == param0.hasSkylight
-                && this.hasCeiling == param0.hasCeiling
-                && this.ultraWarm == param0.ultraWarm
-                && this.natural == param0.natural
-                && this.coordinateScale == param0.coordinateScale
-                && this.createDragonFight == param0.createDragonFight
-                && this.piglinSafe == param0.piglinSafe
-                && this.bedWorks == param0.bedWorks
-                && this.respawnAnchorWorks == param0.respawnAnchorWorks
-                && this.hasRaids == param0.hasRaids
-                && this.minY == param0.minY
-                && this.height == param0.height
-                && this.logicalHeight == param0.logicalHeight
-                && Float.compare(param0.ambientLight, this.ambientLight) == 0
-                && this.fixedTime.equals(param0.fixedTime)
-                && this.infiniburn.equals(param0.infiniburn)
-                && this.effectsLocation.equals(param0.effectsLocation);
-        }
     }
 }

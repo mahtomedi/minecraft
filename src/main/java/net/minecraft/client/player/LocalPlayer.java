@@ -242,7 +242,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             double var7 = (double)(this.getYRot() - this.yRotLast);
             double var8 = (double)(this.getXRot() - this.xRotLast);
             ++this.positionReminder;
-            boolean var9 = var4 * var4 + var5 * var5 + var6 * var6 > 9.0E-4 || this.positionReminder >= 20;
+            boolean var9 = Mth.lengthSquared(var4, var5, var6) > Mth.square(2.0E-4) || this.positionReminder >= 20;
             boolean var10 = var7 != 0.0 || var8 != 0.0;
             if (this.isPassenger()) {
                 Vec3 var11 = this.getDeltaMovement();

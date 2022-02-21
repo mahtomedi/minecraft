@@ -801,12 +801,20 @@ public class Mth {
         return param1 + (float)param0.nextGaussian() * param2;
     }
 
+    public static double lengthSquared(double param0, double param1) {
+        return param0 * param0 + param1 * param1;
+    }
+
     public static double length(double param0, double param1) {
-        return Math.sqrt(param0 * param0 + param1 * param1);
+        return Math.sqrt(lengthSquared(param0, param1));
+    }
+
+    public static double lengthSquared(double param0, double param1, double param2) {
+        return param0 * param0 + param1 * param1 + param2 * param2;
     }
 
     public static double length(double param0, double param1, double param2) {
-        return Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2);
+        return Math.sqrt(lengthSquared(param0, param1, param2));
     }
 
     public static int quantize(double param0, int param1) {

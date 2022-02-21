@@ -151,7 +151,7 @@ public class Main {
                 }, (param5, param6) -> {
                     RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
                     DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5);
-                    WorldData var2x = var28.getDataTag(var1x, param6);
+                    WorldData var2x = var28.getDataTag(var1x, param6, var0x.allElementsLifecycle());
                     if (var2x != null) {
                         return Pair.of(var2x, var0x.freeze());
                     } else {

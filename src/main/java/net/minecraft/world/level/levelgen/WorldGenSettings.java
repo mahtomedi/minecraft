@@ -236,7 +236,7 @@ public class WorldGenSettings {
                             FlatLevelGeneratorSettings.CODEC
                                 .parse(var5)
                                 .resultOrPartial(LOGGER::error)
-                                .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var2))
+                                .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var2, var3))
                         )
                     )
                 );
