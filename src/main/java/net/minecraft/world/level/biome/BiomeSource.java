@@ -50,10 +50,10 @@ public abstract class BiomeSource implements BiomeResolver {
 
     protected BiomeSource(List<Holder<Biome>> param0) {
         this.possibleBiomes = new ObjectLinkedOpenHashSet<>(param0);
-        this.featuresPerStep = Suppliers.memoize(() -> this.buildFeaturesPerStep(param0.stream().map(Holder::value).toList(), true));
+        this.featuresPerStep = Suppliers.memoize(() -> this.buildFeaturesPerStep(param0, true));
     }
 
-    private List<BiomeSource.StepFeatureData> buildFeaturesPerStep(List<Biome> param0, boolean param1) {
+    private List<BiomeSource.StepFeatureData> buildFeaturesPerStep(List<Holder<Biome>> param0, boolean param1) {
         Object2IntMap<PlacedFeature> var0 = new Object2IntOpenHashMap<>();
         MutableInt var1 = new MutableInt(0);
 
@@ -64,82 +64,82 @@ public abstract class BiomeSource implements BiomeResolver {
         Map<FeatureData, Set<FeatureData>> var3 = new TreeMap<>(var2);
         int var4 = 0;
 
-        for(Biome var5 : param0) {
-            List<FeatureData> var6 = Lists.newArrayList();
-            List<HolderSet<PlacedFeature>> var7 = var5.getGenerationSettings().features();
-            var4 = Math.max(var4, var7.size());
+        for(Holder<Biome> var5 : param0) {
+            Biome var6 = var5.value();
+            List<FeatureData> var7 = Lists.newArrayList();
+            List<HolderSet<PlacedFeature>> var8 = var6.getGenerationSettings().features();
+            var4 = Math.max(var4, var8.size());
 
-            for(int var8 = 0; var8 < var7.size(); ++var8) {
-                for(Holder<PlacedFeature> var9 : var7.get(var8)) {
-                    PlacedFeature var10 = var9.value();
-                    var6.add(new FeatureData(var0.computeIfAbsent(var10, param1x -> var1.getAndIncrement()), var8, var10));
+            for(int var9 = 0; var9 < var8.size(); ++var9) {
+                for(Holder<PlacedFeature> var10 : var8.get(var9)) {
+                    PlacedFeature var11 = var10.value();
+                    var7.add(new FeatureData(var0.computeIfAbsent(var11, param1x -> var1.getAndIncrement()), var9, var11));
                 }
             }
 
-            for(int var11 = 0; var11 < var6.size(); ++var11) {
-                Set<FeatureData> var12 = var3.computeIfAbsent(var6.get(var11), param1x -> new TreeSet<>(var2));
-                if (var11 < var6.size() - 1) {
-                    var12.add(var6.get(var11 + 1));
+            for(int var12 = 0; var12 < var7.size(); ++var12) {
+                Set<FeatureData> var13 = var3.computeIfAbsent(var7.get(var12), param1x -> new TreeSet<>(var2));
+                if (var12 < var7.size() - 1) {
+                    var13.add(var7.get(var12 + 1));
                 }
             }
         }
 
-        Set<FeatureData> var13 = new TreeSet<>(var2);
         Set<FeatureData> var14 = new TreeSet<>(var2);
-        List<FeatureData> var15 = Lists.newArrayList();
+        Set<FeatureData> var15 = new TreeSet<>(var2);
+        List<FeatureData> var16 = Lists.newArrayList();
 
-        for(FeatureData var16 : var3.keySet()) {
-            if (!var14.isEmpty()) {
+        for(FeatureData var17 : var3.keySet()) {
+            if (!var15.isEmpty()) {
                 throw new IllegalStateException("You somehow broke the universe; DFS bork (iteration finished with non-empty in-progress vertex set");
             }
 
-            if (!var13.contains(var16) && Graph.depthFirstSearch(var3, var13, var14, var15::add, var16)) {
+            if (!var14.contains(var17) && Graph.depthFirstSearch(var3, var14, var15, var16::add, var17)) {
                 if (!param1) {
                     throw new IllegalStateException("Feature order cycle found");
                 }
 
-                List<Biome> var17 = new ArrayList<>(param0);
+                List<Holder<Biome>> var18 = new ArrayList<>(param0);
 
-                int var18;
+                int var19;
                 do {
-                    var18 = var17.size();
-                    ListIterator<Biome> var19 = var17.listIterator();
+                    var19 = var18.size();
+                    ListIterator<Holder<Biome>> var20 = var18.listIterator();
 
-                    while(var19.hasNext()) {
-                        Biome var20 = var19.next();
-                        var19.remove();
+                    while(var20.hasNext()) {
+                        Holder<Biome> var21 = var20.next();
+                        var20.remove();
 
                         try {
-                            this.buildFeaturesPerStep(var17, false);
+                            this.buildFeaturesPerStep(var18, false);
                         } catch (IllegalStateException var18) {
                             continue;
                         }
 
-                        var19.add(var20);
+                        var20.add(var21);
                     }
-                } while(var18 != var17.size());
+                } while(var19 != var18.size());
 
-                throw new IllegalStateException("Feature order cycle found, involved biomes: " + var17);
+                throw new IllegalStateException("Feature order cycle found, involved biomes: " + var18);
             }
         }
 
-        Collections.reverse(var15);
-        Builder<BiomeSource.StepFeatureData> var22 = ImmutableList.builder();
+        Collections.reverse(var16);
+        Builder<BiomeSource.StepFeatureData> var23 = ImmutableList.builder();
 
-        for(int var23 = 0; var23 < var4; ++var23) {
-            int var24 = var23;
-            List<PlacedFeature> var25 = var15.stream().filter(param1x -> param1x.step() == var24).map(FeatureData::feature).collect(Collectors.toList());
-            int var26 = var25.size();
-            Object2IntMap<PlacedFeature> var27 = new Object2IntOpenCustomHashMap<>(var26, Util.identityStrategy());
+        for(int var24 = 0; var24 < var4; ++var24) {
+            List<PlacedFeature> var26 = var16.stream().filter(param1x -> param1x.step() == var24).map(FeatureData::feature).collect(Collectors.toList());
+            int var27 = var26.size();
+            Object2IntMap<PlacedFeature> var28 = new Object2IntOpenCustomHashMap<>(var27, Util.identityStrategy());
 
-            for(int var28 = 0; var28 < var26; ++var28) {
-                var27.put(var25.get(var28), var28);
+            for(int var29 = 0; var29 < var27; ++var29) {
+                var28.put(var26.get(var29), var29);
             }
 
-            var22.add(new BiomeSource.StepFeatureData(var25, var27));
+            var23.add(new BiomeSource.StepFeatureData(var26, var28));
         }
 
-        return var22.build();
+        return var23.build();
     }
 
     protected abstract Codec<? extends BiomeSource> codec();

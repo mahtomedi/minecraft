@@ -205,6 +205,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.server = param0;
         this.customSpawners = param10;
         this.serverLevelData = param3;
+        param7.ensureStructuresGenerated();
         boolean var0 = param0.forceSynchronousWrites();
         DataFixer var1 = param0.getFixerUpper();
         EntityPersistentStorage<Entity> var2 = new EntityStorage(this, param2.getDimensionPath(param4).resolve("entities"), var1, var0, param0);
@@ -227,7 +228,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.updateSkyBrightness();
         this.prepareWeather();
         this.getWorldBorder().setAbsoluteMaxSize(param0.getAbsoluteMaxWorldSize());
-        this.raids = this.getDataStorage().computeIfAbsent(param0x -> Raids.load(this, param0x), () -> new Raids(this), Raids.getFileId(this.dimensionType()));
+        this.raids = this.getDataStorage()
+            .computeIfAbsent(param0x -> Raids.load(this, param0x), () -> new Raids(this), Raids.getFileId(this.dimensionTypeRegistration()));
         if (!param0.isSingleplayer()) {
             param3.setGameType(param0.getDefaultGameType());
         }

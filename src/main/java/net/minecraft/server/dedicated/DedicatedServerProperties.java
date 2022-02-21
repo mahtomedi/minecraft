@@ -70,7 +70,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final Settings<DedicatedServerProperties>.MutableValue<Boolean> whiteList = this.getMutable("white-list", false);
     private final DedicatedServerProperties.WorldGenProperties worldGenProperties = new DedicatedServerProperties.WorldGenProperties(
         this.get("level-seed", ""),
-        this.get("generator-settings", GsonHelper::parse, new JsonObject()),
+        this.get("generator-settings", param0x -> GsonHelper.parse(!param0x.isEmpty() ? param0x : "{}"), new JsonObject()),
         this.get("generate-structures", true),
         this.get("level-type", param0x -> param0x.toLowerCase(Locale.ROOT), "default")
     );

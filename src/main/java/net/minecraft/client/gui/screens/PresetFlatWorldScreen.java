@@ -121,24 +121,24 @@ public class PresetFlatWorldScreen extends Screen {
         return var0;
     }
 
-    public static FlatLevelGeneratorSettings fromString(Registry<Biome> param0, String param1, FlatLevelGeneratorSettings param2) {
-        Iterator<String> var0 = Splitter.on(';').split(param1).iterator();
+    public static FlatLevelGeneratorSettings fromString(Registry<Biome> param0, Registry<StructureSet> param1, String param2, FlatLevelGeneratorSettings param3) {
+        Iterator<String> var0 = Splitter.on(';').split(param2).iterator();
         if (!var0.hasNext()) {
-            return FlatLevelGeneratorSettings.getDefault(param0);
+            return FlatLevelGeneratorSettings.getDefault(param0, param1);
         } else {
             List<FlatLayerInfo> var1 = getLayersInfoFromString(var0.next());
             if (var1.isEmpty()) {
-                return FlatLevelGeneratorSettings.getDefault(param0);
+                return FlatLevelGeneratorSettings.getDefault(param0, param1);
             } else {
-                FlatLevelGeneratorSettings var2 = param2.withLayers(var1, param2.structureOverrides());
+                FlatLevelGeneratorSettings var2 = param3.withLayers(var1, param3.structureOverrides());
                 ResourceKey<Biome> var3 = DEFAULT_BIOME;
                 if (var0.hasNext()) {
                     try {
                         ResourceLocation var4 = new ResourceLocation(var0.next());
                         var3 = ResourceKey.create(Registry.BIOME_REGISTRY, var4);
                         param0.getOptional(var3).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
-                    } catch (Exception var8) {
-                        LOGGER.error("Error while parsing flat world string => {}", var8.getMessage());
+                    } catch (Exception var9) {
+                        LOGGER.error("Error while parsing flat world string => {}", var9.getMessage());
                         var3 = DEFAULT_BIOME;
                     }
                 }
@@ -172,15 +172,17 @@ public class PresetFlatWorldScreen extends Screen {
         this.listText = new TranslatableComponent("createWorld.customize.presets.list");
         this.export = new EditBox(this.font, 50, 40, this.width - 100, 20, this.shareText);
         this.export.setMaxLength(1230);
-        Registry<Biome> var0 = this.parent.parent.worldGenSettingsComponent.registryHolder().registryOrThrow(Registry.BIOME_REGISTRY);
+        RegistryAccess var0 = this.parent.parent.worldGenSettingsComponent.registryHolder();
+        Registry<Biome> var1 = var0.registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<StructureSet> var2 = var0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
         this.export.setValue(save(this.parent.settings()));
         this.settings = this.parent.settings();
         this.addWidget(this.export);
         this.list = new PresetFlatWorldScreen.PresetsList();
         this.addWidget(this.list);
         this.selectButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("createWorld.customize.presets.select"), param1 -> {
-                FlatLevelGeneratorSettings var0x = fromString(var0, this.export.getValue(), this.settings);
+            new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("createWorld.customize.presets.select"), param2 -> {
+                FlatLevelGeneratorSettings var0x = fromString(var1, var2, this.export.getValue(), this.settings);
                 this.parent.setConfig(var0x);
                 this.minecraft.setScreen(this.parent);
             })

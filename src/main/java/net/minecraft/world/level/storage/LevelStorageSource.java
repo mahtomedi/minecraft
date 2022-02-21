@@ -201,23 +201,24 @@ public class LevelStorageSource {
         return null;
     }
 
-    static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1) {
-        return (param2, param3) -> {
+    static BiFunction<File, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1, Lifecycle param2) {
+        return (param3, param4) -> {
             try {
-                CompoundTag var0 = NbtIo.readCompressed(param2);
+                CompoundTag var0 = NbtIo.readCompressed(param3);
                 CompoundTag var1x = var0.getCompound("Data");
-                CompoundTag var2 = var1x.contains("Player", 10) ? var1x.getCompound("Player") : null;
+                CompoundTag var2x = var1x.contains("Player", 10) ? var1x.getCompound("Player") : null;
                 var1x.remove("Player");
                 int var3 = var1x.contains("DataVersion", 99) ? var1x.getInt("DataVersion") : -1;
-                Dynamic<Tag> var4 = param3.update(
+                Dynamic<Tag> var4 = param4.update(
                     DataFixTypes.LEVEL.getType(), new Dynamic<>(param0, var1x), var3, SharedConstants.getCurrentVersion().getWorldVersion()
                 );
-                Pair<WorldGenSettings, Lifecycle> var5 = readWorldGenSettings(var4, param3, var3);
+                Pair<WorldGenSettings, Lifecycle> var5 = readWorldGenSettings(var4, param4, var3);
                 LevelVersion var6 = LevelVersion.parse(var4);
                 LevelSettings var7 = LevelSettings.parse(var4, param1);
-                return PrimaryLevelData.parse(var4, param3, var3, var2, var7, var6, var5.getFirst(), var5.getSecond());
-            } catch (Exception var12) {
-                LOGGER.error("Exception reading {}", param2, var12);
+                Lifecycle var8 = var5.getSecond().add(param2);
+                return PrimaryLevelData.parse(var4, param4, var3, var2x, var7, var6, var5.getFirst(), var8);
+            } catch (Exception var14) {
+                LOGGER.error("Exception reading {}", param3, var14);
                 return null;
             }
         };
@@ -330,9 +331,9 @@ public class LevelStorageSource {
         }
 
         @Nullable
-        public WorldData getDataTag(DynamicOps<Tag> param0, DataPackConfig param1) {
+        public WorldData getDataTag(DynamicOps<Tag> param0, DataPackConfig param1, Lifecycle param2) {
             this.checkLock();
-            return LevelStorageSource.this.readLevelData(this.levelPath.toFile(), LevelStorageSource.getLevelData(param0, param1));
+            return LevelStorageSource.this.readLevelData(this.levelPath.toFile(), LevelStorageSource.getLevelData(param0, param1, param2));
         }
 
         @Nullable

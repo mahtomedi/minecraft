@@ -44,7 +44,7 @@ public abstract class WorldPreset {
         protected ChunkGenerator generator(RegistryAccess param0, long param1) {
             Registry<Biome> var0 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
             Registry<StructureSet> var1 = param0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-            return new FlatLevelSource(var1, FlatLevelGeneratorSettings.getDefault(var0));
+            return new FlatLevelSource(var1, FlatLevelGeneratorSettings.getDefault(var0, var1));
         }
     };
     public static final WorldPreset LARGE_BIOMES = new WorldPreset("large_biomes") {
@@ -91,7 +91,7 @@ public abstract class WorldPreset {
                                 WorldGenSettings.withOverworld(var4, param1.dimensions(), new FlatLevelSource(var3, param4))
                             )
                         ),
-                var0 instanceof FlatLevelSource ? ((FlatLevelSource)var0).settings() : FlatLevelGeneratorSettings.getDefault(var2)
+                var0 instanceof FlatLevelSource ? ((FlatLevelSource)var0).settings() : FlatLevelGeneratorSettings.getDefault(var2, var3)
             );
         },
         Optional.of(SINGLE_BIOME_SURFACE),

@@ -149,7 +149,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     public boolean stable(long param0, ResourceKey<NoiseGeneratorSettings> param1) {
-        return this.seed == param0 && this.settings.value().stable(param1);
+        return this.seed == param0 && this.settings.is(param1);
     }
 
     @Override

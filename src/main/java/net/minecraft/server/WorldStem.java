@@ -82,7 +82,7 @@ public record WorldStem(
             return (param1, param2) -> {
                 RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
                 DynamicOps<Tag> var1 = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param1);
-                WorldData var2 = param0.getDataTag(var1, param2);
+                WorldData var2 = param0.getDataTag(var1, param2, var0x.allElementsLifecycle());
                 if (var2 == null) {
                     throw new IllegalStateException("Failed to load world");
                 } else {

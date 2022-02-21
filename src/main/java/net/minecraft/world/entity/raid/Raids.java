@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
@@ -176,8 +177,8 @@ public class Raids extends SavedData {
         return param0;
     }
 
-    public static String getFileId(DimensionType param0) {
-        return "raids" + param0.getFileSuffix();
+    public static String getFileId(Holder<DimensionType> param0) {
+        return param0.is(DimensionType.END_LOCATION) ? "raids_end" : "raids";
     }
 
     private int getUniqueId() {
