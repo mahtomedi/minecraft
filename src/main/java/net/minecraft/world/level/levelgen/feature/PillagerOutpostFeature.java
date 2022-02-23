@@ -23,7 +23,7 @@ public class PillagerOutpostFeature extends JigsawFeature {
         if (var3.nextInt(5) != 0) {
             return false;
         } else {
-            return !param0x.chunkGenerator().hasFeatureChunkInRange(BuiltinStructureSets.VILLAGES, var0.x, var0.z, 10);
+            return !param0x.chunkGenerator().hasFeatureChunkInRange(BuiltinStructureSets.VILLAGES, param0x.seed(), var0.x, var0.z, 10);
         }
     }
 }

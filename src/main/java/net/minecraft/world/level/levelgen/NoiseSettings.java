@@ -2,7 +2,6 @@ package net.minecraft.world.level.levelgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Function;
 import net.minecraft.core.QuartPos;
@@ -19,9 +18,6 @@ public record NoiseSettings(
     NoiseSlider bottomSlideSettings,
     int noiseSizeHorizontal,
     int noiseSizeVertical,
-    @Deprecated boolean islandNoiseOverride,
-    @Deprecated boolean isAmplified,
-    @Deprecated boolean largeBiomes,
     TerrainShaper terrainShaper
 ) {
     public static final Codec<NoiseSettings> CODEC = RecordCodecBuilder.<NoiseSettings>create(
@@ -33,28 +29,13 @@ public record NoiseSettings(
                         NoiseSlider.CODEC.fieldOf("bottom_slide").forGetter(NoiseSettings::bottomSlideSettings),
                         Codec.intRange(1, 4).fieldOf("size_horizontal").forGetter(NoiseSettings::noiseSizeHorizontal),
                         Codec.intRange(1, 4).fieldOf("size_vertical").forGetter(NoiseSettings::noiseSizeVertical),
-                        Codec.BOOL
-                            .optionalFieldOf("island_noise_override", Boolean.valueOf(false), Lifecycle.experimental())
-                            .forGetter(NoiseSettings::islandNoiseOverride),
-                        Codec.BOOL.optionalFieldOf("amplified", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::isAmplified),
-                        Codec.BOOL.optionalFieldOf("large_biomes", Boolean.valueOf(false), Lifecycle.experimental()).forGetter(NoiseSettings::largeBiomes),
                         TerrainShaper.CODEC.fieldOf("terrain_shaper").forGetter(NoiseSettings::terrainShaper)
                     )
                     .apply(param0, NoiseSettings::new)
         )
         .comapFlatMap(NoiseSettings::guardY, Function.identity());
     static final NoiseSettings NETHER_NOISE_SETTINGS = create(
-        0,
-        128,
-        new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0),
-        new NoiseSlider(0.9375, 3, 0),
-        new NoiseSlider(2.5, 4, -1),
-        1,
-        2,
-        false,
-        false,
-        false,
-        TerrainProvider.nether()
+        0, 128, new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0), new NoiseSlider(0.9375, 3, 0), new NoiseSlider(2.5, 4, -1), 1, 2, TerrainProvider.nether()
     );
     static final NoiseSettings END_NOISE_SETTINGS = create(
         0,
@@ -64,23 +45,10 @@ public record NoiseSettings(
         new NoiseSlider(-0.234375, 7, 1),
         2,
         1,
-        true,
-        false,
-        false,
         TerrainProvider.end()
     );
     static final NoiseSettings CAVES_NOISE_SETTINGS = create(
-        -64,
-        192,
-        new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0),
-        new NoiseSlider(0.9375, 3, 0),
-        new NoiseSlider(2.5, 4, -1),
-        1,
-        2,
-        false,
-        false,
-        false,
-        TerrainProvider.caves()
+        -64, 192, new NoiseSamplingSettings(1.0, 3.0, 80.0, 60.0), new NoiseSlider(0.9375, 3, 0), new NoiseSlider(2.5, 4, -1), 1, 2, TerrainProvider.caves()
     );
     static final NoiseSettings FLOATING_ISLANDS_NOISE_SETTINGS = create(
         0,
@@ -90,9 +58,6 @@ public record NoiseSettings(
         new NoiseSlider(-0.234375, 7, 1),
         2,
         1,
-        false,
-        false,
-        false,
         TerrainProvider.floatingIslands()
     );
 
@@ -107,26 +72,16 @@ public record NoiseSettings(
     }
 
     public static NoiseSettings create(
-        int param0,
-        int param1,
-        NoiseSamplingSettings param2,
-        NoiseSlider param3,
-        NoiseSlider param4,
-        int param5,
-        int param6,
-        boolean param7,
-        boolean param8,
-        boolean param9,
-        TerrainShaper param10
+        int param0, int param1, NoiseSamplingSettings param2, NoiseSlider param3, NoiseSlider param4, int param5, int param6, TerrainShaper param7
     ) {
-        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
+        NoiseSettings var0 = new NoiseSettings(param0, param1, param2, param3, param4, param5, param6, param7);
         guardY(var0).error().ifPresent(param0x -> {
             throw new IllegalStateException(param0x.message());
         });
         return var0;
     }
 
-    static NoiseSettings overworldNoiseSettings(boolean param0, boolean param1) {
+    static NoiseSettings overworldNoiseSettings(boolean param0) {
         return create(
             -64,
             384,
@@ -135,9 +90,6 @@ public record NoiseSettings(
             new NoiseSlider(param0 ? 0.4 : 0.1171875, 3, 0),
             1,
             2,
-            false,
-            param0,
-            param1,
             TerrainProvider.overworld(param0)
         );
     }

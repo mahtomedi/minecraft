@@ -95,7 +95,8 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
     private final Map<ConfiguredStructureFeature<?, ?>, List<StructurePlacement>> placementsForFeature = new Object2ObjectOpenHashMap<>();
     private final Map<ConcentricRingsStructurePlacement, CompletableFuture<List<ChunkPos>>> ringPositions = new Object2ObjectArrayMap<>();
     private boolean hasGeneratedPositions;
-    private final long seed;
+    @Deprecated
+    private final long ringPlacementSeed;
 
     protected static final <T extends ChunkGenerator> P1<Mu<T>, Registry<StructureSet>> commonCodec(Instance<T> param0) {
         return param0.group(RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(param0x -> param0x.structureSets));
@@ -110,7 +111,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         this.biomeSource = param2;
         this.runtimeBiomeSource = param3;
         this.structureOverrides = param1;
-        this.seed = param4;
+        this.ringPlacementSeed = param4;
     }
 
     public Stream<Holder<StructureSet>> possibleStructureSets() {
@@ -156,7 +157,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                         int var4 = param1.count();
                         int var5 = param1.spread();
                         Random var6 = new Random();
-                        var6.setSeed(this.seed);
+                        var6.setSeed(this.ringPlacementSeed);
                         double var7 = var6.nextDouble() * Math.PI * 2.0;
                         int var8 = 0;
                         int var9 = 0;
@@ -477,16 +478,16 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
         }
     }
 
-    public boolean hasFeatureChunkInRange(ResourceKey<StructureSet> param0, int param1, int param2, int param3) {
+    public boolean hasFeatureChunkInRange(ResourceKey<StructureSet> param0, long param1, int param2, int param3, int param4) {
         StructureSet var0 = this.structureSets.get(param0);
         if (var0 == null) {
             return false;
         } else {
             StructurePlacement var1 = var0.placement();
 
-            for(int var2 = param1 - param3; var2 <= param1 + param3; ++var2) {
-                for(int var3 = param2 - param3; var3 <= param2 + param3; ++var3) {
-                    if (var1.isFeatureChunk(this, var2, var3)) {
+            for(int var2 = param2 - param4; var2 <= param2 + param4; ++var2) {
+                for(int var3 = param3 - param4; var3 <= param3 + param4; ++var3) {
+                    if (var1.isFeatureChunk(this, param1, var2, var3)) {
                         return true;
                     }
                 }
@@ -564,7 +565,7 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
                 }
             }
 
-            if (var0x.isFeatureChunk(this, var0.x, var0.z)) {
+            if (var0x.isFeatureChunk(this, param4, var0.x, var0.z)) {
                 if (var1x.size() == 1) {
                     this.tryGenerateStructure(var1x.get(0), param1, param0, param3, param4, param2, var0, var1);
                 } else {
@@ -708,10 +709,6 @@ public abstract class ChunkGenerator implements BiomeManager.NoiseBiomeSource {
     private List<StructurePlacement> getPlacementsForFeature(Holder<ConfiguredStructureFeature<?, ?>> param0) {
         this.ensureStructuresGenerated();
         return this.placementsForFeature.getOrDefault(param0.value(), List.of());
-    }
-
-    public long seed() {
-        return this.seed;
     }
 
     public abstract void addDebugScreenInfo(List<String> var1, BlockPos var2);

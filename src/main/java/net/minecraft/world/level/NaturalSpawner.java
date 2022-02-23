@@ -16,7 +16,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
-import net.minecraft.data.worldgen.StructureFeatures;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
@@ -39,7 +38,9 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.NetherFortressFeature;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
@@ -294,9 +295,14 @@ public final class NaturalSpawner {
     }
 
     public static boolean isInNetherFortressBounds(BlockPos param0, ServerLevel param1, MobCategory param2, StructureFeatureManager param3) {
-        return param2 == MobCategory.MONSTER
-            && param1.getBlockState(param0.below()).is(Blocks.NETHER_BRICKS)
-            && param3.getStructureAt(param0, StructureFeatures.FORTRESS.value()).isValid();
+        if (param2 == MobCategory.MONSTER && param1.getBlockState(param0.below()).is(Blocks.NETHER_BRICKS)) {
+            ConfiguredStructureFeature<?, ?> var0 = param3.registryAccess()
+                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY)
+                .get(BuiltinStructures.FORTRESS);
+            return var0 == null ? false : param3.getStructureAt(param0, var0).isValid();
+        } else {
+            return false;
+        }
     }
 
     private static BlockPos getRandomPosWithin(Level param0, LevelChunk param1) {

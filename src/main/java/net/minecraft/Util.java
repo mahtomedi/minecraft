@@ -559,11 +559,19 @@ public class Util {
     }
 
     public static void safeReplaceFile(Path param0, Path param1, Path param2) {
+        safeReplaceOrMoveFile(param0, param1, param2, false);
+    }
+
+    public static void safeReplaceOrMoveFile(File param0, File param1, File param2, boolean param3) {
+        safeReplaceOrMoveFile(param0.toPath(), param1.toPath(), param2.toPath(), param3);
+    }
+
+    public static void safeReplaceOrMoveFile(Path param0, Path param1, Path param2, boolean param3) {
         int var0 = 10;
         if (!Files.exists(param0)
             || runWithRetries(10, "create backup " + param2, createDeleter(param2), createRenamer(param0, param2), createFileCreatedCheck(param2))) {
             if (runWithRetries(10, "remove old " + param0, createDeleter(param0), createFileDeletedCheck(param0))) {
-                if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0))) {
+                if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0)) && !param3) {
                     runWithRetries(10, "restore " + param0 + " from " + param2, createRenamer(param2, param0), createFileCreatedCheck(param0));
                 }
 

@@ -139,7 +139,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private int carouselTick;
     private boolean hasSwitchedCarouselImage;
     private List<KeyCombo> keyCombos;
-    int clicks;
+    long lastClickTime;
     private ReentrantLock connectLock = new ReentrantLock();
     private MultiLineLabel formattedPopup = MultiLineLabel.EMPTY;
     RealmsMainScreen.HoveredElement hoveredElement;
@@ -377,11 +377,6 @@ public class RealmsMainScreen extends RealmsScreen {
 
         this.justClosedPopup = false;
         ++this.animTick;
-        --this.clicks;
-        if (this.clicks < 0) {
-            this.clicks = 0;
-        }
-
         if (hasParentalConsent()) {
             REALMS_DATA_FETCHER.init();
             if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.SERVER_LIST)) {
@@ -1345,7 +1340,6 @@ public class RealmsMainScreen extends RealmsScreen {
                 int var3 = var2 / this.itemHeight;
                 if (param0 >= (double)var0 && param0 <= (double)var1 && var3 >= 0 && var2 >= 0 && var3 < this.getItemCount()) {
                     this.itemClicked(var2, var3, param0, param1, this.width);
-                    RealmsMainScreen.this.clicks += 7;
                     this.selectItem(var3);
                 }
 
@@ -1382,8 +1376,12 @@ public class RealmsMainScreen extends RealmsScreen {
                             RealmsMainScreen.this.leaveClicked(var1);
                         } else if (RealmsMainScreen.this.hoveredElement == RealmsMainScreen.HoveredElement.EXPIRED) {
                             RealmsMainScreen.this.onRenew(var1);
-                        } else if (RealmsMainScreen.this.clicks >= 10 && RealmsMainScreen.this.shouldPlayButtonBeActive(var1)) {
-                            RealmsMainScreen.this.play(var1, RealmsMainScreen.this);
+                        } else if (RealmsMainScreen.this.shouldPlayButtonBeActive(var1)) {
+                            if (Util.getMillis() - RealmsMainScreen.this.lastClickTime < 250L && this.isSelectedItem(param1)) {
+                                RealmsMainScreen.this.play(var1, RealmsMainScreen.this);
+                            }
+
+                            RealmsMainScreen.this.lastClickTime = Util.getMillis();
                         }
 
                     }

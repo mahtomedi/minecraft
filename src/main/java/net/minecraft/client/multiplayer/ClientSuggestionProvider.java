@@ -11,10 +11,12 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
 import net.minecraft.resources.ResourceKey;
@@ -32,6 +34,7 @@ public class ClientSuggestionProvider implements SharedSuggestionProvider {
     private final ClientPacketListener connection;
     private final Minecraft minecraft;
     private int pendingSuggestionsId = -1;
+    @Nullable
     private CompletableFuture<Suggestions> pendingSuggestionsFuture;
 
     public ClientSuggestionProvider(ClientPacketListener param0, Minecraft param1) {
@@ -79,7 +82,17 @@ public class ClientSuggestionProvider implements SharedSuggestionProvider {
     }
 
     @Override
-    public CompletableFuture<Suggestions> customSuggestion(CommandContext<SharedSuggestionProvider> param0, SuggestionsBuilder param1) {
+    public CompletableFuture<Suggestions> suggestRegistryElements(
+        ResourceKey<? extends Registry<?>> param0, SharedSuggestionProvider.ElementSuggestionType param1, SuggestionsBuilder param2, CommandContext<?> param3
+    ) {
+        return this.registryAccess().registry(param0).map(param2x -> {
+            this.suggestRegistryElements(param2x, param1, param2);
+            return param2.buildFuture();
+        }).orElseGet(() -> this.customSuggestion(param3));
+    }
+
+    @Override
+    public CompletableFuture<Suggestions> customSuggestion(CommandContext<?> param0) {
         if (this.pendingSuggestionsFuture != null) {
             this.pendingSuggestionsFuture.cancel(false);
         }

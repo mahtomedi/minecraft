@@ -212,8 +212,8 @@ public class MapItem extends ComplexItem {
         return !var0.isEmpty() && !param1.isFaceSturdy(param0, param2, Direction.UP) ? var0.createLegacyBlock() : param1;
     }
 
-    private static boolean isBiomeWatery(boolean[] param0, int param1, int param2, int param3) {
-        return param0[param2 * param1 + param3 * param1 * 128 * param1];
+    private static boolean isBiomeWatery(boolean[] param0, int param1, int param2) {
+        return param0[param2 * 128 + param1];
     }
 
     public static void renderBiomePreviewMap(ServerLevel param0, ItemStack param1) {
@@ -223,93 +223,69 @@ public class MapItem extends ComplexItem {
                 int var1 = 1 << var0.scale;
                 int var2 = var0.x;
                 int var3 = var0.z;
-                boolean[] var4 = new boolean[128 * var1 * 128 * var1];
-
-                for(int var5 = 0; var5 < 128 * var1; ++var5) {
-                    for(int var6 = 0; var6 < 128 * var1; ++var6) {
-                        Biome.BiomeCategory var7 = Biome.getBiomeCategory(
-                            param0.getBiome(new BlockPos((var2 / var1 - 64) * var1 + var6, 0, (var3 / var1 - 64) * var1 + var5))
-                        );
-                        var4[var5 * 128 * var1 + var6] = var7 == Biome.BiomeCategory.OCEAN
-                            || var7 == Biome.BiomeCategory.RIVER
-                            || var7 == Biome.BiomeCategory.SWAMP;
-                    }
-                }
+                boolean[] var4 = new boolean[16384];
+                int var5 = var2 / var1 - 64;
+                int var6 = var3 / var1 - 64;
+                BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
 
                 for(int var8 = 0; var8 < 128; ++var8) {
                     for(int var9 = 0; var9 < 128; ++var9) {
-                        if (var8 > 0 && var9 > 0 && var8 < 127 && var9 < 127) {
-                            int var10 = 8;
-                            if (!isBiomeWatery(var4, var1, var8 - 1, var9 - 1)) {
-                                --var10;
-                            }
+                        Biome.BiomeCategory var10 = Biome.getBiomeCategory(param0.getBiome(var7.set((var5 + var9) * var1, 0, (var6 + var8) * var1)));
+                        var4[var8 * 128 + var9] = var10 == Biome.BiomeCategory.OCEAN
+                            || var10 == Biome.BiomeCategory.RIVER
+                            || var10 == Biome.BiomeCategory.SWAMP;
+                    }
+                }
 
-                            if (!isBiomeWatery(var4, var1, var8 - 1, var9 + 1)) {
-                                --var10;
-                            }
+                for(int var11 = 1; var11 < 127; ++var11) {
+                    for(int var12 = 1; var12 < 127; ++var12) {
+                        int var13 = 0;
 
-                            if (!isBiomeWatery(var4, var1, var8 - 1, var9)) {
-                                --var10;
-                            }
-
-                            if (!isBiomeWatery(var4, var1, var8 + 1, var9 - 1)) {
-                                --var10;
-                            }
-
-                            if (!isBiomeWatery(var4, var1, var8 + 1, var9 + 1)) {
-                                --var10;
-                            }
-
-                            if (!isBiomeWatery(var4, var1, var8 + 1, var9)) {
-                                --var10;
-                            }
-
-                            if (!isBiomeWatery(var4, var1, var8, var9 - 1)) {
-                                --var10;
-                            }
-
-                            if (!isBiomeWatery(var4, var1, var8, var9 + 1)) {
-                                --var10;
-                            }
-
-                            MaterialColor.Brightness var11 = MaterialColor.Brightness.LOWEST;
-                            MaterialColor var12 = MaterialColor.NONE;
-                            if (isBiomeWatery(var4, var1, var8, var9)) {
-                                var12 = MaterialColor.COLOR_ORANGE;
-                                if (var10 > 7 && var9 % 2 == 0) {
-                                    switch((var8 + (int)(Mth.sin((float)var9 + 0.0F) * 7.0F)) / 8 % 5) {
-                                        case 0:
-                                        case 4:
-                                            var11 = MaterialColor.Brightness.LOW;
-                                            break;
-                                        case 1:
-                                        case 3:
-                                            var11 = MaterialColor.Brightness.NORMAL;
-                                            break;
-                                        case 2:
-                                            var11 = MaterialColor.Brightness.HIGH;
-                                    }
-                                } else if (var10 > 7) {
-                                    var12 = MaterialColor.NONE;
-                                } else if (var10 > 5) {
-                                    var11 = MaterialColor.Brightness.NORMAL;
-                                } else if (var10 > 3) {
-                                    var11 = MaterialColor.Brightness.LOW;
-                                } else if (var10 > 1) {
-                                    var11 = MaterialColor.Brightness.LOW;
-                                }
-                            } else if (var10 > 0) {
-                                var12 = MaterialColor.COLOR_BROWN;
-                                if (var10 > 3) {
-                                    var11 = MaterialColor.Brightness.NORMAL;
-                                } else {
-                                    var11 = MaterialColor.Brightness.LOWEST;
+                        for(int var14 = -1; var14 < 2; ++var14) {
+                            for(int var15 = -1; var15 < 2; ++var15) {
+                                if ((var14 != 0 || var15 != 0) && isBiomeWatery(var4, var11 + var14, var12 + var15)) {
+                                    ++var13;
                                 }
                             }
+                        }
 
-                            if (var12 != MaterialColor.NONE) {
-                                var0.setColor(var8, var9, var12.getPackedId(var11));
+                        MaterialColor.Brightness var16 = MaterialColor.Brightness.LOWEST;
+                        MaterialColor var17 = MaterialColor.NONE;
+                        if (isBiomeWatery(var4, var11, var12)) {
+                            var17 = MaterialColor.COLOR_ORANGE;
+                            if (var13 > 7 && var12 % 2 == 0) {
+                                switch((var11 + (int)(Mth.sin((float)var12 + 0.0F) * 7.0F)) / 8 % 5) {
+                                    case 0:
+                                    case 4:
+                                        var16 = MaterialColor.Brightness.LOW;
+                                        break;
+                                    case 1:
+                                    case 3:
+                                        var16 = MaterialColor.Brightness.NORMAL;
+                                        break;
+                                    case 2:
+                                        var16 = MaterialColor.Brightness.HIGH;
+                                }
+                            } else if (var13 > 7) {
+                                var17 = MaterialColor.NONE;
+                            } else if (var13 > 5) {
+                                var16 = MaterialColor.Brightness.NORMAL;
+                            } else if (var13 > 3) {
+                                var16 = MaterialColor.Brightness.LOW;
+                            } else if (var13 > 1) {
+                                var16 = MaterialColor.Brightness.LOW;
                             }
+                        } else if (var13 > 0) {
+                            var17 = MaterialColor.COLOR_BROWN;
+                            if (var13 > 3) {
+                                var16 = MaterialColor.Brightness.NORMAL;
+                            } else {
+                                var16 = MaterialColor.Brightness.LOWEST;
+                            }
+                        }
+
+                        if (var17 != MaterialColor.NONE) {
+                            var0.setColor(var11, var12, var17.getPackedId(var16));
                         }
                     }
                 }

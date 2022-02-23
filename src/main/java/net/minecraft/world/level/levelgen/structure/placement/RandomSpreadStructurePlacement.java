@@ -46,9 +46,9 @@ public record RandomSpreadStructurePlacement(int spacing, int separation, Random
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator param0, int param1, int param2) {
-        ChunkPos var0 = this.getPotentialFeatureChunk(param0.seed(), param1, param2);
-        return var0.x == param1 && var0.z == param2;
+    public boolean isFeatureChunk(ChunkGenerator param0, long param1, int param2, int param3) {
+        ChunkPos var0 = this.getPotentialFeatureChunk(param1, param2, param3);
+        return var0.x == param2 && var0.z == param3;
     }
 
     @Override

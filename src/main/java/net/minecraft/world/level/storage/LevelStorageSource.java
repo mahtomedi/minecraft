@@ -134,8 +134,8 @@ public class LevelStorageSource {
                     boolean var3;
                     try {
                         var3 = DirectoryLock.isLocked(var2.toPath());
-                    } catch (Exception var11) {
-                        LOGGER.warn("Failed to read {} lock", var2, var11);
+                    } catch (Exception var14) {
+                        LOGGER.warn("Failed to read {} lock", var2, var14);
                         continue;
                     }
 
@@ -144,14 +144,22 @@ public class LevelStorageSource {
                         if (var6 != null) {
                             var0.add(var6);
                         }
-                    } catch (OutOfMemoryError var9) {
+                    } catch (OutOfMemoryError var12) {
                         MemoryReserve.release();
                         System.gc();
                         LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of memory trying to read summary of {}", var2);
-                        throw var9;
-                    } catch (StackOverflowError var10) {
-                        LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of stack trying to read summary of {}", var2);
-                        throw var10;
+                        throw var12;
+                    } catch (StackOverflowError var13) {
+                        LOGGER.error(
+                            LogUtils.FATAL_MARKER,
+                            "Ran out of stack trying to read summary of {}. Assuming corruption; attempting to restore from from level.dat_old.",
+                            var2
+                        );
+                        File var9 = new File(var2, "level.dat");
+                        File var10 = new File(var2, "level.dat_old");
+                        File var11 = new File(var2, "level.dat_corrupted_" + LocalDateTime.now().format(FORMATTER));
+                        Util.safeReplaceOrMoveFile(var9, var10, var11, true);
+                        throw var13;
                     }
                 }
             }

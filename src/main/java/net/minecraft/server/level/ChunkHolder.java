@@ -124,6 +124,13 @@ public class ChunkHolder {
     }
 
     @Nullable
+    public LevelChunk getFullChunk() {
+        CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var0 = this.getFullChunkFuture();
+        Either<LevelChunk, ChunkHolder.ChunkLoadingFailure> var1 = var0.getNow(null);
+        return var1 == null ? null : var1.left().orElse(null);
+    }
+
+    @Nullable
     public ChunkStatus getLastAvailableStatus() {
         for(int var0 = CHUNK_STATUSES.size() - 1; var0 >= 0; --var0) {
             ChunkStatus var1 = CHUNK_STATUSES.get(var0);
@@ -170,19 +177,22 @@ public class ChunkHolder {
     }
 
     public void sectionLightChanged(LightLayer param0, int param1) {
-        LevelChunk var0 = this.getTickingChunk();
+        LevelChunk var0 = this.getFullChunk();
         if (var0 != null) {
             var0.setUnsaved(true);
-            int var1 = this.lightEngine.getMinLightSection();
-            int var2 = this.lightEngine.getMaxLightSection();
-            if (param1 >= var1 && param1 <= var2) {
-                int var3 = param1 - var1;
-                if (param0 == LightLayer.SKY) {
-                    this.skyChangedLightSectionFilter.set(var3);
-                } else {
-                    this.blockChangedLightSectionFilter.set(var3);
-                }
+            LevelChunk var1 = this.getTickingChunk();
+            if (var1 != null) {
+                int var2 = this.lightEngine.getMinLightSection();
+                int var3 = this.lightEngine.getMaxLightSection();
+                if (param1 >= var2 && param1 <= var3) {
+                    int var4 = param1 - var2;
+                    if (param0 == LightLayer.SKY) {
+                        this.skyChangedLightSectionFilter.set(var4);
+                    } else {
+                        this.blockChangedLightSectionFilter.set(var4);
+                    }
 
+                }
             }
         }
     }
