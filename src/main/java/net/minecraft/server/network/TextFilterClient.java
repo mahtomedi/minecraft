@@ -50,16 +50,23 @@ public class TextFilterClient implements AutoCloseable {
     final TextFilterClient.IgnoreStrategy chatIgnoreStrategy;
     final ExecutorService workerPool;
 
-    private TextFilterClient(URI param0, String param1, int param2, String param3, String param4, TextFilterClient.IgnoreStrategy param5, int param6) throws MalformedURLException {
-        this.authKey = param1;
-        this.ruleId = param2;
-        this.serverId = param3;
-        this.roomId = param4;
-        this.chatIgnoreStrategy = param5;
-        this.chatEndpoint = param0.resolve("/v1/chat").toURL();
-        this.joinEndpoint = param0.resolve("/v1/join").toURL();
-        this.leaveEndpoint = param0.resolve("/v1/leave").toURL();
-        this.workerPool = Executors.newFixedThreadPool(param6, THREAD_FACTORY);
+    private TextFilterClient(
+        URL param0, URL param1, URL param2, String param3, int param4, String param5, String param6, TextFilterClient.IgnoreStrategy param7, int param8
+    ) {
+        this.authKey = param3;
+        this.ruleId = param4;
+        this.serverId = param5;
+        this.roomId = param6;
+        this.chatIgnoreStrategy = param7;
+        this.chatEndpoint = param0;
+        this.joinEndpoint = param1;
+        this.leaveEndpoint = param2;
+        this.workerPool = Executors.newFixedThreadPool(param8, THREAD_FACTORY);
+    }
+
+    private static URL getEndpoint(URI param0, @Nullable JsonObject param1, String param2, String param3) throws MalformedURLException {
+        String var0 = param1 != null ? GsonHelper.getAsString(param1, param2, param3) : param3;
+        return param0.resolve("/" + var0).toURL();
     }
 
     @Nullable
@@ -79,13 +86,17 @@ public class TextFilterClient implements AutoCloseable {
                     String var5 = GsonHelper.getAsString(var0, "roomId", "Java:Chat");
                     int var6 = GsonHelper.getAsInt(var0, "hashesToDrop", -1);
                     int var7 = GsonHelper.getAsInt(var0, "maxConcurrentRequests", 7);
-                    TextFilterClient.IgnoreStrategy var8 = TextFilterClient.IgnoreStrategy.select(var6);
+                    JsonObject var8 = GsonHelper.getAsJsonObject(var0, "endpoints", null);
+                    URL var9 = getEndpoint(var1, var8, "chat", "v1/chat");
+                    URL var10 = getEndpoint(var1, var8, "join", "v1/join");
+                    URL var11 = getEndpoint(var1, var8, "leave", "v1/leave");
+                    TextFilterClient.IgnoreStrategy var12 = TextFilterClient.IgnoreStrategy.select(var6);
                     return new TextFilterClient(
-                        var1, Base64.getEncoder().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var5, var8, var7
+                        var9, var10, var11, Base64.getEncoder().encodeToString(var2.getBytes(StandardCharsets.US_ASCII)), var3, var4, var5, var12, var7
                     );
                 }
-            } catch (Exception var10) {
-                LOGGER.warn("Failed to parse chat filter config {}", param0, var10);
+            } catch (Exception var14) {
+                LOGGER.warn("Failed to parse chat filter config {}", param0, var14);
                 return null;
             }
         }

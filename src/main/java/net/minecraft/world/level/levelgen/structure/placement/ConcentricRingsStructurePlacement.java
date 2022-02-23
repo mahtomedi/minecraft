@@ -17,9 +17,9 @@ public record ConcentricRingsStructurePlacement(int distance, int spread, int co
     );
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator param0, int param1, int param2) {
+    public boolean isFeatureChunk(ChunkGenerator param0, long param1, int param2, int param3) {
         List<ChunkPos> var0 = param0.getRingPositionsFor(this);
-        return var0 == null ? false : var0.contains(new ChunkPos(param1, param2));
+        return var0 == null ? false : var0.contains(new ChunkPos(param2, param3));
     }
 
     @Override

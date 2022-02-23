@@ -2,6 +2,7 @@ package net.minecraft.world.entity.animal.axolotl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.mojang.logging.LogUtils;
 import com.mojang.math.Vector3f;
 import com.mojang.serialization.Dynamic;
 import java.util.Arrays;
@@ -63,8 +64,10 @@ import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 
 public class Axolotl extends Animal implements LerpingModel, Bucketable {
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int TOTAL_PLAYDEAD_TIME = 200;
     protected static final ImmutableList<? extends SensorType<? extends Sensor<? super Axolotl>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_ADULT, SensorType.HURT_BY, SensorType.AXOLOTL_ATTACKABLES, SensorType.AXOLOTL_TEMPTATIONS
@@ -381,7 +384,13 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
     @Override
     public void loadFromBucketTag(CompoundTag param0) {
         Bucketable.loadDefaultDataFromBucketTag(this, param0);
-        this.setVariant(Axolotl.Variant.BY_ID[param0.getInt("Variant")]);
+        int var0 = param0.getInt("Variant");
+        if (var0 >= 0 && var0 < Axolotl.Variant.BY_ID.length) {
+            this.setVariant(Axolotl.Variant.BY_ID[var0]);
+        } else {
+            LOGGER.error("Invalid variant: {}", var0);
+        }
+
         if (param0.contains("Age")) {
             this.setAge(param0.getInt("Age"));
         }
