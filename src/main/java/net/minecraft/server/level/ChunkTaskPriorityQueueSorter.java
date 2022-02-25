@@ -141,10 +141,10 @@ public class ChunkTaskPriorityQueueSorter implements AutoCloseable, ChunkHolder.
             if (var0 == null) {
                 this.sleeping.add(param1);
             } else {
-                Util.sequence(var0.<CompletableFuture>map(param1x -> param1x.map(param1::ask, param0x -> {
+                CompletableFuture.allOf(var0.map(param1x -> param1x.map(param1::ask, param0x -> {
                         param0x.run();
                         return CompletableFuture.completedFuture(Unit.INSTANCE);
-                    })).collect(Collectors.toList())).thenAccept(param2 -> this.pollTask(param0, param1));
+                    })).toArray(param0x -> new CompletableFuture[param0x])).thenAccept(param2 -> this.pollTask(param0, param1));
             }
 
         }));

@@ -699,12 +699,14 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareTickingChunk(ChunkHolder param0) {
         ChunkPos var0 = param0.getPos();
         CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var1 = this.getChunkRangeFuture(var0, 1, param0x -> ChunkStatus.FULL);
-        CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var2 = var1.thenApplyAsync(param0x -> param0x.flatMap(param0xx -> {
-                LevelChunk var0x = (LevelChunk)param0xx.get(param0xx.size() / 2);
-                var0x.postProcessGeneration();
-                this.level.startTickingChunk(var0x);
-                return Either.left(var0x);
-            }), param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1)));
+        CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var2 = var1.<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>>thenApplyAsync(
+                param0x -> param0x.mapLeft(param0xx -> (LevelChunk)param0xx.get(param0xx.size() / 2)),
+                param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1))
+            )
+            .thenApplyAsync(param0x -> param0x.ifLeft(param0xx -> {
+                    param0xx.postProcessGeneration();
+                    this.level.startTickingChunk(param0xx);
+                }), this.mainThreadExecutor);
         var2.thenAcceptAsync(param1 -> param1.ifLeft(param1x -> {
                 this.tickingGenerated.getAndIncrement();
                 MutableObject<ClientboundLevelChunkWithLightPacket> var0x = new MutableObject<>();

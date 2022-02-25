@@ -1003,6 +1003,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
             return var0.toString();
         });
+        param0.setDetail("World Generation", () -> this.worldData.worldGenSettingsLifecycle().toString());
         if (this.serverId != null) {
             param0.setDetail("Server Id", () -> this.serverId);
         }

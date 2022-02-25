@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "8dcc197b6dca3dfa2f6a0d5d3f0ff79de39b4700",
-      "size": 20259549,
-      "url": "https://launcher.mojang.com/v1/objects/8dcc197b6dca3dfa2f6a0d5d3f0ff79de39b4700/client.jar"
+      "sha1": "a2699aadf0435f35cc0694d2f9e9403baac27ee2",
+      "size": 20259844,
+      "url": "https://launcher.mojang.com/v1/objects/a2699aadf0435f35cc0694d2f9e9403baac27ee2/client.jar"
     },
     "client_mappings": {
-      "sha1": "abfe02738e7fc3d2155dd258ec66c8e25f033c5e",
-      "size": 6716323,
-      "url": "https://launcher.mojang.com/v1/objects/abfe02738e7fc3d2155dd258ec66c8e25f033c5e/client.txt"
+      "sha1": "8b7892d88d0b9a3f7bab25f7cdff0bad7b4bc0c2",
+      "size": 6716693,
+      "url": "https://launcher.mojang.com/v1/objects/8b7892d88d0b9a3f7bab25f7cdff0bad7b4bc0c2/client.txt"
     },
     "server": {
-      "sha1": "1c898afff0449eed08ad8036aaa4c652952035de",
-      "size": 46592400,
-      "url": "https://launcher.mojang.com/v1/objects/1c898afff0449eed08ad8036aaa4c652952035de/server.jar"
+      "sha1": "2f52c69c90d63c024548ae5c5438ff3156ece6c2",
+      "size": 46592809,
+      "url": "https://launcher.mojang.com/v1/objects/2f52c69c90d63c024548ae5c5438ff3156ece6c2/server.jar"
     },
     "server_mappings": {
-      "sha1": "f023bea3f6cde2dbfa340649d19e163de93224e8",
-      "size": 5212594,
-      "url": "https://launcher.mojang.com/v1/objects/f023bea3f6cde2dbfa340649d19e163de93224e8/server.txt"
+      "sha1": "eeec4456359d8698565acb9d5b67a68cc8885252",
+      "size": 5212964,
+      "url": "https://launcher.mojang.com/v1/objects/eeec4456359d8698565acb9d5b67a68cc8885252/server.txt"
     }
   },
-  "id": "1.18.2-pre3",
+  "id": "1.18.2-rc1",
   "javaVersion": {
     "component": "java-runtime-beta",
     "majorVersion": 17
@@ -1345,7 +1345,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2022-02-23T15:23:12+00:00",
-  "time": "2022-02-23T15:23:12+00:00",
+  "releaseTime": "2022-02-25T13:25:40+00:00",
+  "time": "2022-02-25T13:25:40+00:00",
   "type": "snapshot"
 }
