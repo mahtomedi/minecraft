@@ -254,7 +254,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     @Override
-    protected int getExperienceReward(Player param0) {
+    public int getExperienceReward() {
         if (this.xpReward > 0) {
             int var0 = this.xpReward;
 

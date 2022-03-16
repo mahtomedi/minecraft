@@ -83,7 +83,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             var2 *= -1.0F;
         }
 
-        if (param0.getPose() == Pose.SLEEPING) {
+        if (param0.hasPose(Pose.SLEEPING)) {
             Direction var6 = param0.getBedOrientation();
             if (var6 != null) {
                 float var7 = param0.getEyeHeight(Pose.STANDING) - 0.1F;
@@ -177,26 +177,25 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.4F);
         }
 
-        Pose var0 = param0.getPose();
-        if (var0 != Pose.SLEEPING) {
+        if (!param0.hasPose(Pose.SLEEPING)) {
             param1.mulPose(Vector3f.YP.rotationDegrees(180.0F - param3));
         }
 
         if (param0.deathTime > 0) {
-            float var1 = ((float)param0.deathTime + param4 - 1.0F) / 20.0F * 1.6F;
-            var1 = Mth.sqrt(var1);
-            if (var1 > 1.0F) {
-                var1 = 1.0F;
+            float var0 = ((float)param0.deathTime + param4 - 1.0F) / 20.0F * 1.6F;
+            var0 = Mth.sqrt(var0);
+            if (var0 > 1.0F) {
+                var0 = 1.0F;
             }
 
-            param1.mulPose(Vector3f.ZP.rotationDegrees(var1 * this.getFlipDegrees(param0)));
+            param1.mulPose(Vector3f.ZP.rotationDegrees(var0 * this.getFlipDegrees(param0)));
         } else if (param0.isAutoSpinAttack()) {
             param1.mulPose(Vector3f.XP.rotationDegrees(-90.0F - param0.getXRot()));
             param1.mulPose(Vector3f.YP.rotationDegrees(((float)param0.tickCount + param4) * -75.0F));
-        } else if (var0 == Pose.SLEEPING) {
-            Direction var2 = param0.getBedOrientation();
-            float var3 = var2 != null ? sleepDirectionToRotation(var2) : param3;
-            param1.mulPose(Vector3f.YP.rotationDegrees(var3));
+        } else if (param0.hasPose(Pose.SLEEPING)) {
+            Direction var1 = param0.getBedOrientation();
+            float var2 = var1 != null ? sleepDirectionToRotation(var1) : param3;
+            param1.mulPose(Vector3f.YP.rotationDegrees(var2));
             param1.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(param0)));
             param1.mulPose(Vector3f.YP.rotationDegrees(270.0F));
         } else if (isEntityUpsideDown(param0)) {

@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Collection;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -19,14 +20,14 @@ import net.minecraft.world.item.ItemStack;
 public class GiveCommand {
     public static final int MAX_ALLOWED_ITEMSTACKS = 100;
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
             Commands.literal("give")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
                     Commands.argument("targets", EntityArgument.players())
                         .then(
-                            Commands.argument("item", ItemArgument.item())
+                            Commands.argument("item", ItemArgument.item(param1))
                                 .executes(
                                     param0x -> giveItem(
                                             param0x.getSource(), ItemArgument.getItem(param0x, "item"), EntityArgument.getPlayers(param0x, "targets"), 1

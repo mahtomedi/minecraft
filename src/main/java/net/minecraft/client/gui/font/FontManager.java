@@ -12,13 +12,13 @@ import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.providers.GlyphProviderBuilderType;
@@ -27,6 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceThunk;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -49,71 +50,62 @@ public class FontManager implements AutoCloseable {
             Gson var0 = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
             Map<ResourceLocation, List<GlyphProvider>> var1 = Maps.newHashMap();
 
-            for(ResourceLocation var2 : param0.listResources("font", param0x -> param0x.endsWith(".json"))) {
-                String var3 = var2.getPath();
-                ResourceLocation var4 = new ResourceLocation(var2.getNamespace(), var3.substring("font/".length(), var3.length() - ".json".length()));
-                List<GlyphProvider> var5 = var1.computeIfAbsent(var4, param0x -> Lists.newArrayList(new AllMissingGlyphProvider()));
-                param1.push(var4::toString);
+            for(Entry<ResourceLocation, List<ResourceThunk>> var2 : param0.listResourceStacks("font", param0x -> param0x.getPath().endsWith(".json"))
+                .entrySet()) {
+                ResourceLocation var3 = var2.getKey();
+                String var4 = var3.getPath();
+                ResourceLocation var5 = new ResourceLocation(var3.getNamespace(), var4.substring("font/".length(), var4.length() - ".json".length()));
+                List<GlyphProvider> var6 = var1.computeIfAbsent(var5, param0x -> Lists.newArrayList(new AllMissingGlyphProvider()));
+                param1.push(var5::toString);
 
-                try {
-                    for(Resource var6 : param0.getResources(var2)) {
-                        param1.push(var6::getSourceName);
+                for(ResourceThunk var7 : var2.getValue()) {
+                    param1.push(var7.sourcePackId());
 
-                        try (
-                            InputStream var7 = var6.getInputStream();
-                            Reader var8 = new BufferedReader(new InputStreamReader(var7, StandardCharsets.UTF_8));
-                        ) {
+                    try (
+                        Resource var8 = var7.open();
+                        InputStream var9 = var8.getInputStream();
+                        Reader var10 = new BufferedReader(new InputStreamReader(var9, StandardCharsets.UTF_8));
+                    ) {
+                        try {
                             param1.push("reading");
-                            JsonArray var9 = GsonHelper.getAsJsonArray(GsonHelper.fromJson(var0, var8, JsonObject.class), "providers");
+                            JsonArray var11 = GsonHelper.getAsJsonArray(GsonHelper.fromJson(var0, var10, JsonObject.class), "providers");
                             param1.popPush("parsing");
 
-                            for(int var10 = var9.size() - 1; var10 >= 0; --var10) {
-                                JsonObject var11 = GsonHelper.convertToJsonObject(var9.get(var10), "providers[" + var10 + "]");
+                            for(int var12 = var11.size() - 1; var12 >= 0; --var12) {
+                                JsonObject var13 = GsonHelper.convertToJsonObject(var11.get(var12), "providers[" + var12 + "]");
+                                String var14 = GsonHelper.getAsString(var13, "type");
+                                GlyphProviderBuilderType var15 = GlyphProviderBuilderType.byName(var14);
 
                                 try {
-                                    String var12 = GsonHelper.getAsString(var11, "type");
-                                    GlyphProviderBuilderType var13 = GlyphProviderBuilderType.byName(var12);
-                                    param1.push(var12);
-                                    GlyphProvider var14 = var13.create(var11).create(param0);
-                                    if (var14 != null) {
-                                        var5.add(var14);
+                                    param1.push(var14);
+                                    GlyphProvider var16 = var15.create(var13).create(param0);
+                                    if (var16 != null) {
+                                        var6.add(var16);
                                     }
-
+                                } finally {
                                     param1.pop();
-                                } catch (RuntimeException var22) {
-                                    FontManager.LOGGER
-                                        .warn(
-                                            "Unable to read definition '{}' in {} in resourcepack: '{}': {}",
-                                            var4,
-                                            "fonts.json",
-                                            var6.getSourceName(),
-                                            var22.getMessage()
-                                        );
                                 }
                             }
-
+                        } finally {
                             param1.pop();
-                        } catch (RuntimeException var25) {
-                            FontManager.LOGGER
-                                .warn("Unable to load font '{}' in {} in resourcepack: '{}': {}", var4, "fonts.json", var6.getSourceName(), var25.getMessage());
                         }
-
-                        param1.pop();
+                    } catch (Exception var50) {
+                        FontManager.LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", var5, "fonts.json", var7.sourcePackId(), var50);
                     }
-                } catch (IOException var26) {
-                    FontManager.LOGGER.warn("Unable to load font '{}' in {}: {}", var4, "fonts.json", var26.getMessage());
+
+                    param1.pop();
                 }
 
                 param1.push("caching");
                 IntSet var18 = new IntOpenHashSet();
 
-                for(GlyphProvider var19 : var5) {
+                for(GlyphProvider var19 : var6) {
                     var18.addAll(var19.getSupportedGlyphs());
                 }
 
                 var18.forEach(param1x -> {
                     if (param1x != 32) {
-                        for(GlyphProvider var0x : Lists.reverse(var5)) {
+                        for(GlyphProvider var0x : Lists.reverse(var6)) {
                             if (var0x.getGlyph(param1x) != null) {
                                 break;
                             }

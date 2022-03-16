@@ -370,11 +370,15 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
         this.font = param0.font;
         this.width = param1;
         this.height = param2;
+        this.rebuildWidgets();
+        this.triggerImmediateNarration(false);
+        this.suppressNarration(NARRATE_SUPPRESS_AFTER_INIT_TIME);
+    }
+
+    protected void rebuildWidgets() {
         this.clearWidgets();
         this.setFocused(null);
         this.init();
-        this.triggerImmediateNarration(false);
-        this.suppressNarration(NARRATE_SUPPRESS_AFTER_INIT_TIME);
     }
 
     @Override

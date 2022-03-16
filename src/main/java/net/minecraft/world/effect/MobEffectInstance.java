@@ -208,7 +208,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     }
 
     public CompoundTag save(CompoundTag param0) {
-        param0.putByte("Id", (byte)MobEffect.getId(this.getEffect()));
+        param0.putInt("Id", MobEffect.getId(this.getEffect()));
         this.writeDetailsTo(param0);
         return param0;
     }
@@ -229,7 +229,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
 
     @Nullable
     public static MobEffectInstance load(CompoundTag param0) {
-        int var0 = param0.getByte("Id");
+        int var0 = param0.getInt("Id");
         MobEffect var1 = MobEffect.byId(var0);
         return var1 == null ? null : loadSpecifiedEffect(var1, param0);
     }

@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ConfiguredStructureTags;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
@@ -41,7 +41,7 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
@@ -338,14 +338,14 @@ public class VillagerTrades {
                         new VillagerTrades.ItemListing[]{
                             new VillagerTrades.EmeraldForItems(Items.GLASS_PANE, 11, 16, 10),
                             new VillagerTrades.TreasureMapForEmeralds(
-                                13, ConfiguredStructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5
+                                13, StructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5
                             )
                         },
                         3,
                         new VillagerTrades.ItemListing[]{
                             new VillagerTrades.EmeraldForItems(Items.COMPASS, 1, 12, 20),
                             new VillagerTrades.TreasureMapForEmeralds(
-                                14, ConfiguredStructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10
+                                14, StructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10
                             )
                         },
                         4,
@@ -1016,15 +1016,13 @@ public class VillagerTrades {
 
     static class TreasureMapForEmeralds implements VillagerTrades.ItemListing {
         private final int emeraldCost;
-        private final TagKey<ConfiguredStructureFeature<?, ?>> destination;
+        private final TagKey<Structure> destination;
         private final String displayName;
         private final MapDecoration.Type destinationType;
         private final int maxUses;
         private final int villagerXp;
 
-        public TreasureMapForEmeralds(
-            int param0, TagKey<ConfiguredStructureFeature<?, ?>> param1, String param2, MapDecoration.Type param3, int param4, int param5
-        ) {
+        public TreasureMapForEmeralds(int param0, TagKey<Structure> param1, String param2, MapDecoration.Type param3, int param4, int param5) {
             this.emeraldCost = param0;
             this.destination = param1;
             this.displayName = param2;
@@ -1040,7 +1038,7 @@ public class VillagerTrades {
                 return null;
             } else {
                 ServerLevel var0 = (ServerLevel)param0.level;
-                BlockPos var1 = var0.findNearestMapFeature(this.destination, param0.blockPosition(), 100, true);
+                BlockPos var1 = var0.findNearestMapStructure(this.destination, param0.blockPosition(), 100, true);
                 if (var1 != null) {
                     ItemStack var2 = MapItem.create(var0, var1.getX(), var1.getZ(), (byte)2, true, true);
                     MapItem.renderBiomePreviewMap(var0, var2);

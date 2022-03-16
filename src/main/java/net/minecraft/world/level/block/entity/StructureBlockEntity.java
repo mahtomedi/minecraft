@@ -26,9 +26,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class StructureBlockEntity extends BlockEntity {
     private static final int SCAN_CORNER_BLOCKS_RANGE = 5;
@@ -320,7 +320,7 @@ public class StructureBlockEntity extends BlockEntity {
         if (this.mode == StructureMode.SAVE && !this.level.isClientSide && this.structureName != null) {
             BlockPos var0 = this.getBlockPos().offset(this.structurePos);
             ServerLevel var1 = (ServerLevel)this.level;
-            StructureManager var2 = var1.getStructureManager();
+            StructureTemplateManager var2 = var1.getStructureManager();
 
             StructureTemplate var3;
             try {
@@ -355,7 +355,7 @@ public class StructureBlockEntity extends BlockEntity {
 
     public boolean loadStructure(ServerLevel param0, boolean param1) {
         if (this.mode == StructureMode.LOAD && this.structureName != null) {
-            StructureManager var0 = param0.getStructureManager();
+            StructureTemplateManager var0 = param0.getStructureManager();
 
             Optional<StructureTemplate> var1;
             try {
@@ -402,7 +402,7 @@ public class StructureBlockEntity extends BlockEntity {
     public void unloadStructure() {
         if (this.structureName != null) {
             ServerLevel var0 = (ServerLevel)this.level;
-            StructureManager var1 = var0.getStructureManager();
+            StructureTemplateManager var1 = var0.getStructureManager();
             var1.remove(this.structureName);
         }
     }
@@ -410,7 +410,7 @@ public class StructureBlockEntity extends BlockEntity {
     public boolean isStructureLoadable() {
         if (this.mode == StructureMode.LOAD && !this.level.isClientSide && this.structureName != null) {
             ServerLevel var0 = (ServerLevel)this.level;
-            StructureManager var1 = var0.getStructureManager();
+            StructureTemplateManager var1 = var0.getStructureManager();
 
             try {
                 return var1.get(this.structureName).isPresent();

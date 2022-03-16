@@ -115,7 +115,7 @@ public class DetectorRailBlock extends BaseRailBlock {
 
         for(BlockPos var2 : var0.getConnections()) {
             BlockState var3 = param0.getBlockState(var2);
-            var3.neighborChanged(param0, var2, var3.getBlock(), param1, false);
+            param0.neighborChanged(var3, var2, var3.getBlock(), param1, false);
         }
 
     }

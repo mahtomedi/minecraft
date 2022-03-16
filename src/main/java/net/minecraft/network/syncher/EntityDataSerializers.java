@@ -153,12 +153,12 @@ public class EntityDataSerializers {
     };
     public static final EntityDataSerializer<ParticleOptions> PARTICLE = new EntityDataSerializer<ParticleOptions>() {
         public void write(FriendlyByteBuf param0, ParticleOptions param1) {
-            param0.writeVarInt(Registry.PARTICLE_TYPE.getId(param1.getType()));
+            param0.writeId(Registry.PARTICLE_TYPE, param1.getType());
             param1.writeToNetwork(param0);
         }
 
         public ParticleOptions read(FriendlyByteBuf param0) {
-            return this.readParticle(param0, (ParticleType<ParticleOptions>)Registry.PARTICLE_TYPE.byId(param0.readVarInt()));
+            return this.readParticle(param0, param0.readById(Registry.PARTICLE_TYPE));
         }
 
         private <T extends ParticleOptions> T readParticle(FriendlyByteBuf param0, ParticleType<T> param1) {
@@ -259,15 +259,13 @@ public class EntityDataSerializers {
     };
     public static final EntityDataSerializer<VillagerData> VILLAGER_DATA = new EntityDataSerializer<VillagerData>() {
         public void write(FriendlyByteBuf param0, VillagerData param1) {
-            param0.writeVarInt(Registry.VILLAGER_TYPE.getId(param1.getType()));
-            param0.writeVarInt(Registry.VILLAGER_PROFESSION.getId(param1.getProfession()));
+            param0.writeId(Registry.VILLAGER_TYPE, param1.getType());
+            param0.writeId(Registry.VILLAGER_PROFESSION, param1.getProfession());
             param0.writeVarInt(param1.getLevel());
         }
 
         public VillagerData read(FriendlyByteBuf param0) {
-            return new VillagerData(
-                Registry.VILLAGER_TYPE.byId(param0.readVarInt()), Registry.VILLAGER_PROFESSION.byId(param0.readVarInt()), param0.readVarInt()
-            );
+            return new VillagerData(param0.readById(Registry.VILLAGER_TYPE), param0.readById(Registry.VILLAGER_PROFESSION), param0.readVarInt());
         }
 
         public VillagerData copy(VillagerData param0) {

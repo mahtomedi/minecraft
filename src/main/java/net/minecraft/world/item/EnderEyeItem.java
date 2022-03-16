@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.ConfiguredStructureTags;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -71,7 +71,7 @@ public class EnderEyeItem extends Item {
         } else {
             param1.startUsingItem(param2);
             if (param0 instanceof ServerLevel var2) {
-                BlockPos var3 = var2.findNearestMapFeature(ConfiguredStructureTags.EYE_OF_ENDER_LOCATED, param1.blockPosition(), 100, false);
+                BlockPos var3 = var2.findNearestMapStructure(StructureTags.EYE_OF_ENDER_LOCATED, param1.blockPosition(), 100, false);
                 if (var3 != null) {
                     EyeOfEnder var4 = new EyeOfEnder(param0, param1.getX(), param1.getY(0.5), param1.getZ());
                     var4.setItem(var0);

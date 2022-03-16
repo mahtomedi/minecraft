@@ -25,7 +25,7 @@ import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class ChunkStatus {
     public static final int MAX_STRUCTURE_DISTANCE = 8;
@@ -52,8 +52,10 @@ public class ChunkStatus {
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4, param5, param6, param7, param8, param9) -> {
             if (!param8.getStatus().isOrAfter(param0)) {
-                if (param2.getServer().getWorldData().worldGenSettings().generateFeatures()) {
-                    param3.createStructures(param2.registryAccess(), param2.structureFeatureManager(), param8, param4, param2.getSeed());
+                if (param2.getServer().getWorldData().worldGenSettings().generateStructures()) {
+                    param3.createStructures(
+                        param2.registryAccess(), param2.getChunkSource().randomState(), param2.structureManager(), param8, param4, param2.getSeed()
+                    );
                 }
     
                 if (param8 instanceof ProtoChunk var0) {
@@ -80,7 +82,7 @@ public class ChunkStatus {
     public static final ChunkStatus STRUCTURE_REFERENCES = registerSimple(
         "structure_references", STRUCTURE_STARTS, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
             WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, -1);
-            param2.createReferences(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
+            param2.createReferences(var0, param1.structureManager().forWorldGenRegion(var0), param4);
         }
     );
     public static final ChunkStatus BIOMES = register(
@@ -97,8 +99,9 @@ public class ChunkStatus {
                 return param3.createBiomes(
                         param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
                         param1,
+                        param2.getChunkSource().randomState(),
                         Blender.of(var0),
-                        param2.structureFeatureManager().forWorldGenRegion(var0),
+                        param2.structureManager().forWorldGenRegion(var0),
                         param8
                     )
                     .thenApply(param1x -> {
@@ -122,28 +125,31 @@ public class ChunkStatus {
                 return CompletableFuture.completedFuture(Either.left(param8));
             } else {
                 WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, 0);
-                return param3.fillFromNoise(param1, Blender.of(var0), param2.structureFeatureManager().forWorldGenRegion(var0), param8).thenApply(param1x -> {
-                    if (param1x instanceof ProtoChunk var0x) {
-                        BelowZeroRetrogen var1x = var0x.getBelowZeroRetrogen();
-                        if (var1x != null) {
-                            BelowZeroRetrogen.replaceOldBedrock(var0x);
-                            if (var1x.hasBedrockHoles()) {
-                                var1x.applyBedrockMask(var0x);
+                return param3.fillFromNoise(
+                        param1, Blender.of(var0), param2.getChunkSource().randomState(), param2.structureManager().forWorldGenRegion(var0), param8
+                    )
+                    .thenApply(param1x -> {
+                        if (param1x instanceof ProtoChunk var0x) {
+                            BelowZeroRetrogen var1x = var0x.getBelowZeroRetrogen();
+                            if (var1x != null) {
+                                BelowZeroRetrogen.replaceOldBedrock(var0x);
+                                if (var1x.hasBedrockHoles()) {
+                                    var1x.applyBedrockMask(var0x);
+                                }
                             }
+        
+                            var0x.setStatus(param0);
                         }
-    
-                        var0x.setStatus(param0);
-                    }
-    
-                    return Either.left(param1x);
-                });
+        
+                        return Either.left(param1x);
+                    });
             }
         }
     );
     public static final ChunkStatus SURFACE = registerSimple(
         "surface", NOISE, 8, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
             WorldGenRegion var0 = new WorldGenRegion(param1, param3, param0, 0);
-            param2.buildSurface(var0, param1.structureFeatureManager().forWorldGenRegion(var0), param4);
+            param2.buildSurface(var0, param1.structureManager().forWorldGenRegion(var0), param1.getChunkSource().randomState(), param4);
         }
     );
     public static final ChunkStatus CARVERS = registerSimple(
@@ -159,7 +165,13 @@ public class ChunkStatus {
             }
     
             param2.applyCarvers(
-                var0, param1.getSeed(), param1.getBiomeManager(), param1.structureFeatureManager().forWorldGenRegion(var0), param4, GenerationStep.Carving.AIR
+                var0,
+                param1.getSeed(),
+                param1.getChunkSource().randomState(),
+                param1.getBiomeManager(),
+                param1.structureManager().forWorldGenRegion(var0),
+                param4,
+                GenerationStep.Carving.AIR
             );
         }
     );
@@ -184,13 +196,14 @@ public class ChunkStatus {
                     )
                 );
                 WorldGenRegion var1 = new WorldGenRegion(param2, param7, param0, 1);
-                param3.applyBiomeDecoration(var1, param8, param2.structureFeatureManager().forWorldGenRegion(var1));
+                param3.applyBiomeDecoration(var1, param8, param2.structureManager().forWorldGenRegion(var1));
                 Blender.generateBorderTicks(var1, param8);
                 var0.setStatus(param0);
             }
     
-            return CompletableFuture.completedFuture(Either.left(param8));
-        }
+            return param5.retainData(param8).thenApply(Either::left);
+        },
+        (param0, param1, param2, param3, param4, param5) -> param3.retainData(param5).thenApply(Either::left)
     );
     public static final ChunkStatus LIGHT = register(
         "light",
@@ -370,7 +383,7 @@ public class ChunkStatus {
         Executor param0,
         ServerLevel param1,
         ChunkGenerator param2,
-        StructureManager param3,
+        StructureTemplateManager param3,
         ThreadedLevelLightEngine param4,
         Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param5,
         List<ChunkAccess> param6,
@@ -392,7 +405,7 @@ public class ChunkStatus {
 
     public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> load(
         ServerLevel param0,
-        StructureManager param1,
+        StructureTemplateManager param1,
         ThreadedLevelLightEngine param2,
         Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param3,
         ChunkAccess param4
@@ -436,7 +449,7 @@ public class ChunkStatus {
             Executor var2,
             ServerLevel var3,
             ChunkGenerator var4,
-            StructureManager var5,
+            StructureTemplateManager var5,
             ThreadedLevelLightEngine var6,
             Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var7,
             List<ChunkAccess> var8,
@@ -449,7 +462,7 @@ public class ChunkStatus {
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> doWork(
             ChunkStatus var1,
             ServerLevel var2,
-            StructureManager var3,
+            StructureTemplateManager var3,
             ThreadedLevelLightEngine var4,
             Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var5,
             ChunkAccess var6
@@ -463,7 +476,7 @@ public class ChunkStatus {
             Executor param1,
             ServerLevel param2,
             ChunkGenerator param3,
-            StructureManager param4,
+            StructureTemplateManager param4,
             ThreadedLevelLightEngine param5,
             Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param6,
             List<ChunkAccess> param7,

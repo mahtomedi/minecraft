@@ -30,6 +30,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceThunk;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
@@ -64,29 +65,30 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
             param1.push(var1);
 
             try {
-                for(Resource var3 : param0.getResources(new ResourceLocation(var1, "sounds.json"))) {
-                    param1.push(var3.getSourceName());
+                for(ResourceThunk var3 : param0.getResourceStack(new ResourceLocation(var1, "sounds.json"))) {
+                    param1.push(var3.sourcePackId());
 
                     try (
-                        InputStream var4 = var3.getInputStream();
-                        Reader var5 = new InputStreamReader(var4, StandardCharsets.UTF_8);
+                        Resource var4 = var3.open();
+                        InputStream var5 = var4.getInputStream();
+                        Reader var6 = new InputStreamReader(var5, StandardCharsets.UTF_8);
                     ) {
                         param1.push("parse");
-                        Map<String, SoundEventRegistration> var6 = GsonHelper.fromJson(GSON, var5, SOUND_EVENT_REGISTRATION_TYPE);
+                        Map<String, SoundEventRegistration> var7 = GsonHelper.fromJson(GSON, var6, SOUND_EVENT_REGISTRATION_TYPE);
                         param1.popPush("register");
 
-                        for(Entry<String, SoundEventRegistration> var7 : var6.entrySet()) {
-                            var0.handleRegistration(new ResourceLocation(var1, var7.getKey()), var7.getValue(), param0);
+                        for(Entry<String, SoundEventRegistration> var8 : var7.entrySet()) {
+                            var0.handleRegistration(new ResourceLocation(var1, var8.getKey()), var8.getValue(), param0);
                         }
 
                         param1.pop();
-                    } catch (RuntimeException var18) {
-                        LOGGER.warn("Invalid {} in resourcepack: '{}'", "sounds.json", var3.getSourceName(), var18);
+                    } catch (RuntimeException var21) {
+                        LOGGER.warn("Invalid {} in resourcepack: '{}'", "sounds.json", var3.sourcePackId(), var21);
                     }
 
                     param1.pop();
                 }
-            } catch (IOException var19) {
+            } catch (IOException var22) {
             }
 
             param1.pop();

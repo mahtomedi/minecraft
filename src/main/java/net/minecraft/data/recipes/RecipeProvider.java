@@ -164,6 +164,7 @@ public class RecipeProvider implements DataProvider {
         planksFromLogs(param0, Blocks.OAK_PLANKS, ItemTags.OAK_LOGS);
         planksFromLogs(param0, Blocks.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS);
         planksFromLogs(param0, Blocks.WARPED_PLANKS, ItemTags.WARPED_STEMS);
+        planksFromLogs(param0, Blocks.MANGROVE_PLANKS, ItemTags.MANGROVE_LOGS);
         woodFromLogs(param0, Blocks.ACACIA_WOOD, Blocks.ACACIA_LOG);
         woodFromLogs(param0, Blocks.BIRCH_WOOD, Blocks.BIRCH_LOG);
         woodFromLogs(param0, Blocks.DARK_OAK_WOOD, Blocks.DARK_OAK_LOG);
@@ -172,6 +173,7 @@ public class RecipeProvider implements DataProvider {
         woodFromLogs(param0, Blocks.SPRUCE_WOOD, Blocks.SPRUCE_LOG);
         woodFromLogs(param0, Blocks.CRIMSON_HYPHAE, Blocks.CRIMSON_STEM);
         woodFromLogs(param0, Blocks.WARPED_HYPHAE, Blocks.WARPED_STEM);
+        woodFromLogs(param0, Blocks.MANGROVE_WOOD, Blocks.MANGROVE_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_ACACIA_WOOD, Blocks.STRIPPED_ACACIA_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_BIRCH_WOOD, Blocks.STRIPPED_BIRCH_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.STRIPPED_DARK_OAK_LOG);
@@ -180,12 +182,14 @@ public class RecipeProvider implements DataProvider {
         woodFromLogs(param0, Blocks.STRIPPED_SPRUCE_WOOD, Blocks.STRIPPED_SPRUCE_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_CRIMSON_HYPHAE, Blocks.STRIPPED_CRIMSON_STEM);
         woodFromLogs(param0, Blocks.STRIPPED_WARPED_HYPHAE, Blocks.STRIPPED_WARPED_STEM);
+        woodFromLogs(param0, Blocks.STRIPPED_MANGROVE_WOOD, Blocks.STRIPPED_MANGROVE_LOG);
         woodenBoat(param0, Items.ACACIA_BOAT, Blocks.ACACIA_PLANKS);
         woodenBoat(param0, Items.BIRCH_BOAT, Blocks.BIRCH_PLANKS);
         woodenBoat(param0, Items.DARK_OAK_BOAT, Blocks.DARK_OAK_PLANKS);
         woodenBoat(param0, Items.JUNGLE_BOAT, Blocks.JUNGLE_PLANKS);
         woodenBoat(param0, Items.OAK_BOAT, Blocks.OAK_PLANKS);
         woodenBoat(param0, Items.SPRUCE_BOAT, Blocks.SPRUCE_PLANKS);
+        woodenBoat(param0, Items.MANGROVE_BOAT, Blocks.MANGROVE_PLANKS);
         coloredWoolFromWhiteWoolAndDye(param0, Blocks.BLACK_WOOL, Items.BLACK_DYE);
         carpet(param0, Blocks.BLACK_CARPET, Blocks.BLACK_WOOL);
         coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.BLACK_CARPET, Items.BLACK_DYE);
@@ -384,6 +388,18 @@ public class RecipeProvider implements DataProvider {
         candle(param0, Blocks.RED_CANDLE, Items.RED_DYE);
         candle(param0, Blocks.WHITE_CANDLE, Items.WHITE_DYE);
         candle(param0, Blocks.YELLOW_CANDLE, Items.YELLOW_DYE);
+        ShapelessRecipeBuilder.shapeless(Blocks.PACKED_MUD, 1).requires(Blocks.MUD).requires(Items.WHEAT).unlockedBy("has_mud", has(Blocks.MUD)).save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.MUD_BRICKS, 4)
+            .define('#', Blocks.PACKED_MUD)
+            .pattern("##")
+            .pattern("##")
+            .unlockedBy("has_packed_mud", has(Blocks.PACKED_MUD))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Blocks.MUDDY_MANGROVE_ROOTS, 1)
+            .requires(Blocks.MUD)
+            .requires(Items.MANGROVE_ROOTS)
+            .unlockedBy("has_mangrove_roots", has(Blocks.MANGROVE_ROOTS))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.ACTIVATOR_RAIL, 6)
             .define('#', Blocks.REDSTONE_TORCH)
             .define('S', Items.STICK)
@@ -2395,6 +2411,9 @@ public class RecipeProvider implements DataProvider {
         stonecutterResultFromBase(param0, Blocks.BRICK_SLAB, Blocks.BRICKS, 2);
         stonecutterResultFromBase(param0, Blocks.BRICK_STAIRS, Blocks.BRICKS);
         stonecutterResultFromBase(param0, Blocks.BRICK_WALL, Blocks.BRICKS);
+        stonecutterResultFromBase(param0, Blocks.MUD_BRICK_SLAB, Blocks.MUD_BRICKS, 2);
+        stonecutterResultFromBase(param0, Blocks.MUD_BRICK_STAIRS, Blocks.MUD_BRICKS);
+        stonecutterResultFromBase(param0, Blocks.MUD_BRICK_WALL, Blocks.MUD_BRICKS);
         stonecutterResultFromBase(param0, Blocks.NETHER_BRICK_SLAB, Blocks.NETHER_BRICKS, 2);
         stonecutterResultFromBase(param0, Blocks.NETHER_BRICK_STAIRS, Blocks.NETHER_BRICKS);
         stonecutterResultFromBase(param0, Blocks.NETHER_BRICK_WALL, Blocks.NETHER_BRICKS);

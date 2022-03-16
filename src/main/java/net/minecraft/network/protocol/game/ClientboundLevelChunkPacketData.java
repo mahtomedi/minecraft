@@ -133,15 +133,14 @@ public class ClientboundLevelChunkPacketData {
         private BlockEntityInfo(FriendlyByteBuf param0) {
             this.packedXZ = param0.readByte();
             this.y = param0.readShort();
-            int var0 = param0.readVarInt();
-            this.type = Registry.BLOCK_ENTITY_TYPE.byId(var0);
+            this.type = param0.readById(Registry.BLOCK_ENTITY_TYPE);
             this.tag = param0.readNbt();
         }
 
         void write(FriendlyByteBuf param0) {
             param0.writeByte(this.packedXZ);
             param0.writeShort(this.y);
-            param0.writeVarInt(Registry.BLOCK_ENTITY_TYPE.getId(this.type));
+            param0.writeId(Registry.BLOCK_ENTITY_TYPE, this.type);
             param0.writeNbt(this.tag);
         }
 

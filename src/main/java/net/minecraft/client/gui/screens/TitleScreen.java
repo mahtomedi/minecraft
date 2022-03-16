@@ -44,7 +44,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
@@ -279,10 +279,10 @@ public class TitleScreen extends Screen {
         boolean var0 = this.checkDemoWorldPresence();
         this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
             if (var0) {
-                this.minecraft.loadLevel("Demo_World");
+                this.minecraft.createWorldOpenFlows().loadLevel("Demo_World");
             } else {
                 RegistryAccess var0x = RegistryAccess.BUILTIN.get();
-                this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldGenSettings.demoSettings(var0x));
+                this.minecraft.createWorldOpenFlows().createFreshLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldPresets.demoSettings(var0x));
             }
 
         }));

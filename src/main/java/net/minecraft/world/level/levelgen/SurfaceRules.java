@@ -256,6 +256,7 @@ public class SurfaceRules {
         final SurfaceRules.Condition steep = new SurfaceRules.Context.SteepMaterialCondition(this);
         final SurfaceRules.Condition hole = new SurfaceRules.Context.HoleCondition(this);
         final SurfaceRules.Condition abovePreliminarySurface = new SurfaceRules.Context.AbovePreliminarySurfaceCondition();
+        final RandomState randomState;
         final ChunkAccess chunk;
         private final NoiseChunk noiseChunk;
         private final Function<BlockPos, Holder<Biome>> biomeGetter;
@@ -280,17 +281,19 @@ public class SurfaceRules {
 
         protected Context(
             SurfaceSystem param0,
-            ChunkAccess param1,
-            NoiseChunk param2,
-            Function<BlockPos, Holder<Biome>> param3,
-            Registry<Biome> param4,
-            WorldGenerationContext param5
+            RandomState param1,
+            ChunkAccess param2,
+            NoiseChunk param3,
+            Function<BlockPos, Holder<Biome>> param4,
+            Registry<Biome> param5,
+            WorldGenerationContext param6
         ) {
             this.system = param0;
-            this.chunk = param1;
-            this.noiseChunk = param2;
-            this.biomeGetter = param3;
-            this.context = param5;
+            this.randomState = param1;
+            this.chunk = param2;
+            this.noiseChunk = param3;
+            this.biomeGetter = param4;
+            this.context = param6;
         }
 
         protected void updateXZ(int param0, int param1) {
@@ -500,7 +503,7 @@ public class SurfaceRules {
         }
 
         public SurfaceRules.Condition apply(final SurfaceRules.Context param0) {
-            final NormalNoise var0 = param0.system.getOrCreateNoise(this.noise);
+            final NormalNoise var0 = param0.randomState.getOrCreateNoise(this.noise);
 
             class NoiseThresholdCondition extends SurfaceRules.LazyXZCondition {
                 NoiseThresholdCondition() {
@@ -724,7 +727,7 @@ public class SurfaceRules {
         public SurfaceRules.Condition apply(final SurfaceRules.Context param0) {
             final int var0 = this.trueAtAndBelow().resolveY(param0.context);
             final int var1 = this.falseAtAndAbove().resolveY(param0.context);
-            final PositionalRandomFactory var2 = param0.system.getOrCreateRandomFactory(this.randomName());
+            final PositionalRandomFactory var2 = param0.randomState.getOrCreateRandomFactory(this.randomName());
 
             class VerticalGradientCondition extends SurfaceRules.LazyYCondition {
                 VerticalGradientCondition() {

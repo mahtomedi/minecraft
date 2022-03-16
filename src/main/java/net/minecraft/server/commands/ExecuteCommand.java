@@ -23,6 +23,7 @@ import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
 import java.util.function.IntFunction;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -88,14 +89,14 @@ public class ExecuteCommand {
         return SharedSuggestionProvider.suggestResource(var0.getKeys(), param1);
     };
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         LiteralCommandNode<CommandSourceStack> var0 = param0.register(Commands.literal("execute").requires(param0x -> param0x.hasPermission(2)));
         param0.register(
             Commands.literal("execute")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(Commands.literal("run").redirect(param0.getRoot()))
-                .then(addConditionals(var0, Commands.literal("if"), true))
-                .then(addConditionals(var0, Commands.literal("unless"), false))
+                .then(addConditionals(var0, Commands.literal("if"), true, param1))
+                .then(addConditionals(var0, Commands.literal("unless"), false, param1))
                 .then(Commands.literal("as").then(Commands.argument("targets", EntityArgument.entities()).fork(var0, param0x -> {
                     List<CommandSourceStack> var0x = Lists.newArrayList();
         
@@ -171,8 +172,8 @@ public class ExecuteCommand {
                                             List<CommandSourceStack> var0x = Lists.newArrayList();
                                             EntityAnchorArgument.Anchor var1x = EntityAnchorArgument.getAnchor(param0x, "anchor");
                                 
-                                            for(Entity var2 : EntityArgument.getOptionalEntities(param0x, "targets")) {
-                                                var0x.add(param0x.getSource().facing(var2, var1x));
+                                            for(Entity var2x : EntityArgument.getOptionalEntities(param0x, "targets")) {
+                                                var0x.add(param0x.getSource().facing(var2x, var1x));
                                             }
                                 
                                             return var0x;
@@ -402,7 +403,7 @@ public class ExecuteCommand {
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> addConditionals(
-        CommandNode<CommandSourceStack> param0, LiteralArgumentBuilder<CommandSourceStack> param1, boolean param2
+        CommandNode<CommandSourceStack> param0, LiteralArgumentBuilder<CommandSourceStack> param1, boolean param2, CommandBuildContext param3
     ) {
         param1.then(
                 Commands.literal("block")
@@ -411,7 +412,7 @@ public class ExecuteCommand {
                             .then(
                                 addConditional(
                                     param0,
-                                    Commands.argument("block", BlockPredicateArgument.blockPredicate()),
+                                    Commands.argument("block", BlockPredicateArgument.blockPredicate(param3)),
                                     param2,
                                     param0x -> BlockPredicateArgument.getBlockPredicate(param0x, "block")
                                             .test(new BlockInWorld(param0x.getSource().getLevel(), BlockPosArgument.getLoadedBlockPos(param0x, "pos"), true))
@@ -553,7 +554,7 @@ public class ExecuteCommand {
             param1.then(
                 var0.wrap(
                     Commands.literal("data"),
-                    param3 -> param3.then(
+                    param3x -> param3x.then(
                             Commands.argument("path", NbtPathArgument.nbtPath())
                                 .fork(
                                     param0,

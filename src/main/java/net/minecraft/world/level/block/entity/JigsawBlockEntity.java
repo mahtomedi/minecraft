@@ -14,7 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,8 +24,8 @@ import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class JigsawBlockEntity extends BlockEntity {
     public static final String TARGET = "target";
@@ -119,8 +119,8 @@ public class JigsawBlockEntity extends BlockEntity {
 
     public void generate(ServerLevel param0, int param1, boolean param2) {
         ChunkGenerator var0 = param0.getChunkSource().getGenerator();
-        StructureManager var1 = param0.getStructureManager();
-        StructureFeatureManager var2 = param0.structureFeatureManager();
+        StructureTemplateManager var1 = param0.getStructureManager();
+        StructureManager var2 = param0.structureManager();
         Random var3 = param0.getRandom();
         BlockPos var4 = this.getBlockPos();
         List<PoolElementStructurePiece> var5 = Lists.newArrayList();
@@ -128,7 +128,9 @@ public class JigsawBlockEntity extends BlockEntity {
         var6.fillFromWorld(param0, var4, new Vec3i(1, 1, 1), false, null);
         StructurePoolElement var7 = new SinglePoolElement(var6);
         PoolElementStructurePiece var8 = new PoolElementStructurePiece(var1, var7, var4, 1, Rotation.NONE, new BoundingBox(var4));
-        JigsawPlacement.addPieces(param0.registryAccess(), var8, param1, PoolElementStructurePiece::new, var0, var1, var5, var3, param0);
+        JigsawPlacement.addPieces(
+            param0.registryAccess(), var8, param1, PoolElementStructurePiece::new, var0, var1, var5, var3, param0, param0.getChunkSource().randomState()
+        );
 
         for(PoolElementStructurePiece var9 : var5) {
             var9.place(param0, var2, var0, var3, BoundingBox.infinite(), var4, param2);

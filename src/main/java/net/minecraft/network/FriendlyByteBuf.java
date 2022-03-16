@@ -38,6 +38,8 @@ import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.IdMap;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -99,6 +101,21 @@ public class FriendlyByteBuf extends ByteBuf {
             throw new EncoderException("Failed to encode: " + param1x.message() + " " + param1);
         });
         this.writeNbt((CompoundTag)var0.result().get());
+    }
+
+    public <T> void writeId(IdMap<T> param0, T param1) {
+        int var0 = param0.getId(param1);
+        if (var0 == -1) {
+            throw new IllegalArgumentException("Can't find id for '" + param1 + "' in map " + param0);
+        } else {
+            this.writeVarInt(var0);
+        }
+    }
+
+    @Nullable
+    public <T> T readById(IdMap<T> param0) {
+        int var0 = this.readVarInt();
+        return param0.byId(var0);
     }
 
     public static <T> IntFunction<T> limitValue(IntFunction<T> param0, int param1) {
@@ -444,7 +461,7 @@ public class FriendlyByteBuf extends ByteBuf {
         } else {
             this.writeBoolean(true);
             Item var0 = param0.getItem();
-            this.writeVarInt(Item.getId(var0));
+            this.writeId(Registry.ITEM, var0);
             this.writeByte(param0.getCount());
             CompoundTag var1 = null;
             if (var0.canBeDepleted() || var0.shouldOverrideMultiplayerNbt()) {
@@ -461,9 +478,9 @@ public class FriendlyByteBuf extends ByteBuf {
         if (!this.readBoolean()) {
             return ItemStack.EMPTY;
         } else {
-            int var0 = this.readVarInt();
+            Item var0 = this.readById(Registry.ITEM);
             int var1 = this.readByte();
-            ItemStack var2 = new ItemStack(Item.byId(var0), var1);
+            ItemStack var2 = new ItemStack(var0, var1);
             var2.setTag(this.readNbt());
             return var2;
         }

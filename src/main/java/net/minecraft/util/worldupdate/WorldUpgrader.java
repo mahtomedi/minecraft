@@ -23,6 +23,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -135,6 +136,15 @@ public class WorldUpgrader {
                                     var21.remove("Heightmaps");
                                     var23 = var23 || var21.contains("isLightOn");
                                     var21.remove("isLightOn");
+                                    ListTag var24 = var21.getList("sections", 10);
+
+                                    for(int var25 = 0; var25 < var24.size(); ++var25) {
+                                        CompoundTag var26 = var24.getCompound(var25);
+                                        var23 = var23 || var26.contains("BlockLight");
+                                        var26.remove("BlockLight");
+                                        var23 = var23 || var26.contains("SkyLight");
+                                        var26.remove("SkyLight");
+                                    }
                                 }
 
                                 if (var23) {
@@ -142,15 +152,15 @@ public class WorldUpgrader {
                                     var17 = true;
                                 }
                             }
-                        } catch (ReportedException var24) {
-                            Throwable var25 = var24.getCause();
-                            if (!(var25 instanceof IOException)) {
-                                throw var24;
+                        } catch (ReportedException var27) {
+                            Throwable var28 = var27.getCause();
+                            if (!(var28 instanceof IOException)) {
+                                throw var27;
                             }
 
-                            LOGGER.error("Error upgrading chunk {}", var16, var25);
-                        } catch (IOException var251) {
-                            LOGGER.error("Error upgrading chunk {}", var16, var251);
+                            LOGGER.error("Error upgrading chunk {}", var16, var28);
+                        } catch (IOException var281) {
+                            LOGGER.error("Error upgrading chunk {}", var16, var281);
                         }
 
                         if (var17) {
@@ -162,9 +172,9 @@ public class WorldUpgrader {
                         var11 = true;
                     }
 
-                    float var27 = (float)var14.nextIndex() / var4;
-                    this.progressMap.put(var13, var27);
-                    var12 += var27;
+                    float var30 = (float)var14.nextIndex() / var4;
+                    this.progressMap.put(var13, var30);
+                    var12 += var30;
                 }
 
                 this.progress = var12;
@@ -175,11 +185,11 @@ public class WorldUpgrader {
 
             this.status = new TranslatableComponent("optimizeWorld.stage.finished");
 
-            for(ChunkStorage var28 : var9.values()) {
+            for(ChunkStorage var31 : var9.values()) {
                 try {
-                    var28.close();
-                } catch (IOException var231) {
-                    LOGGER.error("Error upgrading chunk", (Throwable)var231);
+                    var31.close();
+                } catch (IOException var261) {
+                    LOGGER.error("Error upgrading chunk", (Throwable)var261);
                 }
             }
 

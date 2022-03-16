@@ -162,7 +162,7 @@ public class Camera {
     public Camera.NearPlane getNearPlane() {
         Minecraft var0 = Minecraft.getInstance();
         double var1 = (double)var0.getWindow().getWidth() / (double)var0.getWindow().getHeight();
-        double var2 = Math.tan(var0.options.fov * (float) (Math.PI / 180.0) / 2.0) * 0.05F;
+        double var2 = Math.tan((double)((float)var0.options.fov().get().intValue() * (float) (Math.PI / 180.0)) / 2.0) * 0.05F;
         double var3 = var2 * var1;
         Vec3 var4 = new Vec3(this.forwards).scale(0.05F);
         Vec3 var5 = new Vec3(this.left).scale(var3);

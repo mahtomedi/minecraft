@@ -37,6 +37,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.DARK_OAK_LEAVES, var1);
         param0.put(Blocks.AZALEA_LEAVES, var1);
         param0.put(Blocks.FLOWERING_AZALEA_LEAVES, var1);
+        param0.put(Blocks.MANGROVE_ROOTS, var1);
+        param0.put(Blocks.MANGROVE_LEAVES, var1);
         RenderType var2 = RenderType.cutout();
         param0.put(Blocks.OAK_SAPLING, var2);
         param0.put(Blocks.SPRUCE_SAPLING, var2);
@@ -110,6 +112,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.DARK_OAK_TRAPDOOR, var2);
         param0.put(Blocks.CRIMSON_TRAPDOOR, var2);
         param0.put(Blocks.WARPED_TRAPDOOR, var2);
+        param0.put(Blocks.MANGROVE_TRAPDOOR, var2);
         param0.put(Blocks.ATTACHED_PUMPKIN_STEM, var2);
         param0.put(Blocks.ATTACHED_MELON_STEM, var2);
         param0.put(Blocks.PUMPKIN_STEM, var2);
@@ -128,6 +131,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.POTTED_JUNGLE_SAPLING, var2);
         param0.put(Blocks.POTTED_ACACIA_SAPLING, var2);
         param0.put(Blocks.POTTED_DARK_OAK_SAPLING, var2);
+        param0.put(Blocks.POTTED_MANGROVE_PROPAGULE, var2);
         param0.put(Blocks.POTTED_FERN, var2);
         param0.put(Blocks.POTTED_DANDELION, var2);
         param0.put(Blocks.POTTED_POPPY, var2);
@@ -164,6 +168,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.JUNGLE_DOOR, var2);
         param0.put(Blocks.ACACIA_DOOR, var2);
         param0.put(Blocks.DARK_OAK_DOOR, var2);
+        param0.put(Blocks.MANGROVE_DOOR, var2);
         param0.put(Blocks.END_ROD, var2);
         param0.put(Blocks.CHORUS_PLANT, var2);
         param0.put(Blocks.CHORUS_FLOWER, var2);
@@ -245,6 +250,10 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.SMALL_DRIPLEAF, var2);
         param0.put(Blocks.HANGING_ROOTS, var2);
         param0.put(Blocks.SCULK_SENSOR, var2);
+        param0.put(Blocks.SCULK_VEIN, var2);
+        param0.put(Blocks.SCULK_SHRIEKER, var2);
+        param0.put(Blocks.MANGROVE_PROPAGULE, var2);
+        param0.put(Blocks.MANGROVE_LOG, var2);
         RenderType var3 = RenderType.translucent();
         param0.put(Blocks.ICE, var3);
         param0.put(Blocks.NETHER_PORTAL, var3);
@@ -285,6 +294,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.FROSTED_ICE, var3);
         param0.put(Blocks.BUBBLE_COLUMN, var3);
         param0.put(Blocks.TINTED_GLASS, var3);
+        param0.put(Blocks.FROGSPAWN, var3);
     });
     private static final Map<Fluid, RenderType> TYPE_BY_FLUID = Util.make(Maps.newHashMap(), param0 -> {
         RenderType var0 = RenderType.translucent();

@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.PatrollingMonster;
@@ -54,17 +55,16 @@ public class PatrolSpawner implements CustomSpawner {
                                 return 0;
                             } else {
                                 Holder<Biome> var8 = param0.getBiome(var6);
-                                Biome.BiomeCategory var9 = Biome.getBiomeCategory(var8);
-                                if (var9 == Biome.BiomeCategory.MUSHROOM) {
+                                if (var8.is(BiomeTags.WITHOUT_PATROL_SPAWNS)) {
                                     return 0;
                                 } else {
-                                    int var10 = 0;
-                                    int var11 = (int)Math.ceil((double)param0.getCurrentDifficultyAt(var6).getEffectiveDifficulty()) + 1;
+                                    int var9 = 0;
+                                    int var10 = (int)Math.ceil((double)param0.getCurrentDifficultyAt(var6).getEffectiveDifficulty()) + 1;
 
-                                    for(int var12 = 0; var12 < var11; ++var12) {
-                                        ++var10;
+                                    for(int var11 = 0; var11 < var10; ++var11) {
+                                        ++var9;
                                         var6.setY(param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var6).getY());
-                                        if (var12 == 0) {
+                                        if (var11 == 0) {
                                             if (!this.spawnPatrolMember(param0, var6, var0, true)) {
                                                 break;
                                             }
@@ -76,7 +76,7 @@ public class PatrolSpawner implements CustomSpawner {
                                         var6.setZ(var6.getZ() + var0.nextInt(5) - var0.nextInt(5));
                                     }
 
-                                    return var10;
+                                    return var9;
                                 }
                             }
                         }

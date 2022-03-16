@@ -26,11 +26,6 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
     }
 
     @Override
-    public BiomeSource withSeed(long param0) {
-        return this;
-    }
-
-    @Override
     public Holder<Biome> getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
         return this.biome;
     }

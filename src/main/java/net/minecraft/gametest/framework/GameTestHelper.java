@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.pathfinder.Path;
@@ -508,6 +509,11 @@ public class GameTestHelper {
         BlockPos var0 = this.absolutePos(param0);
         ServerLevel var1 = this.getLevel();
         var1.getBlockState(var0).randomTick(var1, var0, var1.random);
+    }
+
+    public int getHeight(Heightmap.Types param0, int param1, int param2) {
+        BlockPos var0 = this.absolutePos(new BlockPos(param1, 0, param2));
+        return this.relativePos(this.getLevel().getHeightmapPos(param0, var0)).getY();
     }
 
     public void fail(String param0, BlockPos param1) {

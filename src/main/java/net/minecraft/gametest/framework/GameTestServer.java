@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.WorldLoader;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
@@ -29,13 +30,10 @@ import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
@@ -62,41 +60,28 @@ public class GameTestServer extends MinecraftServer {
         if (param3.isEmpty()) {
             throw new IllegalArgumentException("No test batches were given!");
         } else {
-            WorldStem.InitConfig var0 = new WorldStem.InitConfig(param2, Commands.CommandSelection.DEDICATED, 4, false);
+            WorldLoader.PackConfig var0 = new WorldLoader.PackConfig(param2, DataPackConfig.DEFAULT, false);
+            WorldLoader.InitConfig var1 = new WorldLoader.InitConfig(var0, Commands.CommandSelection.DEDICATED, 4);
 
             try {
-                WorldStem var1 = WorldStem.load(
-                        var0,
-                        () -> DataPackConfig.DEFAULT,
+                WorldStem var2 = WorldStem.load(
+                        var1,
                         (param0x, param1x) -> {
                             RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
-                            Registry<Biome> var1x = var0x.registryOrThrow(Registry.BIOME_REGISTRY);
-                            Registry<StructureSet> var2x = var0x.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-                            Registry<DimensionType> var3x = var0x.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-                            WorldData var4x = new PrimaryLevelData(
-                                TEST_SETTINGS,
-                                new WorldGenSettings(
-                                    0L,
-                                    false,
-                                    false,
-                                    WorldGenSettings.withOverworld(
-                                        var3x,
-                                        DimensionType.defaultDimensions(var0x, 0L),
-                                        new FlatLevelSource(var2x, FlatLevelGeneratorSettings.getDefault(var1x, var2x))
-                                    )
-                                ),
-                                Lifecycle.stable()
-                            );
-                            return Pair.of(var4x, var0x);
+                            WorldGenSettings var1x = var0x.<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
+                                .getHolderOrThrow(WorldPresets.FLAT)
+                                .value()
+                                .createWorldGenSettings(0L, false, false);
+                            WorldData var2x = new PrimaryLevelData(TEST_SETTINGS, var1x, Lifecycle.stable());
+                            return Pair.of(var2x, var0x);
                         },
                         Util.backgroundExecutor(),
                         Runnable::run
                     )
                     .get();
-                var1.updateGlobals();
-                return new GameTestServer(param0, param1, param2, var1, param3, param4);
-            } catch (Exception var7) {
-                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var7);
+                return new GameTestServer(param0, param1, param2, var2, param3, param4);
+            } catch (Exception var8) {
+                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var8);
                 System.exit(-1);
                 throw new IllegalStateException();
             }

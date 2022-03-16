@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.function.LongSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.util.profiling.ActiveProfiler;
 import net.minecraft.util.profiling.ContinuousProfiler;
+import net.minecraft.util.profiling.EmptyProfileResults;
 import net.minecraft.util.profiling.InactiveProfiler;
 import net.minecraft.util.profiling.ProfileCollector;
 import net.minecraft.util.profiling.ProfileResults;
@@ -72,6 +74,15 @@ public class ActiveMetricsRecorder implements MetricsRecorder {
     }
 
     @Override
+    public synchronized void cancel() {
+        if (this.isRecording()) {
+            this.singleTickProfiler = InactiveProfiler.INSTANCE;
+            this.onProfilingEnd.accept(EmptyProfileResults.EMPTY);
+            this.cleanup(this.thisTickSamplers);
+        }
+    }
+
+    @Override
     public void startTick() {
         this.verifyStarted();
         this.thisTickSamplers = this.metricsSamplerProvider.samplers(() -> this.singleTickProfiler);
@@ -99,8 +110,8 @@ public class ActiveMetricsRecorder implements MetricsRecorder {
                 this.singleTickProfiler = new ActiveProfiler(this.wallTimeSource, () -> this.currentTick, false);
             } else {
                 this.killSwitch = false;
-                this.singleTickProfiler = InactiveProfiler.INSTANCE;
                 ProfileResults var2 = this.taskProfiler.getResults();
+                this.singleTickProfiler = InactiveProfiler.INSTANCE;
                 this.onProfilingEnd.accept(var2);
                 this.scheduleSaveResults(var2);
             }
@@ -127,15 +138,18 @@ public class ActiveMetricsRecorder implements MetricsRecorder {
         HashSet<MetricSampler> var0 = new HashSet<>(this.thisTickSamplers);
         this.ioExecutor.execute(() -> {
             Path var0x = this.metricsPersister.saveReports(var0, this.deviationsBySampler, param0);
-
-            for(MetricSampler var1x : var0) {
-                var1x.onFinished();
-            }
-
-            this.deviationsBySampler.clear();
-            this.taskProfiler.disable();
+            this.cleanup(var0);
             this.onReportFinished.accept(var0x);
         });
+    }
+
+    private void cleanup(Collection<MetricSampler> param0) {
+        for(MetricSampler var0 : param0) {
+            var0.onFinished();
+        }
+
+        this.deviationsBySampler.clear();
+        this.taskProfiler.disable();
     }
 
     public static void registerGlobalCompletionCallback(Consumer<Path> param0) {

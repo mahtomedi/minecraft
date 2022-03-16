@@ -26,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -67,7 +67,7 @@ public class WorldGenRegion implements WorldGenLevel {
     private final BiomeManager biomeManager;
     private final ChunkPos firstPos;
     private final ChunkPos lastPos;
-    private final StructureFeatureManager structureFeatureManager;
+    private final StructureManager structureManager;
     private final ChunkStatus generatingStatus;
     private final int writeRadiusCutoff;
     @Nullable
@@ -92,7 +92,7 @@ public class WorldGenRegion implements WorldGenLevel {
             this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(this.seed));
             this.firstPos = param1.get(0).getPos();
             this.lastPos = param1.get(param1.size() - 1).getPos();
-            this.structureFeatureManager = param0.structureFeatureManager().forWorldGenRegion(this);
+            this.structureManager = param0.structureManager().forWorldGenRegion(this);
         }
     }
 

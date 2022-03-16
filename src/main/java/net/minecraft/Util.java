@@ -395,6 +395,10 @@ public class Util {
         return param0;
     }
 
+    public static <T> Supplier<T> name(Supplier<T> param0, Supplier<String> param1) {
+        return param0;
+    }
+
     public static Runnable name(Runnable param0, Supplier<String> param1) {
         return param0;
     }

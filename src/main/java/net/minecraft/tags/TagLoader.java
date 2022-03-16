@@ -8,25 +8,25 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceThunk;
 import net.minecraft.util.GsonHelper;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 public class TagLoader<T> {
@@ -45,30 +45,27 @@ public class TagLoader<T> {
     public Map<ResourceLocation, Tag.Builder> load(ResourceManager param0) {
         Map<ResourceLocation, Tag.Builder> var0 = Maps.newHashMap();
 
-        for(ResourceLocation var1 : param0.listResources(this.directory, param0x -> param0x.endsWith(".json"))) {
-            String var2 = var1.getPath();
-            ResourceLocation var3 = new ResourceLocation(var1.getNamespace(), var2.substring(this.directory.length() + 1, var2.length() - PATH_SUFFIX_LENGTH));
+        for(Entry<ResourceLocation, List<ResourceThunk>> var1 : param0.listResourceStacks(this.directory, param0x -> param0x.getPath().endsWith(".json"))
+            .entrySet()) {
+            ResourceLocation var2 = var1.getKey();
+            String var3 = var2.getPath();
+            ResourceLocation var4 = new ResourceLocation(var2.getNamespace(), var3.substring(this.directory.length() + 1, var3.length() - PATH_SUFFIX_LENGTH));
 
-            try {
-                for(Resource var4 : param0.getResources(var1)) {
-                    try (
-                        InputStream var5 = var4.getInputStream();
-                        Reader var6 = new BufferedReader(new InputStreamReader(var5, StandardCharsets.UTF_8));
-                    ) {
-                        JsonObject var7 = GsonHelper.fromJson(GSON, var6, JsonObject.class);
-                        if (var7 == null) {
-                            LOGGER.error("Couldn't load tag list {} from {} in data pack {} as it is empty or null", var3, var1, var4.getSourceName());
-                        } else {
-                            var0.computeIfAbsent(var3, param0x -> Tag.Builder.tag()).addFromJson(var7, var4.getSourceName());
-                        }
-                    } catch (RuntimeException | IOException var25) {
-                        LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var3, var1, var4.getSourceName(), var25);
-                    } finally {
-                        IOUtils.closeQuietly((Closeable)var4);
+            for(ResourceThunk var5 : var1.getValue()) {
+                try (
+                    Resource var6 = var5.open();
+                    InputStream var7 = var6.getInputStream();
+                    Reader var8 = new BufferedReader(new InputStreamReader(var7, StandardCharsets.UTF_8));
+                ) {
+                    JsonObject var9 = GsonHelper.fromJson(GSON, var8, JsonObject.class);
+                    if (var9 == null) {
+                        throw new NullPointerException("Invalid JSON contents");
                     }
+
+                    var0.computeIfAbsent(var4, param0x -> Tag.Builder.tag()).addFromJson(var9, var5.sourcePackId());
+                } catch (Exception var21) {
+                    LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var4, var2, var5.sourcePackId(), var21);
                 }
-            } catch (IOException var27) {
-                LOGGER.error("Couldn't read tag list {} from {}", var3, var1, var27);
             }
         }
 

@@ -44,7 +44,7 @@ public class OptimizeWorldScreen extends Screen {
     ) {
         try {
             OptimizeWorldScreen var7;
-            try (WorldStem var0 = param0.makeWorldStem(param3, false)) {
+            try (WorldStem var0 = param0.createWorldOpenFlows().loadWorldStem(param3, false)) {
                 WorldData var1 = var0.worldData();
                 param3.saveDataTag(var0.registryAccess(), var1);
                 var7 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var1.worldGenSettings());

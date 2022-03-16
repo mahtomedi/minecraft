@@ -57,6 +57,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -64,8 +65,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Scoreboard;
 
 public abstract class Level implements AutoCloseable, LevelAccessor {
-    public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceLocation.CODEC
-        .xmap(ResourceKey.elementKey(Registry.DIMENSION_REGISTRY), ResourceKey::location);
+    public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceKey.codec(Registry.DIMENSION_REGISTRY);
     public static final ResourceKey<Level> OVERWORLD = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> NETHER = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_nether"));
     public static final ResourceKey<Level> END = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_end"));
@@ -293,67 +293,22 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void setBlocksDirty(BlockPos param0, BlockState param1, BlockState param2) {
     }
 
+    public abstract NeighborUpdater getNeighborUpdater();
+
     public void updateNeighborsAt(BlockPos param0, Block param1) {
-        this.neighborChanged(param0.west(), param1, param0);
-        this.neighborChanged(param0.east(), param1, param0);
-        this.neighborChanged(param0.below(), param1, param0);
-        this.neighborChanged(param0.above(), param1, param0);
-        this.neighborChanged(param0.north(), param1, param0);
-        this.neighborChanged(param0.south(), param1, param0);
+        this.getNeighborUpdater().updateNeighborsAtExceptFromFacing(param0, param1, null);
     }
 
     public void updateNeighborsAtExceptFromFacing(BlockPos param0, Block param1, Direction param2) {
-        if (param2 != Direction.WEST) {
-            this.neighborChanged(param0.west(), param1, param0);
-        }
-
-        if (param2 != Direction.EAST) {
-            this.neighborChanged(param0.east(), param1, param0);
-        }
-
-        if (param2 != Direction.DOWN) {
-            this.neighborChanged(param0.below(), param1, param0);
-        }
-
-        if (param2 != Direction.UP) {
-            this.neighborChanged(param0.above(), param1, param0);
-        }
-
-        if (param2 != Direction.NORTH) {
-            this.neighborChanged(param0.north(), param1, param0);
-        }
-
-        if (param2 != Direction.SOUTH) {
-            this.neighborChanged(param0.south(), param1, param0);
-        }
-
+        this.getNeighborUpdater().updateNeighborsAtExceptFromFacing(param0, param1, param2);
     }
 
     public void neighborChanged(BlockPos param0, Block param1, BlockPos param2) {
-        if (!this.isClientSide) {
-            BlockState var0 = this.getBlockState(param0);
+        this.getNeighborUpdater().neighborChanged(param0, param1, param2);
+    }
 
-            try {
-                var0.neighborChanged(this, param0, param1, param2, false);
-            } catch (Throwable var8) {
-                CrashReport var2 = CrashReport.forThrowable(var8, "Exception while updating neighbours");
-                CrashReportCategory var3 = var2.addCategory("Block being updated");
-                var3.setDetail(
-                    "Source block type",
-                    () -> {
-                        try {
-                            return String.format(
-                                "ID #%s (%s // %s)", Registry.BLOCK.getKey(param1), param1.getDescriptionId(), param1.getClass().getCanonicalName()
-                            );
-                        } catch (Throwable var2x) {
-                            return "ID #" + Registry.BLOCK.getKey(param1);
-                        }
-                    }
-                );
-                CrashReportCategory.populateBlockDetails(var3, this, param0, var0);
-                throw new ReportedException(var2);
-            }
-        }
+    public void neighborChanged(BlockState param0, BlockPos param1, Block param2, BlockPos param3, boolean param4) {
+        this.getNeighborUpdater().neighborChanged(param0, param1, param2, param3, param4);
     }
 
     @Override
@@ -458,7 +413,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             TickingBlockEntity var2 = var1.next();
             if (var2.isRemoved()) {
                 var1.remove();
-            } else if (this.shouldTickBlocksAt(ChunkPos.asLong(var2.getPos()))) {
+            } else if (this.shouldTickBlocksAt(var2.getPos())) {
                 var2.tick();
             }
         }
@@ -484,6 +439,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public boolean shouldTickBlocksAt(long param0) {
         return true;
+    }
+
+    public boolean shouldTickBlocksAt(BlockPos param0) {
+        return this.shouldTickBlocksAt(ChunkPos.asLong(param0));
     }
 
     public Explosion explode(@Nullable Entity param0, double param1, double param2, double param3, float param4, Explosion.BlockInteraction param5) {
@@ -844,12 +803,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             if (this.hasChunkAt(var1)) {
                 BlockState var2 = this.getBlockState(var1);
                 if (var2.is(Blocks.COMPARATOR)) {
-                    var2.neighborChanged(this, var1, param1, param0, false);
+                    this.neighborChanged(var2, var1, param1, param0, false);
                 } else if (var2.isRedstoneConductor(this, var1)) {
                     var1 = var1.relative(var0);
                     var2 = this.getBlockState(var1);
                     if (var2.is(Blocks.COMPARATOR)) {
-                        var2.neighborChanged(this, var1, param1, param0, false);
+                        this.neighborChanged(var2, var1, param1, param0, false);
                     }
                 }
             }

@@ -13,6 +13,7 @@ import java.io.File;
 import java.net.Proxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import joptsimple.OptionParser;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
@@ -140,15 +142,14 @@ public class Main {
                 new FolderRepositorySource(var28.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
             );
 
-            WorldStem var33;
+            WorldStem var35;
             try {
-                WorldStem.InitConfig var32 = new WorldStem.InitConfig(
-                    var31, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel, var30
+                DataPackConfig var32 = Objects.requireNonNullElse(var28.getDataPacks(), DataPackConfig.DEFAULT);
+                WorldLoader.PackConfig var33 = new WorldLoader.PackConfig(var31, var32, var30);
+                WorldLoader.InitConfig var34 = new WorldLoader.InitConfig(
+                    var33, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel
                 );
-                var33 = WorldStem.load(var32, () -> {
-                    DataPackConfig var0x = var28.getDataPacks();
-                    return var0x == null ? DataPackConfig.DEFAULT : var0x;
-                }, (param5, param6) -> {
+                var35 = WorldStem.load(var34, (param5, param6) -> {
                     RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
                     DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5);
                     WorldData var2x = var28.getDataTag(var1x, param6, var0x.allElementsLifecycle());
@@ -159,7 +160,7 @@ public class Main {
                         WorldGenSettings var4x;
                         if (var16.has(var3)) {
                             var3x = MinecraftServer.DEMO_SETTINGS;
-                            var4x = WorldGenSettings.demoSettings(var0x);
+                            var4x = WorldPresets.demoSettings(var0x);
                         } else {
                             DedicatedServerProperties var5x = var18.getProperties();
                             var3x = new LevelSettings(var5x.levelName, var5x.gamemode, var5x.hardcore, var5x.difficulty, false, new GameRules(), param6);
@@ -175,23 +176,21 @@ public class Main {
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
                     (Throwable)var381
                 );
-                var31.close();
                 return;
             }
 
-            var33.updateGlobals();
-            RegistryAccess.Frozen var36 = var33.registryAccess();
-            var18.getProperties().getWorldGenSettings(var36);
-            WorldData var37 = var33.worldData();
+            RegistryAccess.Frozen var38 = var35.registryAccess();
+            var18.getProperties().getWorldGenSettings(var38);
+            WorldData var39 = var35.worldData();
             if (var16.has(var5)) {
-                forceUpgrade(var28, DataFixers.getDataFixer(), var16.has(var6), () -> true, var37.worldGenSettings());
+                forceUpgrade(var28, DataFixers.getDataFixer(), var16.has(var6), () -> true, var39.worldGenSettings());
             }
 
-            var28.saveDataTag(var36, var37);
-            final DedicatedServer var38 = MinecraftServer.spin(
+            var28.saveDataTag(var38, var39);
+            final DedicatedServer var40 = MinecraftServer.spin(
                 param14 -> {
                     DedicatedServer var0x = new DedicatedServer(
-                        param14, var28, var31, var33, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
+                        param14, var28, var31, var35, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
                     );
                     var0x.setSingleplayerName(var16.valueOf(var9));
                     var0x.setPort(var16.valueOf(var12));
@@ -205,14 +204,14 @@ public class Main {
                     return var0x;
                 }
             );
-            Thread var39 = new Thread("Server Shutdown Thread") {
+            Thread var41 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var38.halt(true);
+                    var40.halt(true);
                 }
             };
-            var39.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var39);
+            var41.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var41);
         } catch (Exception var391) {
             LOGGER.error(LogUtils.FATAL_MARKER, "Failed to start the minecraft server", (Throwable)var391);
         }

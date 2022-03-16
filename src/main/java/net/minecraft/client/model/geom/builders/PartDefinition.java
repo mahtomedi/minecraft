@@ -42,6 +42,7 @@ public class PartDefinition {
             );
         List<ModelPart.Cube> var1 = this.cubes.stream().map(param2 -> param2.bake(param0, param1)).collect(ImmutableList.toImmutableList());
         ModelPart var2 = new ModelPart(var1, var0);
+        var2.setInitialPose(this.partPose);
         var2.loadPose(this.partPose);
         return var2;
     }

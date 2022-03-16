@@ -164,12 +164,12 @@ public class Zombie extends Monster {
     }
 
     @Override
-    protected int getExperienceReward(Player param0) {
+    public int getExperienceReward() {
         if (this.isBaby()) {
             this.xpReward = (int)((double)this.xpReward * 2.5);
         }
 
-        return super.getExperienceReward(param0);
+        return super.getExperienceReward();
     }
 
     @Override

@@ -13,11 +13,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,8 +44,6 @@ public class EntityArgument implements ArgumentType<EntitySelector> {
     public static final SimpleCommandExceptionType ERROR_SELECTORS_NOT_ALLOWED = new SimpleCommandExceptionType(
         new TranslatableComponent("argument.entity.selector.not_allowed")
     );
-    private static final byte FLAG_SINGLE = 1;
-    private static final byte FLAG_PLAYERS_ONLY = 2;
     final boolean single;
     final boolean playersOnly;
 
@@ -125,11 +124,11 @@ public class EntityArgument implements ArgumentType<EntitySelector> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        if (param0.getSource() instanceof SharedSuggestionProvider) {
-            StringReader var0 = new StringReader(param1.getInput());
-            var0.setCursor(param1.getStart());
-            SharedSuggestionProvider var1 = (SharedSuggestionProvider)param0.getSource();
-            EntitySelectorParser var2 = new EntitySelectorParser(var0, var1.hasPermission(2));
+        StringReader var1 = param0.getSource();
+        if (var1 instanceof SharedSuggestionProvider var0) {
+            var1 = new StringReader(param1.getInput());
+            var1.setCursor(param1.getStart());
+            EntitySelectorParser var2 = new EntitySelectorParser(var1, var0.hasPermission(2));
 
             try {
                 var2.parse();
@@ -137,8 +136,8 @@ public class EntityArgument implements ArgumentType<EntitySelector> {
             }
 
             return var2.fillSuggestions(param1, param1x -> {
-                Collection<String> var0x = var1.getOnlinePlayerNames();
-                Iterable<String> var1x = (Iterable<String>)(this.playersOnly ? var0x : Iterables.concat(var0x, var1.getSelectedEntities()));
+                Collection<String> var0x = var0.getOnlinePlayerNames();
+                Iterable<String> var1x = (Iterable<String>)(this.playersOnly ? var0x : Iterables.concat(var0x, var0.getSelectedEntities()));
                 SharedSuggestionProvider.suggest(var1x, param1x);
             });
         } else {
@@ -151,28 +150,54 @@ public class EntityArgument implements ArgumentType<EntitySelector> {
         return EXAMPLES;
     }
 
-    public static class Serializer implements ArgumentSerializer<EntityArgument> {
-        public void serializeToNetwork(EntityArgument param0, FriendlyByteBuf param1) {
-            byte var0 = 0;
+    public static class Info implements ArgumentTypeInfo<EntityArgument, EntityArgument.Info.Template> {
+        private static final byte FLAG_SINGLE = 1;
+        private static final byte FLAG_PLAYERS_ONLY = 2;
+
+        public void serializeToNetwork(EntityArgument.Info.Template param0, FriendlyByteBuf param1) {
+            int var0 = 0;
             if (param0.single) {
-                var0 = (byte)(var0 | 1);
+                var0 |= 1;
             }
 
             if (param0.playersOnly) {
-                var0 = (byte)(var0 | 2);
+                var0 |= 2;
             }
 
             param1.writeByte(var0);
         }
 
-        public EntityArgument deserializeFromNetwork(FriendlyByteBuf param0) {
+        public EntityArgument.Info.Template deserializeFromNetwork(FriendlyByteBuf param0) {
             byte var0 = param0.readByte();
-            return new EntityArgument((var0 & 1) != 0, (var0 & 2) != 0);
+            return new EntityArgument.Info.Template((var0 & 1) != 0, (var0 & 2) != 0);
         }
 
-        public void serializeToJson(EntityArgument param0, JsonObject param1) {
+        public void serializeToJson(EntityArgument.Info.Template param0, JsonObject param1) {
             param1.addProperty("amount", param0.single ? "single" : "multiple");
             param1.addProperty("type", param0.playersOnly ? "players" : "entities");
+        }
+
+        public EntityArgument.Info.Template unpack(EntityArgument param0) {
+            return new EntityArgument.Info.Template(param0.single, param0.playersOnly);
+        }
+
+        public final class Template implements ArgumentTypeInfo.Template<EntityArgument> {
+            final boolean single;
+            final boolean playersOnly;
+
+            Template(boolean param1, boolean param2) {
+                this.single = param1;
+                this.playersOnly = param2;
+            }
+
+            public EntityArgument instantiate(CommandBuildContext param0) {
+                return new EntityArgument(this.single, this.playersOnly);
+            }
+
+            @Override
+            public ArgumentTypeInfo<EntityArgument, ?> type() {
+                return Info.this;
+            }
         }
     }
 }

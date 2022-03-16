@@ -7,11 +7,12 @@ import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -34,13 +35,13 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {
     private final ObjectListIterator<StructurePiece> pieceIterator;
     private final ObjectListIterator<JigsawJunction> junctionIterator;
 
-    protected Beardifier(StructureFeatureManager param0, ChunkAccess param1) {
+    protected Beardifier(StructureManager param0, ChunkAccess param1) {
         ChunkPos var0 = param1.getPos();
         int var1 = var0.getMinBlockX();
         int var2 = var0.getMinBlockZ();
         this.junctions = new ObjectArrayList<>(32);
         this.rigids = new ObjectArrayList<>(10);
-        param0.startsForFeature(SectionPos.bottomOf(param1), param0x -> param0x.adaptNoise).forEach(param3 -> {
+        param0.startsForStructure(SectionPos.bottomOf(param1), Structure::adaptNoise).forEach(param3 -> {
             for(StructurePiece var0x : param3.getPieces()) {
                 if (var0x.isCloseToChunk(var0, 12)) {
                     if (var0x instanceof PoolElementStructurePiece var1x) {

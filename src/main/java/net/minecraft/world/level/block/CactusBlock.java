@@ -57,7 +57,7 @@ public class CactusBlock extends Block {
                     param1.setBlockAndUpdate(var0, this.defaultBlockState());
                     BlockState var3 = param0.setValue(AGE, Integer.valueOf(0));
                     param1.setBlock(param2, var3, 4);
-                    var3.neighborChanged(param1, var0, this, param2, false);
+                    param1.neighborChanged(var3, var0, this, param2, false);
                 } else {
                     param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(var2 + 1)), 4);
                 }

@@ -17,12 +17,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -31,59 +28,71 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.slf4j.Logger;
 
 public interface RegistryResourceAccess {
-    <E> Collection<ResourceKey<E>> listResources(ResourceKey<? extends Registry<E>> var1);
+    <E> Map<ResourceKey<E>, RegistryResourceAccess.EntryThunk<E>> listResources(ResourceKey<? extends Registry<E>> var1);
 
-    <E> Optional<DataResult<RegistryResourceAccess.ParsedEntry<E>>> parseElement(
-        DynamicOps<JsonElement> var1, ResourceKey<? extends Registry<E>> var2, ResourceKey<E> var3, Decoder<E> var4
-    );
+    <E> Optional<RegistryResourceAccess.EntryThunk<E>> getResource(ResourceKey<E> var1);
 
     static RegistryResourceAccess forResourceManager(final ResourceManager param0) {
         return new RegistryResourceAccess() {
             private static final String JSON = ".json";
 
             @Override
-            public <E> Collection<ResourceKey<E>> listResources(ResourceKey<? extends Registry<E>> param0x) {
-                String var0 = registryDirPath(param0);
-                Set<ResourceKey<E>> var1 = new HashSet<>();
-                param0.listResources(var0, param0xx -> param0xx.endsWith(".json")).forEach(param3 -> {
+            public <E> Map<ResourceKey<E>, RegistryResourceAccess.EntryThunk<E>> listResources(ResourceKey<? extends Registry<E>> param0x) {
+                String var0 = registryDirPath(param0.location());
+                Map<ResourceKey<E>, RegistryResourceAccess.EntryThunk<E>> var1 = Maps.newHashMap();
+                param0.listResources(var0, param0xx -> param0xx.getPath().endsWith(".json")).forEach((param3, param4) -> {
                     String var0x = param3.getPath();
                     String var1x = var0x.substring(var0.length() + 1, var0x.length() - ".json".length());
-                    var1.add(ResourceKey.create(param0, new ResourceLocation(param3.getNamespace(), var1x)));
+                    ResourceKey<E> var2x = ResourceKey.create(param0, new ResourceLocation(param3.getNamespace(), var1x));
+                    var1.put(var2x, (param2x, param3x) -> {
+                        try {
+                            DataResult var6x;
+                            try (Resource var1xx = param4.open()) {
+                                var6x = this.decodeElement(param2x, param3x, var1xx);
+                            }
+
+                            return var6x;
+                        } catch (JsonIOException | JsonSyntaxException | IOException var10) {
+                            return DataResult.error("Failed to parse " + param3 + " file: " + var10.getMessage());
+                        }
+                    });
                 });
                 return var1;
             }
 
             @Override
-            public <E> Optional<DataResult<RegistryResourceAccess.ParsedEntry<E>>> parseElement(
-                DynamicOps<JsonElement> param0x, ResourceKey<? extends Registry<E>> param1, ResourceKey<E> param2, Decoder<E> param3
-            ) {
-                ResourceLocation var0 = elementPath(param1, param2);
-                if (!param0.hasResource(var0)) {
-                    return Optional.empty();
-                } else {
+            public <E> Optional<RegistryResourceAccess.EntryThunk<E>> getResource(ResourceKey<E> param0x) {
+                ResourceLocation var0 = elementPath(param0);
+                return !param0.hasResource(var0) ? Optional.empty() : Optional.of((param2, param3) -> {
                     try {
-                        Optional var9;
-                        try (
-                            Resource var1 = param0.getResource(var0);
-                            Reader var2 = new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8);
-                        ) {
-                            JsonElement var3 = JsonParser.parseReader(var2);
-                            var9 = Optional.of(param3.parse(param0, var3).map(RegistryResourceAccess.ParsedEntry::createWithoutId));
+                        DataResult var6;
+                        try (Resource var1x = param0.getResource(var0)) {
+                            var6 = this.decodeElement(param2, param3, var1x);
                         }
 
-                        return var9;
-                    } catch (JsonIOException | JsonSyntaxException | IOException var14) {
-                        return Optional.of(DataResult.error("Failed to parse " + var0 + " file: " + var14.getMessage()));
+                        return var6;
+                    } catch (JsonIOException | JsonSyntaxException | IOException var10) {
+                        return DataResult.error("Failed to parse " + var0 + " file: " + var10.getMessage());
                     }
+                });
+            }
+
+            private <E> DataResult<RegistryResourceAccess.ParsedEntry<E>> decodeElement(DynamicOps<JsonElement> param0x, Decoder<E> param1, Resource param2) throws IOException {
+                DataResult var6;
+                try (Reader var0 = new InputStreamReader(param2.getInputStream(), StandardCharsets.UTF_8)) {
+                    JsonElement var1 = JsonParser.parseReader(var0);
+                    var6 = param1.parse(param0, var1).map(RegistryResourceAccess.ParsedEntry::createWithoutId);
                 }
+
+                return var6;
             }
 
-            private static String registryDirPath(ResourceKey<? extends Registry<?>> param0x) {
-                return param0.location().getPath();
+            private static String registryDirPath(ResourceLocation param0x) {
+                return param0.getPath();
             }
 
-            private static <E> ResourceLocation elementPath(ResourceKey<? extends Registry<E>> param0x, ResourceKey<E> param1) {
-                return new ResourceLocation(param1.location().getNamespace(), registryDirPath(param0) + "/" + param1.location().getPath() + ".json");
+            private static <E> ResourceLocation elementPath(ResourceKey<E> param0x) {
+                return new ResourceLocation(param0.location().getNamespace(), registryDirPath(param0.registry()) + "/" + param0.location().getPath() + ".json");
             }
 
             @Override
@@ -91,6 +100,11 @@ public interface RegistryResourceAccess {
                 return "ResourceAccess[" + param0 + "]";
             }
         };
+    }
+
+    @FunctionalInterface
+    public interface EntryThunk<E> {
+        DataResult<RegistryResourceAccess.ParsedEntry<E>> parseElement(DynamicOps<JsonElement> var1, Decoder<E> var2);
     }
 
     public static final class InMemoryStorage implements RegistryResourceAccess {
@@ -109,25 +123,31 @@ public interface RegistryResourceAccess {
         }
 
         @Override
-        public <E> Collection<ResourceKey<E>> listResources(ResourceKey<? extends Registry<E>> param0) {
-            return this.entries.keySet().stream().flatMap(param1 -> param1.cast(param0).stream()).collect(Collectors.toList());
+        public <E> Map<ResourceKey<E>, RegistryResourceAccess.EntryThunk<E>> listResources(ResourceKey<? extends Registry<E>> param0) {
+            return this.entries
+                .entrySet()
+                .stream()
+                .filter(param1 -> param1.getKey().isFor(param0))
+                .collect(Collectors.toMap(param0x -> (ResourceKey<E>)param0x.getKey(), param0x -> param0x.getValue()::parse));
         }
 
         @Override
-        public <E> Optional<DataResult<RegistryResourceAccess.ParsedEntry<E>>> parseElement(
-            DynamicOps<JsonElement> param0, ResourceKey<? extends Registry<E>> param1, ResourceKey<E> param2, Decoder<E> param3
-        ) {
-            RegistryResourceAccess.InMemoryStorage.Entry var0 = this.entries.get(param2);
-            return var0 == null
-                ? Optional.of(DataResult.error("Unknown element: " + param2))
-                : Optional.of(
-                    param3.parse(param0, var0.data)
-                        .setLifecycle(var0.lifecycle)
-                        .map(param1x -> RegistryResourceAccess.ParsedEntry.createWithId(param1x, var0.id))
-                );
+        public <E> Optional<RegistryResourceAccess.EntryThunk<E>> getResource(ResourceKey<E> param0) {
+            RegistryResourceAccess.InMemoryStorage.Entry var0 = this.entries.get(param0);
+            if (var0 == null) {
+                DataResult<RegistryResourceAccess.ParsedEntry<E>> var1 = DataResult.error("Unknown element: " + param0);
+                return Optional.of((param1, param2) -> var1);
+            } else {
+                return Optional.of(var0::parse);
+            }
         }
 
-        static record Entry(JsonElement data, int id, Lifecycle lifecycle) {
+        static record Entry<E>(JsonElement data, int id, Lifecycle lifecycle) {
+            public <E> DataResult<RegistryResourceAccess.ParsedEntry<E>> parse(DynamicOps<JsonElement> param0, Decoder<E> param1) {
+                return param1.parse(param0, this.data)
+                    .setLifecycle(this.lifecycle)
+                    .map(param0x -> RegistryResourceAccess.ParsedEntry.createWithId(param0x, this.id));
+            }
         }
     }
 

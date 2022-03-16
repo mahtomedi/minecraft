@@ -1,18 +1,21 @@
 package net.minecraft.client;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.SliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+@Deprecated(
+    forRemoval = true
+)
 @OnlyIn(Dist.CLIENT)
 public class ProgressOption extends Option {
     protected final float steps;
@@ -21,7 +24,7 @@ public class ProgressOption extends Option {
     private final Function<Options, Double> getter;
     private final BiConsumer<Options, Double> setter;
     private final BiFunction<Options, ProgressOption, Component> toString;
-    private final Function<Minecraft, List<FormattedCharSequence>> tooltipSupplier;
+    private final Function<Minecraft, Option.TooltipSupplier<Double>> tooltipSupplier;
 
     public ProgressOption(
         String param0,
@@ -31,7 +34,7 @@ public class ProgressOption extends Option {
         Function<Options, Double> param4,
         BiConsumer<Options, Double> param5,
         BiFunction<Options, ProgressOption, Component> param6,
-        Function<Minecraft, List<FormattedCharSequence>> param7
+        Function<Minecraft, Option.TooltipSupplier<Double>> param7
     ) {
         super(param0);
         this.minValue = param1;
@@ -52,12 +55,12 @@ public class ProgressOption extends Option {
         BiConsumer<Options, Double> param5,
         BiFunction<Options, ProgressOption, Component> param6
     ) {
-        this(param0, param1, param2, param3, param4, param5, param6, param0x -> ImmutableList.of());
+        this(param0, param1, param2, param3, param4, param5, param6, param0x -> param0xx -> ImmutableList.of());
     }
 
     @Override
     public AbstractWidget createButton(Options param0, int param1, int param2, int param3) {
-        List<FormattedCharSequence> var0 = this.tooltipSupplier.apply(Minecraft.getInstance());
+        Option.TooltipSupplier<Double> var0 = this.tooltipSupplier.apply(Minecraft.getInstance());
         return new SliderButton(param0, param1, param2, param3, 20, this, var0);
     }
 
@@ -99,5 +102,21 @@ public class ProgressOption extends Option {
 
     public Component getMessage(Options param0) {
         return this.toString.apply(param0, this);
+    }
+
+    protected Component pixelValueLabel(int param0) {
+        return new TranslatableComponent("options.pixel_value", this.getCaption(), param0);
+    }
+
+    protected Component percentValueLabel(double param0) {
+        return new TranslatableComponent("options.percent_value", this.getCaption(), (int)(param0 * 100.0));
+    }
+
+    protected Component genericValueLabel(Component param0) {
+        return new TranslatableComponent("options.generic_value", this.getCaption(), param0);
+    }
+
+    protected Component genericValueLabel(int param0) {
+        return this.genericValueLabel(new TextComponent(Integer.toString(param0)));
     }
 }

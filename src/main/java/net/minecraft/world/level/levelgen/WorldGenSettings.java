@@ -1,17 +1,12 @@
 package net.minecraft.world.level.levelgen;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonElement;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import net.minecraft.core.Holder;
@@ -21,24 +16,18 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 
 public class WorldGenSettings {
     public static final Codec<WorldGenSettings> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         Codec.LONG.fieldOf("seed").stable().forGetter(WorldGenSettings::seed),
-                        Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldGenSettings::generateFeatures),
+                        Codec.BOOL.fieldOf("generate_features").orElse(true).stable().forGetter(WorldGenSettings::generateStructures),
                         Codec.BOOL.fieldOf("bonus_chest").orElse(false).stable().forGetter(WorldGenSettings::generateBonusChest),
                         RegistryCodecs.dataPackAwareCodec(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable(), LevelStem.CODEC)
                             .xmap(LevelStem::sortMap, Function.identity())
@@ -49,9 +38,8 @@ public class WorldGenSettings {
                     .apply(param0, param0.stable(WorldGenSettings::new))
         )
         .comapFlatMap(WorldGenSettings::guardExperimental, Function.identity());
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final long seed;
-    private final boolean generateFeatures;
+    private final boolean generateStructures;
     private final boolean generateBonusChest;
     private final Registry<LevelStem> dimensions;
     private final Optional<String> legacyCustomOptions;
@@ -66,7 +54,7 @@ public class WorldGenSettings {
     }
 
     private boolean stable() {
-        return LevelStem.stable(this.seed, this.dimensions);
+        return LevelStem.stable(this.dimensions);
     }
 
     public WorldGenSettings(long param0, boolean param1, boolean param2, Registry<LevelStem> param3) {
@@ -79,75 +67,33 @@ public class WorldGenSettings {
 
     private WorldGenSettings(long param0, boolean param1, boolean param2, Registry<LevelStem> param3, Optional<String> param4) {
         this.seed = param0;
-        this.generateFeatures = param1;
+        this.generateStructures = param1;
         this.generateBonusChest = param2;
         this.dimensions = param3;
         this.legacyCustomOptions = param4;
-    }
-
-    public static WorldGenSettings demoSettings(RegistryAccess param0) {
-        int var0 = "North Carolina".hashCode();
-        return new WorldGenSettings(
-            (long)var0,
-            true,
-            true,
-            withOverworld(
-                param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY),
-                DimensionType.defaultDimensions(param0, (long)var0),
-                makeDefaultOverworld(param0, (long)var0)
-            )
-        );
-    }
-
-    public static WorldGenSettings makeDefault(RegistryAccess param0) {
-        long var0 = new Random().nextLong();
-        return new WorldGenSettings(
-            var0,
-            true,
-            false,
-            withOverworld(
-                param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY), DimensionType.defaultDimensions(param0, var0), makeDefaultOverworld(param0, var0)
-            )
-        );
-    }
-
-    public static NoiseBasedChunkGenerator makeDefaultOverworld(RegistryAccess param0, long param1) {
-        return makeDefaultOverworld(param0, param1, true);
-    }
-
-    public static NoiseBasedChunkGenerator makeDefaultOverworld(RegistryAccess param0, long param1, boolean param2) {
-        return makeOverworld(param0, param1, NoiseGeneratorSettings.OVERWORLD, param2);
-    }
-
-    public static NoiseBasedChunkGenerator makeOverworld(RegistryAccess param0, long param1, ResourceKey<NoiseGeneratorSettings> param2) {
-        return makeOverworld(param0, param1, param2, true);
-    }
-
-    public static NoiseBasedChunkGenerator makeOverworld(RegistryAccess param0, long param1, ResourceKey<NoiseGeneratorSettings> param2, boolean param3) {
-        Registry<Biome> var0 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-        Registry<StructureSet> var1 = param0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-        Registry<NoiseGeneratorSettings> var2 = param0.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
-        Registry<NormalNoise.NoiseParameters> var3 = param0.registryOrThrow(Registry.NOISE_REGISTRY);
-        return new NoiseBasedChunkGenerator(
-            var1, var3, MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(var0, param3), param1, var2.getOrCreateHolder(param2)
-        );
     }
 
     public long seed() {
         return this.seed;
     }
 
-    public boolean generateFeatures() {
-        return this.generateFeatures;
+    public boolean generateStructures() {
+        return this.generateStructures;
     }
 
     public boolean generateBonusChest() {
         return this.generateBonusChest;
     }
 
+    public static WorldGenSettings replaceOverworldGenerator(RegistryAccess param0, WorldGenSettings param1, ChunkGenerator param2) {
+        Registry<DimensionType> var0 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+        Registry<LevelStem> var1 = withOverworld(var0, param1.dimensions(), param2);
+        return new WorldGenSettings(param1.seed(), param1.generateStructures(), param1.generateBonusChest(), var1);
+    }
+
     public static Registry<LevelStem> withOverworld(Registry<DimensionType> param0, Registry<LevelStem> param1, ChunkGenerator param2) {
         LevelStem var0 = param1.get(LevelStem.OVERWORLD);
-        Holder<DimensionType> var1 = var0 == null ? param0.getOrCreateHolder(DimensionType.OVERWORLD_LOCATION) : var0.typeHolder();
+        Holder<DimensionType> var1 = var0 == null ? param0.getOrCreateHolder(BuiltinDimensionTypes.OVERWORLD) : var0.typeHolder();
         return withOverworld(param1, var1, param2);
     }
 
@@ -203,85 +149,41 @@ public class WorldGenSettings {
     }
 
     public WorldGenSettings withBonusChest() {
-        return new WorldGenSettings(this.seed, this.generateFeatures, true, this.dimensions, this.legacyCustomOptions);
+        return new WorldGenSettings(this.seed, this.generateStructures, true, this.dimensions, this.legacyCustomOptions);
     }
 
-    public WorldGenSettings withFeaturesToggled() {
-        return new WorldGenSettings(this.seed, !this.generateFeatures, this.generateBonusChest, this.dimensions);
+    public WorldGenSettings withStructuresToggled() {
+        return new WorldGenSettings(this.seed, !this.generateStructures, this.generateBonusChest, this.dimensions);
     }
 
     public WorldGenSettings withBonusChestToggled() {
-        return new WorldGenSettings(this.seed, this.generateFeatures, !this.generateBonusChest, this.dimensions);
-    }
-
-    public static WorldGenSettings create(RegistryAccess param0, DedicatedServerProperties.WorldGenProperties param1) {
-        long var0 = parseSeed(param1.levelSeed()).orElse(new Random().nextLong());
-        Registry<DimensionType> var1 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-        Registry<Biome> var2 = param0.registryOrThrow(Registry.BIOME_REGISTRY);
-        Registry<StructureSet> var3 = param0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-        Registry<LevelStem> var4 = DimensionType.defaultDimensions(param0, var0);
-        String var8 = param1.levelType();
-        switch(var8) {
-            case "flat":
-                Dynamic<JsonElement> var5 = new Dynamic<>(JsonOps.INSTANCE, param1.generatorSettings());
-                return new WorldGenSettings(
-                    var0,
-                    param1.generateStructures(),
-                    false,
-                    withOverworld(
-                        var1,
-                        var4,
-                        new FlatLevelSource(
-                            var3,
-                            FlatLevelGeneratorSettings.CODEC
-                                .parse(var5)
-                                .resultOrPartial(LOGGER::error)
-                                .orElseGet(() -> FlatLevelGeneratorSettings.getDefault(var2, var3))
-                        )
-                    )
-                );
-            case "debug_all_block_states":
-                return new WorldGenSettings(var0, param1.generateStructures(), false, withOverworld(var1, var4, new DebugLevelSource(var3, var2)));
-            case "amplified":
-                return new WorldGenSettings(
-                    var0, param1.generateStructures(), false, withOverworld(var1, var4, makeOverworld(param0, var0, NoiseGeneratorSettings.AMPLIFIED))
-                );
-            case "largebiomes":
-                return new WorldGenSettings(
-                    var0, param1.generateStructures(), false, withOverworld(var1, var4, makeOverworld(param0, var0, NoiseGeneratorSettings.LARGE_BIOMES))
-                );
-            default:
-                return new WorldGenSettings(var0, param1.generateStructures(), false, withOverworld(var1, var4, makeDefaultOverworld(param0, var0)));
-        }
+        return new WorldGenSettings(this.seed, this.generateStructures, !this.generateBonusChest, this.dimensions);
     }
 
     public WorldGenSettings withSeed(boolean param0, OptionalLong param1) {
         long var0 = param1.orElse(this.seed);
-        Registry<LevelStem> var5;
+        Registry<LevelStem> var4;
         if (param1.isPresent()) {
             WritableRegistry<LevelStem> var1 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental(), null);
-            long var2 = param1.getAsLong();
 
-            for(Entry<ResourceKey<LevelStem>, LevelStem> var3 : this.dimensions.entrySet()) {
-                ResourceKey<LevelStem> var4 = var3.getKey();
-                var1.register(
-                    var4, new LevelStem(var3.getValue().typeHolder(), var3.getValue().generator().withSeed(var2)), this.dimensions.lifecycle(var3.getValue())
-                );
+            for(Entry<ResourceKey<LevelStem>, LevelStem> var2 : this.dimensions.entrySet()) {
+                ResourceKey<LevelStem> var3 = var2.getKey();
+                var1.register(var3, new LevelStem(var2.getValue().typeHolder(), var2.getValue().generator()), this.dimensions.lifecycle(var2.getValue()));
             }
 
-            var5 = var1;
+            var4 = var1;
         } else {
-            var5 = this.dimensions;
+            var4 = this.dimensions;
         }
 
-        WorldGenSettings var7;
+        WorldGenSettings var6;
         if (this.isDebug()) {
-            var7 = new WorldGenSettings(var0, false, false, var5);
+            var6 = new WorldGenSettings(var0, false, false, var4);
         } else {
-            var7 = new WorldGenSettings(var0, this.generateFeatures(), this.generateBonusChest() && !param0, var5);
+            var6 = new WorldGenSettings(var0, this.generateStructures(), this.generateBonusChest() && !param0, var4);
         }
 
-        return var7;
+        return var6;
     }
 
     public static OptionalLong parseSeed(String param0) {

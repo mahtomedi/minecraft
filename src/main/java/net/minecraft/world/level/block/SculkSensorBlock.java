@@ -12,6 +12,8 @@ import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -73,6 +75,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
             param0.put(GameEvent.ENTITY_PLACE, 12);
             param0.put(GameEvent.BLOCK_PLACE, 12);
             param0.put(GameEvent.FLUID_PLACE, 12);
+            param0.put(GameEvent.ENTITY_DYING, 13);
             param0.put(GameEvent.ENTITY_KILLED, 13);
             param0.put(GameEvent.BLOCK_DESTROY, 13);
             param0.put(GameEvent.FLUID_PICKUP, 13);
@@ -221,7 +224,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     public static void deactivate(Level param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.COOLDOWN).setValue(POWER, Integer.valueOf(0)), 3);
-        param0.scheduleTick(new BlockPos(param1), param2.getBlock(), 1);
+        param0.scheduleTick(param1, param2.getBlock(), 1);
         if (!param2.getValue(WATERLOGGED)) {
             param0.playSound(null, param1, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param0.random.nextFloat() * 0.2F + 0.8F);
         }
@@ -231,7 +234,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     public static void activate(Level param0, BlockPos param1, BlockState param2, int param3) {
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param3)), 3);
-        param0.scheduleTick(new BlockPos(param1), param2.getBlock(), 40);
+        param0.scheduleTick(param1, param2.getBlock(), 40);
         updateNeighbours(param0, param1);
         if (!param2.getValue(WATERLOGGED)) {
             param0.playSound(
@@ -290,5 +293,11 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     @Override
     public boolean useShapeForLightOcclusion(BlockState param0) {
         return true;
+    }
+
+    @Override
+    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3) {
+        super.spawnAfterBreak(param0, param1, param2, param3);
+        this.tryDropExperience(param1, param2, param3, ConstantInt.of(5));
     }
 }

@@ -1,6 +1,5 @@
 package net.minecraft.client;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -12,12 +11,15 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+@Deprecated(
+    forRemoval = true
+)
 @OnlyIn(Dist.CLIENT)
 public class CycleOption<T> extends Option {
     private final CycleOption.OptionSetter<T> setter;
     private final Function<Options, T> getter;
     private final Supplier<CycleButton.Builder<T>> buttonSetup;
-    private Function<Minecraft, CycleButton.TooltipSupplier<T>> tooltip = param0x -> param0xx -> ImmutableList.of();
+    private Function<Minecraft, Option.TooltipSupplier<T>> tooltip = noTooltip();
 
     private CycleOption(String param0, Function<Options, T> param1, CycleOption.OptionSetter<T> param2, Supplier<CycleButton.Builder<T>> param3) {
         super(param0);
@@ -73,14 +75,14 @@ public class CycleOption<T> extends Option {
         });
     }
 
-    public CycleOption<T> setTooltip(Function<Minecraft, CycleButton.TooltipSupplier<T>> param0) {
+    public CycleOption<T> setTooltip(Function<Minecraft, Option.TooltipSupplier<T>> param0) {
         this.tooltip = param0;
         return this;
     }
 
     @Override
     public AbstractWidget createButton(Options param0, int param1, int param2, int param3) {
-        CycleButton.TooltipSupplier<T> var0 = this.tooltip.apply(Minecraft.getInstance());
+        Option.TooltipSupplier<T> var0 = this.tooltip.apply(Minecraft.getInstance());
         return this.buttonSetup
             .get()
             .withTooltip(var0)

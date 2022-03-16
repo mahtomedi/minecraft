@@ -14,14 +14,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.VisibleForDebug;
+import net.minecraft.world.level.levelgen.NoiseRouterData;
 
 public class MultiNoiseBiomeSource extends BiomeSource {
     public static final MapCodec<MultiNoiseBiomeSource> DIRECT_CODEC = RecordCodecBuilder.mapCodec(
@@ -66,11 +70,6 @@ public class MultiNoiseBiomeSource extends BiomeSource {
         return CODEC;
     }
 
-    @Override
-    public BiomeSource withSeed(long param0) {
-        return this;
-    }
-
     private Optional<MultiNoiseBiomeSource.PresetInstance> preset() {
         return this.preset;
     }
@@ -100,7 +99,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
         float var6 = Climate.unquantizeCoord(var3.temperature());
         float var7 = Climate.unquantizeCoord(var3.humidity());
         float var8 = Climate.unquantizeCoord(var3.weirdness());
-        double var9 = (double)TerrainShaper.peaksAndValleys(var8);
+        double var9 = (double)NoiseRouterData.peaksAndValleys(var8);
         OverworldBiomeBuilder var10 = new OverworldBiomeBuilder();
         param0.add(
             "Biome builder PV: "
@@ -144,6 +143,11 @@ public class MultiNoiseBiomeSource extends BiomeSource {
             BY_NAME.put(param0, this);
         }
 
+        @VisibleForDebug
+        public static Stream<Pair<ResourceLocation, MultiNoiseBiomeSource.Preset>> getPresets() {
+            return BY_NAME.entrySet().stream().map(param0 -> Pair.of(param0.getKey(), param0.getValue()));
+        }
+
         MultiNoiseBiomeSource biomeSource(MultiNoiseBiomeSource.PresetInstance param0, boolean param1) {
             Climate.ParameterList<Holder<Biome>> var0 = this.parameterSource.apply(param0.biomes());
             return new MultiNoiseBiomeSource(var0, param1 ? Optional.of(param0) : Optional.empty());
@@ -155,6 +159,10 @@ public class MultiNoiseBiomeSource extends BiomeSource {
 
         public MultiNoiseBiomeSource biomeSource(Registry<Biome> param0) {
             return this.biomeSource(param0, true);
+        }
+
+        public Stream<ResourceKey<Biome>> possibleBiomes() {
+            return this.biomeSource(BuiltinRegistries.BIOME).possibleBiomes().stream().flatMap(param0 -> param0.unwrapKey().stream());
         }
     }
 

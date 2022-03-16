@@ -73,6 +73,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.searchtree.MutableSearchTree;
 import net.minecraft.client.searchtree.SearchRegistry;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -100,7 +101,7 @@ import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAddVibrationSignalPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundAwardStatsPacket;
-import net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket;
+import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
@@ -618,7 +619,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         int var0 = 19 | (param0.shouldSuppressLightUpdates() ? 128 : 0);
-        param0.runUpdates((param1, param2) -> this.level.setBlock(param1, param2, var0));
+        param0.runUpdates((param1, param2) -> this.level.setServerVerifiedBlockState(param1, param2, var0));
     }
 
     @Override
@@ -687,7 +688,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleBlockUpdate(ClientboundBlockUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.level.setKnownState(param0.getPos(), param0.getBlockState());
+        this.level.setServerVerifiedBlockState(param0.getPos(), param0.getBlockState(), 19);
     }
 
     @Override
@@ -801,7 +802,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleAddMob(ClientboundAddMobPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        LivingEntity var0 = (LivingEntity)EntityType.create(param0.getType(), this.level);
+        LivingEntity var0 = (LivingEntity)EntityType.create(this.level, param0.getType());
         if (var0 != null) {
             var0.recreateFromPacket(param0);
             this.level.putNonPlayerEntity(param0.getId(), var0);
@@ -1263,7 +1264,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleCommands(ClientboundCommandsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.commands = new CommandDispatcher<>(param0.getRoot());
+        this.commands = new CommandDispatcher<>(param0.getRoot(new CommandBuildContext(this.registryAccess)));
     }
 
     @Override
@@ -1368,7 +1369,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Entity var0 = this.level.getEntity(param0.getEntityId());
         if (var0 instanceof LivingEntity) {
-            MobEffect var1 = MobEffect.byId(param0.getEffectId());
+            MobEffect var1 = param0.getEffect();
             if (var1 != null) {
                 MobEffectInstance var2 = new MobEffectInstance(
                     var1,
@@ -2285,9 +2286,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleBlockBreakAck(ClientboundBlockBreakAckPacket param0) {
+    public void handleBlockChangedAck(ClientboundBlockChangedAckPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.gameMode.handleBlockBreakAck(this.level, param0.pos(), param0.state(), param0.action(), param0.allGood());
+        this.level.handleBlockChangedAck(param0.sequence());
     }
 
     private void readSectionList(

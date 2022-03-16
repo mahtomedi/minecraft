@@ -1,20 +1,22 @@
 package net.minecraft.client.multiplayer;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
+import net.minecraft.client.multiplayer.prediction.PredictiveAction;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -53,6 +55,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -69,10 +72,6 @@ public class MultiPlayerGameMode {
     private GameType localPlayerMode = GameType.DEFAULT_MODE;
     @Nullable
     private GameType previousLocalPlayerMode;
-    private final Object2ObjectLinkedOpenHashMap<Pair<BlockPos, ServerboundPlayerActionPacket.Action>, Vec3> unAckedActions = new Object2ObjectLinkedOpenHashMap<>(
-        
-    );
-    private static final int MAX_ACTIONS_SIZE = 50;
     private int carriedIndex;
 
     public MultiPlayerGameMode(Minecraft param0, ClientPacketListener param1) {
@@ -140,32 +139,38 @@ public class MultiPlayerGameMode {
             if (this.localPlayerMode.isCreative()) {
                 BlockState var0 = this.minecraft.level.getBlockState(param0);
                 this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, param0, var0, 1.0F);
-                this.sendBlockAction(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1);
-                this.destroyBlock(param0);
+                this.startPrediction(this.minecraft.level, param2 -> {
+                    this.destroyBlock(param0);
+                    return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1, param2);
+                });
                 this.destroyDelay = 5;
             } else if (!this.isDestroying || !this.sameDestroyTarget(param0)) {
                 if (this.isDestroying) {
-                    this.sendBlockAction(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, param1);
+                    this.connection
+                        .send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, param1));
                 }
 
                 BlockState var1 = this.minecraft.level.getBlockState(param0);
                 this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, param0, var1, 0.0F);
-                this.sendBlockAction(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1);
-                boolean var2 = !var1.isAir();
-                if (var2 && this.destroyProgress == 0.0F) {
-                    var1.attack(this.minecraft.level, param0, this.minecraft.player);
-                }
+                this.startPrediction(this.minecraft.level, param3 -> {
+                    boolean var0x = !var1.isAir();
+                    if (var0x && this.destroyProgress == 0.0F) {
+                        var1.attack(this.minecraft.level, param0, this.minecraft.player);
+                    }
 
-                if (var2 && var1.getDestroyProgress(this.minecraft.player, this.minecraft.player.level, param0) >= 1.0F) {
-                    this.destroyBlock(param0);
-                } else {
-                    this.isDestroying = true;
-                    this.destroyBlockPos = param0;
-                    this.destroyingItem = this.minecraft.player.getMainHandItem();
-                    this.destroyProgress = 0.0F;
-                    this.destroyTicks = 0.0F;
-                    this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, (int)(this.destroyProgress * 10.0F) - 1);
-                }
+                    if (var0x && var1.getDestroyProgress(this.minecraft.player, this.minecraft.player.level, param0) >= 1.0F) {
+                        this.destroyBlock(param0);
+                    } else {
+                        this.isDestroying = true;
+                        this.destroyBlockPos = param0;
+                        this.destroyingItem = this.minecraft.player.getMainHandItem();
+                        this.destroyProgress = 0.0F;
+                        this.destroyTicks = 0.0F;
+                        this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, (int)(this.destroyProgress * 10.0F) - 1);
+                    }
+
+                    return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1, param3);
+                });
             }
 
             return true;
@@ -176,7 +181,8 @@ public class MultiPlayerGameMode {
         if (this.isDestroying) {
             BlockState var0 = this.minecraft.level.getBlockState(this.destroyBlockPos);
             this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, this.destroyBlockPos, var0, -1.0F);
-            this.sendBlockAction(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, Direction.DOWN);
+            this.connection
+                .send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, Direction.DOWN));
             this.isDestroying = false;
             this.destroyProgress = 0.0F;
             this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, -1);
@@ -194,8 +200,10 @@ public class MultiPlayerGameMode {
             this.destroyDelay = 5;
             BlockState var0 = this.minecraft.level.getBlockState(param0);
             this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, param0, var0, 1.0F);
-            this.sendBlockAction(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1);
-            this.destroyBlock(param0);
+            this.startPrediction(this.minecraft.level, param2 -> {
+                this.destroyBlock(param0);
+                return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1, param2);
+            });
             return true;
         } else if (this.sameDestroyTarget(param0)) {
             BlockState var1 = this.minecraft.level.getBlockState(param0);
@@ -215,8 +223,10 @@ public class MultiPlayerGameMode {
                 this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, param0, var1, Mth.clamp(this.destroyProgress, 0.0F, 1.0F));
                 if (this.destroyProgress >= 1.0F) {
                     this.isDestroying = false;
-                    this.sendBlockAction(ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK, param0, param1);
-                    this.destroyBlock(param0);
+                    this.startPrediction(this.minecraft.level, param2 -> {
+                        this.destroyBlock(param0);
+                        return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK, param0, param1, param2);
+                    });
                     this.destroyProgress = 0.0F;
                     this.destroyTicks = 0.0F;
                     this.destroyDelay = 5;
@@ -228,6 +238,15 @@ public class MultiPlayerGameMode {
         } else {
             return this.startDestroyBlock(param0, param1);
         }
+    }
+
+    private void startPrediction(ClientLevel param0, PredictiveAction param1) {
+        try (BlockStatePredictionHandler var0 = param0.getBlockStatePredictionHandler().startPredicting()) {
+            int var1 = var0.currentSequence();
+            Packet<ServerGamePacketListener> var2 = param1.predict(var1);
+            this.connection.send(var2);
+        }
+
     }
 
     public float getPickRange() {
@@ -265,48 +284,54 @@ public class MultiPlayerGameMode {
 
     }
 
-    public InteractionResult useItemOn(LocalPlayer param0, ClientLevel param1, InteractionHand param2, BlockHitResult param3) {
+    public InteractionResult useItemOn(LocalPlayer param0, InteractionHand param1, BlockHitResult param2) {
         this.ensureHasSentCarriedItem();
-        BlockPos var0 = param3.getBlockPos();
-        if (!this.minecraft.level.getWorldBorder().isWithinBounds(var0)) {
+        if (!this.minecraft.level.getWorldBorder().isWithinBounds(param2.getBlockPos())) {
             return InteractionResult.FAIL;
         } else {
-            ItemStack var1 = param0.getItemInHand(param2);
-            if (this.localPlayerMode == GameType.SPECTATOR) {
-                this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
-                return InteractionResult.SUCCESS;
-            } else {
-                boolean var2 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
-                boolean var3 = param0.isSecondaryUseActive() && var2;
-                if (!var3) {
-                    InteractionResult var4 = param1.getBlockState(var0).use(param1, param0, param2, param3);
-                    if (var4.consumesAction()) {
-                        this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
-                        return var4;
-                    }
+            MutableObject<InteractionResult> var0 = new MutableObject<>();
+            this.startPrediction(this.minecraft.level, param4 -> {
+                var0.setValue(this.performUseItemOn(param0, param1, param2));
+                return new ServerboundUseItemOnPacket(param1, param2, param4);
+            });
+            return var0.getValue();
+        }
+    }
+
+    private InteractionResult performUseItemOn(LocalPlayer param0, InteractionHand param1, BlockHitResult param2) {
+        BlockPos var0 = param2.getBlockPos();
+        ItemStack var1 = param0.getItemInHand(param1);
+        if (this.localPlayerMode == GameType.SPECTATOR) {
+            return InteractionResult.SUCCESS;
+        } else {
+            boolean var2 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
+            boolean var3 = param0.isSecondaryUseActive() && var2;
+            if (!var3) {
+                InteractionResult var4 = this.minecraft.level.getBlockState(var0).use(this.minecraft.level, param0, param1, param2);
+                if (var4.consumesAction()) {
+                    return var4;
                 }
+            }
 
-                this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
-                if (!var1.isEmpty() && !param0.getCooldowns().isOnCooldown(var1.getItem())) {
-                    UseOnContext var5 = new UseOnContext(param0, param2, param3);
-                    InteractionResult var7;
-                    if (this.localPlayerMode.isCreative()) {
-                        int var6 = var1.getCount();
-                        var7 = var1.useOn(var5);
-                        var1.setCount(var6);
-                    } else {
-                        var7 = var1.useOn(var5);
-                    }
-
-                    return var7;
+            if (!var1.isEmpty() && !param0.getCooldowns().isOnCooldown(var1.getItem())) {
+                UseOnContext var5 = new UseOnContext(param0, param1, param2);
+                InteractionResult var7;
+                if (this.localPlayerMode.isCreative()) {
+                    int var6 = var1.getCount();
+                    var7 = var1.useOn(var5);
+                    var1.setCount(var6);
                 } else {
-                    return InteractionResult.PASS;
+                    var7 = var1.useOn(var5);
                 }
+
+                return var7;
+            } else {
+                return InteractionResult.PASS;
             }
         }
     }
 
-    public InteractionResult useItem(Player param0, Level param1, InteractionHand param2) {
+    public InteractionResult useItem(Player param0, InteractionHand param1) {
         if (this.localPlayerMode == GameType.SPECTATOR) {
             return InteractionResult.PASS;
         } else {
@@ -315,19 +340,25 @@ public class MultiPlayerGameMode {
                 .send(
                     new ServerboundMovePlayerPacket.PosRot(param0.getX(), param0.getY(), param0.getZ(), param0.getYRot(), param0.getXRot(), param0.isOnGround())
                 );
-            this.connection.send(new ServerboundUseItemPacket(param2));
-            ItemStack var0 = param0.getItemInHand(param2);
-            if (param0.getCooldowns().isOnCooldown(var0.getItem())) {
-                return InteractionResult.PASS;
-            } else {
-                InteractionResultHolder<ItemStack> var1 = var0.use(param1, param0, param2);
-                ItemStack var2 = var1.getObject();
-                if (var2 != var0) {
-                    param0.setItemInHand(param2, var2);
-                }
+            MutableObject<InteractionResult> var0 = new MutableObject<>();
+            this.startPrediction(this.minecraft.level, param3 -> {
+                ServerboundUseItemPacket var0x = new ServerboundUseItemPacket(param1, param3);
+                ItemStack var1x = param0.getItemInHand(param1);
+                if (param0.getCooldowns().isOnCooldown(var1x.getItem())) {
+                    var0.setValue(InteractionResult.PASS);
+                    return var0x;
+                } else {
+                    InteractionResultHolder<ItemStack> var2x = var1x.use(this.minecraft.level, param0, param1);
+                    ItemStack var3x = (ItemStack)var2x.getObject();
+                    if (var3x != var1x) {
+                        param0.setItemInHand(param1, var3x);
+                    }
 
-                return var1.getResult();
-            }
+                    var0.setValue(var2x.getResult());
+                    return var0x;
+                }
+            });
+            return var0.getValue();
         }
     }
 
@@ -453,30 +484,5 @@ public class MultiPlayerGameMode {
 
     public void handlePickItem(int param0) {
         this.connection.send(new ServerboundPickItemPacket(param0));
-    }
-
-    private void sendBlockAction(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2) {
-        LocalPlayer var0 = this.minecraft.player;
-        this.unAckedActions.put(Pair.of(param1, param0), var0.position());
-        this.connection.send(new ServerboundPlayerActionPacket(param0, param1, param2));
-    }
-
-    public void handleBlockBreakAck(ClientLevel param0, BlockPos param1, BlockState param2, ServerboundPlayerActionPacket.Action param3, boolean param4) {
-        Vec3 var0 = this.unAckedActions.remove(Pair.of(param1, param3));
-        BlockState var1 = param0.getBlockState(param1);
-        if ((var0 == null || !param4 || param3 != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK && var1 != param2) && var1 != param2) {
-            param0.setKnownState(param1, param2);
-            Player var2 = this.minecraft.player;
-            if (var0 != null && param0 == var2.level && var2.isColliding(param1, param2)) {
-                var2.absMoveTo(var0.x, var0.y, var0.z);
-            }
-        }
-
-        while(this.unAckedActions.size() >= 50) {
-            Pair<BlockPos, ServerboundPlayerActionPacket.Action> var3 = this.unAckedActions.firstKey();
-            this.unAckedActions.removeFirst();
-            LOGGER.error("Too many unacked block actions, dropping {}", var3);
-        }
-
     }
 }

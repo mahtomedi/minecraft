@@ -22,8 +22,8 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.GravityProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.slf4j.Logger;
 
 public class StructureTemplatePool {
@@ -86,7 +86,7 @@ public class StructureTemplatePool {
         this.fallback = param1;
     }
 
-    public int getMaxSize(StructureManager param0) {
+    public int getMaxSize(StructureTemplateManager param0) {
         if (this.maxSize == Integer.MIN_VALUE) {
             this.maxSize = this.templates
                 .stream()

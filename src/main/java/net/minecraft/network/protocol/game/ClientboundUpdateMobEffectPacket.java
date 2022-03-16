@@ -1,5 +1,6 @@
 package net.minecraft.network.protocol.game;
 
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.effect.MobEffect;
@@ -10,14 +11,14 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
     private static final int FLAG_VISIBLE = 2;
     private static final int FLAG_SHOW_ICON = 4;
     private final int entityId;
-    private final int effectId;
+    private final MobEffect effect;
     private final byte effectAmplifier;
     private final int effectDurationTicks;
     private final byte flags;
 
     public ClientboundUpdateMobEffectPacket(int param0, MobEffectInstance param1) {
         this.entityId = param0;
-        this.effectId = MobEffect.getId(param1.getEffect());
+        this.effect = param1.getEffect();
         this.effectAmplifier = (byte)(param1.getAmplifier() & 0xFF);
         if (param1.getDuration() > 32767) {
             this.effectDurationTicks = 32767;
@@ -43,7 +44,7 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
 
     public ClientboundUpdateMobEffectPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
-        this.effectId = param0.readVarInt();
+        this.effect = param0.readById(Registry.MOB_EFFECT);
         this.effectAmplifier = param0.readByte();
         this.effectDurationTicks = param0.readVarInt();
         this.flags = param0.readByte();
@@ -52,7 +53,7 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
-        param0.writeVarInt(this.effectId);
+        param0.writeId(Registry.MOB_EFFECT, this.effect);
         param0.writeByte(this.effectAmplifier);
         param0.writeVarInt(this.effectDurationTicks);
         param0.writeByte(this.flags);
@@ -70,8 +71,8 @@ public class ClientboundUpdateMobEffectPacket implements Packet<ClientGamePacket
         return this.entityId;
     }
 
-    public int getEffectId() {
-        return this.effectId;
+    public MobEffect getEffect() {
+        return this.effect;
     }
 
     public byte getEffectAmplifier() {

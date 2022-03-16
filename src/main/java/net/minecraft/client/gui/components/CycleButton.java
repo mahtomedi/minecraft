@@ -1,10 +1,12 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import net.minecraft.client.Option;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -28,7 +30,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
     private final Function<T, Component> valueStringifier;
     private final Function<CycleButton<T>, MutableComponent> narrationProvider;
     private final CycleButton.OnValueChange<T> onValueChange;
-    private final CycleButton.TooltipSupplier<T> tooltipSupplier;
+    private final Option.TooltipSupplier<T> tooltipSupplier;
     private final boolean displayOnlyValue;
 
     CycleButton(
@@ -44,7 +46,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
         Function<T, Component> param9,
         Function<CycleButton<T>, MutableComponent> param10,
         CycleButton.OnValueChange<T> param11,
-        CycleButton.TooltipSupplier<T> param12,
+        Option.TooltipSupplier<T> param12,
         boolean param13
     ) {
         super(param0, param1, param2, param3, param4);
@@ -172,7 +174,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
         @Nullable
         private T initialValue;
         private final Function<T, Component> valueStringifier;
-        private CycleButton.TooltipSupplier<T> tooltipSupplier = param0x -> ImmutableList.of();
+        private Option.TooltipSupplier<T> tooltipSupplier = param0x -> ImmutableList.of();
         private Function<CycleButton<T>, MutableComponent> narrationProvider = CycleButton::createDefaultNarrationMessage;
         private CycleButton.ValueListSupplier<T> values = CycleButton.ValueListSupplier.create(ImmutableList.of());
         private boolean displayOnlyValue;
@@ -181,7 +183,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
             this.valueStringifier = param0;
         }
 
-        public CycleButton.Builder<T> withValues(List<T> param0) {
+        public CycleButton.Builder<T> withValues(Collection<T> param0) {
             this.values = CycleButton.ValueListSupplier.create(param0);
             return this;
         }
@@ -201,7 +203,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
             return this;
         }
 
-        public CycleButton.Builder<T> withTooltip(CycleButton.TooltipSupplier<T> param0) {
+        public CycleButton.Builder<T> withTooltip(Option.TooltipSupplier<T> param0) {
             this.tooltipSupplier = param0;
             return this;
         }
@@ -261,12 +263,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
 
     @OnlyIn(Dist.CLIENT)
     public interface OnValueChange<T> {
-        void onValueChange(CycleButton var1, T var2);
-    }
-
-    @FunctionalInterface
-    @OnlyIn(Dist.CLIENT)
-    public interface TooltipSupplier<T> extends Function<T, List<FormattedCharSequence>> {
+        void onValueChange(CycleButton<T> var1, T var2);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -275,7 +272,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
 
         List<T> getDefaultList();
 
-        static <T> CycleButton.ValueListSupplier<T> create(List<T> param0) {
+        static <T> CycleButton.ValueListSupplier<T> create(Collection<T> param0) {
             final List<T> var0 = ImmutableList.copyOf(param0);
             return new CycleButton.ValueListSupplier<T>() {
                 @Override

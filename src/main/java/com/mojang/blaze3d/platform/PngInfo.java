@@ -9,6 +9,7 @@ import java.nio.IntBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.util.function.Supplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.stb.STBIEOFCallback;
@@ -24,7 +25,7 @@ public class PngInfo {
     public final int width;
     public final int height;
 
-    public PngInfo(String param0, InputStream param1) throws IOException {
+    public PngInfo(Supplier<String> param0, InputStream param1) throws IOException {
         try (
             MemoryStack var0 = MemoryStack.stackPush();
             PngInfo.StbReader var1 = createCallbacks(param1);
@@ -40,7 +41,7 @@ public class PngInfo {
             IntBuffer var7 = var0.mallocInt(1);
             IntBuffer var8 = var0.mallocInt(1);
             if (!STBImage.stbi_info_from_callbacks(var5, 0L, var6, var7, var8)) {
-                throw new IOException("Could not read info from the PNG file " + param0 + " " + STBImage.stbi_failure_reason());
+                throw new IOException("Could not read info from the PNG file " + (String)param0.get() + " " + STBImage.stbi_failure_reason());
             }
 
             this.width = var6.get(0);

@@ -1,23 +1,18 @@
 package net.minecraft.world.level.block;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.datafixers.util.Pair;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -33,7 +28,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class MultifaceBlock extends Block {
+public abstract class MultifaceBlock extends Block {
     private static final float AABB_OFFSET = 1.0F;
     private static final VoxelShape UP_AABB = Block.box(0.0, 15.0, 0.0, 16.0, 16.0, 16.0);
     private static final VoxelShape DOWN_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
@@ -63,6 +58,53 @@ public class MultifaceBlock extends Block {
         this.canRotate = Direction.Plane.HORIZONTAL.stream().allMatch(this::isFaceSupported);
         this.canMirrorX = Direction.Plane.HORIZONTAL.stream().filter(Direction.Axis.X).filter(this::isFaceSupported).count() % 2L == 0L;
         this.canMirrorZ = Direction.Plane.HORIZONTAL.stream().filter(Direction.Axis.Z).filter(this::isFaceSupported).count() % 2L == 0L;
+    }
+
+    public static Set<Direction> availableFaces(BlockState param0) {
+        if (!(param0.getBlock() instanceof MultifaceBlock)) {
+            return Set.of();
+        } else {
+            Set<Direction> var0 = EnumSet.noneOf(Direction.class);
+
+            for(Direction var1 : Direction.values()) {
+                if (hasFace(param0, var1)) {
+                    var0.add(var1);
+                }
+            }
+
+            return var0;
+        }
+    }
+
+    @Nullable
+    public static Set<Direction> unpack(byte param0) {
+        if (param0 == -1) {
+            return null;
+        } else {
+            Set<Direction> var0 = EnumSet.noneOf(Direction.class);
+
+            for(Direction var1 : Direction.values()) {
+                if ((param0 & (byte)(1 << var1.ordinal())) > 0) {
+                    var0.add(var1);
+                }
+            }
+
+            return var0;
+        }
+    }
+
+    public static byte pack(@Nullable Collection<Direction> param0) {
+        if (param0 == null) {
+            return -1;
+        } else {
+            byte var0 = 0;
+
+            for(Direction var1 : param0) {
+                var0 = (byte)(var0 | 1 << var1.ordinal());
+            }
+
+            return var0;
+        }
     }
 
     protected boolean isFaceSupported(Direction param0x) {
@@ -129,17 +171,22 @@ public class MultifaceBlock extends Block {
             .orElse(null);
     }
 
+    public boolean isValidStateForPlacement(BlockGetter param0, BlockState param1, BlockPos param2, Direction param3) {
+        if (this.isFaceSupported(param3) && (!param1.is(this) || !hasFace(param1, param3))) {
+            BlockPos var0 = param2.relative(param3);
+            return canAttachTo(param0, param3, var0, param0.getBlockState(var0));
+        } else {
+            return false;
+        }
+    }
+
     @Nullable
     public BlockState getStateForPlacement(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
-        if (!this.isFaceSupported(param3)) {
+        if (!this.isValidStateForPlacement(param1, param0, param2, param3)) {
             return null;
         } else {
             BlockState var0;
             if (param0.is(this)) {
-                if (hasFace(param0, param3)) {
-                    return null;
-                }
-
                 var0 = param0;
             } else if (this.isWaterloggable() && param0.getFluidState().isSourceOfType(Fluids.WATER)) {
                 var0 = this.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
@@ -147,8 +194,7 @@ public class MultifaceBlock extends Block {
                 var0 = this.defaultBlockState();
             }
 
-            BlockPos var3 = param2.relative(param3);
-            return canAttachTo(param1, param3, var3, param1.getBlockState(var3)) ? var0.setValue(getFaceProperty(param3), Boolean.valueOf(true)) : null;
+            return var0.setValue(getFaceProperty(param3), Boolean.valueOf(true));
         }
     }
 
@@ -178,89 +224,12 @@ public class MultifaceBlock extends Block {
         return var0;
     }
 
-    public boolean spreadFromRandomFaceTowardRandomDirection(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        List<Direction> var0 = Lists.newArrayList(DIRECTIONS);
-        Collections.shuffle(var0);
-        return var0.stream()
-            .filter(param1x -> hasFace(param0, param1x))
-            .anyMatch(param4 -> this.spreadFromFaceTowardRandomDirection(param0, param1, param2, param4, param3, false));
-    }
-
-    public boolean spreadFromFaceTowardRandomDirection(
-        BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Random param4, boolean param5
-    ) {
-        List<Direction> var0 = Arrays.asList(DIRECTIONS);
-        Collections.shuffle(var0, param4);
-        return var0.stream().anyMatch(param5x -> this.spreadFromFaceTowardDirection(param0, param1, param2, param3, param5x, param5));
-    }
-
-    public boolean spreadFromFaceTowardDirection(BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Direction param4, boolean param5) {
-        Optional<Pair<BlockPos, Direction>> var0 = this.getSpreadFromFaceTowardDirection(param0, param1, param2, param3, param4);
-        if (var0.isPresent()) {
-            Pair<BlockPos, Direction> var1 = var0.get();
-            return this.spreadToFace(param1, var1.getFirst(), var1.getSecond(), param5);
-        } else {
-            return false;
-        }
-    }
-
-    protected boolean canSpread(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
-        return Stream.of(DIRECTIONS).anyMatch(param4 -> this.getSpreadFromFaceTowardDirection(param0, param1, param2, param3, param4).isPresent());
-    }
-
-    private Optional<Pair<BlockPos, Direction>> getSpreadFromFaceTowardDirection(
-        BlockState param0, BlockGetter param1, BlockPos param2, Direction param3, Direction param4
-    ) {
-        if (param4.getAxis() == param3.getAxis() || !hasFace(param0, param3) || hasFace(param0, param4)) {
-            return Optional.empty();
-        } else if (this.canSpreadToFace(param1, param2, param4)) {
-            return Optional.of(Pair.of(param2, param4));
-        } else {
-            BlockPos var0 = param2.relative(param4);
-            if (this.canSpreadToFace(param1, var0, param3)) {
-                return Optional.of(Pair.of(var0, param3));
-            } else {
-                BlockPos var1 = var0.relative(param3);
-                Direction var2 = param4.getOpposite();
-                return this.canSpreadToFace(param1, var1, var2) ? Optional.of(Pair.of(var1, var2)) : Optional.empty();
-            }
-        }
-    }
-
-    private boolean canSpreadToFace(BlockGetter param0, BlockPos param1, Direction param2) {
-        BlockState var0 = param0.getBlockState(param1);
-        if (!this.canSpreadInto(var0)) {
-            return false;
-        } else {
-            BlockState var1 = this.getStateForPlacement(var0, param0, param1, param2);
-            return var1 != null;
-        }
-    }
-
-    private boolean spreadToFace(LevelAccessor param0, BlockPos param1, Direction param2, boolean param3) {
-        BlockState var0 = param0.getBlockState(param1);
-        BlockState var1 = this.getStateForPlacement(var0, param0, param1, param2);
-        if (var1 != null) {
-            if (param3) {
-                param0.getChunk(param1).markPosForPostprocessing(param1);
-            }
-
-            return param0.setBlock(param1, var1, 2);
-        } else {
-            return false;
-        }
-    }
-
-    private boolean canSpreadInto(BlockState param0) {
-        return param0.isAir() || param0.is(this) || param0.is(Blocks.WATER) && param0.getFluidState().isSource();
-    }
-
-    private static boolean hasFace(BlockState param0, Direction param1) {
+    public static boolean hasFace(BlockState param0, Direction param1) {
         BooleanProperty var0 = getFaceProperty(param1);
         return param0.hasProperty(var0) && param0.getValue(var0);
     }
 
-    private static boolean canAttachTo(BlockGetter param0, Direction param1, BlockPos param2, BlockState param3) {
+    protected static boolean canAttachTo(BlockGetter param0, Direction param1, BlockPos param2, BlockState param3) {
         return Block.isFaceFull(param3.getCollisionShape(param0, param2), param1.getOpposite());
     }
 
@@ -308,4 +277,6 @@ public class MultifaceBlock extends Block {
     private static boolean hasAnyVacantFace(BlockState param0) {
         return Arrays.stream(DIRECTIONS).anyMatch(param1 -> !hasFace(param0, param1));
     }
+
+    public abstract MultifaceSpreader getSpreader();
 }

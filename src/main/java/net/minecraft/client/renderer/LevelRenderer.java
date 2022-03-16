@@ -50,6 +50,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -80,6 +81,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SculkChargeParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -94,6 +96,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ParticleUtils;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -115,6 +118,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.PointedDripstoneBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -527,27 +531,21 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.particlesTarget = var4;
             this.weatherTarget = var5;
             this.cloudsTarget = var6;
-        } catch (Exception var91) {
-            String var8 = var91 instanceof JsonSyntaxException ? "parse" : "load";
+        } catch (Exception var81) {
+            String var8 = var81 instanceof JsonSyntaxException ? "parse" : "load";
             String var9 = "Failed to " + var8 + " shader: " + var0;
-            LevelRenderer.TransparencyShaderException var10 = new LevelRenderer.TransparencyShaderException(var9, var91);
+            LevelRenderer.TransparencyShaderException var10 = new LevelRenderer.TransparencyShaderException(var9, var81);
             if (this.minecraft.getResourcePackRepository().getSelectedIds().size() > 1) {
-                Component var11;
-                try {
-                    var11 = new TextComponent(this.minecraft.getResourceManager().getResource(var0).getSourceName());
-                } catch (IOException var81) {
-                    var11 = null;
-                }
-
+                Component var11 = this.minecraft.getResourceManager().listPacks().findFirst().map(param0 -> new TextComponent(param0.getName())).orElse(null);
                 this.minecraft.options.graphicsMode = GraphicsStatus.FANCY;
                 this.minecraft.clearResourcePacksOnError(var10, var11);
             } else {
-                CrashReport var14 = this.minecraft.fillReport(new CrashReport(var9, var10));
+                CrashReport var12 = this.minecraft.fillReport(new CrashReport(var9, var10));
                 this.minecraft.options.graphicsMode = GraphicsStatus.FANCY;
                 this.minecraft.options.save();
                 LOGGER.error(LogUtils.FATAL_MARKER, var9, (Throwable)var10);
                 this.minecraft.emergencySave();
-                Minecraft.crash(var14);
+                Minecraft.crash(var12);
             }
         }
 
@@ -2337,8 +2335,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             ChunkPos var5 = new ChunkPos(var4.getOrigin());
             if (var4.isDirty() && this.level.getChunk(var5.x, var5.z).isClientLightReady()) {
                 boolean var6 = false;
-                if (this.minecraft.options.prioritizeChunkUpdates != PrioritizeChunkUpdates.NEARBY) {
-                    if (this.minecraft.options.prioritizeChunkUpdates == PrioritizeChunkUpdates.PLAYER_AFFECTED) {
+                if (this.minecraft.options.prioritizeChunkUpdates().get() != PrioritizeChunkUpdates.NEARBY) {
+                    if (this.minecraft.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED) {
                         var6 = var4.isDirtyFromPlayer();
                     }
                 } else {
@@ -3098,7 +3096,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 this.level
                     .playLocalSound(param2, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false);
 
-                for(int var41 = 0; var41 < 8; ++var41) {
+                for(int var62 = 0; var62 < 8; ++var62) {
                     this.level
                         .addParticle(
                             ParticleTypes.LARGE_SMOKE,
@@ -3117,21 +3115,21 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         param2, SoundEvents.REDSTONE_TORCH_BURNOUT, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false
                     );
 
-                for(int var42 = 0; var42 < 5; ++var42) {
-                    double var43 = (double)param2.getX() + var0.nextDouble() * 0.6 + 0.2;
-                    double var44 = (double)param2.getY() + var0.nextDouble() * 0.6 + 0.2;
-                    double var45 = (double)param2.getZ() + var0.nextDouble() * 0.6 + 0.2;
-                    this.level.addParticle(ParticleTypes.SMOKE, var43, var44, var45, 0.0, 0.0, 0.0);
+                for(int var63 = 0; var63 < 5; ++var63) {
+                    double var64 = (double)param2.getX() + var0.nextDouble() * 0.6 + 0.2;
+                    double var65 = (double)param2.getY() + var0.nextDouble() * 0.6 + 0.2;
+                    double var66 = (double)param2.getZ() + var0.nextDouble() * 0.6 + 0.2;
+                    this.level.addParticle(ParticleTypes.SMOKE, var64, var65, var66, 0.0, 0.0, 0.0);
                 }
                 break;
             case 1503:
                 this.level.playLocalSound(param2, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.BLOCKS, 1.0F, 1.0F, false);
 
-                for(int var46 = 0; var46 < 16; ++var46) {
-                    double var47 = (double)param2.getX() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
-                    double var48 = (double)param2.getY() + 0.8125;
-                    double var49 = (double)param2.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
-                    this.level.addParticle(ParticleTypes.SMOKE, var47, var48, var49, 0.0, 0.0, 0.0);
+                for(int var67 = 0; var67 < 16; ++var67) {
+                    double var68 = (double)param2.getX() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
+                    double var69 = (double)param2.getY() + 0.8125;
+                    double var70 = (double)param2.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
+                    this.level.addParticle(ParticleTypes.SMOKE, var68, var69, var70, 0.0, 0.0, 0.0);
                 }
                 break;
             case 1504:
@@ -3261,24 +3259,24 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 BoneMealItem.addGrowthParticles(this.level, param2, param3);
                 break;
             case 2006:
-                for(int var50 = 0; var50 < 200; ++var50) {
-                    float var51 = var0.nextFloat() * 4.0F;
-                    float var52 = var0.nextFloat() * (float) (Math.PI * 2);
-                    double var53 = (double)(Mth.cos(var52) * var51);
-                    double var54 = 0.01 + var0.nextDouble() * 0.5;
-                    double var55 = (double)(Mth.sin(var52) * var51);
-                    Particle var56 = this.addParticleInternal(
+                for(int var71 = 0; var71 < 200; ++var71) {
+                    float var72 = var0.nextFloat() * 4.0F;
+                    float var73 = var0.nextFloat() * (float) (Math.PI * 2);
+                    double var74 = (double)(Mth.cos(var73) * var72);
+                    double var75 = 0.01 + var0.nextDouble() * 0.5;
+                    double var76 = (double)(Mth.sin(var73) * var72);
+                    Particle var77 = this.addParticleInternal(
                         ParticleTypes.DRAGON_BREATH,
                         false,
-                        (double)param2.getX() + var53 * 0.1,
+                        (double)param2.getX() + var74 * 0.1,
                         (double)param2.getY() + 0.3,
-                        (double)param2.getZ() + var55 * 0.1,
-                        var53,
-                        var54,
-                        var55
+                        (double)param2.getZ() + var76 * 0.1,
+                        var74,
+                        var75,
+                        var76
                     );
-                    if (var56 != null) {
-                        var56.setPower(var51);
+                    if (var77 != null) {
+                        var77.setPower(var72);
                     }
                 }
 
@@ -3291,7 +3289,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     .addParticle(ParticleTypes.EXPLOSION, (double)param2.getX() + 0.5, (double)param2.getY() + 0.5, (double)param2.getZ() + 0.5, 0.0, 0.0, 0.0);
                 break;
             case 2009:
-                for(int var57 = 0; var57 < 8; ++var57) {
+                for(int var78 = 0; var78 < 8; ++var78) {
                     this.level
                         .addParticle(
                             ParticleTypes.CLOUD,
@@ -3348,6 +3346,58 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 break;
             case 3005:
                 ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.SCRAPE, UniformInt.of(3, 5));
+                break;
+            case 3006:
+                int var41 = param3 >> 6;
+                if (var41 > 0) {
+                    if (var0.nextFloat() < 0.3F + (float)var41 * 0.1F) {
+                        float var42 = 0.15F + 0.02F * (float)var41 * (float)var41 * var0.nextFloat();
+                        float var43 = 0.4F + 0.3F * (float)var41 * var0.nextFloat();
+                        this.level.playLocalSound(param2, SoundEvents.SCULK_BLOCK_CHARGE, SoundSource.BLOCKS, var42, var43, false);
+                    }
+
+                    int var44 = param3 & 63;
+                    IntProvider var45 = UniformInt.of(0, var41);
+                    float var46 = 0.005F;
+                    Supplier<Vec3> var47 = () -> new Vec3(
+                            Mth.nextDouble(var0, -0.005F, 0.005F), Mth.nextDouble(var0, -0.005F, 0.005F), Mth.nextDouble(var0, -0.005F, 0.005F)
+                        );
+                    if (var44 == 0) {
+                        for(Direction var48 : Direction.values()) {
+                            float var49 = var48 == Direction.DOWN ? (float) Math.PI : 0.0F;
+                            double var50 = var48.getAxis() == Direction.Axis.Y ? 0.65 : 0.57;
+                            ParticleUtils.spawnParticlesOnBlockFace(this.level, param2, new SculkChargeParticleOptions(var49), var45, var48, var47, var50);
+                        }
+                    } else {
+                        for(Direction var51 : MultifaceBlock.unpack((byte)param3)) {
+                            float var52 = var51 == Direction.UP ? (float) Math.PI : 0.0F;
+                            double var53 = 0.35;
+                            ParticleUtils.spawnParticlesOnBlockFace(this.level, param2, new SculkChargeParticleOptions(var52), var45, var51, var47, 0.35);
+                        }
+                    }
+                } else {
+                    this.level.playLocalSound(param2, SoundEvents.SCULK_BLOCK_CHARGE, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+                    boolean var54 = this.level.getBlockState(param2).isCollisionShapeFullBlock(this.level, param2);
+                    int var55 = var54 ? 40 : 20;
+                    float var56 = var54 ? 0.45F : 0.25F;
+                    float var57 = 0.07F;
+
+                    for(int var58 = 0; var58 < var55; ++var58) {
+                        float var59 = 2.0F * var0.nextFloat() - 1.0F;
+                        float var60 = 2.0F * var0.nextFloat() - 1.0F;
+                        float var61 = 2.0F * var0.nextFloat() - 1.0F;
+                        this.level
+                            .addParticle(
+                                ParticleTypes.SCULK_CHARGE_POP,
+                                (double)param2.getX() + 0.5 + (double)(var59 * var56),
+                                (double)param2.getY() + 0.5 + (double)(var60 * var56),
+                                (double)param2.getZ() + 0.5 + (double)(var61 * var56),
+                                (double)(var59 * 0.07F),
+                                (double)(var60 * 0.07F),
+                                (double)(var61 * 0.07F)
+                            );
+                    }
+                }
         }
 
     }

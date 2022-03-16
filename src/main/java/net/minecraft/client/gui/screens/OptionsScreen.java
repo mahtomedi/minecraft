@@ -23,7 +23,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OptionsScreen extends Screen {
-    private static final Option[] OPTION_SCREEN_OPTIONS = new Option[]{Option.FOV};
     private final Screen lastScreen;
     private final Options options;
     private CycleButton<Difficulty> difficultyButton;
@@ -39,7 +38,7 @@ public class OptionsScreen extends Screen {
     protected void init() {
         int var0 = 0;
 
-        for(Option var1 : OPTION_SCREEN_OPTIONS) {
+        for(Option var1 : new Option[]{this.options.fov()}) {
             int var2 = this.width / 2 - 155 + var0 % 2 * 160;
             int var3 = this.height / 6 - 12 + 24 * (var0 >> 1);
             this.addRenderableWidget(var1.createButton(this.minecraft.options, var2, var3, 150));

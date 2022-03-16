@@ -144,6 +144,14 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
         );
     }
 
+    public CompletableFuture<ChunkAccess> retainData(ChunkAccess param0) {
+        ChunkPos var0 = param0.getPos();
+        return CompletableFuture.supplyAsync(Util.name(() -> {
+            super.retainData(var0, true);
+            return param0;
+        }, () -> "retainData: " + var0), param1 -> this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.PRE_UPDATE, param1));
+    }
+
     public CompletableFuture<ChunkAccess> lightChunk(ChunkAccess param0, boolean param1) {
         ChunkPos var0 = param0.getPos();
         param0.setLightCorrect(false);

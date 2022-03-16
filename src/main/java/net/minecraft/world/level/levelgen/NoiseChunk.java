@@ -9,12 +9,12 @@ import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -83,116 +83,121 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
     public static NoiseChunk forChunk(
         ChunkAccess param0,
         NoiseRouter param1,
-        Supplier<DensityFunctions.BeardifierOrMarker> param2,
+        DensityFunctions.BeardifierOrMarker param2,
         NoiseGeneratorSettings param3,
         Aquifer.FluidPicker param4,
-        Blender param5
+        Blender param5,
+        PositionalRandomFactory param6,
+        PositionalRandomFactory param7
     ) {
         ChunkPos var0 = param0.getPos();
-        NoiseSettings var1 = param3.noiseSettings();
-        int var2 = Math.max(var1.minY(), param0.getMinBuildHeight());
-        int var3 = Math.min(var1.minY() + var1.height(), param0.getMaxBuildHeight());
-        int var4 = Mth.intFloorDiv(var2, var1.getCellHeight());
-        int var5 = Mth.intFloorDiv(var3 - var2, var1.getCellHeight());
-        return new NoiseChunk(16 / var1.getCellWidth(), var5, var4, param1, var0.getMinBlockX(), var0.getMinBlockZ(), param2.get(), param3, param4, param5);
+        return new NoiseChunk(
+            16 / param3.noiseSettings().getCellWidth(),
+            param0,
+            param1,
+            var0.getMinBlockX(),
+            var0.getMinBlockZ(),
+            param2,
+            param3,
+            param4,
+            param5,
+            param6,
+            param7
+        );
     }
 
-    public static NoiseChunk forColumn(
-        int param0, int param1, int param2, int param3, NoiseRouter param4, NoiseGeneratorSettings param5, Aquifer.FluidPicker param6
-    ) {
-        return new NoiseChunk(1, param3, param2, param4, param0, param1, DensityFunctions.BeardifierMarker.INSTANCE, param5, param6, Blender.empty());
-    }
-
-    private NoiseChunk(
+    public NoiseChunk(
         int param0,
-        int param1,
-        int param2,
-        NoiseRouter param3,
+        LevelHeightAccessor param1,
+        NoiseRouter param2,
+        int param3,
         int param4,
-        int param5,
-        DensityFunctions.BeardifierOrMarker param6,
-        NoiseGeneratorSettings param7,
-        Aquifer.FluidPicker param8,
-        Blender param9
+        DensityFunctions.BeardifierOrMarker param5,
+        NoiseGeneratorSettings param6,
+        Aquifer.FluidPicker param7,
+        Blender param8,
+        PositionalRandomFactory param9,
+        PositionalRandomFactory param10
     ) {
-        this.noiseSettings = param7.noiseSettings();
+        this.noiseSettings = param6.noiseSettings();
+        int var0 = Math.max(this.noiseSettings.minY(), param1.getMinBuildHeight());
+        int var1 = Math.min(this.noiseSettings.minY() + this.noiseSettings.height(), param1.getMaxBuildHeight());
+        int var2 = Mth.intFloorDiv(var0, this.noiseSettings.getCellHeight());
+        int var3 = Mth.intFloorDiv(var1 - var0, this.noiseSettings.getCellHeight());
         this.cellCountXZ = param0;
-        this.cellCountY = param1;
-        this.cellNoiseMinY = param2;
+        this.cellCountY = var3;
+        this.cellNoiseMinY = var2;
         this.cellWidth = this.noiseSettings.getCellWidth();
         this.cellHeight = this.noiseSettings.getCellHeight();
-        this.firstCellX = Math.floorDiv(param4, this.cellWidth);
-        this.firstCellZ = Math.floorDiv(param5, this.cellWidth);
+        this.firstCellX = Math.floorDiv(param3, this.cellWidth);
+        this.firstCellZ = Math.floorDiv(param4, this.cellWidth);
         this.interpolators = Lists.newArrayList();
         this.cellCaches = Lists.newArrayList();
-        this.firstNoiseX = QuartPos.fromBlock(param4);
-        this.firstNoiseZ = QuartPos.fromBlock(param5);
+        this.firstNoiseX = QuartPos.fromBlock(param3);
+        this.firstNoiseZ = QuartPos.fromBlock(param4);
         this.noiseSizeXZ = QuartPos.fromBlock(param0 * this.cellWidth);
-        this.blender = param9;
-        this.beardifier = param6;
+        this.blender = param8;
+        this.beardifier = param5;
         this.blendAlpha = new NoiseChunk.FlatCache(new NoiseChunk.BlendAlpha(), false);
         this.blendOffset = new NoiseChunk.FlatCache(new NoiseChunk.BlendOffset(), false);
 
-        for(int var0 = 0; var0 <= this.noiseSizeXZ; ++var0) {
-            int var1 = this.firstNoiseX + var0;
-            int var2 = QuartPos.toBlock(var1);
+        for(int var4 = 0; var4 <= this.noiseSizeXZ; ++var4) {
+            int var5 = this.firstNoiseX + var4;
+            int var6 = QuartPos.toBlock(var5);
 
-            for(int var3 = 0; var3 <= this.noiseSizeXZ; ++var3) {
-                int var4 = this.firstNoiseZ + var3;
-                int var5 = QuartPos.toBlock(var4);
-                Blender.BlendingOutput var6 = param9.blendOffsetAndFactor(var2, var5);
-                this.blendAlpha.values[var0][var3] = var6.alpha();
-                this.blendOffset.values[var0][var3] = var6.blendingOffset();
+            for(int var7 = 0; var7 <= this.noiseSizeXZ; ++var7) {
+                int var8 = this.firstNoiseZ + var7;
+                int var9 = QuartPos.toBlock(var8);
+                Blender.BlendingOutput var10 = param8.blendOffsetAndFactor(var6, var9);
+                this.blendAlpha.values[var4][var7] = var10.alpha();
+                this.blendOffset.values[var4][var7] = var10.blendingOffset();
             }
         }
 
-        if (!param7.isAquifersEnabled()) {
-            this.aquifer = Aquifer.createDisabled(param8);
+        if (!param6.isAquifersEnabled()) {
+            this.aquifer = Aquifer.createDisabled(param7);
         } else {
-            int var7 = SectionPos.blockToSectionCoord(param4);
-            int var8 = SectionPos.blockToSectionCoord(param5);
+            int var11 = SectionPos.blockToSectionCoord(param3);
+            int var12 = SectionPos.blockToSectionCoord(param4);
             this.aquifer = Aquifer.create(
                 this,
-                new ChunkPos(var7, var8),
-                param3.barrierNoise(),
-                param3.fluidLevelFloodednessNoise(),
-                param3.fluidLevelSpreadNoise(),
-                param3.lavaNoise(),
-                param3.aquiferPositionalRandomFactory(),
-                param2 * this.cellHeight,
-                param1 * this.cellHeight,
-                param8
+                new ChunkPos(var11, var12),
+                param2.barrierNoise(),
+                param2.fluidLevelFloodednessNoise(),
+                param2.fluidLevelSpreadNoise(),
+                param2.lavaNoise(),
+                param9,
+                var2 * this.cellHeight,
+                var3 * this.cellHeight,
+                param7
             );
         }
 
-        Builder<NoiseChunk.BlockStateFiller> var9 = ImmutableList.builder();
-        DensityFunction var10 = DensityFunctions.cacheAllInCell(DensityFunctions.add(param3.finalDensity(), DensityFunctions.BeardifierMarker.INSTANCE))
+        Builder<NoiseChunk.BlockStateFiller> var13 = ImmutableList.builder();
+        DensityFunction var14 = DensityFunctions.cacheAllInCell(DensityFunctions.add(param2.finalDensity(), DensityFunctions.BeardifierMarker.INSTANCE))
             .mapAll(this::wrap);
-        var9.add(param1x -> this.aquifer.computeSubstance(param1x, var10.compute(param1x)));
-        if (param7.oreVeinsEnabled()) {
-            var9.add(
+        var13.add(param1x -> this.aquifer.computeSubstance(param1x, var14.compute(param1x)));
+        if (param6.oreVeinsEnabled()) {
+            var13.add(
                 OreVeinifier.create(
-                    param3.veinToggle().mapAll(this::wrap),
-                    param3.veinRidged().mapAll(this::wrap),
-                    param3.veinGap().mapAll(this::wrap),
-                    param3.oreVeinsPositionalRandomFactory()
+                    param2.veinToggle().mapAll(this::wrap), param2.veinRidged().mapAll(this::wrap), param2.veinGap().mapAll(this::wrap), param10
                 )
             );
         }
 
-        this.blockStateRule = new MaterialRuleList(var9.build());
-        this.initialDensityNoJaggedness = param3.initialDensityWithoutJaggedness().mapAll(this::wrap);
+        this.blockStateRule = new MaterialRuleList(var13.build());
+        this.initialDensityNoJaggedness = param2.initialDensityWithoutJaggedness().mapAll(this::wrap);
     }
 
-    protected Climate.Sampler cachedClimateSampler(NoiseRouter param0) {
+    protected Climate.Sampler cachedClimateSampler(NoiseRouter param0, List<Climate.ParameterPoint> param1) {
         return new Climate.Sampler(
             param0.temperature().mapAll(this::wrap),
-            param0.humidity().mapAll(this::wrap),
+            param0.vegetation().mapAll(this::wrap),
             param0.continents().mapAll(this::wrap),
             param0.erosion().mapAll(this::wrap),
             param0.depth().mapAll(this::wrap),
             param0.ridges().mapAll(this::wrap),
-            param0.spawnTarget()
+            param1
         );
     }
 

@@ -20,8 +20,10 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.ArgumentUtils;
 import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -116,13 +118,13 @@ public class Commands {
     public static final int LEVEL_OWNERS = 4;
     private final CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
 
-    public Commands(Commands.CommandSelection param0) {
+    public Commands(Commands.CommandSelection param0, CommandBuildContext param1) {
         AdvancementCommands.register(this.dispatcher);
         AttributeCommand.register(this.dispatcher);
-        ExecuteCommand.register(this.dispatcher);
+        ExecuteCommand.register(this.dispatcher, param1);
         BossBarCommands.register(this.dispatcher);
-        ClearInventoryCommands.register(this.dispatcher);
-        CloneCommands.register(this.dispatcher);
+        ClearInventoryCommands.register(this.dispatcher, param1);
+        CloneCommands.register(this.dispatcher, param1);
         DataCommands.register(this.dispatcher);
         DataPackCommand.register(this.dispatcher);
         DebugCommand.register(this.dispatcher);
@@ -132,20 +134,20 @@ public class Commands {
         EmoteCommands.register(this.dispatcher);
         EnchantCommand.register(this.dispatcher);
         ExperienceCommand.register(this.dispatcher);
-        FillCommand.register(this.dispatcher);
+        FillCommand.register(this.dispatcher, param1);
         ForceLoadCommand.register(this.dispatcher);
         FunctionCommand.register(this.dispatcher);
         GameModeCommand.register(this.dispatcher);
         GameRuleCommand.register(this.dispatcher);
-        GiveCommand.register(this.dispatcher);
+        GiveCommand.register(this.dispatcher, param1);
         HelpCommand.register(this.dispatcher);
-        ItemCommands.register(this.dispatcher);
+        ItemCommands.register(this.dispatcher, param1);
         KickCommand.register(this.dispatcher);
         KillCommand.register(this.dispatcher);
         ListPlayersCommand.register(this.dispatcher);
         LocateCommand.register(this.dispatcher);
         LocateBiomeCommand.register(this.dispatcher);
-        LootCommand.register(this.dispatcher);
+        LootCommand.register(this.dispatcher, param1);
         MsgCommand.register(this.dispatcher);
         ParticleCommand.register(this.dispatcher);
         PlaceFeatureCommand.register(this.dispatcher);
@@ -156,7 +158,7 @@ public class Commands {
         ScheduleCommand.register(this.dispatcher);
         ScoreboardCommand.register(this.dispatcher);
         SeedCommand.register(this.dispatcher, param0 != Commands.CommandSelection.INTEGRATED);
-        SetBlockCommand.register(this.dispatcher);
+        SetBlockCommand.register(this.dispatcher, param1);
         SetSpawnCommand.register(this.dispatcher);
         SetWorldSpawnCommand.register(this.dispatcher);
         SpectateCommand.register(this.dispatcher);
@@ -202,13 +204,7 @@ public class Commands {
             PublishCommand.register(this.dispatcher);
         }
 
-        this.dispatcher
-            .findAmbiguities(
-                (param0x, param1, param2, param3) -> LOGGER.warn(
-                        "Ambiguity between arguments {} and {} with inputs: {}", this.dispatcher.getPath(param1), this.dispatcher.getPath(param2), param3
-                    )
-            );
-        this.dispatcher.setConsumer((param0x, param1, param2) -> param0x.getSource().onCommandComplete(param0x, param1, param2));
+        this.dispatcher.setConsumer((param0x, param1x, param2) -> param0x.getSource().onCommandComplete(param0x, param1x, param2));
     }
 
     public int performCommand(CommandSourceStack param0, String param1) {
@@ -357,12 +353,20 @@ public class Commands {
     }
 
     public static void validate() {
-        RootCommandNode<CommandSourceStack> var0 = new Commands(Commands.CommandSelection.ALL).getDispatcher().getRoot();
-        Set<ArgumentType<?>> var1 = ArgumentTypes.findUsedArgumentTypes(var0);
-        Set<ArgumentType<?>> var2 = var1.stream().filter(param0 -> !ArgumentTypes.isTypeRegistered(param0)).collect(Collectors.toSet());
-        if (!var2.isEmpty()) {
+        CommandBuildContext var0 = new CommandBuildContext(RegistryAccess.BUILTIN.get());
+        var0.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.RETURN_EMPTY);
+        CommandDispatcher<CommandSourceStack> var1 = new Commands(Commands.CommandSelection.ALL, var0).getDispatcher();
+        RootCommandNode<CommandSourceStack> var2 = var1.getRoot();
+        var1.findAmbiguities(
+            (param1, param2, param3, param4) -> LOGGER.warn(
+                    "Ambiguity between arguments {} and {} with inputs: {}", var1.getPath(param2), var1.getPath(param3), param4
+                )
+        );
+        Set<ArgumentType<?>> var3 = ArgumentUtils.findUsedArgumentTypes(var2);
+        Set<ArgumentType<?>> var4 = var3.stream().filter(param0 -> !ArgumentTypeInfos.isClassRecognized(param0.getClass())).collect(Collectors.toSet());
+        if (!var4.isEmpty()) {
             LOGGER.warn(
-                "Missing type registration for following arguments:\n {}", var2.stream().map(param0 -> "\t" + param0).collect(Collectors.joining(",\n"))
+                "Missing type registration for following arguments:\n {}", var4.stream().map(param0 -> "\t" + param0).collect(Collectors.joining(",\n"))
             );
             throw new IllegalStateException("Unregistered argument types");
         }

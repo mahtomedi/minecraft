@@ -689,6 +689,16 @@ public class Mth {
         return lerp(param2, lerp2(param0, param1, param3, param4, param5, param6), lerp2(param0, param1, param7, param8, param9, param10));
     }
 
+    public static float catmullrom(float param0, float param1, float param2, float param3, float param4) {
+        return 0.5F
+            * (
+                2.0F * param2
+                    + (param3 - param1) * param0
+                    + (2.0F * param1 - 5.0F * param2 + 4.0F * param3 - param4) * param0 * param0
+                    + (3.0F * param2 - param1 - 3.0F * param3 + param4) * param0 * param0 * param0
+            );
+    }
+
     public static double smoothstep(double param0) {
         return param0 * param0 * param0 * (param0 * (param0 * 6.0 - 15.0) + 10.0);
     }

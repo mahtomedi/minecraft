@@ -21,7 +21,7 @@ public class SuspiciousStewItem extends Item {
         CompoundTag var0 = param0.getOrCreateTag();
         ListTag var1 = var0.getList("Effects", 9);
         CompoundTag var2 = new CompoundTag();
-        var2.putByte("EffectId", (byte)MobEffect.getId(param1));
+        var2.putInt("EffectId", MobEffect.getId(param1));
         var2.putInt("EffectDuration", param2);
         var1.add(var2);
         var0.put("Effects", var1);
@@ -41,7 +41,7 @@ public class SuspiciousStewItem extends Item {
                     var4 = var5.getInt("EffectDuration");
                 }
 
-                MobEffect var6 = MobEffect.byId(var5.getByte("EffectId"));
+                MobEffect var6 = MobEffect.byId(var5.getInt("EffectId"));
                 if (var6 != null) {
                     param2.addEffect(new MobEffectInstance(var6, var4));
                 }

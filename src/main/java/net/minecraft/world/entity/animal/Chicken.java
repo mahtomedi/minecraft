@@ -141,8 +141,8 @@ public class Chicken extends Animal {
     }
 
     @Override
-    protected int getExperienceReward(Player param0) {
-        return this.isChickenJockey() ? 10 : super.getExperienceReward(param0);
+    public int getExperienceReward() {
+        return this.isChickenJockey() ? 10 : super.getExperienceReward();
     }
 
     @Override

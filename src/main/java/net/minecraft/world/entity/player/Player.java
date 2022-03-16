@@ -1721,7 +1721,7 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    protected int getExperienceReward(Player param0) {
+    public int getExperienceReward() {
         if (!this.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && !this.isSpectator()) {
             int var0 = this.experienceLevel * 7;
             return var0 > 100 ? 100 : var0;

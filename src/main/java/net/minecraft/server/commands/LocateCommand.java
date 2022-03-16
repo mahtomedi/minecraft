@@ -19,7 +19,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.structure.Structure;
 
 public class LocateCommand {
     private static final DynamicCommandExceptionType ERROR_FAILED = new DynamicCommandExceptionType(
@@ -34,22 +34,20 @@ public class LocateCommand {
             Commands.literal("locate")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
-                    Commands.argument("structure", ResourceOrTagLocationArgument.resourceOrTag(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY))
-                        .executes(param0x -> locate(param0x.getSource(), ResourceOrTagLocationArgument.getStructureFeature(param0x, "structure")))
+                    Commands.argument("structure", ResourceOrTagLocationArgument.resourceOrTag(Registry.STRUCTURE_REGISTRY))
+                        .executes(param0x -> locate(param0x.getSource(), ResourceOrTagLocationArgument.getStructure(param0x, "structure")))
                 )
         );
     }
 
-    private static int locate(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<ConfiguredStructureFeature<?, ?>> param1) throws CommandSyntaxException {
-        Registry<ConfiguredStructureFeature<?, ?>> var0 = param0.getLevel().registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
-        HolderSet<ConfiguredStructureFeature<?, ?>> var1 = param1.unwrap()
+    private static int locate(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<Structure> param1) throws CommandSyntaxException {
+        Registry<Structure> var0 = param0.getLevel().registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        HolderSet<Structure> var1 = param1.unwrap()
             .map(param1x -> var0.getHolder(param1x).map(param0x -> HolderSet.direct(param0x)), var0::getTag)
             .orElseThrow(() -> ERROR_INVALID.create(param1.asPrintable()));
         BlockPos var2 = new BlockPos(param0.getPosition());
         ServerLevel var3 = param0.getLevel();
-        Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>> var4 = var3.getChunkSource()
-            .getGenerator()
-            .findNearestMapFeature(var3, var1, var2, 100, false);
+        Pair<BlockPos, Holder<Structure>> var4 = var3.getChunkSource().getGenerator().findNearestMapStructure(var3, var1, var2, 100, false);
         if (var4 == null) {
             throw ERROR_FAILED.create(param1.asPrintable());
         } else {

@@ -353,27 +353,30 @@ public class ModelBakery {
                     List<Pair<String, BlockModelDefinition>> var13;
                     try {
                         var13 = this.resourceManager
-                            .getResources(var9)
+                            .getResourceStack(var9)
                             .stream()
                             .map(
-                                param0x -> {
+                                param1 -> {
                                     try {
-                                        Pair var3x;
-                                        try (InputStream var0x = param0x.getInputStream()) {
-                                            var3x = Pair.of(
-                                                param0x.getSourceName(),
-                                                BlockModelDefinition.fromStream(this.context, new InputStreamReader(var0x, StandardCharsets.UTF_8))
+                                        Pair var5x;
+                                        try (
+                                            Resource var0x = param1.open();
+                                            InputStream var1x = var0x.getInputStream();
+                                        ) {
+                                            var5x = Pair.of(
+                                                param1.sourcePackId(),
+                                                BlockModelDefinition.fromStream(this.context, new InputStreamReader(var1x, StandardCharsets.UTF_8))
                                             );
                                         }
         
-                                        return var3x;
-                                    } catch (Exception var7x) {
+                                        return var5x;
+                                    } catch (Exception var11x) {
                                         throw new ModelBakery.BlockStateDefinitionException(
                                             String.format(
                                                 "Exception loading blockstate definition: '%s' in resourcepack: '%s': %s",
-                                                param0x.getLocation(),
-                                                param0x.getSourceName(),
-                                                var7x.getMessage()
+                                                var9,
+                                                param1.sourcePackId(),
+                                                var11x.getMessage()
                                             )
                                         );
                                     }

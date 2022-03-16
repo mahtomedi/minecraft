@@ -22,6 +22,7 @@ import net.minecraft.util.datafix.fixes.BedItemColorFix;
 import net.minecraft.util.datafix.fixes.BeehivePoiRenameFix;
 import net.minecraft.util.datafix.fixes.BiomeFix;
 import net.minecraft.util.datafix.fixes.BitStorageAlignFix;
+import net.minecraft.util.datafix.fixes.BlendingDataFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBannerColorFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBlockStateFix;
 import net.minecraft.util.datafix.fixes.BlockEntityCustomNameToComponentFix;
@@ -40,6 +41,7 @@ import net.minecraft.util.datafix.fixes.CauldronRenameFix;
 import net.minecraft.util.datafix.fixes.CavesAndCliffsRenames;
 import net.minecraft.util.datafix.fixes.ChunkBedBlockEntityInjecterFix;
 import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
+import net.minecraft.util.datafix.fixes.ChunkDeleteIgnoredLightDataFix;
 import net.minecraft.util.datafix.fixes.ChunkHeightAndBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
@@ -210,6 +212,8 @@ import net.minecraft.util.datafix.schemas.V2707;
 import net.minecraft.util.datafix.schemas.V2831;
 import net.minecraft.util.datafix.schemas.V2832;
 import net.minecraft.util.datafix.schemas.V2842;
+import net.minecraft.util.datafix.schemas.V3076;
+import net.minecraft.util.datafix.schemas.V3078;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -854,6 +858,16 @@ public class DataFixers {
         param0.addFixer(new StructureSettingsFlattenFix(var156));
         Schema var157 = param0.addSchema(2970, SAME_NAMESPACED);
         param0.addFixer(new StructuresBecomeConfiguredFix(var157));
+        Schema var158 = param0.addSchema(3076, V3076::new);
+        param0.addFixer(new AddNewChoices(var158, "Added Sculk Catalyst", References.BLOCK_ENTITY));
+        Schema var159 = param0.addSchema(3077, SAME_NAMESPACED);
+        param0.addFixer(new ChunkDeleteIgnoredLightDataFix(var159));
+        Schema var160 = param0.addSchema(3078, V3078::new);
+        param0.addFixer(new AddNewChoices(var160, "Added Frog", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var160, "Added Tadpole", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var160, "Added Sculk Shrieker", References.BLOCK_ENTITY));
+        Schema var161 = param0.addSchema(3079, SAME_NAMESPACED);
+        param0.addFixer(new BlendingDataFix(var161, "Blending Data Fix v3079"));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

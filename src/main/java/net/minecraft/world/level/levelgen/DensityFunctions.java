@@ -8,18 +8,19 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.ToFloatFunction;
-import net.minecraft.world.level.biome.TerrainShaper;
-import net.minecraft.world.level.biome.TheEndBiomeSource;
+import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -68,7 +69,6 @@ public final class DensityFunctions {
         }
 
         register(param0, "spline", DensityFunctions.Spline.CODEC);
-        register(param0, "terrain_shaper_spline", DensityFunctions.TerrainShaperSpline.CODEC);
         register(param0, "constant", DensityFunctions.Constant.CODEC);
         return register(param0, "y_clamped_gradient", DensityFunctions.YClampedGradient.CODEC);
     }
@@ -206,15 +206,8 @@ public final class DensityFunctions {
         return DensityFunctions.TwoArgumentSimpleFunction.create(DensityFunctions.TwoArgumentSimpleFunction.Type.MAX, param0, param1);
     }
 
-    public static DensityFunction terrainShaperSpline(
-        DensityFunction param0,
-        DensityFunction param1,
-        DensityFunction param2,
-        DensityFunctions.TerrainShaperSpline.SplineType param3,
-        double param4,
-        double param5
-    ) {
-        return new DensityFunctions.TerrainShaperSpline(param0, param1, param2, null, param3, param4, param5);
+    public static DensityFunction spline(CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> param0) {
+        return new DensityFunctions.Spline(param0);
     }
 
     public static DensityFunction zero() {
@@ -498,7 +491,8 @@ public final class DensityFunctions {
 
     protected static final class EndIslandDensityFunction implements DensityFunction.SimpleFunction {
         public static final Codec<DensityFunctions.EndIslandDensityFunction> CODEC = Codec.unit(new DensityFunctions.EndIslandDensityFunction(0L));
-        final SimplexNoise islandNoise;
+        private static final float ISLAND_THRESHOLD = -0.9F;
+        private final SimplexNoise islandNoise;
 
         public EndIslandDensityFunction(long param0) {
             RandomSource var0 = new LegacyRandomSource(param0);
@@ -506,9 +500,35 @@ public final class DensityFunctions {
             this.islandNoise = new SimplexNoise(var0);
         }
 
+        private static float getHeightValue(SimplexNoise param0, int param1, int param2) {
+            int var0 = param1 / 2;
+            int var1 = param2 / 2;
+            int var2 = param1 % 2;
+            int var3 = param2 % 2;
+            float var4 = 100.0F - Mth.sqrt((float)(param1 * param1 + param2 * param2)) * 8.0F;
+            var4 = Mth.clamp(var4, -100.0F, 80.0F);
+
+            for(int var5 = -12; var5 <= 12; ++var5) {
+                for(int var6 = -12; var6 <= 12; ++var6) {
+                    long var7 = (long)(var0 + var5);
+                    long var8 = (long)(var1 + var6);
+                    if (var7 * var7 + var8 * var8 > 4096L && param0.getValue((double)var7, (double)var8) < -0.9F) {
+                        float var9 = (Mth.abs((float)var7) * 3439.0F + Mth.abs((float)var8) * 147.0F) % 13.0F + 9.0F;
+                        float var10 = (float)(var2 - var5 * 2);
+                        float var11 = (float)(var3 - var6 * 2);
+                        float var12 = 100.0F - Mth.sqrt(var10 * var10 + var11 * var11) * var9;
+                        var12 = Mth.clamp(var12, -100.0F, 80.0F);
+                        var4 = Math.max(var4, var12);
+                    }
+                }
+            }
+
+            return var4;
+        }
+
         @Override
         public double compute(DensityFunction.FunctionContext param0) {
-            return ((double)TheEndBiomeSource.getHeightValue(this.islandNoise, param0.blockX() / 8, param0.blockZ() / 8) - 8.0) / 128.0;
+            return ((double)getHeightValue(this.islandNoise, param0.blockX() / 8, param0.blockZ() / 8) - 8.0) / 128.0;
         }
 
         @Override
@@ -527,7 +547,8 @@ public final class DensityFunctions {
         }
     }
 
-    protected static record HolderHolder(Holder<DensityFunction> function) implements DensityFunction {
+    @VisibleForDebug
+    public static record HolderHolder(Holder<DensityFunction> function) implements DensityFunction {
         @Override
         public double compute(DensityFunction.FunctionContext param0) {
             return this.function.value().compute(param0);
@@ -1050,20 +1071,27 @@ public final class DensityFunctions {
         }
     }
 
-    public static record Spline(CubicSpline<TerrainShaper.PointCustom> spline, double minValue, double maxValue) implements DensityFunction {
-        private static final MapCodec<DensityFunctions.Spline> DATA_CODEC = RecordCodecBuilder.mapCodec(
-            param0 -> param0.group(
-                        TerrainShaper.SPLINE_CUSTOM_CODEC.fieldOf("spline").forGetter(DensityFunctions.Spline::spline),
-                        DensityFunctions.NOISE_VALUE_CODEC.fieldOf("min_value").forGetter(DensityFunctions.Spline::minValue),
-                        DensityFunctions.NOISE_VALUE_CODEC.fieldOf("max_value").forGetter(DensityFunctions.Spline::maxValue)
-                    )
-                    .apply(param0, DensityFunctions.Spline::new)
+    public static record Spline(CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> spline) implements DensityFunction {
+        private static final Codec<CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate>> SPLINE_CODEC = CubicSpline.codec(
+            DensityFunctions.Spline.Coordinate.CODEC
         );
+        private static final MapCodec<DensityFunctions.Spline> DATA_CODEC = SPLINE_CODEC.fieldOf("spline")
+            .xmap(DensityFunctions.Spline::new, DensityFunctions.Spline::spline);
         public static final Codec<DensityFunctions.Spline> CODEC = DensityFunctions.makeCodec(DATA_CODEC);
 
         @Override
         public double compute(DensityFunction.FunctionContext param0) {
-            return Mth.clamp((double)this.spline.apply(TerrainShaper.makePoint(param0)), this.minValue, this.maxValue);
+            return (double)this.spline.apply(new DensityFunctions.Spline.Point(param0));
+        }
+
+        @Override
+        public double minValue() {
+            return (double)this.spline.minValue();
+        }
+
+        @Override
+        public double maxValue() {
+            return (double)this.spline.maxValue();
         }
 
         @Override
@@ -1073,132 +1101,63 @@ public final class DensityFunctions {
 
         @Override
         public DensityFunction mapAll(DensityFunction.Visitor param0) {
-            return param0.apply(
-                new DensityFunctions.Spline(
-                    this.spline
-                        .mapAll(
-                            param1 -> (ToFloatFunction<TerrainShaper.PointCustom>)(param1 instanceof TerrainShaper.CoordinateCustom var0
-                                    ? var0.mapAll(param0)
-                                    : param1)
-                        ),
-                    this.minValue,
-                    this.maxValue
-                )
-            );
+            return param0.apply(new DensityFunctions.Spline(this.spline.mapAll(param1 -> param1.mapAll(param0))));
         }
 
         @Override
         public Codec<? extends DensityFunction> codec() {
             return CODEC;
         }
-    }
 
-    @Deprecated
-    public static record TerrainShaperSpline(
-        DensityFunction continentalness,
-        DensityFunction erosion,
-        DensityFunction weirdness,
-        @Nullable TerrainShaper shaper,
-        DensityFunctions.TerrainShaperSpline.SplineType spline,
-        double minValue,
-        double maxValue
-    ) implements DensityFunction {
-        private static final MapCodec<DensityFunctions.TerrainShaperSpline> DATA_CODEC = RecordCodecBuilder.mapCodec(
-            param0 -> param0.group(
-                        DensityFunction.HOLDER_HELPER_CODEC.fieldOf("continentalness").forGetter(DensityFunctions.TerrainShaperSpline::continentalness),
-                        DensityFunction.HOLDER_HELPER_CODEC.fieldOf("erosion").forGetter(DensityFunctions.TerrainShaperSpline::erosion),
-                        DensityFunction.HOLDER_HELPER_CODEC.fieldOf("weirdness").forGetter(DensityFunctions.TerrainShaperSpline::weirdness),
-                        DensityFunctions.TerrainShaperSpline.SplineType.CODEC.fieldOf("spline").forGetter(DensityFunctions.TerrainShaperSpline::spline),
-                        DensityFunctions.NOISE_VALUE_CODEC.fieldOf("min_value").forGetter(DensityFunctions.TerrainShaperSpline::minValue),
-                        DensityFunctions.NOISE_VALUE_CODEC.fieldOf("max_value").forGetter(DensityFunctions.TerrainShaperSpline::maxValue)
-                    )
-                    .apply(param0, DensityFunctions.TerrainShaperSpline::createUnseeded)
-        );
-        public static final Codec<DensityFunctions.TerrainShaperSpline> CODEC = DensityFunctions.makeCodec(DATA_CODEC);
+        public static record Coordinate(Holder<DensityFunction> function) implements ToFloatFunction<DensityFunctions.Spline.Point> {
+            public static final Codec<DensityFunctions.Spline.Coordinate> CODEC = DensityFunction.CODEC
+                .xmap(DensityFunctions.Spline.Coordinate::new, DensityFunctions.Spline.Coordinate::function);
 
-        public static DensityFunctions.TerrainShaperSpline createUnseeded(
-            DensityFunction param0,
-            DensityFunction param1,
-            DensityFunction param2,
-            DensityFunctions.TerrainShaperSpline.SplineType param3,
-            double param4,
-            double param5
-        ) {
-            return new DensityFunctions.TerrainShaperSpline(param0, param1, param2, null, param3, param4, param5);
-        }
+            @Override
+            public String toString() {
+                Optional<ResourceKey<DensityFunction>> var0 = this.function.unwrapKey();
+                if (var0.isPresent()) {
+                    ResourceKey<DensityFunction> var1 = var0.get();
+                    if (var1 == NoiseRouterData.CONTINENTS) {
+                        return "continents";
+                    }
 
-        @Override
-        public double compute(DensityFunction.FunctionContext param0) {
-            return this.shaper == null
-                ? 0.0
-                : Mth.clamp(
-                    (double)this.spline
-                        .spline
-                        .apply(
-                            this.shaper,
-                            TerrainShaper.makePoint(
-                                (float)this.continentalness.compute(param0), (float)this.erosion.compute(param0), (float)this.weirdness.compute(param0)
-                            )
-                        ),
-                    this.minValue,
-                    this.maxValue
-                );
-        }
+                    if (var1 == NoiseRouterData.EROSION) {
+                        return "erosion";
+                    }
 
-        @Override
-        public void fillArray(double[] param0, DensityFunction.ContextProvider param1) {
-            for(int var0 = 0; var0 < param0.length; ++var0) {
-                param0[var0] = this.compute(param1.forIndex(var0));
+                    if (var1 == NoiseRouterData.RIDGES) {
+                        return "weirdness";
+                    }
+
+                    if (var1 == NoiseRouterData.RIDGES_FOLDED) {
+                        return "ridges";
+                    }
+                }
+
+                return "Coordinate[" + this.function + "]";
             }
 
-        }
-
-        @Override
-        public DensityFunction mapAll(DensityFunction.Visitor param0) {
-            return param0.apply(
-                new DensityFunctions.TerrainShaperSpline(
-                    this.continentalness.mapAll(param0),
-                    this.erosion.mapAll(param0),
-                    this.weirdness.mapAll(param0),
-                    this.shaper,
-                    this.spline,
-                    this.minValue,
-                    this.maxValue
-                )
-            );
-        }
-
-        @Override
-        public Codec<? extends DensityFunction> codec() {
-            return CODEC;
-        }
-
-        interface Spline {
-            float apply(TerrainShaper var1, TerrainShaper.Point var2);
-        }
-
-        public static enum SplineType implements StringRepresentable {
-            OFFSET("offset", TerrainShaper::offset),
-            FACTOR("factor", TerrainShaper::factor),
-            JAGGEDNESS("jaggedness", TerrainShaper::jaggedness);
-
-            private static final Map<String, DensityFunctions.TerrainShaperSpline.SplineType> BY_NAME = Arrays.stream(values())
-                .collect(Collectors.toMap(DensityFunctions.TerrainShaperSpline.SplineType::getSerializedName, param0 -> param0));
-            public static final Codec<DensityFunctions.TerrainShaperSpline.SplineType> CODEC = StringRepresentable.fromEnum(
-                DensityFunctions.TerrainShaperSpline.SplineType::values, BY_NAME::get
-            );
-            private final String name;
-            final DensityFunctions.TerrainShaperSpline.Spline spline;
-
-            private SplineType(String param0, DensityFunctions.TerrainShaperSpline.Spline param1) {
-                this.name = param0;
-                this.spline = param1;
+            public float apply(DensityFunctions.Spline.Point param0) {
+                return (float)this.function.value().compute(param0.context());
             }
 
             @Override
-            public String getSerializedName() {
-                return this.name;
+            public float minValue() {
+                return (float)this.function.value().minValue();
             }
+
+            @Override
+            public float maxValue() {
+                return (float)this.function.value().maxValue();
+            }
+
+            public DensityFunctions.Spline.Coordinate mapAll(DensityFunction.Visitor param0) {
+                return new DensityFunctions.Spline.Coordinate(new Holder.Direct<>(this.function.value().mapAll(param0)));
+            }
+        }
+
+        public static record Point(DensityFunction.FunctionContext context) {
         }
     }
 

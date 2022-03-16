@@ -126,6 +126,7 @@ import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
@@ -562,6 +563,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void die(DamageSource param0) {
+        this.gameEvent(GameEvent.ENTITY_DYING);
         boolean var0 = this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES);
         if (var0) {
             Component var1 = this.getCombatTracker().getDeathMessage();

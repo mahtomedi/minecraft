@@ -116,7 +116,7 @@ public class MouseHandler {
 
     private void onScroll(long param0, double param1, double param2) {
         if (param0 == Minecraft.getInstance().getWindow().getWindow()) {
-            double var0 = (this.minecraft.options.discreteMouseScroll ? Math.signum(param2) : param2) * this.minecraft.options.mouseWheelSensitivity;
+            double var0 = (this.minecraft.options.discreteMouseScroll ? Math.signum(param2) : param2) * this.minecraft.options.mouseWheelSensitivity().get();
             if (this.minecraft.getOverlay() == null) {
                 if (this.minecraft.screen != null) {
                     double var1 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();

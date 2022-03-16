@@ -10,6 +10,7 @@ import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
@@ -20,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -31,13 +33,18 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -65,8 +72,16 @@ public class Options {
     private static final Splitter OPTION_SPLITTER = Splitter.on(':').limit(2);
     private static final float DEFAULT_VOLUME = 1.0F;
     public static final String DEFAULT_SOUND_DEVICE = "";
-    public boolean darkMojangStudiosBackground;
-    public boolean hideLightningFlashes;
+    private static final Component ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND = new TranslatableComponent("options.darkMojangStudiosBackgroundColor.tooltip");
+    private final OptionInstance<Boolean> darkMojangStudiosBackground = OptionInstance.createBoolean("options.darkMojangStudiosBackgroundColor", param0x -> {
+        List<FormattedCharSequence> var0 = param0x.font.split(ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND, 200);
+        return param1x -> var0;
+    }, false);
+    private static final Component ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES = new TranslatableComponent("options.hideLightningFlashes.tooltip");
+    private final OptionInstance<Boolean> hideLightningFlash = OptionInstance.createBoolean("options.hideLightningFlashes", param0x -> {
+        List<FormattedCharSequence> var0 = param0x.font.split(ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES, 200);
+        return param1x -> var0;
+    }, false);
     public double sensitivity = 0.5;
     public int renderDistance;
     public int simulationDistance;
@@ -75,8 +90,32 @@ public class Options {
     public int framerateLimit = 120;
     public CloudStatus renderClouds = CloudStatus.FANCY;
     public GraphicsStatus graphicsMode = GraphicsStatus.FANCY;
-    public AmbientOcclusionStatus ambientOcclusion = AmbientOcclusionStatus.MAX;
-    public PrioritizeChunkUpdates prioritizeChunkUpdates = PrioritizeChunkUpdates.NONE;
+    private final OptionInstance<AmbientOcclusionStatus> ambientOcclusion = new OptionInstance<>(
+        "options.ao",
+        Option.noTooltip(),
+        param0x -> new TranslatableComponent(param0x.getKey()),
+        new OptionInstance.Enum<>(Arrays.asList(AmbientOcclusionStatus.values())),
+        AmbientOcclusionStatus.MAX,
+        param0x -> Minecraft.getInstance().levelRenderer.allChanged()
+    );
+    private static final Component PRIORITIZE_CHUNK_TOOLTIP_NONE = new TranslatableComponent("options.prioritizeChunkUpdates.none.tooltip");
+    private static final Component PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED = new TranslatableComponent("options.prioritizeChunkUpdates.byPlayer.tooltip");
+    private static final Component PRIORITIZE_CHUNK_TOOLTIP_NEARBY = new TranslatableComponent("options.prioritizeChunkUpdates.nearby.tooltip");
+    private final OptionInstance<PrioritizeChunkUpdates> prioritizeChunkUpdates = new OptionInstance<>(
+        "options.prioritizeChunkUpdates",
+        param0x -> param1x -> {
+                return switch(param1x) {
+                    case NONE -> param0x.font.split(PRIORITIZE_CHUNK_TOOLTIP_NONE, 200);
+                    case PLAYER_AFFECTED -> param0x.font.split(PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED, 200);
+                    case NEARBY -> param0x.font.split(PRIORITIZE_CHUNK_TOOLTIP_NEARBY, 200);
+                };
+            },
+        param0x -> new TranslatableComponent(param0x.getKey()),
+        new OptionInstance.Enum<>(Arrays.asList(PrioritizeChunkUpdates.values())),
+        PrioritizeChunkUpdates.NONE,
+        param0x -> {
+        }
+    );
     public List<String> resourcePacks = Lists.newArrayList();
     public List<String> incompatibleResourcePacks = Lists.newArrayList();
     public ChatVisiblity chatVisibility = ChatVisiblity.FULL;
@@ -95,8 +134,22 @@ public class Options {
     public boolean heldItemTooltips = true;
     public double chatScale = 1.0;
     public double chatWidth = 1.0;
-    public double chatHeightUnfocused = 0.44366196F;
-    public double chatHeightFocused = 1.0;
+    private final OptionInstance<Double> chatHeightUnfocused = new OptionInstance<>(
+        "options.chat.height.unfocused",
+        Option.noTooltip(),
+        param0x -> pixelValueLabel(this.chatHeightUnfocused().getCaption(), ChatComponent.getHeight(param0x)),
+        OptionInstance.UnitDouble.INSTANCE,
+        ChatComponent.defaultUnfocusedPct(),
+        param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
+    );
+    private final OptionInstance<Double> chatHeightFocused = new OptionInstance<>(
+        "options.chat.height.focused",
+        Option.noTooltip(),
+        param0x -> pixelValueLabel(this.chatHeightFocused().getCaption(), ChatComponent.getHeight(param0x)),
+        OptionInstance.UnitDouble.INSTANCE,
+        1.0,
+        param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
+    );
     public double chatDelay;
     public int mipmapLevels = 4;
     private final Object2FloatMap<SoundSource> sourceVolumes = Util.make(new Object2FloatOpenHashMap<>(), param0x -> param0x.defaultReturnValue(1.0F));
@@ -105,9 +158,26 @@ public class Options {
     public TutorialSteps tutorialStep = TutorialSteps.MOVEMENT;
     public boolean joinedFirstServer = false;
     public boolean hideBundleTutorial = false;
-    public int biomeBlendRadius = 2;
-    public double mouseWheelSensitivity = 1.0;
-    public boolean rawMouseInput = true;
+    private final OptionInstance<Integer> biomeBlendRadius = new OptionInstance<>("options.biomeBlendRadius", Option.noTooltip(), param0x -> {
+        int var0 = param0x * 2 + 1;
+        return genericValueLabel(this.biomeBlendRadius().getCaption(), new TranslatableComponent("options.biomeBlendRadius." + var0));
+    }, new OptionInstance.IntRange(0, 7), 2, param0x -> Minecraft.getInstance().levelRenderer.allChanged());
+    private final OptionInstance<Double> mouseWheelSensitivity = new OptionInstance<>(
+        "options.mouseWheelSensitivity",
+        Option.noTooltip(),
+        param0x -> genericValueLabel(this.mouseWheelSensitivity().getCaption(), new TextComponent(String.format("%.2f", param0x))),
+        new OptionInstance.IntRange(-200, 100).xmap(Options::logMouse, Options::unlogMouse),
+        logMouse(0),
+        param0x -> {
+        }
+    );
+    private final OptionInstance<Boolean> rawMouseInput = OptionInstance.createBoolean("options.rawMouseInput", true, param0x -> {
+        Window var0 = Minecraft.getInstance().getWindow();
+        if (var0 != null) {
+            var0.updateRawMouseInput(param0x);
+        }
+
+    });
     public int glDebugVerbosity = 1;
     public boolean autoJump = true;
     public boolean autoSuggestions = true;
@@ -123,6 +193,7 @@ public class Options {
     public boolean allowServerListing = true;
     public boolean reducedDebugInfo;
     public boolean showSubtitles;
+    public boolean directionalAudio;
     public boolean backgroundForChatOnly = true;
     public boolean touchscreen;
     public boolean fullscreen;
@@ -209,7 +280,15 @@ public class Options {
     public boolean renderFpsChart;
     public String lastMpIp = "";
     public boolean smoothCamera;
-    public double fov = 70.0;
+    private final OptionInstance<Integer> fov = new OptionInstance<>("options.fov", Option.noTooltip(), param0x -> {
+        Component var0 = this.fov().getCaption();
+
+        return switch(param0x) {
+            case 70 -> genericValueLabel(var0, new TranslatableComponent("options.fov.min"));
+            case 110 -> genericValueLabel(var0, new TranslatableComponent("options.fov.max"));
+            default -> genericValueLabel(var0, param0x);
+        };
+    }, new OptionInstance.IntRange(30, 110), 70, param0x -> Minecraft.getInstance().levelRenderer.needsUpdate());
     public float screenEffectScale = 1.0F;
     public float fovEffectScale = 1.0F;
     public double gamma;
@@ -219,6 +298,54 @@ public class Options {
     public String languageCode = "en_us";
     public String soundDevice = "";
     public boolean syncWrites;
+
+    public OptionInstance<Boolean> darkMojangStudiosBackground() {
+        return this.darkMojangStudiosBackground;
+    }
+
+    public OptionInstance<Boolean> hideLightningFlash() {
+        return this.hideLightningFlash;
+    }
+
+    public OptionInstance<AmbientOcclusionStatus> ambientOcclusion() {
+        return this.ambientOcclusion;
+    }
+
+    public OptionInstance<PrioritizeChunkUpdates> prioritizeChunkUpdates() {
+        return this.prioritizeChunkUpdates;
+    }
+
+    public OptionInstance<Double> chatHeightUnfocused() {
+        return this.chatHeightUnfocused;
+    }
+
+    public OptionInstance<Double> chatHeightFocused() {
+        return this.chatHeightFocused;
+    }
+
+    public OptionInstance<Integer> biomeBlendRadius() {
+        return this.biomeBlendRadius;
+    }
+
+    private static double logMouse(int param0) {
+        return Math.pow(10.0, (double)param0 / 100.0);
+    }
+
+    private static int unlogMouse(double param0) {
+        return Mth.floor(Math.log10(param0) * 100.0);
+    }
+
+    public OptionInstance<Double> mouseWheelSensitivity() {
+        return this.mouseWheelSensitivity;
+    }
+
+    public OptionInstance<Boolean> rawMouseInput() {
+        return this.rawMouseInput;
+    }
+
+    public OptionInstance<Integer> fov() {
+        return this.fov;
+    }
 
     public Options(Minecraft param0, File param1) {
         this.minecraft = param0;
@@ -269,15 +396,16 @@ public class Options {
         this.realmsNotifications = param0.process("realmsNotifications", this.realmsNotifications);
         this.reducedDebugInfo = param0.process("reducedDebugInfo", this.reducedDebugInfo);
         this.showSubtitles = param0.process("showSubtitles", this.showSubtitles);
+        this.directionalAudio = param0.process("directionalAudio", this.directionalAudio);
         this.touchscreen = param0.process("touchscreen", this.touchscreen);
         this.fullscreen = param0.process("fullscreen", this.fullscreen);
         this.bobView = param0.process("bobView", this.bobView);
         this.toggleCrouch = param0.process("toggleCrouch", this.toggleCrouch);
         this.toggleSprint = param0.process("toggleSprint", this.toggleSprint);
-        this.darkMojangStudiosBackground = param0.process("darkMojangStudiosBackground", this.darkMojangStudiosBackground);
-        this.hideLightningFlashes = param0.process("hideLightningFlashes", this.hideLightningFlashes);
+        this.darkMojangStudiosBackground.set(param0.process("darkMojangStudiosBackground", this.darkMojangStudiosBackground.get()));
+        this.hideLightningFlash.set(param0.process("hideLightningFlashes", this.hideLightningFlash.get()));
         this.sensitivity = param0.process("mouseSensitivity", this.sensitivity);
-        this.fov = param0.process("fov", (this.fov - 70.0) / 40.0) * 40.0 + 70.0;
+        this.fov.set((int)(param0.process("fov", (float)(this.fov.get() - 70) / 40.0F) * 40.0F + 70.0F));
         this.screenEffectScale = param0.process("screenEffectScale", this.screenEffectScale);
         this.fovEffectScale = param0.process("fovEffectScale", this.fovEffectScale);
         this.gamma = param0.process("gamma", this.gamma);
@@ -295,11 +423,11 @@ public class Options {
         this.framerateLimit = param0.process("maxFps", this.framerateLimit);
         this.difficulty = param0.process("difficulty", this.difficulty, Difficulty::byId, Difficulty::getId);
         this.graphicsMode = param0.process("graphicsMode", this.graphicsMode, GraphicsStatus::byId, GraphicsStatus::getId);
-        this.ambientOcclusion = param0.process("ao", this.ambientOcclusion, Options::readAmbientOcclusion, param0x -> Integer.toString(param0x.getId()));
-        this.prioritizeChunkUpdates = param0.process(
-            "prioritizeChunkUpdates", this.prioritizeChunkUpdates, PrioritizeChunkUpdates::byId, PrioritizeChunkUpdates::getId
-        );
-        this.biomeBlendRadius = param0.process("biomeBlendRadius", this.biomeBlendRadius);
+        this.ambientOcclusion
+            .set(param0.process("ao", this.ambientOcclusion.get(), Options::readAmbientOcclusion, param0x -> Integer.toString(param0x.getId())));
+        this.prioritizeChunkUpdates
+            .set(param0.process("prioritizeChunkUpdates", this.prioritizeChunkUpdates.get(), PrioritizeChunkUpdates::byId, PrioritizeChunkUpdates::getId));
+        this.biomeBlendRadius.set(param0.process("biomeBlendRadius", this.biomeBlendRadius.get()));
         this.renderClouds = param0.process("renderClouds", this.renderClouds, Options::readCloudStatus, Options::writeCloudStatus);
         this.resourcePacks = param0.process("resourcePacks", this.resourcePacks, Options::readPackList, GSON::toJson);
         this.incompatibleResourcePacks = param0.process("incompatibleResourcePacks", this.incompatibleResourcePacks, Options::readPackList, GSON::toJson);
@@ -317,9 +445,9 @@ public class Options {
         this.overrideWidth = param0.process("overrideWidth", this.overrideWidth);
         this.overrideHeight = param0.process("overrideHeight", this.overrideHeight);
         this.heldItemTooltips = param0.process("heldItemTooltips", this.heldItemTooltips);
-        this.chatHeightFocused = param0.process("chatHeightFocused", this.chatHeightFocused);
+        this.chatHeightFocused.set(param0.process("chatHeightFocused", this.chatHeightFocused.get()));
         this.chatDelay = param0.process("chatDelay", this.chatDelay);
-        this.chatHeightUnfocused = param0.process("chatHeightUnfocused", this.chatHeightUnfocused);
+        this.chatHeightUnfocused.set(param0.process("chatHeightUnfocused", this.chatHeightUnfocused.get()));
         this.chatScale = param0.process("chatScale", this.chatScale);
         this.chatWidth = param0.process("chatWidth", this.chatWidth);
         this.mipmapLevels = param0.process("mipmapLevels", this.mipmapLevels);
@@ -328,8 +456,8 @@ public class Options {
         this.attackIndicator = param0.process("attackIndicator", this.attackIndicator, AttackIndicatorStatus::byId, AttackIndicatorStatus::getId);
         this.narratorStatus = param0.process("narrator", this.narratorStatus, NarratorStatus::byId, NarratorStatus::getId);
         this.tutorialStep = param0.process("tutorialStep", this.tutorialStep, TutorialSteps::getByName, TutorialSteps::getName);
-        this.mouseWheelSensitivity = param0.process("mouseWheelSensitivity", this.mouseWheelSensitivity);
-        this.rawMouseInput = param0.process("rawMouseInput", this.rawMouseInput);
+        this.mouseWheelSensitivity.set(param0.process("mouseWheelSensitivity", this.mouseWheelSensitivity.get()));
+        this.rawMouseInput.set(param0.process("rawMouseInput", this.rawMouseInput.get()));
         this.glDebugVerbosity = param0.process("glDebugVerbosity", this.glDebugVerbosity);
         this.skipMultiplayerWarning = param0.process("skipMultiplayerWarning", this.skipMultiplayerWarning);
         this.skipRealms32bitWarning = param0.process("skipRealms32bitWarning", this.skipRealms32bitWarning);
@@ -761,7 +889,7 @@ public class Options {
             .add(Pair.of("screenEffectScale", String.valueOf(this.screenEffectScale)))
             .add(Pair.of("syncChunkWrites", String.valueOf(this.syncWrites)))
             .add(Pair.of("useNativeTransport", String.valueOf(this.useNativeTransport)))
-            .add(Pair.of("soundDevice", String.valueOf(this.soundDevice)))
+            .add(Pair.of("soundDevice", this.soundDevice))
             .build();
         return var0.stream().map(param0 -> (String)param0.getFirst() + ": " + (String)param0.getSecond()).collect(Collectors.joining(System.lineSeparator()));
     }
@@ -772,6 +900,22 @@ public class Options {
 
     public int getEffectiveRenderDistance() {
         return this.serverRenderDistance > 0 ? Math.min(this.renderDistance, this.serverRenderDistance) : this.renderDistance;
+    }
+
+    private static Component pixelValueLabel(Component param0, int param1) {
+        return new TranslatableComponent("options.pixel_value", param0, param1);
+    }
+
+    private static Component percentValueLabel(Component param0, double param1) {
+        return new TranslatableComponent("options.percent_value", param0, (int)(param1 * 100.0));
+    }
+
+    public static Component genericValueLabel(Component param0, Component param1) {
+        return new TranslatableComponent("options.generic_value", param0, param1);
+    }
+
+    public static Component genericValueLabel(Component param0, int param1) {
+        return genericValueLabel(param0, new TextComponent(Integer.toString(param1)));
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -18,7 +18,7 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
         return create(param0, param1, true);
     }
 
-    private static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> param0, Codec<E> param1, boolean param2) {
+    public static <E> RegistryFileCodec<E> create(ResourceKey<? extends Registry<E>> param0, Codec<E> param1, boolean param2) {
         return new RegistryFileCodec<>(param0, param1, param2);
     }
 

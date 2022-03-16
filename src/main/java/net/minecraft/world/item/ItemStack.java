@@ -3,8 +3,6 @@ package net.minecraft.world.item;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Streams;
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -18,6 +16,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -130,6 +129,10 @@ public final class ItemStack {
         param2.ifPresent(this::setTag);
     }
 
+    public ItemStack(Holder<Item> param0, int param1) {
+        this(param0.value(), param1);
+    }
+
     public ItemStack(ItemLike param0, int param1) {
         this.item = param0 == null ? null : param0.asItem();
         this.count = param1;
@@ -191,12 +194,24 @@ public final class ItemStack {
         return this.emptyCacheFlag ? Items.AIR : this.item;
     }
 
+    public Holder<Item> getItemHolder() {
+        return this.getItem().builtInRegistryHolder();
+    }
+
     public boolean is(TagKey<Item> param0) {
         return this.getItem().builtInRegistryHolder().is(param0);
     }
 
     public boolean is(Item param0) {
         return this.getItem() == param0;
+    }
+
+    public boolean is(Predicate<Holder<Item>> param0) {
+        return param0.test(this.getItem().builtInRegistryHolder());
+    }
+
+    public boolean is(Holder<Item> param0) {
+        return this.getItem().builtInRegistryHolder() == param0;
     }
 
     public Stream<TagKey<Item>> getTags() {
@@ -788,28 +803,17 @@ public final class ItemStack {
 
     private static Collection<Component> expandBlockState(String param0) {
         try {
-            BlockStateParser var0 = new BlockStateParser(new StringReader(param0), true).parse(true);
-            BlockState var1 = var0.getState();
-            TagKey<Block> var2 = var0.getTag();
-            boolean var3 = var1 != null;
-            boolean var4 = var2 != null;
-            if (var3) {
-                return Lists.newArrayList(var1.getBlock().getName().withStyle(ChatFormatting.DARK_GRAY));
-            }
-
-            if (var4) {
-                List<Component> var5 = Streams.stream(Registry.BLOCK.getTagOrEmpty(var2))
-                    .map(param0x -> param0x.value().getName())
-                    .map(param0x -> param0x.withStyle(ChatFormatting.DARK_GRAY))
-                    .collect(Collectors.toList());
-                if (!var5.isEmpty()) {
-                    return var5;
-                }
-            }
-        } catch (CommandSyntaxException var7) {
+            return BlockStateParser.parseForTesting(Registry.BLOCK, param0, true)
+                .map(
+                    param0x -> Lists.newArrayList(param0x.blockState().getBlock().getName().withStyle(ChatFormatting.DARK_GRAY)),
+                    param0x -> param0x.tag()
+                            .stream()
+                            .map(param0xx -> param0xx.value().getName().withStyle(ChatFormatting.DARK_GRAY))
+                            .collect(Collectors.toList())
+                );
+        } catch (CommandSyntaxException var2) {
+            return Lists.newArrayList(new TextComponent("missingno").withStyle(ChatFormatting.DARK_GRAY));
         }
-
-        return Lists.newArrayList(new TextComponent("missingno").withStyle(ChatFormatting.DARK_GRAY));
     }
 
     public boolean hasFoil() {

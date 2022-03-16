@@ -171,4 +171,8 @@ public class BehaviorUtils {
 
         return var0;
     }
+
+    public static boolean isBreeding(LivingEntity param0) {
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
+    }
 }

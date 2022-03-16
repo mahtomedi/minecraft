@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -11,7 +12,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class VillageSiege implements CustomSpawner {
         for(Player var0 : param0.players()) {
             if (!var0.isSpectator()) {
                 BlockPos var1 = var0.blockPosition();
-                if (param0.isVillage(var1) && Biome.getBiomeCategory(param0.getBiome(var1)) != Biome.BiomeCategory.MUSHROOM) {
+                if (param0.isVillage(var1) && !param0.getBiome(var1).is(BiomeTags.WITHOUT_ZOMBIE_SIEGES)) {
                     for(int var2 = 0; var2 < 10; ++var2) {
                         float var3 = param0.random.nextFloat() * (float) (Math.PI * 2);
                         this.spawnX = var1.getX() + Mth.floor(Mth.cos(var3) * 32.0F);

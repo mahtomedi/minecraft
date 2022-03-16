@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class ListPoolElement extends StructurePoolElement {
     public static final Codec<ListPoolElement> CODEC = RecordCodecBuilder.create(
@@ -34,7 +34,7 @@ public class ListPoolElement extends StructurePoolElement {
     }
 
     @Override
-    public Vec3i getSize(StructureManager param0, Rotation param1) {
+    public Vec3i getSize(StructureTemplateManager param0, Rotation param1) {
         int var0 = 0;
         int var1 = 0;
         int var2 = 0;
@@ -50,12 +50,12 @@ public class ListPoolElement extends StructurePoolElement {
     }
 
     @Override
-    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager param0, BlockPos param1, Rotation param2, Random param3) {
+    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureTemplateManager param0, BlockPos param1, Rotation param2, Random param3) {
         return this.elements.get(0).getShuffledJigsawBlocks(param0, param1, param2, param3);
     }
 
     @Override
-    public BoundingBox getBoundingBox(StructureManager param0, BlockPos param1, Rotation param2) {
+    public BoundingBox getBoundingBox(StructureTemplateManager param0, BlockPos param1, Rotation param2) {
         Stream<BoundingBox> var0 = this.elements
             .stream()
             .filter(param0x -> param0x != EmptyPoolElement.INSTANCE)
@@ -66,9 +66,9 @@ public class ListPoolElement extends StructurePoolElement {
 
     @Override
     public boolean place(
-        StructureManager param0,
+        StructureTemplateManager param0,
         WorldGenLevel param1,
-        StructureFeatureManager param2,
+        StructureManager param2,
         ChunkGenerator param3,
         BlockPos param4,
         BlockPos param5,
