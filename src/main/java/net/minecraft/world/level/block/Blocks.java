@@ -36,7 +36,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 
 public class Blocks {
-    public static final Block AIR = register("air", new AirBlock(BlockBehaviour.Properties.of(Material.AIR).noCollission().noDrops().air()));
+    public static final Block AIR = register("air", new AirBlock(BlockBehaviour.Properties.of(Material.AIR).noCollission().noLootTable().air()));
     public static final Block STONE = register(
         "stone", new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.STONE).requiresCorrectToolForDrops().strength(1.5F, 6.0F))
     );
@@ -123,15 +123,15 @@ public class Blocks {
         new MangrovePropaguleBlock(BlockBehaviour.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS))
     );
     public static final Block BEDROCK = register(
-        "bedrock", new Block(BlockBehaviour.Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).noDrops().isValidSpawn(Blocks::never))
+        "bedrock", new Block(BlockBehaviour.Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).noLootTable().isValidSpawn(Blocks::never))
     );
     public static final Block WATER = register(
-        "water", new LiquidBlock(Fluids.WATER, BlockBehaviour.Properties.of(Material.WATER).noCollission().strength(100.0F).noDrops())
+        "water", new LiquidBlock(Fluids.WATER, BlockBehaviour.Properties.of(Material.WATER).noCollission().strength(100.0F).noLootTable())
     );
     public static final Block LAVA = register(
         "lava",
         new LiquidBlock(
-            Fluids.LAVA, BlockBehaviour.Properties.of(Material.LAVA).noCollission().randomTicks().strength(100.0F).lightLevel(param0 -> 15).noDrops()
+            Fluids.LAVA, BlockBehaviour.Properties.of(Material.LAVA).noCollission().randomTicks().strength(100.0F).lightLevel(param0 -> 15).noLootTable()
         )
     );
     public static final Block SAND = register(
@@ -183,11 +183,11 @@ public class Blocks {
     public static final Block JUNGLE_LOG = register("jungle_log", log(MaterialColor.DIRT, MaterialColor.PODZOL));
     public static final Block ACACIA_LOG = register("acacia_log", log(MaterialColor.COLOR_ORANGE, MaterialColor.STONE));
     public static final Block DARK_OAK_LOG = register("dark_oak_log", log(MaterialColor.COLOR_BROWN, MaterialColor.COLOR_BROWN));
-    public static final Block MANGROVE_LOG = register("mangrove_log", log(MaterialColor.COLOR_ORANGE, MaterialColor.STONE));
+    public static final Block MANGROVE_LOG = register("mangrove_log", log(MaterialColor.COLOR_RED, MaterialColor.PODZOL));
     public static final Block MANGROVE_ROOTS = register(
         "mangrove_roots",
         new MangroveRootsBlock(
-            BlockBehaviour.Properties.of(Material.WOOD)
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.PODZOL)
                 .strength(0.7F)
                 .randomTicks()
                 .sound(SoundType.MANGROVE_ROOTS)
@@ -199,7 +199,8 @@ public class Blocks {
         )
     );
     public static final Block MUDDY_MANGROVE_ROOTS = register(
-        "muddy_mangrove_roots", new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DIRT).strength(0.7F).sound(SoundType.MUDDY_MANGROVE_ROOTS))
+        "muddy_mangrove_roots",
+        new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DIRT, MaterialColor.PODZOL).strength(0.7F).sound(SoundType.MUDDY_MANGROVE_ROOTS))
     );
     public static final Block STRIPPED_SPRUCE_LOG = register("stripped_spruce_log", log(MaterialColor.PODZOL, MaterialColor.PODZOL));
     public static final Block STRIPPED_BIRCH_LOG = register("stripped_birch_log", log(MaterialColor.SAND, MaterialColor.SAND));
@@ -360,7 +361,9 @@ public class Blocks {
         new TallSeagrassBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_WATER_PLANT).noCollission().instabreak().sound(SoundType.WET_GRASS))
     );
     public static final Block PISTON = register("piston", pistonBase(false));
-    public static final Block PISTON_HEAD = register("piston_head", new PistonHeadBlock(BlockBehaviour.Properties.of(Material.PISTON).strength(1.5F).noDrops()));
+    public static final Block PISTON_HEAD = register(
+        "piston_head", new PistonHeadBlock(BlockBehaviour.Properties.of(Material.PISTON).strength(1.5F).noLootTable())
+    );
     public static final Block WHITE_WOOL = register(
         "white_wool", new Block(BlockBehaviour.Properties.of(Material.WOOL, MaterialColor.SNOW).strength(0.8F).sound(SoundType.WOOL))
     );
@@ -415,7 +418,7 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.PISTON)
                 .strength(-1.0F)
                 .dynamicShape()
-                .noDrops()
+                .noLootTable()
                 .noOcclusion()
                 .isRedstoneConductor(Blocks::never)
                 .isSuffocating(Blocks::never)
@@ -969,11 +972,7 @@ public class Blocks {
     public static final Block MANGROVE_TRAPDOOR = register(
         "mangrove_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN)
-                .strength(3.0F)
-                .sound(SoundType.WOOD)
-                .noOcclusion()
-                .isValidSpawn(Blocks::never)
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_RED).strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn(Blocks::never)
         )
     );
     public static final Block STONE_BRICKS = register(
@@ -992,7 +991,13 @@ public class Blocks {
         "packed_mud", new Block(BlockBehaviour.Properties.copy(DIRT).strength(1.0F, 3.0F).sound(SoundType.PACKED_MUD))
     );
     public static final Block MUD_BRICKS = register(
-        "mud_bricks", new Block(BlockBehaviour.Properties.of(Material.STONE).strength(1.5F, 3.0F).sound(SoundType.MUD_BRICKS))
+        "mud_bricks",
+        new Block(
+            BlockBehaviour.Properties.of(Material.STONE, MaterialColor.TERRACOTTA_LIGHT_GRAY)
+                .requiresCorrectToolForDrops()
+                .strength(1.5F, 3.0F)
+                .sound(SoundType.MUD_BRICKS)
+        )
     );
     public static final Block INFESTED_STONE = register("infested_stone", new InfestedBlock(STONE, BlockBehaviour.Properties.of(Material.CLAY)));
     public static final Block INFESTED_COBBLESTONE = register(
@@ -1160,7 +1165,7 @@ public class Blocks {
                 .noCollission()
                 .lightLevel(param0 -> 15)
                 .strength(-1.0F, 3600000.0F)
-                .noDrops()
+                .noLootTable()
         )
     );
     public static final Block END_PORTAL_FRAME = register(
@@ -1170,7 +1175,7 @@ public class Blocks {
                 .sound(SoundType.GLASS)
                 .lightLevel(param0 -> 1)
                 .strength(-1.0F, 3600000.0F)
-                .noDrops()
+                .noLootTable()
         )
     );
     public static final Block END_STONE = register(
@@ -1230,7 +1235,8 @@ public class Blocks {
     public static final Block COMMAND_BLOCK = register(
         "command_block",
         new CommandBlock(
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BROWN).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noDrops(), false
+            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BROWN).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noLootTable(),
+            false
         )
     );
     public static final Block BEACON = register(
@@ -1627,11 +1633,11 @@ public class Blocks {
     );
     public static final Block BARRIER = register(
         "barrier",
-        new BarrierBlock(BlockBehaviour.Properties.of(Material.BARRIER).strength(-1.0F, 3600000.8F).noDrops().noOcclusion().isValidSpawn(Blocks::never))
+        new BarrierBlock(BlockBehaviour.Properties.of(Material.BARRIER).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().isValidSpawn(Blocks::never))
     );
     public static final Block LIGHT = register(
         "light",
-        new LightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noDrops().noOcclusion().lightLevel(LightBlock.LIGHT_EMISSION))
+        new LightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(LightBlock.LIGHT_EMISSION))
     );
     public static final Block IRON_TRAPDOOR = register(
         "iron_trapdoor",
@@ -1976,7 +1982,7 @@ public class Blocks {
         "dark_oak_slab", new SlabBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(SoundType.WOOD))
     );
     public static final Block MANGROVE_SLAB = register(
-        "mangrove_slab", new SlabBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(2.0F, 3.0F).sound(SoundType.WOOD))
+        "mangrove_slab", new SlabBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_RED).strength(2.0F, 3.0F).sound(SoundType.WOOD))
     );
     public static final Block STONE_SLAB = register(
         "stone_slab", new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.STONE).requiresCorrectToolForDrops().strength(2.0F, 6.0F))
@@ -2007,7 +2013,12 @@ public class Blocks {
     );
     public static final Block MUD_BRICK_SLAB = register(
         "mud_brick_slab",
-        new SlabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BROWN).requiresCorrectToolForDrops().strength(2.0F, 6.0F))
+        new SlabBlock(
+            BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BROWN)
+                .requiresCorrectToolForDrops()
+                .strength(1.5F, 3.0F)
+                .sound(SoundType.MUD_BRICKS)
+        )
     );
     public static final Block NETHER_BRICK_SLAB = register(
         "nether_brick_slab",
@@ -2161,19 +2172,21 @@ public class Blocks {
                 .noCollission()
                 .lightLevel(param0 -> 15)
                 .strength(-1.0F, 3600000.0F)
-                .noDrops()
+                .noLootTable()
         )
     );
     public static final Block REPEATING_COMMAND_BLOCK = register(
         "repeating_command_block",
         new CommandBlock(
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noDrops(), false
+            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noLootTable(),
+            false
         )
     );
     public static final Block CHAIN_COMMAND_BLOCK = register(
         "chain_command_block",
         new CommandBlock(
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GREEN).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noDrops(), true
+            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GREEN).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noLootTable(),
+            true
         )
     );
     public static final Block FROSTED_ICE = register(
@@ -2220,7 +2233,7 @@ public class Blocks {
         )
     );
     public static final Block STRUCTURE_VOID = register(
-        "structure_void", new StructureVoidBlock(BlockBehaviour.Properties.of(Material.STRUCTURAL_AIR).noCollission().noDrops())
+        "structure_void", new StructureVoidBlock(BlockBehaviour.Properties.of(Material.STRUCTURAL_AIR).noCollission().noLootTable())
     );
     public static final Block OBSERVER = register(
         "observer",
@@ -2794,10 +2807,10 @@ public class Blocks {
     public static final Block POTTED_BAMBOO = register(
         "potted_bamboo", new FlowerPotBlock(BAMBOO, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())
     );
-    public static final Block VOID_AIR = register("void_air", new AirBlock(BlockBehaviour.Properties.of(Material.AIR).noCollission().noDrops().air()));
-    public static final Block CAVE_AIR = register("cave_air", new AirBlock(BlockBehaviour.Properties.of(Material.AIR).noCollission().noDrops().air()));
+    public static final Block VOID_AIR = register("void_air", new AirBlock(BlockBehaviour.Properties.of(Material.AIR).noCollission().noLootTable().air()));
+    public static final Block CAVE_AIR = register("cave_air", new AirBlock(BlockBehaviour.Properties.of(Material.AIR).noCollission().noLootTable().air()));
     public static final Block BUBBLE_COLUMN = register(
-        "bubble_column", new BubbleColumnBlock(BlockBehaviour.Properties.of(Material.BUBBLE_COLUMN).noCollission().noDrops())
+        "bubble_column", new BubbleColumnBlock(BlockBehaviour.Properties.of(Material.BUBBLE_COLUMN).noCollission().noLootTable())
     );
     public static final Block POLISHED_GRANITE_STAIRS = register(
         "polished_granite_stairs", new StairBlock(POLISHED_GRANITE.defaultBlockState(), BlockBehaviour.Properties.copy(POLISHED_GRANITE))
@@ -3183,13 +3196,19 @@ public class Blocks {
     public static final Block STRUCTURE_BLOCK = register(
         "structure_block",
         new StructureBlock(
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GRAY).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noDrops()
+            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GRAY)
+                .requiresCorrectToolForDrops()
+                .strength(-1.0F, 3600000.0F)
+                .noLootTable()
         )
     );
     public static final Block JIGSAW = register(
         "jigsaw",
         new JigsawBlock(
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GRAY).requiresCorrectToolForDrops().strength(-1.0F, 3600000.0F).noDrops()
+            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GRAY)
+                .requiresCorrectToolForDrops()
+                .strength(-1.0F, 3600000.0F)
+                .noLootTable()
         )
     );
     public static final Block COMPOSTER = register(
@@ -3840,6 +3859,7 @@ public class Blocks {
         "mud",
         new MudBlock(
             BlockBehaviour.Properties.copy(DIRT)
+                .color(MaterialColor.TERRACOTTA_CYAN)
                 .isValidSpawn(Blocks::always)
                 .isRedstoneConductor(Blocks::always)
                 .isViewBlocking(Blocks::always)
@@ -3922,8 +3942,7 @@ public class Blocks {
         new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DECORATION).instabreak().lightLevel(param0 -> 15).sound(SoundType.FROGLIGHT))
     );
     public static final Block FROGSPAWN = register(
-        "frogspawn",
-        new FrogspawnBlock(BlockBehaviour.Properties.of(Material.FROGSPAWN).instabreak().noDrops().noOcclusion().noCollission().sound(SoundType.FROGSPAWN))
+        "frogspawn", new FrogspawnBlock(BlockBehaviour.Properties.of(Material.FROGSPAWN).instabreak().noOcclusion().noCollission().sound(SoundType.FROGSPAWN))
     );
 
     private static ToIntFunction<BlockState> litBlockEmission(int param0) {

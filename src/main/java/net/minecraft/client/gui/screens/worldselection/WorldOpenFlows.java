@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.DatapackLoadFailureScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
@@ -52,8 +53,8 @@ public class WorldOpenFlows {
         this.levelSource = param1;
     }
 
-    public void loadLevel(String param0) {
-        this.doLoadLevel(param0, false, true);
+    public void loadLevel(Screen param0, String param1) {
+        this.doLoadLevel(param0, param1, false, true);
     }
 
     public void createFreshLevel(String param0, LevelSettings param1, RegistryAccess param2, WorldGenSettings param3) {
@@ -135,30 +136,30 @@ public class WorldOpenFlows {
         return var1.get();
     }
 
-    private void doLoadLevel(String param0, boolean param1, boolean param2) {
-        LevelStorageSource.LevelStorageAccess var0 = this.createWorldAccess(param0);
+    private void doLoadLevel(Screen param0, String param1, boolean param2, boolean param3) {
+        LevelStorageSource.LevelStorageAccess var0 = this.createWorldAccess(param1);
         if (var0 != null) {
             PackRepository var1 = createPackRepository(var0);
 
             WorldStem var2;
             try {
-                var2 = this.loadWorldStem(var0, param1, var1);
-            } catch (Exception var10) {
-                LOGGER.warn("Failed to load datapacks, can't proceed with server load", (Throwable)var10);
-                this.minecraft.setScreen(new DatapackLoadFailureScreen(() -> this.doLoadLevel(param0, true, param2)));
-                safeCloseAccess(var0, param0);
+                var2 = this.loadWorldStem(var0, param2, var1);
+            } catch (Exception var11) {
+                LOGGER.warn("Failed to load datapacks, can't proceed with server load", (Throwable)var11);
+                this.minecraft.setScreen(new DatapackLoadFailureScreen(() -> this.doLoadLevel(param0, param1, true, param3)));
+                safeCloseAccess(var0, param1);
                 return;
             }
 
             WorldData var5 = var2.worldData();
             boolean var6 = var5.worldGenSettings().isOldCustomizedWorld();
             boolean var7 = var5.worldGenSettingsLifecycle() != Lifecycle.stable();
-            if (!param2 || !var6 && !var7) {
-                this.minecraft.doWorldLoad(param0, var0, var1, var2);
+            if (!param3 || !var6 && !var7) {
+                this.minecraft.doWorldLoad(param1, var0, var1, var2);
             } else {
-                this.askForBackup(param0, var6, () -> this.doLoadLevel(param0, param1, false));
+                this.askForBackup(param0, param1, var6, () -> this.doLoadLevel(param0, param1, param2, false));
                 var2.close();
-                safeCloseAccess(var0, param0);
+                safeCloseAccess(var0, param1);
             }
         }
     }
@@ -172,10 +173,10 @@ public class WorldOpenFlows {
 
     }
 
-    private void askForBackup(String param0, boolean param1, Runnable param2) {
+    private void askForBackup(Screen param0, String param1, boolean param2, Runnable param3) {
         Component var0;
         Component var1;
-        if (param1) {
+        if (param2) {
             var0 = new TranslatableComponent("selectWorld.backupQuestion.customized");
             var1 = new TranslatableComponent("selectWorld.backupWarning.customized");
         } else {
@@ -183,12 +184,12 @@ public class WorldOpenFlows {
             var1 = new TranslatableComponent("selectWorld.backupWarning.experimental");
         }
 
-        this.minecraft.setScreen(new BackupConfirmScreen(null, (param2x, param3) -> {
+        this.minecraft.setScreen(new BackupConfirmScreen(param0, (param2x, param3x) -> {
             if (param2x) {
-                EditWorldScreen.makeBackupAndShowToast(this.levelSource, param0);
+                EditWorldScreen.makeBackupAndShowToast(this.levelSource, param1);
             }
 
-            param2.run();
+            param3.run();
         }, var0, var1, false));
     }
 

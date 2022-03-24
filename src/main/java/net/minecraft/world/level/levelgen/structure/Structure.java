@@ -25,6 +25,7 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -133,7 +134,7 @@ public abstract class Structure {
     ) {
     }
 
-    public static int[] getCornerHeights(Structure.GenerationContext param0, int param1, int param2, int param3, int param4) {
+    private static int[] getCornerHeights(Structure.GenerationContext param0, int param1, int param2, int param3, int param4) {
         ChunkGenerator var0 = param0.chunkGenerator();
         LevelHeightAccessor var1 = param0.heightAccessor();
         RandomState var2 = param0.randomState();
@@ -145,12 +146,35 @@ public abstract class Structure {
         };
     }
 
-    public static int getLowestY(Structure.GenerationContext param0, int param1, int param2) {
+    protected static int getLowestY(Structure.GenerationContext param0, int param1, int param2) {
         ChunkPos var0 = param0.chunkPos();
         int var1 = var0.getMinBlockX();
         int var2 = var0.getMinBlockZ();
-        int[] var3 = getCornerHeights(param0, var1, param1, var2, param2);
-        return Math.min(Math.min(var3[0], var3[1]), Math.min(var3[2], var3[3]));
+        return getLowestY(param0, var1, var2, param1, param2);
+    }
+
+    protected static int getLowestY(Structure.GenerationContext param0, int param1, int param2, int param3, int param4) {
+        int[] var0 = getCornerHeights(param0, param1, param3, param2, param4);
+        return Math.min(Math.min(var0[0], var0[1]), Math.min(var0[2], var0[3]));
+    }
+
+    @Deprecated
+    protected BlockPos getLowestYIn5by5BoxOffset7Blocks(Structure.GenerationContext param0, Rotation param1) {
+        int var0 = 5;
+        int var1 = 5;
+        if (param1 == Rotation.CLOCKWISE_90) {
+            var0 = -5;
+        } else if (param1 == Rotation.CLOCKWISE_180) {
+            var0 = -5;
+            var1 = -5;
+        } else if (param1 == Rotation.COUNTERCLOCKWISE_90) {
+            var1 = -5;
+        }
+
+        ChunkPos var2 = param0.chunkPos();
+        int var3 = var2.getBlockX(7);
+        int var4 = var2.getBlockZ(7);
+        return new BlockPos(var3, getLowestY(param0, var3, var4, var0, var1), var4);
     }
 
     public abstract Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext var1);

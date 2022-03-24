@@ -155,7 +155,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(false)), 3);
                 this.updateNeighbours(param0, param1, param2);
                 this.playSound(null, param1, param2, false);
-                param1.gameEvent(GameEvent.BLOCK_UNPRESS, param2);
+                param1.gameEvent(null, GameEvent.BLOCK_UNPRESS, param2);
             }
 
         }

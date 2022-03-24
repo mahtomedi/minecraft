@@ -14,7 +14,6 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public record NoiseGeneratorSettings(
     NoiseSettings noiseSettings,
@@ -74,10 +73,6 @@ public record NoiseGeneratorSettings(
         return this.useLegacyRandomSource ? WorldgenRandom.Algorithm.LEGACY : WorldgenRandom.Algorithm.XOROSHIRO;
     }
 
-    public NoiseRouter createNoiseRouter(Registry<NormalNoise.NoiseParameters> param0, RandomWithLegacy param1) {
-        return NoiseRouterData.createNoiseRouter(this.noiseSettings, param0, this.noiseRouter, param1);
-    }
-
     private static void register(ResourceKey<NoiseGeneratorSettings> param0, NoiseGeneratorSettings param1) {
         BuiltinRegistries.register(BuiltinRegistries.NOISE_GENERATOR_SETTINGS, param0.location(), param1);
     }
@@ -91,7 +86,7 @@ public record NoiseGeneratorSettings(
             NoiseSettings.END_NOISE_SETTINGS,
             Blocks.END_STONE.defaultBlockState(),
             Blocks.AIR.defaultBlockState(),
-            NoiseRouterData.end(NoiseSettings.END_NOISE_SETTINGS),
+            NoiseRouterData.end(),
             SurfaceRuleData.end(),
             List.of(),
             0,
@@ -107,7 +102,7 @@ public record NoiseGeneratorSettings(
             NoiseSettings.NETHER_NOISE_SETTINGS,
             Blocks.NETHERRACK.defaultBlockState(),
             Blocks.LAVA.defaultBlockState(),
-            NoiseRouterData.nether(NoiseSettings.NETHER_NOISE_SETTINGS),
+            NoiseRouterData.nether(),
             SurfaceRuleData.nether(),
             List.of(),
             32,
@@ -119,12 +114,11 @@ public record NoiseGeneratorSettings(
     }
 
     private static NoiseGeneratorSettings overworld(boolean param0, boolean param1) {
-        NoiseSettings var0 = NoiseSettings.overworldNoiseSettings(param0);
         return new NoiseGeneratorSettings(
-            var0,
+            NoiseSettings.OVERWORLD_NOISE_SETTINGS,
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),
-            NoiseRouterData.overworld(var0, param1, param0),
+            NoiseRouterData.overworld(param1, param0),
             SurfaceRuleData.overworld(),
             new OverworldBiomeBuilder().spawnTarget(),
             63,
@@ -140,7 +134,7 @@ public record NoiseGeneratorSettings(
             NoiseSettings.CAVES_NOISE_SETTINGS,
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),
-            NoiseRouterData.caves(NoiseSettings.CAVES_NOISE_SETTINGS),
+            NoiseRouterData.caves(),
             SurfaceRuleData.overworldLike(false, true, true),
             List.of(),
             32,
@@ -156,7 +150,7 @@ public record NoiseGeneratorSettings(
             NoiseSettings.FLOATING_ISLANDS_NOISE_SETTINGS,
             Blocks.STONE.defaultBlockState(),
             Blocks.WATER.defaultBlockState(),
-            NoiseRouterData.floatingIslands(NoiseSettings.FLOATING_ISLANDS_NOISE_SETTINGS),
+            NoiseRouterData.floatingIslands(),
             SurfaceRuleData.overworldLike(false, false, false),
             List.of(),
             -64,

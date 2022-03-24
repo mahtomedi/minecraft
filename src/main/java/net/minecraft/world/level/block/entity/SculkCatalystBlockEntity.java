@@ -15,6 +15,7 @@ import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
+import net.minecraft.world.phys.Vec3;
 
 public class SculkCatalystBlockEntity extends BlockEntity implements GameEventListener {
     private final BlockPositionSource blockPosSource = new BlockPositionSource(this.worldPosition);
@@ -35,12 +36,12 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
     }
 
     @Override
-    public boolean handleGameEvent(Level param0, GameEvent param1, @Nullable Entity param2, BlockPos param3) {
-        if (!param0.isClientSide() && param1 == GameEvent.ENTITY_DYING && param2 instanceof LivingEntity var0) {
+    public boolean handleGameEvent(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3) {
+        if (param1 == GameEvent.ENTITY_DYING && param2 instanceof LivingEntity var0) {
             if (!var0.wasExperienceConsumed()) {
-                this.sculkSpreader.addCursors(param3, var0.getExperienceReward());
+                this.sculkSpreader.addCursors(new BlockPos(param3), var0.getExperienceReward());
                 var0.skipDropExperience();
-                SculkCatalystBlock.bloom((ServerLevel)param0, this.worldPosition, this.getBlockState(), param0.getRandom());
+                SculkCatalystBlock.bloom(param0, this.worldPosition, this.getBlockState(), param0.getRandom());
             }
 
             return true;

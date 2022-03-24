@@ -12,10 +12,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
 import java.util.Arrays;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
-import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import net.minecraft.client.gui.font.providers.GlyphProviderBuilder;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,8 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SpaceProvider implements GlyphProvider {
-    static final EmptyGlyph SPACE_GLYPH = new EmptyGlyph();
-    private final Int2ObjectMap<SpaceProvider.SpaceGlyphInfo> glyphs;
+    private final Int2ObjectMap<GlyphInfo.SpaceGlyphInfo> glyphs;
 
     public SpaceProvider(Int2FloatMap param0) {
         this.glyphs = new Int2ObjectOpenHashMap<>(param0.size());
@@ -60,13 +56,5 @@ public class SpaceProvider implements GlyphProvider {
         }
 
         return param1 -> new SpaceProvider(var0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    interface SpaceGlyphInfo extends GlyphInfo {
-        @Override
-        default BakedGlyph bake(Function<SheetGlyphInfo, BakedGlyph> param0) {
-            return SpaceProvider.SPACE_GLYPH;
-        }
     }
 }

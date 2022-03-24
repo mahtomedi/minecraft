@@ -86,7 +86,7 @@ public class TitleScreen extends Screen {
     }
 
     private boolean realmsNotificationsEnabled() {
-        return this.minecraft.options.realmsNotifications && this.realmsNotificationsScreen != null;
+        return this.minecraft.options.realmsNotifications().get() && this.realmsNotificationsScreen != null;
     }
 
     @Override
@@ -200,7 +200,7 @@ public class TitleScreen extends Screen {
             )
         );
         this.minecraft.setConnectedToRealms(false);
-        if (this.minecraft.options.realmsNotifications && this.realmsNotificationsScreen == null) {
+        if (this.minecraft.options.realmsNotifications().get() && this.realmsNotificationsScreen == null) {
             this.realmsNotificationsScreen = new RealmsNotificationsScreen();
         }
 
@@ -279,7 +279,7 @@ public class TitleScreen extends Screen {
         boolean var0 = this.checkDemoWorldPresence();
         this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
             if (var0) {
-                this.minecraft.createWorldOpenFlows().loadLevel("Demo_World");
+                this.minecraft.createWorldOpenFlows().loadLevel(this, "Demo_World");
             } else {
                 RegistryAccess var0x = RegistryAccess.BUILTIN.get();
                 this.minecraft.createWorldOpenFlows().createFreshLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldPresets.demoSettings(var0x));

@@ -151,6 +151,6 @@ public abstract class AbstractClientPlayer extends Player {
             }
         }
 
-        return Mth.lerp(Minecraft.getInstance().options.fovEffectScale, 1.0F, var0);
+        return Mth.lerp(Minecraft.getInstance().options.fovEffectScale().get().floatValue(), 1.0F, var0);
     }
 }

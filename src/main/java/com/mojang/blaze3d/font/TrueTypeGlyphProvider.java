@@ -49,37 +49,39 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     }
 
     @Nullable
-    public TrueTypeGlyphProvider.Glyph getGlyph(int param0) {
+    @Override
+    public GlyphInfo getGlyph(int param0) {
         if (this.skip.contains(param0)) {
             return null;
         } else {
-            Object var8;
+            GlyphInfo.SpaceGlyphInfo var13;
             try (MemoryStack var0 = MemoryStack.stackPush()) {
-                IntBuffer var1 = var0.mallocInt(1);
-                IntBuffer var2 = var0.mallocInt(1);
-                IntBuffer var3 = var0.mallocInt(1);
-                IntBuffer var4 = var0.mallocInt(1);
-                int var5 = STBTruetype.stbtt_FindGlyphIndex(this.font, param0);
-                if (var5 == 0) {
+                int var1 = STBTruetype.stbtt_FindGlyphIndex(this.font, param0);
+                if (var1 == 0) {
                     return null;
                 }
 
-                STBTruetype.stbtt_GetGlyphBitmapBoxSubpixel(this.font, var5, this.pointScale, this.pointScale, this.shiftX, this.shiftY, var1, var2, var3, var4);
-                int var6 = var3.get(0) - var1.get(0);
-                int var7 = var4.get(0) - var2.get(0);
-                if (var6 > 0 && var7 > 0) {
-                    IntBuffer var8 = var0.mallocInt(1);
-                    IntBuffer var9 = var0.mallocInt(1);
-                    STBTruetype.stbtt_GetGlyphHMetrics(this.font, var5, var8, var9);
+                IntBuffer var2 = var0.mallocInt(1);
+                IntBuffer var3 = var0.mallocInt(1);
+                IntBuffer var4 = var0.mallocInt(1);
+                IntBuffer var5 = var0.mallocInt(1);
+                IntBuffer var6 = var0.mallocInt(1);
+                IntBuffer var7 = var0.mallocInt(1);
+                STBTruetype.stbtt_GetGlyphHMetrics(this.font, var1, var6, var7);
+                STBTruetype.stbtt_GetGlyphBitmapBoxSubpixel(this.font, var1, this.pointScale, this.pointScale, this.shiftX, this.shiftY, var2, var3, var4, var5);
+                float var8 = (float)var6.get(0) * this.pointScale;
+                int var9 = var4.get(0) - var2.get(0);
+                int var10 = var5.get(0) - var3.get(0);
+                if (var9 > 0 && var10 > 0) {
                     return new TrueTypeGlyphProvider.Glyph(
-                        var1.get(0), var3.get(0), -var2.get(0), -var4.get(0), (float)var8.get(0) * this.pointScale, (float)var9.get(0) * this.pointScale, var5
+                        var2.get(0), var4.get(0), -var3.get(0), -var5.get(0), var8, (float)var7.get(0) * this.pointScale, var1
                     );
                 }
 
-                var8 = null;
+                var13 = () -> var8 / this.oversample;
             }
 
-            return (TrueTypeGlyphProvider.Glyph)var8;
+            return var13;
         }
     }
 

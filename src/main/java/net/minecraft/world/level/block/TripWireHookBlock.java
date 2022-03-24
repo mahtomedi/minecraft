@@ -180,16 +180,16 @@ public class TripWireHookBlock extends Block {
     private void playSound(Level param0, BlockPos param1, boolean param2, boolean param3, boolean param4, boolean param5) {
         if (param3 && !param5) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.BLOCKS, 0.4F, 0.6F);
-            param0.gameEvent(GameEvent.BLOCK_PRESS, param1);
+            param0.gameEvent(null, GameEvent.BLOCK_PRESS, param1);
         } else if (!param3 && param5) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_CLICK_OFF, SoundSource.BLOCKS, 0.4F, 0.5F);
-            param0.gameEvent(GameEvent.BLOCK_UNPRESS, param1);
+            param0.gameEvent(null, GameEvent.BLOCK_UNPRESS, param1);
         } else if (param2 && !param4) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_ATTACH, SoundSource.BLOCKS, 0.4F, 0.7F);
-            param0.gameEvent(GameEvent.BLOCK_ATTACH, param1);
+            param0.gameEvent(null, GameEvent.BLOCK_ATTACH, param1);
         } else if (!param2 && param4) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_DETACH, SoundSource.BLOCKS, 0.4F, 1.2F / (param0.random.nextFloat() * 0.2F + 0.9F));
-            param0.gameEvent(GameEvent.BLOCK_DETACH, param1);
+            param0.gameEvent(null, GameEvent.BLOCK_DETACH, param1);
         }
 
     }

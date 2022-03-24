@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens;
 
-import net.minecraft.client.Option;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,23 +13,23 @@ public class ChatOptionsScreen extends SimpleOptionsSubScreen {
             param0,
             param1,
             new TranslatableComponent("options.chat.title"),
-            new Option[]{
-                Option.CHAT_VISIBILITY,
-                Option.CHAT_COLOR,
-                Option.CHAT_LINKS,
-                Option.CHAT_LINKS_PROMPT,
-                Option.CHAT_OPACITY,
-                Option.TEXT_BACKGROUND_OPACITY,
-                Option.CHAT_SCALE,
-                Option.CHAT_LINE_SPACING,
-                Option.CHAT_DELAY,
-                Option.CHAT_WIDTH,
+            new OptionInstance[]{
+                param1.chatVisibility(),
+                param1.chatColors(),
+                param1.chatLinks(),
+                param1.chatLinksPrompt(),
+                param1.chatOpacity(),
+                param1.textBackgroundOpacity(),
+                param1.chatScale(),
+                param1.chatLineSpacing(),
+                param1.chatDelay(),
+                param1.chatWidth(),
                 param1.chatHeightFocused(),
                 param1.chatHeightUnfocused(),
-                Option.NARRATOR,
-                Option.AUTO_SUGGESTIONS,
-                Option.HIDE_MATCHED_NAMES,
-                Option.REDUCED_DEBUG_INFO
+                param1.narrator(),
+                param1.autoSuggestions(),
+                param1.hideMatchedNames(),
+                param1.reducedDebugInfo()
             }
         );
     }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import net.minecraft.client.Option;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,7 +30,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
     private final Function<T, Component> valueStringifier;
     private final Function<CycleButton<T>, MutableComponent> narrationProvider;
     private final CycleButton.OnValueChange<T> onValueChange;
-    private final Option.TooltipSupplier<T> tooltipSupplier;
+    private final OptionInstance.TooltipSupplier<T> tooltipSupplier;
     private final boolean displayOnlyValue;
 
     CycleButton(
@@ -46,7 +46,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
         Function<T, Component> param9,
         Function<CycleButton<T>, MutableComponent> param10,
         CycleButton.OnValueChange<T> param11,
-        Option.TooltipSupplier<T> param12,
+        OptionInstance.TooltipSupplier<T> param12,
         boolean param13
     ) {
         super(param0, param1, param2, param3, param4);
@@ -174,7 +174,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
         @Nullable
         private T initialValue;
         private final Function<T, Component> valueStringifier;
-        private Option.TooltipSupplier<T> tooltipSupplier = param0x -> ImmutableList.of();
+        private OptionInstance.TooltipSupplier<T> tooltipSupplier = param0x -> ImmutableList.of();
         private Function<CycleButton<T>, MutableComponent> narrationProvider = CycleButton::createDefaultNarrationMessage;
         private CycleButton.ValueListSupplier<T> values = CycleButton.ValueListSupplier.create(ImmutableList.of());
         private boolean displayOnlyValue;
@@ -203,7 +203,7 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
             return this;
         }
 
-        public CycleButton.Builder<T> withTooltip(Option.TooltipSupplier<T> param0) {
+        public CycleButton.Builder<T> withTooltip(OptionInstance.TooltipSupplier<T> param0) {
             this.tooltipSupplier = param0;
             return this;
         }

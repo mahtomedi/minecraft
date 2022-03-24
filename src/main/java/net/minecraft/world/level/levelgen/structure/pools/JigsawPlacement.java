@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -17,7 +16,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -46,64 +44,63 @@ public class JigsawPlacement {
         JigsawPlacement.PieceFactory param3,
         BlockPos param4,
         boolean param5,
-        Optional<Heightmap.Types> param6
+        Optional<Heightmap.Types> param6,
+        int param7
     ) {
         RegistryAccess var0 = param0.registryAccess();
         ChunkGenerator var1 = param0.chunkGenerator();
         StructureTemplateManager var2 = param0.structureTemplateManager();
         LevelHeightAccessor var3 = param0.heightAccessor();
-        Predicate<Holder<Biome>> var4 = param0.validBiome();
-        WorldgenRandom var5 = param0.random();
-        Registry<StructureTemplatePool> var6 = var0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
-        Rotation var7 = Rotation.getRandom(var5);
-        StructureTemplatePool var8 = param1.value();
-        StructurePoolElement var9 = var8.getRandomTemplate(var5);
-        if (var9 == EmptyPoolElement.INSTANCE) {
+        WorldgenRandom var4 = param0.random();
+        Registry<StructureTemplatePool> var5 = var0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        Rotation var6 = Rotation.getRandom(var4);
+        StructureTemplatePool var7 = param1.value();
+        StructurePoolElement var8 = var7.getRandomTemplate(var4);
+        if (var8 == EmptyPoolElement.INSTANCE) {
             return Optional.empty();
         } else {
-            PoolElementStructurePiece var10 = param3.create(var2, var9, param4, var9.getGroundLevelDelta(), var7, var9.getBoundingBox(var2, param4, var7));
-            BoundingBox var11 = var10.getBoundingBox();
-            int var12 = (var11.maxX() + var11.minX()) / 2;
-            int var13 = (var11.maxZ() + var11.minZ()) / 2;
-            int var14;
+            PoolElementStructurePiece var9 = param3.create(var2, var8, param4, var8.getGroundLevelDelta(), var6, var8.getBoundingBox(var2, param4, var6));
+            BoundingBox var10 = var9.getBoundingBox();
+            int var11 = (var10.maxX() + var10.minX()) / 2;
+            int var12 = (var10.maxZ() + var10.minZ()) / 2;
+            int var13;
             if (param6.isPresent()) {
-                var14 = param4.getY() + var1.getFirstFreeHeight(var12, var13, param6.get(), var3, param0.randomState());
+                var13 = param4.getY() + var1.getFirstFreeHeight(var11, var12, param6.get(), var3, param0.randomState());
             } else {
-                var14 = param4.getY();
+                var13 = param4.getY();
             }
 
-            int var16 = var11.minY() + var10.getGroundLevelDelta();
-            var10.move(0, var14 - var16, 0);
+            int var15 = var10.minY() + var9.getGroundLevelDelta();
+            var9.move(0, var13 - var15, 0);
             return Optional.of(
                 new Structure.GenerationStub(
-                    new BlockPos(var12, var14, var13),
-                    param14 -> {
+                    new BlockPos(var11, var13, var12),
+                    param15 -> {
                         List<PoolElementStructurePiece> var0x = Lists.newArrayList();
-                        var0x.add(var10);
+                        var0x.add(var9);
                         if (param2 > 0) {
-                            int var1x = 80;
-                            AABB var2x = new AABB(
-                                (double)(var12 - 80),
-                                (double)(var14 - 80),
-                                (double)(var13 - 80),
-                                (double)(var12 + 80 + 1),
-                                (double)(var14 + 80 + 1),
-                                (double)(var13 + 80 + 1)
+                            AABB var1x = new AABB(
+                                (double)(var11 - param7),
+                                (double)(var13 - param7),
+                                (double)(var12 - param7),
+                                (double)(var11 + param7 + 1),
+                                (double)(var13 + param7 + 1),
+                                (double)(var12 + param7 + 1)
                             );
-                            JigsawPlacement.Placer var3x = new JigsawPlacement.Placer(var6, param2, param3, var1, var2, var0x, var5);
-                            var3x.placing
+                            JigsawPlacement.Placer var2x = new JigsawPlacement.Placer(var5, param2, param3, var1, var2, var0x, var4);
+                            var2x.placing
                                 .addLast(
                                     new JigsawPlacement.PieceState(
-                                        var10, new MutableObject<>(Shapes.join(Shapes.create(var2x), Shapes.create(AABB.of(var11)), BooleanOp.ONLY_FIRST)), 0
+                                        var9, new MutableObject<>(Shapes.join(Shapes.create(var1x), Shapes.create(AABB.of(var10)), BooleanOp.ONLY_FIRST)), 0
                                     )
                                 );
         
-                            while(!var3x.placing.isEmpty()) {
-                                JigsawPlacement.PieceState var4x = var3x.placing.removeFirst();
-                                var3x.tryPlacingChildren(var4x.piece, var4x.free, var4x.depth, param5, var3, param0.randomState());
+                            while(!var2x.placing.isEmpty()) {
+                                JigsawPlacement.PieceState var3x = var2x.placing.removeFirst();
+                                var2x.tryPlacingChildren(var3x.piece, var3x.free, var3x.depth, param5, var3, param0.randomState());
                             }
         
-                            var0x.forEach(param14::addPiece);
+                            var0x.forEach(param15::addPiece);
                         }
                     }
                 )
@@ -134,6 +131,7 @@ public class JigsawPlacement {
 
     }
 
+    @FunctionalInterface
     public interface PieceFactory {
         PoolElementStructurePiece create(StructureTemplateManager var1, StructurePoolElement var2, BlockPos var3, int var4, Rotation var5, BoundingBox var6);
     }

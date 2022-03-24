@@ -263,7 +263,7 @@ public class EnderMan extends Monster implements NeutralMob {
     @Override
     protected void customServerAiStep() {
         if (this.level.isDay() && this.tickCount >= this.targetChangeTime + 600) {
-            float var0 = this.getBrightness();
+            float var0 = this.getLightLevelDependentMagicValue();
             if (var0 > 0.5F && this.level.canSeeSky(this.blockPosition()) && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F) {
                 this.setTarget(null);
                 this.teleport();

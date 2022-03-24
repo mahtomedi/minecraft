@@ -82,7 +82,7 @@ public abstract class Animal extends AgeableMob {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        return param1.getBlockState(param0.below()).is(Blocks.GRASS_BLOCK) ? 10.0F : param1.getBrightness(param0) - 0.5F;
+        return param1.getBlockState(param0.below()).is(Blocks.GRASS_BLOCK) ? 10.0F : param1.getPathfindingCostFromLightLevels(param0);
     }
 
     @Override
@@ -142,14 +142,14 @@ public abstract class Animal extends AgeableMob {
             if (!this.level.isClientSide && var1 == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
+                this.gameEvent(GameEvent.MOB_INTERACT);
                 return InteractionResult.SUCCESS;
             }
 
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp(getSpeedUpSecondsWhenFeeding(-var1), true);
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
+                this.gameEvent(GameEvent.MOB_INTERACT);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 

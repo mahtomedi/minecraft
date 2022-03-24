@@ -113,7 +113,7 @@ public class SpawnEggItem extends Item {
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
-                    param0.gameEvent(GameEvent.ENTITY_PLACE, param1);
+                    param1.gameEvent(GameEvent.ENTITY_PLACE);
                     return InteractionResultHolder.consume(var0);
                 }
             } else {

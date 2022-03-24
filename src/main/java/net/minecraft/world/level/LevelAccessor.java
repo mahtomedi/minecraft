@@ -3,6 +3,7 @@ package net.minecraft.world.level;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
@@ -12,10 +13,13 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.ScheduledTick;
 import net.minecraft.world.ticks.TickPriority;
@@ -79,6 +83,10 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
     default void blockUpdated(BlockPos param0, Block param1) {
     }
 
+    default void neighborShapeChanged(Direction param0, BlockState param1, BlockPos param2, BlockPos param3, int param4, int param5) {
+        NeighborUpdater.executeShapeUpdate(this, param0, param1, param2, param3, param4, param5 - 1);
+    }
+
     void playSound(@Nullable Player var1, BlockPos var2, SoundEvent var3, SoundSource var4, float var5, float var6);
 
     void addParticle(ParticleOptions var1, double var2, double var4, double var6, double var8, double var10, double var12);
@@ -89,17 +97,9 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
         this.levelEvent(null, param0, param1, param2);
     }
 
-    void gameEvent(@Nullable Entity var1, GameEvent var2, BlockPos var3);
+    void gameEvent(@Nullable Entity var1, GameEvent var2, Vec3 var3);
 
-    default void gameEvent(GameEvent param0, BlockPos param1) {
-        this.gameEvent(null, param0, param1);
-    }
-
-    default void gameEvent(GameEvent param0, Entity param1) {
-        this.gameEvent(null, param0, param1.blockPosition());
-    }
-
-    default void gameEvent(@Nullable Entity param0, GameEvent param1, Entity param2) {
-        this.gameEvent(param0, param1, param2.blockPosition());
+    default void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
+        this.gameEvent(param0, param1, Vec3.atCenterOf(param2));
     }
 }

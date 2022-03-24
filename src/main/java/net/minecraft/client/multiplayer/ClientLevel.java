@@ -76,7 +76,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
@@ -171,7 +170,7 @@ public class ClientLevel extends Level {
         boolean param8,
         long param9
     ) {
-        super(param1, param2, param3, param6, true, param8, param9);
+        super(param1, param2, param3, param6, true, param8, param9, 1000000);
         this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
@@ -585,11 +584,6 @@ public class ClientLevel extends Level {
         this.levelRenderer.setBlockDirty(param0, param1, param2);
     }
 
-    @Override
-    public NeighborUpdater getNeighborUpdater() {
-        return NeighborUpdater.NOOP;
-    }
-
     public void setSectionDirtyWithNeighbors(int param0, int param1, int param2) {
         this.levelRenderer.setSectionDirtyWithNeighbors(param0, param1, param2);
     }
@@ -842,7 +836,7 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
+    public void gameEvent(@Nullable Entity param0, GameEvent param1, Vec3 param2) {
     }
 
     protected Map<String, MapItemSavedData> getAllMapData() {

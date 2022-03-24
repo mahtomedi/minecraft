@@ -150,7 +150,7 @@ public class Explosion {
     }
 
     public void explode() {
-        this.level.gameEvent(this.source, GameEvent.EXPLODE, new BlockPos(this.x, this.y, this.z));
+        this.level.gameEvent(this.source, GameEvent.EXPLODE, new Vec3(this.x, this.y, this.z));
         Set<BlockPos> var0 = Sets.newHashSet();
         int var1 = 16;
 

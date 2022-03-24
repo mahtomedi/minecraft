@@ -396,7 +396,7 @@ public class Panda extends Animal {
                 if (this.getEatCounter() > 100 && this.isFoodOrCake(this.getItemBySlot(EquipmentSlot.MAINHAND))) {
                     if (!this.level.isClientSide) {
                         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-                        this.gameEvent(GameEvent.EAT, this.eyeBlockPosition());
+                        this.gameEvent(GameEvent.EAT);
                     }
 
                     this.sit(false);
@@ -634,11 +634,11 @@ public class Panda extends Animal {
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp((int)((float)(-this.getAge() / 20) * 0.1F), true);
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
+                this.gameEvent(GameEvent.MOB_INTERACT);
             } else if (!this.level.isClientSide && this.getAge() == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
+                this.gameEvent(GameEvent.MOB_INTERACT);
             } else {
                 if (this.level.isClientSide || this.isSitting() || this.isInWater()) {
                     return InteractionResult.PASS;

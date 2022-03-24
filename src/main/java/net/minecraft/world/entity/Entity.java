@@ -18,6 +18,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -94,8 +95,8 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
+import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListenerRegistrar;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -366,10 +367,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean closerThan(Entity param0, double param1) {
-        double var0 = param0.position.x - this.position.x;
-        double var1 = param0.position.y - this.position.y;
-        double var2 = param0.position.z - this.position.z;
-        return var0 * var0 + var1 * var1 + var2 * var2 < param1 * param1;
+        return this.position().closerThan(param0.position(), param1);
     }
 
     protected void setRot(float param0, float param1) {
@@ -623,7 +621,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     var8.updateEntityAfterFallOn(this.level, this);
                 }
 
-                if (this.onGround && !this.isSteppingCarefully()) {
+                if (this.onGround) {
                     var8.stepOn(this.level, var5, var6, this);
                 }
 
@@ -921,20 +919,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void onInsideBlock(BlockState param0) {
     }
 
-    public void gameEvent(GameEvent param0, @Nullable Entity param1, BlockPos param2) {
-        this.level.gameEvent(param1, param0, param2);
-    }
-
     public void gameEvent(GameEvent param0, @Nullable Entity param1) {
-        this.gameEvent(param0, param1, this.blockPosition);
-    }
-
-    public void gameEvent(GameEvent param0, BlockPos param1) {
-        this.gameEvent(param0, this, param1);
+        this.level.gameEvent(param1, param0, this.position);
     }
 
     public void gameEvent(GameEvent param0) {
-        this.gameEvent(param0, this.blockPosition);
+        this.gameEvent(param0, this);
     }
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
@@ -1204,9 +1194,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    public float getBrightness() {
+    @Deprecated
+    public float getLightLevelDependentMagicValue() {
         return this.level.hasChunkAt(this.getBlockX(), this.getBlockZ())
-            ? this.level.getBrightness(new BlockPos(this.getX(), this.getEyeY(), this.getZ()))
+            ? this.level.getLightLevelDependentMagicValue(new BlockPos(this.getX(), this.getEyeY(), this.getZ()))
             : 0.0F;
     }
 
@@ -2050,9 +2041,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    @Nullable
-    public GameEventListenerRegistrar getGameEventListenerRegistrar() {
-        return null;
+    public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener, ServerLevel> param0) {
     }
 
     @Nullable
@@ -2673,6 +2662,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return null;
     }
 
+    public final boolean hasControllingPassenger() {
+        return this.getControllingPassenger() != null;
+    }
+
     public final List<Entity> getPassengers() {
         return this.passengers;
     }
@@ -2939,10 +2932,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.feetBlockState;
     }
 
-    public BlockPos eyeBlockPosition() {
-        return new BlockPos(this.getEyePosition(1.0F));
-    }
-
     public ChunkPos chunkPosition() {
         return this.chunkPosition;
     }
@@ -3026,10 +3015,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             this.levelCallback.onMove();
-            GameEventListenerRegistrar var3 = this.getGameEventListenerRegistrar();
-            if (var3 != null) {
-                var3.onListenerMove(this.level);
-            }
+            this.updateDynamicGameEventListener(DynamicGameEventListener::move);
         }
 
     }

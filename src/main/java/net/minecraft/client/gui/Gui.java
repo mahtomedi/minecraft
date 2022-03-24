@@ -40,6 +40,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -390,7 +391,7 @@ public class Gui extends GuiComponent {
         Options var0 = this.minecraft.options;
         if (var0.getCameraType().isFirstPerson()) {
             if (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
-                if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo) {
+                if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo().get()) {
                     Camera var1 = this.minecraft.gameRenderer.getMainCamera();
                     PoseStack var2 = RenderSystem.getModelViewStack();
                     var2.pushPose();
@@ -411,7 +412,7 @@ public class Gui extends GuiComponent {
                     );
                     int var3 = 15;
                     this.blit(param0, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 0, 0, 15, 15);
-                    if (this.minecraft.options.attackIndicator == AttackIndicatorStatus.CROSSHAIR) {
+                    if (this.minecraft.options.attackIndicator().get() == AttackIndicatorStatus.CROSSHAIR) {
                         float var4 = this.minecraft.player.getAttackStrengthScale(0.0F);
                         boolean var5 = false;
                         if (this.minecraft.crosshairPickEntity != null && this.minecraft.crosshairPickEntity instanceof LivingEntity && var4 >= 1.0F) {
@@ -555,7 +556,7 @@ public class Gui extends GuiComponent {
                 }
             }
 
-            if (this.minecraft.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
+            if (this.minecraft.options.attackIndicator().get() == AttackIndicatorStatus.HOTBAR) {
                 float var12 = this.minecraft.player.getAttackStrengthScale(0.0F);
                 if (var12 < 1.0F) {
                     int var13 = this.screenHeight - 20;
@@ -1027,8 +1028,10 @@ public class Gui extends GuiComponent {
 
     private void updateVignetteBrightness(Entity param0) {
         if (param0 != null) {
-            float var0 = Mth.clamp(1.0F - param0.getBrightness(), 0.0F, 1.0F);
-            this.vignetteBrightness += (var0 - this.vignetteBrightness) * 0.01F;
+            BlockPos var0 = new BlockPos(param0.getX(), param0.getEyeY(), param0.getZ());
+            float var1 = LightTexture.getBrightness(param0.level.dimensionType(), param0.level.getMaxLocalRawBrightness(var0));
+            float var2 = Mth.clamp(1.0F - var1, 0.0F, 1.0F);
+            this.vignetteBrightness += (var2 - this.vignetteBrightness) * 0.01F;
         }
     }
 
@@ -1231,7 +1234,7 @@ public class Gui extends GuiComponent {
 
     public void handleChat(ChatType param0, Component param1, UUID param2) {
         if (!this.minecraft.isBlocked(param2)) {
-            if (!this.minecraft.options.hideMatchedNames || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
+            if (!this.minecraft.options.hideMatchedNames().get() || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
                 for(ChatListener var0 : this.chatListeners.get(param0)) {
                     var0.handle(param0, param1, param2);
                 }
@@ -1277,7 +1280,7 @@ public class Gui extends GuiComponent {
     }
 
     private void renderSavingIndicator(PoseStack param0) {
-        if (this.minecraft.options.showAutosaveIndicator && (this.autosaveIndicatorValue > 0.0F || this.lastAutosaveIndicatorValue > 0.0F)) {
+        if (this.minecraft.options.showAutosaveIndicator().get() && (this.autosaveIndicatorValue > 0.0F || this.lastAutosaveIndicatorValue > 0.0F)) {
             int var0 = Mth.floor(
                 255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), this.lastAutosaveIndicatorValue, this.autosaveIndicatorValue), 0.0F, 1.0F)
             );

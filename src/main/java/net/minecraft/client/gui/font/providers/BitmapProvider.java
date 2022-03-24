@@ -118,7 +118,7 @@ public class BitmapProvider implements GlyphProvider {
 
                         for(int var10 : this.chars.get(var8)) {
                             int var11 = var9++;
-                            if (var10 != 0 && var10 != 32) {
+                            if (var10 != 0) {
                                 int var12 = this.getActualGlyphWidth(var1, var4, var5, var11, var8);
                                 BitmapProvider.Glyph var13 = var7.put(
                                     var10,

@@ -51,12 +51,17 @@ public class LocateCommand {
         if (var4 == null) {
             throw ERROR_FAILED.create(param1.asPrintable());
         } else {
-            return showLocateResult(param0, param1, var2, var4, "commands.locate.success");
+            return showLocateResult(param0, param1, var2, var4, "commands.locate.success", false);
         }
     }
 
     public static int showLocateResult(
-        CommandSourceStack param0, ResourceOrTagLocationArgument.Result<?> param1, BlockPos param2, Pair<BlockPos, ? extends Holder<?>> param3, String param4
+        CommandSourceStack param0,
+        ResourceOrTagLocationArgument.Result<?> param1,
+        BlockPos param2,
+        Pair<BlockPos, ? extends Holder<?>> param3,
+        String param4,
+        boolean param5
     ) {
         BlockPos var0 = param3.getFirst();
         String var1 = param1.unwrap()
@@ -68,14 +73,15 @@ public class LocateCommand {
                         + (String)param3.getSecond().unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]")
                         + ")"
             );
-        int var2 = Mth.floor(dist(param2.getX(), param2.getZ(), var0.getX(), var0.getZ()));
-        Component var3 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", var0.getX(), "~", var0.getZ()))
+        int var2 = param5 ? Mth.floor(Mth.sqrt((float)param2.distSqr(var0))) : Mth.floor(dist(param2.getX(), param2.getZ(), var0.getX(), var0.getZ()));
+        String var3 = param5 ? String.valueOf(var0.getY()) : "~";
+        Component var4 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", var0.getX(), var3, var0.getZ()))
             .withStyle(
-                param1x -> param1x.withColor(ChatFormatting.GREEN)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var0.getX() + " ~ " + var0.getZ()))
+                param2x -> param2x.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var0.getX() + " " + var3 + " " + var0.getZ()))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
             );
-        param0.sendSuccess(new TranslatableComponent(param4, var1, var3, var2), false);
+        param0.sendSuccess(new TranslatableComponent(param4, var1, var4, var2), false);
         return var2;
     }
 

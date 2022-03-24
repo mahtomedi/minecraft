@@ -36,6 +36,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
+import net.minecraft.util.SpawnUtil;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -70,7 +71,6 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.player.Player;
@@ -84,7 +84,6 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 
@@ -893,8 +892,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             List<Villager> var1 = param0.getEntitiesOfClass(Villager.class, var0);
             List<Villager> var2 = var1.stream().filter(param1x -> param1x.wantsToSpawnGolem(param1)).limit(5L).collect(Collectors.toList());
             if (var2.size() >= param2) {
-                IronGolem var3 = this.trySpawnGolem(param0);
-                if (var3 != null) {
+                if (SpawnUtil.trySpawnMob(EntityType.IRON_GOLEM, param0, this.blockPosition(), 10, 8, 6).isPresent()) {
                     var1.forEach(GolemSensor::golemDetected);
                 }
             }
@@ -907,49 +905,6 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         } else {
             return !this.brain.hasMemoryValue(MemoryModuleType.GOLEM_DETECTED_RECENTLY);
         }
-    }
-
-    @Nullable
-    private IronGolem trySpawnGolem(ServerLevel param0) {
-        BlockPos var0 = this.blockPosition();
-
-        for(int var1 = 0; var1 < 10; ++var1) {
-            double var2 = (double)(param0.random.nextInt(16) - 8);
-            double var3 = (double)(param0.random.nextInt(16) - 8);
-            BlockPos var4 = this.findSpawnPositionForGolemInColumn(var0, var2, var3);
-            if (var4 != null) {
-                IronGolem var5 = EntityType.IRON_GOLEM.create(param0, null, null, null, var4, MobSpawnType.MOB_SUMMONED, false, false);
-                if (var5 != null) {
-                    if (var5.checkSpawnRules(param0, MobSpawnType.MOB_SUMMONED) && var5.checkSpawnObstruction(param0)) {
-                        param0.addFreshEntityWithPassengers(var5);
-                        return var5;
-                    }
-
-                    var5.discard();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    @Nullable
-    private BlockPos findSpawnPositionForGolemInColumn(BlockPos param0, double param1, double param2) {
-        int var0 = 6;
-        BlockPos var1 = param0.offset(param1, 6.0, param2);
-        BlockState var2 = this.level.getBlockState(var1);
-
-        for(int var3 = 6; var3 >= -6; --var3) {
-            BlockPos var4 = var1;
-            BlockState var5 = var2;
-            var1 = var1.below();
-            var2 = this.level.getBlockState(var1);
-            if ((var5.isAir() || var5.getMaterial().isLiquid()) && var2.getMaterial().isSolidBlocking()) {
-                return var4;
-            }
-        }
-
-        return null;
     }
 
     @Override

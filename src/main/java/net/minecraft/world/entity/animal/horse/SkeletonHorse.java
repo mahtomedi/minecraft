@@ -173,14 +173,14 @@ public class SkeletonHorse extends AbstractHorse {
         } else if (this.isBaby()) {
             return super.mobInteract(param0, param1);
         } else if (param0.isSecondaryUseActive()) {
-            this.openInventory(param0);
+            this.openCustomInventoryScreen(param0);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (this.isVehicle()) {
             return super.mobInteract(param0, param1);
         } else {
             if (!var0.isEmpty()) {
                 if (var0.is(Items.SADDLE) && !this.isSaddled()) {
-                    this.openInventory(param0);
+                    this.openCustomInventoryScreen(param0);
                     return InteractionResult.sidedSuccess(this.level.isClientSide);
                 }
 

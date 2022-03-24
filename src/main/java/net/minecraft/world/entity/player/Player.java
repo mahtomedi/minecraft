@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Dynamic;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +26,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -74,6 +77,7 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Strider;
+import net.minecraft.world.entity.monster.warden.WardenSpawnTracker;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -82,7 +86,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
@@ -110,8 +113,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
+import org.slf4j.Logger;
 
 public abstract class Player extends LivingEntity {
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
     public static final int MAX_NAME_LENGTH = 16;
     public static final int MAX_HEALTH = 20;
@@ -145,6 +150,7 @@ public abstract class Player extends LivingEntity {
     public final InventoryMenu inventoryMenu;
     public AbstractContainerMenu containerMenu;
     protected FoodData foodData = new FoodData();
+    protected WardenSpawnTracker wardenSpawnTracker = new WardenSpawnTracker(0, 0, 0);
     protected int jumpTriggerTime;
     public float oBob;
     public float bob;
@@ -253,6 +259,7 @@ public abstract class Player extends LivingEntity {
         this.moveCloak();
         if (!this.level.isClientSide) {
             this.foodData.tick(this);
+            this.wardenSpawnTracker.tick();
             this.awardStat(Stats.PLAY_TIME);
             this.awardStat(Stats.TOTAL_WORLD_TIME);
             if (this.isAlive()) {
@@ -770,6 +777,13 @@ public abstract class Player extends LivingEntity {
 
         this.setScore(param0.getInt("Score"));
         this.foodData.readAdditionalSaveData(param0);
+        if (param0.contains("warden_spawn_tracker", 10)) {
+            WardenSpawnTracker.CODEC
+                .parse(new Dynamic<>(NbtOps.INSTANCE, param0.get("warden_spawn_tracker")))
+                .resultOrPartial(LOGGER::error)
+                .ifPresent(param0x -> this.wardenSpawnTracker = param0x);
+        }
+
         this.abilities.loadSaveData(param0);
         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)this.abilities.getWalkingSpeed());
         if (param0.contains("EnderItems", 9)) {
@@ -799,6 +813,10 @@ public abstract class Player extends LivingEntity {
         param0.putInt("XpSeed", this.enchantmentSeed);
         param0.putInt("Score", this.getScore());
         this.foodData.addAdditionalSaveData(param0);
+        WardenSpawnTracker.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.wardenSpawnTracker)
+            .resultOrPartial(LOGGER::error)
+            .ifPresent(param1 -> param0.put("warden_spawn_tracker", param1));
         this.abilities.addSaveData(param0);
         param0.put("EnderItems", this.enderChestInventory.createTag());
         if (!this.getShoulderEntityLeft().isEmpty()) {
@@ -865,7 +883,7 @@ public abstract class Player extends LivingEntity {
     @Override
     protected void blockUsingShield(LivingEntity param0) {
         super.blockUsingShield(param0);
-        if (param0.getMainHandItem().getItem() instanceof AxeItem) {
+        if (param0.canDisableShield()) {
             this.disableShield(true);
         }
 
@@ -1692,6 +1710,10 @@ public abstract class Player extends LivingEntity {
             }
 
         }
+    }
+
+    public WardenSpawnTracker getWardenSpawnTracker() {
+        return this.wardenSpawnTracker;
     }
 
     public FoodData getFoodData() {

@@ -194,6 +194,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     @Nullable
     private static ShaderInstance rendertypeEntityTranslucentShader;
     @Nullable
+    private static ShaderInstance rendertypeEntityTranslucentEmissiveShader;
+    @Nullable
     private static ShaderInstance rendertypeEntitySmoothCutoutShader;
     @Nullable
     private static ShaderInstance rendertypeBeaconBeamShader;
@@ -509,6 +511,12 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             );
             var1.add(
                 Pair.of(
+                    new ShaderInstance(param0, "rendertype_entity_translucent_emissive", DefaultVertexFormat.NEW_ENTITY),
+                    param0x -> rendertypeEntityTranslucentEmissiveShader = param0x
+                )
+            );
+            var1.add(
+                Pair.of(
                     new ShaderInstance(param0, "rendertype_entity_smooth_cutout", DefaultVertexFormat.NEW_ENTITY),
                     param0x -> rendertypeEntitySmoothCutoutShader = param0x
                 )
@@ -765,7 +773,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
             FogType var2 = param0.getFluidInCamera();
             if (var2 == FogType.LAVA || var2 == FogType.WATER) {
-                var0 *= (double)Mth.lerp(this.minecraft.options.fovEffectScale, 1.0F, 0.85714287F);
+                var0 *= Mth.lerp(this.minecraft.options.fovEffectScale().get(), 1.0, 0.85714287F);
             }
 
             return var0;
@@ -824,7 +832,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             var0.normal().setIdentity();
             param0.pushPose();
             this.bobHurt(param0, param2);
-            if (this.minecraft.options.bobView) {
+            if (this.minecraft.options.bobView().get()) {
                 this.bobView(param0, param2);
             }
 
@@ -851,7 +859,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 this.bobHurt(param0, param2);
             }
 
-            if (this.minecraft.options.bobView) {
+            if (this.minecraft.options.bobView().get()) {
                 this.bobView(param0, param2);
             }
 
@@ -892,7 +900,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     public void render(float param0, long param1, boolean param2) {
         if (!this.minecraft.isWindowActive()
             && this.minecraft.options.pauseOnLostFocus
-            && (!this.minecraft.options.touchscreen || !this.minecraft.mouseHandler.isRightPressed())) {
+            && (!this.minecraft.options.touchscreen().get() || !this.minecraft.mouseHandler.isRightPressed())) {
             if (Util.getMillis() - this.lastActiveTime > 500L) {
                 this.minecraft.pauseGame(false);
             }
@@ -944,8 +952,9 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 this.minecraft.getProfiler().popPush("gui");
                 if (this.minecraft.player != null) {
                     float var6 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
-                    if (var6 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONFUSION) && this.minecraft.options.screenEffectScale < 1.0F) {
-                        this.renderConfusionOverlay(var6 * (1.0F - this.minecraft.options.screenEffectScale));
+                    float var7 = this.minecraft.options.screenEffectScale().get().floatValue();
+                    if (var6 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONFUSION) && var7 < 1.0F) {
+                        this.renderConfusionOverlay(var6 * (1.0F - var7));
                     }
                 }
 
@@ -961,20 +970,20 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             if (this.minecraft.getOverlay() != null) {
                 try {
                     this.minecraft.getOverlay().render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
-                } catch (Throwable var16) {
-                    CrashReport var8 = CrashReport.forThrowable(var16, "Rendering overlay");
-                    CrashReportCategory var9 = var8.addCategory("Overlay render details");
-                    var9.setDetail("Overlay name", () -> this.minecraft.getOverlay().getClass().getCanonicalName());
-                    throw new ReportedException(var8);
+                } catch (Throwable var161) {
+                    CrashReport var9 = CrashReport.forThrowable(var161, "Rendering overlay");
+                    CrashReportCategory var10 = var9.addCategory("Overlay render details");
+                    var10.setDetail("Overlay name", () -> this.minecraft.getOverlay().getClass().getCanonicalName());
+                    throw new ReportedException(var9);
                 }
             } else if (this.minecraft.screen != null) {
                 try {
                     this.minecraft.screen.render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var151) {
-                    CrashReport var11 = CrashReport.forThrowable(var151, "Rendering screen");
-                    CrashReportCategory var12 = var11.addCategory("Screen render details");
-                    var12.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
-                    var12.setDetail(
+                    CrashReport var12 = CrashReport.forThrowable(var151, "Rendering screen");
+                    CrashReportCategory var13 = var12.addCategory("Screen render details");
+                    var13.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
+                    var13.setDetail(
                         "Mouse location",
                         () -> String.format(
                                 Locale.ROOT,
@@ -985,7 +994,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                                 this.minecraft.mouseHandler.ypos()
                             )
                     );
-                    var12.setDetail(
+                    var13.setDetail(
                         "Screen size",
                         () -> String.format(
                                 Locale.ROOT,
@@ -997,7 +1006,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                                 this.minecraft.getWindow().getGuiScale()
                             )
                     );
-                    throw new ReportedException(var11);
+                    throw new ReportedException(var12);
                 }
 
                 try {
@@ -1005,10 +1014,10 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                         this.minecraft.screen.handleDelayedNarration();
                     }
                 } catch (Throwable var141) {
-                    CrashReport var14 = CrashReport.forThrowable(var141, "Narrating screen");
-                    CrashReportCategory var15 = var14.addCategory("Screen details");
-                    var15.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
-                    throw new ReportedException(var14);
+                    CrashReport var15 = CrashReport.forThrowable(var141, "Narrating screen");
+                    CrashReportCategory var16 = var15.addCategory("Screen details");
+                    var16.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
+                    throw new ReportedException(var15);
                 }
             }
 
@@ -1107,26 +1116,25 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         double var3 = this.getFov(var1, param0, true);
         var2.last().pose().multiply(this.getProjectionMatrix(var3));
         this.bobHurt(var2, param0);
-        if (this.minecraft.options.bobView) {
+        if (this.minecraft.options.bobView().get()) {
             this.bobView(var2, param0);
         }
 
-        float var4 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime)
-            * this.minecraft.options.screenEffectScale
-            * this.minecraft.options.screenEffectScale;
-        if (var4 > 0.0F) {
-            int var5 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
-            float var6 = 5.0F / (var4 * var4 + 5.0F) - var4 * 0.04F;
-            var6 *= var6;
-            Vector3f var7 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
-            var2.mulPose(var7.rotationDegrees(((float)this.tick + param0) * (float)var5));
-            var2.scale(1.0F / var6, 1.0F, 1.0F);
-            float var8 = -((float)this.tick + param0) * (float)var5;
-            var2.mulPose(var7.rotationDegrees(var8));
+        float var4 = this.minecraft.options.screenEffectScale().get().floatValue();
+        float var5 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime) * var4 * var4;
+        if (var5 > 0.0F) {
+            int var6 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
+            float var7 = 5.0F / (var5 * var5 + 5.0F) - var5 * 0.04F;
+            var7 *= var7;
+            Vector3f var8 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
+            var2.mulPose(var8.rotationDegrees(((float)this.tick + param0) * (float)var6));
+            var2.scale(1.0F / var7, 1.0F, 1.0F);
+            float var9 = -((float)this.tick + param0) * (float)var6;
+            var2.mulPose(var8.rotationDegrees(var9));
         }
 
-        Matrix4f var9 = var2.last().pose();
-        this.resetProjectionMatrix(var9);
+        Matrix4f var10 = var2.last().pose();
+        this.resetProjectionMatrix(var10);
         var1.setup(
             this.minecraft.level,
             (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity()),
@@ -1136,15 +1144,15 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         );
         param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));
         param2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot() + 180.0F));
-        Matrix3f var10 = param2.last().normal().copy();
-        if (var10.invert()) {
-            RenderSystem.setInverseViewRotationMatrix(var10);
+        Matrix3f var11 = param2.last().normal().copy();
+        if (var11.invert()) {
+            RenderSystem.setInverseViewRotationMatrix(var11);
         }
 
         this.minecraft
             .levelRenderer
             .prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var3, (double)this.minecraft.options.fov().get().intValue())));
-        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var9);
+        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var10);
         this.minecraft.getProfiler().popPush("hand");
         if (this.renderHand) {
             RenderSystem.clear(256, Minecraft.ON_OSX);
@@ -1394,6 +1402,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     @Nullable
     public static ShaderInstance getRendertypeEntityTranslucentShader() {
         return rendertypeEntityTranslucentShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeEntityTranslucentEmissiveShader() {
+        return rendertypeEntityTranslucentEmissiveShader;
     }
 
     @Nullable

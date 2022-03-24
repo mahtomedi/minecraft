@@ -87,7 +87,7 @@ public abstract class Projectile extends Entity {
     @Override
     public void tick() {
         if (!this.hasBeenShot) {
-            this.gameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner(), this.blockPosition());
+            this.gameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner());
             this.hasBeenShot = true;
         }
 
@@ -149,7 +149,7 @@ public abstract class Projectile extends Entity {
         }
 
         if (var0 != HitResult.Type.MISS) {
-            this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
+            this.gameEvent(GameEvent.PROJECTILE_LAND, this);
         }
 
     }

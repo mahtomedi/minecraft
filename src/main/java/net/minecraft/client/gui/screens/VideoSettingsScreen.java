@@ -11,7 +11,6 @@ import java.util.Optional;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Option;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
@@ -37,28 +36,28 @@ public class VideoSettingsScreen extends OptionsSubScreen {
     private final GpuWarnlistManager gpuWarnlistManager;
     private final int oldMipmaps;
 
-    private static Option[] options(Options param0) {
-        return new Option[]{
-            Option.GRAPHICS,
-            Option.RENDER_DISTANCE,
+    private static OptionInstance<?>[] options(Options param0) {
+        return new OptionInstance[]{
+            param0.graphicsMode(),
+            param0.renderDistance(),
             param0.prioritizeChunkUpdates(),
-            Option.SIMULATION_DISTANCE,
+            param0.simulationDistance(),
             param0.ambientOcclusion(),
-            Option.FRAMERATE_LIMIT,
-            Option.ENABLE_VSYNC,
-            Option.VIEW_BOBBING,
-            Option.GUI_SCALE,
-            Option.ATTACK_INDICATOR,
-            Option.GAMMA,
-            Option.RENDER_CLOUDS,
-            Option.USE_FULLSCREEN,
-            Option.PARTICLES,
-            Option.MIPMAP_LEVELS,
-            Option.ENTITY_SHADOWS,
-            Option.SCREEN_EFFECTS_SCALE,
-            Option.ENTITY_DISTANCE_SCALING,
-            Option.FOV_EFFECTS_SCALE,
-            Option.AUTOSAVE_INDICATOR
+            param0.framerateLimit(),
+            param0.enableVsync(),
+            param0.bobView(),
+            param0.guiScale(),
+            param0.attackIndicator(),
+            param0.gamma(),
+            param0.cloudStatus(),
+            param0.fullscreen(),
+            param0.particles(),
+            param0.mipmapLevels(),
+            param0.entityShadows(),
+            param0.screenEffectScale(),
+            param0.entityDistanceScaling(),
+            param0.fovEffectScale(),
+            param0.showAutosaveIndicator()
         };
     }
 
@@ -66,11 +65,11 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         super(param0, param1, new TranslatableComponent("options.videoTitle"));
         this.gpuWarnlistManager = param0.minecraft.getGpuWarnlistManager();
         this.gpuWarnlistManager.resetWarnings();
-        if (param1.graphicsMode == GraphicsStatus.FABULOUS) {
+        if (param1.graphicsMode().get() == GraphicsStatus.FABULOUS) {
             this.gpuWarnlistManager.dismissWarning();
         }
 
-        this.oldMipmaps = param1.mipmapLevels;
+        this.oldMipmaps = param1.mipmapLevels().get();
     }
 
     @Override
@@ -91,7 +90,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         TranslatableComponent var7 = new TranslatableComponent("options.fullscreen.resolution");
         OptionInstance<Integer> var8 = new OptionInstance<>(
             "options.fullscreen.resolution",
-            Option.noTooltip(),
+            OptionInstance.noTooltip(),
             param2 -> {
                 if (var2 == null) {
                     return new TranslatableComponent("options.fullscreen.unavailable");
@@ -122,8 +121,8 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public void removed() {
-        if (this.options.mipmapLevels != this.oldMipmaps) {
-            this.minecraft.updateMaxMipLevel(this.options.mipmapLevels);
+        if (this.options.mipmapLevels().get() != this.oldMipmaps) {
+            this.minecraft.updateMaxMipLevel(this.options.mipmapLevels().get());
             this.minecraft.delayTextureReload();
         }
 
@@ -132,9 +131,9 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
-        int var0 = this.options.guiScale;
+        int var0 = this.options.guiScale().get();
         if (super.mouseClicked(param0, param1, param2)) {
-            if (this.options.guiScale != var0) {
+            if (this.options.guiScale().get() != var0) {
                 this.minecraft.resizeDisplay();
             }
 
@@ -159,7 +158,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
                 }
 
                 this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var1, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
-                    this.options.graphicsMode = GraphicsStatus.FABULOUS;
+                    this.options.graphicsMode().set(GraphicsStatus.FABULOUS);
                     Minecraft.getInstance().levelRenderer.allChanged();
                     this.gpuWarnlistManager.dismissWarning();
                     this.minecraft.setScreen(this);
@@ -177,11 +176,11 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public boolean mouseReleased(double param0, double param1, int param2) {
-        int var0 = this.options.guiScale;
+        int var0 = this.options.guiScale().get();
         if (super.mouseReleased(param0, param1, param2)) {
             return true;
         } else if (this.list.mouseReleased(param0, param1, param2)) {
-            if (this.options.guiScale != var0) {
+            if (this.options.guiScale().get() != var0) {
                 this.minecraft.resizeDisplay();
             }
 

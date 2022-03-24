@@ -110,9 +110,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PlayerRideableJumping;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
@@ -1288,11 +1288,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                     var2.handleStopJump();
                 }
                 break;
-            case OPEN_INVENTORY:
-                if (this.player.getVehicle() instanceof AbstractHorse) {
-                    ((AbstractHorse)this.player.getVehicle()).openInventory(this.player);
+            case OPEN_INVENTORY: {
+                Entity var1 = this.player.getVehicle();
+                if (var1 instanceof HasCustomInventoryScreen var3) {
+                    var3.openCustomInventoryScreen(this.player);
                 }
                 break;
+            }
             case START_FALL_FLYING:
                 if (!this.player.tryToStartFallFlying()) {
                     this.player.stopFallFlying();

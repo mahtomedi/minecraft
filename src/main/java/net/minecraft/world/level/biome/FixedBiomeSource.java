@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.world.level.LevelReader;
 
 public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseBiomeSource {
     public static final Codec<FixedBiomeSource> CODEC = Biome.CODEC.fieldOf("biome").xmap(FixedBiomeSource::new, param0 -> param0.biome).stable().codec();
@@ -47,6 +48,14 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
         } else {
             return null;
         }
+    }
+
+    @Nullable
+    @Override
+    public Pair<BlockPos, Holder<Biome>> findClosestBiome3d(
+        BlockPos param0, int param1, int param2, int param3, Predicate<Holder<Biome>> param4, Climate.Sampler param5, LevelReader param6
+    ) {
+        return param4.test(this.biome) ? Pair.of(param0, this.biome) : null;
     }
 
     @Override

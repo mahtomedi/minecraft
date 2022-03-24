@@ -553,16 +553,17 @@ public class DebugScreenOverlay extends GuiComponent {
         this.hLine(param0, param2, param2 + var6 - 1, var12 - 1, -1);
         this.vLine(param0, param2, var12 - 60, var12, -1);
         this.vLine(param0, param2 + var6 - 1, var12 - 60, var12, -1);
-        if (param4 && this.minecraft.options.framerateLimit > 0 && this.minecraft.options.framerateLimit <= 250) {
-            this.hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)this.minecraft.options.framerateLimit), -16711681);
+        int var22 = this.minecraft.options.framerateLimit().get();
+        if (param4 && var22 > 0 && var22 <= 250) {
+            this.hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var22), -16711681);
         }
 
-        String var22 = var8 + " ms min";
-        String var23 = var7 / (long)var6 + " ms avg";
-        String var24 = var9x + " ms max";
-        this.font.drawShadow(param0, var22, (float)(param2 + 2), (float)(var12 - 60 - 9), 14737632);
-        this.font.drawShadow(param0, var23, (float)(param2 + var6 / 2 - this.font.width(var23) / 2), (float)(var12 - 60 - 9), 14737632);
-        this.font.drawShadow(param0, var24, (float)(param2 + var6 - this.font.width(var24)), (float)(var12 - 60 - 9), 14737632);
+        String var23 = var8 + " ms min";
+        String var24 = var7 / (long)var6 + " ms avg";
+        String var25 = var9x + " ms max";
+        this.font.drawShadow(param0, var23, (float)(param2 + 2), (float)(var12 - 60 - 9), 14737632);
+        this.font.drawShadow(param0, var24, (float)(param2 + var6 / 2 - this.font.width(var24) / 2), (float)(var12 - 60 - 9), 14737632);
+        this.font.drawShadow(param0, var25, (float)(param2 + var6 - this.font.width(var25)), (float)(var12 - 60 - 9), 14737632);
         RenderSystem.enableDepthTest();
     }
 

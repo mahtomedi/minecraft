@@ -24,7 +24,7 @@ public class MangroveLeavesBlock extends LeavesBlock implements BonemealableBloc
     @Override
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         super.randomTick(param0, param1, param2, param3);
-        if (param3.nextInt(5) == 0 && !param0.getValue(PERSISTENT)) {
+        if (param3.nextInt(5) == 0 && !param0.getValue(PERSISTENT) && !this.decaying(param0)) {
             BlockPos var0 = param2.below();
             if (param1.getBlockState(var0).isAir() && param1.getBlockState(var0.below()).isAir() && !isTooCloseToAnotherPropagule(param1, var0)) {
                 param1.setBlockAndUpdate(var0, MangrovePropaguleBlock.createNewHangingPropagule());

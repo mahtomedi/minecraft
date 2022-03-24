@@ -153,7 +153,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
                     this.startConverting(param0.getUUID(), this.random.nextInt(2401) + 3600);
                 }
 
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
+                this.gameEvent(GameEvent.MOB_INTERACT);
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;

@@ -29,7 +29,7 @@ public class MeleeAttack extends Behavior<Mob> {
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Mob param1) {
         LivingEntity var0 = this.getAttackTarget(param1);
-        return !this.isHoldingUsableProjectileWeapon(param1) && BehaviorUtils.canSee(param1, var0) && BehaviorUtils.isWithinMeleeAttackRange(param1, var0);
+        return !this.isHoldingUsableProjectileWeapon(param1) && BehaviorUtils.canSee(param1, var0) && param1.isWithinMeleeAttackRange(var0);
     }
 
     private boolean isHoldingUsableProjectileWeapon(Mob param0) {

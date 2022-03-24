@@ -1962,6 +1962,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.NETHER_PORTAL, noDrop());
         this.add(Blocks.BUDDING_AMETHYST, noDrop());
         this.add(Blocks.POWDER_SNOW, noDrop());
+        this.add(Blocks.FROGSPAWN, noDrop());
         Set<ResourceLocation> var5 = Sets.newHashSet();
 
         for(Block var6 : Registry.BLOCK) {

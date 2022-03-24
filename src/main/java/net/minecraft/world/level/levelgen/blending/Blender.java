@@ -69,31 +69,35 @@ public class Blender {
         if (param0 == null) {
             return EMPTY;
         } else {
-            Long2ObjectOpenHashMap<BlendingData> var0 = new Long2ObjectOpenHashMap<>();
-            Long2ObjectOpenHashMap<BlendingData> var1 = new Long2ObjectOpenHashMap<>();
-            int var2 = Mth.square(HEIGHT_BLENDING_RANGE_CHUNKS + 1);
-            ChunkPos var3 = param0.getCenter();
+            ChunkPos var0 = param0.getCenter();
+            if (!param0.isOldChunkAround(var0, HEIGHT_BLENDING_RANGE_CHUNKS)) {
+                return EMPTY;
+            } else {
+                Long2ObjectOpenHashMap<BlendingData> var1 = new Long2ObjectOpenHashMap<>();
+                Long2ObjectOpenHashMap<BlendingData> var2 = new Long2ObjectOpenHashMap<>();
+                int var3 = Mth.square(HEIGHT_BLENDING_RANGE_CHUNKS + 1);
 
-            for(int var4 = -HEIGHT_BLENDING_RANGE_CHUNKS; var4 <= HEIGHT_BLENDING_RANGE_CHUNKS; ++var4) {
-                for(int var5 = -HEIGHT_BLENDING_RANGE_CHUNKS; var5 <= HEIGHT_BLENDING_RANGE_CHUNKS; ++var5) {
-                    if (var4 * var4 + var5 * var5 <= var2) {
-                        int var6 = var3.x + var4;
-                        int var7 = var3.z + var5;
-                        BlendingData var8 = BlendingData.getOrUpdateBlendingData(param0, var6, var7);
-                        if (var8 != null) {
-                            var0.put(ChunkPos.asLong(var6, var7), var8);
-                            if (var4 >= -DENSITY_BLENDING_RANGE_CHUNKS
-                                && var4 <= DENSITY_BLENDING_RANGE_CHUNKS
-                                && var5 >= -DENSITY_BLENDING_RANGE_CHUNKS
-                                && var5 <= DENSITY_BLENDING_RANGE_CHUNKS) {
+                for(int var4 = -HEIGHT_BLENDING_RANGE_CHUNKS; var4 <= HEIGHT_BLENDING_RANGE_CHUNKS; ++var4) {
+                    for(int var5 = -HEIGHT_BLENDING_RANGE_CHUNKS; var5 <= HEIGHT_BLENDING_RANGE_CHUNKS; ++var5) {
+                        if (var4 * var4 + var5 * var5 <= var3) {
+                            int var6 = var0.x + var4;
+                            int var7 = var0.z + var5;
+                            BlendingData var8 = BlendingData.getOrUpdateBlendingData(param0, var6, var7);
+                            if (var8 != null) {
                                 var1.put(ChunkPos.asLong(var6, var7), var8);
+                                if (var4 >= -DENSITY_BLENDING_RANGE_CHUNKS
+                                    && var4 <= DENSITY_BLENDING_RANGE_CHUNKS
+                                    && var5 >= -DENSITY_BLENDING_RANGE_CHUNKS
+                                    && var5 <= DENSITY_BLENDING_RANGE_CHUNKS) {
+                                    var2.put(ChunkPos.asLong(var6, var7), var8);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            return var0.isEmpty() && var1.isEmpty() ? EMPTY : new Blender(var0, var1);
+                return var1.isEmpty() && var2.isEmpty() ? EMPTY : new Blender(var1, var2);
+            }
         }
     }
 

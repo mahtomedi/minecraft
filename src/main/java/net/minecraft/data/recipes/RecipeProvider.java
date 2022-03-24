@@ -601,6 +601,41 @@ public class RecipeProvider implements DataProvider {
             .pattern("B")
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.ACACIA_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.ACACIA_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.BIRCH_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.BIRCH_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.DARK_OAK_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.DARK_OAK_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.JUNGLE_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.JUNGLE_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.OAK_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.OAK_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.SPRUCE_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.SPRUCE_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.MANGROVE_CHEST_BOAT)
+            .requires(Blocks.CHEST)
+            .requires(Items.MANGROVE_BOAT)
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
+            .save(param0);
         chiseledBuilder(Blocks.CHISELED_QUARTZ_BLOCK, Ingredient.of(Blocks.QUARTZ_SLAB))
             .unlockedBy("has_chiseled_quartz_block", has(Blocks.CHISELED_QUARTZ_BLOCK))
             .unlockedBy("has_quartz_block", has(Blocks.QUARTZ_BLOCK))

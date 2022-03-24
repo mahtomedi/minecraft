@@ -7,53 +7,59 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
 public class CollectingNeighborUpdater implements NeighborUpdater {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final ServerLevel level;
+    private final Level level;
+    private final int maxChainedNeighborUpdates;
     private final ArrayDeque<CollectingNeighborUpdater.NeighborUpdates> stack = new ArrayDeque<>();
     private final List<CollectingNeighborUpdater.NeighborUpdates> addedThisLayer = new ArrayList<>();
     private int count = 0;
 
-    public CollectingNeighborUpdater(ServerLevel param0) {
+    public CollectingNeighborUpdater(Level param0, int param1) {
         this.level = param0;
+        this.maxChainedNeighborUpdates = param1;
+    }
+
+    @Override
+    public void shapeUpdate(Direction param0, BlockState param1, BlockPos param2, BlockPos param3, int param4, int param5) {
+        this.addAndRun(param2, new CollectingNeighborUpdater.ShapeUpdate(param0, param1, param2.immutable(), param3.immutable(), param4));
     }
 
     @Override
     public void neighborChanged(BlockPos param0, Block param1, BlockPos param2) {
-        this.addAndRun(param0, new CollectingNeighborUpdater.SimpleNeighborUpdate(param0, param1, param2));
+        this.addAndRun(param0, new CollectingNeighborUpdater.SimpleNeighborUpdate(param0, param1, param2.immutable()));
     }
 
     @Override
     public void neighborChanged(BlockState param0, BlockPos param1, Block param2, BlockPos param3, boolean param4) {
-        this.addAndRun(param1, new CollectingNeighborUpdater.FullNeighborUpdate(param0, param1, param2, param3, param4));
+        this.addAndRun(param1, new CollectingNeighborUpdater.FullNeighborUpdate(param0, param1.immutable(), param2, param3.immutable(), param4));
     }
 
     @Override
     public void updateNeighborsAtExceptFromFacing(BlockPos param0, Block param1, @Nullable Direction param2) {
-        this.addAndRun(param0, new CollectingNeighborUpdater.MultiNeighborUpdate(param0, param1, param2));
+        this.addAndRun(param0, new CollectingNeighborUpdater.MultiNeighborUpdate(param0.immutable(), param1, param2));
     }
 
     private void addAndRun(BlockPos param0, CollectingNeighborUpdater.NeighborUpdates param1) {
-        int var0 = this.level.getServer().getMaxChainedNeighborUpdates();
-        boolean var1 = this.count > 0;
-        boolean var2 = var0 >= 0 && this.count >= var0;
+        boolean var0 = this.count > 0;
+        boolean var1 = this.maxChainedNeighborUpdates >= 0 && this.count >= this.maxChainedNeighborUpdates;
         ++this.count;
-        if (!var2) {
-            if (var1) {
+        if (!var1) {
+            if (var0) {
                 this.addedThisLayer.add(param1);
             } else {
                 this.stack.push(param1);
             }
-        } else if (this.count - 1 == var0) {
+        } else if (this.count - 1 == this.maxChainedNeighborUpdates) {
             LOGGER.error("Too many chained neighbor updates. Skipping the rest. First skipped position: " + param0.toShortString());
         }
 
-        if (!var1) {
+        if (!var0) {
             this.runUpdates();
         }
 
@@ -87,7 +93,7 @@ public class CollectingNeighborUpdater implements NeighborUpdater {
     static record FullNeighborUpdate(BlockState state, BlockPos pos, Block block, BlockPos neighborPos, boolean movedByPiston)
         implements CollectingNeighborUpdater.NeighborUpdates {
         @Override
-        public boolean runNext(ServerLevel param0) {
+        public boolean runNext(Level param0) {
             NeighborUpdater.executeUpdate(param0, this.state, this.pos, this.block, this.neighborPos, this.movedByPiston);
             return false;
         }
@@ -111,7 +117,7 @@ public class CollectingNeighborUpdater implements NeighborUpdater {
         }
 
         @Override
-        public boolean runNext(ServerLevel param0) {
+        public boolean runNext(Level param0) {
             BlockPos var0 = this.sourcePos.relative(NeighborUpdater.UPDATE_ORDER[this.idx++]);
             BlockState var1 = param0.getBlockState(var0);
             var1.neighborChanged(param0, var0, this.sourceBlock, this.sourcePos, false);
@@ -124,12 +130,21 @@ public class CollectingNeighborUpdater implements NeighborUpdater {
     }
 
     interface NeighborUpdates {
-        boolean runNext(ServerLevel var1);
+        boolean runNext(Level var1);
+    }
+
+    static record ShapeUpdate(Direction direction, BlockState state, BlockPos pos, BlockPos neighborPos, int updateFlags)
+        implements CollectingNeighborUpdater.NeighborUpdates {
+        @Override
+        public boolean runNext(Level param0) {
+            NeighborUpdater.executeShapeUpdate(param0, this.direction, this.state, this.pos, this.neighborPos, this.updateFlags, 512);
+            return false;
+        }
     }
 
     static record SimpleNeighborUpdate(BlockPos pos, Block block, BlockPos neighborPos) implements CollectingNeighborUpdater.NeighborUpdates {
         @Override
-        public boolean runNext(ServerLevel param0) {
+        public boolean runNext(Level param0) {
             BlockState var0 = param0.getBlockState(this.pos);
             NeighborUpdater.executeUpdate(param0, var0, this.pos, this.block, this.neighborPos, false);
             return false;

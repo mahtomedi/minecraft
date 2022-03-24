@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -50,7 +51,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
             this.trackedGameEvents.clear();
             this.trackedListeners.clear();
         } else {
-            BlockPos var1 = new BlockPos(param2, 0.0, param4);
+            Vec3 var1 = new Vec3(param2, 0.0, param4);
             this.trackedGameEvents.removeIf(GameEventListenerRenderer.TrackedGameEvent::isExpired);
             this.trackedListeners.removeIf(param2x -> param2x.isExpired(var0, var1));
             RenderSystem.disableTexture();
@@ -63,17 +64,17 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
                 var3.getPosition(var0)
                     .ifPresent(
                         param6 -> {
-                            int var0x = param6.getX() - var3.getListenerRadius();
-                            int var1x = param6.getY() - var3.getListenerRadius();
-                            int var2x = param6.getZ() - var3.getListenerRadius();
-                            int var3x = param6.getX() + var3.getListenerRadius();
-                            int var4x = param6.getY() + var3.getListenerRadius();
-                            int var5x = param6.getZ() + var3.getListenerRadius();
+                            double var0x = param6.x() - (double)var3.getListenerRadius();
+                            double var1x = param6.y() - (double)var3.getListenerRadius();
+                            double var2x = param6.z() - (double)var3.getListenerRadius();
+                            double var3x = param6.x() + (double)var3.getListenerRadius();
+                            double var4x = param6.y() + (double)var3.getListenerRadius();
+                            double var5x = param6.z() + (double)var3.getListenerRadius();
                             Vector3f var6x = new Vector3f(1.0F, 1.0F, 0.0F);
                             LevelRenderer.renderVoxelShape(
                                 param0,
                                 var2,
-                                Shapes.create(new AABB((double)var0x, (double)var1x, (double)var2x, (double)var3x, (double)var4x, (double)var5x)),
+                                Shapes.create(new AABB(var0x, var1x, var2x, var3x, var4x, var5x)),
                                 -param2,
                                 -param3,
                                 -param4,
@@ -98,12 +99,12 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
                             Vector3f var0x = new Vector3f(1.0F, 1.0F, 0.0F);
                             LevelRenderer.addChainedFilledBoxVertices(
                                 var5,
-                                (double)((float)param4x.getX() - 0.25F) - param2,
-                                (double)param4x.getY() - param3,
-                                (double)((float)param4x.getZ() - 0.25F) - param4,
-                                (double)((float)param4x.getX() + 0.25F) - param2,
-                                (double)param4x.getY() - param3 + 1.0,
-                                (double)((float)param4x.getZ() + 0.25F) - param4,
+                                param4x.x() - 0.25 - param2,
+                                param4x.y() - param3,
+                                param4x.z() - 0.25 - param4,
+                                param4x.x() + 0.25 - param2,
+                                param4x.y() - param3 + 1.0,
+                                param4x.z() + 0.25 - param4,
                                 var0x.x(),
                                 var0x.y(),
                                 var0x.z(),
@@ -120,22 +121,10 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
             RenderSystem.depthMask(false);
 
             for(GameEventListenerRenderer.TrackedListener var7 : this.trackedListeners) {
-                var7.getPosition(var0)
-                    .ifPresent(
-                        param0x -> {
-                            DebugRenderer.renderFloatingText(
-                                "Listener Origin", (double)param0x.getX(), (double)((float)param0x.getY() + 1.8F), (double)param0x.getZ(), -1, 0.025F
-                            );
-                            DebugRenderer.renderFloatingText(
-                                new BlockPos(param0x).toString(),
-                                (double)param0x.getX(),
-                                (double)((float)param0x.getY() + 1.5F),
-                                (double)param0x.getZ(),
-                                -6959665,
-                                0.025F
-                            );
-                        }
-                    );
+                var7.getPosition(var0).ifPresent(param0x -> {
+                    DebugRenderer.renderFloatingText("Listener Origin", param0x.x(), param0x.y() + 1.8F, param0x.z(), -1, 0.025F);
+                    DebugRenderer.renderFloatingText(new BlockPos(param0x).toString(), param0x.x(), param0x.y() + 1.5, param0x.z(), -6959665, 0.025F);
+                });
             }
 
             for(GameEventListenerRenderer.TrackedGameEvent var8 : this.trackedGameEvents) {
@@ -167,8 +156,8 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
         }
     }
 
-    public void trackGameEvent(GameEvent param0, BlockPos param1) {
-        this.trackedGameEvents.add(new GameEventListenerRenderer.TrackedGameEvent(Util.getMillis(), param0, Vec3.atBottomCenterOf(param1)));
+    public void trackGameEvent(GameEvent param0, Vec3 param1) {
+        this.trackedGameEvents.add(new GameEventListenerRenderer.TrackedGameEvent(Util.getMillis(), param0, param1));
     }
 
     public void trackListener(PositionSource param0, int param1) {
@@ -176,17 +165,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
     }
 
     @OnlyIn(Dist.CLIENT)
-    static class TrackedGameEvent {
-        public final long timeStamp;
-        public final GameEvent gameEvent;
-        public final Vec3 position;
-
-        public TrackedGameEvent(long param0, GameEvent param1, Vec3 param2) {
-            this.timeStamp = param0;
-            this.gameEvent = param1;
-            this.position = param2;
-        }
-
+    static record TrackedGameEvent(long timeStamp, GameEvent gameEvent, Vec3 position) {
         public boolean isExpired() {
             return Util.getMillis() - this.timeStamp > 3000L;
         }
@@ -202,12 +181,11 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
             this.listenerRange = param1;
         }
 
-        public boolean isExpired(Level param0, BlockPos param1) {
-            Optional<BlockPos> var0 = this.listenerSource.getPosition(param0);
-            return !var0.isPresent() || var0.get().distSqr(param1) <= 1024.0;
+        public boolean isExpired(Level param0, Vec3 param1) {
+            return this.listenerSource.getPosition(param0).filter(param1x -> param1x.distanceToSqr(param1) <= 1024.0).isPresent();
         }
 
-        public Optional<BlockPos> getPosition(Level param0) {
+        public Optional<Vec3> getPosition(Level param0) {
             return this.listenerSource.getPosition(param0);
         }
 
@@ -222,7 +200,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
         }
 
         @Override
-        public boolean handleGameEvent(Level param0, GameEvent param1, @Nullable Entity param2, BlockPos param3) {
+        public boolean handleGameEvent(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3) {
             return false;
         }
     }

@@ -13,6 +13,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -139,6 +142,15 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     }
 
     @Override
+    public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
+        if (!param0.isClientSide() && canActivate(param2) && param3.getType() != EntityType.WARDEN) {
+            activate(param3, param0, param1, param2, 1);
+        }
+
+        super.stepOn(param0, param1, param2, param3);
+    }
+
+    @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param1.isClientSide() && !param0.is(param3.getBlock())) {
             if (param0.getValue(POWER) > 0 && !param1.getBlockTicks().hasScheduledTick(param2, this)) {
@@ -182,7 +194,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Nullable
     @Override
-    public <T extends BlockEntity> GameEventListener getListener(Level param0, T param1) {
+    public <T extends BlockEntity> GameEventListener getListener(ServerLevel param0, T param1) {
         return param1 instanceof SculkSensorBlockEntity ? ((SculkSensorBlockEntity)param1).getListener() : null;
     }
 
@@ -232,20 +244,24 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         updateNeighbours(param0, param1);
     }
 
-    public static void activate(Level param0, BlockPos param1, BlockState param2, int param3) {
-        param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param3)), 3);
-        param0.scheduleTick(param1, param2.getBlock(), 40);
-        updateNeighbours(param0, param1);
-        if (!param2.getValue(WATERLOGGED)) {
-            param0.playSound(
+    public static void activate(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4) {
+        param1.setBlock(param2, param3.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param4)), 3);
+        param1.scheduleTick(param2, param3.getBlock(), 40);
+        updateNeighbours(param1, param2);
+        if (param0 instanceof Player) {
+            param1.gameEvent(param0, GameEvent.SCULK_SENSOR_TENDRILS_CLICKING, param2);
+        }
+
+        if (!param3.getValue(WATERLOGGED)) {
+            param1.playSound(
                 null,
-                (double)param1.getX() + 0.5,
-                (double)param1.getY() + 0.5,
-                (double)param1.getZ() + 0.5,
+                (double)param2.getX() + 0.5,
+                (double)param2.getY() + 0.5,
+                (double)param2.getZ() + 0.5,
                 SoundEvents.SCULK_CLICKING,
                 SoundSource.BLOCKS,
                 1.0F,
-                param0.random.nextFloat() * 0.2F + 0.8F
+                param1.random.nextFloat() * 0.2F + 0.8F
             );
         }
 

@@ -1,50 +1,30 @@
 package net.minecraft.world.level.levelgen;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
-public record RandomState(
-    PositionalRandomFactory random,
-    long legacyLevelSeed,
-    Registry<NormalNoise.NoiseParameters> noises,
-    NoiseRouter router,
-    Climate.Sampler sampler,
-    SurfaceSystem surfaceSystem,
-    PositionalRandomFactory aquiferRandom,
-    PositionalRandomFactory oreRandom,
-    Map<ResourceKey<NormalNoise.NoiseParameters>, NormalNoise> noiseIntances,
-    Map<ResourceLocation, PositionalRandomFactory> positionalRandoms
-) {
-    @Deprecated
-    public RandomState(
-        PositionalRandomFactory param0,
-        long param1,
-        Registry<NormalNoise.NoiseParameters> param2,
-        NoiseRouter param3,
-        Climate.Sampler param4,
-        SurfaceSystem param5,
-        PositionalRandomFactory param6,
-        PositionalRandomFactory param7,
-        Map<ResourceKey<NormalNoise.NoiseParameters>, NormalNoise> param8,
-        Map<ResourceLocation, PositionalRandomFactory> param9
-    ) {
-        this.random = param0;
-        this.legacyLevelSeed = param1;
-        this.noises = param2;
-        this.router = param3;
-        this.sampler = param4;
-        this.surfaceSystem = param5;
-        this.aquiferRandom = param6;
-        this.oreRandom = param7;
-        this.noiseIntances = param8;
-        this.positionalRandoms = param9;
-    }
+public final class RandomState {
+    final PositionalRandomFactory random;
+    private final long legacyLevelSeed;
+    private final Registry<NormalNoise.NoiseParameters> noises;
+    private final NoiseRouter router;
+    private final Climate.Sampler sampler;
+    private final SurfaceSystem surfaceSystem;
+    private final PositionalRandomFactory aquiferRandom;
+    private final PositionalRandomFactory oreRandom;
+    private final Map<ResourceKey<NormalNoise.NoiseParameters>, NormalNoise> noiseIntances;
+    private final Map<ResourceLocation, PositionalRandomFactory> positionalRandoms;
 
     public static RandomState create(RegistryAccess param0, ResourceKey<NoiseGeneratorSettings> param1, long param2) {
         return create(
@@ -53,22 +33,79 @@ public record RandomState(
     }
 
     public static RandomState create(NoiseGeneratorSettings param0, Registry<NormalNoise.NoiseParameters> param1, long param2) {
-        PositionalRandomFactory var0 = param0.getRandomSource().newInstance(param2).forkPositional();
-        NoiseRouter var1 = param0.createNoiseRouter(param1, new RandomWithLegacy(var0, param0.useLegacyRandomSource(), param2));
-        Climate.Sampler var2 = new Climate.Sampler(
-            var1.temperature(), var1.vegetation(), var1.continents(), var1.erosion(), var1.depth(), var1.ridges(), param0.spawnTarget()
-        );
-        return new RandomState(
-            var0,
-            param2,
-            param1,
-            var1,
-            var2,
-            new SurfaceSystem(param1, param0.defaultBlock(), param0.seaLevel(), var0),
-            var0.fromHashOf(new ResourceLocation("aquifer")).forkPositional(),
-            var0.fromHashOf(new ResourceLocation("ore")).forkPositional(),
-            new ConcurrentHashMap<>(),
-            new ConcurrentHashMap<>()
+        return new RandomState(param0, param1, param2);
+    }
+
+    private RandomState(NoiseGeneratorSettings param0, Registry<NormalNoise.NoiseParameters> param1, final long param2) {
+        this.random = param0.getRandomSource().newInstance(param2).forkPositional();
+        this.legacyLevelSeed = param2;
+        this.noises = param1;
+        this.aquiferRandom = this.random.fromHashOf(new ResourceLocation("aquifer")).forkPositional();
+        this.oreRandom = this.random.fromHashOf(new ResourceLocation("ore")).forkPositional();
+        this.noiseIntances = new ConcurrentHashMap<>();
+        this.positionalRandoms = new ConcurrentHashMap<>();
+        this.surfaceSystem = new SurfaceSystem(this, param0.defaultBlock(), param0.seaLevel(), this.random);
+        final boolean var0 = param0.useLegacyRandomSource();
+
+        class NoiseWiringHelper implements DensityFunction.Visitor {
+            private final Map<DensityFunction, DensityFunction> wrapped = new HashMap<>();
+
+            private RandomSource newLegacyInstance(long param0) {
+                return new LegacyRandomSource(param2 + param0);
+            }
+
+            @Override
+            public DensityFunction.NoiseHolder visitNoise(DensityFunction.NoiseHolder param0) {
+                Holder<NormalNoise.NoiseParameters> var0 = param0.noiseData();
+                if (var0) {
+                    if (Objects.equals(var0.unwrapKey(), Optional.of(Noises.TEMPERATURE))) {
+                        NormalNoise var1 = NormalNoise.createLegacyNetherBiome(this.newLegacyInstance(0L), new NormalNoise.NoiseParameters(-7, 1.0, 1.0));
+                        return new DensityFunction.NoiseHolder(var0, var1);
+                    }
+
+                    if (Objects.equals(var0.unwrapKey(), Optional.of(Noises.VEGETATION))) {
+                        NormalNoise var2 = NormalNoise.createLegacyNetherBiome(this.newLegacyInstance(1L), new NormalNoise.NoiseParameters(-7, 1.0, 1.0));
+                        return new DensityFunction.NoiseHolder(var0, var2);
+                    }
+
+                    if (Objects.equals(var0.unwrapKey(), Optional.of(Noises.SHIFT))) {
+                        NormalNoise var3 = NormalNoise.create(
+                            RandomState.this.random.fromHashOf(Noises.SHIFT.location()), new NormalNoise.NoiseParameters(0, 0.0)
+                        );
+                        return new DensityFunction.NoiseHolder(var0, var3);
+                    }
+                }
+
+                NormalNoise var4 = RandomState.this.getOrCreateNoise(var0.unwrapKey().orElseThrow());
+                return new DensityFunction.NoiseHolder(var0, var4);
+            }
+
+            private DensityFunction wrapNew(DensityFunction param0) {
+                if (param0 instanceof BlendedNoise var0) {
+                    RandomSource var1 = var0 ? this.newLegacyInstance(0L) : RandomState.this.random.fromHashOf(new ResourceLocation("terrain"));
+                    return var0.withNewRandom(var1);
+                } else {
+                    return (DensityFunction)(param0 instanceof DensityFunctions.EndIslandDensityFunction
+                        ? new DensityFunctions.EndIslandDensityFunction(param2)
+                        : param0);
+                }
+            }
+
+            @Override
+            public DensityFunction apply(DensityFunction param0) {
+                return this.wrapped.computeIfAbsent(param0, this::wrapNew);
+            }
+        }
+
+        this.router = param0.noiseRouter().mapAll(new NoiseWiringHelper());
+        this.sampler = new Climate.Sampler(
+            this.router.temperature(),
+            this.router.vegetation(),
+            this.router.continents(),
+            this.router.erosion(),
+            this.router.depth(),
+            this.router.ridges(),
+            param0.spawnTarget()
         );
     }
 
@@ -78,5 +115,29 @@ public record RandomState(
 
     public PositionalRandomFactory getOrCreateRandomFactory(ResourceLocation param0) {
         return this.positionalRandoms.computeIfAbsent(param0, param1 -> this.random.fromHashOf(param0).forkPositional());
+    }
+
+    public long legacyLevelSeed() {
+        return this.legacyLevelSeed;
+    }
+
+    public NoiseRouter router() {
+        return this.router;
+    }
+
+    public Climate.Sampler sampler() {
+        return this.sampler;
+    }
+
+    public SurfaceSystem surfaceSystem() {
+        return this.surfaceSystem;
+    }
+
+    public PositionalRandomFactory aquiferRandom() {
+        return this.aquiferRandom;
+    }
+
+    public PositionalRandomFactory oreRandom() {
+        return this.oreRandom;
     }
 }

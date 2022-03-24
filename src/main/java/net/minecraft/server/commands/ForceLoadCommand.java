@@ -100,7 +100,7 @@ public class ForceLoadCommand {
     }
 
     private static int queryForceLoad(CommandSourceStack param0, ColumnPos param1) throws CommandSyntaxException {
-        ChunkPos var0 = new ChunkPos(SectionPos.blockToSectionCoord(param1.x), SectionPos.blockToSectionCoord(param1.z));
+        ChunkPos var0 = param1.toChunkPos();
         ServerLevel var1 = param0.getLevel();
         ResourceKey<Level> var2 = var1.dimension();
         boolean var3 = var1.getForcedChunks().contains(var0.toLong());
@@ -141,10 +141,10 @@ public class ForceLoadCommand {
     }
 
     private static int changeForceLoad(CommandSourceStack param0, ColumnPos param1, ColumnPos param2, boolean param3) throws CommandSyntaxException {
-        int var0 = Math.min(param1.x, param2.x);
-        int var1 = Math.min(param1.z, param2.z);
-        int var2 = Math.max(param1.x, param2.x);
-        int var3 = Math.max(param1.z, param2.z);
+        int var0 = Math.min(param1.x(), param2.x());
+        int var1 = Math.min(param1.z(), param2.z());
+        int var2 = Math.max(param1.x(), param2.x());
+        int var3 = Math.max(param1.z(), param2.z());
         if (var0 >= -30000000 && var1 >= -30000000 && var2 < 30000000 && var3 < 30000000) {
             int var4 = SectionPos.blockToSectionCoord(var0);
             int var5 = SectionPos.blockToSectionCoord(var1);

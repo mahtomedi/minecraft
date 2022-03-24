@@ -65,6 +65,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -211,6 +212,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     public void ate() {
+        this.gameEvent(GameEvent.EAT);
     }
 
     @Override
@@ -1012,10 +1014,6 @@ public abstract class Mob extends LivingEntity {
         return param3;
     }
 
-    public boolean canBeControlledByRider() {
-        return false;
-    }
-
     public void setPersistenceRequired() {
         this.persistenceRequired = true;
     }
@@ -1278,7 +1276,7 @@ public abstract class Mob extends LivingEntity {
 
     @Override
     public boolean isControlledByLocalInstance() {
-        return this.canBeControlledByRider() && super.isControlledByLocalInstance();
+        return this.hasControllingPassenger() && super.isControlledByLocalInstance();
     }
 
     @Override
@@ -1323,6 +1321,11 @@ public abstract class Mob extends LivingEntity {
 
     public double getMeleeAttackRangeSqr(LivingEntity param0) {
         return (double)(this.getBbWidth() * 2.0F * this.getBbWidth() * 2.0F + param0.getBbWidth());
+    }
+
+    public boolean isWithinMeleeAttackRange(LivingEntity param0) {
+        double var0 = this.distanceToSqr(param0.getX(), param0.getY(), param0.getZ());
+        return var0 <= this.getMeleeAttackRangeSqr(param0);
     }
 
     @Override
@@ -1375,7 +1378,7 @@ public abstract class Mob extends LivingEntity {
 
     protected boolean isSunBurnTick() {
         if (this.level.isDay() && !this.level.isClientSide) {
-            float var0 = this.getBrightness();
+            float var0 = this.getLightLevelDependentMagicValue();
             BlockPos var1 = new BlockPos(this.getX(), this.getEyeY(), this.getZ());
             boolean var2 = this.isInWaterRainOrBubble() || this.isInPowderSnow || this.wasInPowderSnow;
             if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && !var2 && this.level.canSeeSky(var1)) {

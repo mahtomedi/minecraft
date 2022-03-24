@@ -79,7 +79,7 @@ public class DispenserBlock extends BaseEntityBlock {
         int var2 = var1.getRandomSlot();
         if (var2 < 0) {
             param0.levelEvent(1001, param1, 0);
-            param0.gameEvent(GameEvent.DISPENSE_FAIL, param1);
+            param0.gameEvent(null, GameEvent.DISPENSE_FAIL, param1);
         } else {
             ItemStack var3 = var1.getItem(var2);
             DispenseItemBehavior var4 = this.getDispenseMethod(var3);

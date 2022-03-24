@@ -214,6 +214,8 @@ import net.minecraft.util.datafix.schemas.V2832;
 import net.minecraft.util.datafix.schemas.V2842;
 import net.minecraft.util.datafix.schemas.V3076;
 import net.minecraft.util.datafix.schemas.V3078;
+import net.minecraft.util.datafix.schemas.V3081;
+import net.minecraft.util.datafix.schemas.V3082;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -868,6 +870,10 @@ public class DataFixers {
         param0.addFixer(new AddNewChoices(var160, "Added Sculk Shrieker", References.BLOCK_ENTITY));
         Schema var161 = param0.addSchema(3079, SAME_NAMESPACED);
         param0.addFixer(new BlendingDataFix(var161, "Blending Data Fix v3079"));
+        Schema var162 = param0.addSchema(3081, V3081::new);
+        param0.addFixer(new AddNewChoices(var162, "Added Warden", References.ENTITY));
+        Schema var163 = param0.addSchema(3082, V3082::new);
+        param0.addFixer(new AddNewChoices(var163, "Added Chest Boat", References.ENTITY));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

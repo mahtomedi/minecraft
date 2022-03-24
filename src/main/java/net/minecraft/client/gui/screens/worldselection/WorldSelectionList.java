@@ -232,7 +232,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
             RenderSystem.enableBlend();
             GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             RenderSystem.disableBlend();
-            if (this.minecraft.options.touchscreen || param8) {
+            if (this.minecraft.options.touchscreen().get() || param8) {
                 RenderSystem.setShaderTexture(0, WorldSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
                 RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -467,7 +467,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
             this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             if (this.minecraft.getLevelSource().levelExists(this.summary.getLevelId())) {
                 this.queueLoadScreen();
-                this.minecraft.createWorldOpenFlows().loadLevel(this.summary.getLevelId());
+                this.minecraft.createWorldOpenFlows().loadLevel(this.screen, this.summary.getLevelId());
             }
 
         }

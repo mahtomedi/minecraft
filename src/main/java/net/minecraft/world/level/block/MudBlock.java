@@ -35,4 +35,9 @@ public class MudBlock extends Block {
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
     }
+
+    @Override
+    public float getShadeBrightness(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return 0.2F;
+    }
 }

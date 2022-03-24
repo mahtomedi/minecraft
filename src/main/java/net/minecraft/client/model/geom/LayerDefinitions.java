@@ -73,6 +73,7 @@ import net.minecraft.client.model.TropicalFishModelB;
 import net.minecraft.client.model.TurtleModel;
 import net.minecraft.client.model.VexModel;
 import net.minecraft.client.model.VillagerModel;
+import net.minecraft.client.model.WardenModel;
 import net.minecraft.client.model.WitchModel;
 import net.minecraft.client.model.WitherBossModel;
 import net.minecraft.client.model.WolfModel;
@@ -256,6 +257,7 @@ public class LayerDefinitions {
         var0.put(ModelLayers.VEX, VexModel.createBodyLayer());
         var0.put(ModelLayers.VILLAGER, var17);
         var0.put(ModelLayers.VINDICATOR, var8);
+        var0.put(ModelLayers.WARDEN, WardenModel.createBodyLayer());
         var0.put(ModelLayers.WANDERING_TRADER, var17);
         var0.put(ModelLayers.WITCH, WitchModel.createBodyLayer());
         var0.put(ModelLayers.WITHER, WitherBossModel.createBodyLayer(CubeDeformation.NONE));
@@ -278,20 +280,22 @@ public class LayerDefinitions {
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN, var11);
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN_INNER_ARMOR, var4);
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN_OUTER_ARMOR, var3);
-        LayerDefinition var19 = BoatModel.createBodyModel();
+        LayerDefinition var19 = BoatModel.createBodyModel(false);
+        LayerDefinition var20 = BoatModel.createBodyModel(true);
 
-        for(Boat.Type var20 : Boat.Type.values()) {
-            var0.put(ModelLayers.createBoatModelName(var20), var19);
+        for(Boat.Type var21 : Boat.Type.values()) {
+            var0.put(ModelLayers.createBoatModelName(var21), var19);
+            var0.put(ModelLayers.createChestBoatModelName(var21), var20);
         }
 
-        LayerDefinition var21 = SignRenderer.createSignLayer();
-        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createSignModelName(param2), var21));
-        ImmutableMap<ModelLayerLocation, LayerDefinition> var22 = var0.build();
-        List<ModelLayerLocation> var23 = ModelLayers.getKnownLocations().filter(param1 -> !var22.containsKey(param1)).collect(Collectors.toList());
-        if (!var23.isEmpty()) {
-            throw new IllegalStateException("Missing layer definitions: " + var23);
+        LayerDefinition var22 = SignRenderer.createSignLayer();
+        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createSignModelName(param2), var22));
+        ImmutableMap<ModelLayerLocation, LayerDefinition> var23 = var0.build();
+        List<ModelLayerLocation> var24 = ModelLayers.getKnownLocations().filter(param1 -> !var23.containsKey(param1)).collect(Collectors.toList());
+        if (!var24.isEmpty()) {
+            throw new IllegalStateException("Missing layer definitions: " + var24);
         } else {
-            return var22;
+            return var23;
         }
     }
 }

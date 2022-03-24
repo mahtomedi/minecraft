@@ -185,17 +185,6 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    public boolean canBeControlledByRider() {
-        Entity var0 = this.getControllingPassenger();
-        if (!(var0 instanceof Player)) {
-            return false;
-        } else {
-            Player var1 = (Player)var0;
-            return var1.getMainHandItem().is(Items.WARPED_FUNGUS_ON_A_STICK) || var1.getOffhandItem().is(Items.WARPED_FUNGUS_ON_A_STICK);
-        }
-    }
-
-    @Override
     public boolean checkSpawnObstruction(LevelReader param0) {
         return param0.isUnobstructed(this);
     }
@@ -203,7 +192,17 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     @Nullable
     @Override
     public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
+        Entity var0 = this.getFirstPassenger();
+        return var0 != null && this.canBeControlledBy(var0) ? var0 : null;
+    }
+
+    private boolean canBeControlledBy(Entity param0) {
+        if (!(param0 instanceof Player)) {
+            return false;
+        } else {
+            Player var0 = (Player)param0;
+            return var0.getMainHandItem().is(Items.WARPED_FUNGUS_ON_A_STICK) || var0.getOffhandItem().is(Items.WARPED_FUNGUS_ON_A_STICK);
+        }
     }
 
     @Override
@@ -302,10 +301,13 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
             this.playSound(SoundEvents.STRIDER_RETREAT, 1.0F, this.getVoicePitch());
         }
 
-        BlockState var0 = this.level.getBlockState(this.blockPosition());
-        BlockState var1 = this.getBlockStateOn();
-        boolean var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
-        this.setSuffocating(!var2);
+        if (!this.isNoAi()) {
+            BlockState var0 = this.level.getBlockState(this.blockPosition());
+            BlockState var1 = this.getBlockStateOn();
+            boolean var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
+            this.setSuffocating(!var2);
+        }
+
         super.tick();
         this.floatStrider();
         this.checkInsideBlocks();

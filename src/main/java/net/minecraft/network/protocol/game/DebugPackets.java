@@ -27,6 +27,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.ai.memory.ExpirableValue;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -52,6 +54,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 public class DebugPackets {
@@ -113,7 +116,7 @@ public class DebugPackets {
     public static void sendBeeInfo(Bee param0) {
     }
 
-    public static void sendGameEventInfo(Level param0, GameEvent param1, BlockPos param2) {
+    public static void sendGameEventInfo(Level param0, GameEvent param1, Vec3 param2) {
     }
 
     public static void sendGameEventListenerInfo(Level param0, GameEventListener param1) {
@@ -147,26 +150,22 @@ public class DebugPackets {
             param1.writeBoolean(false);
         }
 
+        if (param0.getType() == EntityType.WARDEN) {
+            Warden var6 = (Warden)param0;
+            param1.writeInt(var6.getClientAngerLevel());
+        } else {
+            param1.writeInt(-1);
+        }
+
         param1.writeCollection(var0.getActiveActivities(), (param0x, param1x) -> param0x.writeUtf(param1x.getName()));
-        Set<String> var6 = var0.getRunningBehaviors().stream().map(Behavior::toString).collect(Collectors.toSet());
-        param1.writeCollection(var6, FriendlyByteBuf::writeUtf);
+        Set<String> var7 = var0.getRunningBehaviors().stream().map(Behavior::toString).collect(Collectors.toSet());
+        param1.writeCollection(var7, FriendlyByteBuf::writeUtf);
         param1.writeCollection(getMemoryDescriptions(param0, var1), (param0x, param1x) -> {
             String var0x = StringUtil.truncateStringIfNecessary(param1x, 255, true);
             param0x.writeUtf(var0x);
         });
         if (param0 instanceof Villager) {
-            Set<BlockPos> var7 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
-                .map(var0::getMemory)
-                .flatMap(Optional::stream)
-                .map(GlobalPos::pos)
-                .collect(Collectors.toSet());
-            param1.writeCollection(var7, FriendlyByteBuf::writeBlockPos);
-        } else {
-            param1.writeVarInt(0);
-        }
-
-        if (param0 instanceof Villager) {
-            Set<BlockPos> var8 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
+            Set<BlockPos> var8 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
                 .map(var0::getMemory)
                 .flatMap(Optional::stream)
                 .map(GlobalPos::pos)
@@ -177,13 +176,24 @@ public class DebugPackets {
         }
 
         if (param0 instanceof Villager) {
-            Map<UUID, Object2IntMap<GossipType>> var9 = ((Villager)param0).getGossips().getGossipEntries();
-            List<String> var10 = Lists.newArrayList();
-            var9.forEach((param1x, param2) -> {
+            Set<BlockPos> var9 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
+                .map(var0::getMemory)
+                .flatMap(Optional::stream)
+                .map(GlobalPos::pos)
+                .collect(Collectors.toSet());
+            param1.writeCollection(var9, FriendlyByteBuf::writeBlockPos);
+        } else {
+            param1.writeVarInt(0);
+        }
+
+        if (param0 instanceof Villager) {
+            Map<UUID, Object2IntMap<GossipType>> var10 = ((Villager)param0).getGossips().getGossipEntries();
+            List<String> var11 = Lists.newArrayList();
+            var10.forEach((param1x, param2) -> {
                 String var0x = DebugEntityNameGenerator.getEntityName(param1x);
-                param2.forEach((param2x, param3) -> var10.add(var0x + ": " + param2x + ": " + param3));
+                param2.forEach((param2x, param3) -> var11.add(var0x + ": " + param2x + ": " + param3));
             });
-            param1.writeCollection(var10, FriendlyByteBuf::writeUtf);
+            param1.writeCollection(var11, FriendlyByteBuf::writeUtf);
         } else {
             param1.writeVarInt(0);
         }

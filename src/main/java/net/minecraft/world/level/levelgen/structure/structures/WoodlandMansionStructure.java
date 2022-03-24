@@ -35,35 +35,14 @@ public class WoodlandMansionStructure extends Structure {
     @Override
     public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext param0) {
         Rotation var0 = Rotation.getRandom(param0.random());
-        int var1 = 5;
-        int var2 = 5;
-        if (var0 == Rotation.CLOCKWISE_90) {
-            var1 = -5;
-        } else if (var0 == Rotation.CLOCKWISE_180) {
-            var1 = -5;
-            var2 = -5;
-        } else if (var0 == Rotation.COUNTERCLOCKWISE_90) {
-            var2 = -5;
-        }
-
-        int var3 = param0.chunkPos().getBlockX(7);
-        int var4 = param0.chunkPos().getBlockZ(7);
-        int[] var5 = getCornerHeights(param0, var3, var1, var4, var2);
-        int var6 = Math.min(Math.min(var5[0], var5[1]), Math.min(var5[2], var5[3]));
-        if (var6 < 60) {
-            return Optional.empty();
-        } else {
-            BlockPos var7 = new BlockPos(var3, var6, var4);
-            return Optional.of(new Structure.GenerationStub(var7, param3 -> this.generatePieces(param3, param0, var7, var0)));
-        }
+        BlockPos var1 = this.getLowestYIn5by5BoxOffset7Blocks(param0, var0);
+        return var1.getY() < 60 ? Optional.empty() : Optional.of(new Structure.GenerationStub(var1, param3 -> this.generatePieces(param3, param0, var1, var0)));
     }
 
     private void generatePieces(StructurePiecesBuilder param0, Structure.GenerationContext param1, BlockPos param2, Rotation param3) {
-        ChunkPos var0 = param1.chunkPos();
-        BlockPos var1 = new BlockPos(var0.getMiddleBlockX(), param2.getY() + 1, var0.getMiddleBlockZ());
-        List<WoodlandMansionPieces.WoodlandMansionPiece> var2 = Lists.newLinkedList();
-        WoodlandMansionPieces.generateMansion(param1.structureTemplateManager(), var1, param3, var2, param1.random());
-        var2.forEach(param0::addPiece);
+        List<WoodlandMansionPieces.WoodlandMansionPiece> var0 = Lists.newLinkedList();
+        WoodlandMansionPieces.generateMansion(param1.structureTemplateManager(), param2, param3, var0, param1.random());
+        var0.forEach(param0::addPiece);
     }
 
     @Override

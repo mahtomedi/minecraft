@@ -75,9 +75,10 @@ public class EntityRenderers {
         register(EntityType.BAT, BatRenderer::new);
         register(EntityType.BEE, BeeRenderer::new);
         register(EntityType.BLAZE, BlazeRenderer::new);
-        register(EntityType.BOAT, BoatRenderer::new);
+        register(EntityType.BOAT, param0 -> new BoatRenderer(param0, false));
         register(EntityType.CAT, CatRenderer::new);
         register(EntityType.CAVE_SPIDER, CaveSpiderRenderer::new);
+        register(EntityType.CHEST_BOAT, param0 -> new BoatRenderer(param0, true));
         register(EntityType.CHEST_MINECART, param0 -> new MinecartRenderer<>(param0, ModelLayers.CHEST_MINECART));
         register(EntityType.CHICKEN, ChickenRenderer::new);
         register(EntityType.COD, CodRenderer::new);
@@ -176,6 +177,7 @@ public class EntityRenderers {
         register(EntityType.VEX, VexRenderer::new);
         register(EntityType.VILLAGER, VillagerRenderer::new);
         register(EntityType.VINDICATOR, VindicatorRenderer::new);
+        register(EntityType.WARDEN, WardenRenderer::new);
         register(EntityType.WANDERING_TRADER, WanderingTraderRenderer::new);
         register(EntityType.WITCH, WitchRenderer::new);
         register(EntityType.WITHER, WitherBossRenderer::new);

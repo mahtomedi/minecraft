@@ -2,8 +2,10 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
+import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -87,12 +89,12 @@ public class AnimalMakeLove extends Behavior<Animal> {
     }
 
     private Optional<? extends Animal> findValidBreedPartner(Animal param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().findClosest(param1 -> {
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().findClosest((Predicate<LivingEntity>)(param1 -> {
             if (param1.getType() == this.partnerType && param1 instanceof Animal var0 && param0.canMate(var0)) {
                 return true;
             }
 
             return false;
-        }).map(Animal.class::cast);
+        })).map(Animal.class::cast);
     }
 }

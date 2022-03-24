@@ -57,6 +57,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
@@ -78,6 +79,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public static final int MAX_ENTITY_SPAWN_Y = 20000000;
     public static final int MIN_ENTITY_SPAWN_Y = -20000000;
     protected final List<TickingBlockEntity> blockEntityTickers = Lists.newArrayList();
+    protected final NeighborUpdater neighborUpdater;
     private final List<TickingBlockEntity> pendingBlockEntityTickers = Lists.newArrayList();
     private boolean tickingBlockEntities;
     private final Thread thread;
@@ -107,7 +109,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         Supplier<ProfilerFiller> param3,
         boolean param4,
         boolean param5,
-        long param6
+        long param6,
+        int param7
     ) {
         this.profiler = param3;
         this.levelData = param0;
@@ -134,6 +137,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.thread = Thread.currentThread();
         this.biomeManager = new BiomeManager(this, param6);
         this.isDebug = param5;
+        this.neighborUpdater = new CollectingNeighborUpdater(this, param7);
     }
 
     @Override
@@ -293,22 +297,21 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void setBlocksDirty(BlockPos param0, BlockState param1, BlockState param2) {
     }
 
-    public abstract NeighborUpdater getNeighborUpdater();
-
     public void updateNeighborsAt(BlockPos param0, Block param1) {
-        this.getNeighborUpdater().updateNeighborsAtExceptFromFacing(param0, param1, null);
     }
 
     public void updateNeighborsAtExceptFromFacing(BlockPos param0, Block param1, Direction param2) {
-        this.getNeighborUpdater().updateNeighborsAtExceptFromFacing(param0, param1, param2);
     }
 
     public void neighborChanged(BlockPos param0, Block param1, BlockPos param2) {
-        this.getNeighborUpdater().neighborChanged(param0, param1, param2);
     }
 
     public void neighborChanged(BlockState param0, BlockPos param1, Block param2, BlockPos param3, boolean param4) {
-        this.getNeighborUpdater().neighborChanged(param0, param1, param2, param3, param4);
+    }
+
+    @Override
+    public void neighborShapeChanged(Direction param0, BlockState param1, BlockPos param2, BlockPos param3, int param4, int param5) {
+        this.neighborUpdater.shapeUpdate(param0, param1, param2, param3, param4, param5);
     }
 
     @Override
@@ -903,27 +906,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     protected abstract LevelEntityGetter<Entity> getEntities();
-
-    protected void postGameEventInRadius(@Nullable Entity param0, GameEvent param1, BlockPos param2, int param3) {
-        int var0 = SectionPos.blockToSectionCoord(param2.getX() - param3);
-        int var1 = SectionPos.blockToSectionCoord(param2.getZ() - param3);
-        int var2 = SectionPos.blockToSectionCoord(param2.getX() + param3);
-        int var3 = SectionPos.blockToSectionCoord(param2.getZ() + param3);
-        int var4 = SectionPos.blockToSectionCoord(param2.getY() - param3);
-        int var5 = SectionPos.blockToSectionCoord(param2.getY() + param3);
-
-        for(int var6 = var0; var6 <= var2; ++var6) {
-            for(int var7 = var1; var7 <= var3; ++var7) {
-                ChunkAccess var8 = this.getChunkSource().getChunkNow(var6, var7);
-                if (var8 != null) {
-                    for(int var9 = var4; var9 <= var5; ++var9) {
-                        var8.getEventDispatcher(var9).post(param1, param0, param2);
-                    }
-                }
-            }
-        }
-
-    }
 
     @Override
     public long nextSubTickCount() {

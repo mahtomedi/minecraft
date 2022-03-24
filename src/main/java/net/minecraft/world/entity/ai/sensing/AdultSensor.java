@@ -3,8 +3,10 @@ package net.minecraft.world.entity.ai.sensing;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 
@@ -19,7 +21,8 @@ public class AdultSensor extends Sensor<AgeableMob> {
     }
 
     private void setNearestVisibleAdult(AgeableMob param0, NearestVisibleLivingEntities param1) {
-        Optional<AgeableMob> var0 = param1.findClosest(param1x -> param1x.getType() == param0.getType() && !param1x.isBaby()).map(AgeableMob.class::cast);
+        Optional<AgeableMob> var0 = param1.findClosest((Predicate<LivingEntity>)(param1x -> param1x.getType() == param0.getType() && !param1x.isBaby()))
+            .map(AgeableMob.class::cast);
         param0.getBrain().setMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT, var0);
     }
 }

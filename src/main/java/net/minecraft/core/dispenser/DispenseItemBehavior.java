@@ -189,7 +189,7 @@ public interface DispenseItemBehavior {
                 }
 
                 param1.shrink(1);
-                param0.getLevel().gameEvent(GameEvent.ENTITY_PLACE, param0.getPos());
+                param0.getLevel().gameEvent(null, GameEvent.ENTITY_PLACE, param0.getPos());
                 return param1;
             }
         };

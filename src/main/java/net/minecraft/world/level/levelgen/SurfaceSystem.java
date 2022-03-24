@@ -46,20 +46,20 @@ public class SurfaceSystem {
     private final NormalNoise surfaceNoise;
     private final NormalNoise surfaceSecondaryNoise;
 
-    public SurfaceSystem(Registry<NormalNoise.NoiseParameters> param0, BlockState param1, int param2, PositionalRandomFactory param3) {
+    public SurfaceSystem(RandomState param0, BlockState param1, int param2, PositionalRandomFactory param3) {
         this.defaultBlock = param1;
         this.seaLevel = param2;
         this.noiseRandom = param3;
-        this.clayBandsOffsetNoise = Noises.instantiate(param0, param3, Noises.CLAY_BANDS_OFFSET);
+        this.clayBandsOffsetNoise = param0.getOrCreateNoise(Noises.CLAY_BANDS_OFFSET);
         this.clayBands = generateBands(param3.fromHashOf(new ResourceLocation("clay_bands")));
-        this.surfaceNoise = Noises.instantiate(param0, param3, Noises.SURFACE);
-        this.surfaceSecondaryNoise = Noises.instantiate(param0, param3, Noises.SURFACE_SECONDARY);
-        this.badlandsPillarNoise = Noises.instantiate(param0, param3, Noises.BADLANDS_PILLAR);
-        this.badlandsPillarRoofNoise = Noises.instantiate(param0, param3, Noises.BADLANDS_PILLAR_ROOF);
-        this.badlandsSurfaceNoise = Noises.instantiate(param0, param3, Noises.BADLANDS_SURFACE);
-        this.icebergPillarNoise = Noises.instantiate(param0, param3, Noises.ICEBERG_PILLAR);
-        this.icebergPillarRoofNoise = Noises.instantiate(param0, param3, Noises.ICEBERG_PILLAR_ROOF);
-        this.icebergSurfaceNoise = Noises.instantiate(param0, param3, Noises.ICEBERG_SURFACE);
+        this.surfaceNoise = param0.getOrCreateNoise(Noises.SURFACE);
+        this.surfaceSecondaryNoise = param0.getOrCreateNoise(Noises.SURFACE_SECONDARY);
+        this.badlandsPillarNoise = param0.getOrCreateNoise(Noises.BADLANDS_PILLAR);
+        this.badlandsPillarRoofNoise = param0.getOrCreateNoise(Noises.BADLANDS_PILLAR_ROOF);
+        this.badlandsSurfaceNoise = param0.getOrCreateNoise(Noises.BADLANDS_SURFACE);
+        this.icebergPillarNoise = param0.getOrCreateNoise(Noises.ICEBERG_PILLAR);
+        this.icebergPillarRoofNoise = param0.getOrCreateNoise(Noises.ICEBERG_PILLAR_ROOF);
+        this.icebergSurfaceNoise = param0.getOrCreateNoise(Noises.ICEBERG_SURFACE);
     }
 
     public void buildSurface(

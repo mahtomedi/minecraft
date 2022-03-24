@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -103,11 +104,11 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     };
     private final Object2IntOpenHashMap<ResourceLocation> recipesUsed = new Object2IntOpenHashMap<>();
-    private final RecipeType<? extends AbstractCookingRecipe> recipeType;
+    private final RecipeManager.CachedCheck<Container, ? extends AbstractCookingRecipe> quickCheck;
 
     protected AbstractFurnaceBlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2, RecipeType<? extends AbstractCookingRecipe> param3) {
         super(param0, param1, param2);
-        this.recipeType = param3;
+        this.quickCheck = RecipeManager.createCheck(param3);
     }
 
     public static Map<Item, Integer> getFuel() {
@@ -129,12 +130,14 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         add(var0, Blocks.JUNGLE_FENCE, 300);
         add(var0, Blocks.DARK_OAK_FENCE, 300);
         add(var0, Blocks.ACACIA_FENCE, 300);
+        add(var0, Blocks.MANGROVE_FENCE, 300);
         add(var0, Blocks.OAK_FENCE_GATE, 300);
         add(var0, Blocks.BIRCH_FENCE_GATE, 300);
         add(var0, Blocks.SPRUCE_FENCE_GATE, 300);
         add(var0, Blocks.JUNGLE_FENCE_GATE, 300);
         add(var0, Blocks.DARK_OAK_FENCE_GATE, 300);
         add(var0, Blocks.ACACIA_FENCE_GATE, 300);
+        add(var0, Blocks.MANGROVE_FENCE_GATE, 300);
         add(var0, Blocks.NOTE_BLOCK, 300);
         add(var0, Blocks.BOOKSHELF, 300);
         add(var0, Blocks.LECTERN, 300);
@@ -247,32 +250,43 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
 
         ItemStack var2 = param3.items.get(1);
-        if (param3.isLit() || !var2.isEmpty() && !param3.items.get(0).isEmpty()) {
-            Recipe<?> var3 = (Recipe)param0.getRecipeManager().getRecipeFor(param3.recipeType, param3, param0).orElse(null);
-            int var4 = param3.getMaxStackSize();
-            if (!param3.isLit() && canBurn(var3, param3.items, var4)) {
+        boolean var3 = !var2.isEmpty() && !param3.items.get(0).isEmpty();
+        if (!param3.isLit() && !var3) {
+            if (!param3.isLit() && param3.cookingProgress > 0) {
+                param3.cookingProgress = Mth.clamp(param3.cookingProgress - 2, 0, param3.cookingTotalTime);
+            }
+        } else {
+            Recipe<?> var4;
+            if (var3) {
+                var4 = (Recipe)param3.quickCheck.getRecipeFor(param3, param0).orElse(null);
+            } else {
+                var4 = null;
+            }
+
+            int var6 = param3.getMaxStackSize();
+            if (!param3.isLit() && canBurn(var4, param3.items, var6)) {
                 param3.litTime = param3.getBurnDuration(var2);
                 param3.litDuration = param3.litTime;
                 if (param3.isLit()) {
                     var1 = true;
                     if (!var2.isEmpty()) {
-                        Item var5 = var2.getItem();
+                        Item var7 = var2.getItem();
                         var2.shrink(1);
                         if (var2.isEmpty()) {
-                            Item var6 = var5.getCraftingRemainingItem();
-                            param3.items.set(1, var6 == null ? ItemStack.EMPTY : new ItemStack(var6));
+                            Item var8 = var7.getCraftingRemainingItem();
+                            param3.items.set(1, var8 == null ? ItemStack.EMPTY : new ItemStack(var8));
                         }
                     }
                 }
             }
 
-            if (param3.isLit() && canBurn(var3, param3.items, var4)) {
+            if (param3.isLit() && canBurn(var4, param3.items, var6)) {
                 ++param3.cookingProgress;
                 if (param3.cookingProgress == param3.cookingTotalTime) {
                     param3.cookingProgress = 0;
-                    param3.cookingTotalTime = getTotalCookTime(param0, param3.recipeType, param3);
-                    if (burn(var3, param3.items, var4)) {
-                        param3.setRecipeUsed(var3);
+                    param3.cookingTotalTime = getTotalCookTime(param0, param3);
+                    if (burn(var4, param3.items, var6)) {
+                        param3.setRecipeUsed(var4);
                     }
 
                     var1 = true;
@@ -280,8 +294,6 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
             } else {
                 param3.cookingProgress = 0;
             }
-        } else if (!param3.isLit() && param3.cookingProgress > 0) {
-            param3.cookingProgress = Mth.clamp(param3.cookingProgress - 2, 0, param3.cookingTotalTime);
         }
 
         if (var0 != param3.isLit()) {
@@ -349,8 +361,8 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     }
 
-    private static int getTotalCookTime(Level param0, RecipeType<? extends AbstractCookingRecipe> param1, Container param2) {
-        return param0.getRecipeManager().getRecipeFor(param1, param2, param0).map(AbstractCookingRecipe::getCookingTime).orElse(200);
+    private static int getTotalCookTime(Level param0, AbstractFurnaceBlockEntity param1) {
+        return param1.quickCheck.getRecipeFor(param1, param0).map(AbstractCookingRecipe::getCookingTime).orElse(200);
     }
 
     public static boolean isFuel(ItemStack param0) {
@@ -421,7 +433,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
 
         if (param0 == 0 && !var1) {
-            this.cookingTotalTime = getTotalCookTime(this.level, this.recipeType, this);
+            this.cookingTotalTime = getTotalCookTime(this.level, this);
             this.cookingProgress = 0;
             this.setChanged();
         }
