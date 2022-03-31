@@ -594,48 +594,18 @@ public class RecipeProvider implements DataProvider {
                 )
             )
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.CHEST_MINECART)
-            .define('A', Blocks.CHEST)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.CHEST_MINECART)
+            .requires(Blocks.CHEST)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.ACACIA_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.ACACIA_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.BIRCH_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.BIRCH_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.DARK_OAK_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.DARK_OAK_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.JUNGLE_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.JUNGLE_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.OAK_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.OAK_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.SPRUCE_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.SPRUCE_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.MANGROVE_CHEST_BOAT)
-            .requires(Blocks.CHEST)
-            .requires(Items.MANGROVE_BOAT)
-            .unlockedBy("has_boat", has(ItemTags.BOATS))
-            .save(param0);
+        chestBoat(param0, Items.ACACIA_CHEST_BOAT, Items.ACACIA_BOAT);
+        chestBoat(param0, Items.BIRCH_CHEST_BOAT, Items.BIRCH_BOAT);
+        chestBoat(param0, Items.DARK_OAK_CHEST_BOAT, Items.DARK_OAK_BOAT);
+        chestBoat(param0, Items.JUNGLE_CHEST_BOAT, Items.JUNGLE_BOAT);
+        chestBoat(param0, Items.OAK_CHEST_BOAT, Items.OAK_BOAT);
+        chestBoat(param0, Items.SPRUCE_CHEST_BOAT, Items.SPRUCE_BOAT);
+        chestBoat(param0, Items.MANGROVE_CHEST_BOAT, Items.MANGROVE_BOAT);
         chiseledBuilder(Blocks.CHISELED_QUARTZ_BLOCK, Ingredient.of(Blocks.QUARTZ_SLAB))
             .unlockedBy("has_chiseled_quartz_block", has(Blocks.CHISELED_QUARTZ_BLOCK))
             .unlockedBy("has_quartz_block", has(Blocks.QUARTZ_BLOCK))
@@ -959,11 +929,9 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .unlockedBy("has_cobblestone", has(ItemTags.STONE_CRAFTING_MATERIALS))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.FURNACE_MINECART)
-            .define('A', Blocks.FURNACE)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.FURNACE_MINECART)
+            .requires(Blocks.FURNACE)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.GLASS_BOTTLE, 3)
@@ -1127,11 +1095,9 @@ public class RecipeProvider implements DataProvider {
             .pattern(" I ")
             .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.HOPPER_MINECART)
-            .define('A', Blocks.HOPPER)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.HOPPER_MINECART)
+            .requires(Blocks.HOPPER)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.IRON_AXE)
@@ -1846,11 +1812,9 @@ public class RecipeProvider implements DataProvider {
             .pattern("X#X")
             .unlockedBy("has_gunpowder", has(Items.GUNPOWDER))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.TNT_MINECART)
-            .define('A', Blocks.TNT)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.TNT_MINECART)
+            .requires(Blocks.TNT)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.TORCH, 4)
@@ -2702,6 +2666,15 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .group("boat")
             .unlockedBy("in_water", insideOf(Blocks.WATER))
+            .save(param0);
+    }
+
+    private static void chestBoat(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+        ShapelessRecipeBuilder.shapeless(param1)
+            .requires(Blocks.CHEST)
+            .requires(param2)
+            .group("chest_boat")
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
             .save(param0);
     }
 

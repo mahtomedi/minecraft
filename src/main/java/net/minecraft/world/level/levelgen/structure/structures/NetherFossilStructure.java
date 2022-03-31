@@ -2,36 +2,29 @@ package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Map;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderSet;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
 public class NetherFossilStructure extends Structure {
     public static final Codec<NetherFossilStructure> CODEC = RecordCodecBuilder.create(
-        param0 -> codec(param0).and(HeightProvider.CODEC.fieldOf("height").forGetter(param0x -> param0x.height)).apply(param0, NetherFossilStructure::new)
+        param0 -> param0.group(settingsCodec(param0), HeightProvider.CODEC.fieldOf("height").forGetter(param0x -> param0x.height))
+                .apply(param0, NetherFossilStructure::new)
     );
     public final HeightProvider height;
 
-    public NetherFossilStructure(
-        HolderSet<Biome> param0, Map<MobCategory, StructureSpawnOverride> param1, GenerationStep.Decoration param2, boolean param3, HeightProvider param4
-    ) {
-        super(param0, param1, param2, param3);
-        this.height = param4;
+    public NetherFossilStructure(Structure.StructureSettings param0, HeightProvider param1) {
+        super(param0);
+        this.height = param1;
     }
 
     @Override

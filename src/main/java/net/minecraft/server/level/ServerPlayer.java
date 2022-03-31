@@ -563,7 +563,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void die(DamageSource param0) {
-        this.gameEvent(GameEvent.ENTITY_DYING);
+        this.gameEvent(GameEvent.ENTITY_DIE);
         boolean var0 = this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES);
         if (var0) {
             Component var1 = this.getCombatTracker().getDeathMessage();

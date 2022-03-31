@@ -2,46 +2,31 @@ package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderSet;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class MineshaftStructure extends Structure {
     public static final Codec<MineshaftStructure> CODEC = RecordCodecBuilder.create(
-        param0 -> codec(param0)
-                .and(MineshaftStructure.Type.CODEC.fieldOf("mineshaft_type").forGetter(param0x -> param0x.type))
+        param0 -> param0.group(settingsCodec(param0), MineshaftStructure.Type.CODEC.fieldOf("mineshaft_type").forGetter(param0x -> param0x.type))
                 .apply(param0, MineshaftStructure::new)
     );
     private final MineshaftStructure.Type type;
 
-    public MineshaftStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        MineshaftStructure.Type param4
-    ) {
-        super(param0, param1, param2, param3);
-        this.type = param4;
+    public MineshaftStructure(Structure.StructureSettings param0, MineshaftStructure.Type param1) {
+        super(param0);
+        this.type = param1;
     }
 
     @Override
@@ -81,11 +66,7 @@ public class MineshaftStructure extends Structure {
         NORMAL("normal", Blocks.OAK_LOG, Blocks.OAK_PLANKS, Blocks.OAK_FENCE),
         MESA("mesa", Blocks.DARK_OAK_LOG, Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_FENCE);
 
-        public static final Codec<MineshaftStructure.Type> CODEC = StringRepresentable.fromEnum(
-            MineshaftStructure.Type::values, MineshaftStructure.Type::byName
-        );
-        private static final Map<String, MineshaftStructure.Type> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(MineshaftStructure.Type::getName, param0 -> param0));
+        public static final Codec<MineshaftStructure.Type> CODEC = StringRepresentable.fromEnum(MineshaftStructure.Type::values);
         private final String name;
         private final BlockState woodState;
         private final BlockState planksState;
@@ -100,10 +81,6 @@ public class MineshaftStructure extends Structure {
 
         public String getName() {
             return this.name;
-        }
-
-        private static MineshaftStructure.Type byName(String param0) {
-            return BY_NAME.get(param0);
         }
 
         public static MineshaftStructure.Type byId(int param0) {

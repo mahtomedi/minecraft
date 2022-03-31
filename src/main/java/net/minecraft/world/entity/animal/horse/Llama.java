@@ -51,7 +51,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
 public class Llama extends AbstractChestedHorse implements RangedAttackMob {
@@ -224,23 +223,20 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             }
         }
 
-        if (var3) {
-            this.gameEvent(GameEvent.MOB_INTERACT);
-            if (!this.isSilent()) {
-                SoundEvent var4 = this.getEatingSound();
-                if (var4 != null) {
-                    this.level
-                        .playSound(
-                            null,
-                            this.getX(),
-                            this.getY(),
-                            this.getZ(),
-                            this.getEatingSound(),
-                            this.getSoundSource(),
-                            1.0F,
-                            1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
-                        );
-                }
+        if (var3 && !this.isSilent()) {
+            SoundEvent var4 = this.getEatingSound();
+            if (var4 != null) {
+                this.level
+                    .playSound(
+                        null,
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        this.getEatingSound(),
+                        this.getSoundSource(),
+                        1.0F,
+                        1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
+                    );
             }
         }
 
@@ -332,7 +328,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
 
     @Override
     public boolean isArmor(ItemStack param0) {
-        return param0.is(ItemTags.CARPETS);
+        return param0.is(ItemTags.WOOL_CARPETS);
     }
 
     @Override

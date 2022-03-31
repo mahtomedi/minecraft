@@ -78,7 +78,7 @@ public interface ContainerEntity extends Container, MenuProvider {
 
     }
 
-    default void dropChestVehicleContents(DamageSource param0, Level param1, Entity param2) {
+    default void chestVehicleDestroyed(DamageSource param0, Level param1, Entity param2) {
         if (param1.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             Containers.dropContents(param1, param2, this);
             if (!param1.isClientSide) {

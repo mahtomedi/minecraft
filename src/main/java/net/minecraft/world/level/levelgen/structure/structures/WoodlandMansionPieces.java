@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -11,8 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
@@ -1296,23 +1297,32 @@ public class WoodlandMansionPieces {
 
                 this.createChest(param2, param4, param3, param1, BuiltInLootTables.WOODLAND_MANSION, var1);
             } else {
-                AbstractIllager var2;
+                List<Mob> var2 = new ArrayList<>();
                 switch(param0) {
                     case "Mage":
-                        var2 = EntityType.EVOKER.create(param2.getLevel());
+                        var2.add(EntityType.EVOKER.create(param2.getLevel()));
                         break;
                     case "Warrior":
-                        var2 = EntityType.VINDICATOR.create(param2.getLevel());
+                        var2.add(EntityType.VINDICATOR.create(param2.getLevel()));
+                        break;
+                    case "Group of Allays":
+                        int var3 = param2.getRandom().nextInt(3) + 1;
+
+                        for(int var4 = 0; var4 < var3; ++var4) {
+                            var2.add(EntityType.ALLAY.create(param2.getLevel()));
+                        }
                         break;
                     default:
                         return;
                 }
 
-                var2.setPersistenceRequired();
-                var2.moveTo(param1, 0.0F, 0.0F);
-                var2.finalizeSpawn(param2, param2.getCurrentDifficultyAt(var2.blockPosition()), MobSpawnType.STRUCTURE, null, null);
-                param2.addFreshEntityWithPassengers(var2);
-                param2.setBlock(param1, Blocks.AIR.defaultBlockState(), 2);
+                for(Mob var5 : var2) {
+                    var5.setPersistenceRequired();
+                    var5.moveTo(param1, 0.0F, 0.0F);
+                    var5.finalizeSpawn(param2, param2.getCurrentDifficultyAt(var5.blockPosition()), MobSpawnType.STRUCTURE, null, null);
+                    param2.addFreshEntityWithPassengers(var5);
+                    param2.setBlock(param1, Blocks.AIR.defaultBlockState(), 2);
+                }
             }
 
         }

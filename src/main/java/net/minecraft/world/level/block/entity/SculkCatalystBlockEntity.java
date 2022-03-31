@@ -2,9 +2,12 @@ package net.minecraft.world.level.block.entity;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -37,10 +40,16 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
 
     @Override
     public boolean handleGameEvent(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3) {
-        if (param1 == GameEvent.ENTITY_DYING && param2 instanceof LivingEntity var0) {
+        if (param1 == GameEvent.ENTITY_DIE && param2 instanceof LivingEntity var0) {
             if (!var0.wasExperienceConsumed()) {
                 this.sculkSpreader.addCursors(new BlockPos(param3), var0.getExperienceReward());
                 var0.skipDropExperience();
+                LivingEntity var1 = var0.getLastHurtByMob();
+                if (var1 instanceof ServerPlayer var2) {
+                    DamageSource var3 = var0.getLastDamageSource() == null ? DamageSource.playerAttack(var2) : var0.getLastDamageSource();
+                    CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.trigger(var2, param2, var3);
+                }
+
                 SculkCatalystBlock.bloom(param0, this.worldPosition, this.getBlockState(), param0.getRandom());
             }
 

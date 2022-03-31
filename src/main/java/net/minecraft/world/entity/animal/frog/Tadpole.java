@@ -35,7 +35,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 
 public class Tadpole extends AbstractFish {
     @VisibleForTesting
@@ -203,7 +202,6 @@ public class Tadpole extends AbstractFish {
         this.usePlayerItem(param0, param1);
         this.ageUp(AgeableMob.getSpeedUpSecondsWhenFeeding(this.getTicksLeftUntilAdult()));
         this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
-        this.gameEvent(GameEvent.MOB_INTERACT);
     }
 
     private void usePlayerItem(Player param0, ItemStack param1) {

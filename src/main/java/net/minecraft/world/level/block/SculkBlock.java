@@ -49,17 +49,16 @@ public class SculkBlock extends DropExperienceBlock implements SculkBehaviour {
     }
 
     private BlockState getRandomGrowthState(LevelAccessor param0, BlockPos param1, Random param2, boolean param3) {
-        Block var0;
-        if (param3) {
-            var0 = param2.nextInt(11) == 0 ? Blocks.SCULK_SHRIEKER : Blocks.SCULK_SENSOR;
+        BlockState var0;
+        if (param2.nextInt(11) == 0) {
+            var0 = Blocks.SCULK_SHRIEKER.defaultBlockState().setValue(SculkShriekerBlock.CAN_SUMMON, Boolean.valueOf(param3));
         } else {
-            var0 = Blocks.SCULK_SENSOR;
+            var0 = Blocks.SCULK_SENSOR.defaultBlockState();
         }
 
-        BlockState var2 = var0.defaultBlockState();
-        return !param0.getFluidState(param1).isEmpty() && var0 instanceof SimpleWaterloggedBlock
-            ? var2.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true))
-            : var2;
+        return var0.hasProperty(BlockStateProperties.WATERLOGGED) && !param0.getFluidState(param1).isEmpty()
+            ? var0.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true))
+            : var0;
     }
 
     private static boolean canPlaceGrowth(LevelAccessor param0, BlockPos param1) {

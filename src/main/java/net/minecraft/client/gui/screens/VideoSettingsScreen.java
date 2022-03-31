@@ -86,18 +86,16 @@ public class VideoSettingsScreen extends OptionsSubScreen {
             var3 = var4.map(var2::getVideoModeIndex).orElse(-1);
         }
 
-        String var6 = "options.fullscreen.resolution";
-        TranslatableComponent var7 = new TranslatableComponent("options.fullscreen.resolution");
-        OptionInstance<Integer> var8 = new OptionInstance<>(
+        OptionInstance<Integer> var6 = new OptionInstance<>(
             "options.fullscreen.resolution",
             OptionInstance.noTooltip(),
-            param2 -> {
+            (param1, param2) -> {
                 if (var2 == null) {
                     return new TranslatableComponent("options.fullscreen.unavailable");
                 } else {
                     return param2 == -1
-                        ? Options.genericValueLabel(var7, new TranslatableComponent("options.fullscreen.current"))
-                        : Options.genericValueLabel(var7, new TextComponent(var2.getMode(param2).toString()));
+                        ? Options.genericValueLabel(param1, new TranslatableComponent("options.fullscreen.current"))
+                        : Options.genericValueLabel(param1, new TextComponent(var2.getMode(param2).toString()));
                 }
             },
             new OptionInstance.IntRange(-1, var2 != null ? var2.getModeCount() - 1 : -1),
@@ -108,7 +106,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
                 }
             }
         );
-        this.list.addBig(var8);
+        this.list.addBig(var6);
         this.list.addBig(this.options.biomeBlendRadius());
         this.list.addSmall(options(this.options));
         this.addWidget(this.list);

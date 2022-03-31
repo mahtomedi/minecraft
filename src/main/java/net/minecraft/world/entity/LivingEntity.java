@@ -658,11 +658,17 @@ public abstract class LivingEntity extends Entity {
         this.discardFriction = param0;
     }
 
-    protected void equipEventAndSound(ItemStack param0) {
-        SoundEvent var0 = param0.getEquipSound();
-        if (!param0.isEmpty() && var0 != null && !this.isSpectator()) {
-            this.gameEvent(GameEvent.EQUIP);
-            this.playSound(var0, 1.0F, 1.0F);
+    protected void equipEventAndSound(ItemStack param0, boolean param1) {
+        if (!param0.isEmpty() && !this.isSpectator()) {
+            if (param1) {
+                this.gameEvent(GameEvent.EQUIP);
+            }
+
+            SoundEvent var0 = param0.getEquipSound();
+            if (var0 != null) {
+                this.playSound(var0, 1.0F, 1.0F);
+            }
+
         }
     }
 
@@ -1297,7 +1303,7 @@ public abstract class LivingEntity extends Entity {
                 this.stopSleeping();
             }
 
-            this.gameEvent(GameEvent.ENTITY_DYING);
+            this.gameEvent(GameEvent.ENTITY_DIE);
             if (!this.level.isClientSide && this.hasCustomName()) {
                 LOGGER.info("Named entity {} died: {}", this, this.getCombatTracker().getDeathMessage().getString());
             }
@@ -1606,7 +1612,7 @@ public abstract class LivingEntity extends Entity {
                 this.setHealth(var2 - var8);
                 this.getCombatTracker().recordDamage(param0, var2, var8);
                 this.setAbsorptionAmount(this.getAbsorptionAmount() - var8);
-                this.gameEvent(GameEvent.ENTITY_DAMAGED);
+                this.gameEvent(GameEvent.ENTITY_DAMAGE);
             }
         }
     }
@@ -2642,7 +2648,7 @@ public abstract class LivingEntity extends Entity {
                         var1.hurtAndBreak(1, this, param0 -> param0.broadcastBreakEvent(EquipmentSlot.CHEST));
                     }
 
-                    this.gameEvent(GameEvent.ELYTRA_FREE_FALL);
+                    this.gameEvent(GameEvent.ELYTRA_GLIDE);
                 }
             } else {
                 var0 = false;
@@ -3253,7 +3259,6 @@ public abstract class LivingEntity extends Entity {
 
     public ItemStack eat(Level param0, ItemStack param1) {
         if (param1.isEdible()) {
-            param0.gameEvent(this, GameEvent.EAT, this.getEyePosition());
             param0.playSound(
                 null,
                 this.getX(),
@@ -3269,7 +3274,7 @@ public abstract class LivingEntity extends Entity {
                 param1.shrink(1);
             }
 
-            this.gameEvent(GameEvent.EAT);
+            param0.gameEvent(this, GameEvent.EAT, this.getEyePosition());
         }
 
         return param1;

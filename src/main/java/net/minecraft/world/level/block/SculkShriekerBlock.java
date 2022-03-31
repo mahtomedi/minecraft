@@ -33,19 +33,27 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty SHRIEKING = BlockStateProperties.SHRIEKING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty CAN_SUMMON = BlockStateProperties.CAN_SUMMON;
     protected static final VoxelShape COLLIDER = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
     private static final int SHRIEKING_TICKS = 90;
     public static final double TOP_Y = COLLIDER.max(Direction.Axis.Y);
 
     public SculkShriekerBlock(BlockBehaviour.Properties param0) {
         super(param0);
-        this.registerDefaultState(this.stateDefinition.any().setValue(SHRIEKING, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)));
+        this.registerDefaultState(
+            this.stateDefinition
+                .any()
+                .setValue(SHRIEKING, Boolean.valueOf(false))
+                .setValue(WATERLOGGED, Boolean.valueOf(false))
+                .setValue(CAN_SUMMON, Boolean.valueOf(false))
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(SHRIEKING);
         param0.add(WATERLOGGED);
+        param0.add(CAN_SUMMON);
     }
 
     @Override
@@ -61,7 +69,9 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param0.getValue(SHRIEKING)) {
             param1.setBlock(param2, param0.setValue(SHRIEKING, Boolean.valueOf(false)), 3);
-            getWardenSpawnTracker(param1, param2).ifPresent(param2x -> param2x.triggerWarningEvent(param1, param2));
+            if (param0.getValue(CAN_SUMMON)) {
+                getWardenSpawnTracker(param1, param2).ifPresent(param2x -> param2x.triggerWarningEvent(param1, param2));
+            }
         }
 
     }
@@ -76,16 +86,21 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
 
     public static boolean canShriek(ServerLevel param0, BlockPos param1, BlockState param2) {
         return !param2.getValue(SHRIEKING)
-            && getWardenSpawnTracker(param0, param1).map(param2x -> param2x.canPrepareWarningEvent(param0, param1)).orElse(false);
+            && (
+                !param2.getValue(CAN_SUMMON)
+                    || getWardenSpawnTracker(param0, param1).map(param2x -> param2x.canPrepareWarningEvent(param0, param1)).orElse(false)
+            );
     }
 
     public static void shriek(ServerLevel param0, BlockState param1, BlockPos param2) {
         if (canShriek(param0, param2, param1)) {
-            getWardenSpawnTracker(param0, param2).filter(param2x -> param2x.prepareWarningEvent(param0, param2)).ifPresent(param3 -> {
+            if (!param1.getValue(CAN_SUMMON)
+                || getWardenSpawnTracker(param0, param2).filter(param2x -> param2x.prepareWarningEvent(param0, param2)).isPresent()) {
                 param0.setBlock(param2, param1.setValue(SHRIEKING, Boolean.valueOf(true)), 2);
                 param0.scheduleTick(param2, param1.getBlock(), 90);
                 param0.levelEvent(3007, param2, 0);
-            });
+            }
+
         }
     }
 

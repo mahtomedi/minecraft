@@ -1,17 +1,13 @@
 package net.minecraft.world.level.levelgen;
 
-import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.Mth;
@@ -150,16 +146,10 @@ public class Heightmap {
             param0 -> (param0.getMaterial().blocksMotion() || !param0.getFluidState().isEmpty()) && !(param0.getBlock() instanceof LeavesBlock)
         );
 
-        public static final Codec<Heightmap.Types> CODEC = StringRepresentable.fromEnum(Heightmap.Types::values, Heightmap.Types::getFromKey);
+        public static final Codec<Heightmap.Types> CODEC = StringRepresentable.fromEnum(Heightmap.Types::values);
         private final String serializationKey;
         private final Heightmap.Usage usage;
         private final Predicate<BlockState> isOpaque;
-        private static final Map<String, Heightmap.Types> REVERSE_LOOKUP = Util.make(Maps.newHashMap(), param0 -> {
-            for(Heightmap.Types var0 : values()) {
-                param0.put(var0.serializationKey, var0);
-            }
-
-        });
 
         private Types(String param0, Heightmap.Usage param1, Predicate<BlockState> param2) {
             this.serializationKey = param0;
@@ -177,11 +167,6 @@ public class Heightmap {
 
         public boolean keepAfterWorldgen() {
             return this.usage != Heightmap.Usage.WORLDGEN;
-        }
-
-        @Nullable
-        public static Heightmap.Types getFromKey(String param0) {
-            return REVERSE_LOOKUP.get(param0);
         }
 
         public Predicate<BlockState> isOpaque() {

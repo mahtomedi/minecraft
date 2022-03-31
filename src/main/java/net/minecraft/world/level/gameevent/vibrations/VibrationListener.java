@@ -15,8 +15,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.ClipBlockStateContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
@@ -76,6 +78,7 @@ public class VibrationListener implements GameEventListener {
                         new BlockPos(this.receivingEvent.pos),
                         this.receivingEvent.gameEvent,
                         this.receivingEvent.getEntity(var0).orElse(null),
+                        this.receivingEvent.getProjectileOwner(var0).orElse(null),
                         this.receivingDistance
                     );
                 this.receivingEvent = null;
@@ -111,18 +114,19 @@ public class VibrationListener implements GameEventListener {
                 } else if (isOccluded(param0, param3, var1)) {
                     return false;
                 } else {
-                    this.receiveSignal(param0, param1, param2, param3, var1);
+                    this.scheduleSignal(param0, param1, param2, param3, var1);
                     return true;
                 }
             }
         }
     }
 
-    private void receiveSignal(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3, Vec3 param4) {
+    private void scheduleSignal(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3, Vec3 param4) {
         this.receivingDistance = Mth.floor(param3.distanceTo(param4));
         this.receivingEvent = new VibrationListener.ReceivingEvent(param1, this.receivingDistance, param3, param2);
         this.travelTimeInTicks = this.receivingDistance;
         param0.sendParticles(new VibrationParticleOption(this.listenerSource, this.travelTimeInTicks), param3.x, param3.y, param3.z, 1, 0.0, 0.0, 0.0, 0.0);
+        this.config.onSignalSchedule();
     }
 
     private static boolean isOccluded(Level param0, Vec3 param1, Vec3 param2) {
@@ -132,27 +136,52 @@ public class VibrationListener implements GameEventListener {
             == HitResult.Type.BLOCK;
     }
 
-    public static record ReceivingEvent(GameEvent gameEvent, int distance, Vec3 pos, @Nullable UUID uuid, @Nullable Entity entity) {
+    public static record ReceivingEvent(
+        GameEvent gameEvent, int distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid, @Nullable Entity entity
+    ) {
         public static final Codec<VibrationListener.ReceivingEvent> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         Registry.GAME_EVENT.byNameCodec().fieldOf("game_event").forGetter(VibrationListener.ReceivingEvent::gameEvent),
                         ExtraCodecs.NON_NEGATIVE_INT.fieldOf("distance").forGetter(VibrationListener.ReceivingEvent::distance),
                         Vec3.CODEC.fieldOf("pos").forGetter(VibrationListener.ReceivingEvent::pos),
-                        ExtraCodecs.UUID.fieldOf("source").orElse(null).forGetter(VibrationListener.ReceivingEvent::uuid)
+                        ExtraCodecs.UUID.optionalFieldOf("source").forGetter(param0x -> Optional.ofNullable(param0x.uuid())),
+                        ExtraCodecs.UUID.optionalFieldOf("projectile_owner").forGetter(param0x -> Optional.ofNullable(param0x.projectileOwnerUuid()))
                     )
-                    .apply(param0, VibrationListener.ReceivingEvent::new)
+                    .apply(
+                        param0,
+                        (param0x, param1, param2, param3, param4) -> new VibrationListener.ReceivingEvent(
+                                param0x, param1, param2, param3.orElse(null), param4.orElse(null)
+                            )
+                    )
         );
 
-        public ReceivingEvent(GameEvent param0, int param1, Vec3 param2, @Nullable UUID param3) {
-            this(param0, param1, param2, param3, null);
+        public ReceivingEvent(GameEvent param0, int param1, Vec3 param2, @Nullable UUID param3, @Nullable UUID param4) {
+            this(param0, param1, param2, param3, param4, null);
         }
 
         public ReceivingEvent(GameEvent param0, int param1, Vec3 param2, @Nullable Entity param3) {
-            this(param0, param1, param2, param3 == null ? null : param3.getUUID(), param3);
+            this(param0, param1, param2, param3 == null ? null : param3.getUUID(), getProjectileOwner(param3), param3);
+        }
+
+        @Nullable
+        private static UUID getProjectileOwner(@Nullable Entity param0) {
+            if (param0 instanceof Projectile var0 && var0.getOwner() != null) {
+                return var0.getOwner().getUUID();
+            }
+
+            return null;
         }
 
         public Optional<Entity> getEntity(ServerLevel param0) {
             return Optional.ofNullable(this.entity).or(() -> Optional.ofNullable(this.uuid).map(param0::getEntity));
+        }
+
+        public Optional<Entity> getProjectileOwner(ServerLevel param0) {
+            return this.getEntity(param0)
+                .filter(param0x -> param0x instanceof Projectile)
+                .map(param0x -> (Projectile)param0x)
+                .map(Projectile::getOwner)
+                .or(() -> Optional.ofNullable(this.projectileOwnerUuid).map(param0::getEntity));
         }
     }
 
@@ -177,6 +206,13 @@ public class VibrationListener implements GameEventListener {
                     if (param1.occludesVibrations()) {
                         return false;
                     }
+
+                    if (param0.is(GameEventTags.IGNORE_VIBRATIONS_ON_OCCLUDING_BLOCK)) {
+                        BlockState var0 = param1.getLevel().getBlockState(param1.getOnPos());
+                        if (var0.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
+                            return false;
+                        }
+                    }
                 }
 
                 return true;
@@ -185,6 +221,9 @@ public class VibrationListener implements GameEventListener {
 
         boolean shouldListen(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5);
 
-        void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5, int var6);
+        void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5, @Nullable Entity var6, int var7);
+
+        default void onSignalSchedule() {
+        }
     }
 }

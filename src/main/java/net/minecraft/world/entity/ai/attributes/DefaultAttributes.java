@@ -30,6 +30,7 @@ import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.animal.frog.Tadpole;
@@ -80,6 +81,7 @@ public class DefaultAttributes {
     private static final Map<EntityType<? extends LivingEntity>, AttributeSupplier> SUPPLIERS = ImmutableMap.<EntityType<? extends LivingEntity>, AttributeSupplier>builder(
             
         )
+        .put(EntityType.ALLAY, Allay.createAttributes().build())
         .put(EntityType.ARMOR_STAND, LivingEntity.createLivingAttributes().build())
         .put(EntityType.AXOLOTL, Axolotl.createAttributes().build())
         .put(EntityType.BAT, Bat.createAttributes().build())

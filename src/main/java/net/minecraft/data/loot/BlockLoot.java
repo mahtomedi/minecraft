@@ -127,6 +127,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         .collect(ImmutableSet.toImmutableSet());
     private static final float[] NORMAL_LEAVES_SAPLING_CHANCES = new float[]{0.05F, 0.0625F, 0.083333336F, 0.1F};
     private static final float[] JUNGLE_LEAVES_SAPLING_CHANGES = new float[]{0.025F, 0.027777778F, 0.03125F, 0.041666668F, 0.1F};
+    private static final float[] NORMAL_LEAVES_STICK_CHANCES = new float[]{0.02F, 0.022222223F, 0.025F, 0.033333335F, 0.1F};
     private final Map<ResourceLocation, LootTable.Builder> map = Maps.newHashMap();
 
     private static <T> T applyExplosionDecay(ItemLike param0, FunctionUserBuilder<T> param1) {
@@ -546,7 +547,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                         applyExplosionDecay(
                                 param0, LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
                             )
-                            .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE, 0.02F, 0.022222223F, 0.025F, 0.033333335F, 0.1F))
+                            .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE, NORMAL_LEAVES_STICK_CHANCES))
                     )
             );
     }
@@ -562,6 +563,22 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             .when(
                                 BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE, 0.005F, 0.0055555557F, 0.00625F, 0.008333334F, 0.025F)
                             )
+                    )
+            );
+    }
+
+    private static LootTable.Builder createMangroveLeavesDrops(Block param0) {
+        return createShearsOnlyDrop(param0)
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .when(HAS_NO_SHEARS_OR_SILK_TOUCH)
+                    .add(
+                        applyExplosionDecay(
+                                Blocks.MANGROVE_LEAVES,
+                                LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
+                            )
+                            .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE, NORMAL_LEAVES_STICK_CHANCES))
                     )
             );
     }
@@ -1106,7 +1123,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropWhenSilkTouch(Blocks.SCULK);
         this.dropWhenSilkTouch(Blocks.SCULK_CATALYST);
         this.dropWhenSilkTouch(Blocks.SCULK_VEIN);
-        this.add(Blocks.SCULK_SHRIEKER, noDrop());
+        this.dropWhenSilkTouch(Blocks.SCULK_SHRIEKER);
         this.dropSelf(Blocks.COPPER_BLOCK);
         this.dropSelf(Blocks.EXPOSED_COPPER);
         this.dropSelf(Blocks.WEATHERED_COPPER);
@@ -1620,7 +1637,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.GLOW_LICHEN, BlockLoot::createGlowLichenDrops);
         this.add(Blocks.HANGING_ROOTS, BlockLoot::createShearsOnlyDrop);
         this.add(Blocks.SMALL_DRIPLEAF, BlockLoot::createShearsOnlyDrop);
-        this.add(Blocks.MANGROVE_LEAVES, BlockLoot::createShearsOnlyDrop);
+        this.add(Blocks.MANGROVE_LEAVES, BlockLoot::createMangroveLeavesDrops);
         this.add(Blocks.TALL_SEAGRASS, createDoublePlantShearsDrop(Blocks.SEAGRASS));
         this.add(Blocks.LARGE_FERN, param0x -> createDoublePlantWithSeedDrops(param0x, Blocks.FERN));
         this.add(Blocks.TALL_GRASS, param0x -> createDoublePlantWithSeedDrops(param0x, Blocks.GRASS));
@@ -1963,6 +1980,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.BUDDING_AMETHYST, noDrop());
         this.add(Blocks.POWDER_SNOW, noDrop());
         this.add(Blocks.FROGSPAWN, noDrop());
+        this.add(Blocks.REINFORCED_DEEPSLATE, noDrop());
         Set<ResourceLocation> var5 = Sets.newHashSet();
 
         for(Block var6 : Registry.BLOCK) {

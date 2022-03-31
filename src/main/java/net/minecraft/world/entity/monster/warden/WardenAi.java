@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -29,6 +31,8 @@ import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.behavior.Swim;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.sensing.Sensor;
+import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 
 public class WardenAi {
@@ -43,6 +47,34 @@ public class WardenAi {
     private static final int SNIFFING_DURATION = Mth.ceil(83.2F);
     public static final int DIGGING_COOLDOWN = 1200;
     private static final int DISTURBANCE_LOCATION_EXPIRY_TIME = 100;
+    private static final List<SensorType<? extends Sensor<? super Warden>>> SENSOR_TYPES = List.of(
+        SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.WARDEN_ENTITY_SENSOR
+    );
+    private static final List<MemoryModuleType<?>> MEMORY_TYPES = List.of(
+        MemoryModuleType.NEAREST_LIVING_ENTITIES,
+        MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+        MemoryModuleType.NEAREST_VISIBLE_PLAYER,
+        MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
+        MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
+        MemoryModuleType.LOOK_TARGET,
+        MemoryModuleType.WALK_TARGET,
+        MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+        MemoryModuleType.PATH,
+        MemoryModuleType.ATTACK_TARGET,
+        MemoryModuleType.ATTACK_COOLING_DOWN,
+        MemoryModuleType.NEAREST_ATTACKABLE,
+        MemoryModuleType.ROAR_TARGET,
+        MemoryModuleType.DISTURBANCE_LOCATION,
+        MemoryModuleType.RECENT_PROJECTILE,
+        MemoryModuleType.IS_SNIFFING,
+        MemoryModuleType.IS_EMERGING,
+        MemoryModuleType.ROAR_SOUND_DELAY,
+        MemoryModuleType.DIG_COOLDOWN,
+        MemoryModuleType.ROAR_SOUND_COOLDOWN,
+        MemoryModuleType.SNIFF_COOLDOWN,
+        MemoryModuleType.TOUCH_COOLDOWN,
+        MemoryModuleType.VIBRATION_COOLDOWN
+    );
     private static final Behavior<Warden> DIG_COOLDOWN_SETTER = new Behavior<Warden>(ImmutableMap.of(MemoryModuleType.DIG_COOLDOWN, MemoryStatus.REGISTERED)) {
         protected void start(ServerLevel param0, Warden param1, long param2) {
             WardenAi.setDigCooldown(param1);
@@ -56,19 +88,21 @@ public class WardenAi {
             );
     }
 
-    protected static Brain<?> makeBrain(Warden param0, Brain<Warden> param1) {
-        initCoreActivity(param1);
-        initEmergeActivity(param1);
-        initDiggingActivity(param1);
-        initIdleActivity(param1);
-        initRoarActivity(param1);
-        initFightActivity(param0, param1);
-        initInvestigateActivity(param1);
-        initSniffingActivity(param1);
-        param1.setCoreActivities(ImmutableSet.of(Activity.CORE));
-        param1.setDefaultActivity(Activity.IDLE);
-        param1.useDefaultActivity();
-        return param1;
+    protected static Brain<?> makeBrain(Warden param0, Dynamic<?> param1) {
+        Brain.Provider<Warden> var0 = Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+        Brain<Warden> var1 = var0.makeBrain(param1);
+        initCoreActivity(var1);
+        initEmergeActivity(var1);
+        initDiggingActivity(var1);
+        initIdleActivity(var1);
+        initRoarActivity(var1);
+        initFightActivity(param0, var1);
+        initInvestigateActivity(var1);
+        initSniffingActivity(var1);
+        var1.setCoreActivities(ImmutableSet.of(Activity.CORE));
+        var1.setDefaultActivity(Activity.IDLE);
+        var1.useDefaultActivity();
+        return var1;
     }
 
     private static void initCoreActivity(Brain<Warden> param0) {

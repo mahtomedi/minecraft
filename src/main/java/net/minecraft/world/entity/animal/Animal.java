@@ -27,7 +27,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 public abstract class Animal extends AgeableMob {
@@ -142,14 +141,12 @@ public abstract class Animal extends AgeableMob {
             if (!this.level.isClientSide && var1 == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
-                this.gameEvent(GameEvent.MOB_INTERACT);
                 return InteractionResult.SUCCESS;
             }
 
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp(getSpeedUpSecondsWhenFeeding(-var1), true);
-                this.gameEvent(GameEvent.MOB_INTERACT);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 

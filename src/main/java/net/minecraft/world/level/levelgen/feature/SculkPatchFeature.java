@@ -8,6 +8,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SculkBehaviour;
+import net.minecraft.world.level.block.SculkShriekerBlock;
 import net.minecraft.world.level.block.SculkSpreader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.SculkPatchConfiguration;
@@ -46,6 +47,15 @@ public class SculkPatchFeature extends Feature<SculkPatchConfiguration> {
             BlockPos var10 = var1.below();
             if (var3.nextFloat() <= var2.catalystChance() && var0.getBlockState(var10).isCollisionShapeFullBlock(var0, var10)) {
                 var0.setBlock(var1, Blocks.SCULK_CATALYST.defaultBlockState(), 3);
+            }
+
+            int var11 = var2.extraRareGrowths().sample(var3);
+
+            for(int var12 = 0; var12 < var11; ++var12) {
+                BlockPos var13 = var1.offset(var3.nextInt(5) - 2, 0, var3.nextInt(5) - 2);
+                if (var0.getBlockState(var13).isAir() && var0.getBlockState(var13.below()).isFaceSturdy(var0, var13.below(), Direction.UP)) {
+                    var0.setBlock(var13, Blocks.SCULK_SHRIEKER.defaultBlockState().setValue(SculkShriekerBlock.CAN_SUMMON, Boolean.valueOf(true)), 3);
+                }
             }
 
             return true;

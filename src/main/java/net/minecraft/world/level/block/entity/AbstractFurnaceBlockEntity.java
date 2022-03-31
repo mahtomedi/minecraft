@@ -163,7 +163,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         add(var0, Items.STICK, 100);
         add(var0, ItemTags.SAPLINGS, 100);
         add(var0, Items.BOWL, 100);
-        add(var0, ItemTags.CARPETS, 67);
+        add(var0, ItemTags.WOOL_CARPETS, 67);
         add(var0, Blocks.DRIED_KELP_BLOCK, 4001);
         add(var0, Items.CROSSBOW, 300);
         add(var0, Blocks.BAMBOO, 50);
@@ -250,43 +250,40 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
 
         ItemStack var2 = param3.items.get(1);
-        boolean var3 = !var2.isEmpty() && !param3.items.get(0).isEmpty();
-        if (!param3.isLit() && !var3) {
-            if (!param3.isLit() && param3.cookingProgress > 0) {
-                param3.cookingProgress = Mth.clamp(param3.cookingProgress - 2, 0, param3.cookingTotalTime);
-            }
-        } else {
-            Recipe<?> var4;
+        boolean var3 = !param3.items.get(0).isEmpty();
+        boolean var4 = !var2.isEmpty();
+        if (param3.isLit() || var4 && var3) {
+            Recipe<?> var5;
             if (var3) {
-                var4 = (Recipe)param3.quickCheck.getRecipeFor(param3, param0).orElse(null);
+                var5 = (Recipe)param3.quickCheck.getRecipeFor(param3, param0).orElse(null);
             } else {
-                var4 = null;
+                var5 = null;
             }
 
-            int var6 = param3.getMaxStackSize();
-            if (!param3.isLit() && canBurn(var4, param3.items, var6)) {
+            int var7 = param3.getMaxStackSize();
+            if (!param3.isLit() && canBurn(var5, param3.items, var7)) {
                 param3.litTime = param3.getBurnDuration(var2);
                 param3.litDuration = param3.litTime;
                 if (param3.isLit()) {
                     var1 = true;
-                    if (!var2.isEmpty()) {
-                        Item var7 = var2.getItem();
+                    if (var4) {
+                        Item var8 = var2.getItem();
                         var2.shrink(1);
                         if (var2.isEmpty()) {
-                            Item var8 = var7.getCraftingRemainingItem();
-                            param3.items.set(1, var8 == null ? ItemStack.EMPTY : new ItemStack(var8));
+                            Item var9 = var8.getCraftingRemainingItem();
+                            param3.items.set(1, var9 == null ? ItemStack.EMPTY : new ItemStack(var9));
                         }
                     }
                 }
             }
 
-            if (param3.isLit() && canBurn(var4, param3.items, var6)) {
+            if (param3.isLit() && canBurn(var5, param3.items, var7)) {
                 ++param3.cookingProgress;
                 if (param3.cookingProgress == param3.cookingTotalTime) {
                     param3.cookingProgress = 0;
                     param3.cookingTotalTime = getTotalCookTime(param0, param3);
-                    if (burn(var4, param3.items, var6)) {
-                        param3.setRecipeUsed(var4);
+                    if (burn(var5, param3.items, var7)) {
+                        param3.setRecipeUsed(var5);
                     }
 
                     var1 = true;
@@ -294,6 +291,8 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
             } else {
                 param3.cookingProgress = 0;
             }
+        } else if (!param3.isLit() && param3.cookingProgress > 0) {
+            param3.cookingProgress = Mth.clamp(param3.cookingProgress - 2, 0, param3.cookingTotalTime);
         }
 
         if (var0 != param3.isLit()) {

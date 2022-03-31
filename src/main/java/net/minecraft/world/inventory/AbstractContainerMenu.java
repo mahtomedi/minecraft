@@ -430,8 +430,8 @@ public abstract class AbstractContainerMenu {
                                 int var21 = var12 == ClickAction.PRIMARY ? var17.getCount() : 1;
                                 this.setCarried(var15.safeInsert(var17, var21));
                             } else if (var17.getCount() <= var15.getMaxStackSize(var17)) {
-                                var15.set(var17);
                                 this.setCarried(var16);
+                                var15.set(var17);
                             }
                         } else if (ItemStack.isSameItemSameTags(var16, var17)) {
                             Optional<ItemStack> var22 = var15.tryRemove(var16.getCount(), var17.getMaxStackSize() - var17.getCount(), param3);

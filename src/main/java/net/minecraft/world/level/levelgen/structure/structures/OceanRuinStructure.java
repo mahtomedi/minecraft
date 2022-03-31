@@ -2,33 +2,22 @@ package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderSet;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class OceanRuinStructure extends Structure {
     public static final Codec<OceanRuinStructure> CODEC = RecordCodecBuilder.create(
-        param0 -> codec(param0)
-                .and(
-                    param0.group(
-                        OceanRuinStructure.Type.CODEC.fieldOf("biome_temp").forGetter(param0x -> param0x.biomeTemp),
-                        Codec.floatRange(0.0F, 1.0F).fieldOf("large_probability").forGetter(param0x -> param0x.largeProbability),
-                        Codec.floatRange(0.0F, 1.0F).fieldOf("cluster_probability").forGetter(param0x -> param0x.clusterProbability)
-                    )
+        param0 -> param0.group(
+                    settingsCodec(param0),
+                    OceanRuinStructure.Type.CODEC.fieldOf("biome_temp").forGetter(param0x -> param0x.biomeTemp),
+                    Codec.floatRange(0.0F, 1.0F).fieldOf("large_probability").forGetter(param0x -> param0x.largeProbability),
+                    Codec.floatRange(0.0F, 1.0F).fieldOf("cluster_probability").forGetter(param0x -> param0x.clusterProbability)
                 )
                 .apply(param0, OceanRuinStructure::new)
     );
@@ -36,19 +25,11 @@ public class OceanRuinStructure extends Structure {
     public final float largeProbability;
     public final float clusterProbability;
 
-    public OceanRuinStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        OceanRuinStructure.Type param4,
-        float param5,
-        float param6
-    ) {
-        super(param0, param1, param2, param3);
-        this.biomeTemp = param4;
-        this.largeProbability = param5;
-        this.clusterProbability = param6;
+    public OceanRuinStructure(Structure.StructureSettings param0, OceanRuinStructure.Type param1, float param2, float param3) {
+        super(param0);
+        this.biomeTemp = param1;
+        this.largeProbability = param2;
+        this.clusterProbability = param3;
     }
 
     @Override
@@ -71,11 +52,7 @@ public class OceanRuinStructure extends Structure {
         WARM("warm"),
         COLD("cold");
 
-        public static final Codec<OceanRuinStructure.Type> CODEC = StringRepresentable.fromEnum(
-            OceanRuinStructure.Type::values, OceanRuinStructure.Type::byName
-        );
-        private static final Map<String, OceanRuinStructure.Type> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(OceanRuinStructure.Type::getName, param0 -> param0));
+        public static final Codec<OceanRuinStructure.Type> CODEC = StringRepresentable.fromEnum(OceanRuinStructure.Type::values);
         private final String name;
 
         private Type(String param0) {
@@ -84,11 +61,6 @@ public class OceanRuinStructure extends Structure {
 
         public String getName() {
             return this.name;
-        }
-
-        @Nullable
-        public static OceanRuinStructure.Type byName(String param0) {
-            return BY_NAME.get(param0);
         }
 
         @Override

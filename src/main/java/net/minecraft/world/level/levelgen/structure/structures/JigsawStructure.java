@@ -1,34 +1,38 @@
 package net.minecraft.world.level.levelgen.structure.structures;
 
-import com.mojang.datafixers.Products.P10;
-import com.mojang.datafixers.Products.P4;
-import com.mojang.datafixers.Products.P6;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
-import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.data.worldgen.Pools;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 public final class JigsawStructure extends Structure {
-    public static final Codec<JigsawStructure> CODEC = RecordCodecBuilder.create(param0 -> jigsawCodec(param0).apply(param0, JigsawStructure::new));
+    public static final int MAX_TOTAL_STRUCTURE_RANGE = 128;
+    public static final Codec<JigsawStructure> CODEC = RecordCodecBuilder.<JigsawStructure>create(
+            param0 -> param0.group(
+                        settingsCodec(param0),
+                        StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(param0x -> param0x.startPool),
+                        Codec.intRange(0, 7).fieldOf("size").forGetter(param0x -> param0x.maxDepth),
+                        HeightProvider.CODEC.fieldOf("start_height").forGetter(param0x -> param0x.startHeight),
+                        Codec.BOOL.fieldOf("use_expansion_hack").forGetter(param0x -> param0x.useExpansionHack),
+                        Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter(param0x -> param0x.projectStartToHeightmap),
+                        Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter(param0x -> param0x.maxDistanceFromCenter)
+                    )
+                    .apply(param0, JigsawStructure::new)
+        )
+        .flatXmap(verifyRange(), verifyRange());
     private final Holder<StructureTemplatePool> startPool;
     private final int maxDepth;
     private final HeightProvider startHeight;
@@ -36,67 +40,44 @@ public final class JigsawStructure extends Structure {
     private final Optional<Heightmap.Types> projectStartToHeightmap;
     private final int maxDistanceFromCenter;
 
-    public static P10<Mu<JigsawStructure>, HolderSet<Biome>, Map<MobCategory, StructureSpawnOverride>, GenerationStep.Decoration, Boolean, Holder<StructureTemplatePool>, Integer, HeightProvider, Boolean, Optional<Heightmap.Types>, Integer> jigsawCodec(
-        Instance<JigsawStructure> param0
-    ) {
-        P4<Mu<JigsawStructure>, HolderSet<Biome>, Map<MobCategory, StructureSpawnOverride>, GenerationStep.Decoration, Boolean> var0 = codec(param0);
-        P6<Mu<JigsawStructure>, Holder<StructureTemplatePool>, Integer, HeightProvider, Boolean, Optional<Heightmap.Types>, Integer> var1 = param0.group(
-            StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(param0x -> param0x.startPool),
-            Codec.intRange(0, 7).fieldOf("size").forGetter(param0x -> param0x.maxDepth),
-            HeightProvider.CODEC.fieldOf("start_height").forGetter(param0x -> param0x.startHeight),
-            Codec.BOOL.fieldOf("use_expansion_hack").forGetter(param0x -> param0x.useExpansionHack),
-            Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter(param0x -> param0x.projectStartToHeightmap),
-            Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter(param0x -> param0x.maxDistanceFromCenter)
-        );
-        return new P10<>(var0.t1(), var0.t2(), var0.t3(), var0.t4(), var1.t1(), var1.t2(), var1.t3(), var1.t4(), var1.t5(), var1.t6());
+    private static Function<JigsawStructure, DataResult<JigsawStructure>> verifyRange() {
+        return param0 -> {
+            int var0 = switch(param0.terrainAdaptation()) {
+                case NONE -> 0;
+                case BURY, BEARD_THIN, BEARD_BOX -> 12;
+            };
+            return param0.maxDistanceFromCenter + var0 > 128
+                ? DataResult.error("Structure size including terrain adaptation must not exceed 128")
+                : DataResult.success(param0);
+        };
     }
 
     public JigsawStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        Holder<StructureTemplatePool> param4,
-        int param5,
-        HeightProvider param6,
-        boolean param7,
-        Optional<Heightmap.Types> param8,
-        int param9
+        Structure.StructureSettings param0,
+        Holder<StructureTemplatePool> param1,
+        int param2,
+        HeightProvider param3,
+        boolean param4,
+        Optional<Heightmap.Types> param5,
+        int param6
     ) {
-        super(param0, param1, param2, param3);
-        this.startPool = param4;
-        this.maxDepth = param5;
-        this.startHeight = param6;
-        this.useExpansionHack = param7;
-        this.projectStartToHeightmap = param8;
-        this.maxDistanceFromCenter = param9;
+        super(param0);
+        this.startPool = param1;
+        this.maxDepth = param2;
+        this.startHeight = param3;
+        this.useExpansionHack = param4;
+        this.projectStartToHeightmap = param5;
+        this.maxDistanceFromCenter = param6;
     }
 
     public JigsawStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        Holder<StructureTemplatePool> param4,
-        int param5,
-        HeightProvider param6,
-        boolean param7,
-        Heightmap.Types param8
+        Structure.StructureSettings param0, Holder<StructureTemplatePool> param1, int param2, HeightProvider param3, boolean param4, Heightmap.Types param5
     ) {
-        this(param0, param1, param2, param3, param4, param5, param6, param7, Optional.of(param8), 80);
+        this(param0, param1, param2, param3, param4, Optional.of(param5), 80);
     }
 
-    public JigsawStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        Holder<StructureTemplatePool> param4,
-        int param5,
-        HeightProvider param6,
-        boolean param7
-    ) {
-        this(param0, param1, param2, param3, param4, param5, param6, param7, Optional.empty(), 80);
+    public JigsawStructure(Structure.StructureSettings param0, Holder<StructureTemplatePool> param1, int param2, HeightProvider param3, boolean param4) {
+        this(param0, param1, param2, param3, param4, Optional.empty(), 80);
     }
 
     @Override

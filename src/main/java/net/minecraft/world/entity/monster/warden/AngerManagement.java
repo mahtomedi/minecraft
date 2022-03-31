@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import java.util.Map;
 import java.util.Optional;
@@ -23,16 +24,25 @@ public class AngerManagement {
                 )
                 .apply(param0, AngerManagement::new)
     );
-    private Object2IntMap<UUID> angerBySuspect;
+    private final Object2IntMap<UUID> angerBySuspect;
 
     public AngerManagement(Map<UUID, Integer> param0) {
         this.angerBySuspect = new Object2IntOpenHashMap<>(param0);
     }
 
     public void tick() {
-        this.angerBySuspect
-            .keySet()
-            .forEach(param0 -> this.angerBySuspect.computeInt(param0, (param0x, param1) -> param1 <= 1 ? null : Math.max(0, param1 - 1)));
+        ObjectIterator<Entry<UUID>> var0 = this.angerBySuspect.object2IntEntrySet().iterator();
+
+        while(var0.hasNext()) {
+            Entry<UUID> var1 = var0.next();
+            int var2 = var1.getIntValue();
+            if (var2 <= 1) {
+                var0.remove();
+            } else {
+                var1.setValue(Math.max(0, var2 - 1));
+            }
+        }
+
     }
 
     public int addAnger(Entity param0, int param1) {

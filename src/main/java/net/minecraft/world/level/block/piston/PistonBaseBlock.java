@@ -235,7 +235,10 @@ public class PistonBaseBlock extends DirectionalBlock {
             return false;
         } else if (param0.isAir()) {
             return true;
-        } else if (param0.is(Blocks.OBSIDIAN) || param0.is(Blocks.CRYING_OBSIDIAN) || param0.is(Blocks.RESPAWN_ANCHOR)) {
+        } else if (param0.is(Blocks.OBSIDIAN)
+            || param0.is(Blocks.CRYING_OBSIDIAN)
+            || param0.is(Blocks.RESPAWN_ANCHOR)
+            || param0.is(Blocks.REINFORCED_DEEPSLATE)) {
             return false;
         } else if (param3 == Direction.DOWN && param2.getY() == param1.getMinBuildHeight()) {
             return false;

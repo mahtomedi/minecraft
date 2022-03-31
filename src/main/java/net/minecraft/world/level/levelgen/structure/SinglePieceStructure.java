@@ -1,12 +1,7 @@
 package net.minecraft.world.level.levelgen.structure;
 
-import java.util.Map;
 import java.util.Optional;
-import net.minecraft.core.HolderSet;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
@@ -16,16 +11,8 @@ public abstract class SinglePieceStructure extends Structure {
     private int width;
     private int depth;
 
-    protected SinglePieceStructure(
-        SinglePieceStructure.PieceConstructor param0,
-        int param1,
-        int param2,
-        HolderSet<Biome> param3,
-        Map<MobCategory, StructureSpawnOverride> param4,
-        GenerationStep.Decoration param5,
-        boolean param6
-    ) {
-        super(param3, param4, param5, param6);
+    protected SinglePieceStructure(SinglePieceStructure.PieceConstructor param0, int param1, int param2, Structure.StructureSettings param3) {
+        super(param3);
         this.constructor = param0;
         this.width = param1;
         this.depth = param2;

@@ -68,13 +68,20 @@ public class SculkSensorBlockEntity extends BlockEntity implements VibrationList
     }
 
     @Override
-    public void onSignalReceive(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, int param5) {
+    public void onSignalReceive(
+        ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, int param6
+    ) {
         BlockState var0 = this.getBlockState();
         if (SculkSensorBlock.canActivate(var0)) {
-            this.lastVibrationFrequency = SculkSensorBlock.VIBRATION_STRENGTH_FOR_EVENT.getInt(param3);
-            SculkSensorBlock.activate(param4, param0, this.worldPosition, var0, getRedstoneStrengthForDistance(param5, param1.getListenerRadius()));
+            this.lastVibrationFrequency = SculkSensorBlock.VIBRATION_FREQUENCY_FOR_EVENT.getInt(param3);
+            SculkSensorBlock.activate(param4, param0, this.worldPosition, var0, getRedstoneStrengthForDistance(param6, param1.getListenerRadius()));
         }
 
+    }
+
+    @Override
+    public void onSignalSchedule() {
+        this.setChanged();
     }
 
     public static int getRedstoneStrengthForDistance(int param0, int param1) {

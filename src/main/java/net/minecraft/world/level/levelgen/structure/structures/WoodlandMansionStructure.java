@@ -2,34 +2,27 @@ package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderSet;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class WoodlandMansionStructure extends Structure {
-    public static final Codec<WoodlandMansionStructure> CODEC = RecordCodecBuilder.create(param0 -> codec(param0).apply(param0, WoodlandMansionStructure::new));
+    public static final Codec<WoodlandMansionStructure> CODEC = simpleCodec(WoodlandMansionStructure::new);
 
-    public WoodlandMansionStructure(HolderSet<Biome> param0, Map<MobCategory, StructureSpawnOverride> param1, GenerationStep.Decoration param2, boolean param3) {
-        super(param0, param1, param2, param3);
+    public WoodlandMansionStructure(Structure.StructureSettings param0) {
+        super(param0);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class FlintAndSteelItem extends Item {
         } else {
             var1.playSound(var0, var2, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, var1.getRandom().nextFloat() * 0.4F + 0.8F);
             var1.setBlock(var2, var3.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)), 11);
-            var1.gameEvent(var0, GameEvent.BLOCK_PLACE, var2);
+            var1.gameEvent(var0, GameEvent.BLOCK_CHANGE, var2);
             if (var0 != null) {
                 param0.getItemInHand().hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
             }

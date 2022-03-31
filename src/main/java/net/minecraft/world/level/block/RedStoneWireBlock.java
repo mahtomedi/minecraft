@@ -222,16 +222,16 @@ public class RedStoneWireBlock extends Block {
             if (var2 != RedstoneSide.NONE && !param1.getBlockState(var0.setWithOffset(param2, var1)).is(this)) {
                 var0.move(Direction.DOWN);
                 BlockState var3 = param1.getBlockState(var0);
-                if (!var3.is(Blocks.OBSERVER)) {
+                if (var3.is(this)) {
                     BlockPos var4 = var0.relative(var1.getOpposite());
-                    param1.neighborShapeChanged(var1.getOpposite(), param0, var0, var4, param3, param4);
+                    param1.neighborShapeChanged(var1.getOpposite(), param1.getBlockState(var4), var0, var4, param3, param4);
                 }
 
                 var0.setWithOffset(param2, var1).move(Direction.UP);
                 BlockState var5 = param1.getBlockState(var0);
-                if (!var5.is(Blocks.OBSERVER)) {
+                if (var5.is(this)) {
                     BlockPos var6 = var0.relative(var1.getOpposite());
-                    param1.neighborShapeChanged(var1.getOpposite(), param0, var0, var6, param3, param4);
+                    param1.neighborShapeChanged(var1.getOpposite(), param1.getBlockState(var6), var0, var6, param3, param4);
                 }
             }
         }

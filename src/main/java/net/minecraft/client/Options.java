@@ -85,36 +85,41 @@ public class Options {
     public static final int RENDER_DISTANCE_FAR = 12;
     public static final int RENDER_DISTANCE_REALLY_FAR = 16;
     public static final int RENDER_DISTANCE_EXTREME = 32;
-    private static final int TOOLTIP_WIDTH = 200;
     private static final Splitter OPTION_SPLITTER = Splitter.on(':').limit(2);
     private static final float DEFAULT_VOLUME = 1.0F;
     public static final String DEFAULT_SOUND_DEVICE = "";
     private static final Component ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND = new TranslatableComponent("options.darkMojangStudiosBackgroundColor.tooltip");
-    private final OptionInstance<Boolean> darkMojangStudiosBackground = OptionInstance.createBoolean("options.darkMojangStudiosBackgroundColor", param0x -> {
-        List<FormattedCharSequence> var0x = param0x.font.split(ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND, 200);
-        return param1x -> var0x;
-    }, false);
+    private final OptionInstance<Boolean> darkMojangStudiosBackground = OptionInstance.createBoolean(
+        "options.darkMojangStudiosBackgroundColor", OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND), false
+    );
     private static final Component ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES = new TranslatableComponent("options.hideLightningFlashes.tooltip");
-    private final OptionInstance<Boolean> hideLightningFlash = OptionInstance.createBoolean("options.hideLightningFlashes", param0x -> {
-        List<FormattedCharSequence> var0x = param0x.font.split(ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES, 200);
-        return param1x -> var0x;
-    }, false);
-    private final OptionInstance<Double> sensitivity = new OptionInstance<>("options.sensitivity", OptionInstance.noTooltip(), param0x -> {
-        Component var0x = this.sensitivity().getCaption();
-        if (param0x == 0.0) {
-            return genericValueLabel(var0x, new TranslatableComponent("options.sensitivity.min"));
-        } else {
-            return param0x == 1.0 ? genericValueLabel(var0x, new TranslatableComponent("options.sensitivity.max")) : percentValueLabel(var0x, 2.0 * param0x);
+    private final OptionInstance<Boolean> hideLightningFlash = OptionInstance.createBoolean(
+        "options.hideLightningFlashes", OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES), false
+    );
+    private final OptionInstance<Double> sensitivity = new OptionInstance<>(
+        "options.sensitivity",
+        OptionInstance.noTooltip(),
+        (param0x, param1x) -> {
+            if (param1x == 0.0) {
+                return genericValueLabel(param0x, new TranslatableComponent("options.sensitivity.min"));
+            } else {
+                return param1x == 1.0
+                    ? genericValueLabel(param0x, new TranslatableComponent("options.sensitivity.max"))
+                    : percentValueLabel(param0x, 2.0 * param1x);
+            }
+        },
+        OptionInstance.UnitDouble.INSTANCE,
+        0.5,
+        param0x -> {
         }
-    }, OptionInstance.UnitDouble.INSTANCE, 0.5, param0x -> {
-    });
+    );
     private final OptionInstance<Integer> renderDistance;
     private final OptionInstance<Integer> simulationDistance;
     private int serverRenderDistance = 0;
     private final OptionInstance<Double> entityDistanceScaling = new OptionInstance<>(
         "options.entityDistanceScaling",
         OptionInstance.noTooltip(),
-        param0x -> percentValueLabel(this.entityDistanceScaling().getCaption(), param0x),
+        Options::percentValueLabel,
         new OptionInstance.IntRange(2, 20).xmap(param0x -> (double)param0x / 4.0, param0x -> (int)(param0x * 4.0)),
         Codec.doubleRange(0.5, 5.0),
         1.0,
@@ -125,12 +130,9 @@ public class Options {
     private final OptionInstance<Integer> framerateLimit = new OptionInstance<>(
         "options.framerateLimit",
         OptionInstance.noTooltip(),
-        param0x -> {
-            Component var0x = this.framerateLimit().getCaption();
-            return param0x == 260
-                ? genericValueLabel(var0x, new TranslatableComponent("options.framerateLimit.max"))
-                : genericValueLabel(var0x, new TranslatableComponent("options.framerate", param0x));
-        },
+        (param0x, param1x) -> param1x == 260
+                ? genericValueLabel(param0x, new TranslatableComponent("options.framerateLimit.max"))
+                : genericValueLabel(param0x, new TranslatableComponent("options.framerate", param1x)),
         new OptionInstance.IntRange(1, 26).xmap(param0x -> param0x * 10, param0x -> param0x / 10),
         Codec.intRange(10, 260),
         120,
@@ -139,7 +141,7 @@ public class Options {
     private final OptionInstance<CloudStatus> cloudStatus = new OptionInstance<>(
         "options.renderClouds",
         OptionInstance.noTooltip(),
-        param0x -> new TranslatableComponent(param0x.getKey()),
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(
             Arrays.asList(CloudStatus.values()),
             Codec.either(Codec.BOOL, Codec.STRING).xmap(param0x -> param0x.map(param0xx -> param0xx ? CloudStatus.FANCY : CloudStatus.OFF, param0xx -> {
@@ -175,9 +177,9 @@ public class Options {
     private final OptionInstance<GraphicsStatus> graphicsMode = new OptionInstance<>(
         "options.graphics",
         param0x -> {
-            List<FormattedCharSequence> var0x = param0x.font.split(GRAPHICS_TOOLTIP_FAST, 200);
-            List<FormattedCharSequence> var1x = param0x.font.split(GRAPHICS_TOOLTIP_FANCY, 200);
-            List<FormattedCharSequence> var2x = param0x.font.split(GRAPHICS_TOOLTIP_FABULOUS, 200);
+            List<FormattedCharSequence> var0x = OptionInstance.splitTooltip(param0x, GRAPHICS_TOOLTIP_FAST);
+            List<FormattedCharSequence> var1x = OptionInstance.splitTooltip(param0x, GRAPHICS_TOOLTIP_FANCY);
+            List<FormattedCharSequence> var2x = OptionInstance.splitTooltip(param0x, GRAPHICS_TOOLTIP_FABULOUS);
             return param3 -> {
                 return switch(param3) {
                     case FANCY -> var1x;
@@ -186,9 +188,9 @@ public class Options {
                 };
             };
         },
-        param0x -> {
-            MutableComponent var0x = new TranslatableComponent(param0x.getKey());
-            return param0x == GraphicsStatus.FABULOUS ? var0x.withStyle(ChatFormatting.ITALIC) : var0x;
+        (param0x, param1x) -> {
+            MutableComponent var0x = new TranslatableComponent(param1x.getKey());
+            return param1x == GraphicsStatus.FABULOUS ? var0x.withStyle(ChatFormatting.ITALIC) : var0x;
         },
         new OptionInstance.AltEnum<>(
             Arrays.asList(GraphicsStatus.values()),
@@ -213,7 +215,7 @@ public class Options {
     private final OptionInstance<AmbientOcclusionStatus> ambientOcclusion = new OptionInstance<>(
         "options.ao",
         OptionInstance.noTooltip(),
-        param0x -> new TranslatableComponent(param0x.getKey()),
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(
             Arrays.asList(AmbientOcclusionStatus.values()),
             Codec.either(
@@ -235,14 +237,19 @@ public class Options {
     private static final Component PRIORITIZE_CHUNK_TOOLTIP_NEARBY = new TranslatableComponent("options.prioritizeChunkUpdates.nearby.tooltip");
     private final OptionInstance<PrioritizeChunkUpdates> prioritizeChunkUpdates = new OptionInstance<>(
         "options.prioritizeChunkUpdates",
-        param0x -> param1x -> {
-                return switch(param1x) {
-                    case NONE -> param0x.font.split(PRIORITIZE_CHUNK_TOOLTIP_NONE, 200);
-                    case PLAYER_AFFECTED -> param0x.font.split(PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED, 200);
-                    case NEARBY -> param0x.font.split(PRIORITIZE_CHUNK_TOOLTIP_NEARBY, 200);
+        param0x -> {
+            List<FormattedCharSequence> var0x = OptionInstance.splitTooltip(param0x, PRIORITIZE_CHUNK_TOOLTIP_NONE);
+            List<FormattedCharSequence> var1x = OptionInstance.splitTooltip(param0x, PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED);
+            List<FormattedCharSequence> var2x = OptionInstance.splitTooltip(param0x, PRIORITIZE_CHUNK_TOOLTIP_NEARBY);
+            return param3 -> {
+                return switch(param3) {
+                    case NONE -> var0x;
+                    case PLAYER_AFFECTED -> var1x;
+                    case NEARBY -> var2x;
                 };
-            },
-        param0x -> new TranslatableComponent(param0x.getKey()),
+            };
+        },
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(Arrays.asList(PrioritizeChunkUpdates.values()), Codec.INT.xmap(PrioritizeChunkUpdates::byId, PrioritizeChunkUpdates::getId)),
         PrioritizeChunkUpdates.NONE,
         param0x -> {
@@ -253,7 +260,7 @@ public class Options {
     private final OptionInstance<ChatVisiblity> chatVisibility = new OptionInstance<>(
         "options.chat.visibility",
         OptionInstance.noTooltip(),
-        param0x -> new TranslatableComponent(param0x.getKey()),
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(Arrays.asList(ChatVisiblity.values()), Codec.INT.xmap(ChatVisiblity::byId, ChatVisiblity::getId)),
         ChatVisiblity.FULL,
         param0x -> {
@@ -262,24 +269,19 @@ public class Options {
     private final OptionInstance<Double> chatOpacity = new OptionInstance<>(
         "options.chat.opacity",
         OptionInstance.noTooltip(),
-        param0x -> percentValueLabel(this.chatOpacity().getCaption(), param0x * 0.9 + 0.1),
+        (param0x, param1x) -> percentValueLabel(param0x, param1x * 0.9 + 0.1),
         OptionInstance.UnitDouble.INSTANCE,
         1.0,
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
     );
     private final OptionInstance<Double> chatLineSpacing = new OptionInstance<>(
-        "options.chat.line_spacing",
-        OptionInstance.noTooltip(),
-        param0x -> percentValueLabel(this.chatLineSpacing().getCaption(), param0x),
-        OptionInstance.UnitDouble.INSTANCE,
-        0.0,
-        param0x -> {
+        "options.chat.line_spacing", OptionInstance.noTooltip(), Options::percentValueLabel, OptionInstance.UnitDouble.INSTANCE, 0.0, param0x -> {
         }
     );
     private final OptionInstance<Double> textBackgroundOpacity = new OptionInstance<>(
         "options.accessibility.text_background_opacity",
         OptionInstance.noTooltip(),
-        param0x -> percentValueLabel(this.textBackgroundOpacity().getCaption(), param0x),
+        Options::percentValueLabel,
         OptionInstance.UnitDouble.INSTANCE,
         0.5,
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
@@ -293,7 +295,7 @@ public class Options {
     private final OptionInstance<HumanoidArm> mainHand = new OptionInstance<>(
         "options.mainHand",
         OptionInstance.noTooltip(),
-        HumanoidArm::getName,
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(
             Arrays.asList(HumanoidArm.values()),
             Codec.STRING
@@ -308,17 +310,15 @@ public class Options {
     private final OptionInstance<Double> chatScale = new OptionInstance<>(
         "options.chat.scale",
         OptionInstance.noTooltip(),
-        param0x -> (Component)(param0x == 0.0
-                ? CommonComponents.optionStatus(this.chatScale().getCaption(), false)
-                : percentValueLabel(this.chatScale().getCaption(), param0x)),
+        (param0x, param1x) -> (Component)(param1x == 0.0 ? CommonComponents.optionStatus(param0x, false) : percentValueLabel(param0x, param1x)),
         OptionInstance.UnitDouble.INSTANCE,
-        0.0,
+        1.0,
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
     );
     private final OptionInstance<Double> chatWidth = new OptionInstance<>(
         "options.chat.width",
         OptionInstance.noTooltip(),
-        param0x -> pixelValueLabel(this.chatWidth().getCaption(), ChatComponent.getWidth(param0x)),
+        (param0x, param1x) -> pixelValueLabel(param0x, ChatComponent.getWidth(param1x)),
         OptionInstance.UnitDouble.INSTANCE,
         1.0,
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
@@ -326,7 +326,7 @@ public class Options {
     private final OptionInstance<Double> chatHeightUnfocused = new OptionInstance<>(
         "options.chat.height.unfocused",
         OptionInstance.noTooltip(),
-        param0x -> pixelValueLabel(this.chatHeightUnfocused().getCaption(), ChatComponent.getHeight(param0x)),
+        (param0x, param1x) -> pixelValueLabel(param0x, ChatComponent.getHeight(param1x)),
         OptionInstance.UnitDouble.INSTANCE,
         ChatComponent.defaultUnfocusedPct(),
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
@@ -334,7 +334,7 @@ public class Options {
     private final OptionInstance<Double> chatHeightFocused = new OptionInstance<>(
         "options.chat.height.focused",
         OptionInstance.noTooltip(),
-        param0x -> pixelValueLabel(this.chatHeightFocused().getCaption(), ChatComponent.getHeight(param0x)),
+        (param0x, param1x) -> pixelValueLabel(param0x, ChatComponent.getHeight(param1x)),
         OptionInstance.UnitDouble.INSTANCE,
         1.0,
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
@@ -342,26 +342,30 @@ public class Options {
     private final OptionInstance<Double> chatDelay = new OptionInstance<>(
         "options.chat.delay_instant",
         OptionInstance.noTooltip(),
-        param0x -> param0x <= 0.0
+        (param0x, param1x) -> param1x <= 0.0
                 ? new TranslatableComponent("options.chat.delay_none")
-                : new TranslatableComponent("options.chat.delay", String.format("%.1f", param0x)),
+                : new TranslatableComponent("options.chat.delay", String.format("%.1f", param1x)),
         new OptionInstance.IntRange(0, 60).xmap(param0x -> (double)param0x / 10.0, param0x -> (int)(param0x * 10.0)),
         Codec.doubleRange(0.0, 6.0),
         0.0,
         param0x -> {
         }
     );
-    private final OptionInstance<Integer> mipmapLevels = new OptionInstance<>("options.mipmapLevels", OptionInstance.noTooltip(), param0x -> {
-        Component var0x = this.mipmapLevels().getCaption();
-        return (Component)(param0x == 0 ? CommonComponents.optionStatus(var0x, false) : genericValueLabel(var0x, param0x));
-    }, new OptionInstance.IntRange(0, 4), 4, param0x -> {
-    });
+    private final OptionInstance<Integer> mipmapLevels = new OptionInstance<>(
+        "options.mipmapLevels",
+        OptionInstance.noTooltip(),
+        (param0x, param1x) -> (Component)(param1x == 0 ? CommonComponents.optionStatus(param0x, false) : genericValueLabel(param0x, param1x)),
+        new OptionInstance.IntRange(0, 4),
+        4,
+        param0x -> {
+        }
+    );
     private final Object2FloatMap<SoundSource> sourceVolumes = Util.make(new Object2FloatOpenHashMap<>(), param0x -> param0x.defaultReturnValue(1.0F));
     public boolean useNativeTransport = true;
     private final OptionInstance<AttackIndicatorStatus> attackIndicator = new OptionInstance<>(
         "options.attackIndicator",
         OptionInstance.noTooltip(),
-        param0x -> new TranslatableComponent(param0x.getKey()),
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(Arrays.asList(AttackIndicatorStatus.values()), Codec.INT.xmap(AttackIndicatorStatus::byId, AttackIndicatorStatus::getId)),
         AttackIndicatorStatus.CROSSHAIR,
         param0x -> {
@@ -370,14 +374,16 @@ public class Options {
     public TutorialSteps tutorialStep = TutorialSteps.MOVEMENT;
     public boolean joinedFirstServer = false;
     public boolean hideBundleTutorial = false;
-    private final OptionInstance<Integer> biomeBlendRadius = new OptionInstance<>("options.biomeBlendRadius", OptionInstance.noTooltip(), param0x -> {
-        int var0x = param0x * 2 + 1;
-        return genericValueLabel(this.biomeBlendRadius().getCaption(), new TranslatableComponent("options.biomeBlendRadius." + var0x));
-    }, new OptionInstance.IntRange(0, 7), 2, param0x -> Minecraft.getInstance().levelRenderer.allChanged());
+    private final OptionInstance<Integer> biomeBlendRadius = new OptionInstance<>(
+        "options.biomeBlendRadius", OptionInstance.noTooltip(), (param0x, param1x) -> {
+            int var0x = param1x * 2 + 1;
+            return genericValueLabel(param0x, new TranslatableComponent("options.biomeBlendRadius." + var0x));
+        }, new OptionInstance.IntRange(0, 7), 2, param0x -> Minecraft.getInstance().levelRenderer.allChanged()
+    );
     private final OptionInstance<Double> mouseWheelSensitivity = new OptionInstance<>(
         "options.mouseWheelSensitivity",
         OptionInstance.noTooltip(),
-        param0x -> genericValueLabel(this.mouseWheelSensitivity().getCaption(), new TextComponent(String.format("%.2f", param0x))),
+        (param0x, param1x) -> genericValueLabel(param0x, new TextComponent(String.format("%.2f", param1x))),
         new OptionInstance.IntRange(-200, 100).xmap(Options::logMouse, Options::unlogMouse),
         Codec.doubleRange(logMouse(-200), logMouse(100)),
         logMouse(0),
@@ -393,7 +399,7 @@ public class Options {
     });
     public int glDebugVerbosity = 1;
     private final OptionInstance<Boolean> autoJump = OptionInstance.createBoolean("options.autoJump", true);
-    private final OptionInstance<Boolean> autoSuggestions = OptionInstance.createBoolean("options.autoSuggestCommand", true);
+    private final OptionInstance<Boolean> autoSuggestions = OptionInstance.createBoolean("options.autoSuggestCommands", true);
     private final OptionInstance<Boolean> chatColors = OptionInstance.createBoolean("options.chat.color", true);
     private final OptionInstance<Boolean> chatLinks = OptionInstance.createBoolean("options.chat.links", true);
     private final OptionInstance<Boolean> chatLinksPrompt = OptionInstance.createBoolean("options.chat.links.prompt", true);
@@ -414,19 +420,18 @@ public class Options {
     });
     private final OptionInstance<Boolean> invertYMouse = OptionInstance.createBoolean("options.invertMouse", false);
     private final OptionInstance<Boolean> discreteMouseScroll = OptionInstance.createBoolean("options.discrete_mouse_scroll", false);
-    private final OptionInstance<Boolean> realmsNotifications = OptionInstance.createBoolean("optionss.realmsNotifications", true);
+    private final OptionInstance<Boolean> realmsNotifications = OptionInstance.createBoolean("options.realmsNotifications", true);
     private static final Component ALLOW_SERVER_LISTING_TOOLTIP = new TranslatableComponent("options.allowServerListing.tooltip");
-    private final OptionInstance<Boolean> allowServerListing = OptionInstance.createBoolean("options.allowServerListing", param0x -> {
-        List<FormattedCharSequence> var0x = param0x.font.split(ALLOW_SERVER_LISTING_TOOLTIP, 200);
-        return param1x -> var0x;
-    }, true, param0x -> this.broadcastOptions());
+    private final OptionInstance<Boolean> allowServerListing = OptionInstance.createBoolean(
+        "options.allowServerListing", OptionInstance.cachedConstantTooltip(ALLOW_SERVER_LISTING_TOOLTIP), true, param0x -> this.broadcastOptions()
+    );
     private final OptionInstance<Boolean> reducedDebugInfo = OptionInstance.createBoolean("options.reducedDebugInfo", false);
     private final OptionInstance<Boolean> showSubtitles = OptionInstance.createBoolean("options.showSubtitles", false);
     private static final Component DIRECTIONAL_AUDIO_TOOLTIP_ON = new TranslatableComponent("options.directionalAudio.on.tooltip");
     private static final Component DIRECTIONAL_AUDIO_TOOLTIP_OFF = new TranslatableComponent("options.directionalAudio.off.tooltip");
     private final OptionInstance<Boolean> directionalAudio = OptionInstance.createBoolean("options.directionalAudio", param0x -> {
-        List<FormattedCharSequence> var0x = param0x.font.split(DIRECTIONAL_AUDIO_TOOLTIP_ON, 200);
-        List<FormattedCharSequence> var1x = param0x.font.split(DIRECTIONAL_AUDIO_TOOLTIP_OFF, 200);
+        List<FormattedCharSequence> var0x = OptionInstance.splitTooltip(param0x, DIRECTIONAL_AUDIO_TOOLTIP_ON);
+        List<FormattedCharSequence> var1x = OptionInstance.splitTooltip(param0x, DIRECTIONAL_AUDIO_TOOLTIP_OFF);
         return param2 -> param2 ? var0x : var1x;
     }, false, param0x -> {
         SoundManager var0x = Minecraft.getInstance().getSoundManager();
@@ -436,7 +441,7 @@ public class Options {
     private final OptionInstance<Boolean> backgroundForChatOnly = new OptionInstance<>(
         "options.accessibility.text_background",
         OptionInstance.noTooltip(),
-        param0x -> param0x
+        (param0x, param1x) -> param1x
                 ? new TranslatableComponent("options.accessibility.text_background.chat")
                 : new TranslatableComponent("options.accessibility.text_background.everywhere"),
         OptionInstance.BOOLEAN_VALUES,
@@ -457,20 +462,29 @@ public class Options {
     private static final Component MOVEMENT_TOGGLE = new TranslatableComponent("options.key.toggle");
     private static final Component MOVEMENT_HOLD = new TranslatableComponent("options.key.hold");
     private final OptionInstance<Boolean> toggleCrouch = new OptionInstance<>(
-        "key.sneak", OptionInstance.noTooltip(), param0x -> param0x ? MOVEMENT_TOGGLE : MOVEMENT_HOLD, OptionInstance.BOOLEAN_VALUES, false, param0x -> {
+        "key.sneak",
+        OptionInstance.noTooltip(),
+        (param0x, param1x) -> param1x ? MOVEMENT_TOGGLE : MOVEMENT_HOLD,
+        OptionInstance.BOOLEAN_VALUES,
+        false,
+        param0x -> {
         }
     );
     private final OptionInstance<Boolean> toggleSprint = new OptionInstance<>(
-        "key.sprint", OptionInstance.noTooltip(), param0x -> param0x ? MOVEMENT_TOGGLE : MOVEMENT_HOLD, OptionInstance.BOOLEAN_VALUES, false, param0x -> {
+        "key.sprint",
+        OptionInstance.noTooltip(),
+        (param0x, param1x) -> param1x ? MOVEMENT_TOGGLE : MOVEMENT_HOLD,
+        OptionInstance.BOOLEAN_VALUES,
+        false,
+        param0x -> {
         }
     );
     public boolean skipMultiplayerWarning;
     public boolean skipRealms32bitWarning;
     private static final Component CHAT_TOOLTIP_HIDE_MATCHED_NAMES = new TranslatableComponent("options.hideMatchedNames.tooltip");
-    private final OptionInstance<Boolean> hideMatchedNames = OptionInstance.createBoolean("options.hideMatchedNames", param0x -> {
-        List<FormattedCharSequence> var0x = param0x.font.split(CHAT_TOOLTIP_HIDE_MATCHED_NAMES, 200);
-        return param1x -> var0x;
-    }, true);
+    private final OptionInstance<Boolean> hideMatchedNames = OptionInstance.createBoolean(
+        "options.hideMatchedNames", OptionInstance.cachedConstantTooltip(CHAT_TOOLTIP_HIDE_MATCHED_NAMES), true
+    );
     private final OptionInstance<Boolean> showAutosaveIndicator = OptionInstance.createBoolean("options.autosaveIndicator", true);
     public final KeyMapping keyUp = new KeyMapping("key.forward", 87, "key.categories.movement");
     public final KeyMapping keyLeft = new KeyMapping("key.left", 65, "key.categories.movement");
@@ -550,13 +564,11 @@ public class Options {
     private final OptionInstance<Integer> fov = new OptionInstance<>(
         "options.fov",
         OptionInstance.noTooltip(),
-        param0x -> {
-            Component var0x = this.fov().getCaption();
-    
-            return switch(param0x) {
-                case 70 -> genericValueLabel(var0x, new TranslatableComponent("options.fov.min"));
-                case 110 -> genericValueLabel(var0x, new TranslatableComponent("options.fov.max"));
-                default -> genericValueLabel(var0x, param0x);
+        (param0x, param1x) -> {
+            return switch(param1x) {
+                case 70 -> genericValueLabel(param0x, new TranslatableComponent("options.fov.min"));
+                case 110 -> genericValueLabel(param0x, new TranslatableComponent("options.fov.max"));
+                default -> genericValueLabel(param0x, param1x);
             };
         },
         new OptionInstance.IntRange(30, 110),
@@ -566,45 +578,51 @@ public class Options {
     );
     private static final Component ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT = new TranslatableComponent("options.screenEffectScale.tooltip");
     private final OptionInstance<Double> screenEffectScale = new OptionInstance<>(
-        "options.screenEffectScale", param0x -> param1x -> param0x.font.split(ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT, 200), param0x -> {
-            Component var0x = this.screenEffectScale().getCaption();
-            return param0x == 0.0 ? genericValueLabel(var0x, CommonComponents.OPTION_OFF) : percentValueLabel(var0x, param0x);
-        }, OptionInstance.UnitDouble.INSTANCE, 1.0, param0x -> {
+        "options.screenEffectScale",
+        OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT),
+        (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+        OptionInstance.UnitDouble.INSTANCE,
+        1.0,
+        param0x -> {
         }
     );
     private static final Component ACCESSIBILITY_TOOLTIP_FOV_EFFECT = new TranslatableComponent("options.fovEffectScale.tooltip");
     private final OptionInstance<Double> fovEffectScale = new OptionInstance<>(
-        "options.fovEffectScale", param0x -> param1x -> param0x.font.split(ACCESSIBILITY_TOOLTIP_FOV_EFFECT, 200), param0x -> {
-            Component var0x = this.fovEffectScale().getCaption();
-            return param0x == 0.0 ? genericValueLabel(var0x, CommonComponents.OPTION_OFF) : percentValueLabel(var0x, param0x);
-        }, OptionInstance.UnitDouble.INSTANCE.xmap(Mth::square, Math::sqrt), Codec.doubleRange(0.0, 1.0), 1.0, param0x -> {
+        "options.fovEffectScale",
+        OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_FOV_EFFECT),
+        (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+        OptionInstance.UnitDouble.INSTANCE.xmap(Mth::square, Math::sqrt),
+        Codec.doubleRange(0.0, 1.0),
+        1.0,
+        param0x -> {
         }
     );
     private static final Component ACCESSIBILITY_TOOLTIP_DARKNESS_EFFECT = new TranslatableComponent("options.darknessEffectScale.tooltip");
     private final OptionInstance<Double> darknessEffectScale = new OptionInstance<>(
-        "options.darknessEffectScale", param0x -> param1x -> param0x.font.split(ACCESSIBILITY_TOOLTIP_DARKNESS_EFFECT, 200), param0x -> {
-            Component var0x = this.darknessEffectScale().getCaption();
-            return param0x == 0.0 ? genericValueLabel(var0x, CommonComponents.OPTION_OFF) : percentValueLabel(var0x, param0x);
-        }, OptionInstance.UnitDouble.INSTANCE.xmap(Mth::square, Math::sqrt), 1.0, param0x -> {
+        "options.darknessEffectScale",
+        OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_DARKNESS_EFFECT),
+        (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+        OptionInstance.UnitDouble.INSTANCE.xmap(Mth::square, Math::sqrt),
+        1.0,
+        param0x -> {
         }
     );
-    private final OptionInstance<Double> gamma = new OptionInstance<>("options.gamma", OptionInstance.noTooltip(), param0x -> {
-        Component var0x = this.gamma().getCaption();
-        int var1x = (int)(param0x * 100.0);
-        if (var1x == 0) {
-            return genericValueLabel(var0x, new TranslatableComponent("options.gamma.min"));
-        } else if (var1x == 50) {
-            return genericValueLabel(var0x, new TranslatableComponent("options.gamma.default"));
+    private final OptionInstance<Double> gamma = new OptionInstance<>("options.gamma", OptionInstance.noTooltip(), (param0x, param1x) -> {
+        int var0x = (int)(param1x * 100.0);
+        if (var0x == 0) {
+            return genericValueLabel(param0x, new TranslatableComponent("options.gamma.min"));
+        } else if (var0x == 50) {
+            return genericValueLabel(param0x, new TranslatableComponent("options.gamma.default"));
         } else {
-            return var1x == 100 ? genericValueLabel(var0x, new TranslatableComponent("options.gamma.max")) : genericValueLabel(var0x, var1x);
+            return var0x == 100 ? genericValueLabel(param0x, new TranslatableComponent("options.gamma.max")) : genericValueLabel(param0x, var0x);
         }
     }, OptionInstance.UnitDouble.INSTANCE, 0.5, param0x -> {
     });
     private final OptionInstance<Integer> guiScale = new OptionInstance<>(
         "options.guiScale",
         OptionInstance.noTooltip(),
-        param0x -> (Component)(param0x == 0 ? new TranslatableComponent("options.guiScale.auto") : new TextComponent(Integer.toString(param0x))),
-        OptionInstance.clampingLazyMax(0, () -> {
+        (param0x, param1x) -> (Component)(param1x == 0 ? new TranslatableComponent("options.guiScale.auto") : new TextComponent(Integer.toString(param1x))),
+        new OptionInstance.ClampingLazyMaxIntRange(0, () -> {
             Minecraft var0x = Minecraft.getInstance();
             return !var0x.isRunning() ? 2147483646 : var0x.getWindow().calculateScale(0, var0x.isEnforceUnicode());
         }),
@@ -615,7 +633,7 @@ public class Options {
     private final OptionInstance<ParticleStatus> particles = new OptionInstance<>(
         "options.particles",
         OptionInstance.noTooltip(),
-        param0x -> new TranslatableComponent(param0x.getKey()),
+        OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(Arrays.asList(ParticleStatus.values()), Codec.INT.xmap(ParticleStatus::byId, ParticleStatus::getId)),
         ParticleStatus.ALL,
         param0x -> {
@@ -624,7 +642,9 @@ public class Options {
     private final OptionInstance<NarratorStatus> narrator = new OptionInstance<>(
         "options.narrator",
         OptionInstance.noTooltip(),
-        param0x -> (Component)(NarratorChatListener.INSTANCE.isActive() ? param0x.getName() : new TranslatableComponent("options.narrator.notavailable")),
+        (param0x, param1x) -> (Component)(NarratorChatListener.INSTANCE.isActive()
+                ? param1x.getName()
+                : new TranslatableComponent("options.narrator.notavailable")),
         new OptionInstance.Enum<>(Arrays.asList(NarratorStatus.values()), Codec.INT.xmap(NarratorStatus::byId, NarratorStatus::getId)),
         NarratorStatus.OFF,
         param0x -> NarratorChatListener.INSTANCE.updateNarratorStatus(param0x)
@@ -633,13 +653,13 @@ public class Options {
     private final OptionInstance<String> soundDevice = new OptionInstance<>(
         "options.audioDevice",
         OptionInstance.noTooltip(),
-        param0x -> {
-            if ("".equals(param0x)) {
+        (param0x, param1x) -> {
+            if ("".equals(param1x)) {
                 return new TranslatableComponent("options.audioDevice.default");
             } else {
-                return param0x.startsWith("OpenAL Soft on ")
-                    ? new TextComponent(param0x.substring(SoundEngine.OPEN_AL_SOFT_PREFIX_LENGTH))
-                    : new TextComponent(param0x);
+                return param1x.startsWith("OpenAL Soft on ")
+                    ? new TextComponent(param1x.substring(SoundEngine.OPEN_AL_SOFT_PREFIX_LENGTH))
+                    : new TextComponent(param1x);
             }
         },
         new OptionInstance.LazyEnum<>(
@@ -908,7 +928,7 @@ public class Options {
         this.renderDistance = new OptionInstance<>(
             "options.renderDistance",
             OptionInstance.noTooltip(),
-            param0x -> genericValueLabel(this.renderDistance().getCaption(), new TranslatableComponent("options.chunks", param0x)),
+            (param0x, param1x) -> genericValueLabel(param0x, new TranslatableComponent("options.chunks", param1x)),
             new OptionInstance.IntRange(2, var1 ? 32 : 16),
             var0 ? 12 : 8,
             param0x -> Minecraft.getInstance().levelRenderer.needsUpdate()
@@ -916,7 +936,7 @@ public class Options {
         this.simulationDistance = new OptionInstance<>(
             "options.simulationDistance",
             OptionInstance.noTooltip(),
-            param0x -> genericValueLabel(this.simulationDistance().getCaption(), new TranslatableComponent("options.chunks", param0x)),
+            (param0x, param1x) -> genericValueLabel(param0x, new TranslatableComponent("options.chunks", param1x)),
             new OptionInstance.IntRange(5, var1 ? 32 : 16),
             var0 ? 12 : 8,
             param0x -> {
@@ -1399,8 +1419,8 @@ public class Options {
         return new TranslatableComponent("options.pixel_value", param0, param1);
     }
 
-    private static Component percentValueLabel(Component param0, double param1) {
-        return new TranslatableComponent("options.percent_value", param0, (int)(param1 * 100.0));
+    private static Component percentValueLabel(Component param0x, double param1x) {
+        return new TranslatableComponent("options.percent_value", param0x, (int)(param1x * 100.0));
     }
 
     public static Component genericValueLabel(Component param0, Component param1) {

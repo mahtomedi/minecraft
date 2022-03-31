@@ -1,28 +1,21 @@
 package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Map;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderSet;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 
 public class IglooStructure extends Structure {
-    public static final Codec<IglooStructure> CODEC = RecordCodecBuilder.create(param0 -> codec(param0).apply(param0, IglooStructure::new));
+    public static final Codec<IglooStructure> CODEC = simpleCodec(IglooStructure::new);
 
-    public IglooStructure(HolderSet<Biome> param0, Map<MobCategory, StructureSpawnOverride> param1, GenerationStep.Decoration param2, boolean param3) {
-        super(param0, param1, param2, param3);
+    public IglooStructure(Structure.StructureSettings param0) {
+        super(param0);
     }
 
     @Override

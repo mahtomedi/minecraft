@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ModelLayers {
     private static final String DEFAULT_LAYER = "main";
     private static final Set<ModelLayerLocation> ALL_MODELS = Sets.newHashSet();
+    public static final ModelLayerLocation ALLAY = register("allay");
     public static final ModelLayerLocation ARMOR_STAND = register("armor_stand");
     public static final ModelLayerLocation ARMOR_STAND_INNER_ARMOR = registerInnerArmor("armor_stand");
     public static final ModelLayerLocation ARMOR_STAND_OUTER_ARMOR = registerOuterArmor("armor_stand");

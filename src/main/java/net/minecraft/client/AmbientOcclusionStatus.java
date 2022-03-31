@@ -3,11 +3,12 @@ package net.minecraft.client;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.util.Mth;
+import net.minecraft.util.OptionEnum;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public enum AmbientOcclusionStatus {
+public enum AmbientOcclusionStatus implements OptionEnum {
     OFF(0, "options.ao.off"),
     MIN(1, "options.ao.min"),
     MAX(2, "options.ao.max");
@@ -23,10 +24,12 @@ public enum AmbientOcclusionStatus {
         this.key = param1;
     }
 
+    @Override
     public int getId() {
         return this.id;
     }
 
+    @Override
     public String getKey() {
         return this.key;
     }

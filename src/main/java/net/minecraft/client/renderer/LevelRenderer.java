@@ -3427,6 +3427,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         0.6F + this.level.random.nextFloat() * 0.4F,
                         false
                     );
+                break;
+            case 3008:
+                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param2, ParticleTypes.ALLAY_DUST, UniformInt.of(3, 5));
         }
 
     }

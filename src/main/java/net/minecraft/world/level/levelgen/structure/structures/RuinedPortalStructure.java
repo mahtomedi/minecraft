@@ -4,19 +4,16 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
@@ -24,13 +21,11 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
@@ -54,30 +49,20 @@ public class RuinedPortalStructure extends Structure {
     private static final int MIN_Y_INDEX = 15;
     private final List<RuinedPortalStructure.Setup> setups;
     public static final Codec<RuinedPortalStructure> CODEC = RecordCodecBuilder.create(
-        param0 -> codec(param0)
-                .and(ExtraCodecs.nonEmptyList(RuinedPortalStructure.Setup.CODEC.listOf()).fieldOf("setups").forGetter(param0x -> param0x.setups))
+        param0 -> param0.group(
+                    settingsCodec(param0),
+                    ExtraCodecs.nonEmptyList(RuinedPortalStructure.Setup.CODEC.listOf()).fieldOf("setups").forGetter(param0x -> param0x.setups)
+                )
                 .apply(param0, RuinedPortalStructure::new)
     );
 
-    public RuinedPortalStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        List<RuinedPortalStructure.Setup> param4
-    ) {
-        super(param0, param1, param2, param3);
-        this.setups = param4;
+    public RuinedPortalStructure(Structure.StructureSettings param0, List<RuinedPortalStructure.Setup> param1) {
+        super(param0);
+        this.setups = param1;
     }
 
-    public RuinedPortalStructure(
-        HolderSet<Biome> param0,
-        Map<MobCategory, StructureSpawnOverride> param1,
-        GenerationStep.Decoration param2,
-        boolean param3,
-        RuinedPortalStructure.Setup param4
-    ) {
-        this(param0, param1, param2, param3, List.of(param4));
+    public RuinedPortalStructure(Structure.StructureSettings param0, RuinedPortalStructure.Setup param1) {
+        this(param0, List.of(param1));
     }
 
     @Override

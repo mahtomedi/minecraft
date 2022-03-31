@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -150,7 +149,7 @@ public abstract class StructurePlacement {
         LEGACY_TYPE_3("legacy_type_3", StructurePlacement::legacyProbabilityReducerWithDouble);
 
         public static final Codec<StructurePlacement.FrequencyReductionMethod> CODEC = StringRepresentable.fromEnum(
-            StructurePlacement.FrequencyReductionMethod::values, StructurePlacement.FrequencyReductionMethod::fromName
+            StructurePlacement.FrequencyReductionMethod::values
         );
         private final String name;
         private final StructurePlacement.FrequencyReducer reducer;
@@ -162,17 +161,6 @@ public abstract class StructurePlacement {
 
         public boolean shouldGenerate(long param0, int param1, int param2, int param3, float param4) {
             return this.reducer.shouldGenerate(param0, param1, param2, param3, param4);
-        }
-
-        @Nullable
-        public static StructurePlacement.FrequencyReductionMethod fromName(String param0) {
-            for(StructurePlacement.FrequencyReductionMethod var0 : values()) {
-                if (var0.name.equals(param0)) {
-                    return var0;
-                }
-            }
-
-            return null;
         }
 
         @Override

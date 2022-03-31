@@ -17,6 +17,7 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
+import java.util.stream.IntStream;
 import net.minecraft.client.gui.components.AbstractOptionSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
@@ -26,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.OptionEnum;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -34,13 +36,14 @@ import org.slf4j.Logger;
 public final class OptionInstance<T> {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final OptionInstance.Enum<Boolean> BOOLEAN_VALUES = new OptionInstance.Enum<>(ImmutableList.of(Boolean.TRUE, Boolean.FALSE), Codec.BOOL);
-    private final Function<Minecraft, OptionInstance.TooltipSupplier<T>> tooltip;
+    private static final int TOOLTIP_WIDTH = 200;
+    private final OptionInstance.TooltipSupplierFactory<T> tooltip;
     final Function<T, Component> toString;
     private final OptionInstance.ValueSet<T> values;
     private final Codec<T> codec;
     private final T initialValue;
     private final Consumer<T> onValueUpdate;
-    private final Component caption;
+    final Component caption;
     T value;
 
     public static OptionInstance<Boolean> createBoolean(String param0, boolean param1, Consumer<Boolean> param2) {
@@ -52,23 +55,23 @@ public final class OptionInstance<T> {
         });
     }
 
-    public static OptionInstance<Boolean> createBoolean(String param0, Function<Minecraft, OptionInstance.TooltipSupplier<Boolean>> param1, boolean param2) {
+    public static OptionInstance<Boolean> createBoolean(String param0, OptionInstance.TooltipSupplierFactory<Boolean> param1, boolean param2) {
         return createBoolean(param0, param1, param2, param0x -> {
         });
     }
 
     public static OptionInstance<Boolean> createBoolean(
-        String param0, Function<Minecraft, OptionInstance.TooltipSupplier<Boolean>> param1, boolean param2, Consumer<Boolean> param3
+        String param0, OptionInstance.TooltipSupplierFactory<Boolean> param1, boolean param2, Consumer<Boolean> param3
     ) {
         return new OptionInstance<>(
-            param0, param1, param0x -> param0x ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF, BOOLEAN_VALUES, param2, param3
+            param0, param1, (param0x, param1x) -> param1x ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF, BOOLEAN_VALUES, param2, param3
         );
     }
 
     public OptionInstance(
         String param0,
-        Function<Minecraft, OptionInstance.TooltipSupplier<T>> param1,
-        Function<T, Component> param2,
+        OptionInstance.TooltipSupplierFactory<T> param1,
+        OptionInstance.CaptionBasedToString<T> param2,
         OptionInstance.ValueSet<T> param3,
         T param4,
         Consumer<T> param5
@@ -78,8 +81,8 @@ public final class OptionInstance<T> {
 
     public OptionInstance(
         String param0,
-        Function<Minecraft, OptionInstance.TooltipSupplier<T>> param1,
-        Function<T, Component> param2,
+        OptionInstance.TooltipSupplierFactory<T> param1,
+        OptionInstance.CaptionBasedToString<T> param2,
         OptionInstance.ValueSet<T> param3,
         Codec<T> param4,
         T param5,
@@ -87,7 +90,7 @@ public final class OptionInstance<T> {
     ) {
         this.caption = new TranslatableComponent(param0);
         this.tooltip = param1;
-        this.toString = param2;
+        this.toString = param1x -> param2.toString(this.caption, param1x);
         this.values = param3;
         this.codec = param4;
         this.initialValue = param5;
@@ -95,12 +98,27 @@ public final class OptionInstance<T> {
         this.value = this.initialValue;
     }
 
-    public static <T> Function<Minecraft, OptionInstance.TooltipSupplier<T>> noTooltip() {
+    public static <T> OptionInstance.TooltipSupplierFactory<T> noTooltip() {
         return param0 -> param0x -> ImmutableList.of();
     }
 
+    public static <T> OptionInstance.TooltipSupplierFactory<T> cachedConstantTooltip(Component param0) {
+        return param1 -> {
+            List<FormattedCharSequence> var0x = splitTooltip(param1, param0);
+            return param1x -> var0x;
+        };
+    }
+
+    public static <T extends OptionEnum> OptionInstance.CaptionBasedToString<T> forOptionEnum() {
+        return (param0, param1) -> param1.getCaption();
+    }
+
+    protected static List<FormattedCharSequence> splitTooltip(Minecraft param0, Component param1) {
+        return param0.font.split(param1, 200);
+    }
+
     public AbstractWidget createButton(Options param0, int param1, int param2, int param3) {
-        OptionInstance.TooltipSupplier<T> var0 = this.tooltip.apply(Minecraft.getInstance());
+        OptionInstance.TooltipSupplier<T> var0 = this.tooltip.apply((T)Minecraft.getInstance());
         return this.values.createButton(var0, param0, param1, param2, param3).apply(this);
     }
 
@@ -119,7 +137,7 @@ public final class OptionInstance<T> {
 
     public void set(T param0) {
         T var0 = this.values.validateValue(param0).orElseGet(() -> {
-            LOGGER.error("Illegal option value " + param0 + " for " + this.getCaption());
+            LOGGER.error("Illegal option value " + param0 + " for " + this.caption);
             return this.initialValue;
         });
         if (!Minecraft.getInstance().isRunning()) {
@@ -137,54 +155,13 @@ public final class OptionInstance<T> {
         return this.values;
     }
 
-    protected Component getCaption() {
-        return this.caption;
-    }
-
-    public static OptionInstance.ValueSet<Integer> clampingLazyMax(final int param0, final IntSupplier param1) {
-        return new OptionInstance.IntRangeBase() {
-            public Optional<Integer> validateValue(Integer param0x) {
-                return Optional.of(Mth.clamp(param0, this.minInclusive(), this.maxInclusive()));
-            }
-
-            @Override
-            public int minInclusive() {
-                return param0;
-            }
-
-            @Override
-            public int maxInclusive() {
-                return param1.getAsInt();
-            }
-
-            @Override
-            public Codec<Integer> codec() {
-                Function<Integer, DataResult<Integer>> var0 = param2 -> {
-                    int var0x = param1.getAsInt() + 1;
-                    return param2.compareTo(param0) >= 0 && param2.compareTo(var0x) <= 0
-                        ? DataResult.success(param2)
-                        : DataResult.error("Value " + param2 + " outside of range [" + param0 + ":" + var0x + "]", param2);
-                };
-                return Codec.INT.flatXmap(var0, var0);
-            }
-        };
-    }
-
     @OnlyIn(Dist.CLIENT)
-    public static record AltEnum<T>(List<T> values, List<T> altValues, BooleanSupplier altCondition, OptionInstance.AltSetter<T> altSetter, Codec<T> codec)
-        implements OptionInstance.ValueSet<T> {
+    public static record AltEnum<T>(
+        List<T> values, List<T> altValues, BooleanSupplier altCondition, OptionInstance.CycleableValueSet.ValueSetter<T> valueSetter, Codec<T> codec
+    ) implements OptionInstance.CycleableValueSet<T> {
         @Override
-        public Function<OptionInstance<T>, AbstractWidget> createButton(
-            OptionInstance.TooltipSupplier<T> param0, Options param1, int param2, int param3, int param4
-        ) {
-            return param5 -> CycleButton.builder(param5.toString)
-                    .withValues(this.altCondition, this.values, this.altValues)
-                    .withTooltip(param0)
-                    .withInitialValue(param5.value)
-                    .create(param2, param3, param4, 20, param5.getCaption(), (param2x, param3x) -> {
-                        this.altSetter.set(param5, param3x);
-                        param1.save();
-                    });
+        public CycleButton.ValueListSupplier<T> valueListSupplier() {
+            return CycleButton.ValueListSupplier.create(this.altCondition, this.values, this.altValues);
         }
 
         @Override
@@ -194,29 +171,83 @@ public final class OptionInstance<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public interface AltSetter<T> {
-        void set(OptionInstance<T> var1, T var2);
+    public interface CaptionBasedToString<T> {
+        Component toString(Component var1, T var2);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static record Enum<T>(List<T> values, Codec<T> codec) implements OptionInstance.ValueSet<T> {
+    public static record ClampingLazyMaxIntRange(int minInclusive, IntSupplier maxSupplier)
+        implements OptionInstance.IntRangeBase,
+        OptionInstance.SliderableOrCyclableValueSet<Integer> {
+        public Optional<Integer> validateValue(Integer param0) {
+            return Optional.of(Mth.clamp(param0, this.minInclusive(), this.maxInclusive()));
+        }
+
         @Override
-        public Function<OptionInstance<T>, AbstractWidget> createButton(
+        public int maxInclusive() {
+            return this.maxSupplier.getAsInt();
+        }
+
+        @Override
+        public Codec<Integer> codec() {
+            Function<Integer, DataResult<Integer>> var0 = param0 -> {
+                int var0x = this.maxSupplier.getAsInt() + 1;
+                return param0.compareTo(this.minInclusive) >= 0 && param0.compareTo(var0x) <= 0
+                    ? DataResult.success(param0)
+                    : DataResult.error("Value " + param0 + " outside of range [" + this.minInclusive + ":" + var0x + "]", param0);
+            };
+            return Codec.INT.flatXmap(var0, var0);
+        }
+
+        @Override
+        public boolean createCycleButton() {
+            return true;
+        }
+
+        @Override
+        public CycleButton.ValueListSupplier<Integer> valueListSupplier() {
+            return CycleButton.ValueListSupplier.create(IntStream.range(this.minInclusive, this.maxInclusive() + 1).boxed().toList());
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    interface CycleableValueSet<T> extends OptionInstance.ValueSet<T> {
+        CycleButton.ValueListSupplier<T> valueListSupplier();
+
+        default OptionInstance.CycleableValueSet.ValueSetter<T> valueSetter() {
+            return OptionInstance::set;
+        }
+
+        @Override
+        default Function<OptionInstance<T>, AbstractWidget> createButton(
             OptionInstance.TooltipSupplier<T> param0, Options param1, int param2, int param3, int param4
         ) {
             return param5 -> CycleButton.builder(param5.toString)
-                    .withValues(this.values)
+                    .withValues(this.valueListSupplier())
                     .withTooltip(param0)
                     .withInitialValue(param5.value)
-                    .create(param2, param3, param4, 20, param5.getCaption(), (param2x, param3x) -> {
-                        param5.set(param3x);
+                    .create(param2, param3, param4, 20, param5.caption, (param2x, param3x) -> {
+                        this.valueSetter().set(param5, param3x);
                         param1.save();
                     });
         }
 
+        @OnlyIn(Dist.CLIENT)
+        public interface ValueSetter<T> {
+            void set(OptionInstance<T> var1, T var2);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static record Enum<T>(List<T> values, Codec<T> codec) implements OptionInstance.CycleableValueSet<T> {
         @Override
         public Optional<T> validateValue(T param0) {
             return this.values.contains(param0) ? Optional.of(param0) : Optional.empty();
+        }
+
+        @Override
+        public CycleButton.ValueListSupplier<T> valueListSupplier() {
+            return CycleButton.ValueListSupplier.create(this.values);
         }
     }
 
@@ -238,13 +269,6 @@ public final class OptionInstance<T> {
 
         int maxInclusive();
 
-        @Override
-        default Function<OptionInstance<Integer>, AbstractWidget> createButton(
-            OptionInstance.TooltipSupplier<Integer> param0, Options param1, int param2, int param3, int param4
-        ) {
-            return param5 -> new OptionInstance.OptionInstanceSliderButton<>(param1, param2, param3, param4, 20, param5, this, param0);
-        }
-
         default double toSliderValue(Integer param0) {
             return (double)Mth.map((float)param0.intValue(), (float)this.minInclusive(), (float)this.maxInclusive(), 0.0F, 1.0F);
         }
@@ -255,13 +279,6 @@ public final class OptionInstance<T> {
 
         default <R> OptionInstance.SliderableValueSet<R> xmap(final IntFunction<? extends R> param0, final ToIntFunction<? super R> param1) {
             return new OptionInstance.SliderableValueSet<R>() {
-                @Override
-                public Function<OptionInstance<R>, AbstractWidget> createButton(
-                    OptionInstance.TooltipSupplier<R> param0x, Options param1x, int param2, int param3, int param4
-                ) {
-                    return param5 -> new OptionInstance.OptionInstanceSliderButton<>(param1, param2, param3, param4, 20, param5, this, param0);
-                }
-
                 @Override
                 public Optional<R> validateValue(R param0x) {
                     return IntRangeBase.this.validateValue((T)Integer.valueOf(param1.applyAsInt(param0))).map(param0::apply);
@@ -286,24 +303,16 @@ public final class OptionInstance<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static record LazyEnum<T>(Supplier<List<T>> values, Function<T, Optional<T>> validateValue, Codec<T> codec) implements OptionInstance.ValueSet<T> {
-        @Override
-        public Function<OptionInstance<T>, AbstractWidget> createButton(
-            OptionInstance.TooltipSupplier<T> param0, Options param1, int param2, int param3, int param4
-        ) {
-            return param5 -> CycleButton.builder(param5.toString)
-                    .withValues(this.values.get())
-                    .withTooltip(param0)
-                    .withInitialValue(param5.value)
-                    .create(param2, param3, param4, 20, param5.getCaption(), (param2x, param3x) -> {
-                        param5.set(param3x);
-                        param1.save();
-                    });
-        }
-
+    public static record LazyEnum<T>(Supplier<List<T>> values, Function<T, Optional<T>> validateValue, Codec<T> codec)
+        implements OptionInstance.CycleableValueSet<T> {
         @Override
         public Optional<T> validateValue(T param0) {
             return this.validateValue.apply(param0);
+        }
+
+        @Override
+        public CycleButton.ValueListSupplier<T> valueListSupplier() {
+            return CycleButton.ValueListSupplier.create(this.values.get());
         }
     }
 
@@ -348,10 +357,31 @@ public final class OptionInstance<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
+    interface SliderableOrCyclableValueSet<T> extends OptionInstance.CycleableValueSet<T>, OptionInstance.SliderableValueSet<T> {
+        boolean createCycleButton();
+
+        @Override
+        default Function<OptionInstance<T>, AbstractWidget> createButton(
+            OptionInstance.TooltipSupplier<T> param0, Options param1, int param2, int param3, int param4
+        ) {
+            return this.createCycleButton()
+                ? OptionInstance.CycleableValueSet.super.createButton(param0, param1, param2, param3, param4)
+                : OptionInstance.SliderableValueSet.super.createButton(param0, param1, param2, param3, param4);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
     interface SliderableValueSet<T> extends OptionInstance.ValueSet<T> {
         double toSliderValue(T var1);
 
         T fromSliderValue(double var1);
+
+        @Override
+        default Function<OptionInstance<T>, AbstractWidget> createButton(
+            OptionInstance.TooltipSupplier<T> param0, Options param1, int param2, int param3, int param4
+        ) {
+            return param5 -> new OptionInstance.OptionInstanceSliderButton<>(param1, param2, param3, param4, 20, param5, this, param0);
+        }
     }
 
     @FunctionalInterface
@@ -360,15 +390,12 @@ public final class OptionInstance<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public interface TooltipSupplierFactory<T> extends Function<Minecraft, OptionInstance.TooltipSupplier<T>> {
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static enum UnitDouble implements OptionInstance.SliderableValueSet<Double> {
         INSTANCE;
-
-        @Override
-        public Function<OptionInstance<Double>, AbstractWidget> createButton(
-            OptionInstance.TooltipSupplier<Double> param0, Options param1, int param2, int param3, int param4
-        ) {
-            return param5 -> new OptionInstance.OptionInstanceSliderButton<>(param1, param2, param3, param4, 20, param5, this, param0);
-        }
 
         public Optional<Double> validateValue(Double param0) {
             return param0 >= 0.0 && param0 <= 1.0 ? Optional.of(param0) : Optional.empty();
@@ -384,13 +411,6 @@ public final class OptionInstance<T> {
 
         public <R> OptionInstance.SliderableValueSet<R> xmap(final DoubleFunction<? extends R> param0, final ToDoubleFunction<? super R> param1) {
             return new OptionInstance.SliderableValueSet<R>() {
-                @Override
-                public Function<OptionInstance<R>, AbstractWidget> createButton(
-                    OptionInstance.TooltipSupplier<R> param0x, Options param1x, int param2, int param3, int param4
-                ) {
-                    return param5 -> new OptionInstance.OptionInstanceSliderButton<>(param1, param2, param3, param4, 20, param5, this, param0);
-                }
-
                 @Override
                 public Optional<R> validateValue(R param0x) {
                     return UnitDouble.this.validateValue(param1.applyAsDouble(param0)).map(param0::apply);

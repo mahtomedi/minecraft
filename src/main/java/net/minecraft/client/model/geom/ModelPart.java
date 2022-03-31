@@ -28,6 +28,7 @@ public final class ModelPart {
     public float yScale = 1.0F;
     public float zScale = 1.0F;
     public boolean visible = true;
+    public boolean skipDraw;
     private final List<ModelPart.Cube> cubes;
     private final Map<String, ModelPart> children;
     private PartPose initialPose = PartPose.ZERO;
@@ -111,7 +112,9 @@ public final class ModelPart {
             if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
                 param0.pushPose();
                 this.translateAndRotate(param0);
-                this.compile(param0.last(), param1, param2, param3, param4, param5, param6, param7);
+                if (!this.skipDraw) {
+                    this.compile(param0.last(), param1, param2, param3, param4, param5, param6, param7);
+                }
 
                 for(ModelPart var0 : this.children.values()) {
                     var0.render(param0, param1, param2, param3, param4, param5, param6, param7);

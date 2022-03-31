@@ -159,7 +159,7 @@ public class Boat extends Entity {
             this.setHurtTime(10);
             this.setDamage(this.getDamage() + param1 * 10.0F);
             this.markHurt();
-            this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
+            this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
             boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
             if (var0 || this.getDamage() > 40.0F) {
                 if (!var0 && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
@@ -704,7 +704,7 @@ public class Boat extends Entity {
             param0.setYRot(param0.getYRot() + this.deltaRotation);
             param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
             this.clampRotation(param0);
-            if (param0 instanceof Animal && this.getPassengers().size() > 1) {
+            if (param0 instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
                 int var4 = param0.getId() % 2 == 0 ? 90 : 270;
                 param0.setYBodyRot(((Animal)param0).yBodyRot + (float)var4);
                 param0.setYHeadRot(param0.getYHeadRot() + (float)var4);

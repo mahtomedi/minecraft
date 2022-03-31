@@ -239,6 +239,8 @@ public class Frog extends Animal {
 
             if (var0 == Pose.USING_TONGUE) {
                 this.tongueAnimationState.start();
+            } else {
+                this.tongueAnimationState.stop();
             }
         }
 

@@ -40,6 +40,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
 import net.minecraft.world.level.pathfinder.BinaryHeap;
@@ -534,6 +535,7 @@ public class EnderDragon extends Mob implements Enemy {
     @Override
     public void kill() {
         this.remove(Entity.RemovalReason.KILLED);
+        this.gameEvent(GameEvent.ENTITY_DIE);
         if (this.dragonFight != null) {
             this.dragonFight.updateDragon(this);
             this.dragonFight.setDragonKilled(this);
@@ -587,6 +589,7 @@ public class EnderDragon extends Mob implements Enemy {
             }
 
             this.remove(Entity.RemovalReason.KILLED);
+            this.gameEvent(GameEvent.ENTITY_DIE);
         }
 
     }

@@ -5,11 +5,8 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -328,11 +325,9 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
         UNDERGROUND("underground"),
         IN_NETHER("in_nether");
 
-        public static final Codec<RuinedPortalPiece.VerticalPlacement> CODEC = StringRepresentable.fromEnum(
-            RuinedPortalPiece.VerticalPlacement::values, RuinedPortalPiece.VerticalPlacement::byName
+        public static final StringRepresentable.EnumCodec<RuinedPortalPiece.VerticalPlacement> CODEC = StringRepresentable.fromEnum(
+            RuinedPortalPiece.VerticalPlacement::values
         );
-        private static final Map<String, RuinedPortalPiece.VerticalPlacement> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(RuinedPortalPiece.VerticalPlacement::getName, param0 -> param0));
         private final String name;
 
         private VerticalPlacement(String param0) {
@@ -344,7 +339,7 @@ public class RuinedPortalPiece extends TemplateStructurePiece {
         }
 
         public static RuinedPortalPiece.VerticalPlacement byName(String param0) {
-            return BY_NAME.get(param0);
+            return CODEC.byName(param0);
         }
 
         @Override
