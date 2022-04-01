@@ -4,9 +4,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class Minecart extends AbstractMinecart {
     public Minecart(EntityType<?> param0, Level param1) {
@@ -21,18 +21,26 @@ public class Minecart extends AbstractMinecart {
     public InteractionResult interact(Player param0, InteractionHand param1) {
         if (param0.isSecondaryUseActive()) {
             return InteractionResult.PASS;
-        } else if (this.isVehicle()) {
-            return InteractionResult.PASS;
-        } else if (!this.level.isClientSide) {
-            return param0.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
-            return InteractionResult.SUCCESS;
+            BlockState var0 = param0.getCarriedBlock();
+            BlockState var1 = this.getDisplayBlockState();
+            if (var1.isAir() && var0 != null) {
+                param0.setCarriedBlock(null);
+                this.setDisplayBlockState(var0);
+                return InteractionResult.SUCCESS;
+            } else if (!var1.isAir() && var0 == null) {
+                param0.setCarriedBlock(var1);
+                this.setDisplayBlockState(Blocks.AIR.defaultBlockState());
+                this.setCustomDisplay(false);
+                return InteractionResult.SUCCESS;
+            } else if (this.isVehicle()) {
+                return InteractionResult.PASS;
+            } else if (!this.level.isClientSide) {
+                return param0.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
+            } else {
+                return InteractionResult.SUCCESS;
+            }
         }
-    }
-
-    @Override
-    protected Item getDropItem() {
-        return Items.MINECART;
     }
 
     @Override

@@ -163,6 +163,18 @@ public class KeyboardHandler {
                     }
 
                     return true;
+                case 70:
+                    Option.RENDER_DISTANCE
+                        .set(
+                            this.minecraft.options,
+                            Mth.clamp(
+                                (double)(this.minecraft.options.renderDistance + (Screen.hasShiftDown() ? -1 : 1)),
+                                Option.RENDER_DISTANCE.getMinValue(),
+                                Option.RENDER_DISTANCE.getMaxValue()
+                            )
+                        );
+                    this.debugFeedbackTranslated("debug.cycle_renderdistance.message", this.minecraft.options.renderDistance);
+                    return true;
                 case 71:
                     boolean var1 = this.minecraft.debugRenderer.switchRenderChunkborder();
                     this.debugFeedbackTranslated(var1 ? "debug.chunk_boundaries.on" : "debug.chunk_boundaries.off");
@@ -208,6 +220,7 @@ public class KeyboardHandler {
                     var2.addMessage(new TranslatableComponent("debug.show_hitboxes.help"));
                     var2.addMessage(new TranslatableComponent("debug.copy_location.help"));
                     var2.addMessage(new TranslatableComponent("debug.clear_chat.help"));
+                    var2.addMessage(new TranslatableComponent("debug.cycle_renderdistance.help"));
                     var2.addMessage(new TranslatableComponent("debug.chunk_boundaries.help"));
                     var2.addMessage(new TranslatableComponent("debug.advanced_tooltips.help"));
                     var2.addMessage(new TranslatableComponent("debug.inspect.help"));
@@ -328,7 +341,8 @@ public class KeyboardHandler {
             if (param3 == 1 && (!(this.minecraft.screen instanceof KeyBindsScreen) || ((KeyBindsScreen)var0).lastKeySelection <= Util.getMillis() - 20L)) {
                 if (this.minecraft.options.keyFullscreen.matches(param1, param2)) {
                     this.minecraft.getWindow().toggleFullScreen();
-                    this.minecraft.options.fullscreen().set(this.minecraft.getWindow().isFullscreen());
+                    this.minecraft.options.fullscreen = this.minecraft.getWindow().isFullscreen();
+                    this.minecraft.options.save();
                     return;
                 }
 
@@ -348,8 +362,9 @@ public class KeyboardHandler {
             if (NarratorChatListener.INSTANCE.isActive()) {
                 boolean var1 = var0 == null || !(var0.getFocused() instanceof EditBox) || !((EditBox)var0.getFocused()).canConsumeInput();
                 if (param3 != 0 && param1 == 66 && Screen.hasControlDown() && var1) {
-                    boolean var2 = this.minecraft.options.narrator().get() == NarratorStatus.OFF;
-                    this.minecraft.options.narrator().set(NarratorStatus.byId(this.minecraft.options.narrator().get().getId() + 1));
+                    boolean var2 = this.minecraft.options.narratorStatus == NarratorStatus.OFF;
+                    this.minecraft.options.narratorStatus = NarratorStatus.byId(this.minecraft.options.narratorStatus.getId() + 1);
+                    NarratorChatListener.INSTANCE.updateNarratorStatus(this.minecraft.options.narratorStatus);
                     if (var0 instanceof SimpleOptionsSubScreen) {
                         ((SimpleOptionsSubScreen)var0).updateNarratorButton();
                     }

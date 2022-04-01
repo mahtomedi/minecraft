@@ -131,7 +131,7 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("fortress", LocationTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.FORTRESS)))
+            .addCriterion("fortress", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(BuiltinStructures.FORTRESS)))
             .save(param0, "nether/find_fortress");
         Advancement.Builder.advancement()
             .parent(var0)
@@ -498,7 +498,7 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("bastion", LocationTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.BASTION_REMNANT)))
+            .addCriterion("bastion", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(BuiltinStructures.BASTION_REMNANT)))
             .save(param0, "nether/find_bastion");
         Advancement.Builder.advancement()
             .parent(var12)

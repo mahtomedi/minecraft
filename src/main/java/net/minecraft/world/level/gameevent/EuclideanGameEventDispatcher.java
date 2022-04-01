@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.DebugPackets;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class EuclideanGameEventDispatcher implements GameEventDispatcher {
     private final List<GameEventListener> listeners = Lists.newArrayList();
     private final Set<GameEventListener> listenersToRemove = Sets.newHashSet();
     private final List<GameEventListener> listenersToAdd = Lists.newArrayList();
-    private boolean processing;
-    private final ServerLevel level;
+    private boolean processing = false;
+    private final Level level;
 
-    public EuclideanGameEventDispatcher(ServerLevel param0) {
+    public EuclideanGameEventDispatcher(Level param0) {
         this.level = param0;
     }
 
@@ -50,7 +50,7 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
     }
 
     @Override
-    public void post(GameEvent param0, @Nullable Entity param1, Vec3 param2) {
+    public void post(GameEvent param0, @Nullable Entity param1, BlockPos param2) {
         boolean var0 = false;
         this.processing = true;
 
@@ -61,7 +61,7 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
                 GameEventListener var2 = var1.next();
                 if (this.listenersToRemove.remove(var2)) {
                     var1.remove();
-                } else if (postToListener(this.level, param0, param1, param2, var2)) {
+                } else if (this.postToListener(this.level, param0, param1, param2, var2)) {
                     var0 = true;
                 }
             }
@@ -85,12 +85,12 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
 
     }
 
-    private static boolean postToListener(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3, GameEventListener param4) {
-        Optional<Vec3> var0 = param4.getListenerSource().getPosition(param0);
+    private boolean postToListener(Level param0, GameEvent param1, @Nullable Entity param2, BlockPos param3, GameEventListener param4) {
+        Optional<BlockPos> var0 = param4.getListenerSource().getPosition(param0);
         if (var0.isEmpty()) {
             return false;
         } else {
-            double var1 = var0.get().distanceToSqr(param3);
+            double var1 = var0.get().distSqr(param3);
             int var2 = param4.getListenerRadius() * param4.getListenerRadius();
             return var1 <= (double)var2 && param4.handleGameEvent(param0, param1, param2, param3);
         }

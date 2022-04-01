@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -751,11 +751,11 @@ public class RenderSystem {
         if (!var0) {
             param0.run();
         } else {
-            OptionInstance<GraphicsStatus> var1 = Minecraft.getInstance().options.graphicsMode();
-            GraphicsStatus var2 = var1.get();
-            var1.set(GraphicsStatus.FANCY);
+            Options var1 = Minecraft.getInstance().options;
+            GraphicsStatus var2 = var1.graphicsMode;
+            var1.graphicsMode = GraphicsStatus.FANCY;
             param0.run();
-            var1.set(var2);
+            var1.graphicsMode = var2;
         }
     }
 

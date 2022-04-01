@@ -8,7 +8,12 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.VillagerDataHolder;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -84,8 +89,35 @@ public class VillagerModel<T extends Entity> extends HierarchicalModel<T> implem
     @Override
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         boolean var0 = false;
-        if (param0 instanceof AbstractVillager) {
-            var0 = ((AbstractVillager)param0).getUnhappyCounter() > 0;
+        if (param0 instanceof Witch) {
+            this.hat.y = -10.03125F;
+        } else {
+            this.hat.y = this.head.y;
+        }
+
+        boolean var2;
+        if (param0 instanceof AbstractVillager var1) {
+            var0 = var1.getUnhappyCounter() > 0;
+            var2 = var1.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL);
+            this.root.getChild("arms").visible = !var2;
+            this.head.visible = !var2;
+            if (var2) {
+                this.hat.y = 1.5F;
+                if (param0 instanceof VillagerDataHolder var3 && var3.getVillagerData().getProfession() == VillagerProfession.LIBRARIAN) {
+                    ++this.hat.y;
+                }
+            }
+        } else if (param0 instanceof Witch var4) {
+            var2 = var4.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL);
+            this.root.getChild("arms").visible = !var2;
+            if (var2) {
+                this.hat.y = -13.03125F;
+                this.head.y = 6.96875F;
+            } else {
+                this.head.y = 0.0F;
+            }
+        } else {
+            var2 = false;
         }
 
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
@@ -101,6 +133,11 @@ public class VillagerModel<T extends Entity> extends HierarchicalModel<T> implem
         this.leftLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2 * 0.5F;
         this.rightLeg.yRot = 0.0F;
         this.leftLeg.yRot = 0.0F;
+        if (var2) {
+            this.head.xRot = 0.0F;
+            this.head.yRot = 0.0F;
+        }
+
     }
 
     @Override

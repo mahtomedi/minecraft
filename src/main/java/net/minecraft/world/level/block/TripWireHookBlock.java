@@ -147,10 +147,10 @@ public class TripWireHookBlock extends Block {
             Direction var14 = var0.getOpposite();
             param0.setBlock(var13, var12.setValue(FACING, var14), 3);
             this.notifyNeighbors(param0, var13, var14);
-            this.emitState(param0, var13, var3, var4, var1, var2);
+            this.playSound(param0, var13, var3, var4, var1, var2);
         }
 
-        this.emitState(param0, param1, var3, var4, var1, var2);
+        this.playSound(param0, param1, var3, var4, var1, var2);
         if (!param3) {
             param0.setBlock(param1, var12.setValue(FACING, var0), 3);
             if (param4) {
@@ -177,19 +177,19 @@ public class TripWireHookBlock extends Block {
         this.calculateState(param1, param2, param0, false, true, -1, null);
     }
 
-    private void emitState(Level param0, BlockPos param1, boolean param2, boolean param3, boolean param4, boolean param5) {
+    private void playSound(Level param0, BlockPos param1, boolean param2, boolean param3, boolean param4, boolean param5) {
         if (param3 && !param5) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.BLOCKS, 0.4F, 0.6F);
-            param0.gameEvent(null, GameEvent.BLOCK_ACTIVATE, param1);
+            param0.gameEvent(GameEvent.BLOCK_PRESS, param1);
         } else if (!param3 && param5) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_CLICK_OFF, SoundSource.BLOCKS, 0.4F, 0.5F);
-            param0.gameEvent(null, GameEvent.BLOCK_DEACTIVATE, param1);
+            param0.gameEvent(GameEvent.BLOCK_UNPRESS, param1);
         } else if (param2 && !param4) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_ATTACH, SoundSource.BLOCKS, 0.4F, 0.7F);
-            param0.gameEvent(null, GameEvent.BLOCK_ATTACH, param1);
+            param0.gameEvent(GameEvent.BLOCK_ATTACH, param1);
         } else if (!param2 && param4) {
             param0.playSound(null, param1, SoundEvents.TRIPWIRE_DETACH, SoundSource.BLOCKS, 0.4F, 1.2F / (param0.random.nextFloat() * 0.2F + 0.9F));
-            param0.gameEvent(null, GameEvent.BLOCK_DETACH, param1);
+            param0.gameEvent(GameEvent.BLOCK_DETACH, param1);
         }
 
     }

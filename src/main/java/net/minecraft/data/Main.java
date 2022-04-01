@@ -10,7 +10,6 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.SharedConstants;
 import net.minecraft.data.advancements.AdvancementProvider;
-import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
 import net.minecraft.data.info.CommandsReport;
 import net.minecraft.data.info.RegistryDumpReport;
@@ -23,13 +22,11 @@ import net.minecraft.data.structures.SnbtToNbt;
 import net.minecraft.data.structures.StructureUpdater;
 import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ConfiguredStructureTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
-import net.minecraft.data.tags.FlatLevelGeneratorPresetTagsProvider;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.data.tags.GameEventTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.data.tags.StructureTagsProvider;
-import net.minecraft.data.tags.WorldPresetTagsProvider;
 import net.minecraft.obfuscate.DontObfuscate;
 
 public class Main {
@@ -87,9 +84,7 @@ public class Main {
             var0.addProvider(new LootTableProvider(var0));
             var0.addProvider(new GameEventTagsProvider(var0));
             var0.addProvider(new BiomeTagsProvider(var0));
-            var0.addProvider(new StructureTagsProvider(var0));
-            var0.addProvider(new WorldPresetTagsProvider(var0));
-            var0.addProvider(new FlatLevelGeneratorPresetTagsProvider(var0));
+            var0.addProvider(new ConfiguredStructureTagsProvider(var0));
         }
 
         if (param4) {
@@ -101,7 +96,6 @@ public class Main {
             var0.addProvider(new RegistryDumpReport(var0));
             var0.addProvider(new CommandsReport(var0));
             var0.addProvider(new WorldgenRegistryDumpReport(var0));
-            var0.addProvider(new BiomeParametersDumpReport(var0));
         }
 
         return var0;

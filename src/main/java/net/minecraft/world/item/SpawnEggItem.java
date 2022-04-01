@@ -15,7 +15,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -66,7 +65,6 @@ public class SpawnEggItem extends Item {
                     var6.setEntityId(var7);
                     var5.setChanged();
                     var0.sendBlockUpdated(var2, var4, var4, 3);
-                    var0.gameEvent(param0.getPlayer(), GameEvent.BLOCK_CHANGE, var2);
                     var1.shrink(1);
                     return InteractionResult.CONSUME;
                 }
@@ -107,8 +105,7 @@ public class SpawnEggItem extends Item {
                 return InteractionResultHolder.pass(var0);
             } else if (param0.mayInteract(param1, var3) && param1.mayUseItemAt(var3, var2.getDirection(), var0)) {
                 EntityType<?> var4 = this.getType(var0.getTag());
-                Entity var5 = var4.spawn((ServerLevel)param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false);
-                if (var5 == null) {
+                if (var4.spawn((ServerLevel)param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false) == null) {
                     return InteractionResultHolder.pass(var0);
                 } else {
                     if (!param1.getAbilities().instabuild) {
@@ -116,7 +113,7 @@ public class SpawnEggItem extends Item {
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
-                    param0.gameEvent(param1, GameEvent.ENTITY_PLACE, var5.position());
+                    param0.gameEvent(GameEvent.ENTITY_PLACE, param1);
                     return InteractionResultHolder.consume(var0);
                 }
             } else {

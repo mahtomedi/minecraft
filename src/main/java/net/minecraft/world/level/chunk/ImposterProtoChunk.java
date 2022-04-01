@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
-import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -138,44 +138,43 @@ public class ImposterProtoChunk extends ProtoChunk {
 
     @Nullable
     @Override
-    public StructureStart getStartForStructure(Structure param0) {
-        return this.wrapped.getStartForStructure(param0);
+    public StructureStart getStartForFeature(ConfiguredStructureFeature<?, ?> param0) {
+        return this.wrapped.getStartForFeature(param0);
     }
 
     @Override
-    public void setStartForStructure(Structure param0, StructureStart param1) {
+    public void setStartForFeature(ConfiguredStructureFeature<?, ?> param0, StructureStart param1) {
     }
 
     @Override
-    public Map<Structure, StructureStart> getAllStarts() {
+    public Map<ConfiguredStructureFeature<?, ?>, StructureStart> getAllStarts() {
         return this.wrapped.getAllStarts();
     }
 
     @Override
-    public void setAllStarts(Map<Structure, StructureStart> param0) {
+    public void setAllStarts(Map<ConfiguredStructureFeature<?, ?>, StructureStart> param0) {
     }
 
     @Override
-    public LongSet getReferencesForStructure(Structure param0) {
-        return this.wrapped.getReferencesForStructure(param0);
+    public LongSet getReferencesForFeature(ConfiguredStructureFeature<?, ?> param0) {
+        return this.wrapped.getReferencesForFeature(param0);
     }
 
     @Override
-    public void addReferenceForStructure(Structure param0, long param1) {
+    public void addReferenceForFeature(ConfiguredStructureFeature<?, ?> param0, long param1) {
     }
 
     @Override
-    public Map<Structure, LongSet> getAllReferences() {
+    public Map<ConfiguredStructureFeature<?, ?>, LongSet> getAllReferences() {
         return this.wrapped.getAllReferences();
     }
 
     @Override
-    public void setAllReferences(Map<Structure, LongSet> param0) {
+    public void setAllReferences(Map<ConfiguredStructureFeature<?, ?>, LongSet> param0) {
     }
 
     @Override
     public void setUnsaved(boolean param0) {
-        this.wrapped.setUnsaved(param0);
     }
 
     @Override

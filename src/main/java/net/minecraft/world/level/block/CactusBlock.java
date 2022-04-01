@@ -4,9 +4,12 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -37,6 +40,21 @@ public class CactusBlock extends Block {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
+            Direction[] var0 = new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST};
+            boolean var1 = false;
+
+            for(Direction var2 : var0) {
+                BlockPos var3 = param2.relative(var2);
+                BlockState var4 = param1.getBlockState(var3);
+                if (var4.is(Blocks.PUMPKIN)) {
+                    param1.setBlock(var3, Blocks.CARVED_PUMPKIN.defaultBlockState(), 4);
+                    var1 = true;
+                }
+            }
+
+            if (var1) {
+                param1.playSound(null, param2, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
+            }
         }
 
     }
@@ -57,7 +75,7 @@ public class CactusBlock extends Block {
                     param1.setBlockAndUpdate(var0, this.defaultBlockState());
                     BlockState var3 = param0.setValue(AGE, Integer.valueOf(0));
                     param1.setBlock(param2, var3, 4);
-                    param1.neighborChanged(var3, var0, this, param2, false);
+                    var3.neighborChanged(param1, var0, this, param2, false);
                 } else {
                     param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(var2 + 1)), 4);
                 }
@@ -102,6 +120,10 @@ public class CactusBlock extends Block {
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         param3.hurt(DamageSource.CACTUS, 1.0F);
+        if (param3 instanceof Shearable var0 && var0.readyForShearing()) {
+            var0.shear(SoundSource.BLOCKS);
+        }
+
     }
 
     @Override

@@ -1,11 +1,9 @@
 package net.minecraft.client.profiling;
 
-import com.mojang.blaze3d.systems.TimerQuery;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Set;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.util.profiling.ProfileCollector;
@@ -38,10 +36,6 @@ public class ClientMetricsSamplersProvider implements MetricsSamplerProvider {
         this.samplers.add(MetricSampler.create("toUpload", MetricCategory.CHUNK_RENDERING_DISPATCHING, var0, ChunkRenderDispatcher::getToUpload));
         this.samplers.add(MetricSampler.create("freeBufferCount", MetricCategory.CHUNK_RENDERING_DISPATCHING, var0, ChunkRenderDispatcher::getFreeBufferCount));
         this.samplers.add(MetricSampler.create("toBatchCount", MetricCategory.CHUNK_RENDERING_DISPATCHING, var0, ChunkRenderDispatcher::getToBatchCount));
-        if (TimerQuery.getInstance().isPresent()) {
-            this.samplers.add(MetricSampler.create("gpuUtilization", MetricCategory.GPU, Minecraft.getInstance(), Minecraft::getGpuUtilization));
-        }
-
     }
 
     @Override

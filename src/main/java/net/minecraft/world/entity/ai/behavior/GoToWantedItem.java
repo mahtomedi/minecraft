@@ -35,18 +35,12 @@ public class GoToWantedItem<E extends LivingEntity> extends Behavior<E> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        return !this.isOnPickupCooldown(param1)
-            && this.predicate.test(param1)
-            && this.getClosestLovedItem(param1).closerThan(param1, (double)this.maxDistToWalk);
+        return this.predicate.test(param1) && this.getClosestLovedItem(param1).closerThan(param1, (double)this.maxDistToWalk);
     }
 
     @Override
     protected void start(ServerLevel param0, E param1, long param2) {
         BehaviorUtils.setWalkAndLookTargetMemories(param1, this.getClosestLovedItem(param1), this.speedModifier, 0);
-    }
-
-    private boolean isOnPickupCooldown(E param0) {
-        return param0.getBrain().checkMemory(MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS, MemoryStatus.VALUE_PRESENT);
     }
 
     private ItemEntity getClosestLovedItem(E param0) {

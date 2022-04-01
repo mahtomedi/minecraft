@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import java.util.Deque;
 import java.util.List;
@@ -20,7 +19,6 @@ import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintCache;
-import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.BiomeColors;
@@ -85,11 +83,9 @@ import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientLevel extends Level {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final double FLUID_PARTICLE_SPAWN_OFFSET = 0.05;
     private static final int NORMAL_LIGHT_UPDATES_PER_FRAME = 10;
     private static final int LIGHT_UPDATE_QUEUE_SIZE_THRESHOLD = 1000;
@@ -113,50 +109,7 @@ public class ClientLevel extends Level {
     private final ClientChunkCache chunkSource;
     private final Deque<Runnable> lightUpdateQueue = Queues.newArrayDeque();
     private int serverSimulationDistance;
-    private final BlockStatePredictionHandler blockStatePredictionHandler = new BlockStatePredictionHandler();
     private static final Set<Item> MARKER_PARTICLE_ITEMS = Set.of(Items.BARRIER, Items.LIGHT);
-
-    public void handleBlockChangedAck(int param0) {
-        this.blockStatePredictionHandler.endPredictionsUpTo(param0, this);
-    }
-
-    public void setServerVerifiedBlockState(BlockPos param0, BlockState param1, int param2) {
-        if (!this.blockStatePredictionHandler.updateKnownServerState(param0, param1)) {
-            super.setBlock(param0, param1, param2, 512);
-        }
-
-    }
-
-    public void syncBlockState(BlockPos param0, BlockState param1, Vec3 param2) {
-        BlockState var0 = this.getBlockState(param0);
-        if (var0 != param1) {
-            this.setBlock(param0, param1, 19);
-            Player var1 = this.minecraft.player;
-            if (this == var1.level && var1.isColliding(param0, param1)) {
-                var1.absMoveTo(param2.x, param2.y, param2.z);
-            }
-        }
-
-    }
-
-    BlockStatePredictionHandler getBlockStatePredictionHandler() {
-        return this.blockStatePredictionHandler;
-    }
-
-    @Override
-    public boolean setBlock(BlockPos param0, BlockState param1, int param2, int param3) {
-        if (this.blockStatePredictionHandler.isPredicting()) {
-            BlockState var0 = this.getBlockState(param0);
-            boolean var1 = super.setBlock(param0, param1, param2, param3);
-            if (var1) {
-                this.blockStatePredictionHandler.retainKnownServerState(param0, var0, this.minecraft.player);
-            }
-
-            return var1;
-        } else {
-            return super.setBlock(param0, param1, param2, param3);
-        }
-    }
 
     public ClientLevel(
         ClientPacketListener param0,
@@ -170,7 +123,7 @@ public class ClientLevel extends Level {
         boolean param8,
         long param9
     ) {
-        super(param1, param2, param3, param6, true, param8, param9, 1000000);
+        super(param1, param2, param3, param6, true, param8, param9);
         this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
@@ -339,6 +292,10 @@ public class ClientLevel extends Level {
     @Override
     public Entity getEntity(int param0) {
         return this.getEntities().get(param0);
+    }
+
+    public void setKnownState(BlockPos param0, BlockState param1) {
+        this.setBlock(param0, param1, 19);
     }
 
     @Override
@@ -693,7 +650,7 @@ public class ClientLevel extends Level {
             var7 = var7 * var13 + var12 * (1.0F - var13);
         }
 
-        if (!this.minecraft.options.hideLightningFlash().get() && this.skyFlashTime > 0) {
+        if (!this.minecraft.options.hideLightningFlashes && this.skyFlashTime > 0) {
             float var14 = (float)this.skyFlashTime - param1;
             if (var14 > 1.0F) {
                 var14 = 1.0F;
@@ -785,7 +742,7 @@ public class ClientLevel extends Level {
     }
 
     public int calculateBlockTint(BlockPos param0, ColorResolver param1) {
-        int var0 = Minecraft.getInstance().options.biomeBlendRadius().get();
+        int var0 = Minecraft.getInstance().options.biomeBlendRadius;
         if (var0 == 0) {
             return param1.getColor(this.getBiome(param0).value(), (double)param0.getX(), (double)param0.getZ());
         } else {
@@ -836,7 +793,7 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity param0, GameEvent param1, Vec3 param2) {
+    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
     }
 
     protected Map<String, MapItemSavedData> getAllMapData() {

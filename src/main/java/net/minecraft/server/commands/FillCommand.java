@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.blocks.BlockInput;
@@ -34,7 +33,7 @@ public class FillCommand {
     static final BlockInput HOLLOW_CORE = new BlockInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), null);
     private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.fill.failed"));
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("fill")
                 .requires(param0x -> param0x.hasPermission(2))
@@ -43,7 +42,7 @@ public class FillCommand {
                         .then(
                             Commands.argument("to", BlockPosArgument.blockPos())
                                 .then(
-                                    Commands.argument("block", BlockStateArgument.block(param1))
+                                    Commands.argument("block", BlockStateArgument.block())
                                         .executes(
                                             param0x -> fillBlocks(
                                                     param0x.getSource(),
@@ -70,7 +69,7 @@ public class FillCommand {
                                                         )
                                                 )
                                                 .then(
-                                                    Commands.argument("filter", BlockPredicateArgument.blockPredicate(param1))
+                                                    Commands.argument("filter", BlockPredicateArgument.blockPredicate())
                                                         .executes(
                                                             param0x -> fillBlocks(
                                                                     param0x.getSource(),

@@ -31,7 +31,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -206,6 +205,11 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     @Override
+    public boolean isInvulnerableTo(DamageSource param0) {
+        return !param0.isBypassInvul();
+    }
+
+    @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (this.level.isClientSide || this.isRemoved()) {
             return true;
@@ -216,7 +220,7 @@ public abstract class AbstractMinecart extends Entity {
             this.setHurtTime(10);
             this.markHurt();
             this.setDamage(this.getDamage() + param1 * 10.0F);
-            this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
+            this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
             boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
             if (var0 || this.getDamage() > 40.0F) {
                 this.ejectPassengers();
@@ -238,9 +242,9 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     public void destroy(DamageSource param0) {
-        this.kill();
+        this.remove(Entity.RemovalReason.KILLED);
         if (this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-            ItemStack var0 = new ItemStack(this.getDropItem());
+            ItemStack var0 = new ItemStack(Items.MINECART);
             if (this.hasCustomName()) {
                 var0.setHoverName(this.getCustomName());
             }
@@ -249,8 +253,6 @@ public abstract class AbstractMinecart extends Entity {
         }
 
     }
-
-    abstract Item getDropItem();
 
     @Override
     public void animateHurt() {

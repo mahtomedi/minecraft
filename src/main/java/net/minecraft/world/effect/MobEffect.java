@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
@@ -25,7 +24,6 @@ public class MobEffect {
     private final int color;
     @Nullable
     private String descriptionId;
-    private Supplier<MobEffectInstance.FactorData> factorDataFactory = () -> null;
 
     @Nullable
     public static MobEffect byId(int param0) {
@@ -39,10 +37,6 @@ public class MobEffect {
     protected MobEffect(MobEffectCategory param0, int param1) {
         this.category = param0;
         this.color = param1;
-    }
-
-    public Supplier<MobEffectInstance.FactorData> createFactorData() {
-        return this.factorDataFactory;
     }
 
     public void applyEffectTick(LivingEntity param0, int param1) {
@@ -149,11 +143,6 @@ public class MobEffect {
     public MobEffect addAttributeModifier(Attribute param0, String param1, double param2, AttributeModifier.Operation param3) {
         AttributeModifier var0 = new AttributeModifier(UUID.fromString(param1), this::getDescriptionId, param2, param3);
         this.attributeModifiers.put(param0, var0);
-        return this;
-    }
-
-    public MobEffect setFactorDataFactory(Supplier<MobEffectInstance.FactorData> param0) {
-        this.factorDataFactory = param0;
         return this;
     }
 

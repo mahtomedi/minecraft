@@ -244,7 +244,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("in_stronghold", LocationTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.STRONGHOLD)))
+            .addCriterion("in_stronghold", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(BuiltinStructures.STRONGHOLD)))
             .save(param0, "story/follow_ender_eye");
         Advancement.Builder.advancement()
             .parent(var10)

@@ -7,8 +7,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -17,11 +17,6 @@ import net.minecraft.world.level.Level;
 
 public class ElderGuardian extends Guardian {
     public static final float ELDER_SIZE_SCALE = EntityType.ELDER_GUARDIAN.getWidth() / EntityType.GUARDIAN.getWidth();
-    private static final int EFFECT_INTERVAL = 1200;
-    private static final int EFFECT_RADIUS = 50;
-    private static final int EFFECT_DURATION = 6000;
-    private static final int EFFECT_AMPLIFIER = 2;
-    private static final int EFFECT_DISPLAY_LIMIT = 1200;
 
     public ElderGuardian(EntityType<? extends ElderGuardian> param0, Level param1) {
         super(param0, param1);
@@ -64,13 +59,20 @@ public class ElderGuardian extends Guardian {
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
+        int var0 = 1200;
         if ((this.tickCount + this.getId()) % 1200 == 0) {
-            MobEffectInstance var0 = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 6000, 2);
-            List<ServerPlayer> var1 = MobEffectUtil.addEffectToPlayersAround((ServerLevel)this.level, this, this.position(), 50.0, var0, 1200);
-            var1.forEach(
-                param0 -> param0.connection
-                        .send(new ClientboundGameEventPacket(ClientboundGameEventPacket.GUARDIAN_ELDER_EFFECT, this.isSilent() ? 0.0F : 1.0F))
-            );
+            MobEffect var1 = MobEffects.DIG_SLOWDOWN;
+            List<ServerPlayer> var2 = ((ServerLevel)this.level).getPlayers(param0 -> this.distanceToSqr(param0) < 2500.0 && param0.gameMode.isSurvival());
+            int var3 = 2;
+            int var4 = 6000;
+            int var5 = 1200;
+
+            for(ServerPlayer var6 : var2) {
+                if (!var6.hasEffect(var1) || var6.getEffect(var1).getAmplifier() < 2 || var6.getEffect(var1).getDuration() < 1200) {
+                    var6.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.GUARDIAN_ELDER_EFFECT, this.isSilent() ? 0.0F : 1.0F));
+                    var6.addEffect(new MobEffectInstance(var1, 6000, 2), this);
+                }
+            }
         }
 
         if (!this.hasRestriction()) {

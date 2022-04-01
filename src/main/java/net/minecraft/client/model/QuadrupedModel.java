@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class QuadrupedModel<T extends Entity> extends AgeableListModel<T> {
+public class QuadrupedModel<T extends Entity> extends AgeableListModel<T> implements HeadedModel {
     protected final ModelPart head;
     protected final ModelPart body;
     protected final ModelPart rightHindLeg;
@@ -70,5 +70,10 @@ public class QuadrupedModel<T extends Entity> extends AgeableListModel<T> {
         this.leftHindLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2;
         this.rightFrontLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2;
         this.leftFrontLeg.xRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2;
+    }
+
+    @Override
+    public ModelPart getHead() {
+        return this.head;
     }
 }

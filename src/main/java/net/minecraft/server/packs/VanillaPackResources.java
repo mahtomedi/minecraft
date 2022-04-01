@@ -120,12 +120,12 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
     }
 
     @Override
-    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, Predicate<ResourceLocation> param3) {
+    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, int param3, Predicate<String> param4) {
         Set<ResourceLocation> var0 = Sets.newHashSet();
         if (generatedDir != null) {
             try {
-                getResources(var0, param1, generatedDir.resolve(param0.getDirectory()), param2, param3);
-            } catch (IOException var12) {
+                getResources(var0, param3, param1, generatedDir.resolve(param0.getDirectory()), param2, param4);
+            } catch (IOException var13) {
             }
 
             if (param0 == PackType.CLIENT_RESOURCES) {
@@ -133,16 +133,16 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
 
                 try {
                     var1 = clientObject.getClassLoader().getResources(param0.getDirectory() + "/");
-                } catch (IOException var11) {
+                } catch (IOException var12) {
                 }
 
                 while(var1 != null && var1.hasMoreElements()) {
                     try {
                         URI var2 = var1.nextElement().toURI();
                         if ("file".equals(var2.getScheme())) {
-                            getResources(var0, param1, Paths.get(var2), param2, param3);
+                            getResources(var0, param3, param1, Paths.get(var2), param2, param4);
                         }
-                    } catch (IOException | URISyntaxException var10) {
+                    } catch (IOException | URISyntaxException var11) {
                     }
                 }
             }
@@ -151,25 +151,24 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
         try {
             Path var3 = ROOT_DIR_BY_TYPE.get(param0);
             if (var3 != null) {
-                getResources(var0, param1, var3, param2, param3);
+                getResources(var0, param3, param1, var3, param2, param4);
             } else {
                 LOGGER.error("Can't access assets root for type: {}", param0);
             }
-        } catch (NoSuchFileException | FileNotFoundException var8) {
-        } catch (IOException var9) {
-            LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var9);
+        } catch (NoSuchFileException | FileNotFoundException var9) {
+        } catch (IOException var10) {
+            LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var10);
         }
 
         return var0;
     }
 
-    private static void getResources(Collection<ResourceLocation> param0, String param1, Path param2, String param3, Predicate<ResourceLocation> param4) throws IOException {
-        Path var0 = param2.resolve(param1);
+    private static void getResources(Collection<ResourceLocation> param0, int param1, String param2, Path param3, String param4, Predicate<String> param5) throws IOException {
+        Path var0 = param3.resolve(param2);
 
-        try (Stream<Path> var1 = Files.walk(var0.resolve(param3))) {
-            var1.filter(param0x -> !param0x.endsWith(".mcmeta") && Files.isRegularFile(param0x))
-                .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
-                .filter(param4)
+        try (Stream<Path> var1 = Files.walk(var0.resolve(param4), param1)) {
+            var1.filter(param1x -> !param1x.endsWith(".mcmeta") && Files.isRegularFile(param1x) && param5.test(param1x.getFileName().toString()))
+                .map(param2x -> new ResourceLocation(param2, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
                 .forEach(param0::add);
         }
 
@@ -301,7 +300,7 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
 
             @Override
             public String getSourceName() {
-                return VanillaPackResources.this.getName();
+                return param0.toString();
             }
         };
     }

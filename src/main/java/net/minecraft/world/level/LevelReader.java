@@ -103,15 +103,9 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
         }
     }
 
-    default float getPathfindingCostFromLightLevels(BlockPos param0) {
-        return this.getLightLevelDependentMagicValue(param0) - 0.5F;
-    }
-
     @Deprecated
-    default float getLightLevelDependentMagicValue(BlockPos param0) {
-        float var0 = (float)this.getMaxLocalRawBrightness(param0) / 15.0F;
-        float var1 = var0 / (4.0F - 3.0F * var0);
-        return Mth.lerp(this.dimensionType().ambientLight(), var1, 1.0F);
+    default float getBrightness(BlockPos param0) {
+        return this.dimensionType().brightness(this.getMaxLocalRawBrightness(param0));
     }
 
     default int getDirectSignal(BlockPos param0, Direction param1) {

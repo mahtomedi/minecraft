@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.font;
 
-import com.mojang.blaze3d.font.SheetGlyphInfo;
+import com.mojang.blaze3d.font.RawGlyph;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import javax.annotation.Nullable;
@@ -42,7 +42,7 @@ public class FontTexture extends AbstractTexture {
     }
 
     @Nullable
-    public BakedGlyph add(SheetGlyphInfo param0) {
+    public BakedGlyph add(RawGlyph param0) {
         if (param0.isColored() != this.colored) {
             return null;
         } else {
@@ -96,7 +96,7 @@ public class FontTexture extends AbstractTexture {
         }
 
         @Nullable
-        FontTexture.Node insert(SheetGlyphInfo param0) {
+        FontTexture.Node insert(RawGlyph param0) {
             if (this.left != null && this.right != null) {
                 FontTexture.Node var0 = this.left.insert(param0);
                 if (var0 == null) {

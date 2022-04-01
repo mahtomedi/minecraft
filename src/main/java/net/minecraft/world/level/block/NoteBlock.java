@@ -1,15 +1,12 @@
 package net.minecraft.world.level.block;
 
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -22,7 +19,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class NoteBlock extends Block {
@@ -58,7 +54,7 @@ public class NoteBlock extends Block {
         boolean var0 = param1.hasNeighborSignal(param2);
         if (var0 != param0.getValue(POWERED)) {
             if (var0) {
-                this.playNote(null, param1, param2);
+                this.playNote(param1, param2);
             }
 
             param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)), 3);
@@ -66,12 +62,11 @@ public class NoteBlock extends Block {
 
     }
 
-    private void playNote(@Nullable Entity param0, Level param1, BlockPos param2) {
-        BlockState var0 = param1.getBlockState(param2.above());
-        if (!var0.is(BlockTags.WOOL) && !var0.is(BlockTags.WOOL_CARPETS)) {
-            param1.blockEvent(param2, this, 0, 0);
-            param1.gameEvent(param0, GameEvent.NOTE_BLOCK_PLAY, param2);
+    private void playNote(Level param0, BlockPos param1) {
+        if (param0.getBlockState(param1.above()).isAir()) {
+            param0.blockEvent(param1, this, 0, 0);
         }
+
     }
 
     @Override
@@ -81,7 +76,7 @@ public class NoteBlock extends Block {
         } else {
             param0 = param0.cycle(NOTE);
             param1.setBlock(param2, param0, 3);
-            this.playNote(param3, param1, param2);
+            this.playNote(param1, param2);
             param3.awardStat(Stats.TUNE_NOTEBLOCK);
             return InteractionResult.CONSUME;
         }
@@ -90,7 +85,7 @@ public class NoteBlock extends Block {
     @Override
     public void attack(BlockState param0, Level param1, BlockPos param2, Player param3) {
         if (!param1.isClientSide) {
-            this.playNote(param3, param1, param2);
+            this.playNote(param1, param2);
             param3.awardStat(Stats.PLAY_NOTEBLOCK);
         }
     }

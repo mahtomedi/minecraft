@@ -76,10 +76,10 @@ public class AssetIndex {
         return this.rootFiles.get(param0);
     }
 
-    public Collection<ResourceLocation> getFiles(String param0, String param1, Predicate<ResourceLocation> param2) {
-        return this.namespacedFiles.keySet().stream().filter(param3 -> {
-            String var0 = param3.getPath();
-            return param3.getNamespace().equals(param1) && !var0.endsWith(".mcmeta") && var0.startsWith(param0 + "/") && param2.test(param3);
+    public Collection<ResourceLocation> getFiles(String param0, String param1, int param2, Predicate<String> param3) {
+        return this.namespacedFiles.keySet().stream().filter(param3x -> {
+            String var0 = param3x.getPath();
+            return param3x.getNamespace().equals(param1) && !var0.endsWith(".mcmeta") && var0.startsWith(param0 + "/") && param3.test(var0);
         }).collect(Collectors.toList());
     }
 }

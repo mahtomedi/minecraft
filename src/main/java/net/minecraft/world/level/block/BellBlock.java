@@ -135,7 +135,7 @@ public class BellBlock extends BaseEntityBlock {
 
             ((BellBlockEntity)var0).onHit(param3);
             param1.playSound(null, param2, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 2.0F, 1.0F);
-            param1.gameEvent(param0, GameEvent.BLOCK_CHANGE, param2);
+            param1.gameEvent(param0, GameEvent.RING_BELL, param2);
             return true;
         } else {
             return false;

@@ -1,12 +1,6 @@
 {
     "providers": [
         {
-            "type": "space",
-            "advances": {
-                " ": 4
-            }
-        },
-        {
             "type": "bitmap",
             "file": "minecraft:font/ascii_sga.png",
             "ascent": 7,

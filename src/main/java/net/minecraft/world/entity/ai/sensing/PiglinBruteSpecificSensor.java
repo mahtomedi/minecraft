@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -30,8 +29,7 @@ public class PiglinBruteSpecificSensor extends Sensor<LivingEntity> {
         Brain<?> var0 = param1.getBrain();
         List<AbstractPiglin> var1 = Lists.newArrayList();
         NearestVisibleLivingEntities var2 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(NearestVisibleLivingEntities.empty());
-        Optional<Mob> var3 = var2.findClosest((Predicate<LivingEntity>)(param0x -> param0x instanceof WitherSkeleton || param0x instanceof WitherBoss))
-            .map(Mob.class::cast);
+        Optional<Mob> var3 = var2.findClosest(param0x -> param0x instanceof WitherSkeleton || param0x instanceof WitherBoss).map(Mob.class::cast);
 
         for(LivingEntity var5 : var0.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(ImmutableList.of())) {
             if (var5 instanceof AbstractPiglin && ((AbstractPiglin)var5).isAdult()) {

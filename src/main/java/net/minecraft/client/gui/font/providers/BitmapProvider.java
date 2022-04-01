@@ -4,9 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.GlyphProvider;
-import com.mojang.blaze3d.font.SheetGlyphInfo;
+import com.mojang.blaze3d.font.RawGlyph;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -15,9 +14,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -44,7 +41,7 @@ public class BitmapProvider implements GlyphProvider {
 
     @Nullable
     @Override
-    public GlyphInfo getGlyph(int param0) {
+    public RawGlyph getGlyph(int param0) {
         return this.glyphs.get(param0);
     }
 
@@ -118,7 +115,7 @@ public class BitmapProvider implements GlyphProvider {
 
                         for(int var10 : this.chars.get(var8)) {
                             int var11 = var9++;
-                            if (var10 != 0) {
+                            if (var10 != 0 && var10 != 32) {
                                 int var12 = this.getActualGlyphWidth(var1, var4, var5, var11, var8);
                                 BitmapProvider.Glyph var13 = var7.put(
                                     var10,
@@ -160,45 +157,60 @@ public class BitmapProvider implements GlyphProvider {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static record Glyph(float scale, NativeImage image, int offsetX, int offsetY, int width, int height, int advance, int ascent) implements GlyphInfo {
+    static final class Glyph implements RawGlyph {
+        private final float scale;
+        private final NativeImage image;
+        private final int offsetX;
+        private final int offsetY;
+        private final int width;
+        private final int height;
+        private final int advance;
+        private final int ascent;
+
+        Glyph(float param0, NativeImage param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+            this.scale = param0;
+            this.image = param1;
+            this.offsetX = param2;
+            this.offsetY = param3;
+            this.width = param4;
+            this.height = param5;
+            this.advance = param6;
+            this.ascent = param7;
+        }
+
+        @Override
+        public float getOversample() {
+            return 1.0F / this.scale;
+        }
+
+        @Override
+        public int getPixelWidth() {
+            return this.width;
+        }
+
+        @Override
+        public int getPixelHeight() {
+            return this.height;
+        }
+
         @Override
         public float getAdvance() {
             return (float)this.advance;
         }
 
         @Override
-        public BakedGlyph bake(Function<SheetGlyphInfo, BakedGlyph> param0) {
-            return param0.apply(new SheetGlyphInfo() {
-                @Override
-                public float getOversample() {
-                    return 1.0F / Glyph.this.scale;
-                }
+        public float getBearingY() {
+            return RawGlyph.super.getBearingY() + 7.0F - (float)this.ascent;
+        }
 
-                @Override
-                public int getPixelWidth() {
-                    return Glyph.this.width;
-                }
+        @Override
+        public void upload(int param0, int param1) {
+            this.image.upload(0, param0, param1, this.offsetX, this.offsetY, this.width, this.height, false, false);
+        }
 
-                @Override
-                public int getPixelHeight() {
-                    return Glyph.this.height;
-                }
-
-                @Override
-                public float getBearingY() {
-                    return SheetGlyphInfo.super.getBearingY() + 7.0F - (float)Glyph.this.ascent;
-                }
-
-                @Override
-                public void upload(int param0, int param1) {
-                    Glyph.this.image.upload(0, param0, param1, Glyph.this.offsetX, Glyph.this.offsetY, Glyph.this.width, Glyph.this.height, false, false);
-                }
-
-                @Override
-                public boolean isColored() {
-                    return Glyph.this.image.format().components() > 1;
-                }
-            });
+        @Override
+        public boolean isColored() {
+            return this.image.format().components() > 1;
         }
     }
 }

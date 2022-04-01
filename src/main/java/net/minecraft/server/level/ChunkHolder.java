@@ -177,24 +177,21 @@ public class ChunkHolder {
     }
 
     public void sectionLightChanged(LightLayer param0, int param1) {
-        Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var0 = this.getFutureIfPresent(ChunkStatus.FEATURES).getNow(null);
+        LevelChunk var0 = this.getFullChunk();
         if (var0 != null) {
-            ChunkAccess var1 = var0.left().orElse(null);
+            var0.setUnsaved(true);
+            LevelChunk var1 = this.getTickingChunk();
             if (var1 != null) {
-                var1.setUnsaved(true);
-                LevelChunk var2 = this.getTickingChunk();
-                if (var2 != null) {
-                    int var3 = this.lightEngine.getMinLightSection();
-                    int var4 = this.lightEngine.getMaxLightSection();
-                    if (param1 >= var3 && param1 <= var4) {
-                        int var5 = param1 - var3;
-                        if (param0 == LightLayer.SKY) {
-                            this.skyChangedLightSectionFilter.set(var5);
-                        } else {
-                            this.blockChangedLightSectionFilter.set(var5);
-                        }
-
+                int var2 = this.lightEngine.getMinLightSection();
+                int var3 = this.lightEngine.getMaxLightSection();
+                if (param1 >= var2 && param1 <= var3) {
+                    int var4 = param1 - var2;
+                    if (param0 == LightLayer.SKY) {
+                        this.skyChangedLightSectionFilter.set(var4);
+                    } else {
+                        this.blockChangedLightSectionFilter.set(var4);
                     }
+
                 }
             }
         }

@@ -1,11 +1,14 @@
 package net.minecraft.world.level.levelgen;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -42,53 +45,64 @@ public class SurfaceSystem {
     private final NormalNoise icebergPillarNoise;
     private final NormalNoise icebergPillarRoofNoise;
     private final NormalNoise icebergSurfaceNoise;
-    private final PositionalRandomFactory noiseRandom;
+    private final Registry<NormalNoise.NoiseParameters> noises;
+    private final Map<ResourceKey<NormalNoise.NoiseParameters>, NormalNoise> noiseIntances = new ConcurrentHashMap<>();
+    private final Map<ResourceLocation, PositionalRandomFactory> positionalRandoms = new ConcurrentHashMap<>();
+    private final PositionalRandomFactory randomFactory;
     private final NormalNoise surfaceNoise;
     private final NormalNoise surfaceSecondaryNoise;
 
-    public SurfaceSystem(RandomState param0, BlockState param1, int param2, PositionalRandomFactory param3) {
+    public SurfaceSystem(Registry<NormalNoise.NoiseParameters> param0, BlockState param1, int param2, long param3, WorldgenRandom.Algorithm param4) {
+        this.noises = param0;
         this.defaultBlock = param1;
         this.seaLevel = param2;
-        this.noiseRandom = param3;
-        this.clayBandsOffsetNoise = param0.getOrCreateNoise(Noises.CLAY_BANDS_OFFSET);
-        this.clayBands = generateBands(param3.fromHashOf(new ResourceLocation("clay_bands")));
-        this.surfaceNoise = param0.getOrCreateNoise(Noises.SURFACE);
-        this.surfaceSecondaryNoise = param0.getOrCreateNoise(Noises.SURFACE_SECONDARY);
-        this.badlandsPillarNoise = param0.getOrCreateNoise(Noises.BADLANDS_PILLAR);
-        this.badlandsPillarRoofNoise = param0.getOrCreateNoise(Noises.BADLANDS_PILLAR_ROOF);
-        this.badlandsSurfaceNoise = param0.getOrCreateNoise(Noises.BADLANDS_SURFACE);
-        this.icebergPillarNoise = param0.getOrCreateNoise(Noises.ICEBERG_PILLAR);
-        this.icebergPillarRoofNoise = param0.getOrCreateNoise(Noises.ICEBERG_PILLAR_ROOF);
-        this.icebergSurfaceNoise = param0.getOrCreateNoise(Noises.ICEBERG_SURFACE);
+        this.randomFactory = param4.newInstance(param3).forkPositional();
+        this.clayBandsOffsetNoise = Noises.instantiate(param0, this.randomFactory, Noises.CLAY_BANDS_OFFSET);
+        this.clayBands = generateBands(this.randomFactory.fromHashOf(new ResourceLocation("clay_bands")));
+        this.surfaceNoise = Noises.instantiate(param0, this.randomFactory, Noises.SURFACE);
+        this.surfaceSecondaryNoise = Noises.instantiate(param0, this.randomFactory, Noises.SURFACE_SECONDARY);
+        this.badlandsPillarNoise = Noises.instantiate(param0, this.randomFactory, Noises.BADLANDS_PILLAR);
+        this.badlandsPillarRoofNoise = Noises.instantiate(param0, this.randomFactory, Noises.BADLANDS_PILLAR_ROOF);
+        this.badlandsSurfaceNoise = Noises.instantiate(param0, this.randomFactory, Noises.BADLANDS_SURFACE);
+        this.icebergPillarNoise = Noises.instantiate(param0, this.randomFactory, Noises.ICEBERG_PILLAR);
+        this.icebergPillarRoofNoise = Noises.instantiate(param0, this.randomFactory, Noises.ICEBERG_PILLAR_ROOF);
+        this.icebergSurfaceNoise = Noises.instantiate(param0, this.randomFactory, Noises.ICEBERG_SURFACE);
+    }
+
+    protected NormalNoise getOrCreateNoise(ResourceKey<NormalNoise.NoiseParameters> param0) {
+        return this.noiseIntances.computeIfAbsent(param0, param1 -> Noises.instantiate(this.noises, this.randomFactory, param0));
+    }
+
+    protected PositionalRandomFactory getOrCreateRandomFactory(ResourceLocation param0) {
+        return this.positionalRandoms.computeIfAbsent(param0, param1 -> this.randomFactory.fromHashOf(param0).forkPositional());
     }
 
     public void buildSurface(
-        RandomState param0,
-        BiomeManager param1,
-        Registry<Biome> param2,
-        boolean param3,
-        WorldGenerationContext param4,
-        final ChunkAccess param5,
-        NoiseChunk param6,
-        SurfaceRules.RuleSource param7
+        BiomeManager param0,
+        Registry<Biome> param1,
+        boolean param2,
+        WorldGenerationContext param3,
+        final ChunkAccess param4,
+        NoiseChunk param5,
+        SurfaceRules.RuleSource param6
     ) {
         final BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        final ChunkPos var1 = param5.getPos();
+        final ChunkPos var1 = param4.getPos();
         int var2 = var1.getMinBlockX();
         int var3 = var1.getMinBlockZ();
         BlockColumn var4 = new BlockColumn() {
             @Override
             public BlockState getBlock(int param0) {
-                return param5.getBlockState(var0.setY(param0));
+                return param4.getBlockState(var0.setY(param0));
             }
 
             @Override
             public void setBlock(int param0, BlockState param1) {
-                LevelHeightAccessor var0 = param5.getHeightAccessorForGeneration();
+                LevelHeightAccessor var0 = param4.getHeightAccessorForGeneration();
                 if (param0 >= var0.getMinBuildHeight() && param0 < var0.getMaxBuildHeight()) {
-                    param5.setBlockState(var0.setY(param0), param1, false);
+                    param4.setBlockState(var0.setY(param0), param1, false);
                     if (!param1.getFluidState().isEmpty()) {
-                        param5.markPosForPostprocessing(var0);
+                        param4.markPosForPostprocessing(var0);
                     }
                 }
 
@@ -99,27 +113,27 @@ public class SurfaceSystem {
                 return "ChunkBlockColumn " + var1;
             }
         };
-        SurfaceRules.Context var5 = new SurfaceRules.Context(this, param0, param5, param6, param1::getBiome, param2, param4);
-        SurfaceRules.SurfaceRule var6 = param7.apply(var5);
+        SurfaceRules.Context var5 = new SurfaceRules.Context(this, param4, param5, param0::getBiome, param1, param3);
+        SurfaceRules.SurfaceRule var6 = param6.apply(var5);
         BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
 
         for(int var8 = 0; var8 < 16; ++var8) {
             for(int var9 = 0; var9 < 16; ++var9) {
                 int var10 = var2 + var8;
                 int var11 = var3 + var9;
-                int var12 = param5.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
+                int var12 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
                 var0.setX(var10).setZ(var11);
-                Holder<Biome> var13 = param1.getBiome(var7.set(var10, param3 ? 0 : var12, var11));
+                Holder<Biome> var13 = param0.getBiome(var7.set(var10, param2 ? 0 : var12, var11));
                 if (var13.is(Biomes.ERODED_BADLANDS)) {
-                    this.erodedBadlandsExtension(var4, var10, var11, var12, param5);
+                    this.erodedBadlandsExtension(var4, var10, var11, var12, param4);
                 }
 
-                int var14 = param5.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
+                int var14 = param4.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8, var9) + 1;
                 var5.updateXZ(var10, var11);
                 int var15 = 0;
                 int var16 = Integer.MIN_VALUE;
                 int var17 = Integer.MAX_VALUE;
-                int var18 = param5.getMinBuildHeight();
+                int var18 = param4.getMinBuildHeight();
 
                 for(int var19 = var14; var19 >= var18; --var19) {
                     BlockState var20 = var4.getBlock(var19);
@@ -165,7 +179,7 @@ public class SurfaceSystem {
 
     protected int getSurfaceDepth(int param0, int param1) {
         double var0 = this.surfaceNoise.getValue((double)param0, 0.0, (double)param1);
-        return (int)(var0 * 2.75 + 3.0 + this.noiseRandom.at(param0, 0, param1).nextDouble() * 0.25);
+        return (int)(var0 * 2.75 + 3.0 + this.randomFactory.at(param0, 0, param1).nextDouble() * 0.25);
     }
 
     protected double getSurfaceSecondary(int param0, int param1) {
@@ -187,7 +201,7 @@ public class SurfaceSystem {
         boolean param6
     ) {
         SurfaceRules.Context var0 = new SurfaceRules.Context(
-            this, param1.randomState(), param3, param4, param2, param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param1
+            this, param3, param4, param2, param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param1
         );
         SurfaceRules.SurfaceRule var1 = param0.apply(var0);
         int var2 = param5.getX();
@@ -256,7 +270,7 @@ public class SurfaceSystem {
             }
 
             double var8 = var5;
-            RandomSource var9 = this.noiseRandom.at(param4, 0, param5);
+            RandomSource var9 = this.randomFactory.at(param4, 0, param5);
             int var10 = 2 + var9.nextInt(4);
             int var11 = this.seaLevel + 18 + var9.nextInt(10);
             int var12 = 0;

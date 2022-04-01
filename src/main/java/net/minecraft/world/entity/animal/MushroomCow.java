@@ -57,7 +57,7 @@ public class MushroomCow extends Cow implements Shearable {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        return param1.getBlockState(param0.below()).is(Blocks.MYCELIUM) ? 10.0F : param1.getPathfindingCostFromLightLevels(param0);
+        return param1.getBlockState(param0.below()).is(Blocks.MYCELIUM) ? 10.0F : param1.getBrightness(param0) - 0.5F;
     }
 
     public static boolean checkMushroomSpawnRules(EntityType<MushroomCow> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
@@ -207,7 +207,7 @@ public class MushroomCow extends Cow implements Shearable {
         super.addAdditionalSaveData(param0);
         param0.putString("Type", this.getMushroomType().type);
         if (this.effect != null) {
-            param0.putInt("EffectId", MobEffect.getId(this.effect));
+            param0.putByte("EffectId", (byte)MobEffect.getId(this.effect));
             param0.putInt("EffectDuration", this.effectDuration);
         }
 
@@ -218,7 +218,7 @@ public class MushroomCow extends Cow implements Shearable {
         super.readAdditionalSaveData(param0);
         this.setMushroomType(MushroomCow.MushroomType.byType(param0.getString("Type")));
         if (param0.contains("EffectId", 1)) {
-            this.effect = MobEffect.byId(param0.getInt("EffectId"));
+            this.effect = MobEffect.byId(param0.getByte("EffectId"));
         }
 
         if (param0.contains("EffectDuration", 3)) {

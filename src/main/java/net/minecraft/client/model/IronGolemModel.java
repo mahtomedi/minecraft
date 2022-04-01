@@ -78,6 +78,8 @@ public class IronGolemModel<T extends IronGolem> extends HierarchicalModel<T> {
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
         int var0 = param0.getAttackAnimationTick();
+        this.rightArm.resetPose();
+        this.leftArm.resetPose();
         if (var0 > 0) {
             this.rightArm.xRot = -2.0F + 1.5F * Mth.triangleWave((float)var0 - param3, 10.0F);
             this.leftArm.xRot = -2.0F + 1.5F * Mth.triangleWave((float)var0 - param3, 10.0F);
@@ -86,6 +88,13 @@ public class IronGolemModel<T extends IronGolem> extends HierarchicalModel<T> {
             if (var1 > 0) {
                 this.rightArm.xRot = -0.8F + 0.025F * Mth.triangleWave((float)var1, 70.0F);
                 this.leftArm.xRot = 0.0F;
+            } else if (param0.isJolly()) {
+                this.rightArm.xRot = 3.5F + 1.5F * Mth.triangleWave(param1, 13.0F) * param2;
+                this.rightArm.zRot = -0.5F;
+                this.rightArm.y = -11.0F;
+                this.leftArm.xRot = 3.5F - 1.5F * Mth.triangleWave(param1, 13.0F) * param2;
+                this.leftArm.zRot = 0.5F;
+                this.leftArm.y = -11.0F;
             } else {
                 this.rightArm.xRot = (-0.2F + 1.5F * Mth.triangleWave(param1, 13.0F)) * param2;
                 this.leftArm.xRot = (-0.2F - 1.5F * Mth.triangleWave(param1, 13.0F)) * param2;

@@ -6,8 +6,6 @@
     "minecraft:birch_boat",
     "minecraft:jungle_boat",
     "minecraft:acacia_boat",
-    "minecraft:dark_oak_boat",
-    "minecraft:mangrove_boat",
-    "#minecraft:chest_boats"
+    "minecraft:dark_oak_boat"
   ]
 }

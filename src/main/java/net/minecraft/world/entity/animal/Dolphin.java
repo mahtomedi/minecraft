@@ -14,9 +14,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ConfiguredStructureTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.StructureTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -247,6 +247,12 @@ public class Dolphin extends WaterAnimal {
         if (this.isNoAi()) {
             this.setAirSupply(this.getMaxAirSupply());
         } else {
+            Entity var2 = this.getVehicle();
+            if (var2 instanceof Player var0 && var0.isSwimming()) {
+                this.setXRot(var0.getXRot());
+                this.setYRot(var0.getYRot());
+            }
+
             if (this.isInWaterRainOrBubble()) {
                 this.setMoisntessLevel(2400);
             } else {
@@ -267,18 +273,18 @@ public class Dolphin extends WaterAnimal {
             }
 
             if (this.level.isClientSide && this.isInWater() && this.getDeltaMovement().lengthSqr() > 0.03) {
-                Vec3 var0 = this.getViewVector(0.0F);
-                float var1 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)) * 0.3F;
-                float var2 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)) * 0.3F;
-                float var3 = 1.2F - this.random.nextFloat() * 0.7F;
+                Vec3 var1 = this.getViewVector(0.0F);
+                float var2 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)) * 0.3F;
+                float var3 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)) * 0.3F;
+                float var4 = 1.2F - this.random.nextFloat() * 0.7F;
 
-                for(int var4 = 0; var4 < 2; ++var4) {
+                for(int var5 = 0; var5 < 2; ++var5) {
                     this.level
                         .addParticle(
                             ParticleTypes.DOLPHIN,
-                            this.getX() - var0.x * (double)var3 + (double)var1,
-                            this.getY() - var0.y,
-                            this.getZ() - var0.z * (double)var3 + (double)var2,
+                            this.getX() - var1.x * (double)var4 + (double)var2,
+                            this.getY() - var1.y,
+                            this.getZ() - var1.z * (double)var4 + (double)var3,
                             0.0,
                             0.0,
                             0.0
@@ -286,9 +292,9 @@ public class Dolphin extends WaterAnimal {
                     this.level
                         .addParticle(
                             ParticleTypes.DOLPHIN,
-                            this.getX() - var0.x * (double)var3 - (double)var1,
-                            this.getY() - var0.y,
-                            this.getZ() - var0.z * (double)var3 - (double)var2,
+                            this.getX() - var1.x * (double)var4 - (double)var2,
+                            this.getY() - var1.y,
+                            this.getZ() - var1.z * (double)var4 - (double)var3,
                             0.0,
                             0.0,
                             0.0
@@ -424,7 +430,7 @@ public class Dolphin extends WaterAnimal {
                 this.stuck = false;
                 this.dolphin.getNavigation().stop();
                 BlockPos var1 = this.dolphin.blockPosition();
-                BlockPos var2 = var0.findNearestMapStructure(StructureTags.DOLPHIN_LOCATED, var1, 50, false);
+                BlockPos var2 = var0.findNearestMapFeature(ConfiguredStructureTags.DOLPHIN_LOCATED, var1, 50, false);
                 if (var2 != null) {
                     this.dolphin.setTreasurePos(var2);
                     var0.broadcastEntityEvent(this.dolphin, (byte)38);

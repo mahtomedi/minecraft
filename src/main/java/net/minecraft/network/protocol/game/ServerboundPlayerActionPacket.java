@@ -9,24 +9,17 @@ public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketLis
     private final BlockPos pos;
     private final Direction direction;
     private final ServerboundPlayerActionPacket.Action action;
-    private final int sequence;
 
-    public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2, int param3) {
+    public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2) {
         this.action = param0;
         this.pos = param1.immutable();
         this.direction = param2;
-        this.sequence = param3;
-    }
-
-    public ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action param0, BlockPos param1, Direction param2) {
-        this(param0, param1, param2, 0);
     }
 
     public ServerboundPlayerActionPacket(FriendlyByteBuf param0) {
         this.action = param0.readEnum(ServerboundPlayerActionPacket.Action.class);
         this.pos = param0.readBlockPos();
         this.direction = Direction.from3DDataValue(param0.readUnsignedByte());
-        this.sequence = param0.readVarInt();
     }
 
     @Override
@@ -34,7 +27,6 @@ public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketLis
         param0.writeEnum(this.action);
         param0.writeBlockPos(this.pos);
         param0.writeByte(this.direction.get3DDataValue());
-        param0.writeVarInt(this.sequence);
     }
 
     public void handle(ServerGamePacketListener param0) {
@@ -51,10 +43,6 @@ public class ServerboundPlayerActionPacket implements Packet<ServerGamePacketLis
 
     public ServerboundPlayerActionPacket.Action getAction() {
         return this.action;
-    }
-
-    public int getSequence() {
-        return this.sequence;
     }
 
     public static enum Action {

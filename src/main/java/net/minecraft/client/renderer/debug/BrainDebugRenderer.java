@@ -39,7 +39,6 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     private static final boolean SHOW_PATH_FOR_ALL = false;
     private static final boolean SHOW_HEALTH_FOR_ALL = false;
     private static final boolean SHOW_WANTS_GOLEM_FOR_ALL = true;
-    private static final boolean SHOW_ANGER_LEVEL_FOR_ALL = false;
     private static final boolean SHOW_NAME_FOR_SELECTED = true;
     private static final boolean SHOW_PROFESSION_FOR_SELECTED = true;
     private static final boolean SHOW_BEHAVIORS_FOR_SELECTED = true;
@@ -50,7 +49,6 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     private static final boolean SHOW_PATH_FOR_SELECTED = true;
     private static final boolean SHOW_HEALTH_FOR_SELECTED = true;
     private static final boolean SHOW_WANTS_GOLEM_FOR_SELECTED = true;
-    private static final boolean SHOW_ANGER_LEVEL_FOR_SELECTED = true;
     private static final boolean SHOW_POI_INFO = true;
     private static final int MAX_RENDER_DIST_FOR_BRAIN_INFO = 30;
     private static final int MAX_RENDER_DIST_FOR_POI_INFO = 30;
@@ -243,11 +241,6 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             ++var1;
         }
 
-        if (var0 && param0.angerLevel != -1) {
-            renderTextOverMob(param0.pos, var1, "Anger Level: " + param0.angerLevel, -98404, 0.02F);
-            ++var1;
-        }
-
         if (var0) {
             for(String var5 : param0.gossips) {
                 if (var5.startsWith(param0.name)) {
@@ -366,7 +359,6 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         public final String inventory;
         public final Path path;
         public final boolean wantsGolem;
-        public final int angerLevel;
         public final List<String> activities = Lists.newArrayList();
         public final List<String> behaviors = Lists.newArrayList();
         public final List<String> memories = Lists.newArrayList();
@@ -385,8 +377,7 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             Position param7,
             String param8,
             @Nullable Path param9,
-            boolean param10,
-            int param11
+            boolean param10
         ) {
             this.uuid = param0;
             this.id = param1;
@@ -399,7 +390,6 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             this.inventory = param8;
             this.path = param9;
             this.wantsGolem = param10;
-            this.angerLevel = param11;
         }
 
         boolean hasPoi(BlockPos param0) {

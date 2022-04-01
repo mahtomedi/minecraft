@@ -55,14 +55,14 @@ public class MouseHandler {
 
             int var1 = param1;
             if (var0) {
-                if (this.minecraft.options.touchscreen().get() && this.clickDepth++ > 0) {
+                if (this.minecraft.options.touchscreen && this.clickDepth++ > 0) {
                     return;
                 }
 
                 this.activeButton = var1;
                 this.mousePressedTime = Blaze3D.getTime();
             } else if (this.activeButton != -1) {
-                if (this.minecraft.options.touchscreen().get() && --this.clickDepth > 0) {
+                if (this.minecraft.options.touchscreen && --this.clickDepth > 0) {
                     return;
                 }
 
@@ -116,8 +116,7 @@ public class MouseHandler {
 
     private void onScroll(long param0, double param1, double param2) {
         if (param0 == Minecraft.getInstance().getWindow().getWindow()) {
-            double var0 = (this.minecraft.options.discreteMouseScroll().get() ? Math.signum(param2) : param2)
-                * this.minecraft.options.mouseWheelSensitivity().get();
+            double var0 = (this.minecraft.options.discreteMouseScroll ? Math.signum(param2) : param2) * this.minecraft.options.mouseWheelSensitivity;
             if (this.minecraft.getOverlay() == null) {
                 if (this.minecraft.screen != null) {
                     double var1 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
@@ -223,7 +222,7 @@ public class MouseHandler {
         double var1 = var0 - this.lastMouseEventTime;
         this.lastMouseEventTime = var0;
         if (this.isMouseGrabbed() && this.minecraft.isWindowActive()) {
-            double var2 = this.minecraft.options.sensitivity().get() * 0.6F + 0.2F;
+            double var2 = this.minecraft.options.sensitivity * 0.6F + 0.2F;
             double var3 = var2 * var2 * var2;
             double var4 = var3 * 8.0;
             double var7;
@@ -248,7 +247,7 @@ public class MouseHandler {
             this.accumulatedDX = 0.0;
             this.accumulatedDY = 0.0;
             int var13 = 1;
-            if (this.minecraft.options.invertYMouse().get()) {
+            if (this.minecraft.options.invertYMouse) {
                 var13 = -1;
             }
 

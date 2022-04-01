@@ -66,7 +66,7 @@ public class NarratorChatListener implements ChatListener {
     }
 
     private static NarratorStatus getStatus() {
-        return Minecraft.getInstance().options.narrator().get();
+        return Minecraft.getInstance().options.narratorStatus;
     }
 
     private void logNarratedMessage(String param0) {

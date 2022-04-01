@@ -17,7 +17,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import org.slf4j.Logger;
 
-public class Pack {
+public class Pack implements AutoCloseable {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final String id;
     private final Supplier<PackResources> supplier;
@@ -149,6 +149,10 @@ public class Pack {
     @Override
     public int hashCode() {
         return this.id.hashCode();
+    }
+
+    @Override
+    public void close() {
     }
 
     @FunctionalInterface

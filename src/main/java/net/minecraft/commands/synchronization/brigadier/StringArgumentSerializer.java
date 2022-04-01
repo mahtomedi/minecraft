@@ -3,50 +3,39 @@ package net.minecraft.commands.synchronization.brigadier;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType.StringType;
-import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 
-public class StringArgumentSerializer implements ArgumentTypeInfo<StringArgumentType, StringArgumentSerializer.Template> {
-    public void serializeToNetwork(StringArgumentSerializer.Template param0, FriendlyByteBuf param1) {
-        param1.writeEnum(param0.type);
+public class StringArgumentSerializer implements ArgumentSerializer<StringArgumentType> {
+    public void serializeToNetwork(StringArgumentType param0, FriendlyByteBuf param1) {
+        param1.writeEnum(param0.getType());
     }
 
-    public StringArgumentSerializer.Template deserializeFromNetwork(FriendlyByteBuf param0) {
+    public StringArgumentType deserializeFromNetwork(FriendlyByteBuf param0) {
         StringType var0 = param0.readEnum(StringType.class);
-        return new StringArgumentSerializer.Template(var0);
+        switch(var0) {
+            case SINGLE_WORD:
+                return StringArgumentType.word();
+            case QUOTABLE_PHRASE:
+                return StringArgumentType.string();
+            case GREEDY_PHRASE:
+            default:
+                return StringArgumentType.greedyString();
+        }
     }
 
-    public void serializeToJson(StringArgumentSerializer.Template param0, JsonObject param1) {
-        param1.addProperty("type", switch(param0.type) {
-            case SINGLE_WORD -> "word";
-            case QUOTABLE_PHRASE -> "phrase";
-            case GREEDY_PHRASE -> "greedy";
-        });
-    }
-
-    public StringArgumentSerializer.Template unpack(StringArgumentType param0) {
-        return new StringArgumentSerializer.Template(param0.getType());
-    }
-
-    public final class Template implements ArgumentTypeInfo.Template<StringArgumentType> {
-        final StringType type;
-
-        public Template(StringType param1) {
-            this.type = param1;
+    public void serializeToJson(StringArgumentType param0, JsonObject param1) {
+        switch(param0.getType()) {
+            case SINGLE_WORD:
+                param1.addProperty("type", "word");
+                break;
+            case QUOTABLE_PHRASE:
+                param1.addProperty("type", "phrase");
+                break;
+            case GREEDY_PHRASE:
+            default:
+                param1.addProperty("type", "greedy");
         }
 
-        public StringArgumentType instantiate(CommandBuildContext param0) {
-            return switch(this.type) {
-                case SINGLE_WORD -> StringArgumentType.word();
-                case QUOTABLE_PHRASE -> StringArgumentType.string();
-                case GREEDY_PHRASE -> StringArgumentType.greedyString();
-            };
-        }
-
-        @Override
-        public ArgumentTypeInfo<StringArgumentType, ?> type() {
-            return StringArgumentSerializer.this;
-        }
     }
 }

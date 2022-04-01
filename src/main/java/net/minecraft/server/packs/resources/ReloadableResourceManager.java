@@ -3,8 +3,8 @@ package net.minecraft.server.packs.resources;
 import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -60,18 +60,13 @@ public class ReloadableResourceManager implements AutoCloseable, ResourceManager
     }
 
     @Override
-    public List<ResourceThunk> getResourceStack(ResourceLocation param0) throws IOException {
-        return this.resources.getResourceStack(param0);
+    public List<Resource> getResources(ResourceLocation param0) throws IOException {
+        return this.resources.getResources(param0);
     }
 
     @Override
-    public Map<ResourceLocation, ResourceThunk> listResources(String param0, Predicate<ResourceLocation> param1) {
+    public Collection<ResourceLocation> listResources(String param0, Predicate<String> param1) {
         return this.resources.listResources(param0, param1);
-    }
-
-    @Override
-    public Map<ResourceLocation, List<ResourceThunk>> listResourceStacks(String param0, Predicate<ResourceLocation> param1) {
-        return this.resources.listResourceStacks(param0, param1);
     }
 
     @Override

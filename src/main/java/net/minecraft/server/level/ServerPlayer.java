@@ -48,7 +48,6 @@ import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
@@ -59,8 +58,10 @@ import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
@@ -72,6 +73,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.TextFilter;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.ServerRecipeBook;
 import net.minecraft.stats.ServerStatsCounter;
@@ -93,7 +95,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
@@ -106,6 +110,7 @@ import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ComplexItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -119,6 +124,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.GenericItemBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -451,6 +457,50 @@ public class ServerPlayer extends Player {
         this.trackStartFallingPosition();
         this.trackEnteredOrExitedLavaOnVehicle();
         this.advancements.flushDirty(this);
+        if (this.blockPosition().getY() < -32 && !this.level.dimensionType().bedWorks()) {
+            Entity var2 = this.getVehicle();
+            if (var2 instanceof EnderDragon var1) {
+                MinecraftServer var2x = this.level.getServer();
+                if (var2x != null) {
+                    Level var3x = var2x.overworld();
+                    if (var3x instanceof ServerLevel var4) {
+                        Entity var5 = this.teleportToDimenstion(var1, var4);
+                        Entity var6 = this.teleportPlayerToDimension(var4, this);
+                        if (var5 != null && var6 != null) {
+                            var6.startRiding(var5);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private Entity teleportPlayerToDimension(ServerLevel param0, Entity param1) {
+        ChunkPos var0 = new ChunkPos(param1.blockPosition());
+        param0.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, var0, 1, param1.getId());
+        param1.stopRiding();
+        if (((ServerPlayer)param1).isSleeping()) {
+            ((ServerPlayer)param1).stopSleepInBed(true, true);
+        }
+
+        ((ServerPlayer)param1).teleportTo(param0, param1.getX(), 360.0, param1.getZ(), 0.0F, 0.0F);
+        return param1;
+    }
+
+    @Nullable
+    private Entity teleportToDimenstion(Entity param0, ServerLevel param1) {
+        param0.unRide();
+        param0 = param0.getType().create(param1);
+        if (param0 != null) {
+            param0.restoreFrom(param0);
+            param0.moveTo(param0.getX(), 360.0, param0.getZ(), 0.0F, 0.0F);
+            param0.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
+            param1.addDuringTeleport(param0);
+            return param0;
+        } else {
+            return null;
+        }
     }
 
     public void doTick() {
@@ -563,7 +613,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void die(DamageSource param0) {
-        this.gameEvent(GameEvent.ENTITY_DIE);
+        this.gameEvent(GameEvent.ENTITY_DYING);
         boolean var0 = this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES);
         if (var0) {
             Component var1 = this.getCombatTracker().getDeathMessage();
@@ -675,13 +725,38 @@ public class ServerPlayer extends Player {
             } else {
                 if (param0 instanceof EntityDamageSource) {
                     Entity var1 = param0.getEntity();
+                    if (var1 instanceof Mob var2) {
+                        if (var2 instanceof EnderMan var3) {
+                            BlockState var4 = var2.getCarriedBlock();
+                            if (var4 != null && this.getCarried() == LivingEntity.Carried.NONE) {
+                                var2.setCarriedBlock(null);
+                                this.setCarriedBlock(var4);
+                                var3.stopBeingAngry();
+                                Vec3 var5 = var3.position();
+                                var3.randomTeleport(
+                                    var5.x + (var3.getRandom().nextDouble() - 0.5) * 16.0, var5.y, var5.z + (var3.getRandom().nextDouble() - 0.5) * 16.0, true
+                                );
+                                this.level.playSound(null, this, SoundEvents.OOOF, this.getSoundSource(), this.getSoundVolume(), this.getVoicePitch());
+                                return false;
+                            }
+                        } else if (var2.canStealItem()
+                            && !param0.isProjectile()
+                            && this.getCarried() == LivingEntity.Carried.BLOCK
+                            && var2.getCarried() == LivingEntity.Carried.NONE) {
+                            var2.setCarriedBlock(this.getCarriedBlock());
+                            this.setCarriedBlock(null);
+                            this.level.playSound(null, this, SoundEvents.OOOF, this.getSoundSource(), this.getSoundVolume(), this.getVoicePitch());
+                            return false;
+                        }
+                    }
+
                     if (var1 instanceof Player && !this.canHarmPlayer((Player)var1)) {
                         return false;
                     }
 
-                    if (var1 instanceof AbstractArrow var2) {
-                        Entity var3 = var2.getOwner();
-                        if (var3 instanceof Player && !this.canHarmPlayer((Player)var3)) {
+                    if (var1 instanceof AbstractArrow var6) {
+                        Entity var7 = var6.getOwner();
+                        if (var7 instanceof Player && !this.canHarmPlayer((Player)var7)) {
                             return false;
                         }
                     }
@@ -993,28 +1068,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public OptionalInt openMenu(@Nullable MenuProvider param0) {
-        if (param0 == null) {
-            return OptionalInt.empty();
-        } else {
-            if (this.containerMenu != this.inventoryMenu) {
-                this.closeContainer();
-            }
-
-            this.nextContainerCounter();
-            AbstractContainerMenu var0 = param0.createMenu(this.containerCounter, this.getInventory(), this);
-            if (var0 == null) {
-                if (this.isSpectator()) {
-                    this.displayClientMessage(new TranslatableComponent("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
-                }
-
-                return OptionalInt.empty();
-            } else {
-                this.connection.send(new ClientboundOpenScreenPacket(var0.containerId, var0.getType(), param0.getDisplayName()));
-                this.initMenu(var0);
-                this.containerMenu = var0;
-                return OptionalInt.of(this.containerCounter);
-            }
-        }
+        return OptionalInt.empty();
     }
 
     @Override
@@ -1166,6 +1220,7 @@ public class ServerPlayer extends Player {
         this.gameMode.setGameModeForPlayer(param0.gameMode.getGameModeForPlayer(), param0.gameMode.getPreviousGameModeForPlayer());
         if (param1) {
             this.getInventory().replaceWith(param0.getInventory());
+            this.setCarriedBlock(param0.getCarriedBlock());
             this.setHealth(param0.getHealth());
             this.foodData = param0.foodData;
             this.experienceLevel = param0.experienceLevel;
@@ -1544,18 +1599,16 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    public ItemEntity drop(ItemStack param0, boolean param1, boolean param2) {
-        ItemEntity var0 = super.drop(param0, param1, param2);
-        if (var0 == null) {
-            return null;
+    public List<FallingBlockEntity> drop(ItemStack param0, boolean param1, boolean param2) {
+        List<FallingBlockEntity> var0 = super.drop(param0, param1, param2);
+        if (var0.isEmpty()) {
+            return var0;
         } else {
-            this.level.addFreshEntity(var0);
-            ItemStack var1 = var0.getItem();
-            if (param2) {
-                if (!var1.isEmpty()) {
-                    this.awardStat(Stats.ITEM_DROPPED.get(var1.getItem()), param0.getCount());
-                }
+            for(FallingBlockEntity var1 : var0) {
+                this.level.addFreshEntity(var1);
+            }
 
+            if (param2) {
                 this.awardStat(Stats.DROP);
             }
 
@@ -1629,10 +1682,57 @@ public class ServerPlayer extends Player {
         Inventory var0 = this.getInventory();
         ItemStack var1 = var0.removeFromSelected(param0);
         this.containerMenu.findSlot(var0, var0.selected).ifPresent(param1 -> this.containerMenu.setRemoteSlot(param1, var0.getSelected()));
-        return this.drop(var1, false, true) != null;
+        return !this.drop(var1, false, true).isEmpty();
     }
 
     public boolean allowsListing() {
         return this.allowsListing;
+    }
+
+    @Override
+    protected void addPassenger(Entity param0) {
+        super.addPassenger(param0);
+        this.connection.send(new ClientboundSetPassengersPacket(this));
+    }
+
+    @Override
+    protected void removePassenger(Entity param0) {
+        super.removePassenger(param0);
+        this.connection.send(new ClientboundSetPassengersPacket(this));
+    }
+
+    public void tryThrowBlock(Vec3 param0) {
+        BlockState var0 = this.getCarriedBlock();
+        if (var0 != null) {
+            if (var0.is(Blocks.GENERIC_ITEM_BLOCK)) {
+                Item var1 = GenericItemBlock.itemFromGenericBlock(var0);
+                if (var1 == Items.LAVA_BUCKET) {
+                    var0 = Blocks.LAVA.defaultBlockState();
+                }
+
+                if (var1 == Items.WATER_BUCKET) {
+                    var0 = Blocks.WATER.defaultBlockState();
+                }
+            }
+
+            this.setCarriedBlock(null);
+            if (var0.is(Blocks.POINTED_DRIPSTONE)) {
+                this.level.playSound(null, this, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
+            }
+
+            FallingBlockEntity var2 = new FallingBlockEntity(this, var0, Direction.getNearest(param0.x, 0.0, param0.z));
+            var2.setDeltaMovement(param0);
+            this.level.addFreshEntity(var2);
+        }
+    }
+
+    public void tryThrowEntities(Vec3 param0) {
+        this.getPassengers().forEach(param1 -> param1.throwEntity(this, param0));
+    }
+
+    @Override
+    public void throwEntity(ServerPlayer param0, Vec3 param1) {
+        super.throwEntity(param0, param1);
+        this.connection.send(new ClientboundSetEntityMotionPacket(this));
     }
 }

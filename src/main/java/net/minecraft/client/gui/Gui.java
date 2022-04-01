@@ -40,7 +40,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -63,12 +62,13 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -91,6 +91,7 @@ public class Gui extends GuiComponent {
     private static final ResourceLocation PUMPKIN_BLUR_LOCATION = new ResourceLocation("textures/misc/pumpkinblur.png");
     private static final ResourceLocation SPYGLASS_SCOPE_LOCATION = new ResourceLocation("textures/misc/spyglass_scope.png");
     private static final ResourceLocation POWDER_SNOW_OUTLINE_LOCATION = new ResourceLocation("textures/misc/powder_snow_outline.png");
+    private static final ResourceLocation BARREL_OVERLAY_LOCATION = new ResourceLocation("textures/misc/barrel_eye_holes.png");
     private static final Component DEMO_EXPIRED_TEXT = new TranslatableComponent("demo.demoExpired");
     private static final Component SAVING_TEXT = new TranslatableComponent("menu.savingLevel");
     private static final int COLOR_WHITE = 16777215;
@@ -183,7 +184,9 @@ public class Gui extends GuiComponent {
         float var1 = this.minecraft.getDeltaFrameTime();
         this.scopeScale = Mth.lerp(0.5F * var1, this.scopeScale, 1.125F);
         if (this.minecraft.options.getCameraType().isFirstPerson()) {
-            if (this.minecraft.player.isScoping()) {
+            if (this.minecraft.player.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
+                this.renderBarrelOverlay();
+            } else if (this.minecraft.player.isScoping()) {
                 this.renderSpyglassOverlay(this.scopeScale);
             } else {
                 this.scopeScale = 0.5F;
@@ -206,7 +209,6 @@ public class Gui extends GuiComponent {
         if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
             this.spectatorGui.renderHotbar(param0);
         } else if (!this.minecraft.options.hideGui) {
-            this.renderHotbar(param1, param0);
         }
 
         if (!this.minecraft.options.hideGui) {
@@ -232,12 +234,10 @@ public class Gui extends GuiComponent {
             if (this.minecraft.player.isRidingJumpable()) {
                 this.renderJumpMeter(param0, var4);
             } else if (this.minecraft.gameMode.hasExperience()) {
-                this.renderExperienceBar(param0, var4);
             }
 
-            if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
-                this.renderSelectedItemName(param0);
-            } else if (this.minecraft.player.isSpectator()) {
+            if ((!this.minecraft.options.heldItemTooltips || this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR)
+                && this.minecraft.player.isSpectator()) {
                 this.spectatorGui.renderTooltip(param0);
             }
         }
@@ -391,7 +391,7 @@ public class Gui extends GuiComponent {
         Options var0 = this.minecraft.options;
         if (var0.getCameraType().isFirstPerson()) {
             if (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
-                if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo().get()) {
+                if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo) {
                     Camera var1 = this.minecraft.gameRenderer.getMainCamera();
                     PoseStack var2 = RenderSystem.getModelViewStack();
                     var2.pushPose();
@@ -412,7 +412,7 @@ public class Gui extends GuiComponent {
                     );
                     int var3 = 15;
                     this.blit(param0, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 0, 0, 15, 15);
-                    if (this.minecraft.options.attackIndicator().get() == AttackIndicatorStatus.CROSSHAIR) {
+                    if (this.minecraft.options.attackIndicator == AttackIndicatorStatus.CROSSHAIR) {
                         float var4 = this.minecraft.player.getAttackStrengthScale(0.0F);
                         boolean var5 = false;
                         if (this.minecraft.crosshairPickEntity != null && this.minecraft.crosshairPickEntity instanceof LivingEntity && var4 >= 1.0F) {
@@ -556,7 +556,7 @@ public class Gui extends GuiComponent {
                 }
             }
 
-            if (this.minecraft.options.attackIndicator().get() == AttackIndicatorStatus.HOTBAR) {
+            if (this.minecraft.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
                 float var12 = this.minecraft.player.getAttackStrengthScale(0.0F);
                 if (var12 < 1.0F) {
                     int var13 = this.screenHeight - 20;
@@ -779,90 +779,38 @@ public class Gui extends GuiComponent {
             this.lastHealth = var1;
             int var4 = this.displayHealth;
             this.random.setSeed((long)(this.tickCount * 312871));
-            FoodData var5 = var0.getFoodData();
-            int var6 = var5.getFoodLevel();
-            int var7 = this.screenWidth / 2 - 91;
-            int var8 = this.screenWidth / 2 + 91;
-            int var9 = this.screenHeight - 39;
-            float var10 = Math.max((float)var0.getAttributeValue(Attributes.MAX_HEALTH), (float)Math.max(var4, var1));
-            int var11 = Mth.ceil(var0.getAbsorptionAmount());
-            int var12 = Mth.ceil((var10 + (float)var11) / 2.0F / 10.0F);
-            int var13 = Math.max(10 - (var12 - 2), 3);
-            int var14 = var9 - (var12 - 1) * var13 - 10;
-            int var15 = var9 - 10;
-            int var16 = var0.getArmorValue();
-            int var17 = -1;
+            int var5 = this.screenHeight - 9 - 2;
+            float var6 = Math.max((float)var0.getAttributeValue(Attributes.MAX_HEALTH), (float)Math.max(var4, var1));
+            int var7 = Mth.ceil(var0.getAbsorptionAmount());
+            int var8 = Mth.ceil((var6 + (float)var7) / 2.0F / 10.0F);
+            int var9 = Math.max(10 - (var8 - 2), 3);
+            int var10 = var5 - 10;
+            int var11 = -1;
             if (var0.hasEffect(MobEffects.REGENERATION)) {
-                var17 = this.tickCount % Mth.ceil(var10 + 5.0F);
-            }
-
-            this.minecraft.getProfiler().push("armor");
-
-            for(int var18 = 0; var18 < 10; ++var18) {
-                if (var16 > 0) {
-                    int var19 = var7 + var18 * 8;
-                    if (var18 * 2 + 1 < var16) {
-                        this.blit(param0, var19, var14, 34, 9, 9, 9);
-                    }
-
-                    if (var18 * 2 + 1 == var16) {
-                        this.blit(param0, var19, var14, 25, 9, 9, 9);
-                    }
-
-                    if (var18 * 2 + 1 > var16) {
-                        this.blit(param0, var19, var14, 16, 9, 9, 9);
-                    }
-                }
+                var11 = this.tickCount % Mth.ceil(var6 + 5.0F);
             }
 
             this.minecraft.getProfiler().popPush("health");
-            this.renderHearts(param0, var0, var7, var9, var13, var17, var10, var1, var4, var11, var2);
-            LivingEntity var20 = this.getPlayerVehicleWithHealth();
-            int var21 = this.getVehicleMaxHearts(var20);
-            if (var21 == 0) {
-                this.minecraft.getProfiler().popPush("food");
-
-                for(int var22 = 0; var22 < 10; ++var22) {
-                    int var23 = var9;
-                    int var24 = 16;
-                    int var25 = 0;
-                    if (var0.hasEffect(MobEffects.HUNGER)) {
-                        var24 += 36;
-                        var25 = 13;
-                    }
-
-                    if (var0.getFoodData().getSaturationLevel() <= 0.0F && this.tickCount % (var6 * 3 + 1) == 0) {
-                        var23 = var9 + (this.random.nextInt(3) - 1);
-                    }
-
-                    int var26 = var8 - var22 * 8 - 9;
-                    this.blit(param0, var26, var23, 16 + var25 * 9, 27, 9, 9);
-                    if (var22 * 2 + 1 < var6) {
-                        this.blit(param0, var26, var23, var24 + 36, 27, 9, 9);
-                    }
-
-                    if (var22 * 2 + 1 == var6) {
-                        this.blit(param0, var26, var23, var24 + 45, 27, 9, 9);
-                    }
-                }
-
-                var15 -= 10;
-            }
-
+            this.renderHearts(param0, var0, this.screenWidth / 2, var5, var9, var11, var6, var1, var4, var7, var2);
+            LivingEntity var12 = this.getPlayerVehicleWithHealth();
+            int var13 = this.getVehicleMaxHearts(var12);
             this.minecraft.getProfiler().popPush("air");
-            int var27 = var0.getMaxAirSupply();
-            int var28 = Math.min(var0.getAirSupply(), var27);
-            if (var0.isEyeInFluid(FluidTags.WATER) || var28 < var27) {
-                int var29 = this.getVisibleVehicleHeartRows(var21) - 1;
-                var15 -= var29 * 10;
-                int var30 = Mth.ceil((double)(var28 - 2) * 10.0 / (double)var27);
-                int var31 = Mth.ceil((double)var28 * 10.0 / (double)var27) - var30;
+            int var14 = var0.getMaxAirSupply();
+            int var15 = Math.min(var0.getAirSupply(), var14);
+            if (var0.isEyeInFluid(FluidTags.WATER) || var15 < var14) {
+                int var16 = this.getVisibleVehicleHeartRows(var13);
+                int var17 = var16 - 1;
+                var10 -= var17 * 10;
+                int var18 = var16 * 8;
+                int var19 = this.screenWidth + var18 / 2;
+                int var20 = Mth.ceil((double)(var15 - 2) * 10.0 / (double)var14);
+                int var21 = Mth.ceil((double)var15 * 10.0 / (double)var14) - var20;
 
-                for(int var32 = 0; var32 < var30 + var31; ++var32) {
-                    if (var32 < var30) {
-                        this.blit(param0, var8 - var32 * 8 - 9, var15, 16, 18, 9, 9);
+                for(int var22 = 0; var22 < var20 + var21; ++var22) {
+                    if (var22 < var20) {
+                        this.blit(param0, var19 - var22 * 8 - 9, var10, 16, 18, 9, 9);
                     } else {
-                        this.blit(param0, var8 - var32 * 8 - 9, var15, 25, 18, 9, 9);
+                        this.blit(param0, var19 - var22 * 8 - 9, var10, 25, 18, 9, 9);
                     }
                 }
             }
@@ -879,39 +827,41 @@ public class Gui extends GuiComponent {
         int var2 = Mth.ceil((double)param6 / 2.0);
         int var3 = Mth.ceil((double)param9 / 2.0);
         int var4 = var2 * 2;
+        int var5 = 80;
+        int var6 = param2 - 40;
 
-        for(int var5 = var2 + var3 - 1; var5 >= 0; --var5) {
-            int var6 = var5 / 10;
-            int var7 = var5 % 10;
-            int var8 = param2 + var7 * 8;
-            int var9 = param3 - var6 * param4;
+        for(int var7 = var2 + var3 - 1; var7 >= 0; --var7) {
+            int var8 = var7 / 10;
+            int var9 = var7 % 10;
+            int var10 = var6 + var9 * 8;
+            int var11 = param3 - var8 * param4;
             if (param7 + param9 <= 4) {
-                var9 += this.random.nextInt(2);
+                var11 += this.random.nextInt(2);
             }
 
-            if (var5 < var2 && var5 == param5) {
-                var9 -= 2;
+            if (var7 < var2 && var7 == param5) {
+                var11 -= 2;
             }
 
-            this.renderHeart(param0, Gui.HeartType.CONTAINER, var8, var9, var1, param10, false);
-            int var10 = var5 * 2;
-            boolean var11 = var5 >= var2;
-            if (var11) {
-                int var12 = var10 - var4;
-                if (var12 < param9) {
-                    boolean var13 = var12 + 1 == param9;
-                    this.renderHeart(param0, var0 == Gui.HeartType.WITHERED ? var0 : Gui.HeartType.ABSORBING, var8, var9, var1, false, var13);
+            this.renderHeart(param0, Gui.HeartType.CONTAINER, var10, var11, var1, param10, false);
+            int var12 = var7 * 2;
+            boolean var13 = var7 >= var2;
+            if (var13) {
+                int var14 = var12 - var4;
+                if (var14 < param9) {
+                    boolean var15 = var14 + 1 == param9;
+                    this.renderHeart(param0, var0 == Gui.HeartType.WITHERED ? var0 : Gui.HeartType.ABSORBING, var10, var11, var1, false, var15);
                 }
             }
 
-            if (param10 && var10 < param8) {
-                boolean var14 = var10 + 1 == param8;
-                this.renderHeart(param0, var0, var8, var9, var1, true, var14);
+            if (param10 && var12 < param8) {
+                boolean var16 = var12 + 1 == param8;
+                this.renderHeart(param0, var0, var10, var11, var1, true, var16);
             }
 
-            if (var10 < param7) {
-                boolean var15 = var10 + 1 == param7;
-                this.renderHeart(param0, var0, var8, var9, var1, false, var15);
+            if (var12 < param7) {
+                boolean var17 = var12 + 1 == param7;
+                this.renderHeart(param0, var0, var10, var11, var1, false, var17);
             }
         }
 
@@ -928,30 +878,31 @@ public class Gui extends GuiComponent {
             if (var1 != 0) {
                 int var2 = (int)Math.ceil((double)var0.getHealth());
                 this.minecraft.getProfiler().popPush("mountHealth");
-                int var3 = this.screenHeight - 39;
-                int var4 = this.screenWidth / 2 + 91;
-                int var5 = var3;
-                int var6 = 0;
+                int var3 = 80;
+                int var4 = this.screenHeight - 22;
+                int var5 = (this.screenWidth - 80) / 2;
+                int var6 = var4;
+                int var7 = 0;
 
-                for(boolean var7 = false; var1 > 0; var6 += 20) {
-                    int var8 = Math.min(var1, 10);
-                    var1 -= var8;
+                for(boolean var8 = false; var1 > 0; var7 += 20) {
+                    int var9 = Math.min(var1, 10);
+                    var1 -= var9;
 
-                    for(int var9 = 0; var9 < var8; ++var9) {
-                        int var10 = 52;
-                        int var11 = 0;
-                        int var12 = var4 - var9 * 8 - 9;
-                        this.blit(param0, var12, var5, 52 + var11 * 9, 9, 9, 9);
-                        if (var9 * 2 + 1 + var6 < var2) {
-                            this.blit(param0, var12, var5, 88, 9, 9, 9);
+                    for(int var10 = 0; var10 < var9; ++var10) {
+                        int var11 = 52;
+                        int var12 = 0;
+                        int var13 = var5 + var10 * 8;
+                        this.blit(param0, var13, var6, 52 + var12 * 9, 9, 9, 9);
+                        if (var10 * 2 + 1 + var7 < var2) {
+                            this.blit(param0, var13, var6, 88, 9, 9, 9);
                         }
 
-                        if (var9 * 2 + 1 + var6 == var2) {
-                            this.blit(param0, var12, var5, 97, 9, 9, 9);
+                        if (var10 * 2 + 1 + var7 == var2) {
+                            this.blit(param0, var13, var6, 97, 9, 9, 9);
                         }
                     }
 
-                    var5 -= 10;
+                    var6 -= 10;
                 }
 
             }
@@ -973,6 +924,54 @@ public class Gui extends GuiComponent {
         var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
         var1.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
         var0.end();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void renderBarrelOverlay() {
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, BARREL_OVERLAY_LOCATION);
+        Tesselator var0 = Tesselator.getInstance();
+        BufferBuilder var1 = var0.getBuilder();
+        float var2 = (float)Math.min(this.screenWidth, this.screenHeight);
+        float var4 = Math.min((float)this.screenWidth / var2, (float)this.screenHeight / var2);
+        float var5 = var2 * var4;
+        float var6 = var2 * var4;
+        float var7 = ((float)this.screenWidth - var5) / 2.0F;
+        float var8 = ((float)this.screenHeight - var6) / 2.0F - this.minecraft.player.xRotO * 4.0F;
+        float var9 = var7 + var5;
+        float var10 = var8 + var6;
+        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var1.vertex((double)var7, (double)var10, -90.0).uv(0.0F, 1.0F).endVertex();
+        var1.vertex((double)var9, (double)var10, -90.0).uv(1.0F, 1.0F).endVertex();
+        var1.vertex((double)var9, (double)var8, -90.0).uv(1.0F, 0.0F).endVertex();
+        var1.vertex((double)var7, (double)var8, -90.0).uv(0.0F, 0.0F).endVertex();
+        var0.end();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.disableTexture();
+        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        var1.vertex(0.0, (double)this.screenHeight, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, 0.0, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, 0.0, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var7, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var7, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex(0.0, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var9, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var10, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)this.screenWidth, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var1.vertex((double)var9, (double)var8, -90.0).color(0, 0, 0, 255).endVertex();
+        var0.end();
+        RenderSystem.enableTexture();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -1028,10 +1027,8 @@ public class Gui extends GuiComponent {
 
     private void updateVignetteBrightness(Entity param0) {
         if (param0 != null) {
-            BlockPos var0 = new BlockPos(param0.getX(), param0.getEyeY(), param0.getZ());
-            float var1 = LightTexture.getBrightness(param0.level.dimensionType(), param0.level.getMaxLocalRawBrightness(var0));
-            float var2 = Mth.clamp(1.0F - var1, 0.0F, 1.0F);
-            this.vignetteBrightness += (var2 - this.vignetteBrightness) * 0.01F;
+            float var0 = Mth.clamp(1.0F - param0.getBrightness(), 0.0F, 1.0F);
+            this.vignetteBrightness += (var0 - this.vignetteBrightness) * 0.01F;
         }
     }
 
@@ -1234,7 +1231,7 @@ public class Gui extends GuiComponent {
 
     public void handleChat(ChatType param0, Component param1, UUID param2) {
         if (!this.minecraft.isBlocked(param2)) {
-            if (!this.minecraft.options.hideMatchedNames().get() || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
+            if (!this.minecraft.options.hideMatchedNames || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
                 for(ChatListener var0 : this.chatListeners.get(param0)) {
                     var0.handle(param0, param1, param2);
                 }
@@ -1280,7 +1277,7 @@ public class Gui extends GuiComponent {
     }
 
     private void renderSavingIndicator(PoseStack param0) {
-        if (this.minecraft.options.showAutosaveIndicator().get() && (this.autosaveIndicatorValue > 0.0F || this.lastAutosaveIndicatorValue > 0.0F)) {
+        if (this.minecraft.options.showAutosaveIndicator && (this.autosaveIndicatorValue > 0.0F || this.lastAutosaveIndicatorValue > 0.0F)) {
             int var0 = Mth.floor(
                 255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), this.lastAutosaveIndicatorValue, this.autosaveIndicatorValue), 0.0F, 1.0F)
             );

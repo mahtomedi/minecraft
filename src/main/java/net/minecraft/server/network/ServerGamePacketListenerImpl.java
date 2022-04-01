@@ -41,7 +41,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
-import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
@@ -51,6 +50,7 @@ import net.minecraft.network.protocol.game.ClientboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
@@ -96,6 +96,7 @@ import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
+import net.minecraft.network.protocol.game.ServerboundThrowPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -110,19 +111,18 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.HasCustomInventoryScreen;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PlayerRideableJumping;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.BeaconMenu;
-import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
@@ -130,6 +130,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BaseCommandBlock;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -155,13 +156,10 @@ import org.slf4j.Logger;
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
     static final Logger LOGGER = LogUtils.getLogger();
     private static final int LATENCY_CHECK_INTERVAL = 15000;
-    public static final double MAX_INTERACTION_DISTANCE = Mth.square(6.0);
-    private static final int NO_BLOCK_UPDATES_TO_ACK = -1;
     public final Connection connection;
     private final MinecraftServer server;
     public ServerPlayer player;
     private int tickCount;
-    private int ackBlockChangesUpTo = -1;
     private long keepAliveTime;
     private boolean keepAlivePending;
     private long keepAliveChallenge;
@@ -203,11 +201,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     }
 
     public void tick() {
-        if (this.ackBlockChangesUpTo > -1) {
-            this.send(new ClientboundBlockChangedAckPacket(this.ackBlockChangesUpTo));
-            this.ackBlockChangesUpTo = -1;
-        }
-
         this.resetPosition();
         this.player.xo = this.player.getX();
         this.player.yo = this.player.getY();
@@ -695,14 +688,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
     @Override
     public void handleSelectTrade(ServerboundSelectTradePacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        int var0 = param0.getItem();
-        AbstractContainerMenu var1 = this.player.containerMenu;
-        if (var1 instanceof MerchantMenu var2) {
-            var2.setSelectionHint(var0);
-            var2.tryMoveItems(var0);
-        }
-
     }
 
     @Override
@@ -1016,8 +1001,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             case START_DESTROY_BLOCK:
             case ABORT_DESTROY_BLOCK:
             case STOP_DESTROY_BLOCK:
-                this.player.gameMode.handleBlockBreakAction(var0, var1, param0.getDirection(), this.player.level.getMaxBuildHeight(), param0.getSequence());
-                this.player.connection.ackBlockChangesUpTo(param0.getSequence());
+                this.player.gameMode.handleBlockBreakAction(var0, var1, param0.getDirection(), this.player.level.getMaxBuildHeight());
                 return;
             default:
                 throw new IllegalArgumentException("Invalid player action");
@@ -1036,52 +1020,55 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public void handleUseItemOn(ServerboundUseItemOnPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        this.player.connection.ackBlockChangesUpTo(param0.getSequence());
         ServerLevel var0 = this.player.getLevel();
         InteractionHand var1 = param0.getHand();
         ItemStack var2 = this.player.getItemInHand(var1);
         BlockHitResult var3 = param0.getHitResult();
         Vec3 var4 = var3.getLocation();
         BlockPos var5 = var3.getBlockPos();
-        Vec3 var6 = Vec3.atCenterOf(var5);
-        if (!(this.player.getEyePosition().distanceToSqr(var6) > MAX_INTERACTION_DISTANCE)) {
-            Vec3 var7 = var4.subtract(var6);
-            double var8 = 1.0000001;
-            if (Math.abs(var7.x()) < 1.0000001 && Math.abs(var7.y()) < 1.0000001 && Math.abs(var7.z()) < 1.0000001) {
-                Direction var9 = var3.getDirection();
+        Vec3 var6 = var4.subtract(Vec3.atCenterOf(var5));
+        if (this.player.level.getServer() != null
+            && this.player.chunkPosition().getChessboardDistance(new ChunkPos(var5)) < this.player.level.getServer().getPlayerList().getViewDistance()) {
+            double var7 = 1.0000001;
+            if (Math.abs(var6.x()) < 1.0000001 && Math.abs(var6.y()) < 1.0000001 && Math.abs(var6.z()) < 1.0000001) {
+                Direction var8 = var3.getDirection();
                 this.player.resetLastActionTime();
-                int var10 = this.player.level.getMaxBuildHeight();
-                if (var5.getY() < var10) {
+                int var9 = this.player.level.getMaxBuildHeight();
+                if (var5.getY() < var9) {
                     if (this.awaitingPositionFromClient == null
                         && this.player.distanceToSqr((double)var5.getX() + 0.5, (double)var5.getY() + 0.5, (double)var5.getZ() + 0.5) < 64.0
                         && var0.mayInteract(this.player, var5)) {
-                        InteractionResult var11 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
-                        if (var9 == Direction.UP && !var11.consumesAction() && var5.getY() >= var10 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
-                            Component var12 = new TranslatableComponent("build.tooHigh", var10 - 1).withStyle(ChatFormatting.RED);
-                            this.player.sendMessage(var12, ChatType.GAME_INFO, Util.NIL_UUID);
-                        } else if (var11.shouldSwing()) {
+                        InteractionResult var10 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
+                        if (var8 == Direction.UP && !var10.consumesAction() && var5.getY() >= var9 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
+                            Component var11 = new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED);
+                            this.player.sendMessage(var11, ChatType.GAME_INFO, Util.NIL_UUID);
+                        } else if (var10.shouldSwing()) {
                             this.player.swing(var1, true);
                         }
                     }
                 } else {
-                    Component var13 = new TranslatableComponent("build.tooHigh", var10 - 1).withStyle(ChatFormatting.RED);
-                    this.player.sendMessage(var13, ChatType.GAME_INFO, Util.NIL_UUID);
+                    Component var12 = new TranslatableComponent("build.tooHigh", var9 - 1).withStyle(ChatFormatting.RED);
+                    this.player.sendMessage(var12, ChatType.GAME_INFO, Util.NIL_UUID);
                 }
 
                 this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5));
-                this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5.relative(var9)));
+                this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5.relative(var8)));
             } else {
-                LOGGER.warn(
-                    "Rejecting UseItemOnPacket from {}: Location {} too far away from hit block {}.", this.player.getGameProfile().getName(), var4, var5
-                );
+                LOGGER.warn("Ignoring UseItemOnPacket from {}: Location {} too far away from hit block {}.", this.player.getGameProfile().getName(), var4, var5);
             }
+        } else {
+            LOGGER.warn(
+                "Ignoring UseItemOnPacket from {}: hit position {} too far away from player {}.",
+                this.player.getGameProfile().getName(),
+                var5,
+                this.player.blockPosition()
+            );
         }
     }
 
     @Override
     public void handleUseItem(ServerboundUseItemPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        this.ackBlockChangesUpTo(param0.getSequence());
         ServerLevel var0 = this.player.getLevel();
         InteractionHand var1 = param0.getHand();
         ItemStack var2 = this.player.getItemInHand(var1);
@@ -1153,14 +1140,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             this.server.halt(false);
         }
 
-    }
-
-    public void ackBlockChangesUpTo(int param0) {
-        if (param0 < 0) {
-            throw new IllegalArgumentException("Expected packet sequence nr >= 0");
-        } else {
-            this.ackBlockChangesUpTo = Math.max(param0, this.ackBlockChangesUpTo);
-        }
     }
 
     @Override
@@ -1247,9 +1226,28 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
     @Override
     public void handleAnimate(ServerboundSwingPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         this.player.resetLastActionTime();
         this.player.swing(param0.getHand());
+    }
+
+    @Override
+    public void handleThrow(ServerboundThrowPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+        LivingEntity.Carried var0 = this.player.getCarried();
+        Vec3 var1 = this.player.getDeltaMovement().add(this.player.getViewVector(0.0F));
+        switch(var0) {
+            case BLOCK:
+                this.player.tryThrowBlock(var1);
+                break;
+            case MOB:
+                this.player.tryThrowEntities(var1);
+                break;
+            case NONE:
+                this.player.connection.send(new ClientboundSetPassengersPacket(this.player));
+        }
+
+        this.player.resetLastActionTime();
+        this.player.swing(InteractionHand.MAIN_HAND);
     }
 
     @Override
@@ -1288,13 +1286,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                     var2.handleStopJump();
                 }
                 break;
-            case OPEN_INVENTORY: {
-                Entity var1 = this.player.getVehicle();
-                if (var1 instanceof HasCustomInventoryScreen var3) {
-                    var3.openCustomInventoryScreen(this.player);
+            case OPEN_INVENTORY:
+                if (this.player.getVehicle() instanceof AbstractHorse) {
+                    ((AbstractHorse)this.player.getVehicle()).openInventory(this.player);
                 }
                 break;
-            }
             case START_FALL_FLYING:
                 if (!this.player.tryToStartFallFlying()) {
                     this.player.stopFallFlying();
@@ -1318,7 +1314,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 return;
             }
 
-            if (var1.distanceToSqr(this.player.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
+            double var2 = 36.0;
+            if (this.player.distanceToSqr(var1) < 36.0) {
                 param0.dispatch(
                     new ServerboundInteractPacket.Handler() {
                         private void performInteraction(InteractionHand param0, ServerGamePacketListenerImpl.EntityInteraction param1) {

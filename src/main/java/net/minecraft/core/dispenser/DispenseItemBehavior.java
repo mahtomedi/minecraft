@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -189,7 +188,7 @@ public interface DispenseItemBehavior {
                 }
 
                 param1.shrink(1);
-                param0.getLevel().gameEvent(null, GameEvent.ENTITY_PLACE, param0.getPos());
+                param0.getLevel().gameEvent(GameEvent.ENTITY_PLACE, param0.getPos());
                 return param1;
             }
         };
@@ -338,14 +337,6 @@ public interface DispenseItemBehavior {
         DispenserBlock.registerBehavior(Items.JUNGLE_BOAT, new BoatDispenseItemBehavior(Boat.Type.JUNGLE));
         DispenserBlock.registerBehavior(Items.DARK_OAK_BOAT, new BoatDispenseItemBehavior(Boat.Type.DARK_OAK));
         DispenserBlock.registerBehavior(Items.ACACIA_BOAT, new BoatDispenseItemBehavior(Boat.Type.ACACIA));
-        DispenserBlock.registerBehavior(Items.MANGROVE_BOAT, new BoatDispenseItemBehavior(Boat.Type.MANGROVE));
-        DispenserBlock.registerBehavior(Items.OAK_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.OAK, true));
-        DispenserBlock.registerBehavior(Items.SPRUCE_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.SPRUCE, true));
-        DispenserBlock.registerBehavior(Items.BIRCH_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.BIRCH, true));
-        DispenserBlock.registerBehavior(Items.JUNGLE_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.JUNGLE, true));
-        DispenserBlock.registerBehavior(Items.DARK_OAK_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.DARK_OAK, true));
-        DispenserBlock.registerBehavior(Items.ACACIA_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.ACACIA, true));
-        DispenserBlock.registerBehavior(Items.MANGROVE_CHEST_BOAT, new BoatDispenseItemBehavior(Boat.Type.MANGROVE, true));
         DispenseItemBehavior var3 = new DefaultDispenseItemBehavior() {
             private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
 
@@ -370,7 +361,6 @@ public interface DispenseItemBehavior {
         DispenserBlock.registerBehavior(Items.PUFFERFISH_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.TROPICAL_FISH_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.AXOLOTL_BUCKET, var3);
-        DispenserBlock.registerBehavior(Items.TADPOLE_BUCKET, var3);
         DispenserBlock.registerBehavior(Items.BUCKET, new DefaultDispenseItemBehavior() {
             private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
 
@@ -612,47 +602,6 @@ public interface DispenseItemBehavior {
                 }
             }
         });
-        DispenserBlock.registerBehavior(
-            Items.POTION,
-            new DefaultDispenseItemBehavior() {
-                private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
-    
-                @Override
-                public ItemStack execute(BlockSource param0, ItemStack param1) {
-                    if (PotionUtils.getPotion(param1) != Potions.WATER) {
-                        return this.defaultDispenseItemBehavior.dispense(param0, param1);
-                    } else {
-                        ServerLevel var0 = param0.getLevel();
-                        BlockPos var1 = param0.getPos();
-                        BlockPos var2 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
-                        if (!var0.getBlockState(var2).is(BlockTags.CONVERTABLE_TO_MUD)) {
-                            return this.defaultDispenseItemBehavior.dispense(param0, param1);
-                        } else {
-                            if (!var0.isClientSide) {
-                                for(int var3 = 0; var3 < 5; ++var3) {
-                                    var0.sendParticles(
-                                        ParticleTypes.SPLASH,
-                                        (double)var1.getX() + var0.random.nextDouble(),
-                                        (double)(var1.getY() + 1),
-                                        (double)var1.getZ() + var0.random.nextDouble(),
-                                        1,
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        1.0
-                                    );
-                                }
-                            }
-    
-                            var0.playSound(null, var1, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            var0.gameEvent(null, GameEvent.FLUID_PLACE, var1);
-                            var0.setBlockAndUpdate(var2, Blocks.MUD.defaultBlockState());
-                            return new ItemStack(Items.GLASS_BOTTLE);
-                        }
-                    }
-                }
-            }
-        );
     }
 
     static void setEntityPokingOutOfBlock(BlockSource param0, Entity param1, Direction param2) {

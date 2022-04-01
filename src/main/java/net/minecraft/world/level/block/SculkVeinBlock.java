@@ -7,11 +7,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,7 +43,7 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
         return this.sameSpaceSpreader;
     }
 
-    public static boolean regrow(LevelAccessor param0, BlockPos param1, BlockState param2, Collection<Direction> param3) {
+    public static boolean regrow(Level param0, BlockPos param1, BlockState param2, Collection<Direction> param3) {
         boolean var0 = false;
         BlockState var1 = Blocks.SCULK_VEIN.defaultBlockState();
 
@@ -68,7 +68,7 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
     }
 
     @Override
-    public void onDischarged(LevelAccessor param0, BlockState param1, BlockPos param2, Random param3) {
+    public void onDischarged(Level param0, BlockState param1, BlockPos param2, Random param3) {
         if (param1.is(this)) {
             for(Direction var0 : DIRECTIONS) {
                 BooleanProperty var1 = getFaceProperty(var0);
@@ -88,34 +88,33 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
     }
 
     @Override
-    public int attemptUseCharge(SculkSpreader.ChargeCursor param0, LevelAccessor param1, BlockPos param2, Random param3, SculkSpreader param4, boolean param5) {
-        if (param5 && this.attemptPlaceSculk(param4, param1, param0.getPos(), param3)) {
+    public int attemptUseCharge(SculkSpreader.ChargeCursor param0, Level param1, BlockPos param2, Random param3) {
+        if (this.attemptPlaceSculk(param1, param0.getPos(), param3)) {
             return param0.getCharge() - 1;
         } else {
-            return param3.nextInt(param4.chargeDecayRate()) == 0 ? Mth.floor((float)param0.getCharge() * 0.5F) : param0.getCharge();
+            return param3.nextInt(10) == 0 ? Mth.floor((float)param0.getCharge() * 0.5F) : param0.getCharge();
         }
     }
 
-    private boolean attemptPlaceSculk(SculkSpreader param0, LevelAccessor param1, BlockPos param2, Random param3) {
-        BlockState var0 = param1.getBlockState(param2);
-        TagKey<Block> var1 = param0.replaceableBlocks();
+    private boolean attemptPlaceSculk(Level param0, BlockPos param1, Random param2) {
+        BlockState var0 = param0.getBlockState(param1);
 
-        for(Direction var2 : Direction.allShuffled(param3)) {
-            if (hasFace(var0, var2)) {
-                BlockPos var3 = param2.relative(var2);
-                if (param1.getBlockState(var3).is(var1)) {
-                    BlockState var4 = Blocks.SCULK.defaultBlockState();
-                    param1.setBlock(var3, var4, 3);
-                    param1.playSound(null, var3, SoundEvents.SCULK_BLOCK_SPREAD, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    this.veinSpreader.spreadAll(var4, param1, var3, param0.isWorldGeneration());
-                    Direction var5 = var2.getOpposite();
+        for(Direction var1 : Direction.allShuffled(param2)) {
+            if (hasFace(var0, var1)) {
+                BlockPos var2 = param1.relative(var1);
+                if (param0.getBlockState(var2).is(BlockTags.SCULK_REPLACEABLE)) {
+                    BlockState var3 = Blocks.SCULK.defaultBlockState();
+                    param0.setBlock(var2, var3, 3);
+                    param0.playSound(null, var2, SoundEvents.SCULK_BLOCK_SPREAD, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    this.veinSpreader.spreadAll(var3, param0, var2);
+                    Direction var4 = var1.getOpposite();
 
-                    for(Direction var6 : DIRECTIONS) {
-                        if (var6 != var5) {
-                            BlockPos var7 = var3.relative(var6);
-                            BlockState var8 = param1.getBlockState(var7);
-                            if (var8.is(this)) {
-                                this.onDischarged(param1, var8, var7, param3);
+                    for(Direction var5 : DIRECTIONS) {
+                        if (var5 != var4) {
+                            BlockPos var6 = var2.relative(var5);
+                            BlockState var7 = param0.getBlockState(var6);
+                            if (var7.is(this)) {
+                                this.onDischarged(param0, var7, var6, param2);
                             }
                         }
                     }
@@ -128,7 +127,7 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
         return false;
     }
 
-    public static boolean hasSubstrateAccess(LevelAccessor param0, BlockState param1, BlockPos param2) {
+    public static boolean hasSubstrateAccess(Level param0, BlockState param1, BlockPos param2) {
         if (!param1.is(Blocks.SCULK_VEIN)) {
             return false;
         } else {

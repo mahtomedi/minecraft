@@ -182,7 +182,7 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
     }
 
     @Override
-    public float getLightLevelDependentMagicValue() {
+    public float getBrightness() {
         return 1.0F;
     }
 

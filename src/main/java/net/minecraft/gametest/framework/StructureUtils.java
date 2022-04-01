@@ -39,8 +39,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.IOUtils;
@@ -223,7 +223,7 @@ public class StructureUtils {
     }
 
     private static StructureTemplate getStructureTemplate(String param0, ServerLevel param1) {
-        StructureTemplateManager var0 = param1.getStructureManager();
+        StructureManager var0 = param1.getStructureManager();
         Optional<StructureTemplate> var1 = var0.get(new ResourceLocation(param0));
         if (var1.isPresent()) {
             return var1.get();

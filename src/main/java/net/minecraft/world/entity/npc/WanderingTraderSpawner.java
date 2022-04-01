@@ -5,7 +5,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.ServerLevelData;
 
@@ -97,7 +97,7 @@ public class WanderingTraderSpawner implements CustomSpawner {
             BlockPos var5 = var4.orElse(var1);
             BlockPos var6 = this.findSpawnPositionNear(param0, var5, 48);
             if (var6 != null && this.hasEnoughSpace(param0, var6)) {
-                if (param0.getBiome(var6).is(BiomeTags.WITHOUT_WANDERING_TRADER_SPAWNS)) {
+                if (param0.getBiome(var6).is(Biomes.THE_VOID)) {
                     return false;
                 }
 

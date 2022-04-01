@@ -27,7 +27,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -354,10 +353,9 @@ public abstract class AbstractArrow extends Projectile {
                 }
 
                 if (this.knockback > 0) {
-                    double var10 = Math.max(0.0, 1.0 - var9.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
-                    Vec3 var11 = this.getDeltaMovement().multiply(1.0, 0.0, 1.0).normalize().scale((double)this.knockback * 0.6 * var10);
-                    if (var11.lengthSqr() > 0.0) {
-                        var9.push(var11.x, 0.1, var11.z);
+                    Vec3 var10 = this.getDeltaMovement().multiply(1.0, 0.0, 1.0).normalize().scale((double)this.knockback * 0.6);
+                    if (var10.lengthSqr() > 0.0) {
+                        var9.push(var10.x, 0.1, var10.z);
                     }
                 }
 
@@ -375,11 +373,11 @@ public abstract class AbstractArrow extends Projectile {
                     this.piercedAndKilledEntities.add(var9);
                 }
 
-                if (!this.level.isClientSide && var4 instanceof ServerPlayer var12) {
+                if (!this.level.isClientSide && var4 instanceof ServerPlayer var11) {
                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var12, this.piercedAndKilledEntities);
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var11, this.piercedAndKilledEntities);
                     } else if (!var0.isAlive() && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var12, Arrays.asList(var0));
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var11, Arrays.asList(var0));
                     }
                 }
             }

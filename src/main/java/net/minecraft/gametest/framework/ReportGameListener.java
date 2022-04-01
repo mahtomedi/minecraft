@@ -45,7 +45,7 @@ class ReportGameListener implements GameTestListener {
     public void testPassed(GameTestInfo param0) {
         ++this.successes;
         if (!param0.isFlaky()) {
-            reportPassed(param0, param0.getTestName() + " passed! (" + param0.getRunTime() + "ms)");
+            reportPassed(param0, param0.getTestName() + " passed!");
         } else {
             if (this.successes >= param0.requiredSuccesses()) {
                 reportPassed(param0, param0 + " passed " + this.successes + " times of " + this.attempts + " attempts.");

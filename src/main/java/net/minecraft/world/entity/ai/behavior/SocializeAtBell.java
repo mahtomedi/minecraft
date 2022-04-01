@@ -2,7 +2,6 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import java.util.function.Predicate;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -47,11 +46,7 @@ public class SocializeAtBell extends Behavior<LivingEntity> {
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
         Brain<?> var0 = param1.getBrain();
         var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .flatMap(
-                param1x -> param1x.findClosest(
-                        (Predicate<LivingEntity>)(param1xx -> EntityType.VILLAGER.equals(param1xx.getType()) && param1xx.distanceToSqr(param1) <= 32.0)
-                    )
-            )
+            .flatMap(param1x -> param1x.findClosest(param1xx -> EntityType.VILLAGER.equals(param1xx.getType()) && param1xx.distanceToSqr(param1) <= 32.0))
             .ifPresent(param1x -> {
                 var0.setMemory(MemoryModuleType.INTERACTION_TARGET, param1x);
                 var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1x, true));

@@ -3,12 +3,11 @@ package net.minecraft.client;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.util.Mth;
-import net.minecraft.util.OptionEnum;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public enum AttackIndicatorStatus implements OptionEnum {
+public enum AttackIndicatorStatus {
     OFF(0, "options.off"),
     CROSSHAIR(1, "options.attack.crosshair"),
     HOTBAR(2, "options.attack.hotbar");
@@ -24,12 +23,10 @@ public enum AttackIndicatorStatus implements OptionEnum {
         this.key = param1;
     }
 
-    @Override
     public int getId() {
         return this.id;
     }
 
-    @Override
     public String getKey() {
         return this.key;
     }

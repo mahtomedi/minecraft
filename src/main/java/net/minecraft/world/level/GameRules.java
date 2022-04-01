@@ -45,10 +45,10 @@ public class GameRules {
         "doMobLoot", GameRules.Category.DROPS, GameRules.BooleanValue.create(true)
     );
     public static final GameRules.Key<GameRules.BooleanValue> RULE_DOBLOCKDROPS = register(
-        "doTileDrops", GameRules.Category.DROPS, GameRules.BooleanValue.create(true)
+        "doTileDrops", GameRules.Category.DROPS, GameRules.BooleanValue.create(false)
     );
     public static final GameRules.Key<GameRules.BooleanValue> RULE_DOENTITYDROPS = register(
-        "doEntityDrops", GameRules.Category.DROPS, GameRules.BooleanValue.create(true)
+        "doEntityDrops", GameRules.Category.DROPS, GameRules.BooleanValue.create(false)
     );
     public static final GameRules.Key<GameRules.BooleanValue> RULE_COMMANDBLOCKOUTPUT = register(
         "commandBlockOutput", GameRules.Category.CHAT, GameRules.BooleanValue.create(true)

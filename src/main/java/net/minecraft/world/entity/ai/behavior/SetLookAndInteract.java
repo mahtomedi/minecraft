@@ -49,8 +49,7 @@ public class SetLookAndInteract extends Behavior<LivingEntity> {
         var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
             .flatMap(
                 param1x -> param1x.findClosest(
-                        (Predicate<LivingEntity>)(param1xx -> param1xx.distanceToSqr(param1) <= (double)this.interactionRangeSqr
-                                && this.isMatchingTarget(param1xx))
+                        param1xx -> param1xx.distanceToSqr(param1) <= (double)this.interactionRangeSqr && this.isMatchingTarget(param1xx)
                     )
             )
             .ifPresent(param1x -> {

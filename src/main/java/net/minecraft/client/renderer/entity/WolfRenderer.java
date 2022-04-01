@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,6 +16,7 @@ public class WolfRenderer extends MobRenderer<Wolf, WolfModel<Wolf>> {
     private static final ResourceLocation WOLF_LOCATION = new ResourceLocation("textures/entity/wolf/wolf.png");
     private static final ResourceLocation WOLF_TAME_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_tame.png");
     private static final ResourceLocation WOLF_ANGRY_LOCATION = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
+    private static final ResourceLocation MARS_TAME_LOCATION = new ResourceLocation("textures/entity/wolf/mars_tame.png");
 
     public WolfRenderer(EntityRendererProvider.Context param0) {
         super(param0, new WolfModel<>(param0.bakeLayer(ModelLayers.WOLF)), 0.5F);
@@ -40,7 +42,8 @@ public class WolfRenderer extends MobRenderer<Wolf, WolfModel<Wolf>> {
 
     public ResourceLocation getTextureLocation(Wolf param0) {
         if (param0.isTame()) {
-            return WOLF_TAME_LOCATION;
+            String var0 = ChatFormatting.stripFormatting(param0.getName().getString());
+            return "Mars".equalsIgnoreCase(var0) ? MARS_TAME_LOCATION : WOLF_TAME_LOCATION;
         } else {
             return param0.isAngry() ? WOLF_ANGRY_LOCATION : WOLF_LOCATION;
         }

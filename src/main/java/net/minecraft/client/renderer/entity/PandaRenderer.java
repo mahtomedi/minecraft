@@ -7,6 +7,7 @@ import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.client.model.PandaModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.PandaHoldsItemLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -28,6 +29,7 @@ public class PandaRenderer extends MobRenderer<Panda, PandaModel<Panda>> {
 
     public PandaRenderer(EntityRendererProvider.Context param0) {
         super(param0, new PandaModel<>(param0.bakeLayer(ModelLayers.PANDA)), 0.9F);
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
         this.addLayer(new PandaHoldsItemLayer(this));
     }
 

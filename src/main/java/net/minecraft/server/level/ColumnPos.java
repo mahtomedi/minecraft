@@ -1,11 +1,27 @@
 package net.minecraft.server.level;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
-public record ColumnPos(int x, int z) {
+public class ColumnPos {
     private static final long COORD_BITS = 32L;
     private static final long COORD_MASK = 4294967295L;
+    private static final int HASH_A = 1664525;
+    private static final int HASH_C = 1013904223;
+    private static final int HASH_Z_XOR = -559038737;
+    public final int x;
+    public final int z;
+
+    public ColumnPos(int param0, int param1) {
+        this.x = param0;
+        this.z = param1;
+    }
+
+    public ColumnPos(BlockPos param0) {
+        this.x = param0.getX();
+        this.z = param0.getZ();
+    }
 
     public ChunkPos toChunkPos() {
         return new ChunkPos(SectionPos.blockToSectionCoord(this.x), SectionPos.blockToSectionCoord(this.z));
@@ -19,14 +35,6 @@ public record ColumnPos(int x, int z) {
         return (long)param0 & 4294967295L | ((long)param1 & 4294967295L) << 32;
     }
 
-    public static int getX(long param0) {
-        return (int)(param0 & 4294967295L);
-    }
-
-    public static int getZ(long param0) {
-        return (int)(param0 >>> 32 & 4294967295L);
-    }
-
     @Override
     public String toString() {
         return "[" + this.x + ", " + this.z + "]";
@@ -34,6 +42,20 @@ public record ColumnPos(int x, int z) {
 
     @Override
     public int hashCode() {
-        return ChunkPos.hash(this.x, this.z);
+        int var0 = 1664525 * this.x + 1013904223;
+        int var1 = 1664525 * (this.z ^ -559038737) + 1013904223;
+        return var0 ^ var1;
+    }
+
+    @Override
+    public boolean equals(Object param0) {
+        if (this == param0) {
+            return true;
+        } else if (!(param0 instanceof ColumnPos)) {
+            return false;
+        } else {
+            ColumnPos var0 = (ColumnPos)param0;
+            return this.x == var0.x && this.z == var0.z;
+        }
     }
 }

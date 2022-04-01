@@ -186,7 +186,7 @@ public class Horse extends AbstractHorse {
         ItemStack var0 = param0.getItemInHand(param1);
         if (!this.isBaby()) {
             if (this.isTamed() && param0.isSecondaryUseActive()) {
-                this.openCustomInventoryScreen(param0);
+                this.openInventory(param0);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
 
@@ -212,7 +212,7 @@ public class Horse extends AbstractHorse {
 
             boolean var2 = !this.isBaby() && !this.isSaddled() && var0.is(Items.SADDLE);
             if (this.isArmor(var0) || var2) {
-                this.openCustomInventoryScreen(param0);
+                this.openInventory(param0);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }

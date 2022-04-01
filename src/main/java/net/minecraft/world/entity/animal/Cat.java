@@ -6,6 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.StructureTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -60,6 +60,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -384,10 +387,13 @@ public class Cat extends TamableAnimal {
         }
 
         Level var0 = param0.getLevel();
-        if (var0 instanceof ServerLevel var1
-            && var1.structureManager().getStructureWithPieceAt(this.blockPosition(), StructureTags.CATS_SPAWN_AS_BLACK).isValid()) {
-            this.setCatType(10);
-            this.setPersistenceRequired();
+        if (var0 instanceof ServerLevel var1) {
+            Registry<ConfiguredStructureFeature<?, ?>> var2 = var1.registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
+            if (ChunkGenerator.allConfigurations(var2, StructureFeature.SWAMP_HUT)
+                .anyMatch(param1x -> var1.structureFeatureManager().getStructureWithPieceAt(this.blockPosition(), param1x).isValid())) {
+                this.setCatType(10);
+                this.setPersistenceRequired();
+            }
         }
 
         return param3;

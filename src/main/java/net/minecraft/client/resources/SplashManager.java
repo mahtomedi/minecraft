@@ -69,7 +69,7 @@ public class SplashManager extends SimplePreparableReloadListener<List<String>> 
             return null;
         } else {
             return this.user != null && RANDOM.nextInt(this.splashes.size()) == 42
-                ? this.user.getName().toUpperCase(Locale.ROOT) + " IS YOU"
+                ? this.user.getName().toUpperCase(Locale.ROOT) + " IS ONE AT A TIME"
                 : this.splashes.get(RANDOM.nextInt(this.splashes.size()));
         }
     }

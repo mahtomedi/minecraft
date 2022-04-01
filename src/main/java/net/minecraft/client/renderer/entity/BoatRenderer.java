@@ -9,7 +9,6 @@ import com.mojang.math.Vector3f;
 import java.util.Map;
 import java.util.stream.Stream;
 import net.minecraft.client.model.BoatModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,25 +23,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BoatRenderer extends EntityRenderer<Boat> {
     private final Map<Boat.Type, Pair<ResourceLocation, BoatModel>> boatResources;
 
-    public BoatRenderer(EntityRendererProvider.Context param0, boolean param1) {
+    public BoatRenderer(EntityRendererProvider.Context param0) {
         super(param0);
         this.shadowRadius = 0.8F;
         this.boatResources = Stream.of(Boat.Type.values())
             .collect(
                 ImmutableMap.toImmutableMap(
                     param0x -> param0x,
-                    param2 -> Pair.of(new ResourceLocation(getTextureLocation(param2, param1)), this.createBoatModel(param0, param2, param1))
+                    param1 -> Pair.of(
+                            new ResourceLocation("textures/entity/boat/" + param1.getName() + ".png"),
+                            new BoatModel(param0.bakeLayer(ModelLayers.createBoatModelName(param1)))
+                        )
                 )
             );
-    }
-
-    private BoatModel createBoatModel(EntityRendererProvider.Context param0, Boat.Type param1, boolean param2) {
-        ModelLayerLocation var0 = param2 ? ModelLayers.createChestBoatModelName(param1) : ModelLayers.createBoatModelName(param1);
-        return new BoatModel(param0.bakeLayer(var0), param2);
-    }
-
-    private static String getTextureLocation(Boat.Type param0, boolean param1) {
-        return param1 ? "textures/entity/chest_boat/" + param0.getName() + ".png" : "textures/entity/boat/" + param0.getName() + ".png";
     }
 
     public void render(Boat param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {

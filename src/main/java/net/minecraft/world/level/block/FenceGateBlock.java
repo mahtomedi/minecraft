@@ -149,7 +149,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)).setValue(OPEN, Boolean.valueOf(var0)), 2);
                 if (param0.getValue(OPEN) != var0) {
                     param1.levelEvent(null, var0 ? 1008 : 1014, param2, 0);
-                    param1.gameEvent(null, var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
+                    param1.gameEvent(var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
                 }
             }
 

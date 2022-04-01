@@ -5,7 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.blocks.BlockInput;
@@ -22,14 +21,14 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class SetBlockCommand {
     private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.setblock.failed"));
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("setblock")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
                     Commands.argument("pos", BlockPosArgument.blockPos())
                         .then(
-                            Commands.argument("block", BlockStateArgument.block(param1))
+                            Commands.argument("block", BlockStateArgument.block())
                                 .executes(
                                     param0x -> setBlock(
                                             param0x.getSource(),

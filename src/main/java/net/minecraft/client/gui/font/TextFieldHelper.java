@@ -69,38 +69,45 @@ public class TextFieldHelper {
         } else if (Screen.isCut(param0)) {
             this.cut();
             return true;
+        } else if (param0 == 259) {
+            this.removeCharsFromCursor(-1);
+            return true;
         } else {
-            TextFieldHelper.CursorStep var0 = Screen.hasControlDown() ? TextFieldHelper.CursorStep.WORD : TextFieldHelper.CursorStep.CHARACTER;
-            if (param0 == 259) {
-                this.removeFromCursor(-1, var0);
-                return true;
+            if (param0 == 261) {
+                this.removeCharsFromCursor(1);
             } else {
-                if (param0 == 261) {
-                    this.removeFromCursor(1, var0);
-                } else {
-                    if (param0 == 263) {
-                        this.moveBy(-1, Screen.hasShiftDown(), var0);
-                        return true;
+                if (param0 == 263) {
+                    if (Screen.hasControlDown()) {
+                        this.moveByWords(-1, Screen.hasShiftDown());
+                    } else {
+                        this.moveByChars(-1, Screen.hasShiftDown());
                     }
 
-                    if (param0 == 262) {
-                        this.moveBy(1, Screen.hasShiftDown(), var0);
-                        return true;
-                    }
-
-                    if (param0 == 268) {
-                        this.setCursorToStart(Screen.hasShiftDown());
-                        return true;
-                    }
-
-                    if (param0 == 269) {
-                        this.setCursorToEnd(Screen.hasShiftDown());
-                        return true;
-                    }
+                    return true;
                 }
 
-                return false;
+                if (param0 == 262) {
+                    if (Screen.hasControlDown()) {
+                        this.moveByWords(1, Screen.hasShiftDown());
+                    } else {
+                        this.moveByChars(1, Screen.hasShiftDown());
+                    }
+
+                    return true;
+                }
+
+                if (param0 == 268) {
+                    this.setCursorToStart(Screen.hasShiftDown());
+                    return true;
+                }
+
+                if (param0 == 269) {
+                    this.setCursorToEnd(Screen.hasShiftDown());
+                    return true;
+                }
             }
+
+            return false;
         }
     }
 
@@ -133,17 +140,6 @@ public class TextFieldHelper {
 
     }
 
-    public void moveBy(int param0, boolean param1, TextFieldHelper.CursorStep param2) {
-        switch(param2) {
-            case CHARACTER:
-                this.moveByChars(param0, param1);
-                break;
-            case WORD:
-                this.moveByWords(param0, param1);
-        }
-
-    }
-
     public void moveByChars(int param0) {
         this.moveByChars(param0, false);
     }
@@ -160,22 +156,6 @@ public class TextFieldHelper {
     public void moveByWords(int param0, boolean param1) {
         this.cursorPos = StringSplitter.getWordPosition(this.getMessageFn.get(), param0, this.cursorPos, true);
         this.resetSelectionIfNeeded(param1);
-    }
-
-    public void removeFromCursor(int param0, TextFieldHelper.CursorStep param1) {
-        switch(param1) {
-            case CHARACTER:
-                this.removeCharsFromCursor(param0);
-                break;
-            case WORD:
-                this.removeWordsFromCursor(param0);
-        }
-
-    }
-
-    public void removeWordsFromCursor(int param0) {
-        int var0 = StringSplitter.getWordPosition(this.getMessageFn.get(), param0, this.cursorPos, true);
-        this.removeCharsFromCursor(var0 - this.cursorPos);
     }
 
     public void removeCharsFromCursor(int param0) {
@@ -241,7 +221,7 @@ public class TextFieldHelper {
         this.setCursorToStart(false);
     }
 
-    public void setCursorToStart(boolean param0) {
+    private void setCursorToStart(boolean param0) {
         this.cursorPos = 0;
         this.resetSelectionIfNeeded(param0);
     }
@@ -250,7 +230,7 @@ public class TextFieldHelper {
         this.setCursorToEnd(false);
     }
 
-    public void setCursorToEnd(boolean param0) {
+    private void setCursorToEnd(boolean param0) {
         this.cursorPos = this.getMessageFn.get().length();
         this.resetSelectionIfNeeded(param0);
     }
@@ -284,11 +264,5 @@ public class TextFieldHelper {
 
     public boolean isSelecting() {
         return this.cursorPos != this.selectionPos;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static enum CursorStep {
-        CHARACTER,
-        WORD;
     }
 }

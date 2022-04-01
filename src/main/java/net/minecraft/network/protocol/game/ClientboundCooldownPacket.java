@@ -1,6 +1,5 @@
 package net.minecraft.network.protocol.game;
 
-import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.item.Item;
@@ -15,13 +14,13 @@ public class ClientboundCooldownPacket implements Packet<ClientGamePacketListene
     }
 
     public ClientboundCooldownPacket(FriendlyByteBuf param0) {
-        this.item = param0.readById(Registry.ITEM);
+        this.item = Item.byId(param0.readVarInt());
         this.duration = param0.readVarInt();
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeId(Registry.ITEM, this.item);
+        param0.writeVarInt(Item.getId(this.item));
         param0.writeVarInt(this.duration);
     }
 

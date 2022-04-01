@@ -9,16 +9,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
-import net.minecraft.world.level.gameevent.PositionSource;
-import net.minecraft.world.level.gameevent.PositionSourceType;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
 
 public class VibrationParticleOption implements ParticleOptions {
     public static final Codec<VibrationParticleOption> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    PositionSource.CODEC.fieldOf("destination").forGetter(param0x -> param0x.destination),
-                    Codec.INT.fieldOf("arrival_in_ticks").forGetter(param0x -> param0x.arrivalInTicks)
-                )
+        param0 -> param0.group(VibrationPath.CODEC.fieldOf("vibration").forGetter(param0x -> param0x.vibrationPath))
                 .apply(param0, VibrationParticleOption::new)
     );
     public static final ParticleOptions.Deserializer<VibrationParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<VibrationParticleOption>() {
@@ -30,38 +25,52 @@ public class VibrationParticleOption implements ParticleOptions {
             param1.expect(' ');
             float var2 = (float)param1.readDouble();
             param1.expect(' ');
-            int var3 = param1.readInt();
-            BlockPos var4 = new BlockPos((double)var0, (double)var1, (double)var2);
-            return new VibrationParticleOption(new BlockPositionSource(var4), var3);
+            float var3 = (float)param1.readDouble();
+            param1.expect(' ');
+            float var4 = (float)param1.readDouble();
+            param1.expect(' ');
+            float var5 = (float)param1.readDouble();
+            param1.expect(' ');
+            int var6 = param1.readInt();
+            BlockPos var7 = new BlockPos((double)var0, (double)var1, (double)var2);
+            BlockPos var8 = new BlockPos((double)var3, (double)var4, (double)var5);
+            return new VibrationParticleOption(new VibrationPath(var7, new BlockPositionSource(var8), var6));
         }
 
         public VibrationParticleOption fromNetwork(ParticleType<VibrationParticleOption> param0, FriendlyByteBuf param1) {
-            PositionSource var0 = PositionSourceType.fromNetwork(param1);
-            int var1 = param1.readVarInt();
-            return new VibrationParticleOption(var0, var1);
+            VibrationPath var0 = VibrationPath.read(param1);
+            return new VibrationParticleOption(var0);
         }
     };
-    private final PositionSource destination;
-    private final int arrivalInTicks;
+    private final VibrationPath vibrationPath;
 
-    public VibrationParticleOption(PositionSource param0, int param1) {
-        this.destination = param0;
-        this.arrivalInTicks = param1;
+    public VibrationParticleOption(VibrationPath param0) {
+        this.vibrationPath = param0;
     }
 
     @Override
     public void writeToNetwork(FriendlyByteBuf param0) {
-        PositionSourceType.toNetwork(this.destination, param0);
-        param0.writeVarInt(this.arrivalInTicks);
+        VibrationPath.write(param0, this.vibrationPath);
     }
 
     @Override
     public String writeToString() {
-        Vec3 var0 = this.destination.getPosition(null).get();
-        double var1 = var0.x();
-        double var2 = var0.y();
-        double var3 = var0.z();
-        return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %d", Registry.PARTICLE_TYPE.getKey(this.getType()), var1, var2, var3, this.arrivalInTicks);
+        BlockPos var0 = this.vibrationPath.getOrigin();
+        double var1 = (double)var0.getX();
+        double var2 = (double)var0.getY();
+        double var3 = (double)var0.getZ();
+        return String.format(
+            Locale.ROOT,
+            "%s %.2f %.2f %.2f %.2f %.2f %.2f %d",
+            Registry.PARTICLE_TYPE.getKey(this.getType()),
+            var1,
+            var2,
+            var3,
+            var1,
+            var2,
+            var3,
+            this.vibrationPath.getArrivalInTicks()
+        );
     }
 
     @Override
@@ -69,11 +78,7 @@ public class VibrationParticleOption implements ParticleOptions {
         return ParticleTypes.VIBRATION;
     }
 
-    public PositionSource getDestination() {
-        return this.destination;
-    }
-
-    public int getArrivalInTicks() {
-        return this.arrivalInTicks;
+    public VibrationPath getVibrationPath() {
+        return this.vibrationPath;
     }
 }

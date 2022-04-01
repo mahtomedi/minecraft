@@ -284,6 +284,14 @@
         }
       }
     },
+    "minecraft:eroded_badlands": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "location": {
+          "biome": "minecraft:eroded_badlands"
+        }
+      }
+    },
     "minecraft:desert": {
       "trigger": "minecraft:location",
       "conditions": {
@@ -380,14 +388,6 @@
         }
       }
     },
-    "minecraft:eroded_badlands": {
-      "trigger": "minecraft:location",
-      "conditions": {
-        "location": {
-          "biome": "minecraft:eroded_badlands"
-        }
-      }
-    },
     "minecraft:windswept_savanna": {
       "trigger": "minecraft:location",
       "conditions": {
@@ -417,14 +417,6 @@
       "conditions": {
         "location": {
           "biome": "minecraft:lush_caves"
-        }
-      }
-    },
-    "minecraft:deep_dark": {
-      "trigger": "minecraft:location",
-      "conditions": {
-        "location": {
-          "biome": "minecraft:deep_dark"
         }
       }
     }
@@ -530,6 +522,9 @@
       "minecraft:badlands"
     ],
     [
+      "minecraft:eroded_badlands"
+    ],
+    [
       "minecraft:desert"
     ],
     [
@@ -566,9 +561,6 @@
       "minecraft:bamboo_jungle"
     ],
     [
-      "minecraft:eroded_badlands"
-    ],
-    [
       "minecraft:windswept_savanna"
     ],
     [
@@ -579,9 +571,6 @@
     ],
     [
       "minecraft:lush_caves"
-    ],
-    [
-      "minecraft:deep_dark"
     ]
   ]
 }

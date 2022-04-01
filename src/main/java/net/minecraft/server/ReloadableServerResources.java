@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 public class ReloadableServerResources {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final CompletableFuture<Unit> DATA_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
-    private final CommandBuildContext commandBuildContext;
     private final Commands commands;
     private final RecipeManager recipes = new RecipeManager();
     private final TagManager tagManager;
@@ -40,9 +38,7 @@ public class ReloadableServerResources {
 
     public ReloadableServerResources(RegistryAccess.Frozen param0, Commands.CommandSelection param1, int param2) {
         this.tagManager = new TagManager(param0);
-        this.commandBuildContext = new CommandBuildContext(param0);
-        this.commands = new Commands(param1, this.commandBuildContext);
-        this.commandBuildContext.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.CREATE_NEW);
+        this.commands = new Commands(param1);
         this.functionLibrary = new ServerFunctionLibrary(param2, this.commands.getDispatcher());
     }
 
@@ -84,7 +80,6 @@ public class ReloadableServerResources {
         ReloadableServerResources var0 = new ReloadableServerResources(param1, param2, param3);
         return SimpleReloadInstance.create(param0, var0.listeners(), param4, param5, DATA_RELOAD_INITIAL_TASK, LOGGER.isDebugEnabled())
             .done()
-            .whenComplete((param1x, param2x) -> var0.commandBuildContext.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.FAIL))
             .thenApply(param1x -> var0);
     }
 

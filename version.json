@@ -1,15 +1,15 @@
 {
-    "id": "22w13a",
-    "name": "22w13a",
+    "id": "22w13oneblockatatime",
+    "name": "22w13oneBlockAtATime",
     "release_target": "1.19",
-    "world_version": 3085,
-    "series_id": "main",
-    "protocol_version": 1073741900,
+    "world_version": 3076,
+    "series_id": "april2022",
+    "protocol_version": 1073741901,
     "pack_version": {
-        "resource": 9,
-        "data": 10
+        "resource": 8,
+        "data": 9
     },
-    "build_time": "2022-03-31T14:51:23+00:00",
+    "build_time": "2022-04-01T11:54:52+00:00",
     "java_component": "java-runtime-beta",
     "java_version": 17,
     "stable": false

@@ -233,7 +233,11 @@ public class Ghast extends FlyingMob implements Enemy {
 
         @Override
         public boolean canUse() {
-            return this.ghast.getTarget() != null;
+            if (this.ghast.isPassenger() && this.ghast.getRootVehicle() == this.ghast.getTarget()) {
+                return false;
+            } else {
+                return this.ghast.getTarget() != null;
+            }
         }
 
         @Override

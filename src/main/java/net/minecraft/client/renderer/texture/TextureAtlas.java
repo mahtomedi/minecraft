@@ -159,7 +159,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
 
                     TextureAtlasSprite.Info var5;
                     try (Resource var1x = param0.getResource(var0x)) {
-                        PngInfo var2x = new PngInfo(var0x::toString, var1x.getInputStream());
+                        PngInfo var2x = new PngInfo(var1x.toString(), var1x.getInputStream());
                         AnimationMetadataSection var3x = var1x.getMetadata(AnimationMetadataSection.SERIALIZER);
                         if (var3x == null) {
                             var3x = AnimationMetadataSection.EMPTY;

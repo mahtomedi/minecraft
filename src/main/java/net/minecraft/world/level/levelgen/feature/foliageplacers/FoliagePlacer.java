@@ -11,10 +11,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraft.world.level.material.Fluids;
 
 public abstract class FoliagePlacer {
     public static final Codec<FoliagePlacer> CODEC = Registry.FOLIAGE_PLACER_TYPES.byNameCodec().dispatch(FoliagePlacer::type, FoliagePlacerType::codec);
@@ -114,14 +112,7 @@ public abstract class FoliagePlacer {
         LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, TreeConfiguration param3, BlockPos param4
     ) {
         if (TreeFeature.validTreePos(param0, param4)) {
-            BlockState var0 = param3.foliageProvider.getState(param2, param4);
-            if (var0.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                var0 = var0.setValue(
-                    BlockStateProperties.WATERLOGGED, Boolean.valueOf(param0.isFluidAtPosition(param4, param0x -> param0x.isSourceOfType(Fluids.WATER)))
-                );
-            }
-
-            param1.accept(param4, var0);
+            param1.accept(param4, param3.foliageProvider.getState(param2, param4));
         }
 
     }

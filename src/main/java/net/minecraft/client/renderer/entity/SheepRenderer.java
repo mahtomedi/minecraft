@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.SheepModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.SheepFurLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Sheep;
@@ -14,6 +15,7 @@ public class SheepRenderer extends MobRenderer<Sheep, SheepModel<Sheep>> {
 
     public SheepRenderer(EntityRendererProvider.Context param0) {
         super(param0, new SheepModel<>(param0.bakeLayer(ModelLayers.SHEEP)), 0.7F);
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
         this.addLayer(new SheepFurLayer(this, param0.getModelSet()));
     }
 

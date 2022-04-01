@@ -57,7 +57,6 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
         EntityType.GOAT,
         EntityType.AXOLOTL
     };
-    private static final EntityType<?>[] INDIRECTLY_BREEDABLE_ANIMALS = new EntityType[]{EntityType.TURTLE, EntityType.FROG};
     private static final Item[] FISH = new Item[]{Items.COD, Items.TROPICAL_FISH, Items.PUFFERFISH, Items.SALMON};
     private static final Item[] FISH_BUCKETS = new Item[]{Items.COD_BUCKET, Items.TROPICAL_FISH_BUCKET, Items.PUFFERFISH_BUCKET, Items.SALMON_BUCKET};
     private static final Item[] EDIBLE_ITEMS = new Item[]{
@@ -347,39 +346,6 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 )
             )
             .save(param0, "husbandry/wax_off");
-        Advancement var9 = Advancement.Builder.advancement()
-            .parent(var0)
-            .addCriterion(
-                Registry.ITEM.getKey(Items.TADPOLE_BUCKET).getPath(),
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item().of(Items.TADPOLE_BUCKET).build())
-            )
-            .display(
-                Items.TADPOLE_BUCKET,
-                new TranslatableComponent("advancements.husbandry.tadpole_in_a_bucket.title"),
-                new TranslatableComponent("advancements.husbandry.tadpole_in_a_bucket.description"),
-                null,
-                FrameType.TASK,
-                true,
-                true,
-                false
-            )
-            .save(param0, "husbandry/tadpole_in_a_bucket");
-        Advancement.Builder.advancement()
-            .parent(var9)
-            .display(
-                Items.VERDANT_FROGLIGHT,
-                new TranslatableComponent("advancements.husbandry.froglights.title"),
-                new TranslatableComponent("advancements.husbandry.froglights.description"),
-                null,
-                FrameType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .addCriterion(
-                "froglights", InventoryChangeTrigger.TriggerInstance.hasItems(Items.OCHRE_FROGLIGHT, Items.PEARLESCENT_FROGLIGHT, Items.VERDANT_FROGLIGHT)
-            )
-            .save(param0, "husbandry/froglights");
         Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
@@ -461,15 +427,14 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             param0.addCriterion(EntityType.getKey(var0).toString(), BredAnimalsTrigger.TriggerInstance.bredAnimals(EntityPredicate.Builder.entity().of(var0)));
         }
 
-        for(EntityType<?> var1 : INDIRECTLY_BREEDABLE_ANIMALS) {
-            param0.addCriterion(
-                EntityType.getKey(var1).toString(),
-                BredAnimalsTrigger.TriggerInstance.bredAnimals(
-                    EntityPredicate.Builder.entity().of(var1).build(), EntityPredicate.Builder.entity().of(var1).build(), EntityPredicate.ANY
-                )
-            );
-        }
-
+        param0.addCriterion(
+            EntityType.getKey(EntityType.TURTLE).toString(),
+            BredAnimalsTrigger.TriggerInstance.bredAnimals(
+                EntityPredicate.Builder.entity().of(EntityType.TURTLE).build(),
+                EntityPredicate.Builder.entity().of(EntityType.TURTLE).build(),
+                EntityPredicate.ANY
+            )
+        );
         return param0;
     }
 

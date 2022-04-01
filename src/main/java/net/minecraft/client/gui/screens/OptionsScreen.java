@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Option;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OptionsScreen extends Screen {
+    private static final Option[] OPTION_SCREEN_OPTIONS = new Option[]{Option.FOV};
     private final Screen lastScreen;
     private final Options options;
     private CycleButton<Difficulty> difficultyButton;
@@ -38,7 +39,7 @@ public class OptionsScreen extends Screen {
     protected void init() {
         int var0 = 0;
 
-        for(OptionInstance<?> var1 : new OptionInstance[]{this.options.fov()}) {
+        for(Option var1 : OPTION_SCREEN_OPTIONS) {
             int var2 = this.width / 2 - 155 + var0 % 2 * 160;
             int var3 = this.height / 6 - 12 + 24 * (var0 >> 1);
             this.addRenderableWidget(var1.createButton(this.minecraft.options, var2, var3, 150));

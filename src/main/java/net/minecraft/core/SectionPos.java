@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.entity.EntityAccess;
 
 public class SectionPos extends Vec3i {
     public static final int SECTION_BITS = 4;
@@ -45,12 +45,8 @@ public class SectionPos extends Vec3i {
         return new SectionPos(param0.x, param1, param0.z);
     }
 
-    public static SectionPos of(EntityAccess param0) {
-        return of(param0.blockPosition());
-    }
-
-    public static SectionPos of(Position param0) {
-        return new SectionPos(blockToSectionCoord(param0.x()), blockToSectionCoord(param0.y()), blockToSectionCoord(param0.z()));
+    public static SectionPos of(Entity param0) {
+        return new SectionPos(blockToSectionCoord(param0.getBlockX()), blockToSectionCoord(param0.getBlockY()), blockToSectionCoord(param0.getBlockZ()));
     }
 
     public static SectionPos of(long param0) {
@@ -75,10 +71,6 @@ public class SectionPos extends Vec3i {
 
     public static int blockToSectionCoord(int param0) {
         return param0 >> 4;
-    }
-
-    public static int blockToSectionCoord(double param0) {
-        return Mth.floor(param0) >> 4;
     }
 
     public static int sectionRelative(int param0) {

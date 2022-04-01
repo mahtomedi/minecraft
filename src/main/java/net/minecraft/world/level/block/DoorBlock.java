@@ -218,7 +218,7 @@ public class DoorBlock extends Block {
         if (!this.defaultBlockState().is(param3) && var0 != param0.getValue(POWERED)) {
             if (var0 != param0.getValue(OPEN)) {
                 this.playSound(param1, param2, var0);
-                param1.gameEvent(null, var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
+                param1.gameEvent(var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
             }
 
             param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)).setValue(OPEN, Boolean.valueOf(var0)), 2);

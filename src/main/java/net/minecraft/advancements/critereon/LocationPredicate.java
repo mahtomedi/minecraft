@@ -15,7 +15,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.CampfireBlock;
-import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import org.slf4j.Logger;
 
 public class LocationPredicate {
@@ -38,7 +38,7 @@ public class LocationPredicate {
     @Nullable
     private final ResourceKey<Biome> biome;
     @Nullable
-    private final ResourceKey<Structure> structure;
+    private final ResourceKey<ConfiguredStructureFeature<?, ?>> feature;
     @Nullable
     private final ResourceKey<Level> dimension;
     @Nullable
@@ -52,7 +52,7 @@ public class LocationPredicate {
         MinMaxBounds.Doubles param1,
         MinMaxBounds.Doubles param2,
         @Nullable ResourceKey<Biome> param3,
-        @Nullable ResourceKey<Structure> param4,
+        @Nullable ResourceKey<ConfiguredStructureFeature<?, ?>> param4,
         @Nullable ResourceKey<Level> param5,
         @Nullable Boolean param6,
         LightPredicate param7,
@@ -63,7 +63,7 @@ public class LocationPredicate {
         this.y = param1;
         this.z = param2;
         this.biome = param3;
-        this.structure = param4;
+        this.feature = param4;
         this.dimension = param5;
         this.smokey = param6;
         this.light = param7;
@@ -101,7 +101,7 @@ public class LocationPredicate {
         );
     }
 
-    public static LocationPredicate inStructure(ResourceKey<Structure> param0) {
+    public static LocationPredicate inFeature(ResourceKey<ConfiguredStructureFeature<?, ?>> param0) {
         return new LocationPredicate(
             MinMaxBounds.Doubles.ANY,
             MinMaxBounds.Doubles.ANY,
@@ -135,7 +135,7 @@ public class LocationPredicate {
             BlockPos var0 = new BlockPos(param1, param2, param3);
             boolean var1 = param0.isLoaded(var0);
             if (this.biome == null || var1 && param0.getBiome(var0).is(this.biome)) {
-                if (this.structure == null || var1 && param0.structureManager().getStructureWithPieceAt(var0, this.structure).isValid()) {
+                if (this.feature == null || var1 && param0.structureFeatureManager().getStructureWithPieceAt(var0, this.feature).isValid()) {
                     if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
                         if (!this.light.matches(param0, var0)) {
                             return false;
@@ -176,8 +176,8 @@ public class LocationPredicate {
                     .ifPresent(param1 -> var0.add("dimension", param1));
             }
 
-            if (this.structure != null) {
-                var0.addProperty("structure", this.structure.location().toString());
+            if (this.feature != null) {
+                var0.addProperty("feature", this.feature.location().toString());
             }
 
             if (this.biome != null) {
@@ -209,11 +209,11 @@ public class LocationPredicate {
                     .map(param0x -> ResourceKey.create(Registry.DIMENSION_REGISTRY, param0x))
                     .orElse(null)
                 : null;
-            ResourceKey<Structure> var6 = var0.has("structure")
+            ResourceKey<ConfiguredStructureFeature<?, ?>> var6 = var0.has("feature")
                 ? ResourceLocation.CODEC
-                    .parse(JsonOps.INSTANCE, var0.get("structure"))
+                    .parse(JsonOps.INSTANCE, var0.get("feature"))
                     .resultOrPartial(LOGGER::error)
-                    .map(param0x -> ResourceKey.create(Registry.STRUCTURE_REGISTRY, param0x))
+                    .map(param0x -> ResourceKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, param0x))
                     .orElse(null)
                 : null;
             ResourceKey<Biome> var7 = null;
@@ -239,7 +239,7 @@ public class LocationPredicate {
         @Nullable
         private ResourceKey<Biome> biome;
         @Nullable
-        private ResourceKey<Structure> structure;
+        private ResourceKey<ConfiguredStructureFeature<?, ?>> feature;
         @Nullable
         private ResourceKey<Level> dimension;
         @Nullable
@@ -272,8 +272,8 @@ public class LocationPredicate {
             return this;
         }
 
-        public LocationPredicate.Builder setStructure(@Nullable ResourceKey<Structure> param0) {
-            this.structure = param0;
+        public LocationPredicate.Builder setFeature(@Nullable ResourceKey<ConfiguredStructureFeature<?, ?>> param0) {
+            this.feature = param0;
             return this;
         }
 
@@ -303,7 +303,7 @@ public class LocationPredicate {
         }
 
         public LocationPredicate build() {
-            return new LocationPredicate(this.x, this.y, this.z, this.biome, this.structure, this.dimension, this.smokey, this.light, this.block, this.fluid);
+            return new LocationPredicate(this.x, this.y, this.z, this.biome, this.feature, this.dimension, this.smokey, this.light, this.block, this.fluid);
         }
     }
 }

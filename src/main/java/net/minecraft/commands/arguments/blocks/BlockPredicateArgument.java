@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.Arrays;
@@ -14,13 +15,12 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,35 +29,68 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgument.Result> {
     private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "#stone", "#stone[foo=bar]{baz=nbt}");
-    private final HolderLookup<Block> blocks;
+    static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType(
+        param0 -> new TranslatableComponent("arguments.block.tag.unknown", param0)
+    );
 
-    public BlockPredicateArgument(CommandBuildContext param0) {
-        this.blocks = param0.holderLookup(Registry.BLOCK_REGISTRY);
-    }
-
-    public static BlockPredicateArgument blockPredicate(CommandBuildContext param0) {
-        return new BlockPredicateArgument(param0);
+    public static BlockPredicateArgument blockPredicate() {
+        return new BlockPredicateArgument();
     }
 
     public BlockPredicateArgument.Result parse(StringReader param0) throws CommandSyntaxException {
-        return parse(this.blocks, param0);
-    }
-
-    public static BlockPredicateArgument.Result parse(HolderLookup<Block> param0, StringReader param1) throws CommandSyntaxException {
-        return BlockStateParser.parseForTesting(param0, param1, true)
-            .map(
-                param0x -> new BlockPredicateArgument.BlockPredicate(param0x.blockState(), param0x.properties().keySet(), param0x.nbt()),
-                param0x -> new BlockPredicateArgument.TagPredicate(param0x.tag(), param0x.vagueProperties(), param0x.nbt())
+        final BlockStateParser var0 = new BlockStateParser(param0, true).parse(true);
+        if (var0.getState() != null) {
+            final BlockPredicateArgument.BlockPredicate var1 = new BlockPredicateArgument.BlockPredicate(
+                var0.getState(), var0.getProperties().keySet(), var0.getNbt()
             );
+            return new BlockPredicateArgument.Result() {
+                @Override
+                public Predicate<BlockInWorld> create(Registry<Block> param0) {
+                    return var1;
+                }
+
+                @Override
+                public boolean requiresNbt() {
+                    return var1.requiresNbt();
+                }
+            };
+        } else {
+            final TagKey<Block> var2 = var0.getTag();
+            return new BlockPredicateArgument.Result() {
+                @Override
+                public Predicate<BlockInWorld> create(Registry<Block> param0) throws CommandSyntaxException {
+                    if (!param0.isKnownTagName(var2)) {
+                        throw BlockPredicateArgument.ERROR_UNKNOWN_TAG.create(var2);
+                    } else {
+                        return new BlockPredicateArgument.TagPredicate(var2, var0.getVagueProperties(), var0.getNbt());
+                    }
+                }
+
+                @Override
+                public boolean requiresNbt() {
+                    return var0.getNbt() != null;
+                }
+            };
+        }
     }
 
     public static Predicate<BlockInWorld> getBlockPredicate(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return param0.getArgument(param1, BlockPredicateArgument.Result.class);
+        return param0.getArgument(param1, BlockPredicateArgument.Result.class)
+            .create(param0.getSource().getServer().registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY));
     }
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        return BlockStateParser.fillSuggestions(this.blocks, param1, true, true);
+        StringReader var0 = new StringReader(param1.getInput());
+        var0.setCursor(param1.getStart());
+        BlockStateParser var1 = new BlockStateParser(var0, true);
+
+        try {
+            var1.parse(true);
+        } catch (CommandSyntaxException var6) {
+        }
+
+        return var1.fillSuggestions(param1, Registry.BLOCK);
     }
 
     @Override
@@ -65,7 +98,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
         return EXAMPLES;
     }
 
-    static class BlockPredicate implements BlockPredicateArgument.Result {
+    static class BlockPredicate implements Predicate<BlockInWorld> {
         private final BlockState state;
         private final Set<Property<?>> properties;
         @Nullable
@@ -97,23 +130,24 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
             }
         }
 
-        @Override
         public boolean requiresNbt() {
             return this.nbt != null;
         }
     }
 
-    public interface Result extends Predicate<BlockInWorld> {
+    public interface Result {
+        Predicate<BlockInWorld> create(Registry<Block> var1) throws CommandSyntaxException;
+
         boolean requiresNbt();
     }
 
-    static class TagPredicate implements BlockPredicateArgument.Result {
-        private final HolderSet<Block> tag;
+    static class TagPredicate implements Predicate<BlockInWorld> {
+        private final TagKey<Block> tag;
         @Nullable
         private final CompoundTag nbt;
         private final Map<String, String> vagueProperties;
 
-        TagPredicate(HolderSet<Block> param0, Map<String, String> param1, @Nullable CompoundTag param2) {
+        TagPredicate(TagKey<Block> param0, Map<String, String> param1, @Nullable CompoundTag param2) {
             this.tag = param0;
             this.vagueProperties = param1;
             this.nbt = param2;
@@ -147,11 +181,6 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
                     return var4 != null && NbtUtils.compareNbt(this.nbt, var4.saveWithFullMetadata(), true);
                 }
             }
-        }
-
-        @Override
-        public boolean requiresNbt() {
-            return this.nbt != null;
         }
     }
 }

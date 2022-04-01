@@ -12,7 +12,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.TimeUtil;
@@ -47,6 +46,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class PolarBear extends Animal implements NeutralMob {
@@ -101,10 +101,10 @@ public class PolarBear extends Animal implements NeutralMob {
 
     public static boolean checkPolarBearSpawnRules(EntityType<PolarBear> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
         Holder<Biome> var0 = param1.getBiome(param3);
-        if (!var0.is(BiomeTags.POLAR_BEARS_SPAWN_ON_ALTERNATE_BLOCKS)) {
+        if (!var0.is(Biomes.FROZEN_OCEAN) && !var0.is(Biomes.DEEP_FROZEN_OCEAN)) {
             return checkAnimalSpawnRules(param0, param1, param2, param3, param4);
         } else {
-            return isBrightEnoughToSpawn(param1, param3) && param1.getBlockState(param3.below()).is(BlockTags.POLAR_BEARS_SPAWNABLE_ON_ALTERNATE);
+            return isBrightEnoughToSpawn(param1, param3) && param1.getBlockState(param3.below()).is(BlockTags.POLAR_BEARS_SPAWNABLE_ON_IN_FROZEN_OCEAN);
         }
     }
 

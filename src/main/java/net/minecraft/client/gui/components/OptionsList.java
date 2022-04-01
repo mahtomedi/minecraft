@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Option;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -22,15 +22,15 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
         this.centerListVertically = false;
     }
 
-    public int addBig(OptionInstance<?> param0) {
+    public int addBig(Option param0) {
         return this.addEntry(OptionsList.Entry.big(this.minecraft.options, this.width, param0));
     }
 
-    public void addSmall(OptionInstance<?> param0, @Nullable OptionInstance<?> param1) {
+    public void addSmall(Option param0, @Nullable Option param1) {
         this.addEntry(OptionsList.Entry.small(this.minecraft.options, this.width, param0, param1));
     }
 
-    public void addSmall(OptionInstance<?>[] param0) {
+    public void addSmall(Option[] param0) {
         for(int var0 = 0; var0 < param0.length; var0 += 2) {
             this.addSmall(param0[var0], var0 < param0.length - 1 ? param0[var0 + 1] : null);
         }
@@ -48,7 +48,7 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
     }
 
     @Nullable
-    public AbstractWidget findOption(OptionInstance<?> param0) {
+    public AbstractWidget findOption(Option param0) {
         for(OptionsList.Entry var0 : this.children()) {
             AbstractWidget var1 = var0.options.get(param0);
             if (var1 != null) {
@@ -73,19 +73,19 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
 
     @OnlyIn(Dist.CLIENT)
     protected static class Entry extends ContainerObjectSelectionList.Entry<OptionsList.Entry> {
-        final Map<OptionInstance<?>, AbstractWidget> options;
+        final Map<Option, AbstractWidget> options;
         final List<AbstractWidget> children;
 
-        private Entry(Map<OptionInstance<?>, AbstractWidget> param0) {
+        private Entry(Map<Option, AbstractWidget> param0) {
             this.options = param0;
             this.children = ImmutableList.copyOf(param0.values());
         }
 
-        public static OptionsList.Entry big(Options param0, int param1, OptionInstance<?> param2) {
+        public static OptionsList.Entry big(Options param0, int param1, Option param2) {
             return new OptionsList.Entry(ImmutableMap.of(param2, param2.createButton(param0, param1 / 2 - 155, 0, 310)));
         }
 
-        public static OptionsList.Entry small(Options param0, int param1, OptionInstance<?> param2, @Nullable OptionInstance<?> param3) {
+        public static OptionsList.Entry small(Options param0, int param1, Option param2, @Nullable Option param3) {
             AbstractWidget var0 = param2.createButton(param0, param1 / 2 - 155, 0, 150);
             return param3 == null
                 ? new OptionsList.Entry(ImmutableMap.of(param2, var0))

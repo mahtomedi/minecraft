@@ -79,7 +79,6 @@
     "#minecraft:wooden_pressure_plates",
     "#minecraft:wooden_slabs",
     "#minecraft:wooden_stairs",
-    "#minecraft:wooden_trapdoors",
-    "minecraft:mangrove_roots"
+    "#minecraft:wooden_trapdoors"
   ]
 }

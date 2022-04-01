@@ -84,11 +84,8 @@ import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.Vec3;
@@ -116,7 +113,6 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final ThreadedLevelLightEngine lightEngine;
     private final BlockableEventLoop<Runnable> mainThreadExecutor;
     private ChunkGenerator generator;
-    private RandomState randomState;
     private final Supplier<DimensionDataStorage> overworldDataStorage;
     private final PoiManager poiManager;
     final LongSet toDrop = new LongOpenHashSet();
@@ -128,7 +124,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final ChunkStatusUpdateListener chunkStatusListener;
     private final ChunkMap.DistanceManager distanceManager;
     private final AtomicInteger tickingGenerated = new AtomicInteger();
-    private final StructureTemplateManager structureTemplateManager;
+    private final StructureManager structureManager;
     private final String storageName;
     private final PlayerMap playerMap = new PlayerMap();
     private final Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
@@ -141,7 +137,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         ServerLevel param0,
         LevelStorageSource.LevelStorageAccess param1,
         DataFixer param2,
-        StructureTemplateManager param3,
+        StructureManager param3,
         Executor param4,
         BlockableEventLoop<Runnable> param5,
         LightChunkGetter param6,
@@ -153,30 +149,22 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         boolean param12
     ) {
         super(param1.getDimensionPath(param0.dimension()).resolve("region"), param2, param12);
-        this.structureTemplateManager = param3;
+        this.structureManager = param3;
         Path var0 = param1.getDimensionPath(param0.dimension());
         this.storageName = var0.getFileName().toString();
         this.level = param0;
         this.generator = param7;
-        if (param7 instanceof NoiseBasedChunkGenerator var1) {
-            this.randomState = RandomState.create(
-                var1.generatorSettings().value(), param0.registryAccess().registryOrThrow(Registry.NOISE_REGISTRY), param0.getSeed()
-            );
-        } else {
-            this.randomState = RandomState.create(param0.registryAccess(), NoiseGeneratorSettings.OVERWORLD, param0.getSeed());
-        }
-
         this.mainThreadExecutor = param5;
-        ProcessorMailbox<Runnable> var2 = ProcessorMailbox.create(param4, "worldgen");
-        ProcessorHandle<Runnable> var3 = ProcessorHandle.of("main", param5::tell);
+        ProcessorMailbox<Runnable> var1 = ProcessorMailbox.create(param4, "worldgen");
+        ProcessorHandle<Runnable> var2 = ProcessorHandle.of("main", param5::tell);
         this.progressListener = param8;
         this.chunkStatusListener = param9;
-        ProcessorMailbox<Runnable> var4 = ProcessorMailbox.create(param4, "light");
-        this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(var2, var3, var4), param4, Integer.MAX_VALUE);
-        this.worldgenMailbox = this.queueSorter.getProcessor(var2, false);
-        this.mainThreadMailbox = this.queueSorter.getProcessor(var3, false);
+        ProcessorMailbox<Runnable> var3 = ProcessorMailbox.create(param4, "light");
+        this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(var1, var2, var3), param4, Integer.MAX_VALUE);
+        this.worldgenMailbox = this.queueSorter.getProcessor(var1, false);
+        this.mainThreadMailbox = this.queueSorter.getProcessor(var2, false);
         this.lightEngine = new ThreadedLevelLightEngine(
-            param6, this, this.level.dimensionType().hasSkyLight(), var4, this.queueSorter.getProcessor(var4, false)
+            param6, this, this.level.dimensionType().hasSkyLight(), var3, this.queueSorter.getProcessor(var3, false)
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param10;
@@ -186,10 +174,6 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     protected ChunkGenerator generator() {
         return this.generator;
-    }
-
-    protected RandomState randomState() {
-        return this.randomState;
     }
 
     public void debugReloadGenerator() {
@@ -556,7 +540,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             Optional<ChunkAccess> var1 = param0.getOrScheduleFuture(param1.getParent(), this).getNow(ChunkHolder.UNLOADED_CHUNK).left();
             if (var1.isPresent() && var1.get().getStatus().isOrAfter(param1)) {
                 CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2 = param1.load(
-                    this.level, this.structureTemplateManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var1.get()
+                    this.level, this.structureManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var1.get()
                 );
                 this.progressListener.onStatusChange(var0, param1);
                 return var2;
@@ -626,7 +610,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                                 var2,
                                 this.level,
                                 this.generator,
-                                this.structureTemplateManager,
+                                this.structureManager,
                                 this.lightEngine,
                                 param1x -> this.protoChunkToFullChunk(param0),
                                 param4x,
@@ -1310,16 +1294,16 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
         }
 
-        @Override
-        public int hashCode() {
-            return this.entity.getId();
-        }
-
         public void broadcast(Packet<?> param0x) {
             for(ServerPlayerConnection var0 : this.seenBy) {
                 var0.send(param0x);
             }
 
+        }
+
+        @Override
+        public int hashCode() {
+            return this.entity.getId();
         }
 
         public void broadcastAndSend(Packet<?> param0) {
@@ -1346,7 +1330,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
         public void updatePlayer(ServerPlayer param0) {
             if (param0 != this.entity) {
-                Vec3 var0 = param0.position().subtract(this.entity.position());
+                Vec3 var0 = param0.position().subtract(this.serverEntity.sentPos());
                 double var1 = (double)Math.min(this.getEffectiveRange(), (ChunkMap.this.viewDistance - 1) * 16);
                 double var2 = var0.x * var0.x + var0.z * var0.z;
                 double var3 = var1 * var1;

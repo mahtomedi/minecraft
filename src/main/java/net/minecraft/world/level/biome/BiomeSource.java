@@ -31,14 +31,11 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Graph;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -147,6 +144,8 @@ public abstract class BiomeSource implements BiomeResolver {
 
     protected abstract Codec<? extends BiomeSource> codec();
 
+    public abstract BiomeSource withSeed(long var1);
+
     public Set<Holder<Biome>> possibleBiomes() {
         return this.possibleBiomes;
     }
@@ -182,36 +181,6 @@ public abstract class BiomeSource implements BiomeResolver {
         int param0, int param1, int param2, int param3, Predicate<Holder<Biome>> param4, Random param5, Climate.Sampler param6
     ) {
         return this.findBiomeHorizontal(param0, param1, param2, param3, 1, param4, param5, false, param6);
-    }
-
-    @Nullable
-    public Pair<BlockPos, Holder<Biome>> findClosestBiome3d(
-        BlockPos param0, int param1, int param2, int param3, Predicate<Holder<Biome>> param4, Climate.Sampler param5, LevelReader param6
-    ) {
-        Set<Holder<Biome>> var0 = this.possibleBiomes().stream().filter(param4).collect(Collectors.toUnmodifiableSet());
-        if (var0.isEmpty()) {
-            return null;
-        } else {
-            int var1 = Math.floorDiv(param1, param2);
-            int[] var2 = Mth.outFromOrigin(param0.getY(), param6.getMinBuildHeight(), param6.getMaxBuildHeight(), param3).toArray();
-
-            for(BlockPos.MutableBlockPos var3 : BlockPos.spiralAround(BlockPos.ZERO, var1, Direction.EAST, Direction.SOUTH)) {
-                int var4 = param0.getX() + var3.getX() * param2;
-                int var5 = param0.getZ() + var3.getZ() * param2;
-                int var6 = QuartPos.fromBlock(var4);
-                int var7 = QuartPos.fromBlock(var5);
-
-                for(int var8 : var2) {
-                    int var9 = QuartPos.fromBlock(var8);
-                    Holder<Biome> var10 = this.getNoiseBiome(var6, var9, var7, param5);
-                    if (var0.contains(var10)) {
-                        return Pair.of(new BlockPos(var4, var8, var5), var10);
-                    }
-                }
-            }
-
-            return null;
-        }
     }
 
     @Nullable

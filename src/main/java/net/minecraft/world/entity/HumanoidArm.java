@@ -1,17 +1,16 @@
 package net.minecraft.world.entity;
 
-import net.minecraft.util.OptionEnum;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
-public enum HumanoidArm implements OptionEnum {
-    LEFT(0, "options.mainHand.left"),
-    RIGHT(1, "options.mainHand.right");
+public enum HumanoidArm {
+    LEFT(new TranslatableComponent("options.mainHand.left")),
+    RIGHT(new TranslatableComponent("options.mainHand.right"));
 
-    private final int id;
-    private final String name;
+    private final Component name;
 
-    private HumanoidArm(int param0, String param1) {
-        this.id = param0;
-        this.name = param1;
+    private HumanoidArm(Component param0) {
+        this.name = param0;
     }
 
     public HumanoidArm getOpposite() {
@@ -19,12 +18,11 @@ public enum HumanoidArm implements OptionEnum {
     }
 
     @Override
-    public int getId() {
-        return this.id;
+    public String toString() {
+        return this.name.getString();
     }
 
-    @Override
-    public String getKey() {
+    public Component getName() {
         return this.name;
     }
 }

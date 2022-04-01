@@ -54,6 +54,10 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.CarriedBlocks;
+import net.minecraft.world.level.block.GenericItemBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -171,6 +175,7 @@ public class ParticleEngine implements PreparableReloadListener {
         this.register(ParticleTypes.REVERSE_PORTAL, ReversePortalParticle.ReversePortalProvider::new);
         this.register(ParticleTypes.WHITE_ASH, WhiteAshParticle.Provider::new);
         this.register(ParticleTypes.SMALL_FLAME, FlameParticle.SmallFlameProvider::new);
+        this.register(ParticleTypes.FOOTSTEP, FootprintParticle.Provider::new);
         this.register(ParticleTypes.DRIPPING_DRIPSTONE_WATER, DripParticle.DripstoneWaterHangProvider::new);
         this.register(ParticleTypes.FALLING_DRIPSTONE_WATER, DripParticle.DripstoneWaterFallProvider::new);
         this.register(ParticleTypes.DRIPPING_DRIPSTONE_LAVA, DripParticle.DripstoneLavaHangProvider::new);
@@ -182,8 +187,6 @@ public class ParticleEngine implements PreparableReloadListener {
         this.register(ParticleTypes.WAX_OFF, GlowParticle.WaxOffProvider::new);
         this.register(ParticleTypes.ELECTRIC_SPARK, GlowParticle.ElectricSparkProvider::new);
         this.register(ParticleTypes.SCRAPE, GlowParticle.ScrapeProvider::new);
-        this.register(ParticleTypes.SHRIEK, ShriekParticle.Provider::new);
-        this.register(ParticleTypes.ALLAY_DUST, GlowParticle.AllayDustProvider::new);
     }
 
     private <T extends ParticleOptions> void register(ParticleType<T> param0, ParticleProvider<T> param1) {
@@ -433,44 +436,70 @@ public class ParticleEngine implements PreparableReloadListener {
         if (!param1.isAir()) {
             VoxelShape var0 = param1.getShape(this.level, param0);
             double var1 = 0.25;
-            var0.forAllBoxes(
-                (param2, param3, param4, param5, param6, param7) -> {
-                    double var0x = Math.min(1.0, param5 - param2);
-                    double var1x = Math.min(1.0, param6 - param3);
-                    double var2x = Math.min(1.0, param7 - param4);
-                    int var3x = Math.max(2, Mth.ceil(var0x / 0.25));
-                    int var4x = Math.max(2, Mth.ceil(var1x / 0.25));
-                    int var5 = Math.max(2, Mth.ceil(var2x / 0.25));
-    
-                    for(int var6 = 0; var6 < var3x; ++var6) {
-                        for(int var7 = 0; var7 < var4x; ++var7) {
-                            for(int var8 = 0; var8 < var5; ++var8) {
-                                double var9 = ((double)var6 + 0.5) / (double)var3x;
-                                double var10 = ((double)var7 + 0.5) / (double)var4x;
-                                double var11 = ((double)var8 + 0.5) / (double)var5;
-                                double var12 = var9 * var0x + param2;
-                                double var13 = var10 * var1x + param3;
-                                double var14 = var11 * var2x + param4;
-                                this.add(
-                                    new TerrainParticle(
-                                        this.level,
-                                        (double)param0.getX() + var12,
-                                        (double)param0.getY() + var13,
-                                        (double)param0.getZ() + var14,
-                                        var9 - 0.5,
-                                        var10 - 0.5,
-                                        var11 - 0.5,
-                                        param1,
-                                        param0
-                                    )
-                                );
-                            }
-                        }
-                    }
-    
+            Item var2 = GenericItemBlock.itemFromGenericBlock(param1);
+            if (var2 != null) {
+                ItemStack var3 = CarriedBlocks.getItemStackFromBlock(param1);
+                if (!var3.isEmpty()) {
+                    this.destroy(
+                        param0,
+                        var0,
+                        0.25,
+                        (param1x, param2, param3, param4, param5, param6, param7, param8) -> new BreakingItemParticle(
+                                param1x, param2, param3, param4, param5 * 0.1, param6 * 0.1, param7 * 0.1, var3
+                            )
+                    );
+                    return;
                 }
+            }
+
+            this.destroy(
+                param0,
+                var0,
+                0.25,
+                (param1x, param2, param3, param4, param5, param6, param7, param8) -> new TerrainParticle(
+                        param1x, param2, param3, param4, param5, param6, param7, param1, param8
+                    )
             );
         }
+    }
+
+    private void destroy(BlockPos param0, VoxelShape param1, double param2, ParticleEngine.DestroyParticleFactory param3) {
+        param1.forAllBoxes(
+            (param3x, param4, param5, param6, param7, param8) -> {
+                double var0 = Math.min(1.0, param6 - param3x);
+                double var1x = Math.min(1.0, param7 - param4);
+                double var2x = Math.min(1.0, param8 - param5);
+                int var3x = Math.max(2, Mth.ceil(var0 / param2));
+                int var4 = Math.max(2, Mth.ceil(var1x / param2));
+                int var5x = Math.max(2, Mth.ceil(var2x / param2));
+    
+                for(int var6 = 0; var6 < var3x; ++var6) {
+                    for(int var7 = 0; var7 < var4; ++var7) {
+                        for(int var8 = 0; var8 < var5x; ++var8) {
+                            double var9 = ((double)var6 + 0.5) / (double)var3x;
+                            double var10 = ((double)var7 + 0.5) / (double)var4;
+                            double var11 = ((double)var8 + 0.5) / (double)var5x;
+                            double var12 = var9 * var0 + param3x;
+                            double var13 = var10 * var1x + param4;
+                            double var14 = var11 * var2x + param5;
+                            this.add(
+                                param3.create(
+                                    this.level,
+                                    (double)param0.getX() + var12,
+                                    (double)param0.getY() + var13,
+                                    (double)param0.getZ() + var14,
+                                    var9 - 0.5,
+                                    var10 - 0.5,
+                                    var11 - 0.5,
+                                    param0
+                                )
+                            );
+                        }
+                    }
+                }
+    
+            }
+        );
     }
 
     public void crack(BlockPos param0, Direction param1) {
@@ -508,6 +537,15 @@ public class ParticleEngine implements PreparableReloadListener {
                 var6 = (double)var1 + var5.maxX + 0.1F;
             }
 
+            Item var9 = GenericItemBlock.itemFromGenericBlock(var0);
+            if (var9 != null) {
+                ItemStack var10 = CarriedBlocks.getItemStackFromBlock(var0);
+                if (!var10.isEmpty()) {
+                    this.add(new BreakingItemParticle(this.level, var6, var7, var8, 0.0, 0.0, 0.0, var10).setPower(0.2F).scale(0.6F));
+                    return;
+                }
+            }
+
             this.add(new TerrainParticle(this.level, var6, var7, var8, 0.0, 0.0, 0.0, var0, param0).setPower(0.2F).scale(0.6F));
         }
     }
@@ -518,6 +556,11 @@ public class ParticleEngine implements PreparableReloadListener {
 
     private boolean hasSpaceInParticleLimit(ParticleGroup param0) {
         return this.trackedParticleCounts.getInt(param0) < param0.getLimit();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    interface DestroyParticleFactory {
+        Particle create(ClientLevel var1, double var2, double var4, double var6, double var8, double var10, double var12, BlockPos var14);
     }
 
     @OnlyIn(Dist.CLIENT)

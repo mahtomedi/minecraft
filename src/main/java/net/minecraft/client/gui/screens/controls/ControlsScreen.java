@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.controls;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Option;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.MouseSettingsScreen;
@@ -41,10 +42,10 @@ public class ControlsScreen extends OptionsSubScreen {
             )
         );
         var2 += 24;
-        this.addRenderableWidget(this.options.toggleCrouch().createButton(this.options, var0, var2, 150));
-        this.addRenderableWidget(this.options.toggleSprint().createButton(this.options, var1, var2, 150));
+        this.addRenderableWidget(Option.TOGGLE_CROUCH.createButton(this.options, var0, var2, 150));
+        this.addRenderableWidget(Option.TOGGLE_SPRINT.createButton(this.options, var1, var2, 150));
         var2 += 24;
-        this.addRenderableWidget(this.options.autoJump().createButton(this.options, var0, var2, 150));
+        this.addRenderableWidget(Option.AUTO_JUMP.createButton(this.options, var0, var2, 150));
         var2 += 24;
         this.addRenderableWidget(
             new Button(this.width / 2 - 100, var2, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))

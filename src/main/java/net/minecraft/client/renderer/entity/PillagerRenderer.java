@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.layers.CarriedBlockLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Pillager;
@@ -15,6 +16,7 @@ public class PillagerRenderer extends IllagerRenderer<Pillager> {
     public PillagerRenderer(EntityRendererProvider.Context param0) {
         super(param0, new IllagerModel<>(param0.bakeLayer(ModelLayers.PILLAGER)), 0.5F);
         this.addLayer(new ItemInHandLayer<>(this));
+        this.addLayer(new CarriedBlockLayer<>(this, 0.125F, -0.050000012F, 0.5F));
     }
 
     public ResourceLocation getTextureLocation(Pillager param0) {

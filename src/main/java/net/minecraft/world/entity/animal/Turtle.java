@@ -288,7 +288,7 @@ public class Turtle extends Animal {
         if (!this.isGoingHome() && param1.getFluidState(param0).is(FluidTags.WATER)) {
             return 10.0F;
         } else {
-            return TurtleEggBlock.onSand(param1, param0) ? 10.0F : param1.getPathfindingCostFromLightLevels(param0);
+            return TurtleEggBlock.onSand(param1, param0) ? 10.0F : param1.getBrightness(param0) - 0.5F;
         }
     }
 

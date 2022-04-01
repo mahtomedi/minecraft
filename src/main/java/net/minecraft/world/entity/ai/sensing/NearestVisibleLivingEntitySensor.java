@@ -3,7 +3,6 @@ package net.minecraft.world.entity.ai.sensing;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -25,8 +24,7 @@ public abstract class NearestVisibleLivingEntitySensor extends Sensor<LivingEnti
     }
 
     private Optional<LivingEntity> getNearestEntity(LivingEntity param0) {
-        return this.getVisibleEntities(param0)
-            .flatMap(param1 -> param1.findClosest((Predicate<LivingEntity>)(param1x -> this.isMatchingEntity(param0, param1x))));
+        return this.getVisibleEntities(param0).flatMap(param1 -> param1.findClosest(param1x -> this.isMatchingEntity(param0, param1x)));
     }
 
     protected Optional<NearestVisibleLivingEntities> getVisibleEntities(LivingEntity param0) {

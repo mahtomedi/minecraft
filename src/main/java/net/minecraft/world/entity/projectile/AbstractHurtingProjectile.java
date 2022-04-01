@@ -178,7 +178,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
     }
 
     @Override
-    public float getLightLevelDependentMagicValue() {
+    public float getBrightness() {
         return 1.0F;
     }
 

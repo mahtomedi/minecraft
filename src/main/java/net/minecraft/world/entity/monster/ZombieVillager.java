@@ -44,6 +44,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.slf4j.Logger;
 
 public class ZombieVillager extends Zombie implements VillagerDataHolder {
@@ -152,6 +153,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
                     this.startConverting(param0.getUUID(), this.random.nextInt(2401) + 3600);
                 }
 
+                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
                 return InteractionResult.SUCCESS;
             } else {
                 return InteractionResult.CONSUME;
@@ -224,10 +226,6 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         }
 
         var0.setVillagerData(this.getVillagerData());
-        if (this.gossips != null) {
-            var0.setGossips(this.gossips);
-        }
-
         if (this.tradeOffers != null) {
             var0.setOffers(new MerchantOffers(this.tradeOffers));
         }

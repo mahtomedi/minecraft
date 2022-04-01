@@ -82,7 +82,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.Item;
@@ -93,6 +92,8 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.FrostWalkerEnchantment;
+import net.minecraft.world.item.trading.CarryableTrade;
+import net.minecraft.world.level.CarriedBlocks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -231,6 +232,8 @@ public abstract class LivingEntity extends Entity {
     private float swimAmountO;
     protected Brain<?> brain;
     private boolean skipDropExperience;
+    @Nullable
+    private Player thrownBy;
 
     protected LivingEntity(EntityType<? extends LivingEntity> param0, Level param1) {
         super(param0, param1);
@@ -658,17 +661,11 @@ public abstract class LivingEntity extends Entity {
         this.discardFriction = param0;
     }
 
-    protected void equipEventAndSound(ItemStack param0, boolean param1) {
-        if (!param0.isEmpty() && !this.isSpectator()) {
-            if (param1) {
-                this.gameEvent(GameEvent.EQUIP);
-            }
-
-            SoundEvent var0 = param0.getEquipSound();
-            if (var0 != null) {
-                this.playSound(var0, 1.0F, 1.0F);
-            }
-
+    protected void equipEventAndSound(ItemStack param0) {
+        SoundEvent var0 = param0.getEquipSound();
+        if (!param0.isEmpty() && var0 != null && !this.isSpectator()) {
+            this.gameEvent(GameEvent.EQUIP);
+            this.playSound(var0, 1.0F, 1.0F);
         }
     }
 
@@ -1186,6 +1183,11 @@ public abstract class LivingEntity extends Entity {
                 CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)var5, this, param0, var0, param1, var1);
             }
 
+            if (!this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                this.spawnAtLocation(this.getItemBySlot(EquipmentSlot.HEAD));
+                this.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            }
+
             return var16;
         }
     }
@@ -1303,7 +1305,7 @@ public abstract class LivingEntity extends Entity {
                 this.stopSleeping();
             }
 
-            this.gameEvent(GameEvent.ENTITY_DIE);
+            this.gameEvent(GameEvent.ENTITY_DYING);
             if (!this.level.isClientSide && this.hasCustomName()) {
                 LOGGER.info("Named entity {} died: {}", this, this.getCombatTracker().getDeathMessage().getString());
             }
@@ -1472,7 +1474,7 @@ public abstract class LivingEntity extends Entity {
         } else {
             BlockPos var0 = this.blockPosition();
             BlockState var1 = this.getFeetBlockState();
-            if (var1.is(BlockTags.CLIMBABLE)) {
+            if (this.canClimbOn(var0, var1)) {
                 this.lastClimbablePos = Optional.of(var0);
                 return true;
             } else if (var1.getBlock() instanceof TrapDoorBlock && this.trapdoorUsableAsLadder(var0, var1)) {
@@ -1612,7 +1614,7 @@ public abstract class LivingEntity extends Entity {
                 this.setHealth(var2 - var8);
                 this.getCombatTracker().recordDamage(param0, var2, var8);
                 this.setAbsorptionAmount(this.getAbsorptionAmount() - var8);
-                this.gameEvent(GameEvent.ENTITY_DAMAGE);
+                this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
             }
         }
     }
@@ -1899,6 +1901,11 @@ public abstract class LivingEntity extends Entity {
         return param0.test(this.getMainHandItem()) || param0.test(this.getOffhandItem());
     }
 
+    public ItemStack getCarriedAsItem() {
+        BlockState var0 = this.getCarriedBlock();
+        return var0 == null ? ItemStack.EMPTY : CarriedBlocks.getItemStackFromBlock(var0);
+    }
+
     public ItemStack getItemInHand(InteractionHand param0) {
         if (param0 == InteractionHand.MAIN_HAND) {
             return this.getItemBySlot(EquipmentSlot.MAINHAND);
@@ -2053,9 +2060,16 @@ public abstract class LivingEntity extends Entity {
         if (this.isEffectiveAi() || this.isControlledByLocalInstance()) {
             double var0 = 0.08;
             boolean var1 = this.getDeltaMovement().y <= 0.0;
-            if (var1 && this.hasEffect(MobEffects.SLOW_FALLING)) {
+            if (var1
+                && (this.hasEffect(MobEffects.SLOW_FALLING) || this instanceof Player && this.hasPassenger(param0x -> param0x.getType() == EntityType.CHICKEN))
+                )
+             {
                 var0 = 0.01;
                 this.resetFallDistance();
+            }
+
+            if (this instanceof Player && this.hasPassenger(param0x -> param0x.getType() == EntityType.BEE)) {
+                var0 = -5.0E-4;
             }
 
             FluidState var2 = this.level.getFluidState(this.blockPosition());
@@ -2268,6 +2282,10 @@ public abstract class LivingEntity extends Entity {
         super.tick();
         this.updatingUsingItem();
         this.updateSwimAmount();
+        if (this.thrownBy != null && this.getDeltaMovement().length() < 0.15) {
+            this.removeThrownBy();
+        }
+
         if (!this.level.isClientSide) {
             int var0 = this.getArrowCount();
             if (var0 > 0) {
@@ -2648,7 +2666,7 @@ public abstract class LivingEntity extends Entity {
                         var1.hurtAndBreak(1, this, param0 -> param0.broadcastBreakEvent(EquipmentSlot.CHEST));
                     }
 
-                    this.gameEvent(GameEvent.ELYTRA_GLIDE);
+                    this.gameEvent(GameEvent.ELYTRA_FREE_FALL);
                 }
             } else {
                 var0 = false;
@@ -3009,6 +3027,7 @@ public abstract class LivingEntity extends Entity {
         if (!this.level.isClientSide || this.isUsingItem()) {
             InteractionHand var0 = this.getUsedItemHand();
             if (!this.useItem.equals(this.getItemInHand(var0))) {
+                this.clearCarried();
                 this.releaseUsingItem();
             } else {
                 if (!this.useItem.isEmpty() && this.isUsingItem()) {
@@ -3259,6 +3278,7 @@ public abstract class LivingEntity extends Entity {
 
     public ItemStack eat(Level param0, ItemStack param1) {
         if (param1.isEdible()) {
+            param0.gameEvent(this, GameEvent.EAT, this.eyeBlockPosition());
             param0.playSound(
                 null,
                 this.getX(),
@@ -3274,7 +3294,7 @@ public abstract class LivingEntity extends Entity {
                 param1.shrink(1);
             }
 
-            param0.gameEvent(this, GameEvent.EAT, this.getEyePosition());
+            this.gameEvent(GameEvent.EAT);
         }
 
         return param1;
@@ -3408,8 +3428,66 @@ public abstract class LivingEntity extends Entity {
         this.setDeltaMovement((double)((float)param0.getXd() / 8000.0F), (double)((float)param0.getYd() / 8000.0F), (double)((float)param0.getZd() / 8000.0F));
     }
 
-    public boolean canDisableShield() {
-        return this.getMainHandItem().getItem() instanceof AxeItem;
+    @Nullable
+    public BlockState getCarriedBlock() {
+        return null;
+    }
+
+    @Override
+    public boolean canSpawnFootprintParticle() {
+        return this.getCarriedBlock() != null && !this.isInWater() && !this.isSpectator() && !this.isInLava() && this.isAlive();
+    }
+
+    public void clearCarried() {
+    }
+
+    @Nullable
+    public CarryableTrade getTradeProposition() {
+        if (this.getCarriedBlock() != null) {
+            return CarryableTrade.block(this.getCarriedBlock().getBlock());
+        } else {
+            Entity var0 = this.getFirstPassenger();
+            return var0 != null ? CarryableTrade.entity(var0.getType()) : null;
+        }
+    }
+
+    public LivingEntity.Carried getCarried() {
+        if (this.getCarriedBlock() != null) {
+            return LivingEntity.Carried.BLOCK;
+        } else {
+            return this.hasPassenger(param0 -> true) ? LivingEntity.Carried.MOB : LivingEntity.Carried.NONE;
+        }
+    }
+
+    @Override
+    public void throwEntity(ServerPlayer param0, Vec3 param1) {
+        super.throwEntity(param0, param1);
+        this.setThrownBy(param0);
+        this.getSelfAndPassengers().forEach(param1x -> {
+            if (param1x instanceof LivingEntity var0) {
+                var0.setThrownBy(param0);
+            }
+
+        });
+    }
+
+    void setThrownBy(@Nullable ServerPlayer param0) {
+        this.thrownBy = param0;
+    }
+
+    void removeThrownBy() {
+        this.thrownBy = null;
+    }
+
+    @Nullable
+    public Player getThrownBy() {
+        return this.thrownBy;
+    }
+
+    public static enum Carried {
+        BLOCK,
+        MOB,
+        NONE;
     }
 
     public static record Fallsounds(SoundEvent small, SoundEvent big) {

@@ -1,17 +1,18 @@
 package net.minecraft.world.level.levelgen;
 
-import com.google.common.annotations.VisibleForTesting;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.Util;
+import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.NoiseEffect;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
@@ -28,46 +29,42 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {
         }
 
     });
-    private final ObjectListIterator<Beardifier.Rigid> pieceIterator;
+    private final ObjectList<StructurePiece> rigids;
+    private final ObjectList<JigsawJunction> junctions;
+    private final ObjectListIterator<StructurePiece> pieceIterator;
     private final ObjectListIterator<JigsawJunction> junctionIterator;
 
-    public static Beardifier forStructuresInChunk(StructureManager param0, ChunkPos param1) {
-        int var0 = param1.getMinBlockX();
-        int var1 = param1.getMinBlockZ();
-        ObjectList<Beardifier.Rigid> var2 = new ObjectArrayList<>(10);
-        ObjectList<JigsawJunction> var3 = new ObjectArrayList<>(32);
-        param0.startsForStructure(param1, param0x -> param0x.terrainAdaptation() != TerrainAdjustment.NONE).forEach(param5 -> {
-            TerrainAdjustment var0x = param5.getStructure().terrainAdaptation();
-
-            for(StructurePiece var1x : param5.getPieces()) {
-                if (var1x.isCloseToChunk(param1, 12)) {
-                    if (var1x instanceof PoolElementStructurePiece var2x) {
-                        StructureTemplatePool.Projection var3x = var2x.getElement().getProjection();
-                        if (var3x == StructureTemplatePool.Projection.RIGID) {
-                            var2.add(new Beardifier.Rigid(var2x.getBoundingBox(), var0x, var2x.getGroundLevelDelta()));
+    protected Beardifier(StructureFeatureManager param0, ChunkAccess param1) {
+        ChunkPos var0 = param1.getPos();
+        int var1 = var0.getMinBlockX();
+        int var2 = var0.getMinBlockZ();
+        this.junctions = new ObjectArrayList<>(32);
+        this.rigids = new ObjectArrayList<>(10);
+        param0.startsForFeature(SectionPos.bottomOf(param1), param0x -> param0x.adaptNoise).forEach(param3 -> {
+            for(StructurePiece var0x : param3.getPieces()) {
+                if (var0x.isCloseToChunk(var0, 12)) {
+                    if (var0x instanceof PoolElementStructurePiece var1x) {
+                        StructureTemplatePool.Projection var2x = var1x.getElement().getProjection();
+                        if (var2x == StructureTemplatePool.Projection.RIGID) {
+                            this.rigids.add(var1x);
                         }
 
-                        for(JigsawJunction var4x : var2x.getJunctions()) {
-                            int var5x = var4x.getSourceX();
-                            int var6 = var4x.getSourceZ();
-                            if (var5x > var0 - 12 && var6 > var1 - 12 && var5x < var0 + 15 + 12 && var6 < var1 + 15 + 12) {
-                                var3.add(var4x);
+                        for(JigsawJunction var3x : var1x.getJunctions()) {
+                            int var4x = var3x.getSourceX();
+                            int var5x = var3x.getSourceZ();
+                            if (var4x > var1 - 12 && var5x > var2 - 12 && var4x < var1 + 15 + 12 && var5x < var2 + 15 + 12) {
+                                this.junctions.add(var3x);
                             }
                         }
                     } else {
-                        var2.add(new Beardifier.Rigid(var1x.getBoundingBox(), var0x, 0));
+                        this.rigids.add(var0x);
                     }
                 }
             }
 
         });
-        return new Beardifier(var2.iterator(), var3.iterator());
-    }
-
-    @VisibleForTesting
-    public Beardifier(ObjectListIterator<Beardifier.Rigid> param0, ObjectListIterator<JigsawJunction> param1) {
-        this.pieceIterator = param0;
-        this.junctionIterator = param1;
+        this.pieceIterator = this.rigids.iterator();
+        this.junctionIterator = this.junctions.iterator();
     }
 
     @Override
@@ -75,50 +72,33 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {
         int var0 = param0.blockX();
         int var1 = param0.blockY();
         int var2 = param0.blockZ();
+        double var3 = 0.0;
 
-        double var3;
-        double var10001;
-        for(var3 = 0.0; this.pieceIterator.hasNext(); var3 += var10001) {
-            Beardifier.Rigid var4 = this.pieceIterator.next();
-            BoundingBox var5 = var4.box();
-            int var6 = var4.groundLevelDelta();
-            int var7 = Math.max(0, Math.max(var5.minX() - var0, var0 - var5.maxX()));
+        while(this.pieceIterator.hasNext()) {
+            StructurePiece var4 = this.pieceIterator.next();
+            BoundingBox var5 = var4.getBoundingBox();
+            int var6 = Math.max(0, Math.max(var5.minX() - var0, var0 - var5.maxX()));
+            int var7 = var1 - (var5.minY() + (var4 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var4).getGroundLevelDelta() : 0));
             int var8 = Math.max(0, Math.max(var5.minZ() - var2, var2 - var5.maxZ()));
-            int var9 = var5.minY() + var6;
-            int var10 = var1 - var9;
-
-            int var11 = switch(var4.terrainAdjustment()) {
-                case NONE -> 0;
-                case BURY, BEARD_THIN -> var10;
-                case BEARD_BOX -> Math.max(0, Math.max(var9 - var1, var1 - var5.maxY()));
-            };
-            switch(var4.terrainAdjustment()) {
-                case NONE:
-                    var10001 = 0.0;
-                    break;
-                case BURY:
-                    var10001 = getBuryContribution(var7, var11, var8);
-                    break;
-                case BEARD_THIN:
-                case BEARD_BOX:
-                    var10001 = getBeardContribution(var7, var11, var8, var10) * 0.8;
-                    break;
-                default:
-                    throw new IncompatibleClassChangeError();
+            NoiseEffect var9 = var4.getNoiseEffect();
+            if (var9 == NoiseEffect.BURY) {
+                var3 += getBuryContribution(var6, var7, var8);
+            } else if (var9 == NoiseEffect.BEARD) {
+                var3 += getBeardContribution(var6, var7, var8) * 0.8;
             }
         }
 
-        this.pieceIterator.back(Integer.MAX_VALUE);
+        this.pieceIterator.back(this.rigids.size());
 
         while(this.junctionIterator.hasNext()) {
-            JigsawJunction var12 = this.junctionIterator.next();
-            int var13 = var0 - var12.getSourceX();
-            int var14 = var1 - var12.getSourceGroundY();
-            int var15 = var2 - var12.getSourceZ();
-            var3 += getBeardContribution(var13, var14, var15, var14) * 0.4;
+            JigsawJunction var10 = this.junctionIterator.next();
+            int var11 = var0 - var10.getSourceX();
+            int var12 = var1 - var10.getSourceGroundY();
+            int var13 = var2 - var10.getSourceZ();
+            var3 += getBeardContribution(var11, var12, var13) * 0.4;
         }
 
-        this.junctionIterator.back(Integer.MAX_VALUE);
+        this.junctionIterator.back(this.junctions.size());
         return var3;
     }
 
@@ -137,34 +117,25 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {
         return Mth.clampedMap(var0, 0.0, 6.0, 1.0, 0.0);
     }
 
-    private static double getBeardContribution(int param0, int param1, int param2, int param3) {
+    private static double getBeardContribution(int param0, int param1, int param2) {
         int var0 = param0 + 12;
         int var1 = param1 + 12;
         int var2 = param2 + 12;
-        if (isInKernelRange(var0) && isInKernelRange(var1) && isInKernelRange(var2)) {
-            double var3 = (double)param3 + 0.5;
-            double var4 = Mth.lengthSquared((double)param0, var3, (double)param2);
-            double var5 = -var3 * Mth.fastInvSqrt(var4 / 2.0) / 2.0;
-            return var5 * (double)BEARD_KERNEL[var2 * 24 * 24 + var0 * 24 + var1];
-        } else {
+        if (var0 < 0 || var0 >= 24) {
             return 0.0;
+        } else if (var1 < 0 || var1 >= 24) {
+            return 0.0;
+        } else {
+            return var2 >= 0 && var2 < 24 ? (double)BEARD_KERNEL[var2 * 24 * 24 + var0 * 24 + var1] : 0.0;
         }
     }
 
-    private static boolean isInKernelRange(int param0) {
-        return param0 >= 0 && param0 < 24;
-    }
-
     private static double computeBeardContribution(int param0, int param1, int param2) {
-        return computeBeardContribution(param0, (double)param1 + 0.5, param2);
-    }
-
-    private static double computeBeardContribution(int param0, double param1, int param2) {
-        double var0 = Mth.lengthSquared((double)param0, param1, (double)param2);
-        return Math.pow(Math.E, -var0 / 16.0);
-    }
-
-    @VisibleForTesting
-    public static record Rigid(BoundingBox box, TerrainAdjustment terrainAdjustment, int groundLevelDelta) {
+        double var0 = (double)(param0 * param0 + param2 * param2);
+        double var1 = (double)param1 + 0.5;
+        double var2 = var1 * var1;
+        double var3 = Math.pow(Math.E, -(var2 / 16.0 + var0 / 16.0));
+        double var4 = -var1 * Mth.fastInvSqrt(var2 / 2.0 + var0 / 2.0) / 2.0;
+        return var4 * var3;
     }
 }

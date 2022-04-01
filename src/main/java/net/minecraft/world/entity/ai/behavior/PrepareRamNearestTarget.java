@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -66,7 +65,7 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
         Brain<?> var0 = param1.getBrain();
         var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .flatMap(param1x -> param1x.findClosest((Predicate<LivingEntity>)(param1xx -> this.ramTargeting.test(param1, param1xx))))
+            .flatMap(param1x -> param1x.findClosest(param1xx -> this.ramTargeting.test(param1, param1xx)))
             .ifPresent(param1x -> this.chooseRamPosition(param1, param1x));
     }
 

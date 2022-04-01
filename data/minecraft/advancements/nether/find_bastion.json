@@ -20,7 +20,7 @@
       "trigger": "minecraft:location",
       "conditions": {
         "location": {
-          "structure": "minecraft:bastion_remnant"
+          "feature": "minecraft:bastion_remnant"
         }
       }
     }

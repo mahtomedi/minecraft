@@ -15,9 +15,7 @@ public class ChunkPos {
     private static final long COORD_BITS = 32L;
     private static final long COORD_MASK = 4294967295L;
     private static final int REGION_BITS = 5;
-    public static final int REGION_SIZE = 32;
     private static final int REGION_MASK = 31;
-    public static final int REGION_MAX_INDEX = 31;
     public final int x;
     public final int z;
     private static final int HASH_A = 1664525;
@@ -37,14 +35,6 @@ public class ChunkPos {
     public ChunkPos(long param0) {
         this.x = (int)param0;
         this.z = (int)(param0 >> 32);
-    }
-
-    public static ChunkPos minFromRegion(int param0, int param1) {
-        return new ChunkPos(param0 << 5, param1 << 5);
-    }
-
-    public static ChunkPos maxFromRegion(int param0, int param1) {
-        return new ChunkPos((param0 << 5) + 31, (param1 << 5) + 31);
     }
 
     public long toLong() {
@@ -69,12 +59,8 @@ public class ChunkPos {
 
     @Override
     public int hashCode() {
-        return hash(this.x, this.z);
-    }
-
-    public static int hash(int param0, int param1) {
-        int var0 = 1664525 * param0 + 1013904223;
-        int var1 = 1664525 * (param1 ^ -559038737) + 1013904223;
+        int var0 = 1664525 * this.x + 1013904223;
+        int var1 = 1664525 * (this.z ^ -559038737) + 1013904223;
         return var0 ^ var1;
     }
 

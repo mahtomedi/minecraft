@@ -9,7 +9,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -71,41 +70,23 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     }
 
     public <C extends Container, T extends Recipe<C>> Optional<T> getRecipeFor(RecipeType<T> param0, C param1, Level param2) {
-        return this.byType(param0).values().stream().filter(param2x -> param2x.matches(param1, param2)).findFirst();
-    }
-
-    public <C extends Container, T extends Recipe<C>> Optional<Pair<ResourceLocation, T>> getRecipeFor(
-        RecipeType<T> param0, C param1, Level param2, @Nullable ResourceLocation param3
-    ) {
-        Map<ResourceLocation, T> var0 = this.byType(param0);
-        if (param3 != null) {
-            T var1 = var0.get(param3);
-            if (var1 != null && var1.matches(param1, param2)) {
-                return Optional.of(Pair.of(param3, var1));
-            }
-        }
-
-        return var0.entrySet()
-            .stream()
-            .filter(param2x -> param2x.getValue().matches(param1, param2))
-            .findFirst()
-            .map(param0x -> Pair.of(param0x.getKey(), param0x.getValue()));
+        return this.byType(param0).values().stream().flatMap(param3 -> param0.tryMatch(param3, param2, param1).stream()).findFirst();
     }
 
     public <C extends Container, T extends Recipe<C>> List<T> getAllRecipesFor(RecipeType<T> param0) {
-        return List.copyOf(this.byType(param0).values());
+        return this.byType(param0).values().stream().map((Function<? super Recipe, ? extends Recipe>)(param0x -> param0x)).collect(Collectors.toList());
     }
 
     public <C extends Container, T extends Recipe<C>> List<T> getRecipesFor(RecipeType<T> param0, C param1, Level param2) {
         return this.byType(param0)
             .values()
             .stream()
-            .filter(param2x -> param2x.matches(param1, param2))
+            .flatMap(param3 -> param0.tryMatch(param3, param2, param1).stream())
             .sorted(Comparator.comparing(param0x -> param0x.getResultItem().getDescriptionId()))
             .collect(Collectors.toList());
     }
 
-    private <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> byType(RecipeType<T> param0) {
+    private <C extends Container, T extends Recipe<C>> Map<ResourceLocation, Recipe<C>> byType(RecipeType<T> param0) {
         return this.recipes.getOrDefault(param0, Collections.emptyMap());
     }
 
@@ -159,29 +140,5 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
         });
         this.recipes = ImmutableMap.copyOf(var0);
         this.byName = var1.build();
-    }
-
-    public static <C extends Container, T extends Recipe<C>> RecipeManager.CachedCheck<C, T> createCheck(final RecipeType<T> param0) {
-        return new RecipeManager.CachedCheck<C, T>() {
-            @Nullable
-            private ResourceLocation lastRecipe;
-
-            @Override
-            public Optional<T> getRecipeFor(C param0x, Level param1) {
-                RecipeManager var0 = param1.getRecipeManager();
-                Optional<Pair<ResourceLocation, T>> var1 = var0.getRecipeFor(param0, param0, param1, this.lastRecipe);
-                if (var1.isPresent()) {
-                    Pair<ResourceLocation, T> var2 = var1.get();
-                    this.lastRecipe = var2.getFirst();
-                    return Optional.of(var2.getSecond());
-                } else {
-                    return Optional.empty();
-                }
-            }
-        };
-    }
-
-    public interface CachedCheck<C extends Container, T extends Recipe<C>> {
-        Optional<T> getRecipeFor(C var1, Level var2);
     }
 }

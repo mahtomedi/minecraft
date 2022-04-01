@@ -38,11 +38,6 @@ public abstract class TagsProvider<T> implements DataProvider {
         this.registry = param1;
     }
 
-    @Override
-    public final String getName() {
-        return "Tags for " + this.registry.key().location();
-    }
-
     protected abstract void addTags();
 
     @Override

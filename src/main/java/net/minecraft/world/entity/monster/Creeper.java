@@ -51,6 +51,7 @@ public class Creeper extends Monster implements PowerableMob {
     private int maxSwell = 30;
     private int explosionRadius = 3;
     private int droppedSkulls;
+    public boolean wasPickedUpByPlayer;
 
     public Creeper(EntityType<? extends Creeper> param0, Level param1) {
         super(param0, param1);
@@ -204,6 +205,21 @@ public class Creeper extends Monster implements PowerableMob {
 
     public void setSwellDir(int param0) {
         this.entityData.set(DATA_SWELL_DIR, param0);
+    }
+
+    public void resetSwell() {
+        this.swell = 0;
+    }
+
+    @Override
+    public boolean startRiding(Entity param0, boolean param1) {
+        boolean var0 = super.startRiding(param0, param1);
+        if (var0 && param0 instanceof Player) {
+            this.resetSwell();
+            this.wasPickedUpByPlayer = true;
+        }
+
+        return var0;
     }
 
     @Override

@@ -65,16 +65,14 @@ public class BehaviorUtils {
     }
 
     public static void setWalkAndLookTargetMemories(LivingEntity param0, Entity param1, float param2, int param3) {
-        setWalkAndLookTargetMemories(param0, new EntityTracker(param1, true), param2, param3);
+        WalkTarget var0 = new WalkTarget(new EntityTracker(param1, false), param2, param3);
+        param0.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1, true));
+        param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0);
     }
 
     public static void setWalkAndLookTargetMemories(LivingEntity param0, BlockPos param1, float param2, int param3) {
-        setWalkAndLookTargetMemories(param0, new BlockPosTracker(param1), param2, param3);
-    }
-
-    public static void setWalkAndLookTargetMemories(LivingEntity param0, PositionTracker param1, float param2, int param3) {
-        WalkTarget var0 = new WalkTarget(param1, param2, param3);
-        param0.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, param1);
+        WalkTarget var0 = new WalkTarget(new BlockPosTracker(param1), param2, param3);
+        param0.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(param1));
         param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0);
     }
 
@@ -104,7 +102,12 @@ public class BehaviorUtils {
             return param0.closerThan(param1, (double)var2);
         }
 
-        return param0.isWithinMeleeAttackRange(param1);
+        return isWithinMeleeAttackRange(param0, param1);
+    }
+
+    public static boolean isWithinMeleeAttackRange(Mob param0, LivingEntity param1) {
+        double var0 = param0.distanceToSqr(param1.getX(), param1.getY(), param1.getZ());
+        return var0 <= param0.getMeleeAttackRangeSqr(param1);
     }
 
     public static boolean isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(LivingEntity param0, LivingEntity param1, double param2) {
@@ -167,9 +170,5 @@ public class BehaviorUtils {
         }
 
         return var0;
-    }
-
-    public static boolean isBreeding(LivingEntity param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
     }
 }

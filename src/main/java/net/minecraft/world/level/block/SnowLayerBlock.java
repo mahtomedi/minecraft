@@ -81,11 +81,6 @@ public class SnowLayerBlock extends Block {
     }
 
     @Override
-    public float getShadeBrightness(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.getValue(LAYERS) == 8 ? 0.2F : 1.0F;
-    }
-
-    @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
         if (var0.is(Blocks.ICE) || var0.is(Blocks.PACKED_ICE) || var0.is(Blocks.BARRIER)) {

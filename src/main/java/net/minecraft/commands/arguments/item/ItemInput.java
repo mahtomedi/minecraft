@@ -4,11 +4,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -16,17 +15,17 @@ public class ItemInput implements Predicate<ItemStack> {
     private static final Dynamic2CommandExceptionType ERROR_STACK_TOO_BIG = new Dynamic2CommandExceptionType(
         (param0, param1) -> new TranslatableComponent("arguments.item.overstacked", param0, param1)
     );
-    private final Holder<Item> item;
+    private final Item item;
     @Nullable
     private final CompoundTag tag;
 
-    public ItemInput(Holder<Item> param0, @Nullable CompoundTag param1) {
+    public ItemInput(Item param0, @Nullable CompoundTag param1) {
         this.item = param0;
         this.tag = param1;
     }
 
     public Item getItem() {
-        return this.item.value();
+        return this.item;
     }
 
     public boolean test(ItemStack param0) {
@@ -40,22 +39,18 @@ public class ItemInput implements Predicate<ItemStack> {
         }
 
         if (param1 && param0 > var0.getMaxStackSize()) {
-            throw ERROR_STACK_TOO_BIG.create(this.getItemName(), var0.getMaxStackSize());
+            throw ERROR_STACK_TOO_BIG.create(Registry.ITEM.getKey(this.item), var0.getMaxStackSize());
         } else {
             return var0;
         }
     }
 
     public String serialize() {
-        StringBuilder var0 = new StringBuilder(this.getItemName());
+        StringBuilder var0 = new StringBuilder(Registry.ITEM.getId(this.item));
         if (this.tag != null) {
             var0.append(this.tag);
         }
 
         return var0.toString();
-    }
-
-    private String getItemName() {
-        return this.item.unwrapKey().map(ResourceKey::location).orElseGet(() -> "unknown[" + this.item + "]").toString();
     }
 }

@@ -32,14 +32,14 @@ public class ClientboundBlockEntityDataPacket implements Packet<ClientGamePacket
 
     public ClientboundBlockEntityDataPacket(FriendlyByteBuf param0) {
         this.pos = param0.readBlockPos();
-        this.type = param0.readById(Registry.BLOCK_ENTITY_TYPE);
+        this.type = Registry.BLOCK_ENTITY_TYPE.byId(param0.readVarInt());
         this.tag = param0.readNbt();
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeBlockPos(this.pos);
-        param0.writeId(Registry.BLOCK_ENTITY_TYPE, this.type);
+        param0.writeVarInt(Registry.BLOCK_ENTITY_TYPE.getId(this.type));
         param0.writeNbt(this.tag);
     }
 

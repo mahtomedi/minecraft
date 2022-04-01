@@ -9,7 +9,7 @@ public class BlockPosTracker implements PositionTracker {
     private final Vec3 centerPosition;
 
     public BlockPosTracker(BlockPos param0) {
-        this.blockPos = param0.immutable();
+        this.blockPos = param0;
         this.centerPosition = Vec3.atCenterOf(param0);
     }
 

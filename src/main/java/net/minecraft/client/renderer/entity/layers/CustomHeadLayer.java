@@ -7,6 +7,7 @@ import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
+import net.minecraft.client.model.QuadrupedModel;
 import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,12 +19,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Panda;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,13 +38,23 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
     private final float scaleY;
     private final float scaleZ;
     private final Map<SkullBlock.Type, SkullModelBase> skullModels;
+    private final boolean barrels;
 
     public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1) {
-        this(param0, param1, 1.0F, 1.0F, 1.0F);
+        this(param0, param1, false);
     }
 
     public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, float param2, float param3, float param4) {
+        this(param0, param1, param2, param3, param4, false);
+    }
+
+    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, boolean param2) {
+        this(param0, param1, 1.0F, 1.0F, 1.0F, param2);
+    }
+
+    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, float param2, float param3, float param4, boolean param5) {
         super(param0);
+        this.barrels = param5;
         this.scaleX = param2;
         this.scaleY = param3;
         this.scaleZ = param4;
@@ -52,7 +65,7 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
         PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.HEAD);
-        if (!var0.isEmpty()) {
+        if (!var0.isEmpty() && (!this.barrels || !var0.is(Items.BARREL))) {
             Item var1 = var0.getItem();
             param0.pushPose();
             param0.scale(this.scaleX, this.scaleY, this.scaleZ);
@@ -66,6 +79,13 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
             }
 
             this.getParentModel().getHead().translateAndRotate(param0);
+            if (this.getParentModel() instanceof QuadrupedModel) {
+                param0.translate(0.0, 0.25, -0.25125);
+                if (param3 instanceof Panda) {
+                    param0.scale(1.333F, 1.333F, 1.333F);
+                }
+            }
+
             if (var1 instanceof BlockItem && ((BlockItem)var1).getBlock() instanceof AbstractSkullBlock) {
                 float var5 = 1.1875F;
                 param0.scale(1.1875F, -1.1875F, -1.1875F);

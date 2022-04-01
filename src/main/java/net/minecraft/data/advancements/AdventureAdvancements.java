@@ -2,6 +2,7 @@ package net.minecraft.data.advancements;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
@@ -33,6 +34,7 @@ import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.advancements.critereon.UsingItemTrigger;
 import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -136,7 +138,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("slept_in_bed", LocationTrigger.TriggerInstance.sleptInBed())
             .save(param0, "adventure/sleep_in_bed");
-        addBiomes(Advancement.Builder.advancement(), MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes().toList())
+        addBiomes(Advancement.Builder.advancement(), this.getAllOverworldBiomes())
             .parent(var1)
             .display(
                 Items.DIAMOND_BOOTS,
@@ -567,20 +569,15 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                 )
             )
             .save(param0, "adventure/fall_from_world_height");
-        Advancement.Builder.advancement()
-            .parent(var0)
-            .display(
-                Blocks.SCULK_CATALYST,
-                new TranslatableComponent("advancements.adventure.kill_mob_near_sculk_catalyst.title"),
-                new TranslatableComponent("advancements.adventure.kill_mob_near_sculk_catalyst.description"),
-                null,
-                FrameType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .addCriterion("kill_mob_near_sculk_catalyst", KilledTrigger.TriggerInstance.playerKilledEntityNearSculkCatalyst())
-            .save(param0, "adventure/kill_mob_near_sculk_catalyst");
+    }
+
+    private List<ResourceKey<Biome>> getAllOverworldBiomes() {
+        return MultiNoiseBiomeSource.Preset.OVERWORLD
+            .biomeSource(BuiltinRegistries.BIOME)
+            .possibleBiomes()
+            .stream()
+            .flatMap(param0 -> param0.unwrapKey().stream())
+            .collect(Collectors.toList());
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {

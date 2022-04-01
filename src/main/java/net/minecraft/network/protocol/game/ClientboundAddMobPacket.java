@@ -5,14 +5,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener> {
     private final int id;
     private final UUID uuid;
-    private final EntityType<?> type;
+    private final int type;
     private final double x;
     private final double y;
     private final double z;
@@ -26,7 +25,7 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
     public ClientboundAddMobPacket(LivingEntity param0) {
         this.id = param0.getId();
         this.uuid = param0.getUUID();
-        this.type = param0.getType();
+        this.type = Registry.ENTITY_TYPE.getId(param0.getType());
         this.x = param0.getX();
         this.y = param0.getY();
         this.z = param0.getZ();
@@ -46,7 +45,7 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
     public ClientboundAddMobPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.uuid = param0.readUUID();
-        this.type = param0.readById(Registry.ENTITY_TYPE);
+        this.type = param0.readVarInt();
         this.x = param0.readDouble();
         this.y = param0.readDouble();
         this.z = param0.readDouble();
@@ -62,7 +61,7 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeUUID(this.uuid);
-        param0.writeId(Registry.ENTITY_TYPE, this.type);
+        param0.writeVarInt(this.type);
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);
         param0.writeDouble(this.z);
@@ -86,7 +85,7 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         return this.uuid;
     }
 
-    public EntityType<?> getType() {
+    public int getType() {
         return this.type;
     }
 

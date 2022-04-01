@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
@@ -33,7 +34,13 @@ public class RangedBowAttackGoal<T extends Monster & RangedAttackMob> extends Go
 
     @Override
     public boolean canUse() {
-        return this.mob.getTarget() == null ? false : this.isHoldingBow();
+        if (this.mob.getTarget() == null) {
+            return false;
+        } else if (this.mob.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
+            return false;
+        } else {
+            return this.mob.getTarget().getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL) && this.mob.getTarget().isCrouching() ? false : this.isHoldingBow();
+        }
     }
 
     protected boolean isHoldingBow() {
@@ -42,7 +49,15 @@ public class RangedBowAttackGoal<T extends Monster & RangedAttackMob> extends Go
 
     @Override
     public boolean canContinueToUse() {
-        return (this.canUse() || !this.mob.getNavigation().isDone()) && this.isHoldingBow();
+        if (this.mob.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
+            return false;
+        } else if (this.mob.getTarget() != null
+            && this.mob.getTarget().getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)
+            && this.mob.getTarget().isCrouching()) {
+            return false;
+        } else {
+            return (this.canUse() || !this.mob.getNavigation().isDone()) && this.isHoldingBow();
+        }
     }
 
     @Override
@@ -122,7 +137,12 @@ public class RangedBowAttackGoal<T extends Monster & RangedAttackMob> extends Go
                     int var4 = this.mob.getTicksUsingItem();
                     if (var4 >= 20) {
                         this.mob.stopUsingItem();
-                        this.mob.performRangedAttack(var0, BowItem.getPowerForTime(var4));
+                        if (this.mob.isPassenger() && this.mob.getRootVehicle() == this.mob.getTarget()) {
+                            this.mob.performVehicleAttack(BowItem.getPowerForTime(var4));
+                        } else {
+                            this.mob.performRangedAttack(var0, BowItem.getPowerForTime(var4));
+                        }
+
                         this.attackTime = this.attackIntervalMin;
                     }
                 }

@@ -3,12 +3,11 @@ package net.minecraft.client;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.util.Mth;
-import net.minecraft.util.OptionEnum;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public enum PrioritizeChunkUpdates implements OptionEnum {
+public enum PrioritizeChunkUpdates {
     NONE(0, "options.prioritizeChunkUpdates.none"),
     PLAYER_AFFECTED(1, "options.prioritizeChunkUpdates.byPlayer"),
     NEARBY(2, "options.prioritizeChunkUpdates.nearby");
@@ -24,12 +23,10 @@ public enum PrioritizeChunkUpdates implements OptionEnum {
         this.key = param1;
     }
 
-    @Override
     public int getId() {
         return this.id;
     }
 
-    @Override
     public String getKey() {
         return this.key;
     }

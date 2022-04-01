@@ -5,7 +5,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -35,6 +38,7 @@ public final class Biome {
     public static final Codec<Biome> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Biome.ClimateSettings.CODEC.forGetter(param0x -> param0x.climateSettings),
+                    Biome.BiomeCategory.CODEC.fieldOf("category").forGetter(param0x -> param0x.biomeCategory),
                     BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects),
                     BiomeGenerationSettings.CODEC.forGetter(param0x -> param0x.generationSettings),
                     MobSpawnSettings.CODEC.forGetter(param0x -> param0x.mobSettings)
@@ -44,9 +48,10 @@ public final class Biome {
     public static final Codec<Biome> NETWORK_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Biome.ClimateSettings.CODEC.forGetter(param0x -> param0x.climateSettings),
+                    Biome.BiomeCategory.CODEC.fieldOf("category").forGetter(param0x -> param0x.biomeCategory),
                     BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects)
                 )
-                .apply(param0, (param0x, param1) -> new Biome(param0x, param1, BiomeGenerationSettings.EMPTY, MobSpawnSettings.EMPTY))
+                .apply(param0, (param0x, param1, param2) -> new Biome(param0x, param1, param2, BiomeGenerationSettings.EMPTY, MobSpawnSettings.EMPTY))
     );
     public static final Codec<Holder<Biome>> CODEC = RegistryFileCodec.create(Registry.BIOME_REGISTRY, DIRECT_CODEC);
     public static final Codec<HolderSet<Biome>> LIST_CODEC = RegistryCodecs.homogeneousList(Registry.BIOME_REGISTRY, DIRECT_CODEC);
@@ -62,6 +67,7 @@ public final class Biome {
     private final Biome.ClimateSettings climateSettings;
     private final BiomeGenerationSettings generationSettings;
     private final MobSpawnSettings mobSettings;
+    private final Biome.BiomeCategory biomeCategory;
     private final BiomeSpecialEffects specialEffects;
     private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
             Long2FloatLinkedOpenHashMap var0 = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
@@ -73,11 +79,12 @@ public final class Biome {
             return var0;
         }));
 
-    Biome(Biome.ClimateSettings param0, BiomeSpecialEffects param1, BiomeGenerationSettings param2, MobSpawnSettings param3) {
+    Biome(Biome.ClimateSettings param0, Biome.BiomeCategory param1, BiomeSpecialEffects param2, BiomeGenerationSettings param3, MobSpawnSettings param4) {
         this.climateSettings = param0;
-        this.generationSettings = param2;
-        this.mobSettings = param3;
-        this.specialEffects = param1;
+        this.generationSettings = param3;
+        this.mobSettings = param4;
+        this.biomeCategory = param1;
+        this.specialEffects = param2;
     }
 
     public int getSkyColor() {
@@ -258,9 +265,20 @@ public final class Biome {
         return this.specialEffects.getBackgroundMusic();
     }
 
+    Biome.BiomeCategory getBiomeCategory() {
+        return this.biomeCategory;
+    }
+
+    @Deprecated
+    public static Biome.BiomeCategory getBiomeCategory(Holder<Biome> param0) {
+        return param0.value().getBiomeCategory();
+    }
+
     public static class BiomeBuilder {
         @Nullable
         private Biome.Precipitation precipitation;
+        @Nullable
+        private Biome.BiomeCategory biomeCategory;
         @Nullable
         private Float temperature;
         private Biome.TemperatureModifier temperatureModifier = Biome.TemperatureModifier.NONE;
@@ -276,6 +294,7 @@ public final class Biome {
         public static Biome.BiomeBuilder from(Biome param0) {
             return new Biome.BiomeBuilder()
                 .precipitation(param0.getPrecipitation())
+                .biomeCategory(param0.getBiomeCategory())
                 .temperature(param0.getBaseTemperature())
                 .downfall(param0.getDownfall())
                 .specialEffects(param0.getSpecialEffects())
@@ -285,6 +304,11 @@ public final class Biome {
 
         public Biome.BiomeBuilder precipitation(Biome.Precipitation param0) {
             this.precipitation = param0;
+            return this;
+        }
+
+        public Biome.BiomeBuilder biomeCategory(Biome.BiomeCategory param0) {
+            this.biomeCategory = param0;
             return this;
         }
 
@@ -320,6 +344,7 @@ public final class Biome {
 
         public Biome build() {
             if (this.precipitation != null
+                && this.biomeCategory != null
                 && this.temperature != null
                 && this.downfall != null
                 && this.specialEffects != null
@@ -327,6 +352,7 @@ public final class Biome {
                 && this.generationSettings != null) {
                 return new Biome(
                     new Biome.ClimateSettings(this.precipitation, this.temperature, this.temperatureModifier, this.downfall),
+                    this.biomeCategory,
                     this.specialEffects,
                     this.generationSettings,
                     this.mobSpawnSettings
@@ -340,6 +366,8 @@ public final class Biome {
         public String toString() {
             return "BiomeBuilder{\nprecipitation="
                 + this.precipitation
+                + ",\nbiomeCategory="
+                + this.biomeCategory
                 + ",\ntemperature="
                 + this.temperature
                 + ",\ntemperatureModifier="
@@ -353,6 +381,50 @@ public final class Biome {
                 + ",\ngenerationSettings="
                 + this.generationSettings
                 + ",\n}";
+        }
+    }
+
+    public static enum BiomeCategory implements StringRepresentable {
+        NONE("none"),
+        TAIGA("taiga"),
+        EXTREME_HILLS("extreme_hills"),
+        JUNGLE("jungle"),
+        MESA("mesa"),
+        PLAINS("plains"),
+        SAVANNA("savanna"),
+        ICY("icy"),
+        THEEND("the_end"),
+        BEACH("beach"),
+        FOREST("forest"),
+        OCEAN("ocean"),
+        DESERT("desert"),
+        RIVER("river"),
+        SWAMP("swamp"),
+        MUSHROOM("mushroom"),
+        NETHER("nether"),
+        UNDERGROUND("underground"),
+        MOUNTAIN("mountain");
+
+        public static final Codec<Biome.BiomeCategory> CODEC = StringRepresentable.fromEnum(Biome.BiomeCategory::values, Biome.BiomeCategory::byName);
+        private static final Map<String, Biome.BiomeCategory> BY_NAME = Arrays.stream(values())
+            .collect(Collectors.toMap(Biome.BiomeCategory::getName, param0 -> param0));
+        private final String name;
+
+        private BiomeCategory(String param0) {
+            this.name = param0;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public static Biome.BiomeCategory byName(String param0) {
+            return BY_NAME.get(param0);
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 
@@ -386,7 +458,9 @@ public final class Biome {
         RAIN("rain"),
         SNOW("snow");
 
-        public static final Codec<Biome.Precipitation> CODEC = StringRepresentable.fromEnum(Biome.Precipitation::values);
+        public static final Codec<Biome.Precipitation> CODEC = StringRepresentable.fromEnum(Biome.Precipitation::values, Biome.Precipitation::byName);
+        private static final Map<String, Biome.Precipitation> BY_NAME = Arrays.stream(values())
+            .collect(Collectors.toMap(Biome.Precipitation::getName, param0 -> param0));
         private final String name;
 
         private Precipitation(String param0) {
@@ -395,6 +469,10 @@ public final class Biome {
 
         public String getName() {
             return this.name;
+        }
+
+        public static Biome.Precipitation byName(String param0) {
+            return BY_NAME.get(param0);
         }
 
         @Override
@@ -428,7 +506,11 @@ public final class Biome {
         };
 
         private final String name;
-        public static final Codec<Biome.TemperatureModifier> CODEC = StringRepresentable.fromEnum(Biome.TemperatureModifier::values);
+        public static final Codec<Biome.TemperatureModifier> CODEC = StringRepresentable.fromEnum(
+            Biome.TemperatureModifier::values, Biome.TemperatureModifier::byName
+        );
+        private static final Map<String, Biome.TemperatureModifier> BY_NAME = Arrays.stream(values())
+            .collect(Collectors.toMap(Biome.TemperatureModifier::getName, param0 -> param0));
 
         public abstract float modifyTemperature(BlockPos var1, float var2);
 
@@ -443,6 +525,10 @@ public final class Biome {
         @Override
         public String getSerializedName() {
             return this.name;
+        }
+
+        public static Biome.TemperatureModifier byName(String param0) {
+            return BY_NAME.get(param0);
         }
     }
 }

@@ -15,15 +15,15 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.data.worldgen.ProcessorLists;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public abstract class StructurePoolElement {
     public static final Codec<StructurePoolElement> CODEC = Registry.STRUCTURE_POOL_ELEMENT
@@ -40,16 +40,16 @@ public abstract class StructurePoolElement {
         this.projection = param0;
     }
 
-    public abstract Vec3i getSize(StructureTemplateManager var1, Rotation var2);
+    public abstract Vec3i getSize(StructureManager var1, Rotation var2);
 
-    public abstract List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureTemplateManager var1, BlockPos var2, Rotation var3, Random var4);
+    public abstract List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager var1, BlockPos var2, Rotation var3, Random var4);
 
-    public abstract BoundingBox getBoundingBox(StructureTemplateManager var1, BlockPos var2, Rotation var3);
+    public abstract BoundingBox getBoundingBox(StructureManager var1, BlockPos var2, Rotation var3);
 
     public abstract boolean place(
-        StructureTemplateManager var1,
+        StructureManager var1,
         WorldGenLevel var2,
-        StructureManager var3,
+        StructureFeatureManager var3,
         ChunkGenerator var4,
         BlockPos var5,
         BlockPos var6,

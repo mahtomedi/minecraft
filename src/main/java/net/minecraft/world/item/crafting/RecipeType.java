@@ -1,7 +1,10 @@
 package net.minecraft.world.item.crafting;
 
+import java.util.Optional;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.level.Level;
 
 public interface RecipeType<T extends Recipe<?>> {
     RecipeType<CraftingRecipe> CRAFTING = register("crafting");
@@ -19,5 +22,9 @@ public interface RecipeType<T extends Recipe<?>> {
                 return param0;
             }
         });
+    }
+
+    default <C extends Container> Optional<T> tryMatch(Recipe<C> param0, Level param1, C param2) {
+        return param0.matches(param2, param1) ? Optional.of((T)param0) : Optional.empty();
     }
 }

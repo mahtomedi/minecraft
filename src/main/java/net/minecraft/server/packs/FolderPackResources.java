@@ -91,27 +91,26 @@ public class FolderPackResources extends AbstractPackResources {
     }
 
     @Override
-    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, Predicate<ResourceLocation> param3) {
+    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, int param3, Predicate<String> param4) {
         File var0 = new File(this.file, param0.getDirectory());
         List<ResourceLocation> var1 = Lists.newArrayList();
-        this.listResources(new File(new File(var0, param1), param2), param1, var1, param2 + "/", param3);
+        this.listResources(new File(new File(var0, param1), param2), param3, param1, var1, param2 + "/", param4);
         return var1;
     }
 
-    private void listResources(File param0, String param1, List<ResourceLocation> param2, String param3, Predicate<ResourceLocation> param4) {
+    private void listResources(File param0, int param1, String param2, List<ResourceLocation> param3, String param4, Predicate<String> param5) {
         File[] var0 = param0.listFiles();
         if (var0 != null) {
             for(File var1 : var0) {
                 if (var1.isDirectory()) {
-                    this.listResources(var1, param1, param2, param3 + var1.getName() + "/", param4);
-                } else if (!var1.getName().endsWith(".mcmeta")) {
+                    if (param1 > 0) {
+                        this.listResources(var1, param1 - 1, param2, param3, param4 + var1.getName() + "/", param5);
+                    }
+                } else if (!var1.getName().endsWith(".mcmeta") && param5.test(var1.getName())) {
                     try {
-                        ResourceLocation var2 = new ResourceLocation(param1, param3 + var1.getName());
-                        if (param4.test(var2)) {
-                            param2.add(var2);
-                        }
-                    } catch (ResourceLocationException var12) {
-                        LOGGER.error(var12.getMessage());
+                        param3.add(new ResourceLocation(param2, param4 + var1.getName()));
+                    } catch (ResourceLocationException var13) {
+                        LOGGER.error(var13.getMessage());
                     }
                 }
             }

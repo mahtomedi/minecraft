@@ -13,9 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.valueproviders.ConstantInt;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -44,48 +41,54 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final int ACTIVE_TICKS = 40;
     public static final int COOLDOWN_TICKS = 1;
-    public static final Object2IntMap<GameEvent> VIBRATION_FREQUENCY_FOR_EVENT = Object2IntMaps.unmodifiable(
+    public static final Object2IntMap<GameEvent> VIBRATION_STRENGTH_FOR_EVENT = Object2IntMaps.unmodifiable(
         Util.make(new Object2IntOpenHashMap<>(), param0 -> {
             param0.put(GameEvent.STEP, 1);
             param0.put(GameEvent.FLAP, 2);
             param0.put(GameEvent.SWIM, 3);
-            param0.put(GameEvent.ELYTRA_GLIDE, 4);
+            param0.put(GameEvent.ELYTRA_FREE_FALL, 4);
             param0.put(GameEvent.HIT_GROUND, 5);
             param0.put(GameEvent.SPLASH, 6);
-            param0.put(GameEvent.ENTITY_SHAKE, 6);
+            param0.put(GameEvent.WOLF_SHAKING, 6);
+            param0.put(GameEvent.MINECART_MOVING, 6);
+            param0.put(GameEvent.RING_BELL, 6);
             param0.put(GameEvent.BLOCK_CHANGE, 6);
-            param0.put(GameEvent.NOTE_BLOCK_PLAY, 6);
             param0.put(GameEvent.PROJECTILE_SHOOT, 7);
-            param0.put(GameEvent.DRINK, 7);
+            param0.put(GameEvent.DRINKING_FINISH, 7);
             param0.put(GameEvent.PRIME_FUSE, 7);
             param0.put(GameEvent.PROJECTILE_LAND, 8);
             param0.put(GameEvent.EAT, 8);
-            param0.put(GameEvent.ENTITY_INTERACT, 8);
-            param0.put(GameEvent.ENTITY_DAMAGE, 8);
+            param0.put(GameEvent.MOB_INTERACT, 8);
+            param0.put(GameEvent.ENTITY_DAMAGED, 8);
             param0.put(GameEvent.EQUIP, 9);
             param0.put(GameEvent.SHEAR, 9);
-            param0.put(GameEvent.ENTITY_ROAR, 9);
+            param0.put(GameEvent.RAVAGER_ROAR, 9);
             param0.put(GameEvent.BLOCK_CLOSE, 10);
-            param0.put(GameEvent.BLOCK_DEACTIVATE, 10);
+            param0.put(GameEvent.BLOCK_UNSWITCH, 10);
+            param0.put(GameEvent.BLOCK_UNPRESS, 10);
             param0.put(GameEvent.BLOCK_DETACH, 10);
             param0.put(GameEvent.DISPENSE_FAIL, 10);
             param0.put(GameEvent.BLOCK_OPEN, 11);
-            param0.put(GameEvent.BLOCK_ACTIVATE, 11);
+            param0.put(GameEvent.BLOCK_SWITCH, 11);
+            param0.put(GameEvent.BLOCK_PRESS, 11);
             param0.put(GameEvent.BLOCK_ATTACH, 11);
             param0.put(GameEvent.ENTITY_PLACE, 12);
             param0.put(GameEvent.BLOCK_PLACE, 12);
             param0.put(GameEvent.FLUID_PLACE, 12);
-            param0.put(GameEvent.ENTITY_DIE, 13);
+            param0.put(GameEvent.ENTITY_DYING, 13);
+            param0.put(GameEvent.ENTITY_KILLED, 13);
             param0.put(GameEvent.BLOCK_DESTROY, 13);
             param0.put(GameEvent.FLUID_PICKUP, 13);
-            param0.put(GameEvent.ITEM_INTERACT_FINISH, 14);
+            param0.put(GameEvent.FISHING_ROD_REEL_IN, 14);
             param0.put(GameEvent.CONTAINER_CLOSE, 14);
             param0.put(GameEvent.PISTON_CONTRACT, 14);
+            param0.put(GameEvent.SHULKER_CLOSE, 14);
             param0.put(GameEvent.PISTON_EXTEND, 15);
             param0.put(GameEvent.CONTAINER_OPEN, 15);
-            param0.put(GameEvent.ITEM_INTERACT_START, 15);
+            param0.put(GameEvent.FISHING_ROD_CAST, 15);
             param0.put(GameEvent.EXPLODE, 15);
             param0.put(GameEvent.LIGHTNING_STRIKE, 15);
+            param0.put(GameEvent.SHULKER_OPEN, 15);
         })
     );
     public static final EnumProperty<SculkSensorPhase> PHASE = BlockStateProperties.SCULK_SENSOR_PHASE;
@@ -136,15 +139,6 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     }
 
     @Override
-    public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        if (!param0.isClientSide() && canActivate(param2) && param3.getType() != EntityType.WARDEN) {
-            activate(param3, param0, param1, param2, 1);
-        }
-
-        super.stepOn(param0, param1, param2, param3);
-    }
-
-    @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param1.isClientSide() && !param0.is(param3.getBlock())) {
             if (param0.getValue(POWER) > 0 && !param1.getBlockTicks().hasScheduledTick(param2, this)) {
@@ -188,7 +182,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Nullable
     @Override
-    public <T extends BlockEntity> GameEventListener getListener(ServerLevel param0, T param1) {
+    public <T extends BlockEntity> GameEventListener getListener(Level param0, T param1) {
         return param1 instanceof SculkSensorBlockEntity ? ((SculkSensorBlockEntity)param1).getListener() : null;
     }
 
@@ -238,24 +232,20 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         updateNeighbours(param0, param1);
     }
 
-    public static void activate(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4) {
-        param1.setBlock(param2, param3.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param4)), 3);
-        param1.scheduleTick(param2, param3.getBlock(), 40);
-        updateNeighbours(param1, param2);
-        if (param0 instanceof Player) {
-            param1.gameEvent(param0, GameEvent.SCULK_SENSOR_TENDRILS_CLICKING, param2);
-        }
-
-        if (!param3.getValue(WATERLOGGED)) {
-            param1.playSound(
+    public static void activate(Level param0, BlockPos param1, BlockState param2, int param3) {
+        param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param3)), 3);
+        param0.scheduleTick(param1, param2.getBlock(), 40);
+        updateNeighbours(param0, param1);
+        if (!param2.getValue(WATERLOGGED)) {
+            param0.playSound(
                 null,
-                (double)param2.getX() + 0.5,
-                (double)param2.getY() + 0.5,
-                (double)param2.getZ() + 0.5,
+                (double)param1.getX() + 0.5,
+                (double)param1.getY() + 0.5,
+                (double)param1.getZ() + 0.5,
                 SoundEvents.SCULK_CLICKING,
                 SoundSource.BLOCKS,
                 1.0F,
-                param1.random.nextFloat() * 0.2F + 0.8F
+                param0.random.nextFloat() * 0.2F + 0.8F
             );
         }
 

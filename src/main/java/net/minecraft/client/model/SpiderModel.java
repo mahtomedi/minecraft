@@ -57,7 +57,7 @@ public class SpiderModel<T extends Entity> extends HierarchicalModel<T> {
             "body1", CubeListBuilder.create().texOffs(0, 12).addBox(-5.0F, -4.0F, -6.0F, 10.0F, 8.0F, 12.0F), PartPose.offset(0.0F, 15.0F, 9.0F)
         );
         CubeListBuilder var3 = CubeListBuilder.create().texOffs(18, 0).addBox(-15.0F, -1.0F, -1.0F, 16.0F, 2.0F, 2.0F);
-        CubeListBuilder var4 = CubeListBuilder.create().texOffs(18, 0).mirror().addBox(-1.0F, -1.0F, -1.0F, 16.0F, 2.0F, 2.0F);
+        CubeListBuilder var4 = CubeListBuilder.create().texOffs(18, 0).addBox(-1.0F, -1.0F, -1.0F, 16.0F, 2.0F, 2.0F);
         var1.addOrReplaceChild("right_hind_leg", var3, PartPose.offset(-4.0F, 15.0F, 2.0F));
         var1.addOrReplaceChild("left_hind_leg", var4, PartPose.offset(4.0F, 15.0F, 2.0F));
         var1.addOrReplaceChild("right_middle_hind_leg", var3, PartPose.offset(-4.0F, 15.0F, 1.0F));

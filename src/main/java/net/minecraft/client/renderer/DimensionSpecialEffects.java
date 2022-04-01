@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,9 +16,9 @@ public abstract class DimensionSpecialEffects {
     private static final Object2ObjectMap<ResourceLocation, DimensionSpecialEffects> EFFECTS = Util.make(new Object2ObjectArrayMap<>(), param0 -> {
         DimensionSpecialEffects.OverworldEffects var0 = new DimensionSpecialEffects.OverworldEffects();
         param0.defaultReturnValue(var0);
-        param0.put(BuiltinDimensionTypes.OVERWORLD_EFFECTS, var0);
-        param0.put(BuiltinDimensionTypes.NETHER_EFFECTS, new DimensionSpecialEffects.NetherEffects());
-        param0.put(BuiltinDimensionTypes.END_EFFECTS, new DimensionSpecialEffects.EndEffects());
+        param0.put(DimensionType.OVERWORLD_EFFECTS, var0);
+        param0.put(DimensionType.NETHER_EFFECTS, new DimensionSpecialEffects.NetherEffects());
+        param0.put(DimensionType.END_EFFECTS, new DimensionSpecialEffects.EndEffects());
     });
     private final float[] sunriseCol = new float[4];
     private final float cloudLevel;

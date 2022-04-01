@@ -8,13 +8,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -92,7 +92,7 @@ public class BoneMealItem extends Item {
                     }
 
                     Holder<Biome> var5 = param1.getBiome(var2);
-                    if (var5.is(BiomeTags.PRODUCES_CORALS_FROM_BONEMEAL)) {
+                    if (var5.is(Biomes.WARM_OCEAN)) {
                         if (var1 == 0 && param3 != null && param3.getAxis().isHorizontal()) {
                             var3 = Registry.BLOCK
                                 .getTag(BlockTags.WALL_CORALS)

@@ -79,7 +79,7 @@ public class PauseScreen extends Screen {
                     }, var2, true))
             )
         );
-        Button var3 = this.addRenderableWidget(
+        this.addRenderableWidget(
             new Button(
                 this.width / 2 + 4,
                 this.height / 4 + 72 + -16,
@@ -95,7 +95,6 @@ public class PauseScreen extends Screen {
                     }, "https://aka.ms/snapshotbugs?ref=game", true))
             )
         );
-        var3.active = !SharedConstants.getCurrentVersion().getDataVersion().isSideSeries();
         this.addRenderableWidget(
             new Button(
                 this.width / 2 - 102,
@@ -106,7 +105,7 @@ public class PauseScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))
             )
         );
-        Button var4 = this.addRenderableWidget(
+        Button var3 = this.addRenderableWidget(
             new Button(
                 this.width / 2 + 4,
                 this.height / 4 + 96 + -16,
@@ -116,9 +115,9 @@ public class PauseScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new ShareToLanScreen(this))
             )
         );
-        var4.active = this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished();
-        Component var5 = this.minecraft.isLocalServer() ? new TranslatableComponent("menu.returnToMenu") : new TranslatableComponent("menu.disconnect");
-        this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, var5, param0 -> {
+        var3.active = this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished();
+        Component var4 = this.minecraft.isLocalServer() ? new TranslatableComponent("menu.returnToMenu") : new TranslatableComponent("menu.disconnect");
+        this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, var4, param0 -> {
             boolean var0x = this.minecraft.isLocalServer();
             boolean var1x = this.minecraft.isConnectedToRealms();
             param0.active = false;

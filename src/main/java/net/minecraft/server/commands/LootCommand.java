@@ -11,7 +11,6 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -56,11 +55,11 @@ public class LootCommand {
         param0 -> new TranslatableComponent("commands.drop.no_loot_table", param0)
     );
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             addTargets(
                 Commands.literal("loot").requires(param0x -> param0x.hasPermission(2)),
-                (param1x, param2) -> param1x.then(
+                (param0x, param1) -> param0x.then(
                             Commands.literal("fish")
                                 .then(
                                     Commands.argument("loot_table", ResourceLocationArgument.id())
@@ -68,47 +67,47 @@ public class LootCommand {
                                         .then(
                                             Commands.argument("pos", BlockPosArgument.blockPos())
                                                 .executes(
-                                                    param1xx -> dropFishingLoot(
-                                                            param1xx,
-                                                            ResourceLocationArgument.getId(param1xx, "loot_table"),
-                                                            BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
+                                                    param1x -> dropFishingLoot(
+                                                            param1x,
+                                                            ResourceLocationArgument.getId(param1x, "loot_table"),
+                                                            BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
                                                             ItemStack.EMPTY,
-                                                            param2
+                                                            param1
                                                         )
                                                 )
                                                 .then(
-                                                    Commands.argument("tool", ItemArgument.item(param1))
+                                                    Commands.argument("tool", ItemArgument.item())
                                                         .executes(
-                                                            param1xx -> dropFishingLoot(
-                                                                    param1xx,
-                                                                    ResourceLocationArgument.getId(param1xx, "loot_table"),
-                                                                    BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
-                                                                    ItemArgument.getItem(param1xx, "tool").createItemStack(1, false),
-                                                                    param2
+                                                            param1x -> dropFishingLoot(
+                                                                    param1x,
+                                                                    ResourceLocationArgument.getId(param1x, "loot_table"),
+                                                                    BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
+                                                                    ItemArgument.getItem(param1x, "tool").createItemStack(1, false),
+                                                                    param1
                                                                 )
                                                         )
                                                 )
                                                 .then(
                                                     Commands.literal("mainhand")
                                                         .executes(
-                                                            param1xx -> dropFishingLoot(
-                                                                    param1xx,
-                                                                    ResourceLocationArgument.getId(param1xx, "loot_table"),
-                                                                    BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
-                                                                    getSourceHandItem(param1xx.getSource(), EquipmentSlot.MAINHAND),
-                                                                    param2
+                                                            param1x -> dropFishingLoot(
+                                                                    param1x,
+                                                                    ResourceLocationArgument.getId(param1x, "loot_table"),
+                                                                    BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
+                                                                    getSourceHandItem(param1x.getSource(), EquipmentSlot.MAINHAND),
+                                                                    param1
                                                                 )
                                                         )
                                                 )
                                                 .then(
                                                     Commands.literal("offhand")
                                                         .executes(
-                                                            param1xx -> dropFishingLoot(
-                                                                    param1xx,
-                                                                    ResourceLocationArgument.getId(param1xx, "loot_table"),
-                                                                    BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
-                                                                    getSourceHandItem(param1xx.getSource(), EquipmentSlot.OFFHAND),
-                                                                    param2
+                                                            param1x -> dropFishingLoot(
+                                                                    param1x,
+                                                                    ResourceLocationArgument.getId(param1x, "loot_table"),
+                                                                    BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
+                                                                    getSourceHandItem(param1x.getSource(), EquipmentSlot.OFFHAND),
+                                                                    param1
                                                                 )
                                                         )
                                                 )
@@ -120,14 +119,14 @@ public class LootCommand {
                                 .then(
                                     Commands.argument("loot_table", ResourceLocationArgument.id())
                                         .suggests(SUGGEST_LOOT_TABLE)
-                                        .executes(param1xx -> dropChestLoot(param1xx, ResourceLocationArgument.getId(param1xx, "loot_table"), param2))
+                                        .executes(param1x -> dropChestLoot(param1x, ResourceLocationArgument.getId(param1x, "loot_table"), param1))
                                 )
                         )
                         .then(
                             Commands.literal("kill")
                                 .then(
                                     Commands.argument("target", EntityArgument.entity())
-                                        .executes(param1xx -> dropKillLoot(param1xx, EntityArgument.getEntity(param1xx, "target"), param2))
+                                        .executes(param1x -> dropKillLoot(param1x, EntityArgument.getEntity(param1x, "target"), param1))
                                 )
                         )
                         .then(
@@ -135,38 +134,38 @@ public class LootCommand {
                                 .then(
                                     Commands.argument("pos", BlockPosArgument.blockPos())
                                         .executes(
-                                            param1xx -> dropBlockLoot(param1xx, BlockPosArgument.getLoadedBlockPos(param1xx, "pos"), ItemStack.EMPTY, param2)
+                                            param1x -> dropBlockLoot(param1x, BlockPosArgument.getLoadedBlockPos(param1x, "pos"), ItemStack.EMPTY, param1)
                                         )
                                         .then(
-                                            Commands.argument("tool", ItemArgument.item(param1))
+                                            Commands.argument("tool", ItemArgument.item())
                                                 .executes(
-                                                    param1xx -> dropBlockLoot(
-                                                            param1xx,
-                                                            BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
-                                                            ItemArgument.getItem(param1xx, "tool").createItemStack(1, false),
-                                                            param2
+                                                    param1x -> dropBlockLoot(
+                                                            param1x,
+                                                            BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
+                                                            ItemArgument.getItem(param1x, "tool").createItemStack(1, false),
+                                                            param1
                                                         )
                                                 )
                                         )
                                         .then(
                                             Commands.literal("mainhand")
                                                 .executes(
-                                                    param1xx -> dropBlockLoot(
-                                                            param1xx,
-                                                            BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
-                                                            getSourceHandItem(param1xx.getSource(), EquipmentSlot.MAINHAND),
-                                                            param2
+                                                    param1x -> dropBlockLoot(
+                                                            param1x,
+                                                            BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
+                                                            getSourceHandItem(param1x.getSource(), EquipmentSlot.MAINHAND),
+                                                            param1
                                                         )
                                                 )
                                         )
                                         .then(
                                             Commands.literal("offhand")
                                                 .executes(
-                                                    param1xx -> dropBlockLoot(
-                                                            param1xx,
-                                                            BlockPosArgument.getLoadedBlockPos(param1xx, "pos"),
-                                                            getSourceHandItem(param1xx.getSource(), EquipmentSlot.OFFHAND),
-                                                            param2
+                                                    param1x -> dropBlockLoot(
+                                                            param1x,
+                                                            BlockPosArgument.getLoadedBlockPos(param1x, "pos"),
+                                                            getSourceHandItem(param1x.getSource(), EquipmentSlot.OFFHAND),
+                                                            param1
                                                         )
                                                 )
                                         )

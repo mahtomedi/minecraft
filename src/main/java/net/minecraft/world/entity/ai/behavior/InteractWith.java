@@ -75,7 +75,7 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
         Optional<NearestVisibleLivingEntities> var1 = var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
         if (!var1.isEmpty()) {
             NearestVisibleLivingEntities var2 = var1.get();
-            var2.findClosest((Predicate<LivingEntity>)(param1x -> this.canInteract(param1, param1x))).ifPresent(param1x -> {
+            var2.findClosest(param1x -> this.canInteract(param1, param1x)).ifPresent(param1x -> {
                 var0.setMemory(this.memory, (T)param1x);
                 var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1x, true));
                 var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(param1x, false), this.speedModifier, this.maxDist));

@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.entity.layers.BarrelLayer;
+import net.minecraft.client.renderer.entity.layers.CarriedBlockLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
@@ -19,9 +21,11 @@ public class HumanoidMobRenderer<T extends Mob, M extends HumanoidModel<T>> exte
 
     public HumanoidMobRenderer(EntityRendererProvider.Context param0, M param1, float param2, float param3, float param4, float param5) {
         super(param0, param1, param2);
-        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), param3, param4, param5));
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), param3, param4, param5, true));
         this.addLayer(new ElytraLayer<>(this, param0.getModelSet()));
         this.addLayer(new ItemInHandLayer<>(this));
+        this.addLayer(new CarriedBlockLayer<>(this, -0.075F, -0.099999994F, 0.7F));
+        this.addLayer(new BarrelLayer<>(this));
     }
 
     public ResourceLocation getTextureLocation(T param0) {

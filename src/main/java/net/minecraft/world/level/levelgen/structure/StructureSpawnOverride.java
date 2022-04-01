@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import javax.annotation.Nullable;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -19,7 +20,10 @@ public record StructureSpawnOverride(StructureSpawnOverride.BoundingBoxType boun
         PIECE("piece"),
         STRUCTURE("full");
 
-        public static final Codec<StructureSpawnOverride.BoundingBoxType> CODEC = StringRepresentable.fromEnum(StructureSpawnOverride.BoundingBoxType::values);
+        public static final StructureSpawnOverride.BoundingBoxType[] VALUES = values();
+        public static final Codec<StructureSpawnOverride.BoundingBoxType> CODEC = StringRepresentable.fromEnum(
+            () -> VALUES, StructureSpawnOverride.BoundingBoxType::byName
+        );
         private final String id;
 
         private BoundingBoxType(String param0) {
@@ -29,6 +33,21 @@ public record StructureSpawnOverride(StructureSpawnOverride.BoundingBoxType boun
         @Override
         public String getSerializedName() {
             return this.id;
+        }
+
+        @Nullable
+        public static StructureSpawnOverride.BoundingBoxType byName(@Nullable String param0) {
+            if (param0 == null) {
+                return null;
+            } else {
+                for(StructureSpawnOverride.BoundingBoxType var0 : VALUES) {
+                    if (var0.id.equals(param0)) {
+                        return var0;
+                    }
+                }
+
+                return null;
+            }
         }
     }
 }

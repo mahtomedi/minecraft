@@ -7,11 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -67,22 +64,6 @@ public class LightTexture implements AutoCloseable {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    private float getDarknessGamma(float param0) {
-        if (this.minecraft.player.hasEffect(MobEffects.DARKNESS)) {
-            MobEffectInstance var0 = this.minecraft.player.getEffect(MobEffects.DARKNESS);
-            if (var0 != null && var0.getFactorData().isPresent()) {
-                return var0.getFactorData().get().getFactor(param0);
-            }
-        }
-
-        return 0.0F;
-    }
-
-    private float calculateDarknessScale(LivingEntity param0, float param1, float param2) {
-        float var0 = 0.45F * param1;
-        return Math.max(0.0F, Mth.cos(((float)param0.tickCount - param2) * (float) Math.PI * 0.025F) * var0);
-    }
-
     public void updateLightTexture(float param0) {
         if (this.updateLightTexture) {
             this.updateLightTexture = false;
@@ -97,78 +78,66 @@ public class LightTexture implements AutoCloseable {
                     var2 = var1 * 0.95F + 0.05F;
                 }
 
-                float var4 = this.minecraft.options.darknessEffectScale().get().floatValue();
-                float var5 = this.getDarknessGamma(param0) * var4;
-                float var6 = this.calculateDarknessScale(this.minecraft.player, var5, param0) * var4;
-                float var7 = this.minecraft.player.getWaterVision();
-                float var8;
+                float var4 = this.minecraft.player.getWaterVision();
+                float var5;
                 if (this.minecraft.player.hasEffect(MobEffects.NIGHT_VISION)) {
-                    var8 = GameRenderer.getNightVisionScale(this.minecraft.player, param0);
-                } else if (var7 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONDUIT_POWER)) {
-                    var8 = var7;
+                    var5 = GameRenderer.getNightVisionScale(this.minecraft.player, param0);
+                } else if (var4 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONDUIT_POWER)) {
+                    var5 = var4;
                 } else {
-                    var8 = 0.0F;
+                    var5 = 0.0F;
                 }
 
-                Vector3f var11 = new Vector3f(var1, var1, 1.0F);
-                var11.lerp(new Vector3f(1.0F, 1.0F, 1.0F), 0.35F);
-                float var12 = this.blockLightRedFlicker + 1.5F;
-                Vector3f var13 = new Vector3f();
+                Vector3f var8 = new Vector3f(var1, var1, 1.0F);
+                var8.lerp(new Vector3f(1.0F, 1.0F, 1.0F), 0.35F);
+                float var9 = this.blockLightRedFlicker + 1.5F;
+                Vector3f var10 = new Vector3f();
 
-                for(int var14 = 0; var14 < 16; ++var14) {
-                    for(int var15 = 0; var15 < 16; ++var15) {
-                        float var16 = getBrightness(var0.dimensionType(), var14) * var2;
-                        float var17 = getBrightness(var0.dimensionType(), var15) * var12;
-                        float var19 = var17 * ((var17 * 0.6F + 0.4F) * 0.6F + 0.4F);
-                        float var20 = var17 * (var17 * var17 * 0.6F + 0.4F);
-                        var13.set(var17, var19, var20);
-                        boolean var21 = var0.effects().forceBrightLightmap();
-                        if (var21) {
-                            var13.lerp(new Vector3f(0.99F, 1.12F, 1.0F), 0.25F);
-                            var13.clamp(0.0F, 1.0F);
+                for(int var11 = 0; var11 < 16; ++var11) {
+                    for(int var12 = 0; var12 < 16; ++var12) {
+                        float var13 = this.getBrightness(var0, var11) * var2;
+                        float var14 = this.getBrightness(var0, var12) * var9;
+                        float var16 = var14 * ((var14 * 0.6F + 0.4F) * 0.6F + 0.4F);
+                        float var17 = var14 * (var14 * var14 * 0.6F + 0.4F);
+                        var10.set(var14, var16, var17);
+                        if (var0.effects().forceBrightLightmap()) {
+                            var10.lerp(new Vector3f(0.99F, 1.12F, 1.0F), 0.25F);
                         } else {
-                            Vector3f var22 = var11.copy();
-                            var22.mul(var16);
-                            var13.add(var22);
-                            var13.lerp(new Vector3f(0.75F, 0.75F, 0.75F), 0.04F);
+                            Vector3f var18 = var8.copy();
+                            var18.mul(var13);
+                            var10.add(var18);
+                            var10.lerp(new Vector3f(0.75F, 0.75F, 0.75F), 0.04F);
                             if (this.renderer.getDarkenWorldAmount(param0) > 0.0F) {
-                                float var23 = this.renderer.getDarkenWorldAmount(param0);
-                                Vector3f var24 = var13.copy();
-                                var24.mul(0.7F, 0.6F, 0.6F);
-                                var13.lerp(var24, var23);
+                                float var19 = this.renderer.getDarkenWorldAmount(param0);
+                                Vector3f var20 = var10.copy();
+                                var20.mul(0.7F, 0.6F, 0.6F);
+                                var10.lerp(var20, var19);
                             }
                         }
 
-                        if (var8 > 0.0F) {
-                            float var25 = Math.max(var13.x(), Math.max(var13.y(), var13.z()));
-                            if (var25 < 1.0F) {
-                                float var26 = 1.0F / var25;
-                                Vector3f var27 = var13.copy();
-                                var27.mul(var26);
-                                var13.lerp(var27, var8);
+                        var10.clamp(0.0F, 1.0F);
+                        if (var5 > 0.0F) {
+                            float var21 = Math.max(var10.x(), Math.max(var10.y(), var10.z()));
+                            if (var21 < 1.0F) {
+                                float var22 = 1.0F / var21;
+                                Vector3f var23 = var10.copy();
+                                var23.mul(var22);
+                                var10.lerp(var23, var5);
                             }
                         }
 
-                        if (!var21) {
-                            if (var6 > 0.0F) {
-                                var13.add(-var6, -var6, -var6);
-                            }
-
-                            var13.clamp(0.0F, 1.0F);
-                        }
-
-                        float var28 = this.minecraft.options.gamma().get().floatValue();
-                        Vector3f var29 = var13.copy();
-                        var29.map(this::notGamma);
-                        var13.lerp(var29, Math.max(0.0F, var28 - var5));
-                        var13.lerp(new Vector3f(0.75F, 0.75F, 0.75F), 0.04F);
-                        var13.clamp(0.0F, 1.0F);
-                        var13.mul(255.0F);
-                        int var30 = 255;
-                        int var31 = (int)var13.x();
-                        int var32 = (int)var13.y();
-                        int var33 = (int)var13.z();
-                        this.lightPixels.setPixelRGBA(var15, var14, 0xFF000000 | var33 << 16 | var32 << 8 | var31);
+                        float var24 = (float)this.minecraft.options.gamma;
+                        Vector3f var25 = var10.copy();
+                        var25.map(this::notGamma);
+                        var10.lerp(var25, var24);
+                        var10.lerp(new Vector3f(0.75F, 0.75F, 0.75F), 0.04F);
+                        var10.clamp(0.0F, 1.0F);
+                        var10.mul(255.0F);
+                        int var26 = 255;
+                        int var27 = (int)var10.x();
+                        int var28 = (int)var10.y();
+                        int var29 = (int)var10.z();
+                        this.lightPixels.setPixelRGBA(var12, var11, 0xFF000000 | var29 << 16 | var28 << 8 | var27);
                     }
                 }
 
@@ -183,10 +152,8 @@ public class LightTexture implements AutoCloseable {
         return 1.0F - var0x * var0x * var0x * var0x;
     }
 
-    public static float getBrightness(DimensionType param0, int param1) {
-        float var0 = (float)param1 / 15.0F;
-        float var1 = var0 / (4.0F - 3.0F * var0);
-        return Mth.lerp(param0.ambientLight(), var1, 1.0F);
+    private float getBrightness(Level param0, int param1) {
+        return param0.dimensionType().brightness(param1);
     }
 
     public static int pack(int param0, int param1) {

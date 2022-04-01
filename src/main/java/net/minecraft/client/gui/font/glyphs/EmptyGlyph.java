@@ -9,8 +9,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EmptyGlyph extends BakedGlyph {
-    public static final EmptyGlyph INSTANCE = new EmptyGlyph();
-
     public EmptyGlyph() {
         super(
             RenderType.text(new ResourceLocation("")),

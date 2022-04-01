@@ -8,10 +8,10 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -23,7 +23,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceThunk;
 import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -74,30 +73,29 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         Executor param5
     ) {
         CompletableFuture<Map<ResourceLocation, Tag.Builder>> var0 = CompletableFuture.supplyAsync(() -> this.tagsLoader.load(param1), param4);
-        CompletableFuture<Map<ResourceLocation, CompletableFuture<CommandFunction>>> var1 = CompletableFuture.<Map<ResourceLocation, ResourceThunk>>supplyAsync(
-                () -> param1.listResources("functions", param0x -> param0x.getPath().endsWith(".mcfunction")), param4
+        CompletableFuture<Map<ResourceLocation, CompletableFuture<CommandFunction>>> var1 = CompletableFuture.<Collection<ResourceLocation>>supplyAsync(
+                () -> param1.listResources("functions", param0x -> param0x.endsWith(".mcfunction")), param4
             )
             .thenCompose(
-                param1x -> {
+                param2x -> {
                     Map<ResourceLocation, CompletableFuture<CommandFunction>> var0x = Maps.newHashMap();
                     CommandSourceStack var1x = new CommandSourceStack(
                         CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, null, this.functionCompilationLevel, "", TextComponent.EMPTY, null, null
                     );
         
-                    for(Entry<ResourceLocation, ResourceThunk> var2x : param1x.entrySet()) {
-                        ResourceLocation var3x = (ResourceLocation)var2x.getKey();
-                        String var4x = var3x.getPath();
-                        ResourceLocation var5x = new ResourceLocation(
-                            var3x.getNamespace(), var4x.substring(PATH_PREFIX_LENGTH, var4x.length() - PATH_SUFFIX_LENGTH)
+                    for(ResourceLocation var2x : param2x) {
+                        String var3x = var2x.getPath();
+                        ResourceLocation var4x = new ResourceLocation(
+                            var2x.getNamespace(), var3x.substring(PATH_PREFIX_LENGTH, var3x.length() - PATH_SUFFIX_LENGTH)
                         );
-                        var0x.put(var5x, CompletableFuture.supplyAsync(() -> {
-                            List<String> var0xx = readLines((ResourceThunk)var2x.getValue());
-                            return CommandFunction.fromLines(var5x, this.dispatcher, var1x, var0xx);
+                        var0x.put(var4x, CompletableFuture.supplyAsync(() -> {
+                            List<String> var0xx = readLines(param1, var2x);
+                            return CommandFunction.fromLines(var4x, this.dispatcher, var1x, var0xx);
                         }, param4));
                     }
         
-                    CompletableFuture<?>[] var6 = var0x.values().toArray(new CompletableFuture[0]);
-                    return CompletableFuture.allOf(var6).handle((param1xx, param2x) -> var0x);
+                    CompletableFuture<?>[] var5 = var0x.values().toArray(new CompletableFuture[0]);
+                    return CompletableFuture.allOf(var5).handle((param1x, param2xx) -> var0x);
                 }
             );
         return var0.thenCombine(var1, Pair::of).thenCompose(param0::wait).thenAcceptAsync(param0x -> {
@@ -117,16 +115,16 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         }, param5);
     }
 
-    private static List<String> readLines(ResourceThunk param0) {
+    private static List<String> readLines(ResourceManager param0, ResourceLocation param1) {
         try {
-            List var2;
-            try (Resource var0 = param0.open()) {
-                var2 = IOUtils.readLines(var0.getInputStream(), StandardCharsets.UTF_8);
+            List var3;
+            try (Resource var0 = param0.getResource(param1)) {
+                var3 = IOUtils.readLines(var0.getInputStream(), StandardCharsets.UTF_8);
             }
 
-            return var2;
-        } catch (IOException var6) {
-            throw new CompletionException(var6);
+            return var3;
+        } catch (IOException var7) {
+            throw new CompletionException(var7);
         }
     }
 }

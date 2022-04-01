@@ -8,7 +8,6 @@
     "minecraft:acacia_button",
     "minecraft:dark_oak_button",
     "minecraft:crimson_button",
-    "minecraft:warped_button",
-    "minecraft:mangrove_button"
+    "minecraft:warped_button"
   ]
 }

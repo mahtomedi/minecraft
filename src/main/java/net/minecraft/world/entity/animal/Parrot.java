@@ -103,7 +103,6 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         param0.put(EntityType.STRAY, SoundEvents.PARROT_IMITATE_STRAY);
         param0.put(EntityType.VEX, SoundEvents.PARROT_IMITATE_VEX);
         param0.put(EntityType.VINDICATOR, SoundEvents.PARROT_IMITATE_VINDICATOR);
-        param0.put(EntityType.WARDEN, SoundEvents.PARROT_IMITATE_WARDEN);
         param0.put(EntityType.WITCH, SoundEvents.PARROT_IMITATE_WITCH);
         param0.put(EntityType.WITHER, SoundEvents.PARROT_IMITATE_WITHER);
         param0.put(EntityType.WITHER_SKELETON, SoundEvents.PARROT_IMITATE_WITHER_SKELETON);

@@ -34,6 +34,7 @@ public class FoodData {
 
     public void tick(Player param0) {
         Difficulty var0 = param0.level.getDifficulty();
+        this.foodLevel = 20;
         this.lastFoodLevel = this.foodLevel;
         if (this.exhaustionLevel > 4.0F) {
             this.exhaustionLevel -= 4.0F;

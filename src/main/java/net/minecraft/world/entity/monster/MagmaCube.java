@@ -47,7 +47,7 @@ public class MagmaCube extends Slime {
     }
 
     @Override
-    public float getLightLevelDependentMagicValue() {
+    public float getBrightness() {
         return 1.0F;
     }
 

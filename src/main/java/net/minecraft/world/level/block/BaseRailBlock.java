@@ -64,7 +64,7 @@ public abstract class BaseRailBlock extends Block implements SimpleWaterloggedBl
     protected BlockState updateState(BlockState param0, Level param1, BlockPos param2, boolean param3) {
         param0 = this.updateDir(param1, param2, param0, true);
         if (this.isStraight) {
-            param1.neighborChanged(param0, param2, this, param2, param3);
+            param0.neighborChanged(param1, param2, this, param2, param3);
         }
 
         return param0;

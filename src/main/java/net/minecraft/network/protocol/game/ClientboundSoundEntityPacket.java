@@ -25,7 +25,7 @@ public class ClientboundSoundEntityPacket implements Packet<ClientGamePacketList
     }
 
     public ClientboundSoundEntityPacket(FriendlyByteBuf param0) {
-        this.sound = param0.readById(Registry.SOUND_EVENT);
+        this.sound = Registry.SOUND_EVENT.byId(param0.readVarInt());
         this.source = param0.readEnum(SoundSource.class);
         this.id = param0.readVarInt();
         this.volume = param0.readFloat();
@@ -34,7 +34,7 @@ public class ClientboundSoundEntityPacket implements Packet<ClientGamePacketList
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeId(Registry.SOUND_EVENT, this.sound);
+        param0.writeVarInt(Registry.SOUND_EVENT.getId(this.sound));
         param0.writeEnum(this.source);
         param0.writeVarInt(this.id);
         param0.writeFloat(this.volume);

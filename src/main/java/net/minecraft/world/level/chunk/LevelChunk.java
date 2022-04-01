@@ -166,10 +166,7 @@ public class LevelChunk extends ChunkAccess {
 
     @Override
     public GameEventDispatcher getEventDispatcher(int param0) {
-        Level var3 = this.level;
-        return var3 instanceof ServerLevel var0
-            ? this.gameEventDispatcherSections.computeIfAbsent(param0, param1 -> new EuclideanGameEventDispatcher(var0))
-            : super.getEventDispatcher(param0);
+        return this.gameEventDispatcherSections.computeIfAbsent(param0, param0x -> new EuclideanGameEventDispatcher(this.level));
     }
 
     @Override
@@ -340,11 +337,7 @@ public class LevelChunk extends ChunkAccess {
     public void addAndRegisterBlockEntity(BlockEntity param0) {
         this.setBlockEntity(param0);
         if (this.isInLevel()) {
-            Level var3 = this.level;
-            if (var3 instanceof ServerLevel var0) {
-                this.addGameEventListener(param0, var0);
-            }
-
+            this.addGameEventListener(param0);
             this.updateBlockEntityTicker(param0);
         }
 
@@ -406,11 +399,7 @@ public class LevelChunk extends ChunkAccess {
         if (this.isInLevel()) {
             BlockEntity var0 = this.blockEntities.remove(param0);
             if (var0 != null) {
-                Level var4 = this.level;
-                if (var4 instanceof ServerLevel var1) {
-                    this.removeGameEventListener(var0, var1);
-                }
-
+                this.removeGameEventListener(var0);
                 var0.setRemoved();
             }
         }
@@ -418,20 +407,22 @@ public class LevelChunk extends ChunkAccess {
         this.removeBlockEntityTicker(param0);
     }
 
-    private <T extends BlockEntity> void removeGameEventListener(T param0, ServerLevel param1) {
-        Block var0 = param0.getBlockState().getBlock();
-        if (var0 instanceof EntityBlock) {
-            GameEventListener var1 = ((EntityBlock)var0).getListener(param1, param0);
-            if (var1 != null) {
-                int var2 = SectionPos.blockToSectionCoord(param0.getBlockPos().getY());
-                GameEventDispatcher var3 = this.getEventDispatcher(var2);
-                var3.unregister(var1);
-                if (var3.isEmpty()) {
-                    this.gameEventDispatcherSections.remove(var2);
+    private <T extends BlockEntity> void removeGameEventListener(T param0) {
+        if (!this.level.isClientSide) {
+            Block var0 = param0.getBlockState().getBlock();
+            if (var0 instanceof EntityBlock) {
+                GameEventListener var1 = ((EntityBlock)var0).getListener(this.level, param0);
+                if (var1 != null) {
+                    int var2 = SectionPos.blockToSectionCoord(param0.getBlockPos().getY());
+                    GameEventDispatcher var3 = this.getEventDispatcher(var2);
+                    var3.unregister(var1);
+                    if (var3.isEmpty()) {
+                        this.gameEventDispatcherSections.remove(var2);
+                    }
                 }
             }
-        }
 
+        }
     }
 
     private void removeBlockEntityTicker(BlockPos param0) {
@@ -599,25 +590,23 @@ public class LevelChunk extends ChunkAccess {
 
     public void registerAllBlockEntitiesAfterLevelLoad() {
         this.blockEntities.values().forEach(param0 -> {
-            Level var0 = this.level;
-            if (var0 instanceof ServerLevel var1) {
-                this.addGameEventListener(param0, var1);
-            }
-
+            this.addGameEventListener(param0);
             this.updateBlockEntityTicker(param0);
         });
     }
 
-    private <T extends BlockEntity> void addGameEventListener(T param0, ServerLevel param1) {
-        Block var0 = param0.getBlockState().getBlock();
-        if (var0 instanceof EntityBlock) {
-            GameEventListener var1 = ((EntityBlock)var0).getListener(param1, param0);
-            if (var1 != null) {
-                GameEventDispatcher var2 = this.getEventDispatcher(SectionPos.blockToSectionCoord(param0.getBlockPos().getY()));
-                var2.register(var1);
+    private <T extends BlockEntity> void addGameEventListener(T param0) {
+        if (!this.level.isClientSide) {
+            Block var0 = param0.getBlockState().getBlock();
+            if (var0 instanceof EntityBlock) {
+                GameEventListener var1 = ((EntityBlock)var0).getListener(this.level, param0);
+                if (var1 != null) {
+                    GameEventDispatcher var2 = this.getEventDispatcher(SectionPos.blockToSectionCoord(param0.getBlockPos().getY()));
+                    var2.register(var1);
+                }
             }
-        }
 
+        }
     }
 
     private <T extends BlockEntity> void updateBlockEntityTicker(T param0) {

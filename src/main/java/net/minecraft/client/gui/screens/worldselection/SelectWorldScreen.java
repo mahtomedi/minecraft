@@ -67,7 +67,7 @@ public class SelectWorldScreen extends Screen {
                 150,
                 20,
                 new TranslatableComponent("selectWorld.create"),
-                param0 -> CreateWorldScreen.openFresh(this.minecraft, this)
+                param0 -> this.minecraft.setScreen(CreateWorldScreen.createFresh(this))
             )
         );
         this.renameButton = this.addRenderableWidget(

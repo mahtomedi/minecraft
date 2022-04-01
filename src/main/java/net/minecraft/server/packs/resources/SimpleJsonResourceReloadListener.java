@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Map.Entry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -34,27 +33,26 @@ public abstract class SimpleJsonResourceReloadListener extends SimplePreparableR
         Map<ResourceLocation, JsonElement> var0 = Maps.newHashMap();
         int var1 = this.directory.length() + 1;
 
-        for(Entry<ResourceLocation, ResourceThunk> var2 : param0.listResources(this.directory, param0x -> param0x.getPath().endsWith(".json")).entrySet()) {
-            ResourceLocation var3 = var2.getKey();
-            String var4 = var3.getPath();
-            ResourceLocation var5 = new ResourceLocation(var3.getNamespace(), var4.substring(var1, var4.length() - PATH_SUFFIX_LENGTH));
+        for(ResourceLocation var2 : param0.listResources(this.directory, param0x -> param0x.endsWith(".json"))) {
+            String var3 = var2.getPath();
+            ResourceLocation var4 = new ResourceLocation(var2.getNamespace(), var3.substring(var1, var3.length() - PATH_SUFFIX_LENGTH));
 
             try (
-                Resource var6 = var2.getValue().open();
-                InputStream var7 = var6.getInputStream();
-                Reader var8 = new BufferedReader(new InputStreamReader(var7, StandardCharsets.UTF_8));
+                Resource var5 = param0.getResource(var2);
+                InputStream var6 = var5.getInputStream();
+                Reader var7 = new BufferedReader(new InputStreamReader(var6, StandardCharsets.UTF_8));
             ) {
-                JsonElement var9 = GsonHelper.fromJson(this.gson, var8, JsonElement.class);
-                if (var9 != null) {
-                    JsonElement var10 = var0.put(var5, var9);
-                    if (var10 != null) {
-                        throw new IllegalStateException("Duplicate data file ignored with ID " + var5);
+                JsonElement var8 = GsonHelper.fromJson(this.gson, var7, JsonElement.class);
+                if (var8 != null) {
+                    JsonElement var9 = var0.put(var4, var8);
+                    if (var9 != null) {
+                        throw new IllegalStateException("Duplicate data file ignored with ID " + var4);
                     }
                 } else {
-                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", var5, var3);
+                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", var4, var2);
                 }
-            } catch (IllegalArgumentException | IOException | JsonParseException var21) {
-                LOGGER.error("Couldn't parse data file {} from {}", var5, var3, var21);
+            } catch (IllegalArgumentException | IOException | JsonParseException var20) {
+                LOGGER.error("Couldn't parse data file {} from {}", var4, var2, var20);
             }
         }
 

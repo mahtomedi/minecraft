@@ -44,10 +44,7 @@ public class TurtleEggBlock extends Block {
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        if (!param3.isSteppingCarefully()) {
-            this.destroyEgg(param0, param2, param1, param3, 100);
-        }
-
+        this.destroyEgg(param0, param2, param1, param3, 100);
         super.stepOn(param0, param1, param2, param3);
     }
 

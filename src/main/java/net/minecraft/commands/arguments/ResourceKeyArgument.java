@@ -12,10 +12,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -83,39 +82,18 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
         return EXAMPLES;
     }
 
-    public static class Info<T> implements ArgumentTypeInfo<ResourceKeyArgument<T>, ResourceKeyArgument.Info<T>.Template> {
-        public void serializeToNetwork(ResourceKeyArgument.Info.Template param0, FriendlyByteBuf param1) {
+    public static class Serializer implements ArgumentSerializer<ResourceKeyArgument<?>> {
+        public void serializeToNetwork(ResourceKeyArgument<?> param0, FriendlyByteBuf param1) {
             param1.writeResourceLocation(param0.registryKey.location());
         }
 
-        public ResourceKeyArgument.Info<T>.Template deserializeFromNetwork(FriendlyByteBuf param0) {
+        public ResourceKeyArgument<?> deserializeFromNetwork(FriendlyByteBuf param0) {
             ResourceLocation var0 = param0.readResourceLocation();
-            return new ResourceKeyArgument.Info.Template(ResourceKey.createRegistryKey(var0));
+            return new ResourceKeyArgument(ResourceKey.createRegistryKey(var0));
         }
 
-        public void serializeToJson(ResourceKeyArgument.Info.Template param0, JsonObject param1) {
+        public void serializeToJson(ResourceKeyArgument<?> param0, JsonObject param1) {
             param1.addProperty("registry", param0.registryKey.location().toString());
-        }
-
-        public ResourceKeyArgument.Info<T>.Template unpack(ResourceKeyArgument<T> param0) {
-            return new ResourceKeyArgument.Info.Template(param0.registryKey);
-        }
-
-        public final class Template implements ArgumentTypeInfo.Template<ResourceKeyArgument<T>> {
-            final ResourceKey<? extends Registry<T>> registryKey;
-
-            Template(ResourceKey<? extends Registry<T>> param1) {
-                this.registryKey = param1;
-            }
-
-            public ResourceKeyArgument<T> instantiate(CommandBuildContext param0) {
-                return new ResourceKeyArgument<>(this.registryKey);
-            }
-
-            @Override
-            public ArgumentTypeInfo<ResourceKeyArgument<T>, ?> type() {
-                return Info.this;
-            }
         }
     }
 }

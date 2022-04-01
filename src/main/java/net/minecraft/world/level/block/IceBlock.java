@@ -3,7 +3,10 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -16,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 
-public class IceBlock extends HalfTransparentBlock {
+public class IceBlock extends HalfTransparentBlock implements Fallable {
     public IceBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
@@ -58,5 +61,28 @@ public class IceBlock extends HalfTransparentBlock {
     @Override
     public PushReaction getPistonPushReaction(BlockState param0) {
         return PushReaction.NORMAL;
+    }
+
+    @Override
+    public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3, FallingBlockEntity param4) {
+        if (this.hotBlocksInYourArea(param0, param1)) {
+            this.melt(param2, param0, param1);
+        }
+
+    }
+
+    private boolean hotBlocksInYourArea(Level param0, BlockPos param1) {
+        for(Direction var0 : Direction.values()) {
+            BlockState var1 = param0.getBlockState(param1.relative(var0));
+            if (this.isHotBlock(var1)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isHotBlock(BlockState param0) {
+        return param0.is(BlockTags.FIRE) || param0.is(Blocks.LAVA) || param0.is(Blocks.MAGMA_BLOCK);
     }
 }

@@ -9,27 +9,19 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.block.Block;
 
 public class BlockStateArgument implements ArgumentType<BlockInput> {
     private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "foo{bar=baz}");
-    private final HolderLookup<Block> blocks;
 
-    public BlockStateArgument(CommandBuildContext param0) {
-        this.blocks = param0.holderLookup(Registry.BLOCK_REGISTRY);
-    }
-
-    public static BlockStateArgument block(CommandBuildContext param0) {
-        return new BlockStateArgument(param0);
+    public static BlockStateArgument block() {
+        return new BlockStateArgument();
     }
 
     public BlockInput parse(StringReader param0) throws CommandSyntaxException {
-        BlockStateParser.BlockResult var0 = BlockStateParser.parseForBlock(this.blocks, param0, true);
-        return new BlockInput(var0.blockState(), var0.properties().keySet(), var0.nbt());
+        BlockStateParser var0 = new BlockStateParser(param0, false).parse(true);
+        return new BlockInput(var0.getState(), var0.getProperties().keySet(), var0.getNbt());
     }
 
     public static BlockInput getBlock(CommandContext<CommandSourceStack> param0, String param1) {
@@ -38,7 +30,16 @@ public class BlockStateArgument implements ArgumentType<BlockInput> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        return BlockStateParser.fillSuggestions(this.blocks, param1, false, true);
+        StringReader var0 = new StringReader(param1.getInput());
+        var0.setCursor(param1.getStart());
+        BlockStateParser var1 = new BlockStateParser(var0, false);
+
+        try {
+            var1.parse(true);
+        } catch (CommandSyntaxException var6) {
+        }
+
+        return var1.fillSuggestions(param1, Registry.BLOCK);
     }
 
     @Override

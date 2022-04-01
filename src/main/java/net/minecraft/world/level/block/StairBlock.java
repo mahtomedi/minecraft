@@ -130,7 +130,7 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param0.is(param0.getBlock())) {
-            param1.neighborChanged(this.baseState, param2, Blocks.AIR, param2, false);
+            this.baseState.neighborChanged(param1, param2, Blocks.AIR, param2, false);
             this.base.onPlace(this.baseState, param1, param2, param3, false);
         }
     }

@@ -13,7 +13,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -21,7 +21,7 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSeriali
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import org.slf4j.Logger;
 
 public class PoolElementStructurePiece extends StructurePiece {
@@ -31,13 +31,11 @@ public class PoolElementStructurePiece extends StructurePiece {
     private final int groundLevelDelta;
     protected final Rotation rotation;
     private final List<JigsawJunction> junctions = Lists.newArrayList();
-    private final StructureTemplateManager structureTemplateManager;
+    private final StructureManager structureManager;
 
-    public PoolElementStructurePiece(
-        StructureTemplateManager param0, StructurePoolElement param1, BlockPos param2, int param3, Rotation param4, BoundingBox param5
-    ) {
+    public PoolElementStructurePiece(StructureManager param0, StructurePoolElement param1, BlockPos param2, int param3, Rotation param4, BoundingBox param5) {
         super(StructurePieceType.JIGSAW, 0, param5);
-        this.structureTemplateManager = param0;
+        this.structureManager = param0;
         this.element = param1;
         this.position = param2;
         this.groundLevelDelta = param3;
@@ -46,7 +44,7 @@ public class PoolElementStructurePiece extends StructurePiece {
 
     public PoolElementStructurePiece(StructurePieceSerializationContext param0, CompoundTag param1) {
         super(StructurePieceType.JIGSAW, param1);
-        this.structureTemplateManager = param0.structureTemplateManager();
+        this.structureManager = param0.structureManager();
         this.position = new BlockPos(param1.getInt("PosX"), param1.getInt("PosY"), param1.getInt("PosZ"));
         this.groundLevelDelta = param1.getInt("ground_level_delta");
         DynamicOps<Tag> var0 = RegistryOps.create(NbtOps.INSTANCE, param0.registryAccess());
@@ -55,7 +53,7 @@ public class PoolElementStructurePiece extends StructurePiece {
             .resultOrPartial(LOGGER::error)
             .orElseThrow(() -> new IllegalStateException("Invalid pool element found"));
         this.rotation = Rotation.valueOf(param1.getString("rotation"));
-        this.boundingBox = this.element.getBoundingBox(this.structureTemplateManager, this.position, this.rotation);
+        this.boundingBox = this.element.getBoundingBox(this.structureManager, this.position, this.rotation);
         ListTag var1 = param1.getList("junctions", 10);
         this.junctions.clear();
         var1.forEach(param1x -> this.junctions.add(JigsawJunction.deserialize(new Dynamic<>(var0, param1x))));
@@ -81,13 +79,15 @@ public class PoolElementStructurePiece extends StructurePiece {
 
     @Override
     public void postProcess(
-        WorldGenLevel param0, StructureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
         this.place(param0, param1, param2, param3, param4, param6, false);
     }
 
-    public void place(WorldGenLevel param0, StructureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, BlockPos param5, boolean param6) {
-        this.element.place(this.structureTemplateManager, param0, param1, param2, this.position, param5, this.rotation, param4, param3, param6);
+    public void place(
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, BlockPos param5, boolean param6
+    ) {
+        this.element.place(this.structureManager, param0, param1, param2, this.position, param5, this.rotation, param4, param3, param6);
     }
 
     @Override

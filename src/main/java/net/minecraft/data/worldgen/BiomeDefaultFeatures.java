@@ -44,11 +44,6 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.POINTED_DRIPSTONE);
     }
 
-    public static void addSculk(BiomeGenerationSettings.Builder param0) {
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_VEIN);
-        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_PATCH_DEEP_DARK);
-    }
-
     public static void addDefaultOres(BiomeGenerationSettings.Builder param0) {
         addDefaultOres(param0, false);
     }

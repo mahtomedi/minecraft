@@ -18,8 +18,7 @@ public class LocateBiomeCommand {
         param0 -> new TranslatableComponent("commands.locatebiome.notFound", param0)
     );
     private static final int MAX_SEARCH_RADIUS = 6400;
-    private static final int SAMPLE_RESOLUTION_HORIZONTAL = 32;
-    private static final int SAMPLE_RESOLUTION_VERTICAL = 64;
+    private static final int SEARCH_STEP = 8;
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -34,11 +33,11 @@ public class LocateBiomeCommand {
 
     private static int locateBiome(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<Biome> param1) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param0.getPosition());
-        Pair<BlockPos, Holder<Biome>> var1 = param0.getLevel().findClosestBiome3d(param1, var0, 6400, 32, 64);
+        Pair<BlockPos, Holder<Biome>> var1 = param0.getLevel().findNearestBiome(param1, var0, 6400, 8);
         if (var1 == null) {
             throw ERROR_BIOME_NOT_FOUND.create(param1.asPrintable());
         } else {
-            return LocateCommand.showLocateResult(param0, param1, var0, var1, "commands.locatebiome.success", true);
+            return LocateCommand.showLocateResult(param0, param1, var0, var1, "commands.locatebiome.success");
         }
     }
 }

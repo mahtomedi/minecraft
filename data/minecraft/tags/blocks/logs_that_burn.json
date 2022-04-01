@@ -6,7 +6,6 @@
     "#minecraft:acacia_logs",
     "#minecraft:birch_logs",
     "#minecraft:jungle_logs",
-    "#minecraft:spruce_logs",
-    "#minecraft:mangrove_logs"
+    "#minecraft:spruce_logs"
   ]
 }

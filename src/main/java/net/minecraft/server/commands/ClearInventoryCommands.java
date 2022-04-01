@@ -7,7 +7,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Predicate;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -24,7 +23,7 @@ public class ClearInventoryCommands {
         param0 -> new TranslatableComponent("clear.failed.multiple", param0)
     );
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("clear")
                 .requires(param0x -> param0x.hasPermission(2))
@@ -35,7 +34,7 @@ public class ClearInventoryCommands {
                     Commands.argument("targets", EntityArgument.players())
                         .executes(param0x -> clearInventory(param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), param0xx -> true, -1))
                         .then(
-                            Commands.argument("item", ItemPredicateArgument.itemPredicate(param1))
+                            Commands.argument("item", ItemPredicateArgument.itemPredicate())
                                 .executes(
                                     param0x -> clearInventory(
                                             param0x.getSource(),
@@ -64,6 +63,7 @@ public class ClearInventoryCommands {
         int var0 = 0;
 
         for(ServerPlayer var1 : param1) {
+            var1.clearCarried();
             var0 += var1.getInventory().clearOrCountMatchingItems(param2, param3, var1.inventoryMenu.getCraftSlots());
             var1.containerMenu.broadcastChanges();
             var1.inventoryMenu.slotsChanged(var1.getInventory());
