@@ -10,7 +10,7 @@ public final class ItemTags {
     public static final TagKey<Item> STONE_BRICKS = bind("stone_bricks");
     public static final TagKey<Item> WOODEN_BUTTONS = bind("wooden_buttons");
     public static final TagKey<Item> BUTTONS = bind("buttons");
-    public static final TagKey<Item> CARPETS = bind("carpets");
+    public static final TagKey<Item> WOOL_CARPETS = bind("wool_carpets");
     public static final TagKey<Item> WOODEN_DOORS = bind("wooden_doors");
     public static final TagKey<Item> WOODEN_STAIRS = bind("wooden_stairs");
     public static final TagKey<Item> WOODEN_SLABS = bind("wooden_slabs");
@@ -27,6 +27,7 @@ public final class ItemTags {
     public static final TagKey<Item> ACACIA_LOGS = bind("acacia_logs");
     public static final TagKey<Item> JUNGLE_LOGS = bind("jungle_logs");
     public static final TagKey<Item> SPRUCE_LOGS = bind("spruce_logs");
+    public static final TagKey<Item> MANGROVE_LOGS = bind("mangrove_logs");
     public static final TagKey<Item> CRIMSON_STEMS = bind("crimson_stems");
     public static final TagKey<Item> WARPED_STEMS = bind("warped_stems");
     public static final TagKey<Item> BANNERS = bind("banners");
@@ -62,6 +63,7 @@ public final class ItemTags {
     public static final TagKey<Item> DIRT = bind("dirt");
     public static final TagKey<Item> TERRACOTTA = bind("terracotta");
     public static final TagKey<Item> BOATS = bind("boats");
+    public static final TagKey<Item> CHEST_BOATS = bind("chest_boats");
     public static final TagKey<Item> FISHES = bind("fishes");
     public static final TagKey<Item> SIGNS = bind("signs");
     public static final TagKey<Item> MUSIC_DISCS = bind("music_discs");
@@ -76,6 +78,7 @@ public final class ItemTags {
     public static final TagKey<Item> AXOLOTL_TEMPT_ITEMS = bind("axolotl_tempt_items");
     public static final TagKey<Item> OCCLUDES_VIBRATION_SIGNALS = bind("occludes_vibration_signals");
     public static final TagKey<Item> CLUSTER_MAX_HARVESTABLES = bind("cluster_max_harvestables");
+    public static final TagKey<Item> COMPASSES = bind("compasses");
 
     private ItemTags() {
     }

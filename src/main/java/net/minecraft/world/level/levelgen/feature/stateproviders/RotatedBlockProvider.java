@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature.stateproviders;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -27,7 +27,7 @@ public class RotatedBlockProvider extends BlockStateProvider {
     }
 
     @Override
-    public BlockState getState(Random param0, BlockPos param1) {
+    public BlockState getState(RandomSource param0, BlockPos param1) {
         Direction.Axis var0 = Direction.Axis.getRandom(param0);
         return this.block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, var0);
     }

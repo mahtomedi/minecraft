@@ -1,9 +1,9 @@
 package net.minecraft.world.entity;
 
-import java.util.Random;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.RandomSource;
 
 public class ItemBasedSteering {
     private static final int MIN_BOOST_TIME = 140;
@@ -27,7 +27,7 @@ public class ItemBasedSteering {
         this.boostTimeTotal = this.entityData.get(this.boostTimeAccessor);
     }
 
-    public boolean boost(Random param0) {
+    public boolean boost(RandomSource param0) {
         if (this.boosting) {
             return false;
         } else {

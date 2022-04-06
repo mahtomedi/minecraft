@@ -2,10 +2,10 @@ package net.minecraft.world.level.levelgen.placement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 
@@ -42,7 +42,7 @@ public class EnvironmentScanPlacement extends PlacementModifier {
     }
 
     @Override
-    public Stream<BlockPos> getPositions(PlacementContext param0, Random param1, BlockPos param2) {
+    public Stream<BlockPos> getPositions(PlacementContext param0, RandomSource param1, BlockPos param2) {
         BlockPos.MutableBlockPos var0 = param2.mutable();
         WorldGenLevel var1 = param0.getLevel();
         if (!this.allowedSearchCondition.test(var1, var0)) {

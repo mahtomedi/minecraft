@@ -2,10 +2,10 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -37,7 +37,7 @@ public class MoveToSkySeeingSpot extends Behavior<LivingEntity> {
 
     @Nullable
     private Vec3 getOutdoorPosition(ServerLevel param0, LivingEntity param1) {
-        Random var0 = param1.getRandom();
+        RandomSource var0 = param1.getRandom();
         BlockPos var1 = param1.blockPosition();
 
         for(int var2 = 0; var2 < 10; ++var2) {

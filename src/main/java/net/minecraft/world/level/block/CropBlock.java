@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.item.ItemStack;
@@ -76,7 +76,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param1.getRawBrightness(param2, 0) >= 9) {
             int var0 = this.getAge(param0);
             if (var0 < this.getMaxAge()) {
@@ -176,12 +176,12 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         this.growCrops(param0, param2, param3);
     }
 

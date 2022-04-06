@@ -2,7 +2,6 @@ package net.minecraft.world.entity.animal.goat;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -276,7 +276,9 @@ public class Goat extends Animal {
         return (float)this.lowerHeadTick / 20.0F * 30.0F * (float) (Math.PI / 180.0);
     }
 
-    public static boolean checkGoatSpawnRules(EntityType<? extends Animal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkGoatSpawnRules(
+        EntityType<? extends Animal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
+    ) {
         return param1.getBlockState(param3.below()).is(BlockTags.GOATS_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 }

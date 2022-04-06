@@ -5,15 +5,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 
@@ -35,7 +34,7 @@ public class FancyTrunkPlacer extends TrunkPlacer {
 
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, int param3, BlockPos param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, int param3, BlockPos param4, TreeConfiguration param5
     ) {
         int var0 = 5;
         int var1 = param3 + 2;
@@ -89,7 +88,7 @@ public class FancyTrunkPlacer extends TrunkPlacer {
     private boolean makeLimb(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         BlockPos param3,
         BlockPos param4,
         boolean param5,
@@ -107,10 +106,8 @@ public class FancyTrunkPlacer extends TrunkPlacer {
             for(int var5 = 0; var5 <= var1; ++var5) {
                 BlockPos var6 = param3.offset((double)(0.5F + (float)var5 * var2), (double)(0.5F + (float)var5 * var3), (double)(0.5F + (float)var5 * var4));
                 if (param5) {
-                    TrunkPlacer.placeLog(
-                        param0, param1, param2, var6, param6, param2x -> param2x.setValue(RotatedPillarBlock.AXIS, this.getLogAxis(param3, var6))
-                    );
-                } else if (!TreeFeature.isFree(param0, var6)) {
+                    this.placeLog(param0, param1, param2, var6, param6, param2x -> param2x.setValue(RotatedPillarBlock.AXIS, this.getLogAxis(param3, var6)));
+                } else if (!this.isFree(param0, var6)) {
                     return false;
                 }
             }
@@ -149,7 +146,7 @@ public class FancyTrunkPlacer extends TrunkPlacer {
     private void makeBranches(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         int param3,
         BlockPos param4,
         List<FancyTrunkPlacer.FoliageCoords> param5,

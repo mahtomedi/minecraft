@@ -3,7 +3,6 @@ package net.minecraft.world.entity.animal;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -14,11 +13,11 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -53,19 +52,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.phys.Vec3;
 
 public class Sheep extends Animal implements Shearable {
     private static final int EAT_ANIMATION_TICKS = 40;
     private static final EntityDataAccessor<Byte> DATA_WOOL_ID = SynchedEntityData.defineId(Sheep.class, EntityDataSerializers.BYTE);
-    private static final Map<DyeColor, Block> ITEM_BY_DYE = Util.make(Maps.newEnumMap(DyeColor.class), param0 -> {
+    private static final Map<DyeColor, ItemLike> ITEM_BY_DYE = Util.make(Maps.newEnumMap(DyeColor.class), param0 -> {
         param0.put(DyeColor.WHITE, Blocks.WHITE_WOOL);
         param0.put(DyeColor.ORANGE, Blocks.ORANGE_WOOL);
         param0.put(DyeColor.MAGENTA, Blocks.MAGENTA_WOOL);
@@ -88,7 +86,6 @@ public class Sheep extends Animal implements Shearable {
     );
     private int eatAnimationTick;
     private EatBlockGoal eatBlockGoal;
-    private boolean thrown;
 
     private static float[] createSheepColor(DyeColor param0) {
         if (param0 == DyeColor.WHITE) {
@@ -320,7 +317,7 @@ public class Sheep extends Animal implements Shearable {
 
     }
 
-    public static DyeColor getRandomSheepColor(Random param0) {
+    public static DyeColor getRandomSheepColor(RandomSource param0) {
         int var0 = param0.nextInt(100);
         if (var0 < 5) {
             return DyeColor.BLACK;
@@ -344,6 +341,7 @@ public class Sheep extends Animal implements Shearable {
 
     @Override
     public void ate() {
+        super.ate();
         this.setSheared(false);
         if (this.isBaby()) {
             this.ageUp(60);
@@ -390,23 +388,5 @@ public class Sheep extends Animal implements Shearable {
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
         return 0.95F * param1.height;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.thrown && this.onGround) {
-            this.thrown = false;
-            if (!this.isSheared()) {
-                this.shear(SoundSource.BLOCKS);
-            }
-        }
-
-    }
-
-    @Override
-    public void throwEntity(ServerPlayer param0, Vec3 param1) {
-        super.throwEntity(param0, param1);
-        this.thrown = true;
     }
 }

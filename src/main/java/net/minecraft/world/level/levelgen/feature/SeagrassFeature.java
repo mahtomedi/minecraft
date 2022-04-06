@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TallSeagrassBlock;
@@ -19,7 +19,7 @@ public class SeagrassFeature extends Feature<ProbabilityFeatureConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<ProbabilityFeatureConfiguration> param0) {
         boolean var0 = false;
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         WorldGenLevel var2 = param0.level();
         BlockPos var3 = param0.origin();
         ProbabilityFeatureConfiguration var4 = param0.config();

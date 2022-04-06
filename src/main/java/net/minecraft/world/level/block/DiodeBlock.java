@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -38,7 +38,7 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (!this.isLocked(param1, param2, param0)) {
             boolean var0 = param0.getValue(POWERED);
             boolean var1 = this.shouldTurnOn(param1, param2, param0);

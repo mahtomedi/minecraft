@@ -5,6 +5,7 @@ import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,14 +23,16 @@ public abstract class AbstractSoundInstance implements SoundInstance {
     protected int delay;
     protected SoundInstance.Attenuation attenuation = SoundInstance.Attenuation.LINEAR;
     protected boolean relative;
+    protected RandomSource random;
 
-    protected AbstractSoundInstance(SoundEvent param0, SoundSource param1) {
-        this(param0.getLocation(), param1);
+    protected AbstractSoundInstance(SoundEvent param0, SoundSource param1, RandomSource param2) {
+        this(param0.getLocation(), param1, param2);
     }
 
-    protected AbstractSoundInstance(ResourceLocation param0, SoundSource param1) {
+    protected AbstractSoundInstance(ResourceLocation param0, SoundSource param1, RandomSource param2) {
         this.location = param0;
         this.source = param1;
+        this.random = param2;
     }
 
     @Override
@@ -43,7 +46,7 @@ public abstract class AbstractSoundInstance implements SoundInstance {
         if (var0 == null) {
             this.sound = SoundManager.EMPTY_SOUND;
         } else {
-            this.sound = var0.getSound();
+            this.sound = var0.getSound(this.random);
         }
 
         return var0;
@@ -71,12 +74,12 @@ public abstract class AbstractSoundInstance implements SoundInstance {
 
     @Override
     public float getVolume() {
-        return this.volume * this.sound.getVolume();
+        return this.volume * this.sound.getVolume().sample(this.random);
     }
 
     @Override
     public float getPitch() {
-        return this.pitch * this.sound.getPitch();
+        return this.pitch * this.sound.getPitch().sample(this.random);
     }
 
     @Override

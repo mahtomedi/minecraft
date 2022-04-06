@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -53,12 +53,12 @@ public class CaveVinesPlantBlock extends GrowingPlantBodyBlock implements Boneme
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         param0.setBlock(param2, param3.setValue(BERRIES, Boolean.valueOf(true)), 2);
     }
 }

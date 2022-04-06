@@ -2,12 +2,12 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.FloatProvider;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -27,7 +27,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         WorldGenLevel var0 = param0.level();
         BlockPos var1 = param0.origin();
         LargeDripstoneConfiguration var2 = param0.config();
-        Random var3 = param0.random();
+        RandomSource var3 = param0.random();
         if (!DripstoneUtils.isEmptyOrWater(var0, var1)) {
             return false;
         } else {
@@ -73,7 +73,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
     }
 
     private static LargeDripstoneFeature.LargeDripstone makeDripstone(
-        BlockPos param0, boolean param1, Random param2, int param3, FloatProvider param4, FloatProvider param5
+        BlockPos param0, boolean param1, RandomSource param2, int param3, FloatProvider param4, FloatProvider param5
     ) {
         return new LargeDripstoneFeature.LargeDripstone(param0, param1, param3, (double)param4.sample(param2), (double)param5.sample(param2));
     }
@@ -146,7 +146,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
             return (int)DripstoneUtils.getDripstoneHeight((double)param0, (double)this.radius, this.scale, this.bluntness);
         }
 
-        void placeBlocks(WorldGenLevel param0, Random param1, LargeDripstoneFeature.WindOffsetter param2) {
+        void placeBlocks(WorldGenLevel param0, RandomSource param1, LargeDripstoneFeature.WindOffsetter param2) {
             for(int var0 = -this.radius; var0 <= this.radius; ++var0) {
                 for(int var1 = -this.radius; var1 <= this.radius; ++var1) {
                     float var2 = Mth.sqrt((float)(var0 * var0 + var1 * var1));
@@ -190,7 +190,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
         @Nullable
         private final Vec3 windSpeed;
 
-        WindOffsetter(int param0, Random param1, FloatProvider param2) {
+        WindOffsetter(int param0, RandomSource param1, FloatProvider param2) {
             this.originY = param0;
             float var0 = param2.sample(param1);
             float var1 = Mth.randomBetween(param1, 0.0F, (float) Math.PI);

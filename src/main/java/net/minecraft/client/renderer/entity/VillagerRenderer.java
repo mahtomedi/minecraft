@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.entity.layers.BarrelLayer;
 import net.minecraft.client.renderer.entity.layers.CrossedArmsItemLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerProfessionLayer;
@@ -18,10 +17,9 @@ public class VillagerRenderer extends MobRenderer<Villager, VillagerModel<Villag
 
     public VillagerRenderer(EntityRendererProvider.Context param0) {
         super(param0, new VillagerModel<>(param0.bakeLayer(ModelLayers.VILLAGER)), 0.5F);
-        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), true));
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
         this.addLayer(new VillagerProfessionLayer<>(this, param0.getResourceManager(), "villager"));
         this.addLayer(new CrossedArmsItemLayer<>(this));
-        this.addLayer(new BarrelLayer<>(this));
     }
 
     public ResourceLocation getTextureLocation(Villager param0) {

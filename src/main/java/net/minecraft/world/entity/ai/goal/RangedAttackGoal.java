@@ -3,11 +3,9 @@ package net.minecraft.world.entity.ai.goal;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.RangedAttackMob;
-import net.minecraft.world.item.Items;
 
 public class RangedAttackGoal extends Goal {
     private final Mob mob;
@@ -45,14 +43,8 @@ public class RangedAttackGoal extends Goal {
     public boolean canUse() {
         LivingEntity var0 = this.mob.getTarget();
         if (var0 != null && var0.isAlive()) {
-            if (this.mob.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
-                return false;
-            } else if (this.mob.getTarget().getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL) && this.mob.getTarget().isCrouching()) {
-                return false;
-            } else {
-                this.target = var0;
-                return true;
-            }
+            this.target = var0;
+            return true;
         } else {
             return false;
         }
@@ -60,15 +52,7 @@ public class RangedAttackGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        if (this.mob.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
-            return false;
-        } else if (this.mob.getTarget() != null
-            && this.mob.getTarget().getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)
-            && this.mob.getTarget().isCrouching()) {
-            return false;
-        } else {
-            return this.canUse() || !this.mob.getNavigation().isDone();
-        }
+        return this.canUse() || !this.mob.getNavigation().isDone();
     }
 
     @Override
@@ -107,12 +91,7 @@ public class RangedAttackGoal extends Goal {
 
             float var2 = (float)Math.sqrt(var0) / this.attackRadius;
             float var3 = Mth.clamp(var2, 0.1F, 1.0F);
-            if (this.mob.isPassenger() && this.mob.getRootVehicle() == this.mob.getTarget()) {
-                this.rangedAttackMob.performVehicleAttack(var3);
-            } else {
-                this.rangedAttackMob.performRangedAttack(this.target, var3);
-            }
-
+            this.rangedAttackMob.performRangedAttack(this.target, var3);
             this.attackTime = Mth.floor(var2 * (float)(this.attackIntervalMax - this.attackIntervalMin) + (float)this.attackIntervalMin);
         } else if (this.attackTime < 0) {
             this.attackTime = Mth.floor(Mth.lerp(Math.sqrt(var0) / (double)this.attackRadius, (double)this.attackIntervalMin, (double)this.attackIntervalMax));

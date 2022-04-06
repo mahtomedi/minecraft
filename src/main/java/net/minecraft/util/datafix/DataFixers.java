@@ -6,6 +6,7 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -22,6 +23,7 @@ import net.minecraft.util.datafix.fixes.BedItemColorFix;
 import net.minecraft.util.datafix.fixes.BeehivePoiRenameFix;
 import net.minecraft.util.datafix.fixes.BiomeFix;
 import net.minecraft.util.datafix.fixes.BitStorageAlignFix;
+import net.minecraft.util.datafix.fixes.BlendingDataFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBannerColorFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBlockStateFix;
 import net.minecraft.util.datafix.fixes.BlockEntityCustomNameToComponentFix;
@@ -40,6 +42,7 @@ import net.minecraft.util.datafix.fixes.CauldronRenameFix;
 import net.minecraft.util.datafix.fixes.CavesAndCliffsRenames;
 import net.minecraft.util.datafix.fixes.ChunkBedBlockEntityInjecterFix;
 import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
+import net.minecraft.util.datafix.fixes.ChunkDeleteIgnoredLightDataFix;
 import net.minecraft.util.datafix.fixes.ChunkHeightAndBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
@@ -50,6 +53,7 @@ import net.minecraft.util.datafix.fixes.ChunkStatusFix2;
 import net.minecraft.util.datafix.fixes.ChunkStructuresTemplateRenameFix;
 import net.minecraft.util.datafix.fixes.ChunkToProtochunkFix;
 import net.minecraft.util.datafix.fixes.ColorlessShulkerEntityFix;
+import net.minecraft.util.datafix.fixes.CriteriaRenameFix;
 import net.minecraft.util.datafix.fixes.DyeItemRenameFix;
 import net.minecraft.util.datafix.fixes.EntityArmorStandSilentFix;
 import net.minecraft.util.datafix.fixes.EntityBlockStateFix;
@@ -78,6 +82,7 @@ import net.minecraft.util.datafix.fixes.EntityStringUuidFix;
 import net.minecraft.util.datafix.fixes.EntityTheRenameningFix;
 import net.minecraft.util.datafix.fixes.EntityTippedArrowFix;
 import net.minecraft.util.datafix.fixes.EntityUUIDFix;
+import net.minecraft.util.datafix.fixes.EntityVariantFix;
 import net.minecraft.util.datafix.fixes.EntityWolfColorFix;
 import net.minecraft.util.datafix.fixes.EntityZombieSplitFix;
 import net.minecraft.util.datafix.fixes.EntityZombieVillagerTypeFix;
@@ -139,6 +144,7 @@ import net.minecraft.util.datafix.fixes.ReorganizePoi;
 import net.minecraft.util.datafix.fixes.SavedDataFeaturePoolElementFix;
 import net.minecraft.util.datafix.fixes.SavedDataUUIDFix;
 import net.minecraft.util.datafix.fixes.SavedDataVillageCropFix;
+import net.minecraft.util.datafix.fixes.SimpleRenameFix;
 import net.minecraft.util.datafix.fixes.SpawnerDataFix;
 import net.minecraft.util.datafix.fixes.StatsCounterFix;
 import net.minecraft.util.datafix.fixes.StatsRenameFix;
@@ -211,6 +217,10 @@ import net.minecraft.util.datafix.schemas.V2831;
 import net.minecraft.util.datafix.schemas.V2832;
 import net.minecraft.util.datafix.schemas.V2842;
 import net.minecraft.util.datafix.schemas.V3076;
+import net.minecraft.util.datafix.schemas.V3078;
+import net.minecraft.util.datafix.schemas.V3081;
+import net.minecraft.util.datafix.schemas.V3082;
+import net.minecraft.util.datafix.schemas.V3083;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -857,6 +867,95 @@ public class DataFixers {
         param0.addFixer(new StructuresBecomeConfiguredFix(var157));
         Schema var158 = param0.addSchema(3076, V3076::new);
         param0.addFixer(new AddNewChoices(var158, "Added Sculk Catalyst", References.BLOCK_ENTITY));
+        Schema var159 = param0.addSchema(3077, SAME_NAMESPACED);
+        param0.addFixer(new ChunkDeleteIgnoredLightDataFix(var159));
+        Schema var160 = param0.addSchema(3078, V3078::new);
+        param0.addFixer(new AddNewChoices(var160, "Added Frog", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var160, "Added Tadpole", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var160, "Added Sculk Shrieker", References.BLOCK_ENTITY));
+        Schema var161 = param0.addSchema(3079, SAME_NAMESPACED);
+        param0.addFixer(new BlendingDataFix(var161, "Blending Data Fix v3079"));
+        Schema var162 = param0.addSchema(3081, V3081::new);
+        param0.addFixer(new AddNewChoices(var162, "Added Warden", References.ENTITY));
+        Schema var163 = param0.addSchema(3082, V3082::new);
+        param0.addFixer(new AddNewChoices(var163, "Added Chest Boat", References.ENTITY));
+        Schema var164 = param0.addSchema(3083, V3083::new);
+        param0.addFixer(new AddNewChoices(var164, "Added Allay", References.ENTITY));
+        Schema var165 = param0.addSchema(3084, SAME_NAMESPACED);
+        param0.addFixer(
+            new SimpleRenameFix(
+                var165,
+                References.GAME_EVENT_NAME,
+                ImmutableMap.<String, String>builder()
+                    .put("minecraft:block_press", "minecraft:block_activate")
+                    .put("minecraft:block_switch", "minecraft:block_activate")
+                    .put("minecraft:block_unpress", "minecraft:block_deactivate")
+                    .put("minecraft:block_unswitch", "minecraft:block_deactivate")
+                    .put("minecraft:drinking_finish", "minecraft:drink")
+                    .put("minecraft:elytra_free_fall", "minecraft:elytra_glide")
+                    .put("minecraft:entity_damaged", "minecraft:entity_damage")
+                    .put("minecraft:entity_dying", "minecraft:entity_die")
+                    .put("minecraft:entity_killed", "minecraft:entity_die")
+                    .put("minecraft:mob_interact", "minecraft:entity_interact")
+                    .put("minecraft:ravager_roar", "minecraft:entity_roar")
+                    .put("minecraft:ring_bell", "minecraft:block_change")
+                    .put("minecraft:shulker_close", "minecraft:container_close")
+                    .put("minecraft:shulker_open", "minecraft:container_open")
+                    .put("minecraft:wolf_shaking", "minecraft:entity_shake")
+                    .build()
+            )
+        );
+        Schema var166 = param0.addSchema(3085, SAME_NAMESPACED);
+        param0.addFixer(new BlendingDataFix(var166, "Blending Data Fix v3085"));
+        Schema var167 = param0.addSchema(3086, SAME_NAMESPACED);
+        param0.addFixer(
+            new EntityVariantFix(
+                var167, "Change cat variant type", References.ENTITY, "minecraft:cat", "CatType", Util.make(new Int2ObjectOpenHashMap(), param0x -> {
+                    param0x.defaultReturnValue("minecraft:tabby");
+                    param0x.put(0, "minecraft:tabby");
+                    param0x.put(1, "minecraft:black");
+                    param0x.put(2, "minecraft:red");
+                    param0x.put(3, "minecraft:siamese");
+                    param0x.put(4, "minecraft:british");
+                    param0x.put(5, "minecraft:calico");
+                    param0x.put(6, "minecraft:persian");
+                    param0x.put(7, "minecraft:ragdoll");
+                    param0x.put(8, "minecraft:white");
+                    param0x.put(9, "minecraft:jellie");
+                    param0x.put(10, "minecraft:all_black");
+                })::get
+            )
+        );
+        ImmutableMap<String, String> var168 = ImmutableMap.<String, String>builder()
+            .put("textures/entity/cat/tabby.png", "minecraft:tabby")
+            .put("textures/entity/cat/black.png", "minecraft:black")
+            .put("textures/entity/cat/red.png", "minecraft:red")
+            .put("textures/entity/cat/siamese.png", "minecraft:siamese")
+            .put("textures/entity/cat/british_shorthair.png", "minecraft:british")
+            .put("textures/entity/cat/calico.png", "minecraft:calico")
+            .put("textures/entity/cat/persian.png", "minecraft:persian")
+            .put("textures/entity/cat/ragdoll.png", "minecraft:ragdoll")
+            .put("textures/entity/cat/white.png", "minecraft:white")
+            .put("textures/entity/cat/jellie.png", "minecraft:jellie")
+            .put("textures/entity/cat/all_black.png", "minecraft:all_black")
+            .build();
+        param0.addFixer(
+            new CriteriaRenameFix(
+                var167, "Migrate cat variant advancement", "minecraft:husbandry/complete_catalogue", param1 -> var168.getOrDefault(param1, param1)
+            )
+        );
+        Schema var169 = param0.addSchema(3087, SAME_NAMESPACED);
+        param0.addFixer(
+            new EntityVariantFix(
+                var169, "Change frog variant type", References.ENTITY, "minecraft:frog", "Variant", Util.make(new Int2ObjectOpenHashMap(), param0x -> {
+                    param0x.put(0, "minecraft:temperate");
+                    param0x.put(1, "minecraft:warm");
+                    param0x.put(2, "minecraft:cold");
+                })::get
+            )
+        );
+        Schema var170 = param0.addSchema(3088, SAME_NAMESPACED);
+        param0.addFixer(new BlendingDataFix(var170, "Blending Data Fix v3088"));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

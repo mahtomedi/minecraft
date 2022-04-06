@@ -15,7 +15,7 @@ public class Input {
     public boolean jumping;
     public boolean shiftKeyDown;
 
-    public void tick(boolean param0) {
+    public void tick(boolean param0, float param1) {
     }
 
     public Vec2 getMoveVector() {

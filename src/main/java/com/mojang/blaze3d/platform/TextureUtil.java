@@ -13,7 +13,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.concurrent.ThreadLocalRandom;
-import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -99,27 +98,6 @@ public class TextureUtil {
         }
 
         return var2;
-    }
-
-    @Nullable
-    public static String readResourceAsString(InputStream param0) {
-        RenderSystem.assertOnRenderThread();
-        ByteBuffer var0 = null;
-
-        try {
-            var0 = readResource(param0);
-            int var1 = var0.position();
-            var0.rewind();
-            return MemoryUtil.memASCII(var0, var1);
-        } catch (IOException var7) {
-        } finally {
-            if (var0 != null) {
-                MemoryUtil.memFree(var0);
-            }
-
-        }
-
-        return null;
     }
 
     public static void writeAsPNG(String param0, int param1, int param2, int param3, int param4) {

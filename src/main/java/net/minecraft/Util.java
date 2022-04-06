@@ -28,13 +28,13 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -59,6 +59,7 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.apache.commons.io.IOUtils;
@@ -395,6 +396,10 @@ public class Util {
         return param0;
     }
 
+    public static <T> Supplier<T> name(Supplier<T> param0, Supplier<String> param1) {
+        return param0;
+    }
+
     public static Runnable name(Runnable param0, Supplier<String> param1) {
         return param0;
     }
@@ -446,19 +451,19 @@ public class Util {
         }
     }
 
-    public static <T> T getRandom(T[] param0, Random param1) {
+    public static <T> T getRandom(T[] param0, RandomSource param1) {
         return param0[param1.nextInt(param0.length)];
     }
 
-    public static int getRandom(int[] param0, Random param1) {
+    public static int getRandom(int[] param0, RandomSource param1) {
         return param0[param1.nextInt(param0.length)];
     }
 
-    public static <T> T getRandom(List<T> param0, Random param1) {
+    public static <T> T getRandom(List<T> param0, RandomSource param1) {
         return param0.get(param1.nextInt(param0.size()));
     }
 
-    public static <T> Optional<T> getRandomSafe(List<T> param0, Random param1) {
+    public static <T> Optional<T> getRandomSafe(List<T> param0, RandomSource param1) {
         return param0.isEmpty() ? Optional.empty() : Optional.of(getRandom(param0, param1));
     }
 
@@ -684,6 +689,22 @@ public class Util {
                 return "memoize/2[function=" + param0 + ", size=" + this.cache.size() + "]";
             }
         };
+    }
+
+    public static <T> List<T> shuffledCopy(List<T> param0, RandomSource param1) {
+        List<T> var0 = new ArrayList<>(param0);
+        shuffle(var0, param1);
+        return var0;
+    }
+
+    public static <T> void shuffle(List<T> param0, RandomSource param1) {
+        int var0 = param0.size();
+
+        for(int var1 = var0; var1 > 1; --var1) {
+            int var2 = param1.nextInt(var1);
+            param0.set(var1 - 1, param0.set(var2, param0.get(var1 - 1)));
+        }
+
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

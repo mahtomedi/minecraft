@@ -1,10 +1,10 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,7 +16,7 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
     }
 
     protected void placeTrunk(
-        LevelAccessor param0, Random param1, BlockPos param2, HugeMushroomFeatureConfiguration param3, int param4, BlockPos.MutableBlockPos param5
+        LevelAccessor param0, RandomSource param1, BlockPos param2, HugeMushroomFeatureConfiguration param3, int param4, BlockPos.MutableBlockPos param5
     ) {
         for(int var0 = 0; var0 < param4; ++var0) {
             param5.set(param2).move(Direction.UP, var0);
@@ -27,7 +27,7 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
 
     }
 
-    protected int getTreeHeight(Random param0) {
+    protected int getTreeHeight(RandomSource param0) {
         int var0 = param0.nextInt(3) + 4;
         if (param0.nextInt(12) == 0) {
             var0 *= 2;
@@ -69,7 +69,7 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
     public boolean place(FeaturePlaceContext<HugeMushroomFeatureConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
         BlockPos var1 = param0.origin();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         HugeMushroomFeatureConfiguration var3 = param0.config();
         int var4 = this.getTreeHeight(var2);
         BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
@@ -85,6 +85,6 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
     protected abstract int getTreeRadiusForHeight(int var1, int var2, int var3, int var4);
 
     protected abstract void makeCap(
-        LevelAccessor var1, Random var2, BlockPos var3, int var4, BlockPos.MutableBlockPos var5, HugeMushroomFeatureConfiguration var6
+        LevelAccessor var1, RandomSource var2, BlockPos var3, int var4, BlockPos.MutableBlockPos var5, HugeMushroomFeatureConfiguration var6
     );
 }

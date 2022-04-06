@@ -14,7 +14,7 @@ public class UnderwaterAmbientSoundInstances {
         private final LocalPlayer player;
 
         protected SubSound(LocalPlayer param0, SoundEvent param1) {
-            super(param1, SoundSource.AMBIENT);
+            super(param1, SoundSource.AMBIENT, SoundInstance.createUnseededRandom());
             this.player = param0;
             this.looping = false;
             this.delay = 0;
@@ -38,7 +38,7 @@ public class UnderwaterAmbientSoundInstances {
         private int fade;
 
         public UnderwaterAmbientSoundInstance(LocalPlayer param0) {
-            super(SoundEvents.AMBIENT_UNDERWATER_LOOP, SoundSource.AMBIENT);
+            super(SoundEvents.AMBIENT_UNDERWATER_LOOP, SoundSource.AMBIENT, SoundInstance.createUnseededRandom());
             this.player = param0;
             this.looping = true;
             this.delay = 0;

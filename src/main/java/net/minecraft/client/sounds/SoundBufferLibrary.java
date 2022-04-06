@@ -13,7 +13,6 @@ import java.util.concurrent.CompletionException;
 import net.minecraft.Util;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,19 +29,18 @@ public class SoundBufferLibrary {
     public CompletableFuture<SoundBuffer> getCompleteBuffer(ResourceLocation param0) {
         return this.cache.computeIfAbsent(param0, param0x -> CompletableFuture.supplyAsync(() -> {
                 try {
-                    SoundBuffer var6;
+                    SoundBuffer var5;
                     try (
-                        Resource var0 = this.resourceManager.getResource(param0x);
-                        InputStream var1x = var0.getInputStream();
-                        OggAudioStream var2 = new OggAudioStream(var1x);
+                        InputStream var0 = this.resourceManager.open(param0x);
+                        OggAudioStream var1x = new OggAudioStream(var0);
                     ) {
-                        ByteBuffer var3 = var2.readAll();
-                        var6 = new SoundBuffer(var3, var2.getFormat());
+                        ByteBuffer var2 = var1x.readAll();
+                        var5 = new SoundBuffer(var2, var1x.getFormat());
                     }
 
-                    return var6;
-                } catch (IOException var13) {
-                    throw new CompletionException(var13);
+                    return var5;
+                } catch (IOException var10) {
+                    throw new CompletionException(var10);
                 }
             }, Util.backgroundExecutor()));
     }
@@ -50,11 +48,10 @@ public class SoundBufferLibrary {
     public CompletableFuture<AudioStream> getStream(ResourceLocation param0, boolean param1) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Resource var2x = this.resourceManager.getResource(param0);
-                InputStream var1x = var2x.getInputStream();
+                InputStream var1x = this.resourceManager.open(param0);
                 return (AudioStream)(param1 ? new LoopingAudioStream(OggAudioStream::new, var1x) : new OggAudioStream(var1x));
-            } catch (IOException var5) {
-                throw new CompletionException(var5);
+            } catch (IOException var4) {
+                throw new CompletionException(var4);
             }
         }, Util.backgroundExecutor());
     }

@@ -3,11 +3,9 @@ package net.minecraft.world.entity.ai.goal;
 import java.util.EnumSet;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.pathfinder.Path;
 
 public class MeleeAttackGoal extends Goal {
@@ -43,12 +41,6 @@ public class MeleeAttackGoal extends Goal {
                 return false;
             } else if (!var1.isAlive()) {
                 return false;
-            } else if (this.mob.isPassenger() && this.mob.getRootVehicle() == var1) {
-                return false;
-            } else if (this.mob.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
-                return false;
-            } else if (var1.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL) && var1.isCrouching()) {
-                return false;
             } else {
                 this.path = this.mob.getNavigation().createPath(var1, 0);
                 if (this.path != null) {
@@ -66,12 +58,6 @@ public class MeleeAttackGoal extends Goal {
         if (var0 == null) {
             return false;
         } else if (!var0.isAlive()) {
-            return false;
-        } else if (this.mob.isPassenger() && this.mob.getRootVehicle() == var0) {
-            return false;
-        } else if (this.mob.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
-            return false;
-        } else if (var0.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL) && var0.isCrouching()) {
             return false;
         } else if (!this.followingTargetEvenIfNotSeen) {
             return !this.mob.getNavigation().isDone();

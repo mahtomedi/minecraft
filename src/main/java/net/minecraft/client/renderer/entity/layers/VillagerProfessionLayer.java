@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.io.IOException;
+import java.util.Optional;
 import net.minecraft.Util;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.VillagerHeadModel;
@@ -15,7 +16,6 @@ import net.minecraft.client.resources.metadata.animation.VillagerMetaDataSection
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -81,13 +81,14 @@ public class VillagerProfessionLayer<T extends LivingEntity & VillagerDataHolder
     public <K> VillagerMetaDataSection.Hat getHatData(
         Object2ObjectMap<K, VillagerMetaDataSection.Hat> param0, String param1, DefaultedRegistry<K> param2, K param3
     ) {
-        return param0.computeIfAbsent(param3, param3x -> {
-            try (Resource var0 = this.resourceManager.getResource(this.getResourceLocation(param1, param2.getKey(param3)))) {
-                VillagerMetaDataSection var1x = var0.getMetadata(VillagerMetaDataSection.SERIALIZER);
-                return var1x != null ? var1x.getHat() : VillagerMetaDataSection.Hat.NONE;
-            } catch (IOException var10) {
-                return VillagerMetaDataSection.Hat.NONE;
-            }
-        });
+        return param0.computeIfAbsent(
+            param3, param3x -> this.resourceManager.getResource(this.getResourceLocation(param1, param2.getKey(param3))).flatMap(param0x -> {
+                    try {
+                        return param0x.metadata().getSection(VillagerMetaDataSection.SERIALIZER).map(VillagerMetaDataSection::getHat);
+                    } catch (IOException var2x) {
+                        return Optional.empty();
+                    }
+                }).orElse(VillagerMetaDataSection.Hat.NONE)
+        );
     }
 }

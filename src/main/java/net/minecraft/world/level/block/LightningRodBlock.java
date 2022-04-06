@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -9,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ParticleUtils;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -87,13 +87,13 @@ public class LightningRodBlock extends RodBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(false)), 3);
         this.updateNeighbours(param0, param1, param2);
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param1.isThundering()
             && (long)param1.random.nextInt(200) <= param1.getGameTime() % 200L
             && param2.getY() == param1.getHeight(Heightmap.Types.WORLD_SURFACE, param2.getX(), param2.getZ()) - 1) {

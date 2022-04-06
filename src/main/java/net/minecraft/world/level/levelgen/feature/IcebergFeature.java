@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
@@ -22,7 +22,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
         BlockPos var0 = param0.origin();
         WorldGenLevel var1 = param0.level();
         var0 = new BlockPos(var0.getX(), param0.chunkGenerator().getSeaLevel(), var0.getZ());
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         boolean var3 = var2.nextDouble() > 0.7;
         BlockState var4 = param0.config().state;
         double var5 = var2.nextDouble() * 2.0 * Math.PI;
@@ -73,7 +73,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
     }
 
     private void generateCutOut(
-        Random param0, LevelAccessor param1, int param2, int param3, BlockPos param4, boolean param5, int param6, double param7, int param8
+        RandomSource param0, LevelAccessor param1, int param2, int param3, BlockPos param4, boolean param5, int param6, double param7, int param8
     ) {
         int var0 = param0.nextBoolean() ? -1 : 1;
         int var1 = param0.nextBoolean() ? -1 : 1;
@@ -139,7 +139,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
 
     private void generateIcebergBlock(
         LevelAccessor param0,
-        Random param1,
+        RandomSource param1,
         BlockPos param2,
         int param3,
         int param4,
@@ -169,7 +169,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
     }
 
     private void setIcebergBlock(
-        BlockPos param0, LevelAccessor param1, Random param2, int param3, int param4, boolean param5, boolean param6, BlockState param7
+        BlockPos param0, LevelAccessor param1, RandomSource param2, int param3, int param4, boolean param5, boolean param6, BlockState param7
     ) {
         BlockState var0 = param1.getBlockState(param0);
         if (var0.getMaterial() == Material.AIR || var0.is(Blocks.SNOW_BLOCK) || var0.is(Blocks.ICE) || var0.is(Blocks.WATER)) {
@@ -193,7 +193,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
         return var0;
     }
 
-    private double signedDistanceCircle(int param0, int param1, BlockPos param2, int param3, Random param4) {
+    private double signedDistanceCircle(int param0, int param1, BlockPos param2, int param3, RandomSource param4) {
         float var0 = 10.0F * Mth.clamp(param4.nextFloat(), 0.2F, 0.8F) / (float)param3;
         return (double)var0 + Math.pow((double)(param0 - param2.getX()), 2.0) + Math.pow((double)(param1 - param2.getZ()), 2.0) - Math.pow((double)param3, 2.0);
     }
@@ -204,7 +204,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
             - 1.0;
     }
 
-    private int heightDependentRadiusRound(Random param0, int param1, int param2, int param3) {
+    private int heightDependentRadiusRound(RandomSource param0, int param1, int param2, int param3) {
         float var0 = 3.5F - param0.nextFloat();
         float var1 = (1.0F - (float)Math.pow((double)param1, 2.0) / ((float)param2 * var0)) * (float)param3;
         if (param2 > 15 + param0.nextInt(5)) {
@@ -221,7 +221,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
         return Mth.ceil(var1 / 2.0F);
     }
 
-    private int heightDependentRadiusSteep(Random param0, int param1, int param2, int param3) {
+    private int heightDependentRadiusSteep(RandomSource param0, int param1, int param2, int param3) {
         float var0 = 1.0F + param0.nextFloat() / 2.0F;
         float var1 = (1.0F - (float)param1 / ((float)param2 * var0)) * (float)param3;
         return Mth.ceil(var1 / 2.0F);

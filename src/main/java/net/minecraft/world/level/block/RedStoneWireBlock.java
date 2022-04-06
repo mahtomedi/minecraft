@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.math.Vector3f;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -13,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -222,18 +222,16 @@ public class RedStoneWireBlock extends Block {
             if (var2 != RedstoneSide.NONE && !param1.getBlockState(var0.setWithOffset(param2, var1)).is(this)) {
                 var0.move(Direction.DOWN);
                 BlockState var3 = param1.getBlockState(var0);
-                if (!var3.is(Blocks.OBSERVER)) {
+                if (var3.is(this)) {
                     BlockPos var4 = var0.relative(var1.getOpposite());
-                    BlockState var5 = var3.updateShape(var1.getOpposite(), param1.getBlockState(var4), param1, var0, var4);
-                    updateOrDestroy(var3, var5, param1, var0, param3, param4);
+                    param1.neighborShapeChanged(var1.getOpposite(), param1.getBlockState(var4), var0, var4, param3, param4);
                 }
 
                 var0.setWithOffset(param2, var1).move(Direction.UP);
-                BlockState var6 = param1.getBlockState(var0);
-                if (!var6.is(Blocks.OBSERVER)) {
-                    BlockPos var7 = var0.relative(var1.getOpposite());
-                    BlockState var8 = var6.updateShape(var1.getOpposite(), param1.getBlockState(var7), param1, var0, var7);
-                    updateOrDestroy(var6, var8, param1, var0, param3, param4);
+                BlockState var5 = param1.getBlockState(var0);
+                if (var5.is(this)) {
+                    BlockPos var6 = var0.relative(var1.getOpposite());
+                    param1.neighborShapeChanged(var1.getOpposite(), param1.getBlockState(var6), var0, var6, param3, param4);
                 }
             }
         }
@@ -439,7 +437,7 @@ public class RedStoneWireBlock extends Block {
     }
 
     private void spawnParticlesAlongLine(
-        Level param0, Random param1, BlockPos param2, Vec3 param3, Direction param4, Direction param5, float param6, float param7
+        Level param0, RandomSource param1, BlockPos param2, Vec3 param3, Direction param4, Direction param5, float param6, float param7
     ) {
         float var0 = param7 - param6;
         if (!(param1.nextFloat() >= 0.2F * var0)) {
@@ -461,7 +459,7 @@ public class RedStoneWireBlock extends Block {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         int var0 = param0.getValue(POWER);
         if (var0 != 0) {
             for(Direction var1 : Direction.Plane.HORIZONTAL) {

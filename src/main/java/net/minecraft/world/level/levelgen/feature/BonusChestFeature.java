@@ -1,13 +1,13 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -24,13 +24,11 @@ public class BonusChestFeature extends Feature<NoneFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
-        Random var0 = param0.random();
+        RandomSource var0 = param0.random();
         WorldGenLevel var1 = param0.level();
         ChunkPos var2 = new ChunkPos(param0.origin());
-        List<Integer> var3 = IntStream.rangeClosed(var2.getMinBlockX(), var2.getMaxBlockX()).boxed().collect(Collectors.toList());
-        Collections.shuffle(var3, var0);
-        List<Integer> var4 = IntStream.rangeClosed(var2.getMinBlockZ(), var2.getMaxBlockZ()).boxed().collect(Collectors.toList());
-        Collections.shuffle(var4, var0);
+        List<Integer> var3 = Util.shuffledCopy(IntStream.rangeClosed(var2.getMinBlockX(), var2.getMaxBlockX()).boxed().collect(Collectors.toList()), var0);
+        List<Integer> var4 = Util.shuffledCopy(IntStream.rangeClosed(var2.getMinBlockZ(), var2.getMaxBlockZ()).boxed().collect(Collectors.toList()), var0);
         BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
 
         for(Integer var6 : var3) {

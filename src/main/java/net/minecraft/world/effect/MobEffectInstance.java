@@ -2,15 +2,22 @@ package net.minecraft.world.effect;
 
 import com.google.common.collect.ComparisonChain;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import org.slf4j.Logger;
 
 public class MobEffectInstance implements Comparable<MobEffectInstance> {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final MobEffect effect;
-    private int duration;
+    int duration;
     private int amplifier;
     private boolean ambient;
     private boolean noCounter;
@@ -18,6 +25,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     private boolean showIcon;
     @Nullable
     private MobEffectInstance hiddenEffect;
+    private Optional<MobEffectInstance.FactorData> factorData;
 
     public MobEffectInstance(MobEffect param0) {
         this(param0, 0, 0);
@@ -36,10 +44,19 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     }
 
     public MobEffectInstance(MobEffect param0, int param1, int param2, boolean param3, boolean param4, boolean param5) {
-        this(param0, param1, param2, param3, param4, param5, null);
+        this(param0, param1, param2, param3, param4, param5, null, param0.createFactorData());
     }
 
-    public MobEffectInstance(MobEffect param0, int param1, int param2, boolean param3, boolean param4, boolean param5, @Nullable MobEffectInstance param6) {
+    public MobEffectInstance(
+        MobEffect param0,
+        int param1,
+        int param2,
+        boolean param3,
+        boolean param4,
+        boolean param5,
+        @Nullable MobEffectInstance param6,
+        Optional<MobEffectInstance.FactorData> param7
+    ) {
         this.effect = param0;
         this.duration = param1;
         this.amplifier = param2;
@@ -47,11 +64,17 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         this.visible = param4;
         this.showIcon = param5;
         this.hiddenEffect = param6;
+        this.factorData = param7;
     }
 
     public MobEffectInstance(MobEffectInstance param0) {
         this.effect = param0.effect;
+        this.factorData = this.effect.createFactorData();
         this.setDetailsFrom(param0);
+    }
+
+    public Optional<MobEffectInstance.FactorData> getFactorData() {
+        return this.factorData;
     }
 
     void setDetailsFrom(MobEffectInstance param0) {
@@ -67,21 +90,22 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             LOGGER.warn("This method should only be called for matching effects!");
         }
 
-        boolean var0 = false;
+        int var0 = this.duration;
+        boolean var1 = false;
         if (param0.amplifier > this.amplifier) {
             if (param0.duration < this.duration) {
-                MobEffectInstance var1 = this.hiddenEffect;
+                MobEffectInstance var2 = this.hiddenEffect;
                 this.hiddenEffect = new MobEffectInstance(this);
-                this.hiddenEffect.hiddenEffect = var1;
+                this.hiddenEffect.hiddenEffect = var2;
             }
 
             this.amplifier = param0.amplifier;
             this.duration = param0.duration;
-            var0 = true;
+            var1 = true;
         } else if (param0.duration > this.duration) {
             if (param0.amplifier == this.amplifier) {
                 this.duration = param0.duration;
-                var0 = true;
+                var1 = true;
             } else if (this.hiddenEffect == null) {
                 this.hiddenEffect = new MobEffectInstance(param0);
             } else {
@@ -89,22 +113,27 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             }
         }
 
-        if (!param0.ambient && this.ambient || var0) {
+        if (!param0.ambient && this.ambient || var1) {
             this.ambient = param0.ambient;
-            var0 = true;
+            var1 = true;
         }
 
         if (param0.visible != this.visible) {
             this.visible = param0.visible;
-            var0 = true;
+            var1 = true;
         }
 
         if (param0.showIcon != this.showIcon) {
             this.showIcon = param0.showIcon;
-            var0 = true;
+            var1 = true;
         }
 
-        return var0;
+        if (var0 != this.duration) {
+            this.factorData.ifPresent(param1 -> param1.effectChangedTimestamp += this.duration - var0);
+            var1 = true;
+        }
+
+        return var1;
     }
 
     public MobEffect getEffect() {
@@ -145,6 +174,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             }
         }
 
+        this.factorData.ifPresent(param0x -> param0x.update(this));
         return this.duration > 0;
     }
 
@@ -208,7 +238,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     }
 
     public CompoundTag save(CompoundTag param0) {
-        param0.putByte("Id", (byte)MobEffect.getId(this.getEffect()));
+        param0.putInt("Id", MobEffect.getId(this.getEffect()));
         this.writeDetailsTo(param0);
         return param0;
     }
@@ -225,11 +255,18 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             param0.put("HiddenEffect", var0);
         }
 
+        this.factorData
+            .ifPresent(
+                param1 -> MobEffectInstance.FactorData.CODEC
+                        .encodeStart(NbtOps.INSTANCE, param1)
+                        .resultOrPartial(LOGGER::error)
+                        .ifPresent(param1x -> param0.put("FactorCalculationData", param1x))
+            );
     }
 
     @Nullable
     public static MobEffectInstance load(CompoundTag param0) {
-        int var0 = param0.getByte("Id");
+        int var0 = param0.getInt("Id");
         MobEffect var1 = MobEffect.byId(var0);
         return var1 == null ? null : loadSpecifiedEffect(var1, param0);
     }
@@ -253,7 +290,16 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             var5 = loadSpecifiedEffect(param0, param1.getCompound("HiddenEffect"));
         }
 
-        return new MobEffectInstance(param0, var1, var0 < 0 ? 0 : var0, var2, var3, var4, var5);
+        Optional<MobEffectInstance.FactorData> var6;
+        if (param1.contains("FactorCalculationData", 10)) {
+            var6 = MobEffectInstance.FactorData.CODEC
+                .parse(new Dynamic<>(NbtOps.INSTANCE, param1.getCompound("FactorCalculationData")))
+                .resultOrPartial(LOGGER::error);
+        } else {
+            var6 = Optional.empty();
+        }
+
+        return new MobEffectInstance(param0, var1, Math.max(var0, 0), var2, var3, var4, var5, var6);
     }
 
     public void setNoCounter(boolean param0) {
@@ -276,5 +322,61 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
                 .compare(this.isAmbient(), param0.isAmbient())
                 .compare(this.getEffect().getColor(), param0.getEffect().getColor())
                 .result();
+    }
+
+    public static class FactorData {
+        public static final Codec<MobEffectInstance.FactorData> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("padding_duration").forGetter(param0x -> param0x.paddingDuration),
+                        Codec.FLOAT.fieldOf("factor_target").orElse(1.0F).forGetter(param0x -> param0x.factorTarget),
+                        Codec.FLOAT.fieldOf("factor_current").orElse(0.0F).forGetter(param0x -> param0x.factorCurrent),
+                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("effect_changed_timestamp").orElse(0).forGetter(param0x -> param0x.effectChangedTimestamp),
+                        Codec.FLOAT.fieldOf("factor_previous_frame").orElse(0.0F).forGetter(param0x -> param0x.factorPreviousFrame),
+                        Codec.BOOL.fieldOf("had_effect_last_tick").orElse(false).forGetter(param0x -> param0x.hadEffectLastTick)
+                    )
+                    .apply(param0, MobEffectInstance.FactorData::new)
+        );
+        private int paddingDuration;
+        private float factorTarget;
+        private float factorCurrent;
+        int effectChangedTimestamp;
+        private float factorPreviousFrame;
+        private boolean hadEffectLastTick;
+
+        public FactorData(int param0, float param1, float param2, int param3, float param4, boolean param5) {
+            this.paddingDuration = param0;
+            this.factorTarget = param1;
+            this.factorCurrent = param2;
+            this.effectChangedTimestamp = param3;
+            this.factorPreviousFrame = param4;
+            this.hadEffectLastTick = param5;
+        }
+
+        public FactorData(int param0) {
+            this(param0, 1.0F, 0.0F, 0, 0.0F, false);
+        }
+
+        public void update(MobEffectInstance param0) {
+            this.factorPreviousFrame = this.factorCurrent;
+            boolean var0 = param0.duration > this.paddingDuration;
+            if (this.hadEffectLastTick) {
+                if (!var0) {
+                    this.effectChangedTimestamp = param0.duration;
+                    this.hadEffectLastTick = false;
+                    this.factorTarget = 0.0F;
+                }
+            } else if (var0) {
+                this.effectChangedTimestamp = param0.duration;
+                this.hadEffectLastTick = true;
+                this.factorTarget = 1.0F;
+            }
+
+            float var1 = Mth.clamp(((float)this.effectChangedTimestamp - (float)param0.duration) / (float)this.paddingDuration, 0.0F, 1.0F);
+            this.factorCurrent = Mth.lerp(var1, this.factorCurrent, this.factorTarget);
+        }
+
+        public float getFactor(float param0) {
+            return Mth.lerp(param0, this.factorPreviousFrame, this.factorCurrent);
+        }
     }
 }

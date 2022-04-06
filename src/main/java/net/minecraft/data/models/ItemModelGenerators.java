@@ -30,8 +30,25 @@ public class ItemModelGenerators {
         param2.create(ModelLocationUtils.getModelLocation(param0), TextureMapping.layer0(param1), this.output);
     }
 
+    private void generateCompassItem(Item param0) {
+        for(int var0 = 0; var0 < 32; ++var0) {
+            if (var0 != 16) {
+                this.generateFlatItem(param0, String.format("_%02d", var0), ModelTemplates.FLAT_ITEM);
+            }
+        }
+
+    }
+
+    private void generateClockItem(Item param0) {
+        for(int var0 = 1; var0 < 64; ++var0) {
+            this.generateFlatItem(param0, String.format("_%02d", var0), ModelTemplates.FLAT_ITEM);
+        }
+
+    }
+
     public void run() {
         this.generateFlatItem(Items.ACACIA_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.ACACIA_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.AMETHYST_SHARD, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.APPLE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.ARMOR_STAND, ModelTemplates.FLAT_ITEM);
@@ -42,6 +59,7 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.BEETROOT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.BEETROOT_SOUP, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.BIRCH_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.BIRCH_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.BLACK_DYE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.BLAZE_POWDER, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.BLAZE_ROD, ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -64,21 +82,12 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.CHICKEN, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.CHORUS_FRUIT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.CLAY_BALL, ModelTemplates.FLAT_ITEM);
-
-        for(int var0 = 1; var0 < 64; ++var0) {
-            this.generateFlatItem(Items.CLOCK, String.format("_%02d", var0), ModelTemplates.FLAT_ITEM);
-        }
-
+        this.generateClockItem(Items.CLOCK);
         this.generateFlatItem(Items.COAL, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.COD_BUCKET, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.COMMAND_BLOCK_MINECART, ModelTemplates.FLAT_ITEM);
-
-        for(int var1 = 0; var1 < 32; ++var1) {
-            if (var1 != 16) {
-                this.generateFlatItem(Items.COMPASS, String.format("_%02d", var1), ModelTemplates.FLAT_ITEM);
-            }
-        }
-
+        this.generateCompassItem(Items.COMPASS);
+        this.generateCompassItem(Items.RECOVERY_COMPASS);
         this.generateFlatItem(Items.COOKED_BEEF, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.COOKED_CHICKEN, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.COOKED_COD, ModelTemplates.FLAT_ITEM);
@@ -92,6 +101,7 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.CREEPER_BANNER_PATTERN, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.CYAN_DYE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.DARK_OAK_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.DARK_OAK_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.DIAMOND, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.DIAMOND_AXE, ModelTemplates.FLAT_HANDHELD_ITEM);
         this.generateFlatItem(Items.DIAMOND_BOOTS, ModelTemplates.FLAT_ITEM);
@@ -165,6 +175,7 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.IRON_SWORD, ModelTemplates.FLAT_HANDHELD_ITEM);
         this.generateFlatItem(Items.ITEM_FRAME, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.JUNGLE_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.JUNGLE_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.KNOWLEDGE_BOOK, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.LAPIS_LAZULI, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.LAVA_BUCKET, ModelTemplates.FLAT_ITEM);
@@ -175,6 +186,8 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.LIME_DYE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.MAGENTA_DYE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.MAGMA_CREAM, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.MANGROVE_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.MANGROVE_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.MAP, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.MELON_SLICE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.MILK_BUCKET, ModelTemplates.FLAT_ITEM);
@@ -212,6 +225,7 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.NETHER_BRICK, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.NETHER_STAR, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.OAK_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.OAK_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.ORANGE_DYE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.PAINTING, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.PAPER, ModelTemplates.FLAT_ITEM);
@@ -244,9 +258,11 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.SKULL_BANNER_PATTERN, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.SLIME_BALL, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.SNOWBALL, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.ECHO_SHARD, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.SPECTRAL_ARROW, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.SPIDER_EYE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.SPRUCE_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.SPRUCE_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.SPYGLASS, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.STICK, ModelTemplates.FLAT_HANDHELD_ITEM);
         this.generateFlatItem(Items.STONE_AXE, ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -262,6 +278,7 @@ public class ItemModelGenerators {
         this.generateFlatItem(Items.TROPICAL_FISH, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.TROPICAL_FISH_BUCKET, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.AXOLOTL_BUCKET, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.TADPOLE_BUCKET, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.TURTLE_HELMET, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.WATER_BUCKET, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.WHEAT, ModelTemplates.FLAT_ITEM);

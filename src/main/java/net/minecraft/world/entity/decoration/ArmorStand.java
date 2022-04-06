@@ -149,13 +149,12 @@ public class ArmorStand extends LivingEntity {
     @Override
     public void setItemSlot(EquipmentSlot param0, ItemStack param1) {
         this.verifyEquippedItem(param1);
+        this.equipEventAndSound(param1, true);
         switch(param0.getType()) {
             case HAND:
-                this.equipEventAndSound(param1);
                 this.handItems.set(param0.getIndex(), param1);
                 break;
             case ARMOR:
-                this.equipEventAndSound(param1);
                 this.armorItems.set(param0.getIndex(), param1);
         }
 
@@ -428,7 +427,7 @@ public class ArmorStand extends LivingEntity {
                 long var3 = this.level.getGameTime();
                 if (var3 - this.lastHit > 5L && !var0) {
                     this.level.broadcastEntityEvent(this, (byte)32);
-                    this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
+                    this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
                     this.lastHit = var3;
                 } else {
                     this.brokenByPlayer(param0);
@@ -491,7 +490,7 @@ public class ArmorStand extends LivingEntity {
             this.kill();
         } else {
             this.setHealth(var0);
-            this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
+            this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
         }
 
     }
@@ -617,6 +616,7 @@ public class ArmorStand extends LivingEntity {
     @Override
     public void kill() {
         this.remove(Entity.RemovalReason.KILLED);
+        this.gameEvent(GameEvent.ENTITY_DIE);
     }
 
     @Override

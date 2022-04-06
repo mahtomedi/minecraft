@@ -11,10 +11,9 @@ import net.minecraft.core.Registry;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,7 +32,7 @@ public class FlatLevelSource extends ChunkGenerator {
     private final FlatLevelGeneratorSettings settings;
 
     public FlatLevelSource(Registry<StructureSet> param0, FlatLevelGeneratorSettings param1) {
-        super(param0, param1.structureOverrides(), new FixedBiomeSource(param1.getBiomeFromSettings()), new FixedBiomeSource(param1.getBiome()), 0L);
+        super(param0, param1.structureOverrides(), new FixedBiomeSource(param1.getBiomeFromSettings()), new FixedBiomeSource(param1.getBiome()));
         this.settings = param1;
     }
 
@@ -42,17 +41,12 @@ public class FlatLevelSource extends ChunkGenerator {
         return CODEC;
     }
 
-    @Override
-    public ChunkGenerator withSeed(long param0) {
-        return this;
-    }
-
     public FlatLevelGeneratorSettings settings() {
         return this.settings;
     }
 
     @Override
-    public void buildSurface(WorldGenRegion param0, StructureFeatureManager param1, ChunkAccess param2) {
+    public void buildSurface(WorldGenRegion param0, StructureManager param1, RandomState param2, ChunkAccess param3) {
     }
 
     @Override
@@ -66,20 +60,20 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, Blender param1, StructureFeatureManager param2, ChunkAccess param3) {
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor param0, Blender param1, RandomState param2, StructureManager param3, ChunkAccess param4) {
         List<BlockState> var0 = this.settings.getLayers();
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-        Heightmap var2 = param3.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
-        Heightmap var3 = param3.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        Heightmap var2 = param4.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap var3 = param4.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
 
-        for(int var4 = 0; var4 < Math.min(param3.getHeight(), var0.size()); ++var4) {
+        for(int var4 = 0; var4 < Math.min(param4.getHeight(), var0.size()); ++var4) {
             BlockState var5 = var0.get(var4);
             if (var5 != null) {
-                int var6 = param3.getMinBuildHeight() + var4;
+                int var6 = param4.getMinBuildHeight() + var4;
 
                 for(int var7 = 0; var7 < 16; ++var7) {
                     for(int var8 = 0; var8 < 16; ++var8) {
-                        param3.setBlockState(var1.set(var7, var6, var8), var5, false);
+                        param4.setBlockState(var1.set(var7, var6, var8), var5, false);
                         var2.update(var7, var6, var8, var5);
                         var3.update(var7, var6, var8, var5);
                     }
@@ -87,11 +81,11 @@ public class FlatLevelSource extends ChunkGenerator {
             }
         }
 
-        return CompletableFuture.completedFuture(param3);
+        return CompletableFuture.completedFuture(param4);
     }
 
     @Override
-    public int getBaseHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3) {
+    public int getBaseHeight(int param0, int param1, Heightmap.Types param2, LevelHeightAccessor param3, RandomState param4) {
         List<BlockState> var0 = this.settings.getLayers();
 
         for(int var1 = Math.min(var0.size(), param3.getMaxBuildHeight()) - 1; var1 >= 0; --var1) {
@@ -105,7 +99,7 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public NoiseColumn getBaseColumn(int param0, int param1, LevelHeightAccessor param2) {
+    public NoiseColumn getBaseColumn(int param0, int param1, LevelHeightAccessor param2, RandomState param3) {
         return new NoiseColumn(
             param2.getMinBuildHeight(),
             this.settings
@@ -118,17 +112,12 @@ public class FlatLevelSource extends ChunkGenerator {
     }
 
     @Override
-    public void addDebugScreenInfo(List<String> param0, BlockPos param1) {
-    }
-
-    @Override
-    public Climate.Sampler climateSampler() {
-        return Climate.empty();
+    public void addDebugScreenInfo(List<String> param0, RandomState param1, BlockPos param2) {
     }
 
     @Override
     public void applyCarvers(
-        WorldGenRegion param0, long param1, BiomeManager param2, StructureFeatureManager param3, ChunkAccess param4, GenerationStep.Carving param5
+        WorldGenRegion param0, long param1, RandomState param2, BiomeManager param3, StructureManager param4, ChunkAccess param5, GenerationStep.Carving param6
     ) {
     }
 

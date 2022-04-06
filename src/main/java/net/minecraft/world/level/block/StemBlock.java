@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -54,7 +54,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param1.getRawBrightness(param2, 0) >= 9) {
             float var0 = CropBlock.getGrowthSpeed(this, param1, param2);
             if (param3.nextInt((int)(25.0F / var0) + 1) == 0) {
@@ -87,12 +87,12 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         int var0 = Math.min(7, param3.getValue(AGE) + Mth.nextInt(param0.random, 2, 5));
         BlockState var1 = param3.setValue(AGE, Integer.valueOf(var0));
         param0.setBlock(param2, var1, 2);

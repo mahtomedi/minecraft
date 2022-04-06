@@ -12,6 +12,7 @@ public abstract class Biomes {
     public static final ResourceKey<Biome> ICE_SPIKES = register("ice_spikes");
     public static final ResourceKey<Biome> DESERT = register("desert");
     public static final ResourceKey<Biome> SWAMP = register("swamp");
+    public static final ResourceKey<Biome> MANGROVE_SWAMP = register("mangrove_swamp");
     public static final ResourceKey<Biome> FOREST = register("forest");
     public static final ResourceKey<Biome> FLOWER_FOREST = register("flower_forest");
     public static final ResourceKey<Biome> BIRCH_FOREST = register("birch_forest");
@@ -56,6 +57,7 @@ public abstract class Biomes {
     public static final ResourceKey<Biome> MUSHROOM_FIELDS = register("mushroom_fields");
     public static final ResourceKey<Biome> DRIPSTONE_CAVES = register("dripstone_caves");
     public static final ResourceKey<Biome> LUSH_CAVES = register("lush_caves");
+    public static final ResourceKey<Biome> DEEP_DARK = register("deep_dark");
     public static final ResourceKey<Biome> NETHER_WASTES = register("nether_wastes");
     public static final ResourceKey<Biome> WARPED_FOREST = register("warped_forest");
     public static final ResourceKey<Biome> CRIMSON_FOREST = register("crimson_forest");

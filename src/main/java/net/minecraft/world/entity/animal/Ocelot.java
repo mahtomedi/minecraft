@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.animal;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -13,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -241,7 +241,7 @@ public class Ocelot extends Animal {
         return TEMPT_INGREDIENT.test(param0);
     }
 
-    public static boolean checkOcelotSpawnRules(EntityType<Ocelot> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkOcelotSpawnRules(EntityType<Ocelot> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return param4.nextInt(3) != 0;
     }
 

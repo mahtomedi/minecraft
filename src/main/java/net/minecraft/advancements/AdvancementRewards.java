@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -66,7 +67,11 @@ public class AdvancementRewards {
                         );
                     var1 = true;
                 } else {
-                    param0.drop(var3, false);
+                    ItemEntity var4 = param0.drop(var3, false);
+                    if (var4 != null) {
+                        var4.setNoPickUpDelay();
+                        var4.setOwner(param0.getUUID());
+                    }
                 }
             }
         }
@@ -79,10 +84,10 @@ public class AdvancementRewards {
             param0.awardRecipesByKey(this.recipes);
         }
 
-        MinecraftServer var4 = param0.server;
+        MinecraftServer var5 = param0.server;
         this.function
-            .get(var4.getFunctions())
-            .ifPresent(param2 -> var4.getFunctions().execute(param2, param0.createCommandSourceStack().withSuppressedOutput().withPermission(2)));
+            .get(var5.getFunctions())
+            .ifPresent(param2 -> var5.getFunctions().execute(param2, param0.createCommandSourceStack().withSuppressedOutput().withPermission(2)));
     }
 
     @Override

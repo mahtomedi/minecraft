@@ -1,11 +1,11 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.CarvingMask;
@@ -17,7 +17,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         super(param0);
     }
 
-    public boolean isStartChunk(CanyonCarverConfiguration param0, Random param1) {
+    public boolean isStartChunk(CanyonCarverConfiguration param0, RandomSource param1) {
         return param1.nextFloat() <= param0.probability;
     }
 
@@ -26,7 +26,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         CanyonCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Holder<Biome>> param3,
-        Random param4,
+        RandomSource param4,
         Aquifer param5,
         ChunkPos param6,
         CarvingMask param7
@@ -63,7 +63,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         double param14,
         CarvingMask param15
     ) {
-        Random var0 = new Random(param4);
+        RandomSource var0 = RandomSource.create(param4);
         float[] var1 = this.initWidthFactors(param0, param1, var0);
         float var2 = 0.0F;
         float var3 = 0.0F;
@@ -109,7 +109,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
 
     }
 
-    private float[] initWidthFactors(CarvingContext param0, CanyonCarverConfiguration param1, Random param2) {
+    private float[] initWidthFactors(CarvingContext param0, CanyonCarverConfiguration param1, RandomSource param2) {
         int var0 = param0.getGenDepth();
         float[] var1 = new float[var0];
         float var2 = 1.0F;
@@ -125,7 +125,7 @@ public class CanyonWorldCarver extends WorldCarver<CanyonCarverConfiguration> {
         return var1;
     }
 
-    private double updateVerticalRadius(CanyonCarverConfiguration param0, Random param1, double param2, float param3, float param4) {
+    private double updateVerticalRadius(CanyonCarverConfiguration param0, RandomSource param1, double param2, float param3, float param4) {
         float var0 = 1.0F - Mth.abs(0.5F - param4 / param3) * 2.0F;
         float var1 = param0.shape.verticalRadiusDefaultFactor + param0.shape.verticalRadiusCenterFactor * var0;
         return (double)var1 * param2 * (double)Mth.randomBetween(param1, 0.75F, 1.0F);

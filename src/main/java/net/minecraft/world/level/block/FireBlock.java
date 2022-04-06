@@ -1,29 +1,18 @@
 package net.minecraft.world.level.block;
 
-import com.google.common.base.Suppliers;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.CarriedBlocks;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -57,28 +46,16 @@ public class FireBlock extends BaseFireBlock {
     private static final VoxelShape NORTH_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 1.0);
     private static final VoxelShape SOUTH_AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
     private final Map<BlockState, VoxelShape> shapesCache;
-    private static final int FLAME_INSTANT = 60;
-    private static final int FLAME_EASY = 30;
-    private static final int FLAME_MEDIUM = 15;
-    protected static final int FLAME_HARD = 5;
+    private static final int IGNITE_INSTANT = 60;
+    private static final int IGNITE_EASY = 30;
+    private static final int IGNITE_MEDIUM = 15;
+    private static final int IGNITE_HARD = 5;
     private static final int BURN_INSTANT = 100;
     private static final int BURN_EASY = 60;
     private static final int BURN_MEDIUM = 20;
     private static final int BURN_HARD = 5;
-    private final Object2IntMap<Block> flameOdds = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<Block> igniteOdds = new Object2IntOpenHashMap<>();
     private final Object2IntMap<Block> burnOdds = new Object2IntOpenHashMap<>();
-    private final Supplier<BiMap<Block, Tuple<Double, Block>>> fireInteractions = Suppliers.memoize(
-        () -> ImmutableBiMap.<Block, Tuple<Double, Block>>builder()
-                .put(Blocks.SAND, new Tuple<>(0.5, Blocks.GLASS))
-                .put(Blocks.CLAY, new Tuple<>(0.5, Blocks.BRICKS))
-                .put(Blocks.COAL_ORE, new Tuple<>(0.75, Blocks.SOUL_FIRE))
-                .put(Blocks.GRASS, new Tuple<>(0.15, Blocks.FIRE))
-                .put(Blocks.TALL_GRASS, new Tuple<>(0.15, Blocks.FIRE))
-                .put(Blocks.MUSHROOM_STEM, new Tuple<>(0.05, Blocks.SHROOMLIGHT))
-                .put(Blocks.RED_MUSHROOM_BLOCK, new Tuple<>(0.05, Blocks.SHROOMLIGHT))
-                .put(Blocks.BROWN_MUSHROOM_BLOCK, new Tuple<>(0.05, Blocks.SHROOMLIGHT))
-                .build()
-    );
 
     public FireBlock(BlockBehaviour.Properties param0) {
         super(param0, 1.0F);
@@ -167,7 +144,7 @@ public class FireBlock extends BaseFireBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         param1.scheduleTick(param2, this, getFireTickDelay(param1.random));
         if (param1.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
             if (!param0.canSurvive(param1, param2)) {
@@ -184,34 +161,12 @@ public class FireBlock extends BaseFireBlock {
                 if (var2 != var3) {
                     param0 = param0.setValue(AGE, Integer.valueOf(var3));
                     param1.setBlock(param2, param0, 4);
-
-                    for(Direction var4 : Direction.values()) {
-                        BlockPos var5 = param2.relative(var4);
-                        BlockState var6 = param1.getBlockState(var5);
-                        Block var7 = var6.getBlock();
-                        ItemStack var8 = CarriedBlocks.getItemStackFromBlock(var6);
-                        if (!var8.isEmpty()) {
-                            Optional<SmeltingRecipe> var9 = param1.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SimpleContainer(var8), param1);
-                            Optional<BlockState> var10 = var9.flatMap(param0x -> CarriedBlocks.getBlockFromItemStack(param0x.getResultItem()));
-                            if (var10.isPresent()) {
-                                param1.setBlock(var5, var10.get(), 3);
-                                continue;
-                            }
-                        }
-
-                        if (this.fireInteractions.get().containsKey(var7)) {
-                            Tuple<Double, Block> var11 = this.fireInteractions.get().get(var7);
-                            if (param1.random.nextDouble() > var11.getA()) {
-                                param1.setBlock(var5, var11.getB().defaultBlockState(), 3);
-                            }
-                        }
-                    }
                 }
 
                 if (!var1) {
                     if (!this.isValidFireLocation(param1, param2)) {
-                        BlockPos var12 = param2.below();
-                        if (!param1.getBlockState(var12).isFaceSturdy(param1, var12, Direction.UP) || var2 > 3) {
+                        BlockPos var4 = param2.below();
+                        if (!param1.getBlockState(var4).isFaceSturdy(param1, var4, Direction.UP) || var2 > 3) {
                             param1.removeBlock(param2, false);
                         }
 
@@ -224,36 +179,36 @@ public class FireBlock extends BaseFireBlock {
                     }
                 }
 
-                boolean var13 = param1.isHumidAt(param2);
-                int var14 = var13 ? -50 : 0;
-                this.checkBurnOut(param1, param2.east(), 300 + var14, param3, var2);
-                this.checkBurnOut(param1, param2.west(), 300 + var14, param3, var2);
-                this.checkBurnOut(param1, param2.below(), 250 + var14, param3, var2);
-                this.checkBurnOut(param1, param2.above(), 250 + var14, param3, var2);
-                this.checkBurnOut(param1, param2.north(), 300 + var14, param3, var2);
-                this.checkBurnOut(param1, param2.south(), 300 + var14, param3, var2);
-                BlockPos.MutableBlockPos var15 = new BlockPos.MutableBlockPos();
+                boolean var5 = param1.isHumidAt(param2);
+                int var6 = var5 ? -50 : 0;
+                this.checkBurnOut(param1, param2.east(), 300 + var6, param3, var2);
+                this.checkBurnOut(param1, param2.west(), 300 + var6, param3, var2);
+                this.checkBurnOut(param1, param2.below(), 250 + var6, param3, var2);
+                this.checkBurnOut(param1, param2.above(), 250 + var6, param3, var2);
+                this.checkBurnOut(param1, param2.north(), 300 + var6, param3, var2);
+                this.checkBurnOut(param1, param2.south(), 300 + var6, param3, var2);
+                BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
 
-                for(int var16 = -1; var16 <= 1; ++var16) {
-                    for(int var17 = -1; var17 <= 1; ++var17) {
-                        for(int var18 = -1; var18 <= 4; ++var18) {
-                            if (var16 != 0 || var18 != 0 || var17 != 0) {
-                                int var19 = 100;
-                                if (var18 > 1) {
-                                    var19 += (var18 - 1) * 100;
+                for(int var8 = -1; var8 <= 1; ++var8) {
+                    for(int var9 = -1; var9 <= 1; ++var9) {
+                        for(int var10 = -1; var10 <= 4; ++var10) {
+                            if (var8 != 0 || var10 != 0 || var9 != 0) {
+                                int var11 = 100;
+                                if (var10 > 1) {
+                                    var11 += (var10 - 1) * 100;
                                 }
 
-                                var15.setWithOffset(param2, var16, var18, var17);
-                                int var20 = this.getFireOdds(param1, var15);
-                                if (var20 > 0) {
-                                    int var21 = (var20 + 40 + param1.getDifficulty().getId() * 7) / (var2 + 30);
-                                    if (var13) {
-                                        var21 /= 2;
+                                var7.setWithOffset(param2, var8, var10, var9);
+                                int var12 = this.getIgniteOdds(param1, var7);
+                                if (var12 > 0) {
+                                    int var13 = (var12 + 40 + param1.getDifficulty().getId() * 7) / (var2 + 30);
+                                    if (var5) {
+                                        var13 /= 2;
                                     }
 
-                                    if (var21 > 0 && param3.nextInt(var19) <= var21 && (!param1.isRaining() || !this.isNearRain(param1, var15))) {
-                                        int var22 = Math.min(15, var2 + param3.nextInt(5) / 4);
-                                        param1.setBlock(var15, this.getStateWithAge(param1, var15, var22), 3);
+                                    if (var13 > 0 && param3.nextInt(var11) <= var13 && (!param1.isRaining() || !this.isNearRain(param1, var7))) {
+                                        int var14 = Math.min(15, var2 + param3.nextInt(5) / 4);
+                                        param1.setBlock(var7, this.getStateWithAge(param1, var7, var14), 3);
                                     }
                                 }
                             }
@@ -273,20 +228,20 @@ public class FireBlock extends BaseFireBlock {
             || param0.isRainingAt(param1.south());
     }
 
-    private int getBurnOdd(BlockState param0) {
+    private int getBurnOdds(BlockState param0) {
         return param0.hasProperty(BlockStateProperties.WATERLOGGED) && param0.getValue(BlockStateProperties.WATERLOGGED)
             ? 0
             : this.burnOdds.getInt(param0.getBlock());
     }
 
-    public int getFlameOdds(BlockState param0) {
+    private int getIgniteOdds(BlockState param0) {
         return param0.hasProperty(BlockStateProperties.WATERLOGGED) && param0.getValue(BlockStateProperties.WATERLOGGED)
             ? 0
-            : this.flameOdds.getInt(param0.getBlock());
+            : this.igniteOdds.getInt(param0.getBlock());
     }
 
-    private void checkBurnOut(Level param0, BlockPos param1, int param2, Random param3, int param4) {
-        int var0 = this.getBurnOdd(param0.getBlockState(param1));
+    private void checkBurnOut(Level param0, BlockPos param1, int param2, RandomSource param3, int param4) {
+        int var0 = this.getBurnOdds(param0.getBlockState(param1));
         if (param3.nextInt(param2) < var0) {
             BlockState var1 = param0.getBlockState(param1);
             if (param3.nextInt(param4 + 10) < 5 && !param0.isRainingAt(param1)) {
@@ -319,7 +274,7 @@ public class FireBlock extends BaseFireBlock {
         return false;
     }
 
-    private int getFireOdds(LevelReader param0, BlockPos param1) {
+    private int getIgniteOdds(LevelReader param0, BlockPos param1) {
         if (!param0.isEmptyBlock(param1)) {
             return 0;
         } else {
@@ -327,7 +282,7 @@ public class FireBlock extends BaseFireBlock {
 
             for(Direction var1 : Direction.values()) {
                 BlockState var2 = param0.getBlockState(param1.relative(var1));
-                var0 = Math.max(this.getFlameOdds(var2), var0);
+                var0 = Math.max(this.getIgniteOdds(var2), var0);
             }
 
             return var0;
@@ -336,7 +291,7 @@ public class FireBlock extends BaseFireBlock {
 
     @Override
     protected boolean canBurn(BlockState param0) {
-        return this.getFlameOdds(param0) > 0;
+        return this.getIgniteOdds(param0) > 0;
     }
 
     @Override
@@ -345,7 +300,7 @@ public class FireBlock extends BaseFireBlock {
         param1.scheduleTick(param2, this, getFireTickDelay(param1.random));
     }
 
-    private static int getFireTickDelay(Random param0) {
+    private static int getFireTickDelay(RandomSource param0) {
         return 30 + param0.nextInt(10);
     }
 
@@ -355,7 +310,7 @@ public class FireBlock extends BaseFireBlock {
     }
 
     private void setFlammable(Block param0, int param1, int param2) {
-        this.flameOdds.put(param0, param1);
+        this.igniteOdds.put(param0, param1);
         this.burnOdds.put(param0, param2);
     }
 
@@ -367,60 +322,71 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.JUNGLE_PLANKS, 5, 20);
         var0.setFlammable(Blocks.ACACIA_PLANKS, 5, 20);
         var0.setFlammable(Blocks.DARK_OAK_PLANKS, 5, 20);
+        var0.setFlammable(Blocks.MANGROVE_PLANKS, 5, 20);
         var0.setFlammable(Blocks.OAK_SLAB, 5, 20);
         var0.setFlammable(Blocks.SPRUCE_SLAB, 5, 20);
         var0.setFlammable(Blocks.BIRCH_SLAB, 5, 20);
         var0.setFlammable(Blocks.JUNGLE_SLAB, 5, 20);
         var0.setFlammable(Blocks.ACACIA_SLAB, 5, 20);
         var0.setFlammable(Blocks.DARK_OAK_SLAB, 5, 20);
+        var0.setFlammable(Blocks.MANGROVE_SLAB, 5, 20);
         var0.setFlammable(Blocks.OAK_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.SPRUCE_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.BIRCH_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.JUNGLE_FENCE_GATE, 5, 20);
-        var0.setFlammable(Blocks.DARK_OAK_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.ACACIA_FENCE_GATE, 5, 20);
+        var0.setFlammable(Blocks.DARK_OAK_FENCE_GATE, 5, 20);
+        var0.setFlammable(Blocks.MANGROVE_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.OAK_FENCE, 5, 20);
         var0.setFlammable(Blocks.SPRUCE_FENCE, 5, 20);
         var0.setFlammable(Blocks.BIRCH_FENCE, 5, 20);
         var0.setFlammable(Blocks.JUNGLE_FENCE, 5, 20);
-        var0.setFlammable(Blocks.DARK_OAK_FENCE, 5, 20);
         var0.setFlammable(Blocks.ACACIA_FENCE, 5, 20);
+        var0.setFlammable(Blocks.DARK_OAK_FENCE, 5, 20);
+        var0.setFlammable(Blocks.MANGROVE_FENCE, 5, 20);
         var0.setFlammable(Blocks.OAK_STAIRS, 5, 20);
         var0.setFlammable(Blocks.BIRCH_STAIRS, 5, 20);
         var0.setFlammable(Blocks.SPRUCE_STAIRS, 5, 20);
         var0.setFlammable(Blocks.JUNGLE_STAIRS, 5, 20);
         var0.setFlammable(Blocks.ACACIA_STAIRS, 5, 20);
         var0.setFlammable(Blocks.DARK_OAK_STAIRS, 5, 20);
+        var0.setFlammable(Blocks.MANGROVE_STAIRS, 5, 20);
         var0.setFlammable(Blocks.OAK_LOG, 5, 5);
         var0.setFlammable(Blocks.SPRUCE_LOG, 5, 5);
         var0.setFlammable(Blocks.BIRCH_LOG, 5, 5);
         var0.setFlammable(Blocks.JUNGLE_LOG, 5, 5);
         var0.setFlammable(Blocks.ACACIA_LOG, 5, 5);
         var0.setFlammable(Blocks.DARK_OAK_LOG, 5, 5);
+        var0.setFlammable(Blocks.MANGROVE_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_OAK_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_SPRUCE_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_BIRCH_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_JUNGLE_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_ACACIA_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_DARK_OAK_LOG, 5, 5);
+        var0.setFlammable(Blocks.STRIPPED_MANGROVE_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_OAK_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_SPRUCE_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_BIRCH_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_JUNGLE_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_ACACIA_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_DARK_OAK_WOOD, 5, 5);
+        var0.setFlammable(Blocks.STRIPPED_MANGROVE_WOOD, 5, 5);
         var0.setFlammable(Blocks.OAK_WOOD, 5, 5);
         var0.setFlammable(Blocks.SPRUCE_WOOD, 5, 5);
         var0.setFlammable(Blocks.BIRCH_WOOD, 5, 5);
         var0.setFlammable(Blocks.JUNGLE_WOOD, 5, 5);
         var0.setFlammable(Blocks.ACACIA_WOOD, 5, 5);
         var0.setFlammable(Blocks.DARK_OAK_WOOD, 5, 5);
+        var0.setFlammable(Blocks.MANGROVE_WOOD, 5, 5);
+        var0.setFlammable(Blocks.MANGROVE_ROOTS, 5, 20);
         var0.setFlammable(Blocks.OAK_LEAVES, 30, 60);
         var0.setFlammable(Blocks.SPRUCE_LEAVES, 30, 60);
         var0.setFlammable(Blocks.BIRCH_LEAVES, 30, 60);
         var0.setFlammable(Blocks.JUNGLE_LEAVES, 30, 60);
         var0.setFlammable(Blocks.ACACIA_LEAVES, 30, 60);
         var0.setFlammable(Blocks.DARK_OAK_LEAVES, 30, 60);
+        var0.setFlammable(Blocks.MANGROVE_LEAVES, 30, 60);
         var0.setFlammable(Blocks.BOOKSHELF, 30, 20);
         var0.setFlammable(Blocks.TNT, 15, 100);
         var0.setFlammable(Blocks.GRASS, 60, 100);

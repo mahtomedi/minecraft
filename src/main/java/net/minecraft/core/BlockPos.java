@@ -4,7 +4,6 @@ import com.google.common.collect.AbstractIterator;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -12,6 +11,7 @@ import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
@@ -227,7 +227,7 @@ public class BlockPos extends Vec3i {
         return new BlockPos.MutableBlockPos(this.getX(), this.getY(), this.getZ());
     }
 
-    public static Iterable<BlockPos> randomInCube(Random param0, int param1, BlockPos param2, int param3) {
+    public static Iterable<BlockPos> randomInCube(RandomSource param0, int param1, BlockPos param2, int param3) {
         return randomBetweenClosed(
             param0,
             param1,
@@ -240,7 +240,9 @@ public class BlockPos extends Vec3i {
         );
     }
 
-    public static Iterable<BlockPos> randomBetweenClosed(Random param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+    public static Iterable<BlockPos> randomBetweenClosed(
+        RandomSource param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7
+    ) {
         int var0 = param5 - param2 + 1;
         int var1 = param6 - param3 + 1;
         int var2 = param7 - param4 + 1;

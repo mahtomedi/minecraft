@@ -1,12 +1,12 @@
 package net.minecraft.world.entity.ai.goal;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.item.ItemStack;
@@ -77,7 +77,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
         Level var0 = this.removerMob.level;
         BlockPos var1 = this.removerMob.blockPosition();
         BlockPos var2 = this.getPosWithBlock(var1, var0);
-        Random var3 = this.removerMob.getRandom();
+        RandomSource var3 = this.removerMob.getRandom();
         if (this.isReachedTarget() && var2 != null) {
             if (this.ticksSinceReachedGoal > 0) {
                 Vec3 var4 = this.removerMob.getDeltaMovement();

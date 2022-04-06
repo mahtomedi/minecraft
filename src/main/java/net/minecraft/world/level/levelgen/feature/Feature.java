@@ -2,7 +2,6 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -10,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.WorldGenLevel;
@@ -28,10 +28,10 @@ import net.minecraft.world.level.levelgen.feature.configurations.DripstoneCluste
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.GeodeConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.GlowLichenConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.LargeDripstoneConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.MultifaceGrowthConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NetherForestVegetationConfig;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
@@ -43,6 +43,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConf
 import net.minecraft.world.level.levelgen.feature.configurations.ReplaceBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ReplaceSphereConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RootSystemConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.SculkPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleRandomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
@@ -91,7 +92,9 @@ public abstract class Feature<FC extends FeatureConfiguration> {
         "waterlogged_vegetation_patch", new WaterloggedVegetationPatchFeature(VegetationPatchConfiguration.CODEC)
     );
     public static final Feature<RootSystemConfiguration> ROOT_SYSTEM = register("root_system", new RootSystemFeature(RootSystemConfiguration.CODEC));
-    public static final Feature<GlowLichenConfiguration> GLOW_LICHEN = register("glow_lichen", new GlowLichenFeature(GlowLichenConfiguration.CODEC));
+    public static final Feature<MultifaceGrowthConfiguration> MULTIFACE_GROWTH = register(
+        "multiface_growth", new MultifaceGrowthFeature(MultifaceGrowthConfiguration.CODEC)
+    );
     public static final Feature<UnderwaterMagmaConfiguration> UNDERWATER_MAGMA = register(
         "underwater_magma", new UnderwaterMagmaFeature(UnderwaterMagmaConfiguration.CODEC)
     );
@@ -100,6 +103,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
     public static final Feature<BlockStateConfiguration> ICEBERG = register("iceberg", new IcebergFeature(BlockStateConfiguration.CODEC));
     public static final Feature<BlockStateConfiguration> FOREST_ROCK = register("forest_rock", new BlockBlobFeature(BlockStateConfiguration.CODEC));
     public static final Feature<DiskConfiguration> DISK = register("disk", new DiskReplaceFeature(DiskConfiguration.CODEC));
+    public static final Feature<DiskConfiguration> SURFACE_DISK = register("surface_disk", new SurfaceDiskFeature(DiskConfiguration.CODEC));
     public static final Feature<DiskConfiguration> ICE_PATCH = register("ice_patch", new IcePatchFeature(DiskConfiguration.CODEC));
     public static final Feature<LakeFeature.Configuration> LAKE = register("lake", new LakeFeature(LakeFeature.Configuration.CODEC));
     public static final Feature<OreConfiguration> ORE = register("ore", new OreFeature(OreConfiguration.CODEC));
@@ -150,6 +154,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
     public static final Feature<PointedDripstoneConfiguration> POINTED_DRIPSTONE = register(
         "pointed_dripstone", new PointedDripstoneFeature(PointedDripstoneConfiguration.CODEC)
     );
+    public static final Feature<SculkPatchConfiguration> SCULK_PATCH = register("sculk_patch", new SculkPatchFeature(SculkPatchConfiguration.CODEC));
     private final Codec<ConfiguredFeature<FC, Feature<FC>>> configuredCodec;
 
     private static <C extends FeatureConfiguration, F extends Feature<C>> F register(String param0, F param1) {
@@ -181,7 +186,7 @@ public abstract class Feature<FC extends FeatureConfiguration> {
 
     public abstract boolean place(FeaturePlaceContext<FC> var1);
 
-    public boolean place(FC param0, WorldGenLevel param1, ChunkGenerator param2, Random param3, BlockPos param4) {
+    public boolean place(FC param0, WorldGenLevel param1, ChunkGenerator param2, RandomSource param3, BlockPos param4) {
         return param1.ensureCanWrite(param4) ? this.place(new FeaturePlaceContext<>(Optional.empty(), param1, param2, param3, param4, param0)) : false;
     }
 

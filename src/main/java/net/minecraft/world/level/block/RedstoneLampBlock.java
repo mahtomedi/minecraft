@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -41,7 +41,7 @@ public class RedstoneLampBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LIT) && !param1.hasNeighborSignal(param2)) {
             param1.setBlock(param2, param0.cycle(LIT), 2);
         }

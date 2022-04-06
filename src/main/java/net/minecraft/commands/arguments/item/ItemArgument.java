@@ -9,18 +9,26 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
+import net.minecraft.world.item.Item;
 
 public class ItemArgument implements ArgumentType<ItemInput> {
     private static final Collection<String> EXAMPLES = Arrays.asList("stick", "minecraft:stick", "stick{foo=bar}");
+    private final HolderLookup<Item> items;
 
-    public static ItemArgument item() {
-        return new ItemArgument();
+    public ItemArgument(CommandBuildContext param0) {
+        this.items = param0.holderLookup(Registry.ITEM_REGISTRY);
+    }
+
+    public static ItemArgument item(CommandBuildContext param0) {
+        return new ItemArgument(param0);
     }
 
     public ItemInput parse(StringReader param0) throws CommandSyntaxException {
-        ItemParser var0 = new ItemParser(param0, false).parse();
-        return new ItemInput(var0.getItem(), var0.getNbt());
+        ItemParser.ItemResult var0 = ItemParser.parseForItem(this.items, param0);
+        return new ItemInput(var0.item(), var0.nbt());
     }
 
     public static <S> ItemInput getItem(CommandContext<S> param0, String param1) {
@@ -29,16 +37,7 @@ public class ItemArgument implements ArgumentType<ItemInput> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        StringReader var0 = new StringReader(param1.getInput());
-        var0.setCursor(param1.getStart());
-        ItemParser var1 = new ItemParser(var0, false);
-
-        try {
-            var1.parse();
-        } catch (CommandSyntaxException var6) {
-        }
-
-        return var1.fillSuggestions(param1, Registry.ITEM);
+        return ItemParser.fillSuggestions(this.items, param1, false);
     }
 
     @Override

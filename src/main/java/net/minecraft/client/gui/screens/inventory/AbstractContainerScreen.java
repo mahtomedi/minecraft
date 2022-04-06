@@ -311,13 +311,13 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                     var6 = -999;
                 }
 
-                if (this.minecraft.options.touchscreen && var5 && this.menu.getCarried().isEmpty()) {
-                    this.minecraft.setScreen(null);
+                if (this.minecraft.options.touchscreen().get() && var5 && this.menu.getCarried().isEmpty()) {
+                    this.onClose();
                     return true;
                 }
 
                 if (var6 != -1) {
-                    if (this.minecraft.options.touchscreen) {
+                    if (this.minecraft.options.touchscreen().get()) {
                         if (var1 != null && var1.hasItem()) {
                             this.clickedSlot = var1;
                             this.draggingItem = ItemStack.EMPTY;
@@ -397,7 +397,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     public boolean mouseDragged(double param0, double param1, int param2, double param3, double param4) {
         Slot var0 = this.findSlot(param0, param1);
         ItemStack var1 = this.menu.getCarried();
-        if (this.clickedSlot != null && this.minecraft.options.touchscreen) {
+        if (this.clickedSlot != null && this.minecraft.options.touchscreen().get()) {
             if (param2 == 0 || param2 == 1) {
                 if (this.draggingItem.isEmpty()) {
                     if (var0 != this.clickedSlot && !this.clickedSlot.getItem().isEmpty()) {
@@ -480,7 +480,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 return true;
             }
 
-            if (this.clickedSlot != null && this.minecraft.options.touchscreen) {
+            if (this.clickedSlot != null && this.minecraft.options.touchscreen().get()) {
                 if (param2 == 0 || param2 == 1) {
                     if (this.draggingItem.isEmpty() && var0 != this.clickedSlot) {
                         this.draggingItem = this.clickedSlot.getItem();

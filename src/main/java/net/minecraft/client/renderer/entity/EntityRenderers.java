@@ -68,6 +68,7 @@ public class EntityRenderers {
     }
 
     static {
+        register(EntityType.ALLAY, AllayRenderer::new);
         register(EntityType.AREA_EFFECT_CLOUD, NoopRenderer::new);
         register(EntityType.ARMOR_STAND, ArmorStandRenderer::new);
         register(EntityType.ARROW, TippableArrowRenderer::new);
@@ -75,9 +76,10 @@ public class EntityRenderers {
         register(EntityType.BAT, BatRenderer::new);
         register(EntityType.BEE, BeeRenderer::new);
         register(EntityType.BLAZE, BlazeRenderer::new);
-        register(EntityType.BOAT, BoatRenderer::new);
+        register(EntityType.BOAT, param0 -> new BoatRenderer(param0, false));
         register(EntityType.CAT, CatRenderer::new);
         register(EntityType.CAVE_SPIDER, CaveSpiderRenderer::new);
+        register(EntityType.CHEST_BOAT, param0 -> new BoatRenderer(param0, true));
         register(EntityType.CHEST_MINECART, param0 -> new MinecartRenderer<>(param0, ModelLayers.CHEST_MINECART));
         register(EntityType.CHICKEN, ChickenRenderer::new);
         register(EntityType.COD, CodRenderer::new);
@@ -105,6 +107,7 @@ public class EntityRenderers {
         register(EntityType.FIREWORK_ROCKET, FireworkEntityRenderer::new);
         register(EntityType.FISHING_BOBBER, FishingHookRenderer::new);
         register(EntityType.FOX, FoxRenderer::new);
+        register(EntityType.FROG, FrogRenderer::new);
         register(EntityType.FURNACE_MINECART, param0 -> new MinecartRenderer<>(param0, ModelLayers.FURNACE_MINECART));
         register(EntityType.GHAST, GhastRenderer::new);
         register(EntityType.GIANT, param0 -> new GiantMobRenderer(param0, 6.0F));
@@ -165,6 +168,7 @@ public class EntityRenderers {
         register(EntityType.SQUID, param0 -> new SquidRenderer<>(param0, new SquidModel<>(param0.bakeLayer(ModelLayers.SQUID))));
         register(EntityType.STRAY, StrayRenderer::new);
         register(EntityType.STRIDER, StriderRenderer::new);
+        register(EntityType.TADPOLE, TadpoleRenderer::new);
         register(EntityType.TNT, TntRenderer::new);
         register(EntityType.TNT_MINECART, TntMinecartRenderer::new);
         register(EntityType.TRADER_LLAMA, param0 -> new LlamaRenderer(param0, ModelLayers.TRADER_LLAMA));
@@ -174,6 +178,7 @@ public class EntityRenderers {
         register(EntityType.VEX, VexRenderer::new);
         register(EntityType.VILLAGER, VillagerRenderer::new);
         register(EntityType.VINDICATOR, VindicatorRenderer::new);
+        register(EntityType.WARDEN, WardenRenderer::new);
         register(EntityType.WANDERING_TRADER, WanderingTraderRenderer::new);
         register(EntityType.WITCH, WitchRenderer::new);
         register(EntityType.WITHER, WitherBossRenderer::new);

@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
@@ -46,14 +46,14 @@ public abstract class AbstractCandleBlock extends Block {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LIT)) {
             this.getParticleOffsets(param0)
                 .forEach(param3x -> addParticlesAndSound(param1, param3x.add((double)param2.getX(), (double)param2.getY(), (double)param2.getZ()), param3));
         }
     }
 
-    private static void addParticlesAndSound(Level param0, Vec3 param1, Random param2) {
+    private static void addParticlesAndSound(Level param0, Vec3 param1, RandomSource param2) {
         float var0 = param2.nextFloat();
         if (var0 < 0.3F) {
             param0.addParticle(ParticleTypes.SMOKE, param1.x, param1.y, param1.z, 0.0, 0.0, 0.0);

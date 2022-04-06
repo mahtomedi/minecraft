@@ -2,10 +2,10 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +25,7 @@ public class LakeFeature extends Feature<LakeFeature.Configuration> {
     public boolean place(FeaturePlaceContext<LakeFeature.Configuration> param0) {
         BlockPos var0 = param0.origin();
         WorldGenLevel var1 = param0.level();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         LakeFeature.Configuration var3 = param0.config();
         if (var0.getY() <= var1.getMinBuildHeight() + 4) {
             return false;

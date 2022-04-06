@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
@@ -17,7 +17,7 @@ public class ScatteredOreFeature extends Feature<OreConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<OreConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         OreConfiguration var2 = param0.config();
         BlockPos var3 = param0.origin();
         int var4 = var1.nextInt(var2.size + 1);
@@ -38,14 +38,14 @@ public class ScatteredOreFeature extends Feature<OreConfiguration> {
         return true;
     }
 
-    private void offsetTargetPos(BlockPos.MutableBlockPos param0, Random param1, BlockPos param2, int param3) {
+    private void offsetTargetPos(BlockPos.MutableBlockPos param0, RandomSource param1, BlockPos param2, int param3) {
         int var0 = this.getRandomPlacementInOneAxisRelativeToOrigin(param1, param3);
         int var1 = this.getRandomPlacementInOneAxisRelativeToOrigin(param1, param3);
         int var2 = this.getRandomPlacementInOneAxisRelativeToOrigin(param1, param3);
         param0.setWithOffset(param2, var0, var1, var2);
     }
 
-    private int getRandomPlacementInOneAxisRelativeToOrigin(Random param0, int param1) {
+    private int getRandomPlacementInOneAxisRelativeToOrigin(RandomSource param0, int param1) {
         return Math.round((param0.nextFloat() - param0.nextFloat()) * (float)param1);
     }
 }

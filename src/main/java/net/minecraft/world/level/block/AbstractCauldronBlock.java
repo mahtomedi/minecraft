@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
 import java.util.Map;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -81,7 +81,7 @@ public abstract class AbstractCauldronBlock extends Block {
     public abstract boolean isFull(BlockState var1);
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BlockPos var0 = PointedDripstoneBlock.findStalactiteTipAboveCauldron(param1, param2);
         if (var0 != null) {
             Fluid var1 = PointedDripstoneBlock.getCauldronFillFluidType(param1, var0);

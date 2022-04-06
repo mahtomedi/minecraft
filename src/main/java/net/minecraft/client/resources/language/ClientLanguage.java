@@ -3,7 +3,6 @@ package net.minecraft.client.resources.language;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -35,15 +34,15 @@ public class ClientLanguage extends Language {
 
         for(LanguageInfo var2 : param1) {
             var1 |= var2.isBidirectional();
-            String var3 = String.format("lang/%s.json", var2.getCode());
+            String var3 = var2.getCode();
+            String var4 = String.format("lang/%s.json", var3);
 
-            for(String var4 : param0.getNamespaces()) {
+            for(String var5 : param0.getNamespaces()) {
                 try {
-                    ResourceLocation var5 = new ResourceLocation(var4, var3);
-                    appendFrom(param0.getResources(var5), var0);
-                } catch (FileNotFoundException var10) {
+                    ResourceLocation var6 = new ResourceLocation(var5, var4);
+                    appendFrom(var3, param0.getResourceStack(var6), var0);
                 } catch (Exception var11) {
-                    LOGGER.warn("Skipped language file: {}:{} ({})", var4, var3, var11.toString());
+                    LOGGER.warn("Skipped language file: {}:{} ({})", var5, var4, var11.toString());
                 }
             }
         }
@@ -51,12 +50,12 @@ public class ClientLanguage extends Language {
         return new ClientLanguage(ImmutableMap.copyOf(var0), var1);
     }
 
-    private static void appendFrom(List<Resource> param0, Map<String, String> param1) {
-        for(Resource var0 : param0) {
-            try (InputStream var1 = var0.getInputStream()) {
-                Language.loadFromJson(var1, param1::put);
-            } catch (IOException var9) {
-                LOGGER.warn("Failed to load translations from {}", var0, var9);
+    private static void appendFrom(String param0, List<Resource> param1, Map<String, String> param2) {
+        for(Resource var0 : param1) {
+            try (InputStream var1 = var0.open()) {
+                Language.loadFromJson(var1, param2::put);
+            } catch (IOException var10) {
+                LOGGER.warn("Failed to load translations for {} from pack {}", param0, var0.sourcePackId(), var10);
             }
         }
 

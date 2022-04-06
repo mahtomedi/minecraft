@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -18,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -396,7 +396,7 @@ public class Panda extends Animal {
                 if (this.getEatCounter() > 100 && this.isFoodOrCake(this.getItemBySlot(EquipmentSlot.MAINHAND))) {
                     if (!this.level.isClientSide) {
                         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-                        this.gameEvent(GameEvent.EAT, this.eyeBlockPosition());
+                        this.gameEvent(GameEvent.EAT);
                     }
 
                     this.sit(false);
@@ -634,11 +634,9 @@ public class Panda extends Animal {
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp((int)((float)(-this.getAge() / 20) * 0.1F), true);
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
             } else if (!this.level.isClientSide && this.getAge() == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
-                this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
             } else {
                 if (this.level.isClientSide || this.isSitting() || this.isInWater()) {
                     return InteractionResult.PASS;
@@ -762,7 +760,7 @@ public class Panda extends Animal {
             return NORMAL;
         }
 
-        public static Panda.Gene getRandom(Random param0) {
+        public static Panda.Gene getRandom(RandomSource param0) {
             int var0 = param0.nextInt(16);
             if (var0 == 0) {
                 return LAZY;

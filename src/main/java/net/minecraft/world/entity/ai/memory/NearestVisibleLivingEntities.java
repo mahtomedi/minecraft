@@ -23,7 +23,7 @@ public class NearestVisibleLivingEntities {
         this.nearbyEntities = param1;
         Object2BooleanOpenHashMap<LivingEntity> var0 = new Object2BooleanOpenHashMap<>(param1.size());
         Predicate<LivingEntity> var1 = param1x -> Sensor.isEntityTargetable(param0, param1x);
-        this.lineOfSightTest = param2 -> var0.computeBooleanIfAbsent(param2, var1);
+        this.lineOfSightTest = param2 -> var0.computeIfAbsent(param2, var1);
     }
 
     public static NearestVisibleLivingEntities empty() {

@@ -3,11 +3,11 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -26,7 +26,7 @@ public class UnderwaterMagmaFeature extends Feature<UnderwaterMagmaConfiguration
         WorldGenLevel var0 = param0.level();
         BlockPos var1 = param0.origin();
         UnderwaterMagmaConfiguration var2 = param0.config();
-        Random var3 = param0.random();
+        RandomSource var3 = param0.random();
         OptionalInt var4 = getFloorY(var0, var1, var2);
         if (!var4.isPresent()) {
             return false;

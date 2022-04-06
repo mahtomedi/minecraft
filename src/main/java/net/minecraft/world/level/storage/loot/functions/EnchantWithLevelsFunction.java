@@ -3,9 +3,9 @@ package net.minecraft.world.level.storage.loot.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import java.util.Random;
 import java.util.Set;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -35,7 +35,7 @@ public class EnchantWithLevelsFunction extends LootItemConditionalFunction {
 
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
-        Random var0 = param1.getRandom();
+        RandomSource var0 = param1.getRandom();
         return EnchantmentHelper.enchantItem(var0, param0, this.levels.getInt(param1), this.treasure);
     }
 

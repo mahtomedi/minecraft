@@ -33,6 +33,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.timers.TimerCallbacks;
 import net.minecraft.world.level.timers.TimerQueue;
@@ -108,35 +109,39 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         WorldGenSettings param27,
         Lifecycle param28
     ) {
-        this.fixerUpper = param0;
-        this.wasModded = param3;
-        this.xSpawn = param4;
-        this.ySpawn = param5;
-        this.zSpawn = param6;
-        this.spawnAngle = param7;
-        this.gameTime = param8;
-        this.dayTime = param9;
-        this.version = param10;
-        this.clearWeatherTime = param11;
-        this.rainTime = param12;
-        this.raining = param13;
-        this.thunderTime = param14;
-        this.thundering = param15;
-        this.initialized = param16;
-        this.difficultyLocked = param17;
-        this.worldBorder = param18;
-        this.wanderingTraderSpawnDelay = param19;
-        this.wanderingTraderSpawnChance = param20;
-        this.wanderingTraderId = param21;
-        this.knownServerBrands = param22;
-        this.loadedPlayerTag = param2;
-        this.playerDataVersion = param1;
-        this.scheduledEvents = param23;
-        this.customBossEvents = param24;
-        this.endDragonFightData = param25;
-        this.settings = param26;
-        this.worldGenSettings = param27;
-        this.worldGenSettingsLifecycle = param28;
+        if (!param27.dimensions().containsKey(LevelStem.OVERWORLD)) {
+            throw new IllegalStateException("Missing Overworld dimension data");
+        } else {
+            this.fixerUpper = param0;
+            this.wasModded = param3;
+            this.xSpawn = param4;
+            this.ySpawn = param5;
+            this.zSpawn = param6;
+            this.spawnAngle = param7;
+            this.gameTime = param8;
+            this.dayTime = param9;
+            this.version = param10;
+            this.clearWeatherTime = param11;
+            this.rainTime = param12;
+            this.raining = param13;
+            this.thunderTime = param14;
+            this.thundering = param15;
+            this.initialized = param16;
+            this.difficultyLocked = param17;
+            this.worldBorder = param18;
+            this.wanderingTraderSpawnDelay = param19;
+            this.wanderingTraderSpawnChance = param20;
+            this.wanderingTraderId = param21;
+            this.knownServerBrands = param22;
+            this.loadedPlayerTag = param2;
+            this.playerDataVersion = param1;
+            this.scheduledEvents = param23;
+            this.customBossEvents = param24;
+            this.endDragonFightData = param25;
+            this.settings = param26;
+            this.worldGenSettings = param27;
+            this.worldGenSettingsLifecycle = param28;
+        }
     }
 
     public PrimaryLevelData(LevelSettings param0, WorldGenSettings param1, Lifecycle param2) {

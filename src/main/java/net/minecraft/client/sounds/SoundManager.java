@@ -6,10 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +30,19 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.valueproviders.MultipliedFloats;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundManager extends SimplePreparableReloadListener<SoundManager.Preparations> {
-    public static final Sound EMPTY_SOUND = new Sound("meta:missing_sound", 1.0F, 1.0F, 1, Sound.Type.FILE, false, false, 16);
+    public static final Sound EMPTY_SOUND = new Sound(
+        "meta:missing_sound", ConstantFloat.of(1.0F), ConstantFloat.of(1.0F), 1, Sound.Type.FILE, false, false, 16
+    );
     static final Logger LOGGER = LogUtils.getLogger();
     private static final String SOUNDS_PATH = "sounds.json";
     private static final Gson GSON = new GsonBuilder()
@@ -64,29 +66,26 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
             param1.push(var1);
 
             try {
-                for(Resource var3 : param0.getResources(new ResourceLocation(var1, "sounds.json"))) {
-                    param1.push(var3.getSourceName());
+                for(Resource var3 : param0.getResourceStack(new ResourceLocation(var1, "sounds.json"))) {
+                    param1.push(var3.sourcePackId());
 
-                    try (
-                        InputStream var4 = var3.getInputStream();
-                        Reader var5 = new InputStreamReader(var4, StandardCharsets.UTF_8);
-                    ) {
+                    try (Reader var4 = var3.openAsReader()) {
                         param1.push("parse");
-                        Map<String, SoundEventRegistration> var6 = GsonHelper.fromJson(GSON, var5, SOUND_EVENT_REGISTRATION_TYPE);
+                        Map<String, SoundEventRegistration> var5 = GsonHelper.fromJson(GSON, var4, SOUND_EVENT_REGISTRATION_TYPE);
                         param1.popPush("register");
 
-                        for(Entry<String, SoundEventRegistration> var7 : var6.entrySet()) {
-                            var0.handleRegistration(new ResourceLocation(var1, var7.getKey()), var7.getValue(), param0);
+                        for(Entry<String, SoundEventRegistration> var6 : var5.entrySet()) {
+                            var0.handleRegistration(new ResourceLocation(var1, var6.getKey()), var6.getValue(), param0);
                         }
 
                         param1.pop();
-                    } catch (RuntimeException var18) {
-                        LOGGER.warn("Invalid {} in resourcepack: '{}'", "sounds.json", var3.getSourceName(), var18);
+                    } catch (RuntimeException var15) {
+                        LOGGER.warn("Invalid {} in resourcepack: '{}'", "sounds.json", var3.sourcePackId(), var15);
                     }
 
                     param1.pop();
                 }
-            } catch (IOException var19) {
+            } catch (IOException var16) {
             }
 
             param1.pop();
@@ -127,7 +126,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
 
     static boolean validateSoundResource(Sound param0, ResourceLocation param1, ResourceManager param2) {
         ResourceLocation var0 = param0.getPath();
-        if (!param2.hasResource(var0)) {
+        if (param2.getResource(var0).isEmpty()) {
             LOGGER.warn("File {} does not exist, cannot add it to event {}", var0, param1);
             return false;
         } else {
@@ -251,16 +250,16 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
                                 return var0 == null ? 0 : var0.getWeight();
                             }
 
-                            public Sound getSound() {
+                            public Sound getSound(RandomSource param0) {
                                 WeighedSoundEvents var0 = Preparations.this.registry.get(var3);
                                 if (var0 == null) {
                                     return SoundManager.EMPTY_SOUND;
                                 } else {
-                                    Sound var1 = var0.getSound();
+                                    Sound var1 = var0.getSound(param0);
                                     return new Sound(
                                         var1.getLocation().toString(),
-                                        var1.getVolume() * var2.getVolume(),
-                                        var1.getPitch() * var2.getPitch(),
+                                        new MultipliedFloats(var1.getVolume(), var2.getVolume()),
+                                        new MultipliedFloats(var1.getPitch(), var2.getPitch()),
                                         var2.getWeight(),
                                         Sound.Type.FILE,
                                         var1.shouldStream() || var2.shouldStream(),

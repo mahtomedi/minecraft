@@ -2,10 +2,10 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -40,7 +40,7 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
         int var0 = param0.chunkGenerator().getSeaLevel();
         BlockPos var1 = param0.origin();
         WorldGenLevel var2 = param0.level();
-        Random var3 = param0.random();
+        RandomSource var3 = param0.random();
         ColumnFeatureConfiguration var4 = param0.config();
         if (!canPlaceAt(var2, var0, var1.mutable())) {
             return false;

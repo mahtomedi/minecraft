@@ -25,6 +25,6 @@ public class Giant extends Monster {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        return param1.getBrightness(param0) - 0.5F;
+        return param1.getPathfindingCostFromLightLevels(param0);
     }
 }

@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -55,7 +55,7 @@ public class DetectorRailBlock extends BaseRailBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(POWERED)) {
             this.checkPressed(param1, param2, param0);
         }
@@ -115,7 +115,7 @@ public class DetectorRailBlock extends BaseRailBlock {
 
         for(BlockPos var2 : var0.getConnections()) {
             BlockState var3 = param0.getBlockState(var2);
-            var3.neighborChanged(param0, var2, var3.getBlock(), param1, false);
+            param0.neighborChanged(var3, var2, var3.getBlock(), param1, false);
         }
 
     }

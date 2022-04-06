@@ -1,6 +1,5 @@
 package net.minecraft.world.item;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,13 +7,14 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -77,7 +77,7 @@ public class BoneMealItem extends Item {
             if (!(param1 instanceof ServerLevel)) {
                 return true;
             } else {
-                Random var0 = param1.getRandom();
+                RandomSource var0 = param1.getRandom();
 
                 label78:
                 for(int var1 = 0; var1 < 128; ++var1) {
@@ -92,7 +92,7 @@ public class BoneMealItem extends Item {
                     }
 
                     Holder<Biome> var5 = param1.getBiome(var2);
-                    if (var5.is(Biomes.WARM_OCEAN)) {
+                    if (var5.is(BiomeTags.PRODUCES_CORALS_FROM_BONEMEAL)) {
                         if (var1 == 0 && param3 != null && param3.getAxis().isHorizontal()) {
                             var3 = Registry.BLOCK
                                 .getTag(BlockTags.WALL_CORALS)
@@ -160,7 +160,7 @@ public class BoneMealItem extends Item {
             param0.addParticle(
                 ParticleTypes.HAPPY_VILLAGER, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, 0.0, 0.0, 0.0
             );
-            Random var5 = param0.getRandom();
+            RandomSource var5 = param0.getRandom();
 
             for(int var6 = 0; var6 < param2; ++var6) {
                 double var7 = var5.nextGaussian() * 0.02;

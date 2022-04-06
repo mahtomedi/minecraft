@@ -3,7 +3,6 @@ package net.minecraft.world.level.block.entity;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ResourceLocationException;
@@ -15,6 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -26,9 +26,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class StructureBlockEntity extends BlockEntity {
     private static final int SCAN_CORNER_BLOCKS_RANGE = 5;
@@ -320,7 +320,7 @@ public class StructureBlockEntity extends BlockEntity {
         if (this.mode == StructureMode.SAVE && !this.level.isClientSide && this.structureName != null) {
             BlockPos var0 = this.getBlockPos().offset(this.structurePos);
             ServerLevel var1 = (ServerLevel)this.level;
-            StructureManager var2 = var1.getStructureManager();
+            StructureTemplateManager var2 = var1.getStructureManager();
 
             StructureTemplate var3;
             try {
@@ -349,13 +349,13 @@ public class StructureBlockEntity extends BlockEntity {
         return this.loadStructure(param0, true);
     }
 
-    private static Random createRandom(long param0) {
-        return param0 == 0L ? new Random(Util.getMillis()) : new Random(param0);
+    private static RandomSource createRandom(long param0) {
+        return param0 == 0L ? RandomSource.create(Util.getMillis()) : RandomSource.create(param0);
     }
 
     public boolean loadStructure(ServerLevel param0, boolean param1) {
         if (this.mode == StructureMode.LOAD && this.structureName != null) {
-            StructureManager var0 = param0.getStructureManager();
+            StructureTemplateManager var0 = param0.getStructureManager();
 
             Optional<StructureTemplate> var1;
             try {
@@ -402,7 +402,7 @@ public class StructureBlockEntity extends BlockEntity {
     public void unloadStructure() {
         if (this.structureName != null) {
             ServerLevel var0 = (ServerLevel)this.level;
-            StructureManager var1 = var0.getStructureManager();
+            StructureTemplateManager var1 = var0.getStructureManager();
             var1.remove(this.structureName);
         }
     }
@@ -410,7 +410,7 @@ public class StructureBlockEntity extends BlockEntity {
     public boolean isStructureLoadable() {
         if (this.mode == StructureMode.LOAD && !this.level.isClientSide && this.structureName != null) {
             ServerLevel var0 = (ServerLevel)this.level;
-            StructureManager var1 = var0.getStructureManager();
+            StructureTemplateManager var1 = var0.getStructureManager();
 
             try {
                 return var1.get(this.structureName).isPresent();

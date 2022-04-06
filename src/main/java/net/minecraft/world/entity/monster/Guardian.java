@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
-import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -13,6 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -197,7 +197,9 @@ public class Guardian extends Monster {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        return param1.getFluidState(param0).is(FluidTags.WATER) ? 10.0F + param1.getBrightness(param0) - 0.5F : super.getWalkTargetValue(param0, param1);
+        return param1.getFluidState(param0).is(FluidTags.WATER)
+            ? 10.0F + param1.getPathfindingCostFromLightLevels(param0)
+            : super.getWalkTargetValue(param0, param1);
     }
 
     @Override
@@ -322,7 +324,7 @@ public class Guardian extends Monster {
     }
 
     public static boolean checkGuardianSpawnRules(
-        EntityType<? extends Guardian> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+        EntityType<? extends Guardian> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
         return (param4.nextInt(20) == 0 || !param1.canSeeSkyFromBelowWater(param3))
             && param1.getDifficulty() != Difficulty.PEACEFUL

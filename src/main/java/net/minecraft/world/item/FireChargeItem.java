@@ -1,9 +1,9 @@
 package net.minecraft.world.item;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -37,7 +37,7 @@ public class FireChargeItem extends Item {
         } else {
             this.playSound(var0, var1);
             var0.setBlockAndUpdate(var1, var2.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
-            var0.gameEvent(param0.getPlayer(), GameEvent.BLOCK_PLACE, var1);
+            var0.gameEvent(param0.getPlayer(), GameEvent.BLOCK_CHANGE, var1);
             var3 = true;
         }
 
@@ -50,7 +50,7 @@ public class FireChargeItem extends Item {
     }
 
     private void playSound(Level param0, BlockPos param1) {
-        Random var0 = param0.getRandom();
+        RandomSource var0 = param0.getRandom();
         param0.playSound(null, param1, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F);
     }
 }

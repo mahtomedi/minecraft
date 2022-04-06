@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -42,7 +42,7 @@ public class TorchBlock extends Block {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         double var0 = (double)param2.getX() + 0.5;
         double var1 = (double)param2.getY() + 0.7;
         double var2 = (double)param2.getZ() + 0.5;

@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,7 +15,7 @@ public class HugeRedMushroomFeature extends AbstractHugeMushroomFeature {
 
     @Override
     protected void makeCap(
-        LevelAccessor param0, Random param1, BlockPos param2, int param3, BlockPos.MutableBlockPos param4, HugeMushroomFeatureConfiguration param5
+        LevelAccessor param0, RandomSource param1, BlockPos param2, int param3, BlockPos.MutableBlockPos param4, HugeMushroomFeatureConfiguration param5
     ) {
         for(int var0 = param3 - 3; var0 <= param3; ++var0) {
             int var1 = var0 < param3 ? param5.foliageRadius : param5.foliageRadius - 1;

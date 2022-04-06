@@ -12,12 +12,12 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -48,7 +48,7 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         if (param0.is(Items.SUSPICIOUS_STEW) && !this.effectDurationMap.isEmpty()) {
-            Random var0 = param1.getRandom();
+            RandomSource var0 = param1.getRandom();
             int var1 = var0.nextInt(this.effectDurationMap.size());
             Entry<MobEffect, NumberProvider> var2 = Iterables.get(this.effectDurationMap.entrySet(), var1);
             MobEffect var3 = var2.getKey();

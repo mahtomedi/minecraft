@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
@@ -18,20 +19,32 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.SerializableUUID;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 public class ExtraCodecs {
+    public static final Codec<UUID> UUID = SerializableUUID.CODEC;
     public static final Codec<Integer> NON_NEGATIVE_INT = intRangeWithMessage(0, Integer.MAX_VALUE, param0 -> "Value must be non-negative: " + param0);
     public static final Codec<Integer> POSITIVE_INT = intRangeWithMessage(1, Integer.MAX_VALUE, param0 -> "Value must be positive: " + param0);
     public static final Codec<Float> POSITIVE_FLOAT = floatRangeMinExclusiveWithMessage(0.0F, Float.MAX_VALUE, param0 -> "Value must be positive: " + param0);
+    public static final Codec<Pattern> PATTERN = Codec.STRING.comapFlatMap(param0 -> {
+        try {
+            return DataResult.success(Pattern.compile(param0));
+        } catch (PatternSyntaxException var2) {
+            return DataResult.error("Invalid regex pattern '" + param0 + "': " + var2.getMessage());
+        }
+    }, Pattern::pattern);
 
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
         return new ExtraCodecs.XorCodec<>(param0, param1);
@@ -227,6 +240,19 @@ public class ExtraCodecs {
 
             return DataResult.success(param1, Lifecycle.stable());
         };
+    }
+
+    public static <A> Codec<A> catchDecoderException(final Codec<A> param0) {
+        return Codec.of(param0, new Decoder<A>() {
+            @Override
+            public <T> DataResult<Pair<A, T>> decode(DynamicOps<T> param0x, T param1) {
+                try {
+                    return param0.decode(param0, param1);
+                } catch (Exception var4) {
+                    return DataResult.error("Cauch exception decoding " + param1 + ": " + var4.getMessage());
+                }
+            }
+        });
     }
 
     static final class EitherCodec<F, S> implements Codec<Either<F, S>> {

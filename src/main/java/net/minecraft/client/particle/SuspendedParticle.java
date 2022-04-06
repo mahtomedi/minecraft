@@ -1,11 +1,11 @@
 package net.minecraft.client.particle;
 
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleGroup;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -49,7 +49,7 @@ public class SuspendedParticle extends TextureSheetParticle {
         public Particle createParticle(
             SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
-            Random var0 = param1.random;
+            RandomSource var0 = param1.random;
             double var1 = var0.nextGaussian() * 1.0E-6F;
             double var2 = var0.nextGaussian() * 1.0E-4F;
             double var3 = var0.nextGaussian() * 1.0E-6F;

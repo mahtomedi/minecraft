@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface ChangeOverTimeBlock<T extends Enum<T>> {
@@ -13,7 +13,7 @@ public interface ChangeOverTimeBlock<T extends Enum<T>> {
 
     float getChanceModifier();
 
-    default void onRandomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    default void onRandomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         float var0 = 0.05688889F;
         if (param3.nextFloat() < 0.05688889F) {
             this.applyChangeOverTime(param0, param1, param2, param3);
@@ -23,7 +23,7 @@ public interface ChangeOverTimeBlock<T extends Enum<T>> {
 
     T getAge();
 
-    default void applyChangeOverTime(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    default void applyChangeOverTime(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         int var0 = this.getAge().ordinal();
         int var1 = 0;
         int var2 = 0;

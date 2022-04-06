@@ -2,7 +2,9 @@ package net.minecraft.world.item;
 
 import com.mojang.logging.LogUtils;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
@@ -34,13 +36,33 @@ public class CompassItem extends Item implements Vanishable {
         return var0 != null && (var0.contains("LodestoneDimension") || var0.contains("LodestonePos"));
     }
 
+    private static Optional<ResourceKey<Level>> getLodestoneDimension(CompoundTag param0) {
+        return Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, param0.get("LodestoneDimension")).result();
+    }
+
+    @Nullable
+    public static GlobalPos getLodestonePosition(CompoundTag param0) {
+        boolean var0 = param0.contains("LodestonePos");
+        boolean var1 = param0.contains("LodestoneDimension");
+        if (var0 && var1) {
+            Optional<ResourceKey<Level>> var2 = getLodestoneDimension(param0);
+            if (var2.isPresent()) {
+                BlockPos var3 = NbtUtils.readBlockPos(param0.getCompound("LodestonePos"));
+                return GlobalPos.of(var2.get(), var3);
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static GlobalPos getSpawnPosition(Level param0) {
+        return param0.dimensionType().natural() ? GlobalPos.of(param0.dimension(), param0.getSharedSpawnPos()) : null;
+    }
+
     @Override
     public boolean isFoil(ItemStack param0) {
         return isLodestoneCompass(param0) || super.isFoil(param0);
-    }
-
-    public static Optional<ResourceKey<Level>> getLodestoneDimension(CompoundTag param0) {
-        return Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, param0.get("LodestoneDimension")).result();
     }
 
     @Override

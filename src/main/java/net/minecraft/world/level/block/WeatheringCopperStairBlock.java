@@ -1,8 +1,8 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -15,7 +15,7 @@ public class WeatheringCopperStairBlock extends StairBlock implements Weathering
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         this.onRandomTick(param0, param1, param2, param3);
     }
 

@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block.entity;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -14,9 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
-    private static final Random RANDOM = new Random();
-    public static final int CONTAINER_SIZE = 1;
-    private NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
+    public static final int CONTAINER_SIZE = 9;
+    private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
 
     protected DispenserBlockEntity(BlockEntityType<?> param0, BlockPos param1, BlockState param2) {
         super(param0, param1, param2);
@@ -28,21 +27,16 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
 
     @Override
     public int getContainerSize() {
-        return 1;
+        return 9;
     }
 
-    @Override
-    public int getMaxStackSize() {
-        return 1;
-    }
-
-    public int getRandomSlot() {
+    public int getRandomSlot(RandomSource param0) {
         this.unpackLootTable(null);
         int var0 = -1;
         int var1 = 1;
 
         for(int var2 = 0; var2 < this.items.size(); ++var2) {
-            if (!this.items.get(var2).isEmpty() && RANDOM.nextInt(var1++) == 0) {
+            if (!this.items.get(var2).isEmpty() && param0.nextInt(var1++) == 0) {
                 var0 = var2;
             }
         }

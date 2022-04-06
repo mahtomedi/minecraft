@@ -36,23 +36,23 @@ public class DirectAssetIndex extends AssetIndex {
     }
 
     @Override
-    public Collection<ResourceLocation> getFiles(String param0, String param1, int param2, Predicate<String> param3) {
+    public Collection<ResourceLocation> getFiles(String param0, String param1, Predicate<ResourceLocation> param2) {
         Path var0 = this.assetsDirectory.toPath().resolve(param1);
 
         try {
-            Collection var7;
-            try (Stream<Path> var1 = Files.walk(var0.resolve(param0), param2)) {
-                var7 = var1.filter(param0x -> Files.isRegularFile(param0x))
+            Collection var6;
+            try (Stream<Path> var1 = Files.walk(var0.resolve(param0))) {
+                var6 = var1.filter(param0x -> Files.isRegularFile(param0x))
                     .filter(param0x -> !param0x.endsWith(".mcmeta"))
-                    .filter(param1x -> param3.test(param1x.getFileName().toString()))
                     .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
+                    .filter(param2)
                     .collect(Collectors.toList());
             }
 
-            return var7;
-        } catch (NoSuchFileException var11) {
-        } catch (IOException var12) {
-            LOGGER.warn("Unable to getFiles on {}", param0, var12);
+            return var6;
+        } catch (NoSuchFileException var10) {
+        } catch (IOException var11) {
+            LOGGER.warn("Unable to getFiles on {}", param0, var11);
         }
 
         return Collections.emptyList();

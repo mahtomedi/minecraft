@@ -5,10 +5,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -28,7 +28,7 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
 
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, int param3, BlockPos param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, int param3, BlockPos param4, TreeConfiguration param5
     ) {
         setDirtAt(param0, param1, param2, param4.below(), param5);
         List<FoliagePlacer.FoliageAttachment> var0 = Lists.newArrayList();
@@ -48,7 +48,7 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
                 --var3;
             }
 
-            if (placeLog(param0, param1, param2, var4.set(var5, var9, var6), param5)) {
+            if (this.placeLog(param0, param1, param2, var4.set(var5, var9, var6), param5)) {
                 var7 = OptionalInt.of(var9 + 1);
             }
         }
@@ -70,7 +70,7 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
                     int var14 = param4.getY() + var13;
                     var5 += var10.getStepX();
                     var6 += var10.getStepZ();
-                    if (placeLog(param0, param1, param2, var4.set(var5, var14, var6), param5)) {
+                    if (this.placeLog(param0, param1, param2, var4.set(var5, var14, var6), param5)) {
                         var7 = OptionalInt.of(var14 + 1);
                     }
                 }

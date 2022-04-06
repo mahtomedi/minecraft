@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -94,7 +94,7 @@ public class BrewingStandBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         double var0 = (double)param2.getX() + 0.4 + (double)param3.nextFloat() * 0.2;
         double var1 = (double)param2.getY() + 0.7 + (double)param3.nextFloat() * 0.3;
         double var2 = (double)param2.getZ() + 0.4 + (double)param3.nextFloat() * 0.2;

@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -19,6 +19,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintCache;
+import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.BiomeColors;
@@ -44,6 +45,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
@@ -71,7 +73,6 @@ import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -83,9 +84,11 @@ import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientLevel extends Level {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final double FLUID_PARTICLE_SPAWN_OFFSET = 0.05;
     private static final int NORMAL_LIGHT_UPDATES_PER_FRAME = 10;
     private static final int LIGHT_UPDATE_QUEUE_SIZE_THRESHOLD = 1000;
@@ -109,7 +112,50 @@ public class ClientLevel extends Level {
     private final ClientChunkCache chunkSource;
     private final Deque<Runnable> lightUpdateQueue = Queues.newArrayDeque();
     private int serverSimulationDistance;
+    private final BlockStatePredictionHandler blockStatePredictionHandler = new BlockStatePredictionHandler();
     private static final Set<Item> MARKER_PARTICLE_ITEMS = Set.of(Items.BARRIER, Items.LIGHT);
+
+    public void handleBlockChangedAck(int param0) {
+        this.blockStatePredictionHandler.endPredictionsUpTo(param0, this);
+    }
+
+    public void setServerVerifiedBlockState(BlockPos param0, BlockState param1, int param2) {
+        if (!this.blockStatePredictionHandler.updateKnownServerState(param0, param1)) {
+            super.setBlock(param0, param1, param2, 512);
+        }
+
+    }
+
+    public void syncBlockState(BlockPos param0, BlockState param1, Vec3 param2) {
+        BlockState var0 = this.getBlockState(param0);
+        if (var0 != param1) {
+            this.setBlock(param0, param1, 19);
+            Player var1 = this.minecraft.player;
+            if (this == var1.level && var1.isColliding(param0, param1)) {
+                var1.absMoveTo(param2.x, param2.y, param2.z);
+            }
+        }
+
+    }
+
+    BlockStatePredictionHandler getBlockStatePredictionHandler() {
+        return this.blockStatePredictionHandler;
+    }
+
+    @Override
+    public boolean setBlock(BlockPos param0, BlockState param1, int param2, int param3) {
+        if (this.blockStatePredictionHandler.isPredicting()) {
+            BlockState var0 = this.getBlockState(param0);
+            boolean var1 = super.setBlock(param0, param1, param2, param3);
+            if (var1) {
+                this.blockStatePredictionHandler.retainKnownServerState(param0, var0, this.minecraft.player);
+            }
+
+            return var1;
+        } else {
+            return super.setBlock(param0, param1, param2, param3);
+        }
+    }
 
     public ClientLevel(
         ClientPacketListener param0,
@@ -123,7 +169,7 @@ public class ClientLevel extends Level {
         boolean param8,
         long param9
     ) {
-        super(param1, param2, param3, param6, true, param8, param9);
+        super(param1, param2, param3, param6, true, param8, param9, 1000000);
         this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
@@ -294,10 +340,6 @@ public class ClientLevel extends Level {
         return this.getEntities().get(param0);
     }
 
-    public void setKnownState(BlockPos param0, BlockState param1) {
-        this.setBlock(param0, param1, 19);
-    }
-
     @Override
     public void disconnect() {
         this.connection.getConnection().disconnect(new TranslatableComponent("multiplayer.status.quitting"));
@@ -305,7 +347,7 @@ public class ClientLevel extends Level {
 
     public void animateTick(int param0, int param1, int param2) {
         int var0 = 32;
-        Random var1 = new Random();
+        RandomSource var1 = RandomSource.create();
         Block var2 = this.getMarkerParticleTarget();
         BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
 
@@ -329,7 +371,7 @@ public class ClientLevel extends Level {
         return null;
     }
 
-    public void doAnimateTick(int param0, int param1, int param2, int param3, Random param4, @Nullable Block param5, BlockPos.MutableBlockPos param6) {
+    public void doAnimateTick(int param0, int param1, int param2, int param3, RandomSource param4, @Nullable Block param5, BlockPos.MutableBlockPos param6) {
         int var0 = param0 + this.random.nextInt(param3) - this.random.nextInt(param3);
         int var1 = param1 + this.random.nextInt(param3) - this.random.nextInt(param3);
         int var2 = param2 + this.random.nextInt(param3) - this.random.nextInt(param3);
@@ -436,19 +478,19 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void playSound(
-        @Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5, float param6, float param7
+    public void playSeededSound(
+        @Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5, float param6, float param7, long param8
     ) {
         if (param0 == this.minecraft.player) {
-            this.playLocalSound(param1, param2, param3, param4, param5, param6, param7, false);
+            this.playSound(param1, param2, param3, param4, param5, param6, param7, false, param8);
         }
 
     }
 
     @Override
-    public void playSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
+    public void playSeededSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5, long param6) {
         if (param0 == this.minecraft.player) {
-            this.minecraft.getSoundManager().play(new EntityBoundSoundInstance(param2, param3, param4, param5, param1));
+            this.minecraft.getSoundManager().play(new EntityBoundSoundInstance(param2, param3, param4, param5, param1, param6));
         }
 
     }
@@ -459,8 +501,14 @@ public class ClientLevel extends Level {
 
     @Override
     public void playLocalSound(double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7) {
+        this.playSound(param0, param1, param2, param3, param4, param5, param6, param7, this.random.nextLong());
+    }
+
+    private void playSound(
+        double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7, long param8
+    ) {
         double var0 = this.minecraft.gameRenderer.getMainCamera().getPosition().distanceToSqr(param0, param1, param2);
-        SimpleSoundInstance var1 = new SimpleSoundInstance(param3, param4, param5, param6, param0, param1, param2);
+        SimpleSoundInstance var1 = new SimpleSoundInstance(param3, param4, param5, param6, RandomSource.create(param8), param0, param1, param2);
         if (param7 && var0 > 100.0) {
             double var2 = Math.sqrt(var0) / 40.0;
             this.minecraft.getSoundManager().playDelayed(var1, (int)(var2 * 20.0));
@@ -650,7 +698,7 @@ public class ClientLevel extends Level {
             var7 = var7 * var13 + var12 * (1.0F - var13);
         }
 
-        if (!this.minecraft.options.hideLightningFlashes && this.skyFlashTime > 0) {
+        if (!this.minecraft.options.hideLightningFlash().get() && this.skyFlashTime > 0) {
             float var14 = (float)this.skyFlashTime - param1;
             if (var14 > 1.0F) {
                 var14 = 1.0F;
@@ -742,7 +790,7 @@ public class ClientLevel extends Level {
     }
 
     public int calculateBlockTint(BlockPos param0, ColorResolver param1) {
-        int var0 = Minecraft.getInstance().options.biomeBlendRadius;
+        int var0 = Minecraft.getInstance().options.biomeBlendRadius().get();
         if (var0 == 0) {
             return param1.getColor(this.getBiome(param0).value(), (double)param0.getX(), (double)param0.getZ());
         } else {
@@ -764,21 +812,6 @@ public class ClientLevel extends Level {
         }
     }
 
-    public BlockPos getSharedSpawnPos() {
-        BlockPos var0 = new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getZSpawn());
-        if (!this.getWorldBorder().isWithinBounds(var0)) {
-            var0 = this.getHeightmapPos(
-                Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.getWorldBorder().getCenterX(), 0.0, this.getWorldBorder().getCenterZ())
-            );
-        }
-
-        return var0;
-    }
-
-    public float getSharedSpawnAngle() {
-        return this.levelData.getSpawnAngle();
-    }
-
     public void setDefaultSpawnPos(BlockPos param0, float param1) {
         this.levelData.setSpawn(param0, param1);
     }
@@ -793,7 +826,7 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
+    public void gameEvent(@Nullable Entity param0, GameEvent param1, Vec3 param2) {
     }
 
     protected Map<String, MapItemSavedData> getAllMapData() {
@@ -998,6 +1031,9 @@ public class ClientLevel extends Level {
         public void onTrackingEnd(Entity param0) {
             param0.unRide();
             ClientLevel.this.players.remove(param0);
+        }
+
+        public void onSectionChange(Entity param0) {
         }
     }
 }

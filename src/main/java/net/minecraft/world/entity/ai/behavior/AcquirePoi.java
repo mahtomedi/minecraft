@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap.Builder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -106,12 +106,12 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
         private static final int MIN_INTERVAL_INCREASE = 40;
         private static final int MAX_INTERVAL_INCREASE = 80;
         private static final int MAX_RETRY_PATHFINDING_INTERVAL = 400;
-        private final Random random;
+        private final RandomSource random;
         private long previousAttemptTimestamp;
         private long nextScheduledAttemptTimestamp;
         private int currentDelay;
 
-        JitteredLinearRetry(Random param0, long param1) {
+        JitteredLinearRetry(RandomSource param0, long param1) {
             this.random = param0;
             this.markAttempt(param1);
         }

@@ -1,8 +1,8 @@
 package net.minecraft.world.entity.boss.enderdragon.phases;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
@@ -25,7 +25,7 @@ public class DragonLandingPhase extends AbstractDragonPhaseInstance {
         double var3 = this.dragon.head.getZ();
 
         for(int var4 = 0; var4 < 8; ++var4) {
-            Random var5 = this.dragon.getRandom();
+            RandomSource var5 = this.dragon.getRandom();
             double var6 = var1 + var5.nextGaussian() / 2.0;
             double var7 = var2 + var5.nextGaussian() / 2.0;
             double var8 = var3 + var5.nextGaussian() / 2.0;

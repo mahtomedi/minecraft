@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -20,6 +19,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,7 +48,7 @@ public class ModelBlockRenderer {
         PoseStack param4,
         VertexConsumer param5,
         boolean param6,
-        Random param7,
+        RandomSource param7,
         long param8,
         int param9
     ) {
@@ -77,7 +77,7 @@ public class ModelBlockRenderer {
         PoseStack param4,
         VertexConsumer param5,
         boolean param6,
-        Random param7,
+        RandomSource param7,
         long param8,
         int param9
     ) {
@@ -117,7 +117,7 @@ public class ModelBlockRenderer {
         PoseStack param4,
         VertexConsumer param5,
         boolean param6,
-        Random param7,
+        RandomSource param7,
         long param8,
         int param9
     ) {
@@ -324,7 +324,7 @@ public class ModelBlockRenderer {
         int param7,
         int param8
     ) {
-        Random var0 = new Random();
+        RandomSource var0 = RandomSource.create();
         long var1 = 42L;
 
         for(Direction var2 : DIRECTIONS) {

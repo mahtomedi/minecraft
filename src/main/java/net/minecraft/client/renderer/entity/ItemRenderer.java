@@ -14,7 +14,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -45,7 +44,9 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -92,7 +93,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     private void renderModelLists(BakedModel param0, ItemStack param1, int param2, int param3, PoseStack param4, VertexConsumer param5) {
-        Random var0 = new Random();
+        RandomSource var0 = RandomSource.create();
         long var1 = 42L;
 
         for(Direction var2 : Direction.values()) {
@@ -140,7 +141,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
                 RenderType var4 = ItemBlockRenderTypes.getRenderType(param0, var2);
                 VertexConsumer var6;
-                if (param0.is(Items.COMPASS) && param0.hasFoil()) {
+                if (param0.is(ItemTags.COMPASSES) && param0.hasFoil()) {
                     param3.pushPose();
                     PoseStack.Pose var5 = param3.last();
                     if (param1 == ItemTransforms.TransformType.GUI) {

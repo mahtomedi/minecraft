@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.stream.Stream;
-import net.minecraft.client.Option;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
@@ -16,9 +16,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MouseSettingsScreen extends OptionsSubScreen {
     private OptionsList list;
-    private static final Option[] OPTIONS = new Option[]{
-        Option.SENSITIVITY, Option.INVERT_MOUSE, Option.MOUSE_WHEEL_SENSITIVITY, Option.DISCRETE_MOUSE_SCROLL, Option.TOUCHSCREEN
-    };
+
+    private static OptionInstance<?>[] options(Options param0) {
+        return new OptionInstance[]{
+            param0.sensitivity(), param0.invertYMouse(), param0.mouseWheelSensitivity(), param0.discreteMouseScroll(), param0.touchscreen()
+        };
+    }
 
     public MouseSettingsScreen(Screen param0, Options param1) {
         super(param0, param1, new TranslatableComponent("options.mouse_settings.title"));
@@ -28,9 +31,12 @@ public class MouseSettingsScreen extends OptionsSubScreen {
     protected void init() {
         this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
         if (InputConstants.isRawMouseInputSupported()) {
-            this.list.addSmall(Stream.concat(Arrays.stream(OPTIONS), Stream.of(Option.RAW_MOUSE_INPUT)).toArray(param0 -> new Option[param0]));
+            this.list
+                .addSmall(
+                    Stream.concat(Arrays.stream(options(this.options)), Stream.of(this.options.rawMouseInput())).toArray(param0 -> new OptionInstance[param0])
+                );
         } else {
-            this.list.addSmall(OPTIONS);
+            this.list.addSmall(options(this.options));
         }
 
         this.addWidget(this.list);

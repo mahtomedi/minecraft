@@ -201,7 +201,7 @@ public class StructureBlockEditScreen extends Screen {
                     : super.charTyped(param0, param1);
             }
         };
-        this.nameEdit.setMaxLength(64);
+        this.nameEdit.setMaxLength(128);
         this.nameEdit.setValue(this.structure.getStructureName());
         this.addWidget(this.nameEdit);
         BlockPos var0 = this.structure.getStructurePos();

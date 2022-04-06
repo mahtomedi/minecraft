@@ -6,24 +6,21 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArrays;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.GravityProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.slf4j.Logger;
 
 public class StructureTemplatePool {
@@ -86,7 +83,7 @@ public class StructureTemplatePool {
         this.fallback = param1;
     }
 
-    public int getMaxSize(StructureManager param0) {
+    public int getMaxSize(StructureTemplateManager param0) {
         if (this.maxSize == Integer.MIN_VALUE) {
             this.maxSize = this.templates
                 .stream()
@@ -103,12 +100,12 @@ public class StructureTemplatePool {
         return this.fallback;
     }
 
-    public StructurePoolElement getRandomTemplate(Random param0) {
+    public StructurePoolElement getRandomTemplate(RandomSource param0) {
         return this.templates.get(param0.nextInt(this.templates.size()));
     }
 
-    public List<StructurePoolElement> getShuffledTemplates(Random param0) {
-        return ImmutableList.copyOf(ObjectArrays.shuffle(this.templates.toArray(new StructurePoolElement[0]), param0));
+    public List<StructurePoolElement> getShuffledTemplates(RandomSource param0) {
+        return Util.shuffledCopy(this.templates, param0);
     }
 
     public ResourceLocation getName() {
@@ -123,11 +120,9 @@ public class StructureTemplatePool {
         TERRAIN_MATCHING("terrain_matching", ImmutableList.of(new GravityProcessor(Heightmap.Types.WORLD_SURFACE_WG, -1))),
         RIGID("rigid", ImmutableList.of());
 
-        public static final Codec<StructureTemplatePool.Projection> CODEC = StringRepresentable.fromEnum(
-            StructureTemplatePool.Projection::values, StructureTemplatePool.Projection::byName
+        public static final StringRepresentable.EnumCodec<StructureTemplatePool.Projection> CODEC = StringRepresentable.fromEnum(
+            StructureTemplatePool.Projection::values
         );
-        private static final Map<String, StructureTemplatePool.Projection> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(StructureTemplatePool.Projection::getName, param0 -> param0));
         private final String name;
         private final ImmutableList<StructureProcessor> processors;
 
@@ -141,7 +136,7 @@ public class StructureTemplatePool {
         }
 
         public static StructureTemplatePool.Projection byName(String param0) {
-            return BY_NAME.get(param0);
+            return CODEC.byName(param0);
         }
 
         public ImmutableList<StructureProcessor> getProcessors() {

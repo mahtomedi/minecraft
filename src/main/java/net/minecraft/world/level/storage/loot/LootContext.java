@@ -9,7 +9,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -17,6 +16,7 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
@@ -25,7 +25,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class LootContext {
-    private final Random random;
+    private final RandomSource random;
     private final float luck;
     private final ServerLevel level;
     private final Function<ResourceLocation, LootTable> lootTables;
@@ -36,7 +36,7 @@ public class LootContext {
     private final Map<ResourceLocation, LootContext.DynamicDrop> dynamicDrops;
 
     LootContext(
-        Random param0,
+        RandomSource param0,
         float param1,
         ServerLevel param2,
         Function<ResourceLocation, LootTable> param3,
@@ -103,7 +103,7 @@ public class LootContext {
         return this.conditions.apply(param0);
     }
 
-    public Random getRandom() {
+    public RandomSource getRandom() {
         return this.random;
     }
 
@@ -119,31 +119,31 @@ public class LootContext {
         private final ServerLevel level;
         private final Map<LootContextParam<?>, Object> params = Maps.newIdentityHashMap();
         private final Map<ResourceLocation, LootContext.DynamicDrop> dynamicDrops = Maps.newHashMap();
-        private Random random;
+        private RandomSource random;
         private float luck;
 
         public Builder(ServerLevel param0) {
             this.level = param0;
         }
 
-        public LootContext.Builder withRandom(Random param0) {
+        public LootContext.Builder withRandom(RandomSource param0) {
             this.random = param0;
             return this;
         }
 
         public LootContext.Builder withOptionalRandomSeed(long param0) {
             if (param0 != 0L) {
-                this.random = new Random(param0);
+                this.random = RandomSource.create(param0);
             }
 
             return this;
         }
 
-        public LootContext.Builder withOptionalRandomSeed(long param0, Random param1) {
+        public LootContext.Builder withOptionalRandomSeed(long param0, RandomSource param1) {
             if (param0 == 0L) {
                 this.random = param1;
             } else {
-                this.random = new Random(param0);
+                this.random = RandomSource.create(param0);
             }
 
             return this;
@@ -205,9 +205,9 @@ public class LootContext {
                 if (!var1.isEmpty()) {
                     throw new IllegalArgumentException("Missing required parameters: " + var1);
                 } else {
-                    Random var2 = this.random;
+                    RandomSource var2 = this.random;
                     if (var2 == null) {
-                        var2 = new Random();
+                        var2 = RandomSource.create();
                     }
 
                     MinecraftServer var3 = this.level.getServer();

@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.NetherForestVegetationConfig;
@@ -19,7 +19,7 @@ public class NetherForestVegetationFeature extends Feature<NetherForestVegetatio
         BlockPos var1 = param0.origin();
         BlockState var2 = var0.getBlockState(var1.below());
         NetherForestVegetationConfig var3 = param0.config();
-        Random var4 = param0.random();
+        RandomSource var4 = param0.random();
         if (!var2.is(BlockTags.NYLIUM)) {
             return false;
         } else {

@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.animal;
 
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -16,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
@@ -57,10 +57,12 @@ public class MushroomCow extends Cow implements Shearable {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        return param1.getBlockState(param0.below()).is(Blocks.MYCELIUM) ? 10.0F : param1.getBrightness(param0) - 0.5F;
+        return param1.getBlockState(param0.below()).is(Blocks.MYCELIUM) ? 10.0F : param1.getPathfindingCostFromLightLevels(param0);
     }
 
-    public static boolean checkMushroomSpawnRules(EntityType<MushroomCow> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkMushroomSpawnRules(
+        EntityType<MushroomCow> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
+    ) {
         return param1.getBlockState(param3.below()).is(BlockTags.MOOSHROOMS_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 
@@ -207,7 +209,7 @@ public class MushroomCow extends Cow implements Shearable {
         super.addAdditionalSaveData(param0);
         param0.putString("Type", this.getMushroomType().type);
         if (this.effect != null) {
-            param0.putByte("EffectId", (byte)MobEffect.getId(this.effect));
+            param0.putInt("EffectId", MobEffect.getId(this.effect));
             param0.putInt("EffectDuration", this.effectDuration);
         }
 
@@ -218,7 +220,7 @@ public class MushroomCow extends Cow implements Shearable {
         super.readAdditionalSaveData(param0);
         this.setMushroomType(MushroomCow.MushroomType.byType(param0.getString("Type")));
         if (param0.contains("EffectId", 1)) {
-            this.effect = MobEffect.byId(param0.getByte("EffectId"));
+            this.effect = MobEffect.byId(param0.getInt("EffectId"));
         }
 
         if (param0.contains("EffectDuration", 3)) {

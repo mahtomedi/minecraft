@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
@@ -15,7 +15,7 @@ public class RandomSelectorFeature extends Feature<RandomFeatureConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<RandomFeatureConfiguration> param0) {
         RandomFeatureConfiguration var0 = param0.config();
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         WorldGenLevel var2 = param0.level();
         ChunkGenerator var3 = param0.chunkGenerator();
         BlockPos var4 = param0.origin();

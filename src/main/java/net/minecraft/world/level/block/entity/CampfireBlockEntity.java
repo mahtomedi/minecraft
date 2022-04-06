@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block.entity;
 
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -9,6 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
@@ -16,6 +16,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
@@ -27,6 +28,7 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
     private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
     private final int[] cookingProgress = new int[4];
     private final int[] cookingTime = new int[4];
+    private final RecipeManager.CachedCheck<Container, CampfireCookingRecipe> quickCheck = RecipeManager.createCheck(RecipeType.CAMPFIRE_COOKING);
 
     public CampfireBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.CAMPFIRE, param0, param1);
@@ -42,10 +44,7 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
                 param3.cookingProgress[var1]++;
                 if (param3.cookingProgress[var1] >= param3.cookingTime[var1]) {
                     Container var3 = new SimpleContainer(var2);
-                    ItemStack var4 = param0.getRecipeManager()
-                        .getRecipeFor(RecipeType.CAMPFIRE_COOKING, var3, param0)
-                        .map(param1x -> param1x.assemble(var3))
-                        .orElse(var2);
+                    ItemStack var4 = param3.quickCheck.getRecipeFor(var3, param0).map(param1x -> param1x.assemble(var3)).orElse(var2);
                     Containers.dropItemStack(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var4);
                     param3.items.set(var1, ItemStack.EMPTY);
                     param0.sendBlockUpdated(param1, param2, param2, 3);
@@ -76,7 +75,7 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
     }
 
     public static void particleTick(Level param0, BlockPos param1, BlockState param2, CampfireBlockEntity param3) {
-        Random var0 = param0.random;
+        RandomSource var0 = param0.random;
         if (var0.nextFloat() < 0.11F) {
             for(int var1 = 0; var1 < var0.nextInt(2) + 2; ++var1) {
                 CampfireBlock.makeParticles(param0, param1, param2.getValue(CampfireBlock.SIGNAL_FIRE), false);
@@ -148,9 +147,7 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
     }
 
     public Optional<CampfireCookingRecipe> getCookableRecipe(ItemStack param0) {
-        return this.items.stream().noneMatch(ItemStack::isEmpty)
-            ? Optional.empty()
-            : this.level.getRecipeManager().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SimpleContainer(param0), this.level);
+        return this.items.stream().noneMatch(ItemStack::isEmpty) ? Optional.empty() : this.quickCheck.getRecipeFor(new SimpleContainer(param0), this.level);
     }
 
     public boolean placeFood(ItemStack param0, int param1) {

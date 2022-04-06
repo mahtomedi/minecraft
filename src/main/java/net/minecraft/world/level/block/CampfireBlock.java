@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block;
 
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -150,7 +150,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LIT)) {
             if (param3.nextInt(10) == 0) {
                 param1.playLocalSound(
@@ -227,7 +227,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     public static void makeParticles(Level param0, BlockPos param1, boolean param2, boolean param3) {
-        Random var0 = param0.getRandom();
+        RandomSource var0 = param0.getRandom();
         SimpleParticleType var1 = param2 ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE;
         param0.addAlwaysVisibleParticle(
             var1,

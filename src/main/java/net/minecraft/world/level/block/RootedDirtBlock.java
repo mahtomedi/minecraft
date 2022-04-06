@@ -1,8 +1,8 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -19,12 +19,12 @@ public class RootedDirtBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         param0.setBlockAndUpdate(param2.below(), Blocks.HANGING_ROOTS.defaultBlockState());
     }
 }

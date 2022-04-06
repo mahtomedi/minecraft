@@ -2,10 +2,10 @@ package net.minecraft.world.level.levelgen.feature.treedecorators;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
@@ -29,7 +29,14 @@ public class CocoaDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, List<BlockPos> param3, List<BlockPos> param4) {
+    public void place(
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        RandomSource param2,
+        List<BlockPos> param3,
+        List<BlockPos> param4,
+        List<BlockPos> param5
+    ) {
         if (!(param2.nextFloat() >= this.probability)) {
             int var0 = param3.get(0).getY();
             param3.stream()

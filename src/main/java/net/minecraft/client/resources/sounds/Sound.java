@@ -4,21 +4,23 @@ import javax.annotation.Nullable;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.SampledFloat;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class Sound implements Weighted<Sound> {
     private final ResourceLocation location;
-    private final float volume;
-    private final float pitch;
+    private final SampledFloat volume;
+    private final SampledFloat pitch;
     private final int weight;
     private final Sound.Type type;
     private final boolean stream;
     private final boolean preload;
     private final int attenuationDistance;
 
-    public Sound(String param0, float param1, float param2, int param3, Sound.Type param4, boolean param5, boolean param6, int param7) {
+    public Sound(String param0, SampledFloat param1, SampledFloat param2, int param3, Sound.Type param4, boolean param5, boolean param6, int param7) {
         this.location = new ResourceLocation(param0);
         this.volume = param1;
         this.pitch = param2;
@@ -37,11 +39,11 @@ public class Sound implements Weighted<Sound> {
         return new ResourceLocation(this.location.getNamespace(), "sounds/" + this.location.getPath() + ".ogg");
     }
 
-    public float getVolume() {
+    public SampledFloat getVolume() {
         return this.volume;
     }
 
-    public float getPitch() {
+    public SampledFloat getPitch() {
         return this.pitch;
     }
 
@@ -50,7 +52,7 @@ public class Sound implements Weighted<Sound> {
         return this.weight;
     }
 
-    public Sound getSound() {
+    public Sound getSound(RandomSource param0) {
         return this;
     }
 

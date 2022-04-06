@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -24,6 +23,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -220,7 +220,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
         this.entityData.set(DATA_VARIANT, param0.getId());
     }
 
-    private static boolean useRareVariant(Random param0) {
+    private static boolean useRareVariant(RandomSource param0) {
         return param0.nextInt(1200) == 0;
     }
 
@@ -416,26 +416,22 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
         return !this.isPlayingDead() && super.canBeSeenAsEnemy();
     }
 
-    public static void onStopAttacking(Axolotl param0) {
-        Optional<LivingEntity> var0 = param0.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
-        if (var0.isPresent()) {
-            Level var1 = param0.level;
-            LivingEntity var2 = var0.get();
-            if (var2.isDeadOrDying()) {
-                DamageSource var3 = var2.getLastDamageSource();
-                if (var3 != null) {
-                    Entity var4 = var3.getEntity();
-                    if (var4 != null && var4.getType() == EntityType.PLAYER) {
-                        Player var5 = (Player)var4;
-                        List<Player> var6 = var1.getEntitiesOfClass(Player.class, param0.getBoundingBox().inflate(20.0));
-                        if (var6.contains(var5)) {
-                            param0.applySupportingEffects(var5);
-                        }
+    public static void onStopAttacking(Axolotl param0, LivingEntity param1) {
+        Level var0 = param0.level;
+        if (param1.isDeadOrDying()) {
+            DamageSource var1 = param1.getLastDamageSource();
+            if (var1 != null) {
+                Entity var2 = var1.getEntity();
+                if (var2 != null && var2.getType() == EntityType.PLAYER) {
+                    Player var3 = (Player)var2;
+                    List<Player> var4 = var0.getEntitiesOfClass(Player.class, param0.getBoundingBox().inflate(20.0));
+                    if (var4.contains(var3)) {
+                        param0.applySupportingEffects(var3);
                     }
                 }
             }
-
         }
+
     }
 
     public void applySupportingEffects(Player param0) {
@@ -530,7 +526,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
     }
 
     public static boolean checkAxolotlSpawnRules(
-        EntityType<? extends LivingEntity> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+        EntityType<? extends LivingEntity> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
         return param1.getBlockState(param3.below()).is(BlockTags.AXOLOTLS_SPAWNABLE_ON);
     }
@@ -543,7 +539,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
             this.types = param0;
         }
 
-        public Axolotl.Variant getVariant(Random param0) {
+        public Axolotl.Variant getVariant(RandomSource param0) {
             return this.types[param0.nextInt(this.types.length)];
         }
     }
@@ -629,15 +625,15 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
             return this.name;
         }
 
-        public static Axolotl.Variant getCommonSpawnVariant(Random param0) {
+        public static Axolotl.Variant getCommonSpawnVariant(RandomSource param0) {
             return getSpawnVariant(param0, true);
         }
 
-        public static Axolotl.Variant getRareSpawnVariant(Random param0) {
+        public static Axolotl.Variant getRareSpawnVariant(RandomSource param0) {
             return getSpawnVariant(param0, false);
         }
 
-        private static Axolotl.Variant getSpawnVariant(Random param0, boolean param1) {
+        private static Axolotl.Variant getSpawnVariant(RandomSource param0, boolean param1) {
             Axolotl.Variant[] var0 = Arrays.stream(BY_ID).filter(param1x -> param1x.common == param1).toArray(param0x -> new Axolotl.Variant[param0x]);
             return Util.getRandom(var0, param0);
         }

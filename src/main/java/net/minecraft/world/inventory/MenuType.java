@@ -22,6 +22,7 @@ public class MenuType<T extends AbstractContainerMenu> {
     public static final MenuType<HopperMenu> HOPPER = register("hopper", HopperMenu::new);
     public static final MenuType<LecternMenu> LECTERN = register("lectern", (param0, param1) -> new LecternMenu(param0));
     public static final MenuType<LoomMenu> LOOM = register("loom", LoomMenu::new);
+    public static final MenuType<MerchantMenu> MERCHANT = register("merchant", MerchantMenu::new);
     public static final MenuType<ShulkerBoxMenu> SHULKER_BOX = register("shulker_box", ShulkerBoxMenu::new);
     public static final MenuType<SmithingMenu> SMITHING = register("smithing", SmithingMenu::new);
     public static final MenuType<SmokerMenu> SMOKER = register("smoker", SmokerMenu::new);

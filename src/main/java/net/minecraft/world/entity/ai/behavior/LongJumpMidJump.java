@@ -32,7 +32,7 @@ public class LongJumpMidJump extends Behavior<Mob> {
 
     protected void stop(ServerLevel param0, Mob param1, long param2) {
         if (param1.isOnGround()) {
-            param1.setDeltaMovement(param1.getDeltaMovement().scale(0.1F));
+            param1.setDeltaMovement(param1.getDeltaMovement().multiply(0.1F, 1.0, 0.1F));
             param0.playSound(null, param1, this.landingSound, SoundSource.NEUTRAL, 2.0F, 1.0F);
         }
 

@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -24,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -36,7 +36,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.slf4j.Logger;
 
-public class VanillaPackResources implements PackResources, ResourceProvider {
+public class VanillaPackResources implements PackResources {
     @Nullable
     public static Path generatedDir;
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -120,12 +120,12 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
     }
 
     @Override
-    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, int param3, Predicate<String> param4) {
+    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, Predicate<ResourceLocation> param3) {
         Set<ResourceLocation> var0 = Sets.newHashSet();
         if (generatedDir != null) {
             try {
-                getResources(var0, param3, param1, generatedDir.resolve(param0.getDirectory()), param2, param4);
-            } catch (IOException var13) {
+                getResources(var0, param1, generatedDir.resolve(param0.getDirectory()), param2, param3);
+            } catch (IOException var12) {
             }
 
             if (param0 == PackType.CLIENT_RESOURCES) {
@@ -133,16 +133,16 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
 
                 try {
                     var1 = clientObject.getClassLoader().getResources(param0.getDirectory() + "/");
-                } catch (IOException var12) {
+                } catch (IOException var11) {
                 }
 
                 while(var1 != null && var1.hasMoreElements()) {
                     try {
                         URI var2 = var1.nextElement().toURI();
                         if ("file".equals(var2.getScheme())) {
-                            getResources(var0, param3, param1, Paths.get(var2), param2, param4);
+                            getResources(var0, param1, Paths.get(var2), param2, param3);
                         }
-                    } catch (IOException | URISyntaxException var11) {
+                    } catch (IOException | URISyntaxException var10) {
                     }
                 }
             }
@@ -151,24 +151,25 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
         try {
             Path var3 = ROOT_DIR_BY_TYPE.get(param0);
             if (var3 != null) {
-                getResources(var0, param3, param1, var3, param2, param4);
+                getResources(var0, param1, var3, param2, param3);
             } else {
                 LOGGER.error("Can't access assets root for type: {}", param0);
             }
-        } catch (NoSuchFileException | FileNotFoundException var9) {
-        } catch (IOException var10) {
-            LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var10);
+        } catch (NoSuchFileException | FileNotFoundException var8) {
+        } catch (IOException var9) {
+            LOGGER.error("Couldn't get a list of all vanilla resources", (Throwable)var9);
         }
 
         return var0;
     }
 
-    private static void getResources(Collection<ResourceLocation> param0, int param1, String param2, Path param3, String param4, Predicate<String> param5) throws IOException {
-        Path var0 = param3.resolve(param2);
+    private static void getResources(Collection<ResourceLocation> param0, String param1, Path param2, String param3, Predicate<ResourceLocation> param4) throws IOException {
+        Path var0 = param2.resolve(param1);
 
-        try (Stream<Path> var1 = Files.walk(var0.resolve(param4), param1)) {
-            var1.filter(param1x -> !param1x.endsWith(".mcmeta") && Files.isRegularFile(param1x) && param5.test(param1x.getFileName().toString()))
-                .map(param2x -> new ResourceLocation(param2, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
+        try (Stream<Path> var1 = Files.walk(var0.resolve(param3))) {
+            var1.filter(param0x -> !param0x.endsWith(".mcmeta") && Files.isRegularFile(param0x))
+                .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
+                .filter(param4)
                 .forEach(param0::add);
         }
 
@@ -257,51 +258,7 @@ public class VanillaPackResources implements PackResources, ResourceProvider {
     public void close() {
     }
 
-    @Override
-    public Resource getResource(final ResourceLocation param0) throws IOException {
-        return new Resource() {
-            @Nullable
-            InputStream inputStream;
-
-            @Override
-            public void close() throws IOException {
-                if (this.inputStream != null) {
-                    this.inputStream.close();
-                }
-
-            }
-
-            @Override
-            public ResourceLocation getLocation() {
-                return param0;
-            }
-
-            @Override
-            public InputStream getInputStream() {
-                try {
-                    this.inputStream = VanillaPackResources.this.getResource(PackType.CLIENT_RESOURCES, param0);
-                } catch (IOException var2) {
-                    throw new UncheckedIOException("Could not get client resource from vanilla pack", var2);
-                }
-
-                return this.inputStream;
-            }
-
-            @Override
-            public boolean hasMetadata() {
-                return false;
-            }
-
-            @Nullable
-            @Override
-            public <T> T getMetadata(MetadataSectionSerializer<T> param0x) {
-                return null;
-            }
-
-            @Override
-            public String getSourceName() {
-                return param0.toString();
-            }
-        };
+    public ResourceProvider asProvider() {
+        return param0 -> Optional.of(new Resource(this.getName(), () -> this.getResource(PackType.CLIENT_RESOURCES, param0)));
     }
 }

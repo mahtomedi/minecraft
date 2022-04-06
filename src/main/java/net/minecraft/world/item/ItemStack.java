@@ -3,8 +3,6 @@ package net.minecraft.world.item;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Streams;
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -15,9 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -43,6 +41,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -60,7 +59,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -69,7 +67,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GenericItemBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import org.slf4j.Logger;
@@ -109,8 +106,6 @@ public final class ItemStack {
     private CompoundTag tag;
     private boolean emptyCacheFlag;
     @Nullable
-    public Player player = null;
-    @Nullable
     private Entity entityRepresentation;
     @Nullable
     private AdventureModeCheck adventureBreakCheck;
@@ -134,6 +129,10 @@ public final class ItemStack {
         param2.ifPresent(this::setTag);
     }
 
+    public ItemStack(Holder<Item> param0, int param1) {
+        this(param0.value(), param1);
+    }
+
     public ItemStack(ItemLike param0, int param1) {
         this.item = param0 == null ? null : param0.asItem();
         this.count = param1;
@@ -147,10 +146,6 @@ public final class ItemStack {
     private void updateEmptyCacheFlag() {
         this.emptyCacheFlag = false;
         this.emptyCacheFlag = this.isEmpty();
-        if (this.isEmpty() && this.player != null && !this.player.level.isClientSide) {
-            this.player.clearCarried();
-        }
-
     }
 
     private ItemStack(CompoundTag param0) {
@@ -199,12 +194,24 @@ public final class ItemStack {
         return this.emptyCacheFlag ? Items.AIR : this.item;
     }
 
+    public Holder<Item> getItemHolder() {
+        return this.getItem().builtInRegistryHolder();
+    }
+
     public boolean is(TagKey<Item> param0) {
         return this.getItem().builtInRegistryHolder().is(param0);
     }
 
     public boolean is(Item param0) {
         return this.getItem() == param0;
+    }
+
+    public boolean is(Predicate<Holder<Item>> param0) {
+        return param0.test(this.getItem().builtInRegistryHolder());
+    }
+
+    public boolean is(Holder<Item> param0) {
+        return this.getItem().builtInRegistryHolder() == param0;
     }
 
     public Stream<TagKey<Item>> getTags() {
@@ -222,13 +229,6 @@ public final class ItemStack {
         } else {
             Item var3 = this.getItem();
             InteractionResult var4 = var3.useOn(param0);
-            if (var4 == InteractionResult.PASS) {
-                BlockState var5 = GenericItemBlock.genericBlockFromItem(var3);
-                if (var5 != null) {
-                    var4 = BlockItem.placeSpecificStateBecauseCodeQualityIsNotImportant(new BlockPlaceContext(param0), var5);
-                }
-            }
-
             if (var0 != null && var4.shouldAwardStats()) {
                 var0.awardStat(Stats.ITEM_USED.get(var3));
             }
@@ -287,17 +287,13 @@ public final class ItemStack {
 
     public void setDamageValue(int param0) {
         this.getOrCreateTag().putInt("Damage", Math.max(0, param0));
-        if (param0 < this.getMaxDamage() && this.player != null && !this.player.level.isClientSide) {
-            this.player.clearCarried();
-        }
-
     }
 
     public int getMaxDamage() {
         return this.getItem().getMaxDamage();
     }
 
-    public boolean hurt(int param0, Random param1, @Nullable ServerPlayer param2) {
+    public boolean hurt(int param0, RandomSource param1, @Nullable ServerPlayer param2) {
         if (!this.isDamageableItem()) {
             return false;
         } else {
@@ -323,7 +319,7 @@ public final class ItemStack {
 
             int var3 = this.getDamageValue() + param0;
             this.setDamageValue(var3);
-            return var3 < this.getMaxDamage();
+            return var3 >= this.getMaxDamage();
         }
     }
 
@@ -807,28 +803,17 @@ public final class ItemStack {
 
     private static Collection<Component> expandBlockState(String param0) {
         try {
-            BlockStateParser var0 = new BlockStateParser(new StringReader(param0), true).parse(true);
-            BlockState var1 = var0.getState();
-            TagKey<Block> var2 = var0.getTag();
-            boolean var3 = var1 != null;
-            boolean var4 = var2 != null;
-            if (var3) {
-                return Lists.newArrayList(var1.getBlock().getName().withStyle(ChatFormatting.DARK_GRAY));
-            }
-
-            if (var4) {
-                List<Component> var5 = Streams.stream(Registry.BLOCK.getTagOrEmpty(var2))
-                    .map(param0x -> param0x.value().getName())
-                    .map(param0x -> param0x.withStyle(ChatFormatting.DARK_GRAY))
-                    .collect(Collectors.toList());
-                if (!var5.isEmpty()) {
-                    return var5;
-                }
-            }
-        } catch (CommandSyntaxException var7) {
+            return BlockStateParser.parseForTesting(Registry.BLOCK, param0, true)
+                .map(
+                    param0x -> Lists.newArrayList(param0x.blockState().getBlock().getName().withStyle(ChatFormatting.DARK_GRAY)),
+                    param0x -> param0x.tag()
+                            .stream()
+                            .map(param0xx -> param0xx.value().getName().withStyle(ChatFormatting.DARK_GRAY))
+                            .collect(Collectors.toList())
+                );
+        } catch (CommandSyntaxException var2) {
+            return Lists.newArrayList(new TextComponent("missingno").withStyle(ChatFormatting.DARK_GRAY));
         }
-
-        return Lists.newArrayList(new TextComponent("missingno").withStyle(ChatFormatting.DARK_GRAY));
     }
 
     public boolean hasFoil() {

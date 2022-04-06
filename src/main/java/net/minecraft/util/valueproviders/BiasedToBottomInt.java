@@ -3,8 +3,8 @@ package net.minecraft.util.valueproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.util.RandomSource;
 
 public class BiasedToBottomInt extends IntProvider {
     public static final Codec<BiasedToBottomInt> CODEC = RecordCodecBuilder.<BiasedToBottomInt>create(
@@ -33,7 +33,7 @@ public class BiasedToBottomInt extends IntProvider {
     }
 
     @Override
-    public int sample(Random param0) {
+    public int sample(RandomSource param0) {
         return this.minInclusive + param0.nextInt(param0.nextInt(this.maxInclusive - this.minInclusive + 1) + 1);
     }
 

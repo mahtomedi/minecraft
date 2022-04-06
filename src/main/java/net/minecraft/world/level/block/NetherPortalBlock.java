@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -47,7 +47,7 @@ public class NetherPortalBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param1.dimensionType().natural()
             && param1.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
             && param3.nextInt(2000) < param1.getDifficulty().getId()) {
@@ -84,7 +84,7 @@ public class NetherPortalBlock extends Block {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param3.nextInt(100) == 0) {
             param1.playLocalSound(
                 (double)param2.getX() + 0.5,

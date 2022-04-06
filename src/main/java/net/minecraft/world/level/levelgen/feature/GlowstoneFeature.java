@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +18,7 @@ public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
         BlockPos var1 = param0.origin();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         if (!var0.isEmptyBlock(var1)) {
             return false;
         } else {

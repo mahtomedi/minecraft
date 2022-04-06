@@ -14,10 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -62,6 +62,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.Nameable;
@@ -69,13 +70,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.CarriedBlocks;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Explosion;
@@ -96,8 +95,8 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
+import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListenerRegistrar;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -178,7 +177,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public double zOld;
     public float maxUpStep;
     public boolean noPhysics;
-    protected final Random random = new Random();
+    protected final RandomSource random = RandomSource.create();
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
     protected boolean wasTouchingWater;
@@ -318,6 +317,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void kill() {
         this.remove(Entity.RemovalReason.KILLED);
+        this.gameEvent(GameEvent.ENTITY_DIE);
     }
 
     public final void discard() {
@@ -346,10 +346,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void remove(Entity.RemovalReason param0) {
         this.setRemoved(param0);
-        if (param0 == Entity.RemovalReason.KILLED) {
-            this.gameEvent(GameEvent.ENTITY_KILLED);
-        }
-
     }
 
     public void onClientRemoval() {
@@ -368,10 +364,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean closerThan(Entity param0, double param1) {
-        double var0 = param0.position.x - this.position.x;
-        double var1 = param0.position.y - this.position.y;
-        double var2 = param0.position.z - this.position.z;
-        return var0 * var0 + var1 * var1 + var2 * var2 < param1 * param1;
+        return this.position().closerThan(param0.position(), param1);
     }
 
     protected void setRot(float param0, float param1) {
@@ -436,19 +429,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
         this.wasInPowderSnow = this.isInPowderSnow;
         this.isInPowderSnow = false;
-        if (this instanceof ServerPlayer var0) {
-            ItemStack var1 = var0.getItemBySlot(EquipmentSlot.HEAD);
-            Item var3 = var1.getItem();
-            if (var3 instanceof BlockItem var2) {
-                BlockState var3x = var2.getBlock().defaultBlockState();
-                if (var3x.is(Blocks.MAGMA_BLOCK) || var3x.is(Blocks.CAMPFIRE) || var3x.is(Blocks.SOUL_CAMPFIRE)) {
-                    this.lavaHurt();
-                } else if (var3x.is(BlockTags.ICE) || var3x.is(BlockTags.SNOW)) {
-                    this.isInPowderSnow = true;
-                }
-            }
-        }
-
         this.updateInWaterStateAndDoFluidPushing();
         this.updateFluidOnEyes();
         this.updateSwimming();
@@ -638,7 +618,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     var8.updateEntityAfterFallOn(this.level, this);
                 }
 
-                if (this.onGround && !this.isSteppingCarefully()) {
+                if (this.onGround) {
                     var8.stepOn(this.level, var5, var6, this);
                 }
 
@@ -648,7 +628,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     double var11 = var0.y;
                     double var12 = var0.z;
                     this.flyDist += (float)(var0.length() * 0.6);
-                    if (!this.canClimbOn(var5, var6) && !var6.is(Blocks.POWDER_SNOW)) {
+                    if (!var6.is(BlockTags.CLIMBABLE) && !var6.is(Blocks.POWDER_SNOW)) {
                         var11 = 0.0;
                     }
 
@@ -674,12 +654,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                                 this.playStepSound(var5, var6);
                             }
 
-                            if (var9.emitsEvents() && !var6.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
+                            if (var9.emitsEvents()) {
                                 this.gameEvent(GameEvent.STEP);
-                            }
-
-                            if (this.canSpawnFootprintParticle()) {
-                                this.spawnFootprintParticle();
                             }
                         }
                     } else if (var6.isAir()) {
@@ -709,10 +685,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.level.getProfiler().pop();
             }
         }
-    }
-
-    public boolean canClimbOn(BlockPos param0, BlockState param1) {
-        return param1.is(BlockTags.CLIMBABLE);
     }
 
     protected boolean isHorizontalCollisionMinor(Vec3 param0) {
@@ -819,67 +791,28 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     private Vec3 collide(Vec3 param0) {
         AABB var0 = this.getBoundingBox();
-        List<Entity> var1 = this.level.getEntities(this, var0.expandTowards(param0), EntitySelector.NO_SPECTATORS);
-        List<VoxelShape> var2 = var1.isEmpty()
-            ? List.of()
-            : var1.stream().filter(EntitySelector.NO_SPECTATORS.and(this::canCollideWith)).map(param0x -> Shapes.create(param0x.getBoundingBox())).toList();
-        Vec3 var3 = param0.lengthSqr() == 0.0 ? param0 : collideBoundingBox(this, param0, var0, this.level, var2);
-        boolean var4 = param0.x != var3.x;
-        boolean var5 = param0.y != var3.y;
-        boolean var6 = param0.z != var3.z;
-        boolean var7 = this.onGround || var5 && param0.y < 0.0;
-        if (this instanceof LivingEntity var8) {
-            Player var9 = var8.getThrownBy();
-            if (var9 != null && !var1.isEmpty()) {
-                var1.stream()
-                    .filter(param1 -> {
-                        if (param1 instanceof LivingEntity var0x && var0x != var9 && var0x.getThrownBy() != var9) {
-                            return true;
-                        }
-    
-                        return false;
-                    })
-                    .forEach(
-                        param1 -> {
-                            LivingEntity var0x = (LivingEntity)param1;
-                            float var1x = var0x.getHealth();
-                            double var2x = 5.0;
-                            float var3x = (float)Math.ceil(this.getDeltaMovement().length() * 5.0 * (double)this.getBbHeight());
-                            param1.hurt(DamageSource.thrown(this, var9), var3x);
-                            this.hurt(DamageSource.thrown(param1, var9), (float)Math.ceil(this.getDeltaMovement().length() * 5.0 * (double)var0x.getBbHeight()));
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug(
-                                    "Throwing {} hurt {} health: {} effective dmg: {} org damage: {}",
-                                    this,
-                                    var0x,
-                                    var0x.getHealth(),
-                                    var1x - var0x.getHealth(),
-                                    var3x
-                                );
-                                LOGGER.debug("Having {} thrown into {} hurt {}", this, param1, this);
-                            }
-        
-                        }
-                    );
-            }
-        }
-
-        if (this.maxUpStep > 0.0F && var7 && (var4 || var6)) {
-            Vec3 var10 = collideBoundingBox(this, new Vec3(param0.x, (double)this.maxUpStep, param0.z), var0, this.level, var2);
-            Vec3 var11 = collideBoundingBox(this, new Vec3(0.0, (double)this.maxUpStep, 0.0), var0.expandTowards(param0.x, 0.0, param0.z), this.level, var2);
-            if (var11.y < (double)this.maxUpStep) {
-                Vec3 var12 = collideBoundingBox(this, new Vec3(param0.x, 0.0, param0.z), var0.move(var11), this.level, var2).add(var11);
-                if (var12.horizontalDistanceSqr() > var10.horizontalDistanceSqr()) {
-                    var10 = var12;
+        List<VoxelShape> var1 = this.level.getEntityCollisions(this, var0.expandTowards(param0));
+        Vec3 var2 = param0.lengthSqr() == 0.0 ? param0 : collideBoundingBox(this, param0, var0, this.level, var1);
+        boolean var3 = param0.x != var2.x;
+        boolean var4 = param0.y != var2.y;
+        boolean var5 = param0.z != var2.z;
+        boolean var6 = this.onGround || var4 && param0.y < 0.0;
+        if (this.maxUpStep > 0.0F && var6 && (var3 || var5)) {
+            Vec3 var7 = collideBoundingBox(this, new Vec3(param0.x, (double)this.maxUpStep, param0.z), var0, this.level, var1);
+            Vec3 var8 = collideBoundingBox(this, new Vec3(0.0, (double)this.maxUpStep, 0.0), var0.expandTowards(param0.x, 0.0, param0.z), this.level, var1);
+            if (var8.y < (double)this.maxUpStep) {
+                Vec3 var9 = collideBoundingBox(this, new Vec3(param0.x, 0.0, param0.z), var0.move(var8), this.level, var1).add(var8);
+                if (var9.horizontalDistanceSqr() > var7.horizontalDistanceSqr()) {
+                    var7 = var9;
                 }
             }
 
-            if (var10.horizontalDistanceSqr() > var3.horizontalDistanceSqr()) {
-                return var10.add(collideBoundingBox(this, new Vec3(0.0, -var10.y + param0.y, 0.0), var0.move(var10), this.level, var2));
+            if (var7.horizontalDistanceSqr() > var2.horizontalDistanceSqr()) {
+                return var7.add(collideBoundingBox(this, new Vec3(0.0, -var7.y + param0.y, 0.0), var0.move(var7), this.level, var1));
             }
         }
 
-        return var3;
+        return var2;
     }
 
     public static Vec3 collideBoundingBox(@Nullable Entity param0, Vec3 param1, AABB param2, Level param3, List<VoxelShape> param4) {
@@ -983,20 +916,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void onInsideBlock(BlockState param0) {
     }
 
-    public void gameEvent(GameEvent param0, @Nullable Entity param1, BlockPos param2) {
-        this.level.gameEvent(param1, param0, param2);
-    }
-
     public void gameEvent(GameEvent param0, @Nullable Entity param1) {
-        this.gameEvent(param0, param1, this.blockPosition);
-    }
-
-    public void gameEvent(GameEvent param0, BlockPos param1) {
-        this.gameEvent(param0, this, param1);
+        this.level.gameEvent(param1, param0, this.position);
     }
 
     public void gameEvent(GameEvent param0) {
-        this.gameEvent(param0, this.blockPosition);
+        this.gameEvent(param0, this);
     }
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
@@ -1037,6 +962,13 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
+    public void playSound(SoundEvent param0) {
+        if (!this.isSilent()) {
+            this.playSound(param0, 1.0F, 1.0F);
+        }
+
+    }
+
     public boolean isSilent() {
         return this.entityData.get(DATA_SILENT);
     }
@@ -1064,19 +996,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected void checkFallDamage(double param0, boolean param1, BlockState param2, BlockPos param3) {
         if (param1) {
             if (this.fallDistance > 0.0F) {
-                if (this instanceof LivingEntity var0 && var0.getThrownBy() != null) {
-                    var0.getSelfAndPassengers().forEach(param0x -> {
-                        if (param0x instanceof LivingEntity var0x) {
-                            var0x.removeThrownBy();
-                        }
-
-                    });
-                }
-
                 param2.getBlock().fallOn(this.level, param2, param3, this, this.fallDistance);
-                if (!param2.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS)) {
-                    this.gameEvent(GameEvent.HIT_GROUND);
-                }
+                this.gameEvent(GameEvent.HIT_GROUND);
             }
 
             this.resetFallDistance();
@@ -1228,10 +1149,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.isSprinting() && !this.isInWater() && !this.isSpectator() && !this.isCrouching() && !this.isInLava() && this.isAlive();
     }
 
-    public boolean canSpawnFootprintParticle() {
-        return false;
-    }
-
     protected void spawnSprintParticle() {
         int var0 = Mth.floor(this.getX());
         int var1 = Mth.floor(this.getY() - 0.2F);
@@ -1252,10 +1169,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 );
         }
 
-    }
-
-    protected void spawnFootprintParticle() {
-        this.level.addParticle(ParticleTypes.FOOTSTEP, this.getX(), this.getY() + 0.001, this.getZ(), (double)this.yRot, 0.0, 0.0);
     }
 
     public boolean isEyeInFluid(TagKey<Fluid> param0) {
@@ -1283,9 +1196,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    public float getBrightness() {
+    @Deprecated
+    public float getLightLevelDependentMagicValue() {
         return this.level.hasChunkAt(this.getBlockX(), this.getBlockZ())
-            ? this.level.getBrightness(new BlockPos(this.getX(), this.getEyeY(), this.getZ()))
+            ? this.level.getLightLevelDependentMagicValue(new BlockPos(this.getX(), this.getEyeY(), this.getZ()))
             : 0.0F;
     }
 
@@ -1745,21 +1659,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         } else if (this.level.isClientSide) {
             return null;
         } else {
-            lunchAsBlock(this.level, param0, param1, this.getPosition(0.0F));
             ItemEntity var0 = new ItemEntity(this.level, this.getX(), this.getY() + (double)param1, this.getZ(), param0);
             var0.setDefaultPickUpDelay();
             this.level.addFreshEntity(var0);
-            return null;
+            return var0;
         }
-    }
-
-    public static void lunchAsBlock(Level param0, ItemStack param1, float param2, Vec3 param3) {
-        CarriedBlocks.createEntityFromItemStack(param0, param3.x(), param3.y() + (double)param2, param3.z(), param1).ifPresent(param1x -> {
-            double var0x = param0.random.nextDouble() - 0.5;
-            double var1x = param0.random.nextDouble() - 0.5;
-            param1x.setDeltaMovement(new Vec3(var0x, 0.5, var1x));
-            param0.addFreshEntity(param1x);
-        });
     }
 
     public boolean isAlive() {
@@ -1792,8 +1696,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return InteractionResult.PASS;
     }
 
-    public boolean canCollideWith(Entity param0x) {
-        return param0x.canBeCollidedWith() && !this.isPassengerOfSameVehicle(param0x);
+    public boolean canCollideWith(Entity param0) {
+        return param0.canBeCollidedWith() && !this.isPassengerOfSameVehicle(param0);
     }
 
     public boolean canBeCollidedWith() {
@@ -2139,9 +2043,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    @Nullable
-    public GameEventListenerRegistrar getGameEventListenerRegistrar() {
-        return null;
+    public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> param0) {
     }
 
     @Nullable
@@ -2321,7 +2223,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean isAttackable() {
-        return false;
+        return true;
     }
 
     public boolean skipAttackInteraction(Entity param0) {
@@ -2358,11 +2260,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean isInvulnerableTo(DamageSource param0) {
-        if (this.getVehicle() instanceof Player && param0 == DamageSource.IN_WALL) {
-            return true;
-        } else {
-            return this.isRemoved() || this.invulnerable && param0 != DamageSource.OUT_OF_WORLD && !param0.isCreativePlayer();
-        }
+        return this.isRemoved() || this.invulnerable && param0 != DamageSource.OUT_OF_WORLD && !param0.isCreativePlayer();
     }
 
     public boolean isInvulnerable() {
@@ -2766,6 +2664,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return null;
     }
 
+    public final boolean hasControllingPassenger() {
+        return this.getControllingPassenger() != null;
+    }
+
     public final List<Entity> getPassengers() {
         return this.passengers;
     }
@@ -3032,10 +2934,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.feetBlockState;
     }
 
-    public BlockPos eyeBlockPosition() {
-        return new BlockPos(this.getEyePosition(1.0F));
-    }
-
     public ChunkPos chunkPosition() {
         return this.chunkPosition;
     }
@@ -3119,10 +3017,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             this.levelCallback.onMove();
-            GameEventListenerRegistrar var3 = this.getGameEventListenerRegistrar();
-            if (var3 != null) {
-                var3.onListenerMove(this.level);
-            }
         }
 
     }
@@ -3141,8 +3035,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         double var3 = param0.getZ();
         this.setPacketCoordinates(var1, var2, var3);
         this.moveTo(var1, var2, var3);
-        this.setXRot((float)(param0.getxRot() * 360) / 256.0F);
-        this.setYRot((float)(param0.getyRot() * 360) / 256.0F);
+        this.setXRot(param0.getXRot());
+        this.setYRot(param0.getYRot());
         this.setId(var0);
         this.setUUID(param0.getUUID());
     }
@@ -3168,6 +3062,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.yRot;
     }
 
+    public float getVisualRotationYInDegrees() {
+        return this.getYRot();
+    }
+
     public void setYRot(float param0) {
         if (!Float.isFinite(param0)) {
             Util.logAndPauseIfInIde("Invalid entity rotation: " + param0 + ", discarding.");
@@ -3186,11 +3084,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         } else {
             this.xRot = param0;
         }
-    }
-
-    public void throwEntity(ServerPlayer param0, Vec3 param1) {
-        this.stopRiding();
-        this.setDeltaMovement(param1.scale(Math.sqrt(1.5 / (double)this.getType().getHeight())));
     }
 
     public final boolean isRemoved() {

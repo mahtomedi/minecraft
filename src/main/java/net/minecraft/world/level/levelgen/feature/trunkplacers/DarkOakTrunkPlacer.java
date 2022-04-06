@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
@@ -28,7 +28,7 @@ public class DarkOakTrunkPlacer extends TrunkPlacer {
 
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, int param3, BlockPos param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, int param3, BlockPos param4, TreeConfiguration param5
     ) {
         List<FoliagePlacer.FoliageAttachment> var0 = Lists.newArrayList();
         BlockPos var1 = param4.below();
@@ -56,10 +56,10 @@ public class DarkOakTrunkPlacer extends TrunkPlacer {
             int var12 = var6 + var11;
             BlockPos var13 = new BlockPos(var8, var12, var9);
             if (TreeFeature.isAirOrLeaves(param0, var13)) {
-                placeLog(param0, param1, param2, var13, param5);
-                placeLog(param0, param1, param2, var13.east(), param5);
-                placeLog(param0, param1, param2, var13.south(), param5);
-                placeLog(param0, param1, param2, var13.east().south(), param5);
+                this.placeLog(param0, param1, param2, var13, param5);
+                this.placeLog(param0, param1, param2, var13.east(), param5);
+                this.placeLog(param0, param1, param2, var13.south(), param5);
+                this.placeLog(param0, param1, param2, var13.east().south(), param5);
             }
         }
 
@@ -71,7 +71,7 @@ public class DarkOakTrunkPlacer extends TrunkPlacer {
                     int var16 = param2.nextInt(3) + 2;
 
                     for(int var17 = 0; var17 < var16; ++var17) {
-                        placeLog(param0, param1, param2, new BlockPos(var5 + var14, var10 - var17 - 1, var7 + var15), param5);
+                        this.placeLog(param0, param1, param2, new BlockPos(var5 + var14, var10 - var17 - 1, var7 + var15), param5);
                     }
 
                     var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var8 + var14, var10, var9 + var15), 0, false));

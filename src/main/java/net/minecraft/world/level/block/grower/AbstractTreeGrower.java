@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block.grower;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,9 +14,9 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public abstract class AbstractTreeGrower {
     @Nullable
-    protected abstract Holder<? extends ConfiguredFeature<?, ?>> getConfiguredFeature(Random var1, boolean var2);
+    protected abstract Holder<? extends ConfiguredFeature<?, ?>> getConfiguredFeature(RandomSource var1, boolean var2);
 
-    public boolean growTree(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, Random param4) {
+    public boolean growTree(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, RandomSource param4) {
         Holder<? extends ConfiguredFeature<?, ?>> var0 = this.getConfiguredFeature(param4, this.hasFlowers(param0, param2));
         if (var0 == null) {
             return false;

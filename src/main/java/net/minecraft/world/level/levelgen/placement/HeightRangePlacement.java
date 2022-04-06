@@ -2,9 +2,9 @@ package net.minecraft.world.level.levelgen.placement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.heightproviders.TrapezoidHeight;
@@ -33,7 +33,7 @@ public class HeightRangePlacement extends PlacementModifier {
     }
 
     @Override
-    public Stream<BlockPos> getPositions(PlacementContext param0, Random param1, BlockPos param2) {
+    public Stream<BlockPos> getPositions(PlacementContext param0, RandomSource param1, BlockPos param2) {
         return Stream.of(param2.atY(this.height.sample(param1, param0)));
     }
 

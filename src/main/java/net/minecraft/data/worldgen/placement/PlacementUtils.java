@@ -1,11 +1,11 @@
 package net.minecraft.data.worldgen.placement;
 
 import java.util.List;
-import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
@@ -51,7 +51,7 @@ public class PlacementUtils {
             VegetationPlacements.BAMBOO_VEGETATION,
             VillagePlacements.PILE_HAY_VILLAGE
         );
-        return Util.getRandom(var0, new Random());
+        return Util.getRandom(var0, RandomSource.create());
     }
 
     public static Holder<PlacedFeature> register(String param0, Holder<? extends ConfiguredFeature<?, ?>> param1, List<PlacementModifier> param2) {

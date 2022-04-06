@@ -6,14 +6,15 @@ import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
@@ -36,15 +37,11 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         super(param0);
     }
 
-    public static boolean isFree(LevelSimulatedReader param0, BlockPos param1) {
-        return validTreePos(param0, param1) || param0.isStateAtPosition(param1, param0x -> param0x.is(BlockTags.LOGS));
-    }
-
     private static boolean isVine(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> param0x.is(Blocks.VINE));
     }
 
-    private static boolean isBlockWater(LevelSimulatedReader param0, BlockPos param1) {
+    public static boolean isBlockWater(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> param0x.is(Blocks.WATER));
     }
 
@@ -55,7 +52,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
     private static boolean isReplaceablePlant(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> {
             Material var0x = param0x.getMaterial();
-            return var0x == Material.REPLACEABLE_PLANT;
+            return var0x == Material.REPLACEABLE_PLANT || var0x == Material.REPLACEABLE_WATER_PLANT;
         });
     }
 
@@ -69,22 +66,33 @@ public class TreeFeature extends Feature<TreeConfiguration> {
 
     private boolean doPlace(
         WorldGenLevel param0,
-        Random param1,
+        RandomSource param1,
         BlockPos param2,
         BiConsumer<BlockPos, BlockState> param3,
         BiConsumer<BlockPos, BlockState> param4,
-        TreeConfiguration param5
+        BiConsumer<BlockPos, BlockState> param5,
+        TreeConfiguration param6
     ) {
-        int var0 = param5.trunkPlacer.getTreeHeight(param1);
-        int var1 = param5.foliagePlacer.foliageHeight(param1, var0, param5);
+        int var0 = param6.trunkPlacer.getTreeHeight(param1);
+        int var1 = param6.foliagePlacer.foliageHeight(param1, var0, param6);
         int var2 = var0 - var1;
-        int var3 = param5.foliagePlacer.foliageRadius(param1, var2);
+        int var3 = param6.foliagePlacer.foliageRadius(param1, var2);
         if (param2.getY() >= param0.getMinBuildHeight() + 1 && param2.getY() + var0 + 1 <= param0.getMaxBuildHeight()) {
-            OptionalInt var4 = param5.minimumSize.minClippedHeight();
-            int var5 = this.getMaxFreeTreeHeight(param0, var0, param2, param5);
+            OptionalInt var4 = param6.minimumSize.minClippedHeight();
+            int var5 = this.getMaxFreeTreeHeight(param0, var0, param2, param6);
             if (var5 >= var0 || var4.isPresent() && var5 >= var4.getAsInt()) {
-                List<FoliagePlacer.FoliageAttachment> var6 = param5.trunkPlacer.placeTrunk(param0, param3, param1, var5, param2, param5);
-                var6.forEach(param7 -> param5.foliagePlacer.createFoliage(param0, param4, param1, param5, var5, param7, var1, var3));
+                BlockPos var6 = param2;
+                if (param6.rootPlacer.isPresent()) {
+                    Optional<BlockPos> var7 = param6.rootPlacer.get().placeRoots(param0, param3, param1, param2, param6);
+                    if (var7.isEmpty()) {
+                        return false;
+                    }
+
+                    var6 = var7.get();
+                }
+
+                List<FoliagePlacer.FoliageAttachment> var8 = param6.trunkPlacer.placeTrunk(param0, param4, param1, var5, var6, param6);
+                var8.forEach(param7 -> param6.foliagePlacer.createFoliage(param0, param5, param1, param6, var5, param7, var1, var3));
                 return true;
             } else {
                 return false;
@@ -103,7 +111,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
             for(int var3 = -var2; var3 <= var2; ++var3) {
                 for(int var4 = -var2; var4 <= var2; ++var4) {
                     var0.setWithOffset(param2, var3, var1, var4);
-                    if (!isFree(param0, var0) || !param3.ignoreVines && isVine(param0, var0)) {
+                    if (!param3.trunkPlacer.isFree(param0, var0) || !param3.ignoreVines && isVine(param0, var0)) {
                         return var1 - 2;
                     }
                 }
@@ -121,36 +129,43 @@ public class TreeFeature extends Feature<TreeConfiguration> {
     @Override
     public final boolean place(FeaturePlaceContext<TreeConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         BlockPos var2 = param0.origin();
         TreeConfiguration var3 = param0.config();
         Set<BlockPos> var4 = Sets.newHashSet();
         Set<BlockPos> var5 = Sets.newHashSet();
         Set<BlockPos> var6 = Sets.newHashSet();
-        BiConsumer<BlockPos, BlockState> var7 = (param2, param3) -> {
+        Set<BlockPos> var7 = Sets.newHashSet();
+        BiConsumer<BlockPos, BlockState> var8 = (param2, param3) -> {
             var4.add(param2.immutable());
             var0.setBlock(param2, param3, 19);
         };
-        BiConsumer<BlockPos, BlockState> var8 = (param2, param3) -> {
+        BiConsumer<BlockPos, BlockState> var9 = (param2, param3) -> {
             var5.add(param2.immutable());
             var0.setBlock(param2, param3, 19);
         };
-        BiConsumer<BlockPos, BlockState> var9 = (param2, param3) -> {
+        BiConsumer<BlockPos, BlockState> var10 = (param2, param3) -> {
             var6.add(param2.immutable());
             var0.setBlock(param2, param3, 19);
         };
-        boolean var10 = this.doPlace(var0, var1, var2, var7, var8, var3);
-        if (var10 && (!var4.isEmpty() || !var5.isEmpty())) {
+        BiConsumer<BlockPos, BlockState> var11 = (param2, param3) -> {
+            var7.add(param2.immutable());
+            var0.setBlock(param2, param3, 19);
+        };
+        boolean var12 = this.doPlace(var0, var1, var2, var8, var9, var10, var3);
+        if (var12 && (!var5.isEmpty() || !var6.isEmpty())) {
             if (!var3.decorators.isEmpty()) {
-                List<BlockPos> var11 = Lists.newArrayList(var4);
-                List<BlockPos> var12 = Lists.newArrayList(var5);
-                var11.sort(Comparator.comparingInt(Vec3i::getY));
-                var12.sort(Comparator.comparingInt(Vec3i::getY));
-                var3.decorators.forEach(param5 -> param5.place(var0, var9, var1, var11, var12));
+                List<BlockPos> var13 = Lists.newArrayList(var4);
+                List<BlockPos> var14 = Lists.newArrayList(var5);
+                List<BlockPos> var15 = Lists.newArrayList(var6);
+                var14.sort(Comparator.comparingInt(Vec3i::getY));
+                var15.sort(Comparator.comparingInt(Vec3i::getY));
+                var13.sort(Comparator.comparingInt(Vec3i::getY));
+                var3.decorators.forEach(param6 -> param6.place(var0, var11, var1, var14, var15, var13));
             }
 
-            return BoundingBox.encapsulatingPositions(Iterables.concat(var4, var5, var6)).map(param3 -> {
-                DiscreteVoxelShape var0x = updateLeaves(var0, param3, var4, var6);
+            return BoundingBox.encapsulatingPositions(Iterables.concat(var5, var6, var7)).map(param3 -> {
+                DiscreteVoxelShape var0x = updateLeaves(var0, param3, var5, var7);
                 StructureTemplate.updateShapeAtEdge(var0, 3, var0x, param3.minX(), param3.minY(), param3.minZ());
                 return true;
             }).orElse(false);

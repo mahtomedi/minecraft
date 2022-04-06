@@ -1,8 +1,8 @@
 package net.minecraft.util;
 
-import java.util.Random;
 import java.util.UUID;
 import java.util.function.IntPredicate;
+import java.util.stream.IntStream;
 import net.minecraft.Util;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
@@ -30,7 +30,7 @@ public class Mth {
         }
 
     });
-    private static final Random RANDOM = new Random();
+    private static final RandomSource RANDOM = RandomSource.createThreadSafe();
     private static final int[] MULTIPLY_DE_BRUIJN_BIT_POSITION = new int[]{
         0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
     };
@@ -166,15 +166,15 @@ public class Mth {
         return Math.floorDiv(param0, param1);
     }
 
-    public static int nextInt(Random param0, int param1, int param2) {
+    public static int nextInt(RandomSource param0, int param1, int param2) {
         return param1 >= param2 ? param1 : param0.nextInt(param2 - param1 + 1) + param1;
     }
 
-    public static float nextFloat(Random param0, float param1, float param2) {
+    public static float nextFloat(RandomSource param0, float param1, float param2) {
         return param1 >= param2 ? param1 : param0.nextFloat() * (param2 - param1) + param1;
     }
 
-    public static double nextDouble(Random param0, double param1, double param2) {
+    public static double nextDouble(RandomSource param0, double param1, double param2) {
         return param1 >= param2 ? param1 : param0.nextDouble() * (param2 - param1) + param1;
     }
 
@@ -376,7 +376,7 @@ public class Mth {
         return var0 >> 16;
     }
 
-    public static UUID createInsecureUUID(Random param0) {
+    public static UUID createInsecureUUID(RandomSource param0) {
         long var0 = param0.nextLong() & -61441L | 16384L;
         long var1 = param0.nextLong() & 4611686018427387903L | Long.MIN_VALUE;
         return new UUID(var0, var1);
@@ -590,7 +590,7 @@ public class Mth {
         return param0;
     }
 
-    public static int getRandomForDistributionIntegral(Random param0, double[] param1) {
+    public static int getRandomForDistributionIntegral(RandomSource param0, double[] param1) {
         double var0 = param0.nextDouble();
 
         for(int var1 = 0; var1 < param1.length; ++var1) {
@@ -771,6 +771,10 @@ public class Mth {
         return param0 * param0;
     }
 
+    public static float cube(float param0) {
+        return param0 * param0 * param0;
+    }
+
     public static double clampedMap(double param0, double param1, double param2, double param3, double param4) {
         return clampedLerp(param3, param4, inverseLerp(param0, param1, param2));
     }
@@ -788,7 +792,7 @@ public class Mth {
     }
 
     public static double wobble(double param0) {
-        return param0 + (2.0 * new Random((long)floor(param0 * 3000.0)).nextDouble() - 1.0) * 1.0E-7 / 2.0;
+        return param0 + (2.0 * RandomSource.create((long)floor(param0 * 3000.0)).nextDouble() - 1.0) * 1.0E-7 / 2.0;
     }
 
     public static int roundToward(int param0, int param1) {
@@ -799,15 +803,15 @@ public class Mth {
         return -Math.floorDiv(-param0, param1);
     }
 
-    public static int randomBetweenInclusive(Random param0, int param1, int param2) {
+    public static int randomBetweenInclusive(RandomSource param0, int param1, int param2) {
         return param0.nextInt(param2 - param1 + 1) + param1;
     }
 
-    public static float randomBetween(Random param0, float param1, float param2) {
+    public static float randomBetween(RandomSource param0, float param1, float param2) {
         return param0.nextFloat() * (param2 - param1) + param1;
     }
 
-    public static float normal(Random param0, float param1, float param2) {
+    public static float normal(RandomSource param0, float param1, float param2) {
         return param1 + (float)param0.nextGaussian() * param2;
     }
 
@@ -829,6 +833,35 @@ public class Mth {
 
     public static int quantize(double param0, int param1) {
         return floor(param0 / (double)param1) * param1;
+    }
+
+    public static IntStream outFromOrigin(int param0, int param1, int param2) {
+        return outFromOrigin(param0, param1, param2, 1);
+    }
+
+    public static IntStream outFromOrigin(int param0, int param1, int param2, int param3) {
+        if (param1 > param2) {
+            throw new IllegalArgumentException("upperbound %d expected to be > lowerBound %d".formatted(param2, param1));
+        } else if (param3 < 1) {
+            throw new IllegalArgumentException("steps expected to be >= 1, was %d".formatted(param3));
+        } else {
+            return param0 >= param1 && param0 <= param2 ? IntStream.iterate(param0, param3x -> {
+                int var0x = Math.abs(param0 - param3x);
+                return param0 - var0x >= param1 || param0 + var0x <= param2;
+            }, param4 -> {
+                boolean var0x = param4 <= param0;
+                int var1x = Math.abs(param0 - param4);
+                boolean var2x = param0 + var1x + param3 <= param2;
+                if (!var0x || !var2x) {
+                    int var3x = param0 - var1x - (var0x ? param3 : 0);
+                    if (var3x >= param1) {
+                        return var3x;
+                    }
+                }
+
+                return param0 + var1x + param3;
+            }) : IntStream.empty();
+        }
     }
 
     static {

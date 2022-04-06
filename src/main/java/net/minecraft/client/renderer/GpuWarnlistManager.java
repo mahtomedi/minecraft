@@ -9,16 +9,13 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.platform.GlUtil;
 import com.mojang.logging.LogUtils;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.Reader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -123,12 +120,9 @@ public class GpuWarnlistManager extends SimplePreparableReloadListener<GpuWarnli
         param1.push("parse_json");
         JsonObject var0 = null;
 
-        try (
-            Resource var1 = param0.getResource(GPU_WARNLIST_LOCATION);
-            BufferedReader var2 = new BufferedReader(new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8));
-        ) {
-            var0 = new JsonParser().parse(var2).getAsJsonObject();
-        } catch (JsonSyntaxException | IOException var11) {
+        try (Reader var1 = param0.openAsReader(GPU_WARNLIST_LOCATION)) {
+            var0 = JsonParser.parseReader(var1).getAsJsonObject();
+        } catch (JsonSyntaxException | IOException var8) {
             LOGGER.warn("Failed to load GPU warnlist");
         }
 

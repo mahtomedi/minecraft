@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -19,7 +19,7 @@ public class BlockPileFeature extends Feature<BlockPileConfiguration> {
     public boolean place(FeaturePlaceContext<BlockPileConfiguration> param0) {
         BlockPos var0 = param0.origin();
         WorldGenLevel var1 = param0.level();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         BlockPileConfiguration var3 = param0.config();
         if (var0.getY() < var1.getMinBuildHeight() + 5) {
             return false;
@@ -41,13 +41,13 @@ public class BlockPileFeature extends Feature<BlockPileConfiguration> {
         }
     }
 
-    private boolean mayPlaceOn(LevelAccessor param0, BlockPos param1, Random param2) {
+    private boolean mayPlaceOn(LevelAccessor param0, BlockPos param1, RandomSource param2) {
         BlockPos var0 = param1.below();
         BlockState var1 = param0.getBlockState(var0);
         return var1.is(Blocks.DIRT_PATH) ? param2.nextBoolean() : var1.isFaceSturdy(param0, var0, Direction.UP);
     }
 
-    private void tryPlaceBlock(LevelAccessor param0, BlockPos param1, Random param2, BlockPileConfiguration param3) {
+    private void tryPlaceBlock(LevelAccessor param0, BlockPos param1, RandomSource param2, BlockPileConfiguration param3) {
         if (param0.isEmptyBlock(param1) && this.mayPlaceOn(param0, param1, param2)) {
             param0.setBlock(param1, param3.stateProvider.getState(param2, param1), 4);
         }

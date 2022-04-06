@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -15,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -385,7 +385,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof ChestBlockEntity) {
             ((ChestBlockEntity)var0).recheckOpen();

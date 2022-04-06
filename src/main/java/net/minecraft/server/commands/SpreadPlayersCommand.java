@@ -12,7 +12,6 @@ import com.mojang.brigadier.exceptions.Dynamic4CommandExceptionType;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,6 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -107,7 +107,7 @@ public class SpreadPlayersCommand {
         if (param4 < var1) {
             throw ERROR_INVALID_MAX_HEIGHT.create(param4, var1);
         } else {
-            Random var2 = new Random();
+            RandomSource var2 = RandomSource.create();
             double var3 = (double)(param1.x - param3);
             double var4 = (double)(param1.y - param3);
             double var5 = (double)(param1.x + param3);
@@ -147,7 +147,7 @@ public class SpreadPlayersCommand {
         Vec2 param0,
         double param1,
         ServerLevel param2,
-        Random param3,
+        RandomSource param3,
         double param4,
         double param5,
         double param6,
@@ -260,7 +260,9 @@ public class SpreadPlayersCommand {
         return param0.size() < 2 ? 0.0 : var0 / (double)param0.size();
     }
 
-    private static SpreadPlayersCommand.Position[] createInitialPositions(Random param0, int param1, double param2, double param3, double param4, double param5) {
+    private static SpreadPlayersCommand.Position[] createInitialPositions(
+        RandomSource param0, int param1, double param2, double param3, double param4, double param5
+    ) {
         SpreadPlayersCommand.Position[] var0 = new SpreadPlayersCommand.Position[param1];
 
         for(int var1 = 0; var1 < var0.length; ++var1) {
@@ -344,7 +346,7 @@ public class SpreadPlayersCommand {
             return var0.getY() < param1 && !var2.isLiquid() && var2 != Material.FIRE;
         }
 
-        public void randomize(Random param0, double param1, double param2, double param3, double param4) {
+        public void randomize(RandomSource param0, double param1, double param2, double param3, double param4) {
             this.x = Mth.nextDouble(param0, param1, param3);
             this.z = Mth.nextDouble(param0, param2, param4);
         }

@@ -23,25 +23,6 @@ public class DeadBushBlock extends BushBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.is(Blocks.SAND)
-            || param0.is(Blocks.RED_SAND)
-            || param0.is(Blocks.TERRACOTTA)
-            || param0.is(Blocks.WHITE_TERRACOTTA)
-            || param0.is(Blocks.ORANGE_TERRACOTTA)
-            || param0.is(Blocks.MAGENTA_TERRACOTTA)
-            || param0.is(Blocks.LIGHT_BLUE_TERRACOTTA)
-            || param0.is(Blocks.YELLOW_TERRACOTTA)
-            || param0.is(Blocks.LIME_TERRACOTTA)
-            || param0.is(Blocks.PINK_TERRACOTTA)
-            || param0.is(Blocks.GRAY_TERRACOTTA)
-            || param0.is(Blocks.LIGHT_GRAY_TERRACOTTA)
-            || param0.is(Blocks.CYAN_TERRACOTTA)
-            || param0.is(Blocks.PURPLE_TERRACOTTA)
-            || param0.is(Blocks.BLUE_TERRACOTTA)
-            || param0.is(Blocks.BROWN_TERRACOTTA)
-            || param0.is(Blocks.GREEN_TERRACOTTA)
-            || param0.is(Blocks.RED_TERRACOTTA)
-            || param0.is(Blocks.BLACK_TERRACOTTA)
-            || param0.is(BlockTags.DIRT);
+        return param0.is(BlockTags.DEAD_BUSH_MAY_PLACE_ON);
     }
 }

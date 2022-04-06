@@ -2,8 +2,8 @@ package net.minecraft.world.level.levelgen.structure.pieces;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Random;
 import javax.annotation.Nullable;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePieceAccessor;
@@ -31,7 +31,7 @@ public class StructurePiecesBuilder implements StructurePieceAccessor {
     }
 
     @Deprecated
-    public void moveBelowSeaLevel(int param0, int param1, Random param2, int param3) {
+    public void moveBelowSeaLevel(int param0, int param1, RandomSource param2, int param3) {
         int var0 = param0 - param3;
         BoundingBox var1 = this.getBoundingBox();
         int var2 = var1.getYSpan() + param1 + 1;
@@ -44,7 +44,7 @@ public class StructurePiecesBuilder implements StructurePieceAccessor {
     }
 
     /** @deprecated */
-    public void moveInsideHeights(Random param0, int param1, int param2) {
+    public void moveInsideHeights(RandomSource param0, int param1, int param2) {
         BoundingBox var0 = this.getBoundingBox();
         int var1 = param2 - param1 + 1 - var0.getYSpan();
         int var2;

@@ -3,12 +3,12 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ClampedNormalFloat;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -28,7 +28,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         WorldGenLevel var0 = param0.level();
         BlockPos var1 = param0.origin();
         DripstoneClusterConfiguration var2 = param0.config();
-        Random var3 = param0.random();
+        RandomSource var3 = param0.random();
         if (!DripstoneUtils.isEmptyOrWater(var0, var1)) {
             return false;
         } else {
@@ -52,7 +52,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
 
     private void placeColumn(
         WorldGenLevel param0,
-        Random param1,
+        RandomSource param1,
         BlockPos param2,
         int param3,
         int param4,
@@ -146,7 +146,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         return param0.getBlockState(param1).is(Blocks.LAVA);
     }
 
-    private int getDripstoneHeight(Random param0, int param1, int param2, float param3, int param4, DripstoneClusterConfiguration param5) {
+    private int getDripstoneHeight(RandomSource param0, int param1, int param2, float param3, int param4, DripstoneClusterConfiguration param5) {
         if (param0.nextFloat() > param3) {
             return 0;
         } else {
@@ -202,7 +202,7 @@ public class DripstoneClusterFeature extends Feature<DripstoneClusterConfigurati
         );
     }
 
-    private static float randomBetweenBiased(Random param0, float param1, float param2, float param3, float param4) {
+    private static float randomBetweenBiased(RandomSource param0, float param1, float param2, float param3, float param4) {
         return ClampedNormalFloat.sample(param0, param3, param4, param1, param2);
     }
 }

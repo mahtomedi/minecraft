@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -37,7 +37,7 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(AGE) < 25 && param3.nextDouble() < this.growPerTickProbability) {
             BlockPos var0 = param2.relative(this.growthDirection);
             if (this.canGrowInto(param1.getBlockState(var0))) {
@@ -47,7 +47,7 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
 
     }
 
-    protected BlockState getGrowIntoState(BlockState param0, Random param1) {
+    protected BlockState getGrowIntoState(BlockState param0, RandomSource param1) {
         return param0.cycle(AGE);
     }
 
@@ -91,12 +91,12 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         BlockPos var0 = param2.relative(this.growthDirection);
         int var1 = Math.min(param3.getValue(AGE) + 1, 25);
         int var2 = this.getBlocksToGrowWhenBonemealed(param1);
@@ -109,7 +109,7 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
 
     }
 
-    protected abstract int getBlocksToGrowWhenBonemealed(Random var1);
+    protected abstract int getBlocksToGrowWhenBonemealed(RandomSource var1);
 
     protected abstract boolean canGrowInto(BlockState var1);
 

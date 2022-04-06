@@ -1,10 +1,11 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -27,10 +28,27 @@ public class AlterGroundDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, List<BlockPos> param3, List<BlockPos> param4) {
-        if (!param3.isEmpty()) {
-            int var0 = param3.get(0).getY();
-            param3.stream().filter(param1x -> param1x.getY() == var0).forEach(param3x -> {
+    public void place(
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        RandomSource param2,
+        List<BlockPos> param3,
+        List<BlockPos> param4,
+        List<BlockPos> param5
+    ) {
+        List<BlockPos> var0 = Lists.newArrayList();
+        if (param5.isEmpty()) {
+            var0.addAll(param3);
+        } else if (!param3.isEmpty() && param5.get(0).getY() == param3.get(0).getY()) {
+            var0.addAll(param3);
+            var0.addAll(param5);
+        } else {
+            var0.addAll(param5);
+        }
+
+        if (!var0.isEmpty()) {
+            int var1 = var0.get(0).getY();
+            var0.stream().filter(param1x -> param1x.getY() == var1).forEach(param3x -> {
                 this.placeCircle(param0, param1, param2, param3x.west().north());
                 this.placeCircle(param0, param1, param2, param3x.east(2).north());
                 this.placeCircle(param0, param1, param2, param3x.west().south(2));
@@ -49,7 +67,7 @@ public class AlterGroundDecorator extends TreeDecorator {
         }
     }
 
-    private void placeCircle(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, BlockPos param3) {
+    private void placeCircle(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, BlockPos param3) {
         for(int var0 = -2; var0 <= 2; ++var0) {
             for(int var1 = -2; var1 <= 2; ++var1) {
                 if (Math.abs(var0) != 2 || Math.abs(var1) != 2) {
@@ -60,7 +78,7 @@ public class AlterGroundDecorator extends TreeDecorator {
 
     }
 
-    private void placeBlockAt(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, BlockPos param3) {
+    private void placeBlockAt(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, BlockPos param3) {
         for(int var0 = 2; var0 >= -3; --var0) {
             BlockPos var1 = param3.above(var0);
             if (Feature.isGrassOrDirt(param0, var1)) {

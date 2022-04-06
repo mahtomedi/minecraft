@@ -1,7 +1,7 @@
 package net.minecraft.world.item.enchantment;
 
-import java.util.Random;
 import java.util.Map.Entry;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -38,7 +38,7 @@ public class ThornsEnchantment extends Enchantment {
 
     @Override
     public void doPostHurt(LivingEntity param0, Entity param1, int param2) {
-        Random var0 = param0.getRandom();
+        RandomSource var0 = param0.getRandom();
         Entry<EquipmentSlot, ItemStack> var1 = EnchantmentHelper.getRandomItemWith(Enchantments.THORNS, param0);
         if (shouldHit(param2, var0)) {
             if (param1 != null) {
@@ -52,7 +52,7 @@ public class ThornsEnchantment extends Enchantment {
 
     }
 
-    public static boolean shouldHit(int param0, Random param1) {
+    public static boolean shouldHit(int param0, RandomSource param1) {
         if (param0 <= 0) {
             return false;
         } else {
@@ -60,7 +60,7 @@ public class ThornsEnchantment extends Enchantment {
         }
     }
 
-    public static int getDamage(int param0, Random param1) {
+    public static int getDamage(int param0, RandomSource param1) {
         return param0 > 10 ? param0 - 10 : 1 + param1.nextInt(4);
     }
 }

@@ -44,6 +44,11 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.POINTED_DRIPSTONE);
     }
 
+    public static void addSculk(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_VEIN);
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_PATCH_DEEP_DARK);
+    }
+
     public static void addDefaultOres(BiomeGenerationSettings.Builder param0) {
         addDefaultOres(param0, false);
     }
@@ -86,6 +91,11 @@ public class BiomeDefaultFeatures {
     }
 
     public static void addSwampClayDisk(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, MiscOverworldPlacements.DISK_CLAY);
+    }
+
+    public static void addMangroveSwampDisks(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, MiscOverworldPlacements.DISK_GRASS);
         param0.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, MiscOverworldPlacements.DISK_CLAY);
     }
 
@@ -221,6 +231,13 @@ public class BiomeDefaultFeatures {
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_WATERLILY);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.BROWN_MUSHROOM_SWAMP);
         param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.RED_MUSHROOM_SWAMP);
+    }
+
+    public static void addMangroveSwampVegetation(BiomeGenerationSettings.Builder param0) {
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.TREES_MANGROVE);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_NORMAL);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_DEAD_BUSH);
+        param0.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_WATERLILY);
     }
 
     public static void addMushroomFieldVegetation(BiomeGenerationSettings.Builder param0) {

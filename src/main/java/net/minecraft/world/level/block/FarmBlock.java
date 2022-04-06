@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -67,7 +67,7 @@ public class FarmBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (!param0.canSurvive(param1, param2)) {
             turnToDirt(param0, param1, param2);
         }
@@ -75,7 +75,7 @@ public class FarmBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         int var0 = param0.getValue(MOISTURE);
         if (!isNearWater(param1, param2) && !param1.isRainingAt(param2.above())) {
             if (var0 > 0) {

@@ -1,8 +1,14 @@
 package net.minecraft.world.effect;
 
+import java.util.List;
+import javax.annotation.Nullable;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 public final class MobEffectUtil {
     public static String formatDuration(MobEffectInstance param0, float param1) {
@@ -34,5 +40,22 @@ public final class MobEffectUtil {
 
     public static boolean hasWaterBreathing(LivingEntity param0) {
         return param0.hasEffect(MobEffects.WATER_BREATHING) || param0.hasEffect(MobEffects.CONDUIT_POWER);
+    }
+
+    public static List<ServerPlayer> addEffectToPlayersAround(
+        ServerLevel param0, @Nullable Entity param1, Vec3 param2, double param3, MobEffectInstance param4, int param5
+    ) {
+        MobEffect var0 = param4.getEffect();
+        List<ServerPlayer> var1 = param0.getPlayers(
+            param5x -> param5x.gameMode.isSurvival()
+                    && param2.closerThan(param5x.position(), param3)
+                    && (
+                        !param5x.hasEffect(var0)
+                            || param5x.getEffect(var0).getAmplifier() < param4.getAmplifier()
+                            || param5x.getEffect(var0).getDuration() < param5
+                    )
+        );
+        var1.forEach(param2x -> param2x.addEffect(new MobEffectInstance(param4), param1));
+        return var1;
     }
 }

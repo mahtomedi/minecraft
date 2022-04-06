@@ -1,9 +1,9 @@
 package net.minecraft.network.protocol.game;
 
-import java.util.Random;
 import java.util.UUID;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
@@ -86,15 +86,15 @@ public class DebugEntityNameGenerator {
     }
 
     public static String getEntityName(UUID param0) {
-        Random var0 = getRandom(param0);
+        RandomSource var0 = getRandom(param0);
         return getRandomString(var0, NAMES_FIRST_PART) + getRandomString(var0, NAMES_SECOND_PART);
     }
 
-    private static String getRandomString(Random param0, String[] param1) {
+    private static String getRandomString(RandomSource param0, String[] param1) {
         return Util.getRandom(param1, param0);
     }
 
-    private static Random getRandom(UUID param0) {
-        return new Random((long)(param0.hashCode() >> 2));
+    private static RandomSource getRandom(UUID param0) {
+        return RandomSource.create((long)(param0.hashCode() >> 2));
     }
 }

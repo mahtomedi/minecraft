@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class CreeperModel<T extends Entity> extends HierarchicalModel<T> implements HeadedModel {
+public class CreeperModel<T extends Entity> extends HierarchicalModel<T> {
     private final ModelPart root;
     private final ModelPart head;
     private final ModelPart rightHindLeg;
@@ -61,10 +61,5 @@ public class CreeperModel<T extends Entity> extends HierarchicalModel<T> impleme
         this.leftHindLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2;
         this.rightFrontLeg.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2;
         this.leftFrontLeg.xRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2;
-    }
-
-    @Override
-    public ModelPart getHead() {
-        return this.head;
     }
 }

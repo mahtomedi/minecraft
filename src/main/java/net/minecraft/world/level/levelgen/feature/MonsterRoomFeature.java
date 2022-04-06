@@ -2,12 +2,12 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -34,7 +34,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
         Predicate<BlockState> var0 = Feature.isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE);
         BlockPos var1 = param0.origin();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         WorldGenLevel var3 = param0.level();
         int var4 = 3;
         int var5 = var2.nextInt(2) + 2;
@@ -132,7 +132,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private EntityType<?> randomEntityId(Random param0) {
+    private EntityType<?> randomEntityId(RandomSource param0) {
         return Util.getRandom(MOBS, param0);
     }
 }

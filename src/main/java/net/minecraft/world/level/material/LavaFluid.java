@@ -1,7 +1,6 @@
 package net.minecraft.world.level.material;
 
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -43,7 +43,7 @@ public abstract class LavaFluid extends FlowingFluid {
     }
 
     @Override
-    public void animateTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
+    public void animateTick(Level param0, BlockPos param1, FluidState param2, RandomSource param3) {
         BlockPos var0 = param1.above();
         if (param0.getBlockState(var0).isAir() && !param0.getBlockState(var0).isSolidRender(param0, var0)) {
             if (param3.nextInt(100) == 0) {
@@ -73,7 +73,7 @@ public abstract class LavaFluid extends FlowingFluid {
     }
 
     @Override
-    public void randomTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
+    public void randomTick(Level param0, BlockPos param1, FluidState param2, RandomSource param3) {
         if (param0.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
             int var0 = param3.nextInt(3);
             if (var0 > 0) {

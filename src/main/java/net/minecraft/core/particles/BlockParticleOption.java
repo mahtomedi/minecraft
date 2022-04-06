@@ -13,11 +13,11 @@ public class BlockParticleOption implements ParticleOptions {
     public static final ParticleOptions.Deserializer<BlockParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<BlockParticleOption>() {
         public BlockParticleOption fromCommand(ParticleType<BlockParticleOption> param0, StringReader param1) throws CommandSyntaxException {
             param1.expect(' ');
-            return new BlockParticleOption(param0, new BlockStateParser(param1, false).parse(false).getState());
+            return new BlockParticleOption(param0, BlockStateParser.parseForBlock(Registry.BLOCK, param1, false).blockState());
         }
 
         public BlockParticleOption fromNetwork(ParticleType<BlockParticleOption> param0, FriendlyByteBuf param1) {
-            return new BlockParticleOption(param0, Block.BLOCK_STATE_REGISTRY.byId(param1.readVarInt()));
+            return new BlockParticleOption(param0, param1.readById(Block.BLOCK_STATE_REGISTRY));
         }
     };
     private final ParticleType<BlockParticleOption> type;
@@ -34,7 +34,7 @@ public class BlockParticleOption implements ParticleOptions {
 
     @Override
     public void writeToNetwork(FriendlyByteBuf param0) {
-        param0.writeVarInt(Block.BLOCK_STATE_REGISTRY.getId(this.state));
+        param0.writeId(Block.BLOCK_STATE_REGISTRY, this.state);
     }
 
     @Override

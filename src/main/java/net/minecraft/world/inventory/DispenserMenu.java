@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class DispenserMenu extends AbstractContainerMenu {
-    private static final int SLOT_COUNT = 1;
+    private static final int SLOT_COUNT = 9;
     private static final int INV_SLOT_START = 9;
     private static final int INV_SLOT_END = 36;
     private static final int USE_ROW_SLOT_START = 36;
@@ -15,12 +15,12 @@ public class DispenserMenu extends AbstractContainerMenu {
     private final Container dispenser;
 
     public DispenserMenu(int param0, Inventory param1) {
-        this(param0, param1, new SimpleContainer(1));
+        this(param0, param1, new SimpleContainer(9));
     }
 
     public DispenserMenu(int param0, Inventory param1, Container param2) {
         super(MenuType.GENERIC_3x3, param0);
-        checkContainerSize(param2, 1);
+        checkContainerSize(param2, 9);
         this.dispenser = param2;
         param2.startOpen(param1.player);
 

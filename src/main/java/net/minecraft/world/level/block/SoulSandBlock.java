@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -38,7 +38,7 @@ public class SoulSandBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BubbleColumnBlock.updateColumn(param1, param2.above(), param0);
     }
 
@@ -59,5 +59,10 @@ public class SoulSandBlock extends Block {
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
+    }
+
+    @Override
+    public float getShadeBrightness(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return 0.2F;
     }
 }

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -60,7 +61,7 @@ public class ItemCommands {
         return SharedSuggestionProvider.suggestResource(var0.getKeys(), param1);
     };
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
             Commands.literal("item")
                 .requires(param0x -> param0x.hasPermission(2))
@@ -75,7 +76,7 @@ public class ItemCommands {
                                                 .then(
                                                     Commands.literal("with")
                                                         .then(
-                                                            Commands.argument("item", ItemArgument.item())
+                                                            Commands.argument("item", ItemArgument.item(param1))
                                                                 .executes(
                                                                     param0x -> setBlockItem(
                                                                             param0x.getSource(),
@@ -181,7 +182,7 @@ public class ItemCommands {
                                                 .then(
                                                     Commands.literal("with")
                                                         .then(
-                                                            Commands.argument("item", ItemArgument.item())
+                                                            Commands.argument("item", ItemArgument.item(param1))
                                                                 .executes(
                                                                     param0x -> setEntityItem(
                                                                             param0x.getSource(),

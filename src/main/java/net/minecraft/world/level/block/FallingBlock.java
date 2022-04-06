@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -32,7 +32,7 @@ public class FallingBlock extends Block implements Fallable {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (isFree(param1.getBlockState(param2.below())) && param2.getY() >= param1.getMinBuildHeight()) {
             FallingBlockEntity var0 = FallingBlockEntity.fall(param1, param2, param0);
             this.falling(var0);
@@ -52,7 +52,7 @@ public class FallingBlock extends Block implements Fallable {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param3.nextInt(16) == 0) {
             BlockPos var0 = param2.below();
             if (isFree(param1.getBlockState(var0))) {

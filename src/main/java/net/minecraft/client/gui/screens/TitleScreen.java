@@ -11,7 +11,6 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -44,7 +43,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
@@ -81,12 +81,12 @@ public class TitleScreen extends Screen {
     public TitleScreen(boolean param0) {
         super(new TranslatableComponent("narrator.screen.title"));
         this.fading = param0;
-        this.minceraftEasterEgg = (double)new Random().nextFloat() < 1.0E-4;
+        this.minceraftEasterEgg = (double)RandomSource.create().nextFloat() < 1.0E-4;
         this.realmsClient = RealmsClient.create();
     }
 
     private boolean realmsNotificationsEnabled() {
-        return this.minecraft.options.realmsNotifications && this.realmsNotificationsScreen != null;
+        return this.minecraft.options.realmsNotifications().get() && this.realmsNotificationsScreen != null;
     }
 
     @Override
@@ -200,7 +200,7 @@ public class TitleScreen extends Screen {
             )
         );
         this.minecraft.setConnectedToRealms(false);
-        if (this.minecraft.options.realmsNotifications && this.realmsNotificationsScreen == null) {
+        if (this.minecraft.options.realmsNotifications().get() && this.realmsNotificationsScreen == null) {
             this.realmsNotificationsScreen = new RealmsNotificationsScreen();
         }
 
@@ -279,10 +279,10 @@ public class TitleScreen extends Screen {
         boolean var0 = this.checkDemoWorldPresence();
         this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
             if (var0) {
-                this.minecraft.loadLevel("Demo_World");
+                this.minecraft.createWorldOpenFlows().loadLevel(this, "Demo_World");
             } else {
                 RegistryAccess var0x = RegistryAccess.BUILTIN.get();
-                this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldGenSettings.demoSettings(var0x));
+                this.minecraft.createWorldOpenFlows().createFreshLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldPresets.demoSettings(var0x));
             }
 
         }));

@@ -2,11 +2,11 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -17,7 +17,7 @@ public class CoralTreeFeature extends CoralFeature {
     }
 
     @Override
-    protected boolean placeFeature(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3) {
+    protected boolean placeFeature(LevelAccessor param0, RandomSource param1, BlockPos param2, BlockState param3) {
         BlockPos.MutableBlockPos var0 = param2.mutable();
         int var1 = param1.nextInt(3) + 1;
 
@@ -31,8 +31,7 @@ public class CoralTreeFeature extends CoralFeature {
 
         BlockPos var3 = var0.immutable();
         int var4 = param1.nextInt(3) + 2;
-        List<Direction> var5 = Lists.newArrayList(Direction.Plane.HORIZONTAL);
-        Collections.shuffle(var5, param1);
+        List<Direction> var5 = Util.shuffledCopy(Lists.newArrayList(Direction.Plane.HORIZONTAL), param1);
 
         for(Direction var7 : var5.subList(0, var4)) {
             var0.set(var3);

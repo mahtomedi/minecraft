@@ -1,7 +1,7 @@
 package net.minecraft.world.entity.monster;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.EnumSet;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -11,10 +11,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -38,9 +39,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 
 public class Slime extends Mob implements Enemy {
@@ -74,7 +73,8 @@ public class Slime extends Mob implements Enemy {
         this.entityData.define(ID_SIZE, 1);
     }
 
-    protected void setSize(int param0, boolean param1) {
+    @VisibleForTesting
+    public void setSize(int param0, boolean param1) {
         int var0 = Mth.clamp(param0, 1, 127);
         this.entityData.set(ID_SIZE, var0);
         this.reapplyPosition();
@@ -269,14 +269,9 @@ public class Slime extends Mob implements Enemy {
         return this.isTiny() ? SoundEvents.SLIME_SQUISH_SMALL : SoundEvents.SLIME_SQUISH;
     }
 
-    @Override
-    protected ResourceLocation getDefaultLootTable() {
-        return this.getSize() == 1 ? this.getType().getDefaultLootTable() : BuiltInLootTables.EMPTY;
-    }
-
-    public static boolean checkSlimeSpawnRules(EntityType<Slime> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkSlimeSpawnRules(EntityType<Slime> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         if (param1.getDifficulty() != Difficulty.PEACEFUL) {
-            if (param1.getBiome(param3).is(Biomes.SWAMP)
+            if (param1.getBiome(param3).is(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)
                 && param3.getY() > 50
                 && param3.getY() < 70
                 && param4.nextFloat() < 0.5F

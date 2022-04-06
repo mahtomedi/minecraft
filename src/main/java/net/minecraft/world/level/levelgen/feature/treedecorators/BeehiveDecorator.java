@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.BeehiveBlock;
@@ -42,7 +42,14 @@ public class BeehiveDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, List<BlockPos> param3, List<BlockPos> param4) {
+    public void place(
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        RandomSource param2,
+        List<BlockPos> param3,
+        List<BlockPos> param4,
+        List<BlockPos> param5
+    ) {
         if (!(param2.nextFloat() >= this.probability)) {
             int var0 = !param4.isEmpty()
                 ? Math.max(param4.get(0).getY() - 1, param3.get(0).getY() + 1)

@@ -1,10 +1,10 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -20,7 +20,7 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSphereConfiguration> {
     public boolean place(FeaturePlaceContext<ReplaceSphereConfiguration> param0) {
         ReplaceSphereConfiguration var0 = param0.config();
         WorldGenLevel var1 = param0.level();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         Block var3 = var0.targetState.getBlock();
         BlockPos var4 = findTarget(var1, param0.origin().mutable().clamp(Direction.Axis.Y, var1.getMinBuildHeight() + 1, var1.getMaxBuildHeight() - 1), var3);
         if (var4 == null) {

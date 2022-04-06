@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -31,7 +31,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param3.nextInt(25) == 0) {
             int var0 = 5;
             int var1 = 4;
@@ -77,7 +77,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
         }
     }
 
-    public boolean growMushroom(ServerLevel param0, BlockPos param1, BlockState param2, Random param3) {
+    public boolean growMushroom(ServerLevel param0, BlockPos param1, BlockState param2, RandomSource param3) {
         param0.removeBlock(param1, false);
         if (this.featureSupplier.get().value().place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
             return true;
@@ -93,12 +93,12 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return (double)param1.nextFloat() < 0.4;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         this.growMushroom(param0, param2, param3, param1);
     }
 }

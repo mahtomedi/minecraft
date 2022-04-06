@@ -1,12 +1,12 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.CarvingMask;
@@ -18,7 +18,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         super(param0);
     }
 
-    public boolean isStartChunk(CaveCarverConfiguration param0, Random param1) {
+    public boolean isStartChunk(CaveCarverConfiguration param0, RandomSource param1) {
         return param1.nextFloat() <= param0.probability;
     }
 
@@ -27,7 +27,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         CaveCarverConfiguration param1,
         ChunkAccess param2,
         Function<BlockPos, Holder<Biome>> param3,
-        Random param4,
+        RandomSource param4,
         Aquifer param5,
         ChunkPos param6,
         CarvingMask param7
@@ -88,7 +88,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         return 15;
     }
 
-    protected float getThickness(Random param0) {
+    protected float getThickness(RandomSource param0) {
         float var0 = param0.nextFloat() * 2.0F + param0.nextFloat();
         if (param0.nextInt(10) == 0) {
             var0 *= param0.nextFloat() * param0.nextFloat() * 3.0F + 1.0F;
@@ -141,7 +141,7 @@ public class CaveWorldCarver extends WorldCarver<CaveCarverConfiguration> {
         CarvingMask param17,
         WorldCarver.CarveSkipChecker param18
     ) {
-        Random var0 = new Random(param4);
+        RandomSource var0 = RandomSource.create(param4);
         int var1 = var0.nextInt(param15 / 2) + param15 / 4;
         boolean var2 = var0.nextInt(6) == 0;
         float var3 = 0.0F;

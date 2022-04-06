@@ -70,10 +70,6 @@ public class GoatModel<T extends Goat> extends QuadrupedModel<T> {
         this.head.getChild("left_horn").visible = !param0.isBaby();
         this.head.getChild("right_horn").visible = !param0.isBaby();
         super.setupAnim(param0, param1, param2, param3, param4, param5);
-        if (param0.isPassenger()) {
-            this.head.yRot = this.body.yRot;
-        }
-
         float var0 = param0.getRammingXHeadRot();
         if (var0 != 0.0F) {
             this.head.xRot = var0;

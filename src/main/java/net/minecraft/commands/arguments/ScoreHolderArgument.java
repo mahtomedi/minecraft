@@ -13,11 +13,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
@@ -37,7 +38,6 @@ public class ScoreHolderArgument implements ArgumentType<ScoreHolderArgument.Res
     };
     private static final Collection<String> EXAMPLES = Arrays.asList("Player", "0123", "*", "@e");
     private static final SimpleCommandExceptionType ERROR_NO_RESULTS = new SimpleCommandExceptionType(new TranslatableComponent("argument.scoreHolder.empty"));
-    private static final byte FLAG_MULTIPLE = 1;
     final boolean multiple;
 
     public ScoreHolderArgument(boolean param0) {
@@ -111,6 +111,50 @@ public class ScoreHolderArgument implements ArgumentType<ScoreHolderArgument.Res
         return EXAMPLES;
     }
 
+    public static class Info implements ArgumentTypeInfo<ScoreHolderArgument, ScoreHolderArgument.Info.Template> {
+        private static final byte FLAG_MULTIPLE = 1;
+
+        public void serializeToNetwork(ScoreHolderArgument.Info.Template param0, FriendlyByteBuf param1) {
+            int var0 = 0;
+            if (param0.multiple) {
+                var0 |= 1;
+            }
+
+            param1.writeByte(var0);
+        }
+
+        public ScoreHolderArgument.Info.Template deserializeFromNetwork(FriendlyByteBuf param0) {
+            byte var0 = param0.readByte();
+            boolean var1 = (var0 & 1) != 0;
+            return new ScoreHolderArgument.Info.Template(var1);
+        }
+
+        public void serializeToJson(ScoreHolderArgument.Info.Template param0, JsonObject param1) {
+            param1.addProperty("amount", param0.multiple ? "multiple" : "single");
+        }
+
+        public ScoreHolderArgument.Info.Template unpack(ScoreHolderArgument param0) {
+            return new ScoreHolderArgument.Info.Template(param0.multiple);
+        }
+
+        public final class Template implements ArgumentTypeInfo.Template<ScoreHolderArgument> {
+            final boolean multiple;
+
+            Template(boolean param1) {
+                this.multiple = param1;
+            }
+
+            public ScoreHolderArgument instantiate(CommandBuildContext param0) {
+                return new ScoreHolderArgument(this.multiple);
+            }
+
+            @Override
+            public ArgumentTypeInfo<ScoreHolderArgument, ?> type() {
+                return Info.this;
+            }
+        }
+    }
+
     @FunctionalInterface
     public interface Result {
         Collection<String> getNames(CommandSourceStack var1, Supplier<Collection<String>> var2) throws CommandSyntaxException;
@@ -137,27 +181,6 @@ public class ScoreHolderArgument implements ArgumentType<ScoreHolderArgument.Res
 
                 return var1;
             }
-        }
-    }
-
-    public static class Serializer implements ArgumentSerializer<ScoreHolderArgument> {
-        public void serializeToNetwork(ScoreHolderArgument param0, FriendlyByteBuf param1) {
-            byte var0 = 0;
-            if (param0.multiple) {
-                var0 = (byte)(var0 | 1);
-            }
-
-            param1.writeByte(var0);
-        }
-
-        public ScoreHolderArgument deserializeFromNetwork(FriendlyByteBuf param0) {
-            byte var0 = param0.readByte();
-            boolean var1 = (var0 & 1) != 0;
-            return new ScoreHolderArgument(var1);
-        }
-
-        public void serializeToJson(ScoreHolderArgument param0, JsonObject param1) {
-            param1.addProperty("amount", param0.multiple ? "multiple" : "single");
         }
     }
 }

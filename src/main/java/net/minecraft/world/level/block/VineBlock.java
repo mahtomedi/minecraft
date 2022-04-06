@@ -2,7 +2,6 @@ package net.minecraft.world.level.block;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -10,6 +9,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -173,7 +173,7 @@ public class VineBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param3.nextInt(4) == 0) {
             Direction var0 = Direction.getRandom(param3);
             BlockPos var1 = param2.above();
@@ -251,7 +251,7 @@ public class VineBlock extends Block {
         }
     }
 
-    private BlockState copyRandomFaces(BlockState param0, BlockState param1, Random param2) {
+    private BlockState copyRandomFaces(BlockState param0, BlockState param1, RandomSource param2) {
         for(Direction var0 : Direction.Plane.HORIZONTAL) {
             if (param2.nextBoolean()) {
                 BooleanProperty var1 = getPropertyForFace(var0);

@@ -1,7 +1,6 @@
 package net.minecraft.world.level.material;
 
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -41,7 +41,7 @@ public abstract class WaterFluid extends FlowingFluid {
     }
 
     @Override
-    public void animateTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
+    public void animateTick(Level param0, BlockPos param1, FluidState param2, RandomSource param3) {
         if (!param2.isSource() && !param2.getValue(FALLING)) {
             if (param3.nextInt(64) == 0) {
                 param0.playLocalSound(

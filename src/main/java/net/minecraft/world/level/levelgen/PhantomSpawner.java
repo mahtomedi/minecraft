@@ -1,12 +1,12 @@
 package net.minecraft.world.level.levelgen;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -29,7 +29,7 @@ public class PhantomSpawner implements CustomSpawner {
         } else if (!param0.getGameRules().getBoolean(GameRules.RULE_DOINSOMNIA)) {
             return 0;
         } else {
-            Random var0 = param0.random;
+            RandomSource var0 = param0.random;
             --this.nextTick;
             if (this.nextTick > 0) {
                 return 0;

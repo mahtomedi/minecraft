@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
 
 public class SimpleWeightedRandomList<E> extends WeightedRandomList<WeightedEntry.Wrapper<E>> {
     public static <E> Codec<SimpleWeightedRandomList<E>> wrappedCodecAllowingEmpty(Codec<E> param0) {
@@ -32,7 +32,7 @@ public class SimpleWeightedRandomList<E> extends WeightedRandomList<WeightedEntr
         return new SimpleWeightedRandomList<>(List.of(WeightedEntry.wrap(param0, 1)));
     }
 
-    public Optional<E> getRandomValue(Random param0) {
+    public Optional<E> getRandomValue(RandomSource param0) {
         return this.getRandom(param0).map(WeightedEntry.Wrapper::getData);
     }
 

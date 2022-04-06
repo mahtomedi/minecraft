@@ -58,7 +58,8 @@ public class BlockColors {
             Blocks.JUNGLE_LEAVES,
             Blocks.ACACIA_LEAVES,
             Blocks.DARK_OAK_LEAVES,
-            Blocks.VINE
+            Blocks.VINE,
+            Blocks.MANGROVE_LEAVES
         );
         var0.register(
             (param0, param1, param2, param3) -> param1 != null && param2 != null ? BiomeColors.getAverageWaterColor(param1, param2) : -1,

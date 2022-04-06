@@ -111,6 +111,7 @@ public class TransientEntitySectionManager<T extends EntityAccess> {
                 var3.add(this.entity);
                 this.currentSection = var3;
                 this.currentSectionKey = var1;
+                TransientEntitySectionManager.this.callbacks.onSectionChange(this.entity);
                 if (!this.entity.isAlwaysTicking()) {
                     boolean var4 = var2.isTicking();
                     boolean var5 = var3.getStatus().isTicking();

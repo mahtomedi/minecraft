@@ -3,7 +3,6 @@ package net.minecraft.world.level.material;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -13,6 +12,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,7 +76,7 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
         this.getType().tick(param0, param1, this);
     }
 
-    public void animateTick(Level param0, BlockPos param1, Random param2) {
+    public void animateTick(Level param0, BlockPos param1, RandomSource param2) {
         this.getType().animateTick(param0, param1, this, param2);
     }
 
@@ -84,7 +84,7 @@ public final class FluidState extends StateHolder<Fluid, FluidState> {
         return this.getType().isRandomlyTicking();
     }
 
-    public void randomTick(Level param0, BlockPos param1, Random param2) {
+    public void randomTick(Level param0, BlockPos param1, RandomSource param2) {
         this.getType().randomTick(param0, param1, this, param2);
     }
 

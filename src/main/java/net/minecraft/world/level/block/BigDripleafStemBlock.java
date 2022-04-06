@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -90,7 +90,7 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
         }
@@ -110,12 +110,12 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         Optional<BlockPos> var0 = BlockUtil.getTopConnectedBlock(param0, param2, param3.getBlock(), Direction.UP, Blocks.BIG_DRIPLEAF);
         if (var0.isPresent()) {
             BlockPos var1 = var0.get();

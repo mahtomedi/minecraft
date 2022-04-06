@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 public interface ServerGamePacketListener extends ServerPacketListener {
     void handleAnimate(ServerboundSwingPacket var1);
 
-    void handleThrow(ServerboundThrowPacket var1);
-
     void handleChat(ServerboundChatPacket var1);
 
     void handleClientCommand(ServerboundClientCommandPacket var1);

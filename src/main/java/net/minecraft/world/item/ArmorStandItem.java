@@ -1,6 +1,5 @@
 package net.minecraft.world.item;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Rotations;
@@ -8,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -48,7 +48,7 @@ public class ArmorStandItem extends Item {
                     this.randomizePose(var8, var1.random);
                     var7.addFreshEntityWithPassengers(var8);
                     var1.playSound(null, var8.getX(), var8.getY(), var8.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
-                    var1.gameEvent(param0.getPlayer(), GameEvent.ENTITY_PLACE, var8);
+                    var8.gameEvent(GameEvent.ENTITY_PLACE, param0.getPlayer());
                 }
 
                 var4.shrink(1);
@@ -59,7 +59,7 @@ public class ArmorStandItem extends Item {
         }
     }
 
-    private void randomizePose(ArmorStand param0, Random param1) {
+    private void randomizePose(ArmorStand param0, RandomSource param1) {
         Rotations var0 = param0.getHeadPose();
         float var1 = param1.nextFloat() * 5.0F;
         float var2 = param1.nextFloat() * 20.0F - 10.0F;

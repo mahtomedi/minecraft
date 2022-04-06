@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -40,6 +39,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -578,7 +578,7 @@ public class ChunkRenderDispatcher {
                 PoseStack var6 = new PoseStack();
                 if (var5 != null) {
                     ModelBlockRenderer.enableCaching();
-                    Random var7 = new Random();
+                    RandomSource var7 = RandomSource.create();
                     BlockRenderDispatcher var8 = Minecraft.getInstance().getBlockRenderer();
 
                     for(BlockPos var9 : BlockPos.betweenClosed(var1, var2)) {

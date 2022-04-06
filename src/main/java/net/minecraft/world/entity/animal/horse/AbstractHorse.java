@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -68,7 +69,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class AbstractHorse extends Animal implements ContainerListener, PlayerRideableJumping, Saddleable {
+public abstract class AbstractHorse extends Animal implements ContainerListener, HasCustomInventoryScreen, PlayerRideableJumping, Saddleable {
     public static final int EQUIPMENT_SLOT_OFFSET = 400;
     public static final int CHEST_SLOT_OFFSET = 499;
     public static final int INVENTORY_SLOT_OFFSET = 500;
@@ -423,7 +424,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return 400;
     }
 
-    public void openInventory(Player param0) {
+    @Override
+    public void openCustomInventoryScreen(Player param0) {
         if (!this.level.isClientSide && (!this.isVehicle() || this.hasPassenger(param0)) && this.isTamed()) {
             param0.openHorseInventory(this, this.inventory);
         }
@@ -504,7 +506,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
         if (var0) {
             this.eating();
-            this.gameEvent(GameEvent.EAT, this.eyeBlockPosition());
+            this.gameEvent(GameEvent.EAT);
         }
 
         return var0;
@@ -715,8 +717,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     @Override
     public void travel(Vec3 param0) {
         if (this.isAlive()) {
-            if (this.isVehicle() && this.canBeControlledByRider() && this.isSaddled()) {
-                LivingEntity var0 = (LivingEntity)this.getControllingPassenger();
+            LivingEntity var0 = this.getControllingPassenger();
+            if (this.isVehicle() && var0 != null) {
                 this.setYRot(var0.getYRot());
                 this.yRotO = this.getYRot();
                 this.setXRot(var0.getXRot() * 0.5F);
@@ -854,11 +856,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             + param0.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
             + this.generateRandomSpeed();
         param1.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(var2 / 3.0);
-    }
-
-    @Override
-    public boolean canBeControlledByRider() {
-        return this.getControllingPassenger() instanceof LivingEntity;
     }
 
     public float getEatAnim(float param0) {
@@ -1032,9 +1029,15 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Nullable
-    @Override
-    public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
+    public LivingEntity getControllingPassenger() {
+        if (this.isSaddled()) {
+            Entity var2 = this.getFirstPassenger();
+            if (var2 instanceof LivingEntity) {
+                return (LivingEntity)var2;
+            }
+        }
+
+        return null;
     }
 
     @Nullable

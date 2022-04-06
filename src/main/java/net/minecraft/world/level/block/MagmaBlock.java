@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -8,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,7 +26,7 @@ public class MagmaBlock extends Block {
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        if (!param3.fireImmune() && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
+        if (!param3.isSteppingCarefully() && !param3.fireImmune() && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
             param3.hurt(DamageSource.HOT_FLOOR, 1.0F);
         }
 
@@ -34,7 +34,7 @@ public class MagmaBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BubbleColumnBlock.updateColumn(param1, param2.above(), param0);
     }
 
@@ -48,7 +48,7 @@ public class MagmaBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BlockPos var0 = param2.above();
         if (param1.getFluidState(param2).is(FluidTags.WATER)) {
             param1.playSound(

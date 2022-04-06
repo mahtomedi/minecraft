@@ -1,8 +1,8 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
@@ -32,14 +32,14 @@ public class SaplingBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param1.getMaxLocalRawBrightness(param2.above()) >= 9 && param3.nextInt(7) == 0) {
             this.advanceTree(param1, param2, param0, param3);
         }
 
     }
 
-    public void advanceTree(ServerLevel param0, BlockPos param1, BlockState param2, Random param3) {
+    public void advanceTree(ServerLevel param0, BlockPos param1, BlockState param2, RandomSource param3) {
         if (param2.getValue(STAGE) == 0) {
             param0.setBlock(param1, param2.cycle(STAGE), 4);
         } else {
@@ -54,12 +54,12 @@ public class SaplingBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return (double)param0.random.nextFloat() < 0.45;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         this.advanceTree(param0, param2, param3, param1);
     }
 

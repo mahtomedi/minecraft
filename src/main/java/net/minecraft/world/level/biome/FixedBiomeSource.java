@@ -4,12 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelReader;
 
 public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseBiomeSource {
     public static final Codec<FixedBiomeSource> CODEC = Biome.CODEC.fieldOf("biome").xmap(FixedBiomeSource::new, param0 -> param0.biome).stable().codec();
@@ -26,11 +27,6 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
     }
 
     @Override
-    public BiomeSource withSeed(long param0) {
-        return this;
-    }
-
-    @Override
     public Holder<Biome> getNoiseBiome(int param0, int param1, int param2, Climate.Sampler param3) {
         return this.biome;
     }
@@ -43,7 +39,15 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
     @Nullable
     @Override
     public Pair<BlockPos, Holder<Biome>> findBiomeHorizontal(
-        int param0, int param1, int param2, int param3, int param4, Predicate<Holder<Biome>> param5, Random param6, boolean param7, Climate.Sampler param8
+        int param0,
+        int param1,
+        int param2,
+        int param3,
+        int param4,
+        Predicate<Holder<Biome>> param5,
+        RandomSource param6,
+        boolean param7,
+        Climate.Sampler param8
     ) {
         if (param5.test(this.biome)) {
             return param7
@@ -52,6 +56,14 @@ public class FixedBiomeSource extends BiomeSource implements BiomeManager.NoiseB
         } else {
             return null;
         }
+    }
+
+    @Nullable
+    @Override
+    public Pair<BlockPos, Holder<Biome>> findClosestBiome3d(
+        BlockPos param0, int param1, int param2, int param3, Predicate<Holder<Biome>> param4, Climate.Sampler param5, LevelReader param6
+    ) {
+        return param4.test(this.biome) ? Pair.of(param0, this.biome) : null;
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -43,6 +44,10 @@ public interface SoundInstance {
 
     default boolean canPlaySound() {
         return true;
+    }
+
+    static RandomSource createUnseededRandom() {
+        return RandomSource.create();
     }
 
     @OnlyIn(Dist.CLIENT)

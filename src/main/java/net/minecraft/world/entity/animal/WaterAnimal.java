@@ -1,8 +1,8 @@
 package net.minecraft.world.entity.animal;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -77,7 +77,7 @@ public abstract class WaterAnimal extends PathfinderMob {
     }
 
     public static boolean checkSurfaceWaterAnimalSpawnRules(
-        EntityType<? extends WaterAnimal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+        EntityType<? extends WaterAnimal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
         int var0 = param1.getSeaLevel();
         int var1 = var0 - 13;

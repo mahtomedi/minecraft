@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -11,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityDimensions;
@@ -115,7 +115,7 @@ public class Ghast extends FlyingMob implements Enemy {
         return 5.0F;
     }
 
-    public static boolean checkGhastSpawnRules(EntityType<Ghast> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkGhastSpawnRules(EntityType<Ghast> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return param1.getDifficulty() != Difficulty.PEACEFUL && param4.nextInt(20) == 0 && checkMobSpawnRules(param0, param1, param2, param3, param4);
     }
 
@@ -233,11 +233,7 @@ public class Ghast extends FlyingMob implements Enemy {
 
         @Override
         public boolean canUse() {
-            if (this.ghast.isPassenger() && this.ghast.getRootVehicle() == this.ghast.getTarget()) {
-                return false;
-            } else {
-                return this.ghast.getTarget() != null;
-            }
+            return this.ghast.getTarget() != null;
         }
 
         @Override
@@ -320,7 +316,7 @@ public class Ghast extends FlyingMob implements Enemy {
 
         @Override
         public void start() {
-            Random var0 = this.ghast.getRandom();
+            RandomSource var0 = this.ghast.getRandom();
             double var1 = this.ghast.getX() + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
             double var2 = this.ghast.getY() + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
             double var3 = this.ghast.getZ() + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);

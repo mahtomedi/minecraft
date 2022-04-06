@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -14,7 +14,7 @@ public class CoralMushroomFeature extends CoralFeature {
     }
 
     @Override
-    protected boolean placeFeature(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3) {
+    protected boolean placeFeature(LevelAccessor param0, RandomSource param1, BlockPos param2, BlockState param3) {
         int var0 = param1.nextInt(3) + 3;
         int var1 = param1.nextInt(3) + 3;
         int var2 = param1.nextInt(3) + 3;

@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen;
 
-import java.util.Random;
 import java.util.function.LongFunction;
+import net.minecraft.util.RandomSource;
 
-public class WorldgenRandom extends Random implements RandomSource {
+public class WorldgenRandom extends LegacyRandomSource {
     private final RandomSource randomSource;
     private int count;
 
@@ -67,8 +67,8 @@ public class WorldgenRandom extends Random implements RandomSource {
         this.setSeed(var0);
     }
 
-    public static Random seedSlimeChunk(int param0, int param1, long param2, long param3) {
-        return new Random(
+    public static RandomSource seedSlimeChunk(int param0, int param1, long param2, long param3) {
+        return RandomSource.create(
             param2 + (long)(param0 * param0 * 4987142) + (long)(param0 * 5947611) + (long)(param1 * param1) * 4392871L + (long)(param1 * 389711) ^ param3
         );
     }

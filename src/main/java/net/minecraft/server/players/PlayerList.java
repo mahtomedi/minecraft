@@ -510,7 +510,14 @@ public abstract class PlayerList {
             var7.connection
                 .send(
                     new ClientboundSoundPacket(
-                        SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.BLOCKS, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), 1.0F, 1.0F
+                        SoundEvents.RESPAWN_ANCHOR_DEPLETE,
+                        SoundSource.BLOCKS,
+                        (double)var0.getX(),
+                        (double)var0.getY(),
+                        (double)var0.getZ(),
+                        1.0F,
+                        1.0F,
+                        var6.getRandom().nextLong()
                     )
                 );
         }

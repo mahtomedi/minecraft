@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -27,7 +27,7 @@ public class EndRodBlock extends RodBlock {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         Direction var0 = param0.getValue(FACING);
         double var1 = (double)param2.getX() + 0.55 - (double)(param3.nextFloat() * 0.1F);
         double var2 = (double)param2.getY() + 0.55 - (double)(param3.nextFloat() * 0.1F);

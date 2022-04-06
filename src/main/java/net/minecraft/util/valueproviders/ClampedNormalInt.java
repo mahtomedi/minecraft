@@ -3,9 +3,9 @@ package net.minecraft.util.valueproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 
 public class ClampedNormalInt extends IntProvider {
     public static final Codec<ClampedNormalInt> CODEC = RecordCodecBuilder.<ClampedNormalInt>create(
@@ -40,11 +40,11 @@ public class ClampedNormalInt extends IntProvider {
     }
 
     @Override
-    public int sample(Random param0) {
+    public int sample(RandomSource param0) {
         return sample(param0, this.mean, this.deviation, (float)this.min_inclusive, (float)this.max_inclusive);
     }
 
-    public static int sample(Random param0, float param1, float param2, float param3, float param4) {
+    public static int sample(RandomSource param0, float param1, float param2, float param3, float param4) {
         return (int)Mth.clamp(Mth.normal(param0, param1, param2), param3, param4);
     }
 

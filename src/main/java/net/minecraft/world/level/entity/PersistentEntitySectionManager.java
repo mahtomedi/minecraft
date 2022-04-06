@@ -386,7 +386,12 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
         private void updateStatus(Visibility param0, Visibility param1) {
             Visibility var0 = PersistentEntitySectionManager.getEffectiveStatus(this.entity, param0);
             Visibility var1 = PersistentEntitySectionManager.getEffectiveStatus(this.entity, param1);
-            if (var0 != var1) {
+            if (var0 == var1) {
+                if (var1.isAccessible()) {
+                    PersistentEntitySectionManager.this.callbacks.onSectionChange(this.entity);
+                }
+
+            } else {
                 boolean var2 = var0.isAccessible();
                 boolean var3 = var1.isAccessible();
                 if (var2 && !var3) {
@@ -401,6 +406,10 @@ public class PersistentEntitySectionManager<T extends EntityAccess> implements A
                     PersistentEntitySectionManager.this.stopTicking(this.entity);
                 } else if (!var4 && var5) {
                     PersistentEntitySectionManager.this.startTicking(this.entity);
+                }
+
+                if (var3) {
+                    PersistentEntitySectionManager.this.callbacks.onSectionChange(this.entity);
                 }
 
             }

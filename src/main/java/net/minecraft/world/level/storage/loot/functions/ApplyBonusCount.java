@@ -7,11 +7,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -86,7 +86,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
         }
 
         @Override
-        public int calculateNewCount(Random param0, int param1, int param2) {
+        public int calculateNewCount(RandomSource param0, int param1, int param2) {
             for(int var0 = 0; var0 < param2 + this.extraRounds; ++var0) {
                 if (param0.nextFloat() < this.probability) {
                     ++param1;
@@ -115,7 +115,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
     }
 
     interface Formula {
-        int calculateNewCount(Random var1, int var2, int var3);
+        int calculateNewCount(RandomSource var1, int var2, int var3);
 
         void serializeParams(JsonObject var1, JsonSerializationContext var2);
 
@@ -130,7 +130,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
         public static final ResourceLocation TYPE = new ResourceLocation("ore_drops");
 
         @Override
-        public int calculateNewCount(Random param0, int param1, int param2) {
+        public int calculateNewCount(RandomSource param0, int param1, int param2) {
             if (param2 > 0) {
                 int var0 = param0.nextInt(param2 + 2) - 1;
                 if (var0 < 0) {
@@ -199,7 +199,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
         }
 
         @Override
-        public int calculateNewCount(Random param0, int param1, int param2) {
+        public int calculateNewCount(RandomSource param0, int param1, int param2) {
             return param1 + param0.nextInt(this.bonusMultiplier * param2 + 1);
         }
 

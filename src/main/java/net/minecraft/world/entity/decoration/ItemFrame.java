@@ -12,6 +12,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -414,7 +415,7 @@ public class ItemFrame extends HangingEntity {
 
     @Override
     public Packet<?> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this, this.getType(), this.direction.get3DDataValue(), this.getPos());
+        return new ClientboundAddEntityPacket(this, this.direction.get3DDataValue(), this.getPos());
     }
 
     @Override
@@ -431,5 +432,12 @@ public class ItemFrame extends HangingEntity {
 
     protected ItemStack getFrameItemStack() {
         return new ItemStack(Items.ITEM_FRAME);
+    }
+
+    @Override
+    public float getVisualRotationYInDegrees() {
+        Direction var0 = this.getDirection();
+        int var1 = var0.getAxis().isVertical() ? 90 * var0.getAxisDirection().getStep() : 0;
+        return (float)Mth.wrapDegrees(180 + var0.get2DDataValue() * 90 + this.getRotation() * 45 + var1);
     }
 }

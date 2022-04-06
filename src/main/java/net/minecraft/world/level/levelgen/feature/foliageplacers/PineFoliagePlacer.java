@@ -2,9 +2,9 @@ package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +32,7 @@ public class PineFoliagePlacer extends FoliagePlacer {
     protected void createFoliage(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         TreeConfiguration param3,
         int param4,
         FoliagePlacer.FoliageAttachment param5,
@@ -54,17 +54,17 @@ public class PineFoliagePlacer extends FoliagePlacer {
     }
 
     @Override
-    public int foliageRadius(Random param0, int param1) {
+    public int foliageRadius(RandomSource param0, int param1) {
         return super.foliageRadius(param0, param1) + param0.nextInt(Math.max(param1 + 1, 1));
     }
 
     @Override
-    public int foliageHeight(Random param0, int param1, TreeConfiguration param2) {
+    public int foliageHeight(RandomSource param0, int param1, TreeConfiguration param2) {
         return this.height.sample(param0);
     }
 
     @Override
-    protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
+    protected boolean shouldSkipLocation(RandomSource param0, int param1, int param2, int param3, int param4, boolean param5) {
         return param1 == param4 && param3 == param4 && param4 > 0;
     }
 }

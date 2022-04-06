@@ -8,9 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2BooleanFunction;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +22,6 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -64,17 +61,14 @@ public class PeriodicNotificationManager
 
     protected Map<String, List<PeriodicNotificationManager.Notification>> prepare(ResourceManager param0, ProfilerFiller param1) {
         try {
-            Map var5;
-            try (
-                Resource var0 = param0.getResource(this.notifications);
-                BufferedReader var1 = new BufferedReader(new InputStreamReader(var0.getInputStream(), StandardCharsets.UTF_8));
-            ) {
-                var5 = CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(var1)).result().orElseThrow();
+            Map var4;
+            try (Reader var0 = param0.openAsReader(this.notifications)) {
+                var4 = CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(var0)).result().orElseThrow();
             }
 
-            return var5;
-        } catch (Exception var11) {
-            LOGGER.warn("Failed to load {}", this.notifications, var11);
+            return var4;
+        } catch (Exception var8) {
+            LOGGER.warn("Failed to load {}", this.notifications, var8);
             return ImmutableMap.of();
         }
     }

@@ -8,39 +8,44 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListener> {
-    public static final double MAGICAL_QUANTIZATION = 8000.0;
+    private static final double MAGICAL_QUANTIZATION = 8000.0;
+    private static final double LIMIT = 3.9;
     private final int id;
     private final UUID uuid;
+    private final EntityType<?> type;
     private final double x;
     private final double y;
     private final double z;
     private final int xa;
     private final int ya;
     private final int za;
-    private final int xRot;
-    private final int yRot;
-    private final EntityType<?> type;
+    private final byte xRot;
+    private final byte yRot;
+    private final byte yHeadRot;
     private final int data;
-    public static final double LIMIT = 3.9;
 
-    public ClientboundAddEntityPacket(
-        int param0, UUID param1, double param2, double param3, double param4, float param5, float param6, EntityType<?> param7, int param8, Vec3 param9
-    ) {
-        this.id = param0;
-        this.uuid = param1;
-        this.x = param2;
-        this.y = param3;
-        this.z = param4;
-        this.xRot = Mth.floor(param5 * 256.0F / 360.0F);
-        this.yRot = Mth.floor(param6 * 256.0F / 360.0F);
-        this.type = param7;
-        this.data = param8;
-        this.xa = (int)(Mth.clamp(param9.x, -3.9, 3.9) * 8000.0);
-        this.ya = (int)(Mth.clamp(param9.y, -3.9, 3.9) * 8000.0);
-        this.za = (int)(Mth.clamp(param9.z, -3.9, 3.9) * 8000.0);
+    public ClientboundAddEntityPacket(LivingEntity param0) {
+        this(param0, 0);
+    }
+
+    public ClientboundAddEntityPacket(LivingEntity param0, int param1) {
+        this(
+            param0.getId(),
+            param0.getUUID(),
+            param0.getX(),
+            param0.getY(),
+            param0.getZ(),
+            param0.getXRot(),
+            param0.getYRot(),
+            param0.getType(),
+            param1,
+            param0.getDeltaMovement(),
+            (double)param0.yHeadRot
+        );
     }
 
     public ClientboundAddEntityPacket(Entity param0) {
@@ -58,35 +63,66 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
             param0.getYRot(),
             param0.getType(),
             param1,
-            param0.getDeltaMovement()
+            param0.getDeltaMovement(),
+            0.0
         );
     }
 
-    public ClientboundAddEntityPacket(Entity param0, EntityType<?> param1, int param2, BlockPos param3) {
+    public ClientboundAddEntityPacket(Entity param0, int param1, BlockPos param2) {
         this(
             param0.getId(),
             param0.getUUID(),
-            (double)param3.getX(),
-            (double)param3.getY(),
-            (double)param3.getZ(),
+            (double)param2.getX(),
+            (double)param2.getY(),
+            (double)param2.getZ(),
             param0.getXRot(),
             param0.getYRot(),
+            param0.getType(),
             param1,
-            param2,
-            param0.getDeltaMovement()
+            param0.getDeltaMovement(),
+            0.0
         );
+    }
+
+    public ClientboundAddEntityPacket(
+        int param0,
+        UUID param1,
+        double param2,
+        double param3,
+        double param4,
+        float param5,
+        float param6,
+        EntityType<?> param7,
+        int param8,
+        Vec3 param9,
+        double param10
+    ) {
+        this.id = param0;
+        this.uuid = param1;
+        this.x = param2;
+        this.y = param3;
+        this.z = param4;
+        this.xRot = (byte)Mth.floor(param5 * 256.0F / 360.0F);
+        this.yRot = (byte)Mth.floor(param6 * 256.0F / 360.0F);
+        this.yHeadRot = (byte)Mth.floor(param10 * 256.0 / 360.0);
+        this.type = param7;
+        this.data = param8;
+        this.xa = (int)(Mth.clamp(param9.x, -3.9, 3.9) * 8000.0);
+        this.ya = (int)(Mth.clamp(param9.y, -3.9, 3.9) * 8000.0);
+        this.za = (int)(Mth.clamp(param9.z, -3.9, 3.9) * 8000.0);
     }
 
     public ClientboundAddEntityPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.uuid = param0.readUUID();
-        this.type = Registry.ENTITY_TYPE.byId(param0.readVarInt());
+        this.type = param0.readById(Registry.ENTITY_TYPE);
         this.x = param0.readDouble();
         this.y = param0.readDouble();
         this.z = param0.readDouble();
         this.xRot = param0.readByte();
         this.yRot = param0.readByte();
-        this.data = param0.readInt();
+        this.yHeadRot = param0.readByte();
+        this.data = param0.readVarInt();
         this.xa = param0.readShort();
         this.ya = param0.readShort();
         this.za = param0.readShort();
@@ -96,13 +132,14 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeUUID(this.uuid);
-        param0.writeVarInt(Registry.ENTITY_TYPE.getId(this.type));
+        param0.writeId(Registry.ENTITY_TYPE, this.type);
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);
         param0.writeDouble(this.z);
         param0.writeByte(this.xRot);
         param0.writeByte(this.yRot);
-        param0.writeInt(this.data);
+        param0.writeByte(this.yHeadRot);
+        param0.writeVarInt(this.data);
         param0.writeShort(this.xa);
         param0.writeShort(this.ya);
         param0.writeShort(this.za);
@@ -118,6 +155,10 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
 
     public UUID getUUID() {
         return this.uuid;
+    }
+
+    public EntityType<?> getType() {
+        return this.type;
     }
 
     public double getX() {
@@ -144,16 +185,16 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
         return (double)this.za / 8000.0;
     }
 
-    public int getxRot() {
-        return this.xRot;
+    public float getXRot() {
+        return (float)(this.xRot * 360) / 256.0F;
     }
 
-    public int getyRot() {
-        return this.yRot;
+    public float getYRot() {
+        return (float)(this.yRot * 360) / 256.0F;
     }
 
-    public EntityType<?> getType() {
-        return this.type;
+    public float getYHeadRot() {
+        return (float)(this.yHeadRot * 360) / 256.0F;
     }
 
     public int getData() {

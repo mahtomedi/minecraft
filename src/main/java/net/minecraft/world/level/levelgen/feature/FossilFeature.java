@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -12,9 +12,9 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public class FossilFeature extends Feature<FossilFeatureConfiguration> {
@@ -24,13 +24,13 @@ public class FossilFeature extends Feature<FossilFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<FossilFeatureConfiguration> param0) {
-        Random var0 = param0.random();
+        RandomSource var0 = param0.random();
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
         Rotation var3 = Rotation.getRandom(var0);
         FossilFeatureConfiguration var4 = param0.config();
         int var5 = var0.nextInt(var4.fossilStructures.size());
-        StructureManager var6 = var1.getLevel().getServer().getStructureManager();
+        StructureTemplateManager var6 = var1.getLevel().getServer().getStructureManager();
         StructureTemplate var7 = var6.getOrCreate(var4.fossilStructures.get(var5));
         StructureTemplate var8 = var6.getOrCreate(var4.overlayStructures.get(var5));
         ChunkPos var9 = new ChunkPos(var2);

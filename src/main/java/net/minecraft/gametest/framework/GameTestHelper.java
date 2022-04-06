@@ -11,6 +11,7 @@ import java.util.stream.LongStream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -338,6 +339,18 @@ public class GameTestHelper {
         throw new GameTestAssertPosException("Expected " + param0.getDescription().getString() + " item", var0, param1, this.testInfo.getTick());
     }
 
+    public void assertItemEntityNotPresent(Item param0, BlockPos param1, double param2) {
+        BlockPos var0 = this.absolutePos(param1);
+
+        for(Entity var2 : this.getLevel().getEntities(EntityType.ITEM, new AABB(var0).inflate(param2), Entity::isAlive)) {
+            ItemEntity var3 = (ItemEntity)var2;
+            if (var3.getItem().getItem().equals(param0)) {
+                throw new GameTestAssertPosException("Did not expect " + param0.getDescription().getString() + " item", var0, param1, this.testInfo.getTick());
+            }
+        }
+
+    }
+
     public void assertEntityNotPresent(EntityType<?> param0) {
         List<? extends Entity> var0 = this.getLevel().getEntities(param0, this.getBounds(), Entity::isAlive);
         if (!var0.isEmpty()) {
@@ -408,7 +421,9 @@ public class GameTestHelper {
     public void assertContainerContains(BlockPos param0, Item param1) {
         BlockPos var0 = this.absolutePos(param0);
         BlockEntity var1 = this.getLevel().getBlockEntity(var0);
-        if (var1 instanceof BaseContainerBlockEntity && ((BaseContainerBlockEntity)var1).countItem(param1) != 1) {
+        if (!(var1 instanceof BaseContainerBlockEntity)) {
+            throw new GameTestAssertException("Expected a container at " + param0 + ", found " + Registry.BLOCK_ENTITY_TYPE.getKey(var1.getType()));
+        } else if (((BaseContainerBlockEntity)var1).countItem(param1) != 1) {
             throw new GameTestAssertException("Container should contain: " + param1);
         }
     }

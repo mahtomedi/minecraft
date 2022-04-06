@@ -3,12 +3,12 @@ package net.minecraft.world.level.block;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -58,7 +58,7 @@ public class RedstoneTorchBlock extends TorchBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         boolean var0 = this.hasNeighborSignal(param1, param2, param0);
         List<RedstoneTorchBlock.Toggle> var1 = RECENT_TOGGLES.get(param1);
 
@@ -99,7 +99,7 @@ public class RedstoneTorchBlock extends TorchBlock {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LIT)) {
             double var0 = (double)param2.getX() + 0.5 + (param3.nextDouble() - 0.5) * 0.2;
             double var1 = (double)param2.getY() + 0.7 + (param3.nextDouble() - 0.5) * 0.2;

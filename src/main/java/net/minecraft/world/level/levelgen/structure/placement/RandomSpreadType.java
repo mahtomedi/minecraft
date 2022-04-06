@@ -1,29 +1,18 @@
 package net.minecraft.world.level.levelgen.structure.placement;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.levelgen.RandomSource;
 
 public enum RandomSpreadType implements StringRepresentable {
     LINEAR("linear"),
     TRIANGULAR("triangular");
 
-    private static final RandomSpreadType[] VALUES = values();
-    public static final Codec<RandomSpreadType> CODEC = StringRepresentable.fromEnum(() -> VALUES, RandomSpreadType::byName);
+    public static final Codec<RandomSpreadType> CODEC = StringRepresentable.fromEnum(RandomSpreadType::values);
     private final String id;
 
     private RandomSpreadType(String param0) {
         this.id = param0;
-    }
-
-    public static RandomSpreadType byName(String param0) {
-        for(RandomSpreadType var0 : VALUES) {
-            if (var0.getSerializedName().equals(param0)) {
-                return var0;
-            }
-        }
-
-        throw new IllegalArgumentException("Unknown Random Spread type: " + param0);
     }
 
     @Override

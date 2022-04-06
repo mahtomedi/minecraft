@@ -2,13 +2,16 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.Monitor;
+import com.mojang.blaze3d.platform.VideoMode;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.FullscreenResolutionProgressOption;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Option;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
@@ -29,61 +32,95 @@ public class VideoSettingsScreen extends OptionsSubScreen {
     private static final Component BUTTON_ACCEPT = new TranslatableComponent("options.graphics.warning.accept");
     private static final Component BUTTON_CANCEL = new TranslatableComponent("options.graphics.warning.cancel");
     private static final Component NEW_LINE = new TextComponent("\n");
-    private static final Option[] OPTIONS = new Option[]{
-        Option.GRAPHICS,
-        Option.RENDER_DISTANCE,
-        Option.PRIORITIZE_CHUNK_UPDATES,
-        Option.SIMULATION_DISTANCE,
-        Option.AMBIENT_OCCLUSION,
-        Option.FRAMERATE_LIMIT,
-        Option.ENABLE_VSYNC,
-        Option.VIEW_BOBBING,
-        Option.GUI_SCALE,
-        Option.ATTACK_INDICATOR,
-        Option.GAMMA,
-        Option.RENDER_CLOUDS,
-        Option.USE_FULLSCREEN,
-        Option.PARTICLES,
-        Option.MIPMAP_LEVELS,
-        Option.ENTITY_SHADOWS,
-        Option.SCREEN_EFFECTS_SCALE,
-        Option.ENTITY_DISTANCE_SCALING,
-        Option.FOV_EFFECTS_SCALE,
-        Option.AUTOSAVE_INDICATOR
-    };
     private OptionsList list;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final int oldMipmaps;
+
+    private static OptionInstance<?>[] options(Options param0) {
+        return new OptionInstance[]{
+            param0.graphicsMode(),
+            param0.renderDistance(),
+            param0.prioritizeChunkUpdates(),
+            param0.simulationDistance(),
+            param0.ambientOcclusion(),
+            param0.framerateLimit(),
+            param0.enableVsync(),
+            param0.bobView(),
+            param0.guiScale(),
+            param0.attackIndicator(),
+            param0.gamma(),
+            param0.cloudStatus(),
+            param0.fullscreen(),
+            param0.particles(),
+            param0.mipmapLevels(),
+            param0.entityShadows(),
+            param0.screenEffectScale(),
+            param0.entityDistanceScaling(),
+            param0.fovEffectScale(),
+            param0.showAutosaveIndicator()
+        };
+    }
 
     public VideoSettingsScreen(Screen param0, Options param1) {
         super(param0, param1, new TranslatableComponent("options.videoTitle"));
         this.gpuWarnlistManager = param0.minecraft.getGpuWarnlistManager();
         this.gpuWarnlistManager.resetWarnings();
-        if (param1.graphicsMode == GraphicsStatus.FABULOUS) {
+        if (param1.graphicsMode().get() == GraphicsStatus.FABULOUS) {
             this.gpuWarnlistManager.dismissWarning();
         }
 
-        this.oldMipmaps = param1.mipmapLevels;
+        this.oldMipmaps = param1.mipmapLevels().get();
     }
 
     @Override
     protected void init() {
         this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
-        this.list.addBig(new FullscreenResolutionProgressOption(this.minecraft.getWindow()));
-        this.list.addBig(Option.BIOME_BLEND_RADIUS);
-        this.list.addSmall(OPTIONS);
+        int var0 = -1;
+        Window var1 = this.minecraft.getWindow();
+        Monitor var2 = var1.findBestMonitor();
+        int var3;
+        if (var2 == null) {
+            var3 = -1;
+        } else {
+            Optional<VideoMode> var4 = var1.getPreferredFullscreenVideoMode();
+            var3 = var4.map(var2::getVideoModeIndex).orElse(-1);
+        }
+
+        OptionInstance<Integer> var6 = new OptionInstance<>(
+            "options.fullscreen.resolution",
+            OptionInstance.noTooltip(),
+            (param1, param2) -> {
+                if (var2 == null) {
+                    return new TranslatableComponent("options.fullscreen.unavailable");
+                } else {
+                    return param2 == -1
+                        ? Options.genericValueLabel(param1, new TranslatableComponent("options.fullscreen.current"))
+                        : Options.genericValueLabel(param1, new TextComponent(var2.getMode(param2).toString()));
+                }
+            },
+            new OptionInstance.IntRange(-1, var2 != null ? var2.getModeCount() - 1 : -1),
+            var3,
+            param2 -> {
+                if (var2 != null) {
+                    var1.setPreferredFullscreenVideoMode(param2 == -1 ? Optional.empty() : Optional.of(var2.getMode(param2)));
+                }
+            }
+        );
+        this.list.addBig(var6);
+        this.list.addBig(this.options.biomeBlendRadius());
+        this.list.addSmall(options(this.options));
         this.addWidget(this.list);
-        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, param0 -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, param1 -> {
             this.minecraft.options.save();
-            this.minecraft.getWindow().changeFullscreenVideoMode();
+            var1.changeFullscreenVideoMode();
             this.minecraft.setScreen(this.lastScreen);
         }));
     }
 
     @Override
     public void removed() {
-        if (this.options.mipmapLevels != this.oldMipmaps) {
-            this.minecraft.updateMaxMipLevel(this.options.mipmapLevels);
+        if (this.options.mipmapLevels().get() != this.oldMipmaps) {
+            this.minecraft.updateMaxMipLevel(this.options.mipmapLevels().get());
             this.minecraft.delayTextureReload();
         }
 
@@ -92,9 +129,9 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
-        int var0 = this.options.guiScale;
+        int var0 = this.options.guiScale().get();
         if (super.mouseClicked(param0, param1, param2)) {
-            if (this.options.guiScale != var0) {
+            if (this.options.guiScale().get() != var0) {
                 this.minecraft.resizeDisplay();
             }
 
@@ -119,7 +156,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
                 }
 
                 this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var1, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
-                    this.options.graphicsMode = GraphicsStatus.FABULOUS;
+                    this.options.graphicsMode().set(GraphicsStatus.FABULOUS);
                     Minecraft.getInstance().levelRenderer.allChanged();
                     this.gpuWarnlistManager.dismissWarning();
                     this.minecraft.setScreen(this);
@@ -137,11 +174,11 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public boolean mouseReleased(double param0, double param1, int param2) {
-        int var0 = this.options.guiScale;
+        int var0 = this.options.guiScale().get();
         if (super.mouseReleased(param0, param1, param2)) {
             return true;
         } else if (this.list.mouseReleased(param0, param1, param2)) {
-            if (this.options.guiScale != var0) {
+            if (this.options.guiScale().get() != var0) {
                 this.minecraft.resizeDisplay();
             }
 
@@ -158,9 +195,6 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         drawCenteredString(param0, this.font, this.title, this.width / 2, 5, 16777215);
         super.render(param0, param1, param2, param3);
         List<FormattedCharSequence> var0 = tooltipAt(this.list, param1, param2);
-        if (var0 != null) {
-            this.renderTooltip(param0, var0, param1, param2);
-        }
-
+        this.renderTooltip(param0, var0, param1, param2);
     }
 }

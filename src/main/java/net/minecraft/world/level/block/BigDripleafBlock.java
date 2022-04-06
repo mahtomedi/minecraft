@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Map;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -15,6 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -88,7 +88,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
         return Shapes.or(LEAF_SHAPES.get(param0x.getValue(TILT)), STEM_SHAPES.get(param0x.getValue(FACING)));
     }
 
-    public static void placeWithRandomHeight(LevelAccessor param0, Random param1, BlockPos param2, Direction param3) {
+    public static void placeWithRandomHeight(LevelAccessor param0, RandomSource param1, BlockPos param2, Direction param3) {
         int var0 = Mth.nextInt(param1, 2, 5);
         BlockPos.MutableBlockPos var1 = param2.mutable();
         int var2 = 0;
@@ -164,12 +164,12 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         BlockPos var0 = param2.above();
         BlockState var1 = param0.getBlockState(var0);
         if (canPlaceAt(param0, var0, var1)) {
@@ -191,7 +191,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param1.hasNeighborSignal(param2)) {
             resetTilt(param0, param1, param2);
         } else {
@@ -248,7 +248,7 @@ public class BigDripleafBlock extends HorizontalDirectionalBlock implements Bone
     private static void setTilt(BlockState param0, Level param1, BlockPos param2, Tilt param3) {
         param1.setBlock(param2, param0.setValue(TILT, param3), 2);
         if (param3.causesVibration()) {
-            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2);
+            param1.gameEvent(null, GameEvent.BLOCK_CHANGE, param2);
         }
 
     }

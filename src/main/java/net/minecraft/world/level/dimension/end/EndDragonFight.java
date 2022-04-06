@@ -6,13 +6,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
@@ -124,7 +124,7 @@ public class EndDragonFight {
             }
         } else {
             this.gateways.addAll(ContiguousSet.create(Range.closedOpen(0, 20), DiscreteDomain.integers()));
-            Collections.shuffle(this.gateways, new Random(param1));
+            Util.shuffle(this.gateways, RandomSource.create(param1));
         }
 
         this.exitPortalPattern = BlockPatternBuilder.start()
@@ -400,7 +400,7 @@ public class EndDragonFight {
 
     private void spawnNewGateway(BlockPos param0) {
         this.level.levelEvent(3000, param0, 0);
-        EndFeatures.END_GATEWAY_DELAYED.value().place(this.level, this.level.getChunkSource().getGenerator(), new Random(), param0);
+        EndFeatures.END_GATEWAY_DELAYED.value().place(this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), param0);
     }
 
     private void spawnExitPortal(boolean param0) {
@@ -413,7 +413,7 @@ public class EndDragonFight {
             }
         }
 
-        var0.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), new Random(), this.portalLocation);
+        var0.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), this.portalLocation);
     }
 
     private EnderDragon createNewDragon() {

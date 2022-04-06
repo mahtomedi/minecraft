@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -32,6 +31,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -98,7 +98,7 @@ public class Raid {
     private final ServerBossEvent raidEvent = new ServerBossEvent(RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
     private int postRaidTicks;
     private int raidCooldownTicks;
-    private final Random random = new Random();
+    private final RandomSource random = RandomSource.create();
     private final int numGroups;
     private Raid.RaidStatus status;
     private int celebrationTicks;
@@ -474,15 +474,16 @@ public class Raid {
         float var0 = 13.0F;
         int var1 = 64;
         Collection<ServerPlayer> var2 = this.raidEvent.getPlayers();
+        long var3 = this.random.nextLong();
 
-        for(ServerPlayer var3 : this.level.players()) {
-            Vec3 var4 = var3.position();
-            Vec3 var5 = Vec3.atCenterOf(param0);
-            double var6 = Math.sqrt((var5.x - var4.x) * (var5.x - var4.x) + (var5.z - var4.z) * (var5.z - var4.z));
-            double var7 = var4.x + 13.0 / var6 * (var5.x - var4.x);
-            double var8 = var4.z + 13.0 / var6 * (var5.z - var4.z);
-            if (var6 <= 64.0 || var2.contains(var3)) {
-                var3.connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var7, var3.getY(), var8, 64.0F, 1.0F));
+        for(ServerPlayer var4 : this.level.players()) {
+            Vec3 var5 = var4.position();
+            Vec3 var6 = Vec3.atCenterOf(param0);
+            double var7 = Math.sqrt((var6.x - var5.x) * (var6.x - var5.x) + (var6.z - var5.z) * (var6.z - var5.z));
+            double var8 = var5.x + 13.0 / var7 * (var6.x - var5.x);
+            double var9 = var5.z + 13.0 / var7 * (var6.z - var5.z);
+            if (var7 <= 64.0 || var2.contains(var4)) {
+                var4.connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var8, var4.getY(), var9, 64.0F, 1.0F, var3));
             }
         }
 
@@ -708,7 +709,7 @@ public class Raid {
         return param2 ? param0.spawnsPerWaveBeforeBonus[this.numGroups] : param0.spawnsPerWaveBeforeBonus[param1];
     }
 
-    private int getPotentialBonusSpawns(Raid.RaiderType param0, Random param1, int param2, DifficultyInstance param3, boolean param4) {
+    private int getPotentialBonusSpawns(Raid.RaiderType param0, RandomSource param1, int param2, DifficultyInstance param3, boolean param4) {
         Difficulty var0 = param3.getDifficulty();
         boolean var1 = var0 == Difficulty.EASY;
         boolean var2 = var0 == Difficulty.NORMAL;

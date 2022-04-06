@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -106,12 +106,12 @@ public class SmallDripleafBlock extends DoublePlantBlock implements Bonemealable
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         if (param3.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER) {
             BlockPos var0 = param2.above();
             param0.setBlock(var0, param0.getFluidState(var0).createLegacyBlock(), 18);

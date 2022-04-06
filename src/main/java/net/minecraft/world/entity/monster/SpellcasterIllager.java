@@ -43,9 +43,7 @@ public abstract class SpellcasterIllager extends AbstractIllager {
 
     @Override
     public AbstractIllager.IllagerArmPose getArmPose() {
-        if (this.getCarried() != LivingEntity.Carried.NONE) {
-            return AbstractIllager.IllagerArmPose.CROSSBOW_HOLD;
-        } else if (this.isCastingSpell()) {
+        if (this.isCastingSpell()) {
             return AbstractIllager.IllagerArmPose.SPELLCASTING;
         } else {
             return this.isCelebrating() ? AbstractIllager.IllagerArmPose.CELEBRATING : AbstractIllager.IllagerArmPose.CROSSED;

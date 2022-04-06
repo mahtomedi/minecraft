@@ -291,22 +291,23 @@ public class BookEditScreen extends Screen {
             this.pageEdit.cut();
             return true;
         } else {
+            TextFieldHelper.CursorStep var0 = Screen.hasControlDown() ? TextFieldHelper.CursorStep.WORD : TextFieldHelper.CursorStep.CHARACTER;
             switch(param0) {
                 case 257:
                 case 335:
                     this.pageEdit.insertText("\n");
                     return true;
                 case 259:
-                    this.pageEdit.removeCharsFromCursor(-1);
+                    this.pageEdit.removeFromCursor(-1, var0);
                     return true;
                 case 261:
-                    this.pageEdit.removeCharsFromCursor(1);
+                    this.pageEdit.removeFromCursor(1, var0);
                     return true;
                 case 262:
-                    this.pageEdit.moveByChars(1, Screen.hasShiftDown());
+                    this.pageEdit.moveBy(1, Screen.hasShiftDown(), var0);
                     return true;
                 case 263:
-                    this.pageEdit.moveByChars(-1, Screen.hasShiftDown());
+                    this.pageEdit.moveBy(-1, Screen.hasShiftDown(), var0);
                     return true;
                 case 264:
                     this.keyDown();
@@ -347,16 +348,26 @@ public class BookEditScreen extends Screen {
     }
 
     private void keyHome() {
-        int var0 = this.pageEdit.getCursorPos();
-        int var1 = this.getDisplayCache().findLineStart(var0);
-        this.pageEdit.setCursorPos(var1, Screen.hasShiftDown());
+        if (Screen.hasControlDown()) {
+            this.pageEdit.setCursorToStart(Screen.hasShiftDown());
+        } else {
+            int var0 = this.pageEdit.getCursorPos();
+            int var1 = this.getDisplayCache().findLineStart(var0);
+            this.pageEdit.setCursorPos(var1, Screen.hasShiftDown());
+        }
+
     }
 
     private void keyEnd() {
-        BookEditScreen.DisplayCache var0 = this.getDisplayCache();
-        int var1 = this.pageEdit.getCursorPos();
-        int var2 = var0.findLineEnd(var1);
-        this.pageEdit.setCursorPos(var2, Screen.hasShiftDown());
+        if (Screen.hasControlDown()) {
+            this.pageEdit.setCursorToEnd(Screen.hasShiftDown());
+        } else {
+            BookEditScreen.DisplayCache var0 = this.getDisplayCache();
+            int var1 = this.pageEdit.getCursorPos();
+            int var2 = var0.findLineEnd(var1);
+            this.pageEdit.setCursorPos(var2, Screen.hasShiftDown());
+        }
+
     }
 
     private boolean titleKeyPressed(int param0, int param1, int param2) {

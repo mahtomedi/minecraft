@@ -2,9 +2,9 @@ package net.minecraft.world.level.levelgen.feature.treedecorators;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,7 +20,14 @@ public class TrunkVineDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, List<BlockPos> param3, List<BlockPos> param4) {
+    public void place(
+        LevelSimulatedReader param0,
+        BiConsumer<BlockPos, BlockState> param1,
+        RandomSource param2,
+        List<BlockPos> param3,
+        List<BlockPos> param4,
+        List<BlockPos> param5
+    ) {
         param3.forEach(param3x -> {
             if (param2.nextInt(3) > 0) {
                 BlockPos var3x = param3x.west();
@@ -37,9 +44,9 @@ public class TrunkVineDecorator extends TreeDecorator {
             }
 
             if (param2.nextInt(3) > 0) {
-                BlockPos var2 = param3x.north();
-                if (Feature.isAir(param0, var2)) {
-                    placeVine(param1, var2, VineBlock.SOUTH);
+                BlockPos var6x = param3x.north();
+                if (Feature.isAir(param0, var6x)) {
+                    placeVine(param1, var6x, VineBlock.SOUTH);
                 }
             }
 

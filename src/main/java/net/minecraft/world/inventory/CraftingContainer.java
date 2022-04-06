@@ -50,6 +50,7 @@ public class CraftingContainer implements Container, StackedContentsCompatible {
     public ItemStack removeItem(int param0, int param1) {
         ItemStack var0 = ContainerHelper.removeItem(this.items, param0, param1);
         if (!var0.isEmpty()) {
+            this.menu.slotsChanged(this);
         }
 
         return var0;
@@ -58,6 +59,7 @@ public class CraftingContainer implements Container, StackedContentsCompatible {
     @Override
     public void setItem(int param0, ItemStack param1) {
         this.items.set(param0, param1);
+        this.menu.slotsChanged(this);
     }
 
     @Override

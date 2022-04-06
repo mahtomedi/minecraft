@@ -1,10 +1,10 @@
 package net.minecraft.world.level.levelgen.placement;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.block.Blocks;
@@ -32,7 +32,7 @@ public class CountOnEveryLayerPlacement extends PlacementModifier {
     }
 
     @Override
-    public Stream<BlockPos> getPositions(PlacementContext param0, Random param1, BlockPos param2) {
+    public Stream<BlockPos> getPositions(PlacementContext param0, RandomSource param1, BlockPos param2) {
         Builder<BlockPos> var0 = Stream.builder();
         int var1 = 0;
 

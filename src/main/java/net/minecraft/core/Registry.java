@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -22,6 +21,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.BuiltinRegistries;
@@ -34,6 +35,7 @@ import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.FloatProviderType;
 import net.minecraft.util.valueproviders.IntProviderType;
 import net.minecraft.world.effect.MobEffect;
@@ -44,6 +46,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.animal.CatVariant;
+import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.entity.decoration.Motive;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
@@ -78,18 +82,21 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicateType;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.featuresize.FeatureSizeType;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
+import net.minecraft.world.level.levelgen.feature.rootplacers.RootPlacerType;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProviderType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorPreset;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProviderType;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
@@ -159,6 +166,7 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     public static final ResourceKey<Registry<LootNumberProviderType>> LOOT_NUMBER_PROVIDER_REGISTRY = createRegistryKey("loot_number_provider_type");
     public static final ResourceKey<Registry<LootNbtProviderType>> LOOT_NBT_PROVIDER_REGISTRY = createRegistryKey("loot_nbt_provider_type");
     public static final ResourceKey<Registry<LootScoreProviderType>> LOOT_SCORE_PROVIDER_REGISTRY = createRegistryKey("loot_score_provider_type");
+    public static final ResourceKey<Registry<ArgumentTypeInfo<?, ?>>> COMMAND_ARGUMENT_TYPE_REGISTRY = createRegistryKey("command_argument_type");
     public static final ResourceKey<Registry<DimensionType>> DIMENSION_TYPE_REGISTRY = createRegistryKey("dimension_type");
     public static final ResourceKey<Registry<Level>> DIMENSION_REGISTRY = createRegistryKey("dimension");
     public static final ResourceKey<Registry<LevelStem>> LEVEL_STEM_REGISTRY = createRegistryKey("dimension");
@@ -189,6 +197,7 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     );
     public static final Registry<Attribute> ATTRIBUTE = registerSimple(ATTRIBUTE_REGISTRY, param0 -> Attributes.LUCK);
     public static final Registry<PositionSourceType<?>> POSITION_SOURCE_TYPE = registerSimple(POSITION_SOURCE_TYPE_REGISTRY, param0 -> PositionSourceType.BLOCK);
+    public static final Registry<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPE = registerSimple(COMMAND_ARGUMENT_TYPE_REGISTRY, ArgumentTypeInfos::bootstrap);
     public static final Registry<StatType<?>> STAT_TYPE = registerSimple(STAT_TYPE_REGISTRY, param0 -> Stats.ITEM_USED);
     public static final DefaultedRegistry<VillagerType> VILLAGER_TYPE = registerDefaulted(VILLAGER_TYPE_REGISTRY, "plains", param0 -> VillagerType.PLAINS);
     public static final DefaultedRegistry<VillagerProfession> VILLAGER_PROFESSION = registerDefaulted(
@@ -227,27 +236,29 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     public static final ResourceKey<Registry<ConfiguredWorldCarver<?>>> CONFIGURED_CARVER_REGISTRY = createRegistryKey("worldgen/configured_carver");
     public static final ResourceKey<Registry<ConfiguredFeature<?, ?>>> CONFIGURED_FEATURE_REGISTRY = createRegistryKey("worldgen/configured_feature");
     public static final ResourceKey<Registry<PlacedFeature>> PLACED_FEATURE_REGISTRY = createRegistryKey("worldgen/placed_feature");
-    public static final ResourceKey<Registry<ConfiguredStructureFeature<?, ?>>> CONFIGURED_STRUCTURE_FEATURE_REGISTRY = createRegistryKey(
-        "worldgen/configured_structure_feature"
-    );
+    public static final ResourceKey<Registry<Structure>> STRUCTURE_REGISTRY = createRegistryKey("worldgen/structure");
     public static final ResourceKey<Registry<StructureSet>> STRUCTURE_SET_REGISTRY = createRegistryKey("worldgen/structure_set");
     public static final ResourceKey<Registry<StructureProcessorList>> PROCESSOR_LIST_REGISTRY = createRegistryKey("worldgen/processor_list");
     public static final ResourceKey<Registry<StructureTemplatePool>> TEMPLATE_POOL_REGISTRY = createRegistryKey("worldgen/template_pool");
     public static final ResourceKey<Registry<Biome>> BIOME_REGISTRY = createRegistryKey("worldgen/biome");
     public static final ResourceKey<Registry<NormalNoise.NoiseParameters>> NOISE_REGISTRY = createRegistryKey("worldgen/noise");
     public static final ResourceKey<Registry<DensityFunction>> DENSITY_FUNCTION_REGISTRY = createRegistryKey("worldgen/density_function");
+    public static final ResourceKey<Registry<WorldPreset>> WORLD_PRESET_REGISTRY = createRegistryKey("worldgen/world_preset");
+    public static final ResourceKey<Registry<FlatLevelGeneratorPreset>> FLAT_LEVEL_GENERATOR_PRESET_REGISTRY = createRegistryKey(
+        "worldgen/flat_level_generator_preset"
+    );
     public static final ResourceKey<Registry<WorldCarver<?>>> CARVER_REGISTRY = createRegistryKey("worldgen/carver");
     public static final Registry<WorldCarver<?>> CARVER = registerSimple(CARVER_REGISTRY, param0 -> WorldCarver.CAVE);
     public static final ResourceKey<Registry<Feature<?>>> FEATURE_REGISTRY = createRegistryKey("worldgen/feature");
     public static final Registry<Feature<?>> FEATURE = registerSimple(FEATURE_REGISTRY, param0 -> Feature.ORE);
-    public static final ResourceKey<Registry<StructureFeature<?>>> STRUCTURE_FEATURE_REGISTRY = createRegistryKey("worldgen/structure_feature");
-    public static final Registry<StructureFeature<?>> STRUCTURE_FEATURE = registerSimple(STRUCTURE_FEATURE_REGISTRY, param0 -> StructureFeature.MINESHAFT);
     public static final ResourceKey<Registry<StructurePlacementType<?>>> STRUCTURE_PLACEMENT_TYPE_REGISTRY = createRegistryKey("worldgen/structure_placement");
     public static final Registry<StructurePlacementType<?>> STRUCTURE_PLACEMENT_TYPE = registerSimple(
         STRUCTURE_PLACEMENT_TYPE_REGISTRY, param0 -> StructurePlacementType.RANDOM_SPREAD
     );
     public static final ResourceKey<Registry<StructurePieceType>> STRUCTURE_PIECE_REGISTRY = createRegistryKey("worldgen/structure_piece");
     public static final Registry<StructurePieceType> STRUCTURE_PIECE = registerSimple(STRUCTURE_PIECE_REGISTRY, param0 -> StructurePieceType.MINE_SHAFT_ROOM);
+    public static final ResourceKey<Registry<StructureType<?>>> STRUCTURE_TYPE_REGISTRY = createRegistryKey("worldgen/structure_type");
+    public static final Registry<StructureType<?>> STRUCTURE_TYPES = registerSimple(STRUCTURE_TYPE_REGISTRY, param0 -> StructureType.JIGSAW);
     public static final ResourceKey<Registry<PlacementModifierType<?>>> PLACEMENT_MODIFIER_REGISTRY = createRegistryKey("worldgen/placement_modifier_type");
     public static final Registry<PlacementModifierType<?>> PLACEMENT_MODIFIERS = registerSimple(
         PLACEMENT_MODIFIER_REGISTRY, param0 -> PlacementModifierType.COUNT
@@ -258,6 +269,7 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     public static final ResourceKey<Registry<FoliagePlacerType<?>>> FOLIAGE_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/foliage_placer_type");
     public static final ResourceKey<Registry<TrunkPlacerType<?>>> TRUNK_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/trunk_placer_type");
     public static final ResourceKey<Registry<TreeDecoratorType<?>>> TREE_DECORATOR_TYPE_REGISTRY = createRegistryKey("worldgen/tree_decorator_type");
+    public static final ResourceKey<Registry<RootPlacerType<?>>> ROOT_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/root_placer_type");
     public static final ResourceKey<Registry<FeatureSizeType<?>>> FEATURE_SIZE_TYPE_REGISTRY = createRegistryKey("worldgen/feature_size_type");
     public static final ResourceKey<Registry<Codec<? extends BiomeSource>>> BIOME_SOURCE_REGISTRY = createRegistryKey("worldgen/biome_source");
     public static final ResourceKey<Registry<Codec<? extends ChunkGenerator>>> CHUNK_GENERATOR_REGISTRY = createRegistryKey("worldgen/chunk_generator");
@@ -281,6 +293,7 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     public static final Registry<TrunkPlacerType<?>> TRUNK_PLACER_TYPES = registerSimple(
         TRUNK_PLACER_TYPE_REGISTRY, param0 -> TrunkPlacerType.STRAIGHT_TRUNK_PLACER
     );
+    public static final Registry<RootPlacerType<?>> ROOT_PLACER_TYPES = registerSimple(ROOT_PLACER_TYPE_REGISTRY, param0 -> RootPlacerType.MANGROVE_ROOT_PLACER);
     public static final Registry<TreeDecoratorType<?>> TREE_DECORATOR_TYPES = registerSimple(
         TREE_DECORATOR_TYPE_REGISTRY, param0 -> TreeDecoratorType.LEAVE_VINE
     );
@@ -306,6 +319,10 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     public static final Registry<StructurePoolElementType<?>> STRUCTURE_POOL_ELEMENT = registerSimple(
         STRUCTURE_POOL_ELEMENT_REGISTRY, param0 -> StructurePoolElementType.EMPTY
     );
+    public static final ResourceKey<Registry<CatVariant>> CAT_VARIANT_REGISTRY = createRegistryKey("cat_variant");
+    public static final Registry<CatVariant> CAT_VARIANT = registerSimple(CAT_VARIANT_REGISTRY, param0 -> CatVariant.BLACK);
+    public static final ResourceKey<Registry<FrogVariant>> FROG_VARIANT_REGISTRY = createRegistryKey("frog_variant");
+    public static final Registry<FrogVariant> FROG_VARIANT = registerSimple(FROG_VARIANT_REGISTRY, param0 -> FrogVariant.TEMPERATE);
     private final ResourceKey<? extends Registry<T>> key;
     private final Lifecycle lifecycle;
 
@@ -475,7 +492,9 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
 
     public abstract Set<Entry<ResourceKey<T>, T>> entrySet();
 
-    public abstract Optional<Holder<T>> getRandom(Random var1);
+    public abstract Set<ResourceKey<T>> registryKeySet();
+
+    public abstract Optional<Holder<T>> getRandom(RandomSource var1);
 
     public Stream<T> stream() {
         return StreamSupport.stream(this.spliterator(), false);

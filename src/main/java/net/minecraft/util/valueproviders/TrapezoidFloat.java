@@ -3,8 +3,8 @@ package net.minecraft.util.valueproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.util.RandomSource;
 
 public class TrapezoidFloat extends FloatProvider {
     public static final Codec<TrapezoidFloat> CODEC = RecordCodecBuilder.<TrapezoidFloat>create(
@@ -42,7 +42,7 @@ public class TrapezoidFloat extends FloatProvider {
     }
 
     @Override
-    public float sample(Random param0) {
+    public float sample(RandomSource param0) {
         float var0 = this.max - this.min;
         float var1 = (var0 - this.plateau) / 2.0F;
         float var2 = var0 - var1;

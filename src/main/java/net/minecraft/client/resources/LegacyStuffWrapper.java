@@ -2,8 +2,8 @@ package net.minecraft.client.resources;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import java.io.IOException;
+import java.io.InputStream;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,8 +14,8 @@ public class LegacyStuffWrapper {
     public static int[] getPixels(ResourceManager param0, ResourceLocation param1) throws IOException {
         int[] var4;
         try (
-            Resource var0 = param0.getResource(param1);
-            NativeImage var1 = NativeImage.read(var0.getInputStream());
+            InputStream var0 = param0.open(param1);
+            NativeImage var1 = NativeImage.read(var0);
         ) {
             var4 = var1.makePixelArray();
         }

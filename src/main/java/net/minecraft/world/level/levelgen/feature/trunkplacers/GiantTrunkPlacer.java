@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -26,7 +26,7 @@ public class GiantTrunkPlacer extends TrunkPlacer {
 
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, int param3, BlockPos param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, int param3, BlockPos param4, TreeConfiguration param5
     ) {
         BlockPos var0 = param4.below();
         setDirtAt(param0, param1, param2, var0, param5);
@@ -36,21 +36,21 @@ public class GiantTrunkPlacer extends TrunkPlacer {
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
         for(int var2 = 0; var2 < param3; ++var2) {
-            placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 0, var2, 0);
+            this.placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 0, var2, 0);
             if (var2 < param3 - 1) {
-                placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 1, var2, 0);
-                placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 1, var2, 1);
-                placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 0, var2, 1);
+                this.placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 1, var2, 0);
+                this.placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 1, var2, 1);
+                this.placeLogIfFreeWithOffset(param0, param1, param2, var1, param5, param4, 0, var2, 1);
             }
         }
 
         return ImmutableList.of(new FoliagePlacer.FoliageAttachment(param4.above(param3), 0, true));
     }
 
-    private static void placeLogIfFreeWithOffset(
+    private void placeLogIfFreeWithOffset(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         BlockPos.MutableBlockPos param3,
         TreeConfiguration param4,
         BlockPos param5,
@@ -59,6 +59,6 @@ public class GiantTrunkPlacer extends TrunkPlacer {
         int param8
     ) {
         param3.setWithOffset(param5, param6, param7, param8);
-        placeLogIfFree(param0, param1, param2, param3, param4);
+        this.placeLogIfFree(param0, param1, param2, param3, param4);
     }
 }

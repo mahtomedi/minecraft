@@ -2,11 +2,11 @@ package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -95,7 +95,7 @@ public abstract class PatrollingMonster extends Monster {
     }
 
     public static boolean checkPatrollingMonsterSpawnRules(
-        EntityType<? extends PatrollingMonster> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+        EntityType<? extends PatrollingMonster> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
         return param1.getBrightness(LightLayer.BLOCK, param3) > 8 ? false : checkAnyLightMonsterSpawnRules(param0, param1, param2, param3, param4);
     }
@@ -211,7 +211,7 @@ public abstract class PatrollingMonster extends Monster {
         }
 
         private boolean moveRandomly() {
-            Random var0 = this.mob.getRandom();
+            RandomSource var0 = this.mob.getRandom();
             BlockPos var1 = this.mob
                 .level
                 .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.blockPosition().offset(-8 + var0.nextInt(16), 0, -8 + var0.nextInt(16)));

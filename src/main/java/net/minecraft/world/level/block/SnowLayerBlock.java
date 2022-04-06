@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -81,6 +81,11 @@ public class SnowLayerBlock extends Block {
     }
 
     @Override
+    public float getShadeBrightness(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return param0.getValue(LAYERS) == 8 ? 0.2F : 1.0F;
+    }
+
+    @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
         if (var0.is(Blocks.ICE) || var0.is(Blocks.PACKED_ICE) || var0.is(Blocks.BARRIER)) {
@@ -98,7 +103,7 @@ public class SnowLayerBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param1.getBrightness(LightLayer.BLOCK, param2) > 11) {
             dropResources(param0, param1, param2);
             param1.removeBlock(param2, false);

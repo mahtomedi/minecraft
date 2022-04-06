@@ -2,9 +2,9 @@ package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +26,7 @@ public class BushFoliagePlacer extends BlobFoliagePlacer {
     protected void createFoliage(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         TreeConfiguration param3,
         int param4,
         FoliagePlacer.FoliageAttachment param5,
@@ -42,7 +42,7 @@ public class BushFoliagePlacer extends BlobFoliagePlacer {
     }
 
     @Override
-    protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
+    protected boolean shouldSkipLocation(RandomSource param0, int param1, int param2, int param3, int param4, boolean param5) {
         return param1 == param4 && param3 == param4 && param0.nextInt(2) == 0;
     }
 }

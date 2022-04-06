@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,18 +14,9 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 
 public interface Aquifer {
     static Aquifer create(
-        NoiseChunk param0,
-        ChunkPos param1,
-        DensityFunction param2,
-        DensityFunction param3,
-        DensityFunction param4,
-        DensityFunction param5,
-        PositionalRandomFactory param6,
-        int param7,
-        int param8,
-        Aquifer.FluidPicker param9
+        NoiseChunk param0, ChunkPos param1, NoiseRouter param2, PositionalRandomFactory param3, int param4, int param5, Aquifer.FluidPicker param6
     ) {
-        return new Aquifer.NoiseBasedAquifer(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+        return new Aquifer.NoiseBasedAquifer(param0, param1, param2, param3, param4, param5, param6);
     }
 
     static Aquifer createDisabled(final Aquifer.FluidPicker param0) {
@@ -86,6 +78,8 @@ public interface Aquifer {
         private final Aquifer.FluidStatus[] aquiferCache;
         private final long[] aquiferLocationCache;
         private final Aquifer.FluidPicker globalFluidPicker;
+        private final DensityFunction erosion;
+        private final DensityFunction depth;
         private boolean shouldScheduleFluidUpdate;
         private final int minGridX;
         private final int minGridY;
@@ -97,29 +91,22 @@ public interface Aquifer {
         };
 
         NoiseBasedAquifer(
-            NoiseChunk param0,
-            ChunkPos param1,
-            DensityFunction param2,
-            DensityFunction param3,
-            DensityFunction param4,
-            DensityFunction param5,
-            PositionalRandomFactory param6,
-            int param7,
-            int param8,
-            Aquifer.FluidPicker param9
+            NoiseChunk param0, ChunkPos param1, NoiseRouter param2, PositionalRandomFactory param3, int param4, int param5, Aquifer.FluidPicker param6
         ) {
             this.noiseChunk = param0;
-            this.barrierNoise = param2;
-            this.fluidLevelFloodednessNoise = param3;
-            this.fluidLevelSpreadNoise = param4;
-            this.lavaNoise = param5;
-            this.positionalRandomFactory = param6;
+            this.barrierNoise = param2.barrierNoise();
+            this.fluidLevelFloodednessNoise = param2.fluidLevelFloodednessNoise();
+            this.fluidLevelSpreadNoise = param2.fluidLevelSpreadNoise();
+            this.lavaNoise = param2.lavaNoise();
+            this.erosion = param2.erosion();
+            this.depth = param2.depth();
+            this.positionalRandomFactory = param3;
             this.minGridX = this.gridX(param1.getMinBlockX()) - 1;
-            this.globalFluidPicker = param9;
+            this.globalFluidPicker = param6;
             int var0 = this.gridX(param1.getMaxBlockX()) + 1;
             this.gridSizeX = var0 - this.minGridX + 1;
-            this.minGridY = this.gridY(param7) - 1;
-            int var1 = this.gridY(param7 + param8) + 1;
+            this.minGridY = this.gridY(param4) - 1;
+            int var1 = this.gridY(param4 + param5) + 1;
             int var2 = var1 - this.minGridY + 1;
             this.minGridZ = this.gridZ(param1.getMinBlockZ()) - 1;
             int var3 = this.gridZ(param1.getMaxBlockZ()) + 1;
@@ -379,44 +366,77 @@ public interface Aquifer {
                 var1 = Math.min(var1, var8);
             }
 
-            int var13 = var1 + 8 - param1;
-            int var14 = 64;
-            double var15 = var4 ? Mth.clampedMap((double)var13, 0.0, 64.0, 1.0, 0.0) : 0.0;
-            double var16 = Mth.clamp(this.fluidLevelFloodednessNoise.compute(new DensityFunction.SinglePointContext(param0, param1, param2)), -1.0, 1.0);
-            double var17 = Mth.map(var15, 1.0, 0.0, -0.3, 0.8);
-            if (var16 > var17) {
-                return var0;
-            } else {
-                double var18 = Mth.map(var15, 1.0, 0.0, -0.8, 0.4);
-                if (var16 <= var18) {
-                    return new Aquifer.FluidStatus(DimensionType.WAY_BELOW_MIN_Y, var0.fluidType);
-                } else {
-                    int var19 = 16;
-                    int var20 = 40;
-                    int var21 = Math.floorDiv(param0, 16);
-                    int var22 = Math.floorDiv(param1, 40);
-                    int var23 = Math.floorDiv(param2, 16);
-                    int var24 = var22 * 40 + 20;
-                    int var25 = 10;
-                    double var26 = this.fluidLevelSpreadNoise.compute(new DensityFunction.SinglePointContext(var21, var22, var23)) * 10.0;
-                    int var27 = Mth.quantize(var26, 3);
-                    int var28 = var24 + var27;
-                    int var29 = Math.min(var1, var28);
-                    if (var28 <= -10) {
-                        int var30 = 64;
-                        int var31 = 40;
-                        int var32 = Math.floorDiv(param0, 64);
-                        int var33 = Math.floorDiv(param1, 40);
-                        int var34 = Math.floorDiv(param2, 64);
-                        double var35 = this.lavaNoise.compute(new DensityFunction.SinglePointContext(var32, var33, var34));
-                        if (Math.abs(var35) > 0.3) {
-                            return new Aquifer.FluidStatus(var29, Blocks.LAVA.defaultBlockState());
-                        }
-                    }
+            int var13 = this.computeSurfaceLevel(param0, param1, param2, var0, var1, var4);
+            return new Aquifer.FluidStatus(var13, this.computeFluidType(param0, param1, param2, var0, var13));
+        }
 
-                    return new Aquifer.FluidStatus(var29, var0.fluidType);
+        private int computeSurfaceLevel(int param0, int param1, int param2, Aquifer.FluidStatus param3, int param4, boolean param5) {
+            DensityFunction.SinglePointContext var0 = new DensityFunction.SinglePointContext(param0, param1, param2);
+            double var1;
+            double var2;
+            if (isDeepDarkRegion(this.erosion.compute(var0), this.depth.compute(var0))) {
+                var1 = -1.0;
+                var2 = -1.0;
+            } else {
+                int var3 = param4 + 8 - param1;
+                int var4 = 64;
+                double var5 = param5 ? Mth.clampedMap((double)var3, 0.0, 64.0, 1.0, 0.0) : 0.0;
+                double var6 = Mth.clamp(this.fluidLevelFloodednessNoise.compute(var0), -1.0, 1.0);
+                double var7 = Mth.map(var5, 1.0, 0.0, -0.3, 0.8);
+                double var8 = Mth.map(var5, 1.0, 0.0, -0.8, 0.4);
+                var1 = var6 - var8;
+                var2 = var6 - var7;
+            }
+
+            int var11;
+            if (var2 > 0.0) {
+                var11 = param3.fluidLevel;
+            } else if (var1 > 0.0) {
+                var11 = this.computeRandomizedFluidSurfaceLevel(param0, param1, param2, param4);
+            } else {
+                var11 = DimensionType.WAY_BELOW_MIN_Y;
+            }
+
+            return var11;
+        }
+
+        private static boolean isDeepDarkRegion(double param0, double param1) {
+            if (param0 > -0.375) {
+                return false;
+            } else {
+                return param1 > 0.9;
+            }
+        }
+
+        private int computeRandomizedFluidSurfaceLevel(int param0, int param1, int param2, int param3) {
+            int var0 = 16;
+            int var1 = 40;
+            int var2 = Math.floorDiv(param0, 16);
+            int var3 = Math.floorDiv(param1, 40);
+            int var4 = Math.floorDiv(param2, 16);
+            int var5 = var3 * 40 + 20;
+            int var6 = 10;
+            double var7 = this.fluidLevelSpreadNoise.compute(new DensityFunction.SinglePointContext(var2, var3, var4)) * 10.0;
+            int var8 = Mth.quantize(var7, 3);
+            int var9 = var5 + var8;
+            return Math.min(param3, var9);
+        }
+
+        private BlockState computeFluidType(int param0, int param1, int param2, Aquifer.FluidStatus param3, int param4) {
+            BlockState var0 = param3.fluidType;
+            if (param4 <= -10 && param4 != DimensionType.WAY_BELOW_MIN_Y && param3.fluidType != Blocks.LAVA.defaultBlockState()) {
+                int var1 = 64;
+                int var2 = 40;
+                int var3 = Math.floorDiv(param0, 64);
+                int var4 = Math.floorDiv(param1, 40);
+                int var5 = Math.floorDiv(param2, 64);
+                double var6 = this.lavaNoise.compute(new DensityFunction.SinglePointContext(var3, var4, var5));
+                if (Math.abs(var6) > 0.3) {
+                    var0 = Blocks.LAVA.defaultBlockState();
                 }
             }
+
+            return var0;
         }
     }
 }

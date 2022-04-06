@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.annotation.Nullable;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
@@ -80,23 +81,24 @@ public class SimpleTexture extends AbstractTexture {
 
         public static SimpleTexture.TextureImage load(ResourceManager param0, ResourceLocation param1) {
             try {
-                SimpleTexture.TextureImage var3;
-                try (Resource var0 = param0.getResource(param1)) {
-                    NativeImage var1 = NativeImage.read(var0.getInputStream());
-                    TextureMetadataSection var2 = null;
+                Resource var0 = param0.getResourceOrThrow(param1);
 
-                    try {
-                        var2 = var0.getMetadata(TextureMetadataSection.SERIALIZER);
-                    } catch (RuntimeException var7) {
-                        SimpleTexture.LOGGER.warn("Failed reading metadata of: {}", param1, var7);
-                    }
-
-                    var3 = new SimpleTexture.TextureImage(var2, var1);
+                NativeImage var2;
+                try (InputStream var1 = var0.open()) {
+                    var2 = NativeImage.read(var1);
                 }
 
-                return var3;
-            } catch (IOException var9) {
-                return new SimpleTexture.TextureImage(var9);
+                TextureMetadataSection var4 = null;
+
+                try {
+                    var4 = var0.metadata().getSection(TextureMetadataSection.SERIALIZER).orElse(null);
+                } catch (RuntimeException var8) {
+                    SimpleTexture.LOGGER.warn("Failed reading metadata of: {}", param1, var8);
+                }
+
+                return new SimpleTexture.TextureImage(var4, var2);
+            } catch (IOException var10) {
+                return new SimpleTexture.TextureImage(var10);
             }
         }
 

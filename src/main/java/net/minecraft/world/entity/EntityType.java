@@ -51,7 +51,10 @@ import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.animal.frog.Frog;
+import net.minecraft.world.entity.animal.frog.Tadpole;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.horse.Donkey;
 import net.minecraft.world.entity.animal.horse.Horse;
@@ -106,6 +109,7 @@ import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
@@ -128,6 +132,7 @@ import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.entity.projectile.WitherSkull;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.entity.vehicle.MinecartCommandBlock;
@@ -153,6 +158,9 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     public static final String ENTITY_TAG = "EntityTag";
     private final Holder.Reference<EntityType<?>> builtInRegistryHolder = Registry.ENTITY_TYPE.createIntrusiveHolder(this);
     private static final float MAGIC_HORSE_WIDTH = 1.3964844F;
+    public static final EntityType<Allay> ALLAY = register(
+        "allay", EntityType.Builder.<Allay>of(Allay::new, MobCategory.CREATURE).sized(0.35F, 0.6F).clientTrackingRange(8).updateInterval(2)
+    );
     public static final EntityType<AreaEffectCloud> AREA_EFFECT_CLOUD = register(
         "area_effect_cloud",
         EntityType.Builder.<AreaEffectCloud>of(AreaEffectCloud::new, MobCategory.MISC)
@@ -181,6 +189,9 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     );
     public static final EntityType<Boat> BOAT = register(
         "boat", EntityType.Builder.<Boat>of(Boat::new, MobCategory.MISC).sized(1.375F, 0.5625F).clientTrackingRange(10)
+    );
+    public static final EntityType<ChestBoat> CHEST_BOAT = register(
+        "chest_boat", EntityType.Builder.<ChestBoat>of(ChestBoat::new, MobCategory.MISC).sized(1.375F, 0.5625F).clientTrackingRange(10)
     );
     public static final EntityType<Cat> CAT = register(
         "cat", EntityType.Builder.<Cat>of(Cat::new, MobCategory.CREATURE).sized(0.6F, 0.7F).clientTrackingRange(8)
@@ -252,6 +263,9 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     );
     public static final EntityType<Fox> FOX = register(
         "fox", EntityType.Builder.<Fox>of(Fox::new, MobCategory.CREATURE).sized(0.6F, 0.7F).clientTrackingRange(8).immuneTo(Blocks.SWEET_BERRY_BUSH)
+    );
+    public static final EntityType<Frog> FROG = register(
+        "frog", EntityType.Builder.<Frog>of(Frog::new, MobCategory.CREATURE).sized(0.5F, 0.5F).clientTrackingRange(10)
     );
     public static final EntityType<Ghast> GHAST = register(
         "ghast", EntityType.Builder.<Ghast>of(Ghast::new, MobCategory.MONSTER).fireImmune().sized(4.0F, 4.0F).clientTrackingRange(10)
@@ -448,6 +462,9 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     public static final EntityType<Strider> STRIDER = register(
         "strider", EntityType.Builder.<Strider>of(Strider::new, MobCategory.CREATURE).fireImmune().sized(0.9F, 1.7F).clientTrackingRange(10)
     );
+    public static final EntityType<Tadpole> TADPOLE = register(
+        "tadpole", EntityType.Builder.<Tadpole>of(Tadpole::new, MobCategory.CREATURE).sized(0.5F, 0.4F).clientTrackingRange(10)
+    );
     public static final EntityType<ThrownEgg> EGG = register(
         "egg", EntityType.Builder.<ThrownEgg>of(ThrownEgg::new, MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10)
     );
@@ -488,6 +505,9 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
     );
     public static final EntityType<WanderingTrader> WANDERING_TRADER = register(
         "wandering_trader", EntityType.Builder.<WanderingTrader>of(WanderingTrader::new, MobCategory.CREATURE).sized(0.6F, 1.95F).clientTrackingRange(10)
+    );
+    public static final EntityType<Warden> WARDEN = register(
+        "warden", EntityType.Builder.<Warden>of(Warden::new, MobCategory.MONSTER).sized(0.9F, 2.9F).clientTrackingRange(10).fireImmune()
     );
     public static final EntityType<Witch> WITCH = register(
         "witch", EntityType.Builder.<Witch>of(Witch::new, MobCategory.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8)
@@ -765,22 +785,12 @@ public class EntityType<T extends Entity> implements EntityTypeTest<Entity, T> {
         return this.factory.create(this, param0);
     }
 
-    @Nullable
-    public static Entity create(int param0, Level param1) {
-        return create(param1, Registry.ENTITY_TYPE.byId(param0));
-    }
-
     public static Optional<Entity> create(CompoundTag param0, Level param1) {
         return Util.ifElse(
             by(param0).map(param1x -> param1x.create(param1)),
             param1x -> param1x.load(param0),
             () -> LOGGER.warn("Skipping Entity with id {}", param0.getString("id"))
         );
-    }
-
-    @Nullable
-    private static Entity create(Level param0, @Nullable EntityType<?> param1) {
-        return param1 == null ? null : param1.create(param0);
     }
 
     public AABB getAABB(double param0, double param1, double param2) {

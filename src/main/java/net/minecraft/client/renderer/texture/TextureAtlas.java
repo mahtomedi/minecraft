@@ -10,9 +10,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -156,26 +158,32 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
             if (!MissingTextureAtlasSprite.getLocation().equals(var2)) {
                 var0.add(CompletableFuture.runAsync(() -> {
                     ResourceLocation var0x = this.getResourceLocation(var2);
+                    Optional<Resource> var1x = param0.getResource(var0x);
+                    if (var1x.isEmpty()) {
+                        LOGGER.error("Using missing texture, file {} not found", var0x);
+                    } else {
+                        Resource var2x = var1x.get();
 
-                    TextureAtlasSprite.Info var5;
-                    try (Resource var1x = param0.getResource(var0x)) {
-                        PngInfo var2x = new PngInfo(var1x.toString(), var1x.getInputStream());
-                        AnimationMetadataSection var3x = var1x.getMetadata(AnimationMetadataSection.SERIALIZER);
-                        if (var3x == null) {
-                            var3x = AnimationMetadataSection.EMPTY;
+                        PngInfo var4;
+                        try (InputStream var3 = var2x.open()) {
+                            var4 = new PngInfo(var0x::toString, var3);
+                        } catch (IOException var15) {
+                            LOGGER.error("Using missing texture, unable to load {} : {}", var0x, var15);
+                            return;
                         }
 
-                        Pair<Integer, Integer> var4x = var3x.getFrameSize(var2x.width, var2x.height);
-                        var5 = new TextureAtlasSprite.Info(var2, var4x.getFirst(), var4x.getSecond(), var3x);
-                    } catch (RuntimeException var12) {
-                        LOGGER.error("Unable to parse metadata from {} : {}", var0x, var12);
-                        return;
-                    } catch (IOException var13) {
-                        LOGGER.error("Using missing texture, unable to load {} : {}", var0x, var13);
-                        return;
-                    }
+                        AnimationMetadataSection var8;
+                        try {
+                            var8 = var2x.metadata().getSection(AnimationMetadataSection.SERIALIZER).orElse(AnimationMetadataSection.EMPTY);
+                        } catch (Exception var13) {
+                            LOGGER.error("Unable to parse metadata from {} : {}", var0x, var13);
+                            return;
+                        }
 
-                    var1.add(var5);
+                        Pair<Integer, Integer> var11 = var8.getFrameSize(var4.width, var4.height);
+                        TextureAtlasSprite.Info var12 = new TextureAtlasSprite.Info(var2, var11.getFirst(), var11.getSecond(), var8);
+                        var1.add(var12);
+                    }
                 }, Util.backgroundExecutor()));
             }
         }
@@ -212,8 +220,8 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
 
         try {
             TextureAtlasSprite var11;
-            try (Resource var1 = param0.getResource(var0)) {
-                NativeImage var2 = NativeImage.read(var1.getInputStream());
+            try (InputStream var1 = param0.open(var0)) {
+                NativeImage var2 = NativeImage.read(var1);
                 var11 = new TextureAtlasSprite(this, param1, param4, param2, param3, param5, param6, var2);
             }
 

@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.DoublePredicate;
@@ -24,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.SerializableUUID;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.VisibleForDebug;
 
 public class GossipContainer {
@@ -57,7 +57,7 @@ public class GossipContainer {
         return this.gossips.entrySet().stream().flatMap(param0 -> param0.getValue().unpack(param0.getKey()));
     }
 
-    private Collection<GossipContainer.GossipEntry> selectGossipsForTransfer(Random param0, int param1) {
+    private Collection<GossipContainer.GossipEntry> selectGossipsForTransfer(RandomSource param0, int param1) {
         List<GossipContainer.GossipEntry> var0 = this.unpack().collect(Collectors.toList());
         if (var0.isEmpty()) {
             return Collections.emptyList();
@@ -87,7 +87,7 @@ public class GossipContainer {
         return this.gossips.computeIfAbsent(param0, param0x -> new GossipContainer.EntityGossips());
     }
 
-    public void transferFrom(GossipContainer param0, Random param1, int param2) {
+    public void transferFrom(GossipContainer param0, RandomSource param1, int param2) {
         Collection<GossipContainer.GossipEntry> var0 = param0.selectGossipsForTransfer(param1, param2);
         var0.forEach(param0x -> {
             int var0x = param0x.value - param0x.type.decayPerTransfer;

@@ -1,14 +1,13 @@
 package net.minecraft.world.entity.monster;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -19,7 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 
 public class MagmaCube extends Slime {
@@ -31,7 +29,9 @@ public class MagmaCube extends Slime {
         return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.2F);
     }
 
-    public static boolean checkMagmaCubeSpawnRules(EntityType<MagmaCube> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkMagmaCubeSpawnRules(
+        EntityType<MagmaCube> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
+    ) {
         return param1.getDifficulty() != Difficulty.PEACEFUL;
     }
 
@@ -41,24 +41,19 @@ public class MagmaCube extends Slime {
     }
 
     @Override
-    protected void setSize(int param0, boolean param1) {
+    public void setSize(int param0, boolean param1) {
         super.setSize(param0, param1);
         this.getAttribute(Attributes.ARMOR).setBaseValue((double)(param0 * 3));
     }
 
     @Override
-    public float getBrightness() {
+    public float getLightLevelDependentMagicValue() {
         return 1.0F;
     }
 
     @Override
     protected ParticleOptions getParticleType() {
         return ParticleTypes.FLAME;
-    }
-
-    @Override
-    protected ResourceLocation getDefaultLootTable() {
-        return this.isTiny() ? BuiltInLootTables.EMPTY : this.getType().getDefaultLootTable();
     }
 
     @Override

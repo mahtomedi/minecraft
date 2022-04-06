@@ -164,6 +164,7 @@ public class RecipeProvider implements DataProvider {
         planksFromLogs(param0, Blocks.OAK_PLANKS, ItemTags.OAK_LOGS);
         planksFromLogs(param0, Blocks.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS);
         planksFromLogs(param0, Blocks.WARPED_PLANKS, ItemTags.WARPED_STEMS);
+        planksFromLogs(param0, Blocks.MANGROVE_PLANKS, ItemTags.MANGROVE_LOGS);
         woodFromLogs(param0, Blocks.ACACIA_WOOD, Blocks.ACACIA_LOG);
         woodFromLogs(param0, Blocks.BIRCH_WOOD, Blocks.BIRCH_LOG);
         woodFromLogs(param0, Blocks.DARK_OAK_WOOD, Blocks.DARK_OAK_LOG);
@@ -172,6 +173,7 @@ public class RecipeProvider implements DataProvider {
         woodFromLogs(param0, Blocks.SPRUCE_WOOD, Blocks.SPRUCE_LOG);
         woodFromLogs(param0, Blocks.CRIMSON_HYPHAE, Blocks.CRIMSON_STEM);
         woodFromLogs(param0, Blocks.WARPED_HYPHAE, Blocks.WARPED_STEM);
+        woodFromLogs(param0, Blocks.MANGROVE_WOOD, Blocks.MANGROVE_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_ACACIA_WOOD, Blocks.STRIPPED_ACACIA_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_BIRCH_WOOD, Blocks.STRIPPED_BIRCH_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.STRIPPED_DARK_OAK_LOG);
@@ -180,12 +182,14 @@ public class RecipeProvider implements DataProvider {
         woodFromLogs(param0, Blocks.STRIPPED_SPRUCE_WOOD, Blocks.STRIPPED_SPRUCE_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_CRIMSON_HYPHAE, Blocks.STRIPPED_CRIMSON_STEM);
         woodFromLogs(param0, Blocks.STRIPPED_WARPED_HYPHAE, Blocks.STRIPPED_WARPED_STEM);
+        woodFromLogs(param0, Blocks.STRIPPED_MANGROVE_WOOD, Blocks.STRIPPED_MANGROVE_LOG);
         woodenBoat(param0, Items.ACACIA_BOAT, Blocks.ACACIA_PLANKS);
         woodenBoat(param0, Items.BIRCH_BOAT, Blocks.BIRCH_PLANKS);
         woodenBoat(param0, Items.DARK_OAK_BOAT, Blocks.DARK_OAK_PLANKS);
         woodenBoat(param0, Items.JUNGLE_BOAT, Blocks.JUNGLE_PLANKS);
         woodenBoat(param0, Items.OAK_BOAT, Blocks.OAK_PLANKS);
         woodenBoat(param0, Items.SPRUCE_BOAT, Blocks.SPRUCE_PLANKS);
+        woodenBoat(param0, Items.MANGROVE_BOAT, Blocks.MANGROVE_PLANKS);
         coloredWoolFromWhiteWoolAndDye(param0, Blocks.BLACK_WOOL, Items.BLACK_DYE);
         carpet(param0, Blocks.BLACK_CARPET, Blocks.BLACK_WOOL);
         coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.BLACK_CARPET, Items.BLACK_DYE);
@@ -384,6 +388,18 @@ public class RecipeProvider implements DataProvider {
         candle(param0, Blocks.RED_CANDLE, Items.RED_DYE);
         candle(param0, Blocks.WHITE_CANDLE, Items.WHITE_DYE);
         candle(param0, Blocks.YELLOW_CANDLE, Items.YELLOW_DYE);
+        ShapelessRecipeBuilder.shapeless(Blocks.PACKED_MUD, 1).requires(Blocks.MUD).requires(Items.WHEAT).unlockedBy("has_mud", has(Blocks.MUD)).save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.MUD_BRICKS, 4)
+            .define('#', Blocks.PACKED_MUD)
+            .pattern("##")
+            .pattern("##")
+            .unlockedBy("has_packed_mud", has(Blocks.PACKED_MUD))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Blocks.MUDDY_MANGROVE_ROOTS, 1)
+            .requires(Blocks.MUD)
+            .requires(Items.MANGROVE_ROOTS)
+            .unlockedBy("has_mangrove_roots", has(Blocks.MANGROVE_ROOTS))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.ACTIVATOR_RAIL, 6)
             .define('#', Blocks.REDSTONE_TORCH)
             .define('S', Items.STICK)
@@ -578,13 +594,18 @@ public class RecipeProvider implements DataProvider {
                 )
             )
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.CHEST_MINECART)
-            .define('A', Blocks.CHEST)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.CHEST_MINECART)
+            .requires(Blocks.CHEST)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
+        chestBoat(param0, Items.ACACIA_CHEST_BOAT, Items.ACACIA_BOAT);
+        chestBoat(param0, Items.BIRCH_CHEST_BOAT, Items.BIRCH_BOAT);
+        chestBoat(param0, Items.DARK_OAK_CHEST_BOAT, Items.DARK_OAK_BOAT);
+        chestBoat(param0, Items.JUNGLE_CHEST_BOAT, Items.JUNGLE_BOAT);
+        chestBoat(param0, Items.OAK_CHEST_BOAT, Items.OAK_BOAT);
+        chestBoat(param0, Items.SPRUCE_CHEST_BOAT, Items.SPRUCE_BOAT);
+        chestBoat(param0, Items.MANGROVE_CHEST_BOAT, Items.MANGROVE_BOAT);
         chiseledBuilder(Blocks.CHISELED_QUARTZ_BLOCK, Ingredient.of(Blocks.QUARTZ_SLAB))
             .unlockedBy("has_chiseled_quartz_block", has(Blocks.CHISELED_QUARTZ_BLOCK))
             .unlockedBy("has_quartz_block", has(Blocks.QUARTZ_BLOCK))
@@ -908,11 +929,9 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .unlockedBy("has_cobblestone", has(ItemTags.STONE_CRAFTING_MATERIALS))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.FURNACE_MINECART)
-            .define('A', Blocks.FURNACE)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.FURNACE_MINECART)
+            .requires(Blocks.FURNACE)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.GLASS_BOTTLE, 3)
@@ -1076,11 +1095,9 @@ public class RecipeProvider implements DataProvider {
             .pattern(" I ")
             .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.HOPPER_MINECART)
-            .define('A', Blocks.HOPPER)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.HOPPER_MINECART)
+            .requires(Blocks.HOPPER)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.IRON_AXE)
@@ -1795,11 +1812,9 @@ public class RecipeProvider implements DataProvider {
             .pattern("X#X")
             .unlockedBy("has_gunpowder", has(Items.GUNPOWDER))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Items.TNT_MINECART)
-            .define('A', Blocks.TNT)
-            .define('B', Items.MINECART)
-            .pattern("A")
-            .pattern("B")
+        ShapelessRecipeBuilder.shapeless(Items.TNT_MINECART)
+            .requires(Blocks.TNT)
+            .requires(Items.MINECART)
             .unlockedBy("has_minecart", has(Items.MINECART))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.TORCH, 4)
@@ -2054,6 +2069,14 @@ public class RecipeProvider implements DataProvider {
             .pattern("SS")
             .pattern("SS")
             .unlockedBy("has_amethyst_shard", has(Items.AMETHYST_SHARD))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Items.RECOVERY_COMPASS)
+            .define('C', Items.COMPASS)
+            .define('S', Items.ECHO_SHARD)
+            .pattern("SSS")
+            .pattern("SCS")
+            .pattern("SSS")
+            .unlockedBy("has_echo_shard", has(Items.ECHO_SHARD))
             .save(param0);
         SpecialRecipeBuilder.special(RecipeSerializer.ARMOR_DYE).save(param0, "armor_dye");
         SpecialRecipeBuilder.special(RecipeSerializer.BANNER_DUPLICATE).save(param0, "banner_duplicate");
@@ -2356,9 +2379,6 @@ public class RecipeProvider implements DataProvider {
         stonecutterResultFromBase(param0, Blocks.STONE_BRICKS, Blocks.STONE);
         stonecutterResultFromBase(param0, Blocks.STONE_BRICK_SLAB, Blocks.STONE, 2);
         stonecutterResultFromBase(param0, Blocks.STONE_BRICK_STAIRS, Blocks.STONE);
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.STONE), Blocks.GRAVEL);
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.GRAVEL), Blocks.SAND);
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.SANDSTONE), Blocks.SAND);
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.STONE), Blocks.CHISELED_STONE_BRICKS)
             .unlockedBy("has_stone", has(Blocks.STONE))
             .save(param0, "chiseled_stone_bricks_stone_from_stonecutting");
@@ -2398,6 +2418,9 @@ public class RecipeProvider implements DataProvider {
         stonecutterResultFromBase(param0, Blocks.BRICK_SLAB, Blocks.BRICKS, 2);
         stonecutterResultFromBase(param0, Blocks.BRICK_STAIRS, Blocks.BRICKS);
         stonecutterResultFromBase(param0, Blocks.BRICK_WALL, Blocks.BRICKS);
+        stonecutterResultFromBase(param0, Blocks.MUD_BRICK_SLAB, Blocks.MUD_BRICKS, 2);
+        stonecutterResultFromBase(param0, Blocks.MUD_BRICK_STAIRS, Blocks.MUD_BRICKS);
+        stonecutterResultFromBase(param0, Blocks.MUD_BRICK_WALL, Blocks.MUD_BRICKS);
         stonecutterResultFromBase(param0, Blocks.NETHER_BRICK_SLAB, Blocks.NETHER_BRICKS, 2);
         stonecutterResultFromBase(param0, Blocks.NETHER_BRICK_STAIRS, Blocks.NETHER_BRICKS);
         stonecutterResultFromBase(param0, Blocks.NETHER_BRICK_WALL, Blocks.NETHER_BRICKS);
@@ -2651,6 +2674,15 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .group("boat")
             .unlockedBy("in_water", insideOf(Blocks.WATER))
+            .save(param0);
+    }
+
+    private static void chestBoat(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+        ShapelessRecipeBuilder.shapeless(param1)
+            .requires(Blocks.CHEST)
+            .requires(param2)
+            .group("chest_boat")
+            .unlockedBy("has_boat", has(ItemTags.BOATS))
             .save(param0);
     }
 

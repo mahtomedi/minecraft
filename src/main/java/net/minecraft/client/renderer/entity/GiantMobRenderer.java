@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.GiantZombieModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.entity.layers.CarriedBlockLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +27,6 @@ public class GiantMobRenderer extends MobRenderer<Giant, HumanoidModel<Giant>> {
                 new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT_OUTER_ARMOR))
             )
         );
-        this.addLayer(new CarriedBlockLayer<>(this, 0.125F, 0.25F, 0.5F));
     }
 
     protected void scale(Giant param0, PoseStack param1, float param2) {

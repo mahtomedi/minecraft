@@ -20,16 +20,16 @@ import net.minecraft.advancements.critereon.EntityFlagsPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemDurabilityTrigger;
+import net.minecraft.advancements.critereon.ItemInteractWithBlockTrigger;
 import net.minecraft.advancements.critereon.ItemPickedUpByEntityTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemUsedOnBlockTrigger;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.LocationPredicate;
-import net.minecraft.advancements.critereon.LocationTrigger;
 import net.minecraft.advancements.critereon.LootTableTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.MobEffectsPredicate;
 import net.minecraft.advancements.critereon.PlayerInteractTrigger;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -131,7 +131,7 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("fortress", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(BuiltinStructures.FORTRESS)))
+            .addCriterion("fortress", PlayerTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.FORTRESS)))
             .save(param0, "nether/find_fortress");
         Advancement.Builder.advancement()
             .parent(var0)
@@ -381,7 +381,7 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion(
                 "use_lodestone",
-                ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
+                ItemInteractWithBlockTrigger.TriggerInstance.itemUsedOnBlock(
                     LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.LODESTONE).build()),
                     ItemPredicate.Builder.item().of(Items.COMPASS)
                 )
@@ -415,7 +415,7 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion(
                 "charge_respawn_anchor",
-                ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
+                ItemInteractWithBlockTrigger.TriggerInstance.itemUsedOnBlock(
                     LocationPredicate.Builder.location()
                         .setBlock(
                             BlockPredicate.Builder.block()
@@ -498,7 +498,7 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("bastion", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(BuiltinStructures.BASTION_REMNANT)))
+            .addCriterion("bastion", PlayerTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.BASTION_REMNANT)))
             .save(param0, "nether/find_bastion");
         Advancement.Builder.advancement()
             .parent(var12)

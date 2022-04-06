@@ -1,9 +1,9 @@
 package net.minecraft.world.entity.monster;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -20,7 +20,7 @@ public class Husk extends Zombie {
         super(param0, param1);
     }
 
-    public static boolean checkHuskSpawnRules(EntityType<Husk> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkHuskSpawnRules(EntityType<Husk> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return checkMonsterSpawnRules(param0, param1, param2, param3, param4) && (param2 == MobSpawnType.SPAWNER || param1.canSeeSky(param3));
     }
 

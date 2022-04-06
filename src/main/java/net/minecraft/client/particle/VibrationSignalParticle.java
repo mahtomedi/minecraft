@@ -7,33 +7,24 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.gameevent.vibrations.VibrationPath;
+import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class VibrationSignalParticle extends TextureSheetParticle {
-    private final VibrationPath vibrationPath;
+    private final PositionSource target;
     private float yRot;
     private float yRotO;
 
-    VibrationSignalParticle(ClientLevel param0, VibrationPath param1, int param2) {
-        super(
-            param0,
-            (double)((float)param1.getOrigin().getX() + 0.5F),
-            (double)((float)param1.getOrigin().getY() + 0.5F),
-            (double)((float)param1.getOrigin().getZ() + 0.5F),
-            0.0,
-            0.0,
-            0.0
-        );
+    VibrationSignalParticle(ClientLevel param0, double param1, double param2, double param3, PositionSource param4, int param5) {
+        super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.quadSize = 0.3F;
-        this.vibrationPath = param1;
-        this.lifetime = param2;
+        this.target = param4;
+        this.lifetime = param5;
     }
 
     @Override
@@ -115,19 +106,25 @@ public class VibrationSignalParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        super.tick();
-        Optional<BlockPos> var0 = this.vibrationPath.getDestination().getPosition(this.level);
-        if (!var0.isPresent()) {
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
+        if (this.age++ >= this.lifetime) {
             this.remove();
         } else {
-            double var1 = (double)this.age / (double)this.lifetime;
-            BlockPos var2 = this.vibrationPath.getOrigin();
-            BlockPos var3 = var0.get();
-            this.x = Mth.lerp(var1, (double)var2.getX() + 0.5, (double)var3.getX() + 0.5);
-            this.y = Mth.lerp(var1, (double)var2.getY() + 0.5, (double)var3.getY() + 0.5);
-            this.z = Mth.lerp(var1, (double)var2.getZ() + 0.5, (double)var3.getZ() + 0.5);
-            this.yRotO = this.yRot;
-            this.yRot = (float)Mth.atan2(this.x - (double)var3.getX(), this.z - (double)var3.getZ());
+            Optional<Vec3> var0 = this.target.getPosition(this.level);
+            if (var0.isEmpty()) {
+                this.remove();
+            } else {
+                int var1 = this.lifetime - this.age;
+                double var2 = 1.0 / (double)var1;
+                Vec3 var3 = var0.get();
+                this.x = Mth.lerp(var2, this.x, var3.x());
+                this.y = Mth.lerp(var2, this.y, var3.y());
+                this.z = Mth.lerp(var2, this.z, var3.z());
+                this.yRotO = this.yRot;
+                this.yRot = (float)Mth.atan2(this.x - var3.x(), this.z - var3.z());
+            }
         }
     }
 
@@ -142,7 +139,7 @@ public class VibrationSignalParticle extends TextureSheetParticle {
         public Particle createParticle(
             VibrationParticleOption param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
-            VibrationSignalParticle var0 = new VibrationSignalParticle(param1, param0.getVibrationPath(), param0.getVibrationPath().getArrivalInTicks());
+            VibrationSignalParticle var0 = new VibrationSignalParticle(param1, param2, param3, param4, param0.getDestination(), param0.getArrivalInTicks());
             var0.pickSprite(this.sprite);
             var0.setAlpha(1.0F);
             return var0;

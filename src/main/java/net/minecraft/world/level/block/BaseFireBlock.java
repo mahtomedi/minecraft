@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +36,9 @@ public abstract class BaseFireBlock extends Block {
     }
 
     public static BlockState getState(BlockGetter param0, BlockPos param1) {
-        return ((FireBlock)Blocks.FIRE).getStateForPlacement(param0, param1);
+        BlockPos var0 = param1.below();
+        BlockState var1 = param0.getBlockState(var0);
+        return SoulFireBlock.canSurviveOnBlock(var1) ? Blocks.SOUL_FIRE.defaultBlockState() : ((FireBlock)Blocks.FIRE).getStateForPlacement(param0, param1);
     }
 
     @Override
@@ -45,7 +47,7 @@ public abstract class BaseFireBlock extends Block {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param3.nextInt(24) == 0) {
             param1.playLocalSound(
                 (double)param2.getX() + 0.5,

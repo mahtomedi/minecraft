@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
@@ -115,7 +114,7 @@ public class ServerEntity {
                 ++this.teleportDelay;
                 int var10 = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
                 int var11 = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
-                Vec3 var12 = this.entity.position().subtract(ClientboundMoveEntityPacket.packetToEntity(this.xp, this.yp, this.zp));
+                Vec3 var12 = this.entity.position().subtract(this.sentPos());
                 boolean var13 = var12.lengthSqr() >= 7.6293945E-6F;
                 Packet<?> var14 = null;
                 boolean var15 = var13 || this.tickCount % 60 == 0;
@@ -229,7 +228,7 @@ public class ServerEntity {
         }
 
         this.ap = this.entity.getDeltaMovement();
-        if (var1 && !(var0 instanceof ClientboundAddMobPacket)) {
+        if (var1 && !(this.entity instanceof LivingEntity)) {
             param0.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
         }
 
@@ -291,7 +290,7 @@ public class ServerEntity {
         this.zp = ClientboundMoveEntityPacket.entityToPacket(this.entity.getZ());
     }
 
-    public Vec3 sentPos() {
+    private Vec3 sentPos() {
         return ClientboundMoveEntityPacket.packetToEntity(this.xp, this.yp, this.zp);
     }
 

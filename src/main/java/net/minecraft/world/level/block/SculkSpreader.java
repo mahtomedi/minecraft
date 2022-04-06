@@ -12,12 +12,10 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -26,27 +24,79 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.Level;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
 public class SculkSpreader {
-    public static final int XP_PER_GROWTH_SPAWN = 10;
-    public static final int NO_GROWTH_RADIUS = 4;
     public static final int MAX_GROWTH_RATE_RADIUS = 24;
     public static final int MAX_CHARGE = 1000;
-    public static final int CHARGE_DECAY_RATE_HIGH = 10;
-    public static final int ADDITIONAL_SLOW_DECAY_RATE = 5;
     public static final float MAX_DECAY_FACTOR = 0.5F;
     private static final int MAX_CURSORS = 32;
+    public static final int SHRIEKER_PLACEMENT_RATE = 11;
+    final boolean isWorldGeneration;
+    private final TagKey<Block> replaceableBlocks;
+    private final int growthSpawnCost;
+    private final int noGrowthRadius;
+    private final int chargeDecayRate;
+    private final int additionalDecayRate;
     private List<SculkSpreader.ChargeCursor> cursors = new ArrayList<>();
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public SculkSpreader(boolean param0, TagKey<Block> param1, int param2, int param3, int param4, int param5) {
+        this.isWorldGeneration = param0;
+        this.replaceableBlocks = param1;
+        this.growthSpawnCost = param2;
+        this.noGrowthRadius = param3;
+        this.chargeDecayRate = param4;
+        this.additionalDecayRate = param5;
+    }
+
+    public static SculkSpreader createLevelSpreader() {
+        return new SculkSpreader(false, BlockTags.SCULK_REPLACEABLE, 10, 4, 10, 5);
+    }
+
+    public static SculkSpreader createWorldGenSpreader() {
+        return new SculkSpreader(true, BlockTags.SCULK_REPLACEABLE_WORLD_GEN, 50, 1, 5, 10);
+    }
+
+    public TagKey<Block> replaceableBlocks() {
+        return this.replaceableBlocks;
+    }
+
+    public int growthSpawnCost() {
+        return this.growthSpawnCost;
+    }
+
+    public int noGrowthRadius() {
+        return this.noGrowthRadius;
+    }
+
+    public int chargeDecayRate() {
+        return this.chargeDecayRate;
+    }
+
+    public int additionalDecayRate() {
+        return this.additionalDecayRate;
+    }
+
+    public boolean isWorldGeneration() {
+        return this.isWorldGeneration;
+    }
 
     @VisibleForTesting
     public List<SculkSpreader.ChargeCursor> getCursors() {
         return this.cursors;
+    }
+
+    public void clear() {
+        this.cursors.clear();
     }
 
     public void load(CompoundTag param0) {
@@ -89,14 +139,14 @@ public class SculkSpreader {
         }
     }
 
-    public void updateCursors(Level param0, BlockPos param1, Random param2) {
+    public void updateCursors(LevelAccessor param0, BlockPos param1, RandomSource param2, boolean param3) {
         if (!this.cursors.isEmpty()) {
             List<SculkSpreader.ChargeCursor> var0 = new ArrayList<>();
             Map<BlockPos, SculkSpreader.ChargeCursor> var1 = new HashMap<>();
             Object2IntMap<BlockPos> var2 = new Object2IntOpenHashMap<>();
 
             for(SculkSpreader.ChargeCursor var3 : this.cursors) {
-                var3.update(param0, param1, param2);
+                var3.update(param0, param1, param2, this, param3);
                 if (var3.charge <= 0) {
                     param0.levelEvent(3006, var3.getPos(), 0);
                 } else {
@@ -106,7 +156,7 @@ public class SculkSpreader {
                     if (var5 == null) {
                         var1.put(var4, var3);
                         var0.add(var3);
-                    } else if (var3.charge + var5.charge <= 1000) {
+                    } else if (!this.isWorldGeneration() && var3.charge + var5.charge <= 1000) {
                         var5.mergeWith(var3);
                     } else {
                         var0.add(var3);
@@ -191,14 +241,24 @@ public class SculkSpreader {
             return this.facings;
         }
 
-        public void update(Level param0, BlockPos param1, Random param2) {
-            if (param0.shouldTickBlocksAt(this.pos) && this.charge > 0) {
+        private boolean shouldUpdate(LevelAccessor param0, BlockPos param1, boolean param2) {
+            if (this.charge <= 0) {
+                return false;
+            } else if (param2) {
+                return true;
+            } else {
+                return param0 instanceof ServerLevel var0 ? var0.shouldTickBlocksAt(param1) : false;
+            }
+        }
+
+        public void update(LevelAccessor param0, BlockPos param1, RandomSource param2, SculkSpreader param3, boolean param4) {
+            if (this.shouldUpdate(param0, param1, param3.isWorldGeneration)) {
                 if (this.updateDelay > 0) {
                     --this.updateDelay;
                 } else {
                     BlockState var0 = param0.getBlockState(this.pos);
                     SculkBehaviour var1 = getBlockBehaviour(var0);
-                    if (var1.attemptSpreadVein(param0, this.pos, var0, this.facings)) {
+                    if (param4 && var1.attemptSpreadVein(param0, this.pos, var0, this.facings, param3.isWorldGeneration())) {
                         if (var1.canChangeBlockStateOnSpread()) {
                             var0 = param0.getBlockState(this.pos);
                             var1 = getBlockBehaviour(var0);
@@ -207,7 +267,7 @@ public class SculkSpreader {
                         param0.playSound(null, this.pos, SoundEvents.SCULK_BLOCK_SPREAD, SoundSource.BLOCKS, 1.0F, 1.0F);
                     }
 
-                    this.charge = var1.attemptUseCharge(this, param0, param1, param2);
+                    this.charge = var1.attemptUseCharge(this, param0, param1, param2, param3, param4);
                     if (this.charge <= 0) {
                         var1.onDischarged(param0, var0, this.pos, param2);
                     } else {
@@ -215,6 +275,11 @@ public class SculkSpreader {
                         if (var2 != null) {
                             var1.onDischarged(param0, var0, this.pos, param2);
                             this.pos = var2.immutable();
+                            if (param3.isWorldGeneration() && !this.pos.closerThan(new Vec3i(param1.getX(), this.pos.getY(), param1.getZ()), 15.0)) {
+                                this.charge = 0;
+                                return;
+                            }
+
                             var0 = param0.getBlockState(var2);
                         }
 
@@ -240,14 +305,12 @@ public class SculkSpreader {
             return var2 instanceof SculkBehaviour var0 ? var0 : SculkBehaviour.DEFAULT;
         }
 
-        private static List<Vec3i> getRandomizedNonCornerNeighbourOffsets(Random param0) {
-            List<Vec3i> var0 = new ArrayList<>(NON_CORNER_NEIGHBOURS);
-            Collections.shuffle(var0, param0);
-            return var0;
+        private static List<Vec3i> getRandomizedNonCornerNeighbourOffsets(RandomSource param0) {
+            return Util.shuffledCopy(NON_CORNER_NEIGHBOURS, param0);
         }
 
         @Nullable
-        private static BlockPos getValidMovementPos(Level param0, BlockPos param1, Random param2) {
+        private static BlockPos getValidMovementPos(LevelAccessor param0, BlockPos param1, RandomSource param2) {
             BlockPos.MutableBlockPos var0 = param1.mutable();
             BlockPos.MutableBlockPos var1 = param1.mutable();
 
@@ -265,7 +328,7 @@ public class SculkSpreader {
             return var0.equals(param1) ? null : var0;
         }
 
-        private static boolean isMovementUnobstructed(Level param0, BlockPos param1, BlockPos param2) {
+        private static boolean isMovementUnobstructed(LevelAccessor param0, BlockPos param1, BlockPos param2) {
             if (param1.distManhattan(param2) == 1) {
                 return true;
             } else {
@@ -289,7 +352,7 @@ public class SculkSpreader {
             }
         }
 
-        private static boolean isUnobstructed(Level param0, BlockPos param1, Direction param2) {
+        private static boolean isUnobstructed(LevelAccessor param0, BlockPos param1, Direction param2) {
             BlockPos var0 = param1.relative(param2);
             return !param0.getBlockState(var0).isFaceSturdy(param0, var0, param2.getOpposite());
         }

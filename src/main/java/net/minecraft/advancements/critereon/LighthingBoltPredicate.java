@@ -1,17 +1,13 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import javax.annotation.Nullable;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.phys.Vec3;
 
-public class LighthingBoltPredicate {
-    public static final LighthingBoltPredicate ANY = new LighthingBoltPredicate(MinMaxBounds.Ints.ANY, EntityPredicate.ANY);
+public class LighthingBoltPredicate implements EntitySubPredicate {
     private static final String BLOCKS_SET_ON_FIRE_KEY = "blocks_set_on_fire";
     private static final String ENTITY_STRUCK_KEY = "entity_struck";
     private final MinMaxBounds.Ints blocksSetOnFire;
@@ -26,30 +22,26 @@ public class LighthingBoltPredicate {
         return new LighthingBoltPredicate(param0, EntityPredicate.ANY);
     }
 
-    public static LighthingBoltPredicate fromJson(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "lightning");
-            return new LighthingBoltPredicate(MinMaxBounds.Ints.fromJson(var0.get("blocks_set_on_fire")), EntityPredicate.fromJson(var0.get("entity_struck")));
-        } else {
-            return ANY;
-        }
+    public static LighthingBoltPredicate fromJson(JsonObject param0) {
+        return new LighthingBoltPredicate(MinMaxBounds.Ints.fromJson(param0.get("blocks_set_on_fire")), EntityPredicate.fromJson(param0.get("entity_struck")));
     }
 
-    public JsonElement serializeToJson() {
-        if (this == ANY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonObject var0 = new JsonObject();
-            var0.add("blocks_set_on_fire", this.blocksSetOnFire.serializeToJson());
-            var0.add("entity_struck", this.entityStruck.serializeToJson());
-            return var0;
-        }
+    @Override
+    public JsonObject serializeCustomData() {
+        JsonObject var0 = new JsonObject();
+        var0.add("blocks_set_on_fire", this.blocksSetOnFire.serializeToJson());
+        var0.add("entity_struck", this.entityStruck.serializeToJson());
+        return var0;
     }
 
+    @Override
+    public EntitySubPredicate.Type type() {
+        return EntitySubPredicate.Types.LIGHTNING;
+    }
+
+    @Override
     public boolean matches(Entity param0, ServerLevel param1, @Nullable Vec3 param2) {
-        if (this == ANY) {
-            return true;
-        } else if (!(param0 instanceof LightningBolt)) {
+        if (!(param0 instanceof LightningBolt)) {
             return false;
         } else {
             LightningBolt var0 = (LightningBolt)param0;

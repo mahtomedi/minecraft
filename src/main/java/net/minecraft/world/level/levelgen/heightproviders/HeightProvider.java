@@ -2,8 +2,8 @@ package net.minecraft.world.level.levelgen.heightproviders;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.Registry;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 
@@ -16,7 +16,7 @@ public abstract class HeightProvider {
         param0 -> param0.getType() == HeightProviderType.CONSTANT ? Either.left(((ConstantHeight)param0).getValue()) : Either.right(param0)
     );
 
-    public abstract int sample(Random var1, WorldGenerationContext var2);
+    public abstract int sample(RandomSource var1, WorldGenerationContext var2);
 
     public abstract HeightProviderType<?> getType();
 }

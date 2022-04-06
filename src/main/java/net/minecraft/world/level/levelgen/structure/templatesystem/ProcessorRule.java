@@ -3,10 +3,10 @@ package net.minecraft.world.level.levelgen.structure.templatesystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ProcessorRule {
@@ -43,7 +43,7 @@ public class ProcessorRule {
         this.outputTag = param4.orElse(null);
     }
 
-    public boolean test(BlockState param0, BlockState param1, BlockPos param2, BlockPos param3, BlockPos param4, Random param5) {
+    public boolean test(BlockState param0, BlockState param1, BlockPos param2, BlockPos param3, BlockPos param4, RandomSource param5) {
         return this.inputPredicate.test(param0, param5) && this.locPredicate.test(param1, param5) && this.posPredicate.test(param2, param3, param4, param5);
     }
 

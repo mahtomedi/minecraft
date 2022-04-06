@@ -2,7 +2,7 @@ package net.minecraft.world.level.storage.loot.functions;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -22,7 +22,7 @@ public class ApplyExplosionDecay extends LootItemConditionalFunction {
     public ItemStack run(ItemStack param0, LootContext param1) {
         Float var0 = param1.getParamOrNull(LootContextParams.EXPLOSION_RADIUS);
         if (var0 != null) {
-            Random var1 = param1.getRandom();
+            RandomSource var1 = param1.getRandom();
             float var2 = 1.0F / var0;
             int var3 = param0.getCount();
             int var4 = 0;

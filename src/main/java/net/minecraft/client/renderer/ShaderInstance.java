@@ -20,10 +20,9 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -100,11 +99,9 @@ public class ShaderInstance implements Shader, AutoCloseable {
         this.name = param1;
         this.vertexFormat = param2;
         ResourceLocation var0 = new ResourceLocation("shaders/core/" + param1 + ".json");
-        Resource var1 = null;
 
-        try {
-            var1 = param0.getResource(var0);
-            JsonObject var2 = GsonHelper.parse(new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8));
+        try (Reader var1 = param0.openAsReader(var0)) {
+            JsonObject var2 = GsonHelper.parse(var1);
             String var3 = GsonHelper.getAsString(var2, "vertex");
             String var4 = GsonHelper.getAsString(var2, "fragment");
             JsonArray var5 = GsonHelper.getAsJsonArray(var2, "samplers", null);
@@ -114,8 +111,8 @@ public class ShaderInstance implements Shader, AutoCloseable {
                 for(JsonElement var7 : var5) {
                     try {
                         this.parseSamplerNode(var7);
-                    } catch (Exception var25) {
-                        ChainedJsonException var9 = ChainedJsonException.forException(var25);
+                    } catch (Exception var201) {
+                        ChainedJsonException var9 = ChainedJsonException.forException(var201);
                         var9.prependJsonKey("samplers[" + var6 + "]");
                         throw var9;
                     }
@@ -133,8 +130,8 @@ public class ShaderInstance implements Shader, AutoCloseable {
                 for(JsonElement var12 : var10) {
                     try {
                         this.attributeNames.add(GsonHelper.convertToString(var12, "attribute"));
-                    } catch (Exception var241) {
-                        ChainedJsonException var14 = ChainedJsonException.forException(var241);
+                    } catch (Exception var191) {
+                        ChainedJsonException var14 = ChainedJsonException.forException(var191);
                         var14.prependJsonKey("attributes[" + var11 + "]");
                         throw var14;
                     }
@@ -153,8 +150,8 @@ public class ShaderInstance implements Shader, AutoCloseable {
                 for(JsonElement var17 : var15) {
                     try {
                         this.parseUniformNode(var17);
-                    } catch (Exception var231) {
-                        ChainedJsonException var19 = ChainedJsonException.forException(var231);
+                    } catch (Exception var181) {
+                        ChainedJsonException var19 = ChainedJsonException.forException(var181);
                         var19.prependJsonKey("uniforms[" + var16 + "]");
                         throw var19;
                     }
@@ -179,12 +176,10 @@ public class ShaderInstance implements Shader, AutoCloseable {
 
             ProgramManager.linkShader(this);
             this.updateLocations();
-        } catch (Exception var26) {
-            ChainedJsonException var23 = ChainedJsonException.forException(var26);
-            var23.setFilenameAndFlush(var0.getPath());
-            throw var23;
-        } finally {
-            IOUtils.closeQuietly((Closeable)var1);
+        } catch (Exception var22) {
+            ChainedJsonException var24 = ChainedJsonException.forException(var22);
+            var24.setFilenameAndFlush(var0.getPath());
+            throw var24;
         }
 
         this.markDirty();
@@ -210,12 +205,11 @@ public class ShaderInstance implements Shader, AutoCloseable {
         Program var5;
         if (var0 == null) {
             String var1 = "shaders/core/" + param2 + param1.getExtension();
-            ResourceLocation var2 = new ResourceLocation(var1);
-            Resource var3 = param0.getResource(var2);
-            final String var4 = FileUtil.getFullResourcePath(var1);
+            Resource var2 = param0.getResourceOrThrow(new ResourceLocation(var1));
 
-            try {
-                var5 = Program.compileShader(param1, param2, var3.getInputStream(), var3.getSourceName(), new GlslPreprocessor() {
+            try (InputStream var3 = var2.open()) {
+                final String var4 = FileUtil.getFullResourcePath(var1);
+                var5 = Program.compileShader(param1, param2, var3, var2.sourcePackId(), new GlslPreprocessor() {
                     private final Set<String> importedPaths = Sets.newHashSet();
 
                     @Override
@@ -228,8 +222,8 @@ public class ShaderInstance implements Shader, AutoCloseable {
 
                             try {
                                 String var5;
-                                try (Resource var1 = param0.getResource(var0)) {
-                                    var5 = IOUtils.toString(var1.getInputStream(), StandardCharsets.UTF_8);
+                                try (Reader var1 = param0.openAsReader(var0)) {
+                                    var5 = IOUtils.toString(var1);
                                 }
 
                                 return var5;
@@ -240,8 +234,6 @@ public class ShaderInstance implements Shader, AutoCloseable {
                         }
                     }
                 });
-            } finally {
-                IOUtils.closeQuietly((Closeable)var3);
             }
         } else {
             var5 = var0;

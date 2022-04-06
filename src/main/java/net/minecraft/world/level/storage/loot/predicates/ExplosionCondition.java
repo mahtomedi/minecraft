@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import java.util.Random;
 import java.util.Set;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -29,7 +29,7 @@ public class ExplosionCondition implements LootItemCondition {
     public boolean test(LootContext param0) {
         Float var0 = param0.getParamOrNull(LootContextParams.EXPLOSION_RADIUS);
         if (var0 != null) {
-            Random var1 = param0.getRandom();
+            RandomSource var1 = param0.getRandom();
             float var2 = 1.0F / var0;
             return var1.nextFloat() <= var2;
         } else {

@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -28,6 +27,7 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -57,6 +57,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
+import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -64,8 +66,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.scores.Scoreboard;
 
 public abstract class Level implements AutoCloseable, LevelAccessor {
-    public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceLocation.CODEC
-        .xmap(ResourceKey.elementKey(Registry.DIMENSION_REGISTRY), ResourceKey::location);
+    public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceKey.codec(Registry.DIMENSION_REGISTRY);
     public static final ResourceKey<Level> OVERWORLD = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> NETHER = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_nether"));
     public static final ResourceKey<Level> END = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_end"));
@@ -78,18 +79,19 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public static final int MAX_ENTITY_SPAWN_Y = 20000000;
     public static final int MIN_ENTITY_SPAWN_Y = -20000000;
     protected final List<TickingBlockEntity> blockEntityTickers = Lists.newArrayList();
+    protected final NeighborUpdater neighborUpdater;
     private final List<TickingBlockEntity> pendingBlockEntityTickers = Lists.newArrayList();
     private boolean tickingBlockEntities;
     private final Thread thread;
     private final boolean isDebug;
     private int skyDarken;
-    protected int randValue = new Random().nextInt();
+    protected int randValue = RandomSource.create().nextInt();
     protected final int addend = 1013904223;
     protected float oRainLevel;
     protected float rainLevel;
     protected float oThunderLevel;
     protected float thunderLevel;
-    public final Random random = new Random();
+    public final RandomSource random = RandomSource.create();
     final DimensionType dimensionType;
     private final Holder<DimensionType> dimensionTypeRegistration;
     protected final WritableLevelData levelData;
@@ -107,7 +109,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         Supplier<ProfilerFiller> param3,
         boolean param4,
         boolean param5,
-        long param6
+        long param6,
+        int param7
     ) {
         this.profiler = param3;
         this.levelData = param0;
@@ -134,6 +137,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.thread = Thread.currentThread();
         this.biomeManager = new BiomeManager(this, param6);
         this.isDebug = param5;
+        this.neighborUpdater = new CollectingNeighborUpdater(this, param7);
     }
 
     @Override
@@ -294,66 +298,20 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public void updateNeighborsAt(BlockPos param0, Block param1) {
-        this.neighborChanged(param0.west(), param1, param0);
-        this.neighborChanged(param0.east(), param1, param0);
-        this.neighborChanged(param0.below(), param1, param0);
-        this.neighborChanged(param0.above(), param1, param0);
-        this.neighborChanged(param0.north(), param1, param0);
-        this.neighborChanged(param0.south(), param1, param0);
     }
 
     public void updateNeighborsAtExceptFromFacing(BlockPos param0, Block param1, Direction param2) {
-        if (param2 != Direction.WEST) {
-            this.neighborChanged(param0.west(), param1, param0);
-        }
-
-        if (param2 != Direction.EAST) {
-            this.neighborChanged(param0.east(), param1, param0);
-        }
-
-        if (param2 != Direction.DOWN) {
-            this.neighborChanged(param0.below(), param1, param0);
-        }
-
-        if (param2 != Direction.UP) {
-            this.neighborChanged(param0.above(), param1, param0);
-        }
-
-        if (param2 != Direction.NORTH) {
-            this.neighborChanged(param0.north(), param1, param0);
-        }
-
-        if (param2 != Direction.SOUTH) {
-            this.neighborChanged(param0.south(), param1, param0);
-        }
-
     }
 
     public void neighborChanged(BlockPos param0, Block param1, BlockPos param2) {
-        if (!this.isClientSide) {
-            BlockState var0 = this.getBlockState(param0);
+    }
 
-            try {
-                var0.neighborChanged(this, param0, param1, param2, false);
-            } catch (Throwable var8) {
-                CrashReport var2 = CrashReport.forThrowable(var8, "Exception while updating neighbours");
-                CrashReportCategory var3 = var2.addCategory("Block being updated");
-                var3.setDetail(
-                    "Source block type",
-                    () -> {
-                        try {
-                            return String.format(
-                                "ID #%s (%s // %s)", Registry.BLOCK.getKey(param1), param1.getDescriptionId(), param1.getClass().getCanonicalName()
-                            );
-                        } catch (Throwable var2x) {
-                            return "ID #" + Registry.BLOCK.getKey(param1);
-                        }
-                    }
-                );
-                CrashReportCategory.populateBlockDetails(var3, this, param0, var0);
-                throw new ReportedException(var2);
-            }
-        }
+    public void neighborChanged(BlockState param0, BlockPos param1, Block param2, BlockPos param3, boolean param4) {
+    }
+
+    @Override
+    public void neighborShapeChanged(Direction param0, BlockState param1, BlockPos param2, BlockPos param3, int param4, int param5) {
+        this.neighborUpdater.shapeUpdate(param0, param1, param2, param3, param4, param5);
     }
 
     @Override
@@ -412,9 +370,21 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.playSound(param0, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, param2, param3, param4, param5);
     }
 
-    public abstract void playSound(@Nullable Player var1, double var2, double var4, double var6, SoundEvent var8, SoundSource var9, float var10, float var11);
+    public abstract void playSeededSound(
+        @Nullable Player var1, double var2, double var4, double var6, SoundEvent var8, SoundSource var9, float var10, float var11, long var12
+    );
 
-    public abstract void playSound(@Nullable Player var1, Entity var2, SoundEvent var3, SoundSource var4, float var5, float var6);
+    public abstract void playSeededSound(@Nullable Player var1, Entity var2, SoundEvent var3, SoundSource var4, float var5, float var6, long var7);
+
+    public void playSound(
+        @Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5, float param6, float param7
+    ) {
+        this.playSeededSound(param0, param1, param2, param3, param4, param5, param6, param7, this.random.nextLong());
+    }
+
+    public void playSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
+        this.playSeededSound(param0, param1, param2, param3, param4, param5, this.random.nextLong());
+    }
 
     public void playLocalSound(double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7) {
     }
@@ -574,6 +544,21 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public void setSpawnSettings(boolean param0, boolean param1) {
         this.getChunkSource().setSpawnSettings(param0, param1);
+    }
+
+    public BlockPos getSharedSpawnPos() {
+        BlockPos var0 = new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getZSpawn());
+        if (!this.getWorldBorder().isWithinBounds(var0)) {
+            var0 = this.getHeightmapPos(
+                Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.getWorldBorder().getCenterX(), 0.0, this.getWorldBorder().getCenterZ())
+            );
+        }
+
+        return var0;
+    }
+
+    public float getSharedSpawnAngle() {
+        return this.levelData.getSpawnAngle();
     }
 
     protected void prepareWeather() {
@@ -848,12 +833,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             if (this.hasChunkAt(var1)) {
                 BlockState var2 = this.getBlockState(var1);
                 if (var2.is(Blocks.COMPARATOR)) {
-                    var2.neighborChanged(this, var1, param1, param0, false);
+                    this.neighborChanged(var2, var1, param1, param0, false);
                 } else if (var2.isRedstoneConductor(this, var1)) {
                     var1 = var1.relative(var0);
                     var2 = this.getBlockState(var1);
                     if (var2.is(Blocks.COMPARATOR)) {
-                        var2.neighborChanged(this, var1, param1, param0, false);
+                        this.neighborChanged(var2, var1, param1, param0, false);
                     }
                 }
             }
@@ -904,7 +889,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     @Override
-    public Random getRandom() {
+    public RandomSource getRandom() {
         return this.random;
     }
 
@@ -948,27 +933,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     protected abstract LevelEntityGetter<Entity> getEntities();
-
-    protected void postGameEventInRadius(@Nullable Entity param0, GameEvent param1, BlockPos param2, int param3) {
-        int var0 = SectionPos.blockToSectionCoord(param2.getX() - param3);
-        int var1 = SectionPos.blockToSectionCoord(param2.getZ() - param3);
-        int var2 = SectionPos.blockToSectionCoord(param2.getX() + param3);
-        int var3 = SectionPos.blockToSectionCoord(param2.getZ() + param3);
-        int var4 = SectionPos.blockToSectionCoord(param2.getY() - param3);
-        int var5 = SectionPos.blockToSectionCoord(param2.getY() + param3);
-
-        for(int var6 = var0; var6 <= var2; ++var6) {
-            for(int var7 = var1; var7 <= var3; ++var7) {
-                ChunkAccess var8 = this.getChunkSource().getChunkNow(var6, var7);
-                if (var8 != null) {
-                    for(int var9 = var4; var9 <= var5; ++var9) {
-                        var8.getEventDispatcher(var9).post(param1, param0, param2);
-                    }
-                }
-            }
-        }
-
-    }
 
     @Override
     public long nextSubTickCount() {

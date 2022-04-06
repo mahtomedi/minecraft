@@ -4,11 +4,11 @@ import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.serialization.Dynamic;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 
 public class EntityZombieVillagerTypeFix extends NamedEntityFix {
     private static final int PROFESSION_MAX = 6;
-    private static final Random RANDOM = new Random();
+    private static final RandomSource RANDOM = RandomSource.create();
 
     public EntityZombieVillagerTypeFix(Schema param0, boolean param1) {
         super(param0, param1, "EntityZombieVillagerTypeFix", References.ENTITY, "Zombie");

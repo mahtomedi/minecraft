@@ -2,13 +2,13 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import java.util.Random;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
@@ -68,7 +68,7 @@ public class PistonHeadRenderer implements BlockEntityRenderer<PistonMovingBlock
         this.blockRenderer
             .getModelRenderer()
             .tesselateBlock(
-                param4, this.blockRenderer.getBlockModel(param1), param1, param0, param2, var1, param5, new Random(), param1.getSeed(param0), param6
+                param4, this.blockRenderer.getBlockModel(param1), param1, param0, param2, var1, param5, RandomSource.create(), param1.getSeed(param0), param6
             );
     }
 

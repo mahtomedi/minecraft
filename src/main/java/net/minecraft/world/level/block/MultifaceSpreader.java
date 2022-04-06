@@ -2,10 +2,10 @@ package net.minecraft.world.level.block;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,7 +30,7 @@ public class MultifaceSpreader {
     }
 
     public Optional<MultifaceSpreader.SpreadPos> spreadFromRandomFaceTowardRandomDirection(
-        BlockState param0, LevelAccessor param1, BlockPos param2, Random param3
+        BlockState param0, LevelAccessor param1, BlockPos param2, RandomSource param3
     ) {
         return Direction.allShuffled(param3)
             .stream()
@@ -41,15 +41,15 @@ public class MultifaceSpreader {
             .orElse(Optional.empty());
     }
 
-    public long spreadAll(BlockState param0, LevelAccessor param1, BlockPos param2) {
+    public long spreadAll(BlockState param0, LevelAccessor param1, BlockPos param2, boolean param3) {
         return Direction.stream()
             .filter(param1x -> this.config.canSpreadFrom(param0, param1x))
-            .map(param3 -> this.spreadFromFaceTowardAllDirections(param0, param1, param2, param3, false))
+            .map(param4 -> this.spreadFromFaceTowardAllDirections(param0, param1, param2, param4, param3))
             .reduce(0L, Long::sum);
     }
 
     public Optional<MultifaceSpreader.SpreadPos> spreadFromFaceTowardRandomDirection(
-        BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, Random param4, boolean param5
+        BlockState param0, LevelAccessor param1, BlockPos param2, Direction param3, RandomSource param4, boolean param5
     ) {
         return Direction.allShuffled(param4)
             .stream()

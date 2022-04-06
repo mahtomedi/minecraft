@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens;
 
 import net.minecraft.Util;
-import net.minecraft.client.Option;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
@@ -11,26 +11,30 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
-    private static final Option[] OPTIONS = new Option[]{
-        Option.NARRATOR,
-        Option.SHOW_SUBTITLES,
-        Option.TEXT_BACKGROUND_OPACITY,
-        Option.TEXT_BACKGROUND,
-        Option.CHAT_OPACITY,
-        Option.CHAT_LINE_SPACING,
-        Option.CHAT_DELAY,
-        Option.AUTO_JUMP,
-        Option.TOGGLE_CROUCH,
-        Option.TOGGLE_SPRINT,
-        Option.SCREEN_EFFECTS_SCALE,
-        Option.FOV_EFFECTS_SCALE,
-        Option.DARK_MOJANG_STUDIOS_BACKGROUND_COLOR,
-        Option.HIDE_LIGHTNING_FLASH
-    };
     private static final String GUIDE_LINK = "https://aka.ms/MinecraftJavaAccessibility";
 
+    private static OptionInstance<?>[] options(Options param0) {
+        return new OptionInstance[]{
+            param0.narrator(),
+            param0.showSubtitles(),
+            param0.textBackgroundOpacity(),
+            param0.backgroundForChatOnly(),
+            param0.chatOpacity(),
+            param0.chatLineSpacing(),
+            param0.chatDelay(),
+            param0.autoJump(),
+            param0.toggleCrouch(),
+            param0.toggleSprint(),
+            param0.screenEffectScale(),
+            param0.fovEffectScale(),
+            param0.darkMojangStudiosBackground(),
+            param0.hideLightningFlash(),
+            param0.darknessEffectScale()
+        };
+    }
+
     public AccessibilityOptionsScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("options.accessibility.title"), OPTIONS);
+        super(param0, param1, new TranslatableComponent("options.accessibility.title"), options(param1));
     }
 
     @Override

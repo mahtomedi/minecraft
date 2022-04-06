@@ -9,9 +9,9 @@ import com.mojang.math.Vector4f;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,6 +28,7 @@ public final class ModelPart {
     public float yScale = 1.0F;
     public float zScale = 1.0F;
     public boolean visible = true;
+    public boolean skipDraw;
     private final List<ModelPart.Cube> cubes;
     private final Map<String, ModelPart> children;
     private PartPose initialPose = PartPose.ZERO;
@@ -75,7 +76,6 @@ public final class ModelPart {
         this.x = param0.x;
         this.y = param0.y;
         this.z = param0.z;
-        this.visible = param0.visible;
     }
 
     public boolean hasChild(String param0) {
@@ -112,7 +112,9 @@ public final class ModelPart {
             if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
                 param0.pushPose();
                 this.translateAndRotate(param0);
-                this.compile(param0.last(), param1, param2, param3, param4, param5, param6, param7);
+                if (!this.skipDraw) {
+                    this.compile(param0.last(), param1, param2, param3, param4, param5, param6, param7);
+                }
 
                 for(ModelPart var0 : this.children.values()) {
                     var0.render(param0, param1, param2, param3, param4, param5, param6, param7);
@@ -170,7 +172,7 @@ public final class ModelPart {
 
     }
 
-    public ModelPart.Cube getRandomCube(Random param0) {
+    public ModelPart.Cube getRandomCube(RandomSource param0) {
         return this.cubes.get(param0.nextInt(this.cubes.size()));
     }
 

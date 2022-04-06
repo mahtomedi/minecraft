@@ -1,11 +1,11 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -23,7 +23,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
         if (!var0.getBlockState(var1).isAir()) {
             return false;
         } else {
-            Random var2 = param0.random();
+            RandomSource var2 = param0.random();
             BlockPos var3 = param0.origin();
             RootSystemConfiguration var4 = param0.config();
             BlockPos.MutableBlockPos var5 = var3.mutable();
@@ -59,7 +59,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
     }
 
     private static boolean placeDirtAndTree(
-        WorldGenLevel param0, ChunkGenerator param1, RootSystemConfiguration param2, Random param3, BlockPos.MutableBlockPos param4, BlockPos param5
+        WorldGenLevel param0, ChunkGenerator param1, RootSystemConfiguration param2, RandomSource param3, BlockPos.MutableBlockPos param4, BlockPos param5
     ) {
         for(int var0 = 0; var0 < param2.rootColumnMaxHeight; ++var0) {
             param4.move(Direction.UP);
@@ -79,7 +79,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
         return false;
     }
 
-    private static void placeDirt(BlockPos param0, int param1, WorldGenLevel param2, RootSystemConfiguration param3, Random param4) {
+    private static void placeDirt(BlockPos param0, int param1, WorldGenLevel param2, RootSystemConfiguration param3, RandomSource param4) {
         int var0 = param0.getX();
         int var1 = param0.getZ();
         BlockPos.MutableBlockPos var2 = param0.mutable();
@@ -91,7 +91,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
     }
 
     private static void placeRootedDirt(
-        WorldGenLevel param0, RootSystemConfiguration param1, Random param2, int param3, int param4, BlockPos.MutableBlockPos param5
+        WorldGenLevel param0, RootSystemConfiguration param1, RandomSource param2, int param3, int param4, BlockPos.MutableBlockPos param5
     ) {
         int var0 = param1.rootRadius;
         Predicate<BlockState> var1 = param1x -> param1x.is(param1.rootReplaceable);
@@ -108,7 +108,7 @@ public class RootSystemFeature extends Feature<RootSystemConfiguration> {
 
     }
 
-    private static void placeRoots(WorldGenLevel param0, RootSystemConfiguration param1, Random param2, BlockPos param3, BlockPos.MutableBlockPos param4) {
+    private static void placeRoots(WorldGenLevel param0, RootSystemConfiguration param1, RandomSource param2, BlockPos param3, BlockPos.MutableBlockPos param4) {
         int var0 = param1.hangingRootRadius;
         int var1 = param1.hangingRootsVerticalSpan;
 

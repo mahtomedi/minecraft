@@ -6,15 +6,15 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -38,7 +38,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
     }
 
     public static List<SpikeFeature.EndSpike> getSpikesForLevel(WorldGenLevel param0) {
-        Random var0 = new Random(param0.getSeed());
+        RandomSource var0 = RandomSource.create(param0.getSeed());
         long var1 = var0.nextLong() & 65535L;
         return SPIKE_CACHE.getUnchecked(var1);
     }
@@ -47,7 +47,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
     public boolean place(FeaturePlaceContext<SpikeConfiguration> param0) {
         SpikeConfiguration var0 = param0.config();
         WorldGenLevel var1 = param0.level();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         BlockPos var3 = param0.origin();
         List<SpikeFeature.EndSpike> var4 = var0.getSpikes();
         if (var4.isEmpty()) {
@@ -63,7 +63,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
         return true;
     }
 
-    private void placeSpike(ServerLevelAccessor param0, Random param1, SpikeConfiguration param2, SpikeFeature.EndSpike param3) {
+    private void placeSpike(ServerLevelAccessor param0, RandomSource param1, SpikeConfiguration param2, SpikeFeature.EndSpike param3) {
         int var0 = param3.getRadius();
 
         for(BlockPos var1 : BlockPos.betweenClosed(
@@ -180,8 +180,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
 
     static class SpikeCacheLoader extends CacheLoader<Long, List<SpikeFeature.EndSpike>> {
         public List<SpikeFeature.EndSpike> load(Long param0) {
-            List<Integer> var0 = IntStream.range(0, 10).boxed().collect(Collectors.toList());
-            Collections.shuffle(var0, new Random(param0));
+            List<Integer> var0 = Util.shuffledCopy(IntStream.range(0, 10).boxed().collect(Collectors.toList()), RandomSource.create(param0));
             List<SpikeFeature.EndSpike> var1 = Lists.newArrayList();
 
             for(int var2 = 0; var2 < 10; ++var2) {

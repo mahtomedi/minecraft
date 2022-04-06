@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
@@ -38,14 +38,14 @@ public class SculkCatalystBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(PULSE)) {
             param1.setBlock(param2, param0.setValue(PULSE, Boolean.valueOf(false)), 3);
         }
 
     }
 
-    public static void bloom(ServerLevel param0, BlockPos param1, BlockState param2, Random param3) {
+    public static void bloom(ServerLevel param0, BlockPos param1, BlockState param2, RandomSource param3) {
         param0.setBlock(param1, param2.setValue(PULSE, Boolean.valueOf(true)), 3);
         param0.scheduleTick(param1, param2.getBlock(), 8);
         param0.sendParticles(
@@ -62,7 +62,7 @@ public class SculkCatalystBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> GameEventListener getListener(Level param0, T param1) {
+    public <T extends BlockEntity> GameEventListener getListener(ServerLevel param0, T param1) {
         return param1 instanceof SculkCatalystBlockEntity ? (SculkCatalystBlockEntity)param1 : null;
     }
 

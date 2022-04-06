@@ -2,7 +2,7 @@ package net.minecraft.world.level.levelgen.heightproviders;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 
@@ -18,7 +18,7 @@ public class WeightedListHeight extends HeightProvider {
     }
 
     @Override
-    public int sample(Random param0, WorldGenerationContext param1) {
+    public int sample(RandomSource param0, WorldGenerationContext param1) {
         return this.distribution.getRandomValue(param0).orElseThrow(IllegalStateException::new).sample(param0, param1);
     }
 

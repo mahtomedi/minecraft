@@ -1,10 +1,10 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -19,7 +19,7 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
         BlockPos var0 = param0.origin();
         WorldGenLevel var1 = param0.level();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         if (var1.isEmptyBlock(var0) && !var1.isEmptyBlock(var0.above())) {
             BlockPos.MutableBlockPos var3 = var0.mutable();
             BlockPos.MutableBlockPos var4 = var0.mutable();
@@ -76,14 +76,14 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private void placeBaseHangOff(LevelAccessor param0, Random param1, BlockPos param2) {
+    private void placeBaseHangOff(LevelAccessor param0, RandomSource param1, BlockPos param2) {
         if (param1.nextBoolean()) {
             param0.setBlock(param2, Blocks.BASALT.defaultBlockState(), 2);
         }
 
     }
 
-    private boolean placeHangOff(LevelAccessor param0, Random param1, BlockPos param2) {
+    private boolean placeHangOff(LevelAccessor param0, RandomSource param1, BlockPos param2) {
         if (param1.nextInt(10) != 0) {
             param0.setBlock(param2, Blocks.BASALT.defaultBlockState(), 2);
             return true;

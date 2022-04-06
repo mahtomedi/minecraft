@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -12,6 +11,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -32,15 +32,15 @@ public record PlacedFeature(Holder<ConfiguredFeature<?, ?>> feature, List<Placem
         )
         .listOf();
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3) {
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, RandomSource param2, BlockPos param3) {
         return this.placeWithContext(new PlacementContext(param0, param1, Optional.empty()), param2, param3);
     }
 
-    public boolean placeWithBiomeCheck(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3) {
+    public boolean placeWithBiomeCheck(WorldGenLevel param0, ChunkGenerator param1, RandomSource param2, BlockPos param3) {
         return this.placeWithContext(new PlacementContext(param0, param1, Optional.of(this)), param2, param3);
     }
 
-    private boolean placeWithContext(PlacementContext param0, Random param1, BlockPos param2) {
+    private boolean placeWithContext(PlacementContext param0, RandomSource param1, BlockPos param2) {
         Stream<BlockPos> var0 = Stream.of(param2);
 
         for(PlacementModifier var1 : this.placement) {

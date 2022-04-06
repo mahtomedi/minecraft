@@ -2,7 +2,6 @@ package net.minecraft.data.advancements;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
@@ -15,17 +14,17 @@ import net.minecraft.advancements.critereon.DistancePredicate;
 import net.minecraft.advancements.critereon.DistanceTrigger;
 import net.minecraft.advancements.critereon.EntityEquipmentPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.ItemInteractWithBlockTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemUsedOnBlockTrigger;
 import net.minecraft.advancements.critereon.KilledByCrossbowTrigger;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.LighthingBoltPredicate;
 import net.minecraft.advancements.critereon.LightningStrikeTrigger;
 import net.minecraft.advancements.critereon.LocationPredicate;
-import net.minecraft.advancements.critereon.LocationTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.PlayerHurtEntityTrigger;
 import net.minecraft.advancements.critereon.PlayerPredicate;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.advancements.critereon.ShotCrossbowTrigger;
 import net.minecraft.advancements.critereon.SlideDownBlockTrigger;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
@@ -34,7 +33,6 @@ import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.advancements.critereon.UsingItemTrigger;
 import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -95,7 +93,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
         return LightningStrikeTrigger.TriggerInstance.lighthingStrike(
             EntityPredicate.Builder.entity()
                 .distance(DistancePredicate.absolute(MinMaxBounds.Doubles.atMost(30.0)))
-                .lighthingBolt(LighthingBoltPredicate.blockSetOnFire(param0))
+                .subPredicate(LighthingBoltPredicate.blockSetOnFire(param0))
                 .build(),
             param1
         );
@@ -103,7 +101,8 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
 
     private static UsingItemTrigger.TriggerInstance lookAtThroughItem(EntityType<?> param0, Item param1) {
         return UsingItemTrigger.TriggerInstance.lookingAt(
-            EntityPredicate.Builder.entity().player(PlayerPredicate.Builder.player().setLookingAt(EntityPredicate.Builder.entity().of(param0).build()).build()),
+            EntityPredicate.Builder.entity()
+                .subPredicate(PlayerPredicate.Builder.player().setLookingAt(EntityPredicate.Builder.entity().of(param0).build()).build()),
             ItemPredicate.Builder.item().of(param1)
         );
     }
@@ -136,9 +135,9 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("slept_in_bed", LocationTrigger.TriggerInstance.sleptInBed())
+            .addCriterion("slept_in_bed", PlayerTrigger.TriggerInstance.sleptInBed())
             .save(param0, "adventure/sleep_in_bed");
-        addBiomes(Advancement.Builder.advancement(), this.getAllOverworldBiomes())
+        addBiomes(Advancement.Builder.advancement(), MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes().toList())
             .parent(var1)
             .display(
                 Items.DIAMOND_BOOTS,
@@ -414,7 +413,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                 true
             )
             .rewards(AdvancementRewards.Builder.experience(100))
-            .addCriterion("hero_of_the_village", LocationTrigger.TriggerInstance.raidWon())
+            .addCriterion("hero_of_the_village", PlayerTrigger.TriggerInstance.raidWon())
             .save(param0, "adventure/hero_of_the_village");
         Advancement.Builder.advancement()
             .parent(var0)
@@ -466,7 +465,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .addCriterion(
-                "walk_on_powder_snow_with_leather_boots", LocationTrigger.TriggerInstance.walkOnBlockWithEquipment(Blocks.POWDER_SNOW, Items.LEATHER_BOOTS)
+                "walk_on_powder_snow_with_leather_boots", PlayerTrigger.TriggerInstance.walkOnBlockWithEquipment(Blocks.POWDER_SNOW, Items.LEATHER_BOOTS)
             )
             .save(param0, "adventure/walk_on_powder_snow_with_leather_boots");
         Advancement.Builder.advancement()
@@ -528,7 +527,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion(
                 "play_jukebox_in_meadows",
-                ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
+                ItemInteractWithBlockTrigger.TriggerInstance.itemUsedOnBlock(
                     LocationPredicate.Builder.location().setBiome(Biomes.MEADOW).setBlock(BlockPredicate.Builder.block().of(Blocks.JUKEBOX).build()),
                     ItemPredicate.Builder.item().of(ItemTags.MUSIC_DISCS)
                 )
@@ -569,15 +568,20 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
                 )
             )
             .save(param0, "adventure/fall_from_world_height");
-    }
-
-    private List<ResourceKey<Biome>> getAllOverworldBiomes() {
-        return MultiNoiseBiomeSource.Preset.OVERWORLD
-            .biomeSource(BuiltinRegistries.BIOME)
-            .possibleBiomes()
-            .stream()
-            .flatMap(param0 -> param0.unwrapKey().stream())
-            .collect(Collectors.toList());
+        Advancement.Builder.advancement()
+            .parent(var0)
+            .display(
+                Blocks.SCULK_CATALYST,
+                new TranslatableComponent("advancements.adventure.kill_mob_near_sculk_catalyst.title"),
+                new TranslatableComponent("advancements.adventure.kill_mob_near_sculk_catalyst.description"),
+                null,
+                FrameType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .addCriterion("kill_mob_near_sculk_catalyst", KilledTrigger.TriggerInstance.playerKilledEntityNearSculkCatalyst())
+            .save(param0, "adventure/kill_mob_near_sculk_catalyst");
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {
@@ -592,7 +596,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
 
     protected static Advancement.Builder addBiomes(Advancement.Builder param0, List<ResourceKey<Biome>> param1) {
         for(ResourceKey<Biome> var0 : param1) {
-            param0.addCriterion(var0.location().toString(), LocationTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
+            param0.addCriterion(var0.location().toString(), PlayerTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
         }
 
         return param0;

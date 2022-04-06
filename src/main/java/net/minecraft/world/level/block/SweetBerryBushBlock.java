@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -58,7 +58,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         int var0 = param0.getValue(AGE);
         if (var0 < 3 && param3.nextInt(5) == 0 && param1.getRawBrightness(param2.above(), 0) >= 9) {
             param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(var0 + 1)), 2);
@@ -109,12 +109,12 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         int var0 = Math.min(3, param3.getValue(AGE) + 1);
         param0.setBlock(param2, param3.setValue(AGE, Integer.valueOf(var0)), 2);
     }

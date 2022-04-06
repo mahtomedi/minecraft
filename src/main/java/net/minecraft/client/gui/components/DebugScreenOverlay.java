@@ -63,6 +63,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -321,26 +322,31 @@ public class DebugScreenOverlay extends GuiComponent {
                         )
                     );
                 }
+
+                if (var23 != null) {
+                    var17.add(String.format("Blending: %s", var23.isOldNoiseGeneration() ? "Old" : "New"));
+                }
             }
 
             ServerLevel var30 = this.getServerLevel();
             if (var30 != null) {
                 ServerChunkCache var31 = var30.getChunkSource();
                 ChunkGenerator var32 = var31.getGenerator();
-                var32.addDebugScreenInfo(var17, var6);
-                Climate.Sampler var33 = var32.climateSampler();
-                BiomeSource var34 = var32.getBiomeSource();
-                var34.addDebugInfo(var17, var6, var33);
-                NaturalSpawner.SpawnState var35 = var31.getLastSpawnState();
-                if (var35 != null) {
-                    Object2IntMap<MobCategory> var36 = var35.getMobCategoryCounts();
-                    int var37 = var35.getSpawnableChunkCount();
+                RandomState var33 = var31.randomState();
+                var32.addDebugScreenInfo(var17, var33, var6);
+                Climate.Sampler var34 = var33.sampler();
+                BiomeSource var35 = var32.getBiomeSource();
+                var35.addDebugInfo(var17, var6, var34);
+                NaturalSpawner.SpawnState var36 = var31.getLastSpawnState();
+                if (var36 != null) {
+                    Object2IntMap<MobCategory> var37 = var36.getMobCategoryCounts();
+                    int var38 = var36.getSpawnableChunkCount();
                     var17.add(
                         "SC: "
-                            + var37
+                            + var38
                             + ", "
                             + (String)Stream.of(MobCategory.values())
-                                .map(param1 -> Character.toUpperCase(param1.getName().charAt(0)) + ": " + var36.getInt(param1))
+                                .map(param1 -> Character.toUpperCase(param1.getName().charAt(0)) + ": " + var37.getInt(param1))
                                 .collect(Collectors.joining(", "))
                     );
                 } else {
@@ -348,14 +354,13 @@ public class DebugScreenOverlay extends GuiComponent {
                 }
             }
 
-            PostChain var38 = this.minecraft.gameRenderer.currentEffect();
-            if (var38 != null) {
-                var17.add("Shader: " + var38.getName());
+            PostChain var39 = this.minecraft.gameRenderer.currentEffect();
+            if (var39 != null) {
+                var17.add("Shader: " + var39.getName());
             }
 
             var17.add(
-                this.minecraft.getSoundManager().getDebugString()
-                    + String.format(" (Number of ghosts in world: %d)", Math.round(this.minecraft.player.getCurrentMood() * 100.0F))
+                this.minecraft.getSoundManager().getDebugString() + String.format(" (Mood %d%%)", Math.round(this.minecraft.player.getCurrentMood() * 100.0F))
             );
             return var17;
         }
@@ -548,16 +553,17 @@ public class DebugScreenOverlay extends GuiComponent {
         this.hLine(param0, param2, param2 + var6 - 1, var12 - 1, -1);
         this.vLine(param0, param2, var12 - 60, var12, -1);
         this.vLine(param0, param2 + var6 - 1, var12 - 60, var12, -1);
-        if (param4 && this.minecraft.options.framerateLimit > 0 && this.minecraft.options.framerateLimit <= 250) {
-            this.hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)this.minecraft.options.framerateLimit), -16711681);
+        int var22 = this.minecraft.options.framerateLimit().get();
+        if (param4 && var22 > 0 && var22 <= 250) {
+            this.hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var22), -16711681);
         }
 
-        String var22 = var8 + " ms min";
-        String var23 = var7 / (long)var6 + " ms avg";
-        String var24 = var9x + " ms max";
-        this.font.drawShadow(param0, var22, (float)(param2 + 2), (float)(var12 - 60 - 9), 14737632);
-        this.font.drawShadow(param0, var23, (float)(param2 + var6 / 2 - this.font.width(var23) / 2), (float)(var12 - 60 - 9), 14737632);
-        this.font.drawShadow(param0, var24, (float)(param2 + var6 - this.font.width(var24)), (float)(var12 - 60 - 9), 14737632);
+        String var23 = var8 + " ms min";
+        String var24 = var7 / (long)var6 + " ms avg";
+        String var25 = var9x + " ms max";
+        this.font.drawShadow(param0, var23, (float)(param2 + 2), (float)(var12 - 60 - 9), 14737632);
+        this.font.drawShadow(param0, var24, (float)(param2 + var6 / 2 - this.font.width(var24) / 2), (float)(var12 - 60 - 9), 14737632);
+        this.font.drawShadow(param0, var25, (float)(param2 + var6 - this.font.width(var25)), (float)(var12 - 60 - 9), 14737632);
         RenderSystem.enableDepthTest();
     }
 

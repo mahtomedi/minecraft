@@ -2,21 +2,19 @@ package com.mojang.blaze3d.shaders;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Program {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final int MAX_LOG_LENGTH = 32768;
     private final Program.Type type;
     private final String name;
@@ -55,7 +53,7 @@ public class Program {
     }
 
     protected static int compileShaderInternal(Program.Type param0, String param1, InputStream param2, String param3, GlslPreprocessor param4) throws IOException {
-        String var0 = TextureUtil.readResourceAsString(param2);
+        String var0 = IOUtils.toString(param2, StandardCharsets.UTF_8);
         if (var0 == null) {
             throw new IOException("Could not load program " + param0.getName());
         } else {
@@ -69,10 +67,6 @@ public class Program {
                 return var1;
             }
         }
-    }
-
-    private static Program createProgram(Program.Type param0, String param1, int param2) {
-        return new Program(param0, param2, param1);
     }
 
     protected int getId() {

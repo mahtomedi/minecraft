@@ -22,6 +22,7 @@ public abstract class Biomes {
         register(net.minecraft.world.level.biome.Biomes.ICE_SPIKES, OverworldBiomes.plains(false, true, true));
         register(net.minecraft.world.level.biome.Biomes.DESERT, OverworldBiomes.desert());
         register(net.minecraft.world.level.biome.Biomes.SWAMP, OverworldBiomes.swamp());
+        register(net.minecraft.world.level.biome.Biomes.MANGROVE_SWAMP, OverworldBiomes.mangroveSwamp());
         register(net.minecraft.world.level.biome.Biomes.FOREST, OverworldBiomes.forest(false, false, false));
         register(net.minecraft.world.level.biome.Biomes.FLOWER_FOREST, OverworldBiomes.forest(false, false, true));
         register(net.minecraft.world.level.biome.Biomes.BIRCH_FOREST, OverworldBiomes.forest(true, false, false));
@@ -66,6 +67,7 @@ public abstract class Biomes {
         register(net.minecraft.world.level.biome.Biomes.MUSHROOM_FIELDS, OverworldBiomes.mushroomFields());
         register(net.minecraft.world.level.biome.Biomes.DRIPSTONE_CAVES, OverworldBiomes.dripstoneCaves());
         register(net.minecraft.world.level.biome.Biomes.LUSH_CAVES, OverworldBiomes.lushCaves());
+        register(net.minecraft.world.level.biome.Biomes.DEEP_DARK, OverworldBiomes.deepDark());
         register(net.minecraft.world.level.biome.Biomes.NETHER_WASTES, NetherBiomes.netherWastes());
         register(net.minecraft.world.level.biome.Biomes.WARPED_FOREST, NetherBiomes.warpedForest());
         register(net.minecraft.world.level.biome.Biomes.CRIMSON_FOREST, NetherBiomes.crimsonForest());

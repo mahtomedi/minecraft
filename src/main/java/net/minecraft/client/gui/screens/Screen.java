@@ -308,7 +308,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 }
             } else if (var0 != null) {
                 if (var0.getAction() == ClickEvent.Action.OPEN_URL) {
-                    if (!this.minecraft.options.chatLinks) {
+                    if (!this.minecraft.options.chatLinks().get()) {
                         return false;
                     }
 
@@ -323,7 +323,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                             throw new URISyntaxException(var0.getValue(), "Unsupported protocol: " + var2.toLowerCase(Locale.ROOT));
                         }
 
-                        if (this.minecraft.options.chatLinksPrompt) {
+                        if (this.minecraft.options.chatLinksPrompt().get()) {
                             this.clickedLink = var1;
                             this.minecraft.setScreen(new ConfirmLinkScreen(this::confirmLink, var0.getValue(), false));
                         } else {
@@ -370,11 +370,15 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
         this.font = param0.font;
         this.width = param1;
         this.height = param2;
+        this.rebuildWidgets();
+        this.triggerImmediateNarration(false);
+        this.suppressNarration(NARRATE_SUPPRESS_AFTER_INIT_TIME);
+    }
+
+    protected void rebuildWidgets() {
         this.clearWidgets();
         this.setFocused(null);
         this.init();
-        this.triggerImmediateNarration(false);
-        this.suppressNarration(NARRATE_SUPPRESS_AFTER_INIT_TIME);
     }
 
     @Override

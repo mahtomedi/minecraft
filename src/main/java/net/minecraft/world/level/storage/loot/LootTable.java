@@ -10,15 +10,15 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.logging.LogUtils;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder;
@@ -105,7 +105,7 @@ public class LootTable {
 
     public void fill(Container param0, LootContext param1) {
         List<ItemStack> var0 = this.getRandomItems(param1);
-        Random var1 = param1.getRandom();
+        RandomSource var1 = param1.getRandom();
         List<Integer> var2 = this.getAvailableSlots(param0, var1);
         this.shuffleAndSplitItems(var0, var2.size(), var1);
 
@@ -124,7 +124,7 @@ public class LootTable {
 
     }
 
-    private void shuffleAndSplitItems(List<ItemStack> param0, int param1, Random param2) {
+    private void shuffleAndSplitItems(List<ItemStack> param0, int param1, RandomSource param2) {
         List<ItemStack> var0 = Lists.newArrayList();
         Iterator<ItemStack> var1 = param0.iterator();
 
@@ -156,10 +156,10 @@ public class LootTable {
         }
 
         param0.addAll(var0);
-        Collections.shuffle(param0, param2);
+        Util.shuffle(param0, param2);
     }
 
-    private List<Integer> getAvailableSlots(Container param0, Random param1) {
+    private List<Integer> getAvailableSlots(Container param0, RandomSource param1) {
         List<Integer> var0 = Lists.newArrayList();
 
         for(int var1 = 0; var1 < param0.getContainerSize(); ++var1) {
@@ -168,7 +168,7 @@ public class LootTable {
             }
         }
 
-        Collections.shuffle(var0, param1);
+        Util.shuffle(var0, param1);
         return var0;
     }
 

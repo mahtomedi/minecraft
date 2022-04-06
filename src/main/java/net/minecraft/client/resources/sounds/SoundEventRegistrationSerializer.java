@@ -10,12 +10,16 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 import java.util.List;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.valueproviders.FloatProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundEventRegistrationSerializer implements JsonDeserializer<SoundEventRegistration> {
+    private static final FloatProvider DEFAULT_FLOAT = ConstantFloat.of(1.0F);
+
     public SoundEventRegistration deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
         JsonObject var0 = GsonHelper.convertToJsonObject(param0, "entry");
         boolean var1 = GsonHelper.getAsBoolean(var0, "replace", false);
@@ -33,7 +37,7 @@ public class SoundEventRegistrationSerializer implements JsonDeserializer<SoundE
                 JsonElement var3 = var1.get(var2);
                 if (GsonHelper.isStringValue(var3)) {
                     String var4 = GsonHelper.convertToString(var3, "sound");
-                    var0.add(new Sound(var4, 1.0F, 1.0F, 1, Sound.Type.FILE, false, false, 16));
+                    var0.add(new Sound(var4, DEFAULT_FLOAT, DEFAULT_FLOAT, 1, Sound.Type.FILE, false, false, 16));
                 } else {
                     var0.add(this.getSound(GsonHelper.convertToJsonObject(var3, "sound")));
                 }
@@ -55,7 +59,7 @@ public class SoundEventRegistrationSerializer implements JsonDeserializer<SoundE
         boolean var5 = GsonHelper.getAsBoolean(param0, "preload", false);
         boolean var6 = GsonHelper.getAsBoolean(param0, "stream", false);
         int var7 = GsonHelper.getAsInt(param0, "attenuation_distance", 16);
-        return new Sound(var0, var2, var3, var4, var1, var6, var5, var7);
+        return new Sound(var0, ConstantFloat.of(var2), ConstantFloat.of(var3), var4, var1, var6, var5, var7);
     }
 
     private Sound.Type getType(JsonObject param0, Sound.Type param1) {

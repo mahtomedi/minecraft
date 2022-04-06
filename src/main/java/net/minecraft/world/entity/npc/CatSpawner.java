@@ -1,10 +1,10 @@
 package net.minecraft.world.entity.npc;
 
 import java.util.List;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.StructureTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -15,9 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.NaturalSpawner;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.phys.AABB;
 
 public class CatSpawner implements CustomSpawner {
@@ -36,7 +33,7 @@ public class CatSpawner implements CustomSpawner {
                 if (var0 == null) {
                     return 0;
                 } else {
-                    Random var1 = param0.random;
+                    RandomSource var1 = param0.random;
                     int var2 = (8 + var1.nextInt(24)) * (var1.nextBoolean() ? -1 : 1);
                     int var3 = (8 + var1.nextInt(24)) * (var1.nextBoolean() ? -1 : 1);
                     BlockPos var4 = var0.blockPosition().offset(var2, 0, var3);
@@ -49,10 +46,7 @@ public class CatSpawner implements CustomSpawner {
                                 return this.spawnInVillage(param0, var4);
                             }
 
-                            Registry<ConfiguredStructureFeature<?, ?>> var6 = param0.registryAccess()
-                                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
-                            if (ChunkGenerator.allConfigurations(var6, StructureFeature.SWAMP_HUT)
-                                .anyMatch(param2x -> param0.structureFeatureManager().getStructureWithPieceAt(var4, param2x).isValid())) {
+                            if (param0.structureManager().getStructureWithPieceAt(var4, StructureTags.CATS_SPAWN_IN).isValid()) {
                                 return this.spawnInHut(param0, var4);
                             }
                         }

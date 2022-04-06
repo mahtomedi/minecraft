@@ -1,12 +1,12 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,7 +44,10 @@ public class TurtleEggBlock extends Block {
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        this.destroyEgg(param0, param2, param1, param3, 100);
+        if (!param3.isSteppingCarefully()) {
+            this.destroyEgg(param0, param2, param1, param3, 100);
+        }
+
         super.stepOn(param0, param1, param2, param3);
     }
 
@@ -79,7 +82,7 @@ public class TurtleEggBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (this.shouldUpdateHatchLevel(param1) && onSand(param1, param2)) {
             int var0 = param0.getValue(HATCH);
             if (var0 < 2) {

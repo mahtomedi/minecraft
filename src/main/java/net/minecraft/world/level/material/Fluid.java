@@ -1,7 +1,6 @@
 package net.minecraft.world.level.material;
 
 import java.util.Optional;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +10,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -50,13 +50,13 @@ public abstract class Fluid {
 
     public abstract Item getBucket();
 
-    protected void animateTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
+    protected void animateTick(Level param0, BlockPos param1, FluidState param2, RandomSource param3) {
     }
 
     protected void tick(Level param0, BlockPos param1, FluidState param2) {
     }
 
-    protected void randomTick(Level param0, BlockPos param1, FluidState param2, Random param3) {
+    protected void randomTick(Level param0, BlockPos param1, FluidState param2, RandomSource param3) {
     }
 
     @Nullable

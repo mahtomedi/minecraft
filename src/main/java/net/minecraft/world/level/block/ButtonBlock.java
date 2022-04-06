@@ -1,13 +1,13 @@
 package net.minecraft.world.level.block;
 
 import java.util.List;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -103,7 +103,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
         } else {
             this.press(param0, param1, param2);
             this.playSound(param3, param1, param2, true);
-            param1.gameEvent(param3, GameEvent.BLOCK_PRESS, param2);
+            param1.gameEvent(param3, GameEvent.BLOCK_ACTIVATE, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
@@ -147,7 +147,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(POWERED)) {
             if (this.sensitive) {
                 this.checkPressed(param0, param1, param2);
@@ -155,7 +155,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(false)), 3);
                 this.updateNeighbours(param0, param1, param2);
                 this.playSound(null, param1, param2, false);
-                param1.gameEvent(GameEvent.BLOCK_UNPRESS, param2);
+                param1.gameEvent(null, GameEvent.BLOCK_DEACTIVATE, param2);
             }
 
         }
@@ -176,7 +176,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
             param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var1)), 3);
             this.updateNeighbours(param0, param1, param2);
             this.playSound(null, param1, param2, var1);
-            param1.gameEvent(var0.stream().findFirst().orElse(null), var1 ? GameEvent.BLOCK_PRESS : GameEvent.BLOCK_UNPRESS, param2);
+            param1.gameEvent(var0.stream().findFirst().orElse(null), var1 ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, param2);
         }
 
         if (var1) {

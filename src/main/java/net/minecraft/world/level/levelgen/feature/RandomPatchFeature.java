@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 
@@ -14,7 +14,7 @@ public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<RandomPatchConfiguration> param0) {
         RandomPatchConfiguration var0 = param0.config();
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         BlockPos var2 = param0.origin();
         WorldGenLevel var3 = param0.level();
         int var4 = 0;

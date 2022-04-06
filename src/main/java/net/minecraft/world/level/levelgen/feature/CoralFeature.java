@@ -2,12 +2,12 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
@@ -24,16 +24,16 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
-        Random var0 = param0.random();
+        RandomSource var0 = param0.random();
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
         Optional<Block> var3 = Registry.BLOCK.getTag(BlockTags.CORAL_BLOCKS).flatMap(param1 -> param1.getRandomElement(var0)).map(Holder::value);
         return var3.isEmpty() ? false : this.placeFeature(var1, var0, var2, var3.get().defaultBlockState());
     }
 
-    protected abstract boolean placeFeature(LevelAccessor var1, Random var2, BlockPos var3, BlockState var4);
+    protected abstract boolean placeFeature(LevelAccessor var1, RandomSource var2, BlockPos var3, BlockState var4);
 
-    protected boolean placeCoralBlock(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3) {
+    protected boolean placeCoralBlock(LevelAccessor param0, RandomSource param1, BlockPos param2, BlockState param3) {
         BlockPos var0 = param2.above();
         BlockState var1 = param0.getBlockState(param2);
         if ((var1.is(Blocks.WATER) || var1.is(BlockTags.CORALS)) && param0.getBlockState(var0).is(Blocks.WATER)) {

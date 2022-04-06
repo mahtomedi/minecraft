@@ -7,7 +7,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -32,6 +31,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -301,7 +301,7 @@ public class Fox extends Animal {
         return var0;
     }
 
-    public static boolean checkFoxSpawnRules(EntityType<Fox> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkFoxSpawnRules(EntityType<Fox> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return param1.getBlockState(param3.below()).is(BlockTags.FOXES_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 
@@ -1364,17 +1364,19 @@ public class Fox extends Animal {
 
         @Override
         public boolean canUse() {
-            if (Fox.this.isSleeping() || this.mob.getTarget() != null) {
-                return false;
-            } else if (Fox.this.level.isThundering()) {
-                return true;
-            } else if (this.interval > 0) {
-                --this.interval;
-                return false;
+            if (!Fox.this.isSleeping() && this.mob.getTarget() == null) {
+                if (Fox.this.level.isThundering() && Fox.this.level.canSeeSky(this.mob.blockPosition())) {
+                    return this.setWantedPos();
+                } else if (this.interval > 0) {
+                    --this.interval;
+                    return false;
+                } else {
+                    this.interval = 100;
+                    BlockPos var0 = this.mob.blockPosition();
+                    return Fox.this.level.isDay() && Fox.this.level.canSeeSky(var0) && !((ServerLevel)Fox.this.level).isVillage(var0) && this.setWantedPos();
+                }
             } else {
-                this.interval = 100;
-                BlockPos var0 = this.mob.blockPosition();
-                return Fox.this.level.isDay() && Fox.this.level.canSeeSky(var0) && !((ServerLevel)Fox.this.level).isVillage(var0) && this.setWantedPos();
+                return false;
             }
         }
 

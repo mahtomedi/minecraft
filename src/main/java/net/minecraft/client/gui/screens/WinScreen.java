@@ -15,12 +15,9 @@ import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.Reader;
 import java.util.List;
-import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
@@ -28,12 +25,11 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -140,23 +136,17 @@ public class WinScreen extends Screen {
     }
 
     private void wrapCreditsIO(String param0, WinScreen.CreditsReader param1) {
-        Resource var0 = null;
-
-        try {
-            var0 = this.minecraft.getResourceManager().getResource(new ResourceLocation(param0));
-            InputStreamReader var1 = new InputStreamReader(var0.getInputStream(), StandardCharsets.UTF_8);
-            param1.read(var1);
+        try (Reader var0 = this.minecraft.getResourceManager().openAsReader(new ResourceLocation(param0))) {
+            param1.read(var0);
         } catch (Exception var8) {
             LOGGER.error("Couldn't load credits", (Throwable)var8);
-        } finally {
-            IOUtils.closeQuietly((Closeable)var0);
         }
 
     }
 
-    private void addPoemFile(InputStreamReader param0) throws IOException {
+    private void addPoemFile(Reader param0) throws IOException {
         BufferedReader var0 = new BufferedReader(param0);
-        Random var1 = new Random(8124371L);
+        RandomSource var1 = RandomSource.create(8124371L);
 
         String var2;
         while((var2 = var0.readLine()) != null) {
@@ -181,7 +171,7 @@ public class WinScreen extends Screen {
 
     }
 
-    private void addCreditsFile(InputStreamReader param0) {
+    private void addCreditsFile(Reader param0) {
         for(JsonElement var1 : GsonHelper.parseArray(param0)) {
             JsonObject var2 = var1.getAsJsonObject();
             String var3 = var2.get("section").getAsString();
@@ -322,6 +312,6 @@ public class WinScreen extends Screen {
     @FunctionalInterface
     @OnlyIn(Dist.CLIENT)
     interface CreditsReader {
-        void read(InputStreamReader var1) throws IOException;
+        void read(Reader var1) throws IOException;
     }
 }

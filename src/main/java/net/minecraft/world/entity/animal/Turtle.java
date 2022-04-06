@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.animal;
 
-import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -17,6 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
@@ -177,7 +177,7 @@ public class Turtle extends Animal {
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public static boolean checkTurtleSpawnRules(EntityType<Turtle> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkTurtleSpawnRules(EntityType<Turtle> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return param3.getY() < param1.getSeaLevel() + 4 && TurtleEggBlock.onSand(param1, param3) && isBrightEnoughToSpawn(param1, param3);
     }
 
@@ -288,7 +288,7 @@ public class Turtle extends Animal {
         if (!this.isGoingHome() && param1.getFluidState(param0).is(FluidTags.WATER)) {
             return 10.0F;
         } else {
-            return TurtleEggBlock.onSand(param1, param0) ? 10.0F : param1.getBrightness(param0) - 0.5F;
+            return TurtleEggBlock.onSand(param1, param0) ? 10.0F : param1.getPathfindingCostFromLightLevels(param0);
         }
     }
 
@@ -366,7 +366,7 @@ public class Turtle extends Animal {
             this.turtle.setHasEgg(true);
             this.animal.resetLove();
             this.partner.resetLove();
-            Random var1 = this.animal.getRandom();
+            RandomSource var1 = this.animal.getRandom();
             if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
                 this.level.addFreshEntity(new ExperienceOrb(this.level, this.animal.getX(), this.animal.getY(), this.animal.getZ(), var1.nextInt(7) + 1));
             }
@@ -661,7 +661,7 @@ public class Turtle extends Animal {
         public void start() {
             int var0 = 512;
             int var1 = 4;
-            Random var2 = this.turtle.random;
+            RandomSource var2 = this.turtle.random;
             int var3 = var2.nextInt(1025) - 512;
             int var4 = var2.nextInt(9) - 4;
             int var5 = var2.nextInt(1025) - 512;

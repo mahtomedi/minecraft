@@ -1,10 +1,10 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -24,7 +24,7 @@ public class TwistingVinesFeature extends Feature<TwistingVinesConfig> {
         if (isInvalidPlacementLocation(var0, var1)) {
             return false;
         } else {
-            Random var2 = param0.random();
+            RandomSource var2 = param0.random();
             TwistingVinesConfig var3 = param0.config();
             int var4 = var3.spreadWidth();
             int var5 = var3.spreadHeight();
@@ -65,7 +65,7 @@ public class TwistingVinesFeature extends Feature<TwistingVinesConfig> {
         return true;
     }
 
-    public static void placeWeepingVinesColumn(LevelAccessor param0, Random param1, BlockPos.MutableBlockPos param2, int param3, int param4, int param5) {
+    public static void placeWeepingVinesColumn(LevelAccessor param0, RandomSource param1, BlockPos.MutableBlockPos param2, int param3, int param4, int param5) {
         for(int var0 = 1; var0 <= param3; ++var0) {
             if (param0.isEmptyBlock(param2)) {
                 if (var0 == param3 || !param0.isEmptyBlock(param2.above())) {

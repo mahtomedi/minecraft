@@ -3,13 +3,13 @@ package net.minecraft.world.entity.ai.behavior;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.raid.Raid;
@@ -42,7 +42,7 @@ public class CelebrateVillagersSurvivedRaid extends Behavior<Villager> {
     }
 
     protected void tick(ServerLevel param0, Villager param1, long param2) {
-        Random var0 = param1.getRandom();
+        RandomSource var0 = param1.getRandom();
         if (var0.nextInt(100) == 0) {
             param1.playCelebrateSound();
         }

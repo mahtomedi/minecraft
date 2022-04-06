@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
@@ -18,7 +18,7 @@ public class SeaPickleFeature extends Feature<CountConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<CountConfiguration> param0) {
         int var0 = 0;
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         WorldGenLevel var2 = param0.level();
         BlockPos var3 = param0.origin();
         int var4 = param0.config().count().sample(var1);

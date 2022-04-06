@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.BambooBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -32,7 +32,7 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
         int var0 = 0;
         BlockPos var1 = param0.origin();
         WorldGenLevel var2 = param0.level();
-        Random var3 = param0.random();
+        RandomSource var3 = param0.random();
         ProbabilityFeatureConfiguration var4 = param0.config();
         BlockPos.MutableBlockPos var5 = var1.mutable();
         BlockPos.MutableBlockPos var6 = var1.mutable();

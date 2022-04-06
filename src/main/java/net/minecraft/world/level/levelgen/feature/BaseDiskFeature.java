@@ -2,8 +2,8 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,46 +23,57 @@ public class BaseDiskFeature extends Feature<DiskConfiguration> {
         int var4 = var1.getY();
         int var5 = var4 + var0.halfHeight();
         int var6 = var4 - var0.halfHeight() - 1;
-        boolean var7 = var0.state().getBlock() instanceof FallingBlock;
-        int var8 = var0.radius().sample(param0.random());
+        int var7 = var0.radius().sample(param0.random());
+        BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
 
-        for(int var9 = var1.getX() - var8; var9 <= var1.getX() + var8; ++var9) {
-            for(int var10 = var1.getZ() - var8; var10 <= var1.getZ() + var8; ++var10) {
-                int var11 = var9 - var1.getX();
-                int var12 = var10 - var1.getZ();
-                if (var11 * var11 + var12 * var12 <= var8 * var8) {
-                    boolean var13 = false;
-
-                    for(int var14 = var5; var14 >= var6; --var14) {
-                        BlockPos var15 = new BlockPos(var9, var14, var10);
-                        BlockState var16 = var2.getBlockState(var15);
-                        Block var17 = var16.getBlock();
-                        boolean var18 = false;
-                        if (var14 > var6) {
-                            for(BlockState var19 : var0.targets()) {
-                                if (var19.is(var17)) {
-                                    var2.setBlock(var15, var0.state(), 2);
-                                    this.markAboveForPostProcessing(var2, var15);
-                                    var3 = true;
-                                    var18 = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (var7 && var13 && var16.isAir()) {
-                            BlockState var20 = var0.state().is(Blocks.RED_SAND)
-                                ? Blocks.RED_SANDSTONE.defaultBlockState()
-                                : Blocks.SANDSTONE.defaultBlockState();
-                            var2.setBlock(new BlockPos(var9, var14 + 1, var10), var20, 2);
-                        }
-
-                        var13 = var18;
-                    }
-                }
+        for(BlockPos var9 : BlockPos.betweenClosed(var1.offset(-var7, 0, -var7), var1.offset(var7, 0, var7))) {
+            int var10 = var9.getX() - var1.getX();
+            int var11 = var9.getZ() - var1.getZ();
+            if (var10 * var10 + var11 * var11 <= var7 * var7) {
+                var3 |= this.placeColumn(var0, var2, var5, var6, var8.set(var9));
             }
         }
 
         return var3;
+    }
+
+    protected boolean placeColumn(DiskConfiguration param0, WorldGenLevel param1, int param2, int param3, BlockPos.MutableBlockPos param4) {
+        boolean var0 = false;
+        boolean var1 = false;
+        boolean var2 = param0.state().getBlock() instanceof FallingBlock;
+
+        for(int var3 = param2; var3 >= param3; --var3) {
+            param4.setY(var3);
+            BlockState var4 = param1.getBlockState(param4);
+            boolean var5 = false;
+            if (var3 > param3 && this.matchesTargetBlock(param0, var4)) {
+                param1.setBlock(param4, param0.state(), 2);
+                this.markAboveForPostProcessing(param1, param4);
+                var1 = true;
+                var5 = true;
+            }
+
+            if (var2 && var0 && var4.isAir()) {
+                param1.setBlock(param4.move(Direction.UP), this.getSupportState(param0), 2);
+            }
+
+            var0 = var5;
+        }
+
+        return var1;
+    }
+
+    protected BlockState getSupportState(DiskConfiguration param0) {
+        return param0.state().is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+    }
+
+    protected boolean matchesTargetBlock(DiskConfiguration param0, BlockState param1) {
+        for(BlockState var0 : param0.targets()) {
+            if (var0.is(param1.getBlock())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

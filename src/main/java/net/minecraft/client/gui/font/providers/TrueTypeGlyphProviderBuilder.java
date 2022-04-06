@@ -9,10 +9,10 @@ import com.mojang.blaze3d.font.TrueTypeGlyphProvider;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -86,10 +86,10 @@ public class TrueTypeGlyphProviderBuilder implements GlyphProviderBuilder {
 
         try {
             TrueTypeGlyphProvider var5;
-            try (Resource var2 = param0.getResource(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
+            try (InputStream var2 = param0.open(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
                 LOGGER.debug("Loading font {}", this.location);
                 var0 = STBTTFontinfo.malloc();
-                var1 = TextureUtil.readResource(var2.getInputStream());
+                var1 = TextureUtil.readResource(var2);
                 var1.flip();
                 LOGGER.debug("Reading font {}", this.location);
                 if (!STBTruetype.stbtt_InitFont(var0, var1)) {

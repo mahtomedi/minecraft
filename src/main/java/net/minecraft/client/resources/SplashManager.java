@@ -3,22 +3,19 @@ package net.minecraft.client.resources;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SplashManager extends SimplePreparableReloadListener<List<String>> {
     private static final ResourceLocation SPLASHES_LOCATION = new ResourceLocation("texts/splashes.txt");
-    private static final Random RANDOM = new Random();
+    private static final RandomSource RANDOM = RandomSource.create();
     private final List<String> splashes = Lists.newArrayList();
     private final User user;
 
@@ -36,16 +33,13 @@ public class SplashManager extends SimplePreparableReloadListener<List<String>> 
 
     protected List<String> prepare(ResourceManager param0, ProfilerFiller param1) {
         try {
-            List var5;
-            try (
-                Resource var0 = Minecraft.getInstance().getResourceManager().getResource(SPLASHES_LOCATION);
-                BufferedReader var1 = new BufferedReader(new InputStreamReader(var0.getInputStream(), StandardCharsets.UTF_8));
-            ) {
-                var5 = var1.lines().map(String::trim).filter(param0x -> param0x.hashCode() != 125780783).collect(Collectors.toList());
+            List var4;
+            try (BufferedReader var0 = Minecraft.getInstance().getResourceManager().openAsReader(SPLASHES_LOCATION)) {
+                var4 = var0.lines().map(String::trim).filter(param0x -> param0x.hashCode() != 125780783).collect(Collectors.toList());
             }
 
-            return var5;
-        } catch (IOException var11) {
+            return var4;
+        } catch (IOException var8) {
             return Collections.emptyList();
         }
     }
@@ -69,7 +63,7 @@ public class SplashManager extends SimplePreparableReloadListener<List<String>> 
             return null;
         } else {
             return this.user != null && RANDOM.nextInt(this.splashes.size()) == 42
-                ? this.user.getName().toUpperCase(Locale.ROOT) + " IS ONE AT A TIME"
+                ? this.user.getName().toUpperCase(Locale.ROOT) + " IS YOU"
                 : this.splashes.get(RANDOM.nextInt(this.splashes.size()));
         }
     }

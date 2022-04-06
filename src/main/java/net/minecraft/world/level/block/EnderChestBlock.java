@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -107,7 +107,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         for(int var0 = 0; var0 < 3; ++var0) {
             int var1 = param3.nextInt(2) * 2 - 1;
             int var2 = param3.nextInt(2) * 2 - 1;
@@ -157,7 +157,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof EnderChestBlockEntity) {
             ((EnderChestBlockEntity)var0).recheckOpen();

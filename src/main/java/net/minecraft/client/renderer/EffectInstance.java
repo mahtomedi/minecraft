@@ -17,11 +17,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.InvalidClassException;
-import java.nio.charset.StandardCharsets;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
@@ -33,7 +32,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -62,94 +60,84 @@ public class EffectInstance implements Effect, AutoCloseable {
     public EffectInstance(ResourceManager param0, String param1) throws IOException {
         ResourceLocation var0 = new ResourceLocation("shaders/program/" + param1 + ".json");
         this.name = param1;
-        Resource var1 = null;
+        Resource var1 = param0.getResourceOrThrow(var0);
 
-        try {
-            var1 = param0.getResource(var0);
-            JsonObject var2 = GsonHelper.parse(new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8));
-            String var3 = GsonHelper.getAsString(var2, "vertex");
-            String var4 = GsonHelper.getAsString(var2, "fragment");
-            JsonArray var5 = GsonHelper.getAsJsonArray(var2, "samplers", null);
-            if (var5 != null) {
-                int var6 = 0;
+        try (Reader var2 = var1.openAsReader()) {
+            JsonObject var3 = GsonHelper.parse(var2);
+            String var4 = GsonHelper.getAsString(var3, "vertex");
+            String var5 = GsonHelper.getAsString(var3, "fragment");
+            JsonArray var6 = GsonHelper.getAsJsonArray(var3, "samplers", null);
+            if (var6 != null) {
+                int var7 = 0;
 
-                for(JsonElement var7 : var5) {
+                for(JsonElement var8 : var6) {
                     try {
-                        this.parseSamplerNode(var7);
-                    } catch (Exception var241) {
-                        ChainedJsonException var9 = ChainedJsonException.forException(var241);
-                        var9.prependJsonKey("samplers[" + var6 + "]");
-                        throw var9;
+                        this.parseSamplerNode(var8);
+                    } catch (Exception var201) {
+                        ChainedJsonException var10 = ChainedJsonException.forException(var201);
+                        var10.prependJsonKey("samplers[" + var7 + "]");
+                        throw var10;
                     }
 
-                    ++var6;
+                    ++var7;
                 }
             }
 
-            JsonArray var10 = GsonHelper.getAsJsonArray(var2, "attributes", null);
-            if (var10 != null) {
-                int var11 = 0;
-                this.attributes = Lists.newArrayListWithCapacity(var10.size());
-                this.attributeNames = Lists.newArrayListWithCapacity(var10.size());
+            JsonArray var11 = GsonHelper.getAsJsonArray(var3, "attributes", null);
+            if (var11 != null) {
+                int var12 = 0;
+                this.attributes = Lists.newArrayListWithCapacity(var11.size());
+                this.attributeNames = Lists.newArrayListWithCapacity(var11.size());
 
-                for(JsonElement var12 : var10) {
+                for(JsonElement var13 : var11) {
                     try {
-                        this.attributeNames.add(GsonHelper.convertToString(var12, "attribute"));
-                    } catch (Exception var23) {
-                        ChainedJsonException var14 = ChainedJsonException.forException(var23);
-                        var14.prependJsonKey("attributes[" + var11 + "]");
-                        throw var14;
+                        this.attributeNames.add(GsonHelper.convertToString(var13, "attribute"));
+                    } catch (Exception var191) {
+                        ChainedJsonException var15 = ChainedJsonException.forException(var191);
+                        var15.prependJsonKey("attributes[" + var12 + "]");
+                        throw var15;
                     }
 
-                    ++var11;
+                    ++var12;
                 }
             } else {
                 this.attributes = null;
                 this.attributeNames = null;
             }
 
-            JsonArray var15 = GsonHelper.getAsJsonArray(var2, "uniforms", null);
-            if (var15 != null) {
-                int var16 = 0;
+            JsonArray var16 = GsonHelper.getAsJsonArray(var3, "uniforms", null);
+            if (var16 != null) {
+                int var17 = 0;
 
-                for(JsonElement var17 : var15) {
+                for(JsonElement var18 : var16) {
                     try {
-                        this.parseUniformNode(var17);
-                    } catch (Exception var221) {
-                        ChainedJsonException var19 = ChainedJsonException.forException(var221);
-                        var19.prependJsonKey("uniforms[" + var16 + "]");
-                        throw var19;
+                        this.parseUniformNode(var18);
+                    } catch (Exception var18) {
+                        ChainedJsonException var20 = ChainedJsonException.forException(var18);
+                        var20.prependJsonKey("uniforms[" + var17 + "]");
+                        throw var20;
                     }
 
-                    ++var16;
+                    ++var17;
                 }
             }
 
-            this.blend = parseBlendNode(GsonHelper.getAsJsonObject(var2, "blend", null));
-            this.vertexProgram = getOrCreate(param0, Program.Type.VERTEX, var3);
-            this.fragmentProgram = getOrCreate(param0, Program.Type.FRAGMENT, var4);
+            this.blend = parseBlendNode(GsonHelper.getAsJsonObject(var3, "blend", null));
+            this.vertexProgram = getOrCreate(param0, Program.Type.VERTEX, var4);
+            this.fragmentProgram = getOrCreate(param0, Program.Type.FRAGMENT, var5);
             this.programId = ProgramManager.createProgram();
             ProgramManager.linkShader(this);
             this.updateLocations();
             if (this.attributeNames != null) {
-                for(String var20 : this.attributeNames) {
-                    int var21 = Uniform.glGetAttribLocation(this.programId, var20);
-                    this.attributes.add(var21);
+                for(String var21 : this.attributeNames) {
+                    int var22 = Uniform.glGetAttribLocation(this.programId, var21);
+                    this.attributes.add(var22);
                 }
             }
-        } catch (Exception var251) {
-            String var23;
-            if (var1 != null) {
-                var23 = " (" + var1.getSourceName() + ")";
-            } else {
-                var23 = "";
-            }
-
-            ChainedJsonException var25 = ChainedJsonException.forException(var251);
-            var25.setFilenameAndFlush(var0.getPath() + var23);
-            throw var25;
-        } finally {
-            IOUtils.closeQuietly((Closeable)var1);
+        } catch (Exception var221) {
+            ChainedJsonException var24 = ChainedJsonException.forException(var221);
+            var24.setFilenameAndFlush(var0.getPath() + " (" + var1.sourcePackId() + ")");
+            throw var24;
         }
 
         this.markDirty();
@@ -160,21 +148,19 @@ public class EffectInstance implements Effect, AutoCloseable {
         if (var0 != null && !(var0 instanceof EffectProgram)) {
             throw new InvalidClassException("Program is not of type EffectProgram");
         } else {
-            EffectProgram var3;
+            EffectProgram var4;
             if (var0 == null) {
                 ResourceLocation var1 = new ResourceLocation("shaders/program/" + param2 + param1.getExtension());
-                Resource var2 = param0.getResource(var1);
+                Resource var2 = param0.getResourceOrThrow(var1);
 
-                try {
-                    var3 = EffectProgram.compileShader(param1, param2, var2.getInputStream(), var2.getSourceName());
-                } finally {
-                    IOUtils.closeQuietly((Closeable)var2);
+                try (InputStream var3 = var2.open()) {
+                    var4 = EffectProgram.compileShader(param1, param2, var3, var2.sourcePackId());
                 }
             } else {
-                var3 = (EffectProgram)var0;
+                var4 = (EffectProgram)var0;
             }
 
-            return var3;
+            return var4;
         }
     }
 

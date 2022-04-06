@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -55,7 +55,7 @@ public abstract class BasePressurePlateBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         int var0 = this.getSignalForState(param0);
         if (var0 > 0) {
             this.checkPressed(null, param1, param2, param0, var0);
@@ -87,10 +87,10 @@ public abstract class BasePressurePlateBlock extends Block {
 
         if (!var2 && var1) {
             this.playOffSound(param1, param2);
-            param1.gameEvent(param0, GameEvent.BLOCK_UNPRESS, param2);
+            param1.gameEvent(param0, GameEvent.BLOCK_DEACTIVATE, param2);
         } else if (var2 && !var1) {
             this.playOnSound(param1, param2);
-            param1.gameEvent(param0, GameEvent.BLOCK_PRESS, param2);
+            param1.gameEvent(param0, GameEvent.BLOCK_ACTIVATE, param2);
         }
 
         if (var2) {

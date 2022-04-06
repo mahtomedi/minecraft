@@ -1,8 +1,8 @@
 package net.minecraft.client.particle;
 
-import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,7 +30,7 @@ public class WhiteAshParticle extends BaseAshSmokeParticle {
         public Particle createParticle(
             SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
-            Random var0 = param1.random;
+            RandomSource var0 = param1.random;
             double var1 = (double)var0.nextFloat() * -1.9 * (double)var0.nextFloat() * 0.1;
             double var2 = (double)var0.nextFloat() * -0.5 * (double)var0.nextFloat() * 0.1 * 5.0;
             double var3 = (double)var0.nextFloat() * -1.9 * (double)var0.nextFloat() * 0.1;

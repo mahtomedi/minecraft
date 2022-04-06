@@ -4,11 +4,11 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,7 +43,7 @@ public class BendingTrunkPlacer extends TrunkPlacer {
 
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, int param3, BlockPos param4, TreeConfiguration param5
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, int param3, BlockPos param4, TreeConfiguration param5
     ) {
         Direction var0 = Direction.Plane.HORIZONTAL.getRandomDirection(param2);
         int var1 = param3 - 1;
@@ -58,7 +58,7 @@ public class BendingTrunkPlacer extends TrunkPlacer {
             }
 
             if (TreeFeature.validTreePos(param0, var2)) {
-                placeLog(param0, param1, param2, var2, param5);
+                this.placeLog(param0, param1, param2, var2, param5);
             }
 
             if (var5 >= this.minHeightForLeaves) {
@@ -72,7 +72,7 @@ public class BendingTrunkPlacer extends TrunkPlacer {
 
         for(int var7 = 0; var7 <= var6; ++var7) {
             if (TreeFeature.validTreePos(param0, var2)) {
-                placeLog(param0, param1, param2, var2, param5);
+                this.placeLog(param0, param1, param2, var2, param5);
             }
 
             var4.add(new FoliagePlacer.FoliageAttachment(var2.immutable(), 0, false));

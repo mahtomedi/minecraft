@@ -1,7 +1,7 @@
 package net.minecraft.client.particle;
 
-import java.util.Random;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,5 +9,5 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface SpriteSet {
     TextureAtlasSprite get(int var1, int var2);
 
-    TextureAtlasSprite get(Random var1);
+    TextureAtlasSprite get(RandomSource var1);
 }

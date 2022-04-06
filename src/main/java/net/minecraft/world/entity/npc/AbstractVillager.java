@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.npc;
 
 import com.google.common.collect.Sets;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -14,7 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
@@ -23,14 +21,12 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.CarryableTrade;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -41,19 +37,12 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractVillager extends AgeableMob implements InventoryCarrier, Npc, Merchant {
     private static final EntityDataAccessor<Integer> DATA_UNHAPPY_COUNTER = SynchedEntityData.defineId(AbstractVillager.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Optional<EntityType<?>>> DATA_HELD_ENTITY_TYPE = SynchedEntityData.defineId(
-        AbstractVillager.class, EntityDataSerializers.OPTIONAL_ENTITY_TYPE
-    );
     public static final int VILLAGER_SLOT_OFFSET = 300;
     private static final int VILLAGER_INVENTORY_SIZE = 8;
     @Nullable
     private Player tradingPlayer;
     @Nullable
     protected MerchantOffers offers;
-    @Nullable
-    private MerchantOffer currentOffer;
-    @Nullable
-    private Entity heldEntity;
     private final SimpleContainer inventory = new SimpleContainer(8);
 
     public AbstractVillager(EntityType<? extends AbstractVillager> param0, Level param1) {
@@ -81,33 +70,6 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
         this.entityData.set(DATA_UNHAPPY_COUNTER, param0);
     }
 
-    public Optional<EntityType<?>> getHeldEntityType() {
-        return this.entityData.get(DATA_HELD_ENTITY_TYPE);
-    }
-
-    public void setHeldEntityType(Optional<EntityType<?>> param0) {
-        this.entityData.set(DATA_HELD_ENTITY_TYPE, param0);
-    }
-
-    @Nullable
-    public Entity getOrCreateHeldEntity() {
-        Optional<EntityType<?>> var0 = this.getHeldEntityType();
-        if (var0.isEmpty()) {
-            return null;
-        } else {
-            Entity var1 = this.heldEntity;
-            if (var1 == null || var1.getType() != var0.get()) {
-                this.heldEntity = var1 = var0.get().create(this.level);
-            }
-
-            if (var1 != null) {
-                var1.tickCount = this.tickCount;
-            }
-
-            return var1;
-        }
-    }
-
     @Override
     public int getVillagerXp() {
         return 0;
@@ -122,26 +84,6 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_UNHAPPY_COUNTER, 0);
-        this.entityData.define(DATA_HELD_ENTITY_TYPE, Optional.empty());
-    }
-
-    public boolean tryTradeWithPlayer(Player param0) {
-        if (this.currentOffer != null) {
-            CarryableTrade var0 = param0.getTradeProposition();
-            if (var0 != null && this.currentOffer.accepts(var0)) {
-                param0.clearCarried();
-                CarryableTrade var1 = this.currentOffer.getResult();
-                if (param0 instanceof ServerPlayer var2) {
-                    var1.giveToPlayer(var2);
-                }
-
-                this.notifyTrade(this.currentOffer);
-                param0.awardStat(Stats.TRADED_WITH_VILLAGER);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @Override
@@ -183,7 +125,7 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
         this.ambientSoundTime = -this.getAmbientSoundInterval();
         this.rewardTradeXp(param0);
         if (this.tradingPlayer instanceof ServerPlayer) {
-            CriteriaTriggers.TRADE.trigger((ServerPlayer)this.tradingPlayer, this, param0.getResultItemStack());
+            CriteriaTriggers.TRADE.trigger((ServerPlayer)this.tradingPlayer, this, param0.getResult());
         }
 
     }
@@ -314,24 +256,5 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
     @Override
     public boolean isClientSide() {
         return this.level.isClientSide;
-    }
-
-    public void setCurrentOffer(@Nullable MerchantOffer param0) {
-        this.currentOffer = param0;
-        CarryableTrade var0 = param0 != null ? param0.getResult() : null;
-        if (var0 instanceof CarryableTrade.Block var1) {
-            this.setItemSlot(EquipmentSlot.MAINHAND, var1.asItemStack());
-            this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
-        } else {
-            this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-            this.setDropChance(EquipmentSlot.MAINHAND, 0.085F);
-        }
-
-        if (var0 instanceof CarryableTrade.Entity var2) {
-            this.setHeldEntityType(Optional.of(var2.entity()));
-        } else {
-            this.setHeldEntityType(Optional.empty());
-        }
-
     }
 }

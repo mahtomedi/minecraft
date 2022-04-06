@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
@@ -10,6 +9,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.CarvingMask;
@@ -25,12 +25,18 @@ public record ConfiguredWorldCarver<WC extends CarverConfiguration>(WorldCarver<
         Registry.CONFIGURED_CARVER_REGISTRY, DIRECT_CODEC
     );
 
-    public boolean isStartChunk(Random param0) {
+    public boolean isStartChunk(RandomSource param0) {
         return this.worldCarver.isStartChunk(this.config, param0);
     }
 
     public boolean carve(
-        CarvingContext param0, ChunkAccess param1, Function<BlockPos, Holder<Biome>> param2, Random param3, Aquifer param4, ChunkPos param5, CarvingMask param6
+        CarvingContext param0,
+        ChunkAccess param1,
+        Function<BlockPos, Holder<Biome>> param2,
+        RandomSource param3,
+        Aquifer param4,
+        ChunkPos param5,
+        CarvingMask param6
     ) {
         return SharedConstants.debugVoidTerrain(param1.getPos())
             ? false

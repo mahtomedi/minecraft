@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.KelpBlock;
@@ -20,7 +20,7 @@ public class KelpFeature extends Feature<NoneFeatureConfiguration> {
         int var0 = 0;
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
-        Random var3 = param0.random();
+        RandomSource var3 = param0.random();
         int var4 = var1.getHeight(Heightmap.Types.OCEAN_FLOOR, var2.getX(), var2.getZ());
         BlockPos var5 = new BlockPos(var2.getX(), var4, var2.getZ());
         if (var1.getBlockState(var5).is(Blocks.WATER)) {

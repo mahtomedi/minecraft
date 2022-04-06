@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -29,7 +29,7 @@ public class ChorusFlowerBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
         }
@@ -42,7 +42,7 @@ public class ChorusFlowerBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         BlockPos var0 = param2.above();
         if (param1.isEmptyBlock(var0) && var0.getY() < param1.getMaxBuildHeight()) {
             int var1 = param0.getValue(AGE);
@@ -170,12 +170,12 @@ public class ChorusFlowerBlock extends Block {
         param0.add(AGE);
     }
 
-    public static void generatePlant(LevelAccessor param0, BlockPos param1, Random param2, int param3) {
+    public static void generatePlant(LevelAccessor param0, BlockPos param1, RandomSource param2, int param3) {
         param0.setBlock(param1, ((ChorusPlantBlock)Blocks.CHORUS_PLANT).getStateForPlacement(param0, param1), 2);
         growTreeRecursive(param0, param1, param2, param1, param3, 0);
     }
 
-    private static void growTreeRecursive(LevelAccessor param0, BlockPos param1, Random param2, BlockPos param3, int param4, int param5) {
+    private static void growTreeRecursive(LevelAccessor param0, BlockPos param1, RandomSource param2, BlockPos param3, int param4, int param5) {
         ChorusPlantBlock var0 = (ChorusPlantBlock)Blocks.CHORUS_PLANT;
         int var1 = param2.nextInt(4) + 1;
         if (param5 == 0) {

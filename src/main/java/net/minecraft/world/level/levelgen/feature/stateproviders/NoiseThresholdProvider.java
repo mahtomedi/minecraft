@@ -3,9 +3,9 @@ package net.minecraft.world.level.levelgen.feature.stateproviders;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -53,7 +53,7 @@ public class NoiseThresholdProvider extends NoiseBasedStateProvider {
     }
 
     @Override
-    public BlockState getState(Random param0, BlockPos param1) {
+    public BlockState getState(RandomSource param0, BlockPos param1) {
         double var0 = this.getNoiseValue(param1, (double)this.scale);
         if (var0 < (double)this.threshold) {
             return Util.getRandom(this.lowStates, param0);

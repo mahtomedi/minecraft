@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -112,7 +112,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
         }
@@ -125,7 +125,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(STAGE) == 0) {
             if (param3.nextInt(3) == 0 && param1.isEmptyBlock(param2.above()) && param1.getRawBrightness(param2.above(), 0) >= 9) {
                 int var0 = this.getHeightBelowUpToMax(param1, param2) + 1;
@@ -163,12 +163,12 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public boolean isBonemealSuccess(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public boolean isBonemealSuccess(Level param0, RandomSource param1, BlockPos param2, BlockState param3) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         int var0 = this.getHeightAboveUpToMax(param0, param2);
         int var1 = this.getHeightBelowUpToMax(param0, param2);
         int var2 = var0 + var1 + 1;
@@ -193,7 +193,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
         return param1.getMainHandItem().getItem() instanceof SwordItem ? 1.0F : super.getDestroyProgress(param0, param1, param2, param3);
     }
 
-    protected void growBamboo(BlockState param0, Level param1, BlockPos param2, Random param3, int param4) {
+    protected void growBamboo(BlockState param0, Level param1, BlockPos param2, RandomSource param3, int param4) {
         BlockState var0 = param1.getBlockState(param2.below());
         BlockPos var1 = param2.below(2);
         BlockState var2 = param1.getBlockState(var1);

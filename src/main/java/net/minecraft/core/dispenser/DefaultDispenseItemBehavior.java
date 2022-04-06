@@ -3,8 +3,8 @@ package net.minecraft.core.dispenser;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.CarriedBlocks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 
@@ -35,18 +35,14 @@ public class DefaultDispenseItemBehavior implements DispenseItemBehavior {
             var1 -= 0.15625;
         }
 
-        CarriedBlocks.createEntityFromItemStack(param0, var0, var1, var2, param1)
-            .ifPresent(
-                param3x -> {
-                    double var0x = param0.random.nextDouble() * 0.1 + 0.3;
-                    param3x.setDeltaMovement(
-                        param0.random.nextGaussian() * 0.0075F * (double)param2 + (double)param3.getStepX() * var0x,
-                        param0.random.nextGaussian() * 0.0075F * (double)param2 + 0.3F,
-                        param0.random.nextGaussian() * 0.0075F * (double)param2 + (double)param3.getStepZ() * var0x
-                    );
-                    param0.addFreshEntity(param3x);
-                }
-            );
+        ItemEntity var3 = new ItemEntity(param0, var0, var1, var2, param1);
+        double var4 = param0.random.nextDouble() * 0.1 + 0.2;
+        var3.setDeltaMovement(
+            param0.random.nextGaussian() * 0.0075F * (double)param2 + (double)param3.getStepX() * var4,
+            param0.random.nextGaussian() * 0.0075F * (double)param2 + 0.2F,
+            param0.random.nextGaussian() * 0.0075F * (double)param2 + (double)param3.getStepZ() * var4
+        );
+        param0.addFreshEntity(var3);
     }
 
     protected void playSound(BlockSource param0) {

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.minecraft.client.model.AllayModel;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.ArmorStandModel;
 import net.minecraft.client.model.AxolotlModel;
@@ -25,6 +26,7 @@ import net.minecraft.client.model.EndermanModel;
 import net.minecraft.client.model.EndermiteModel;
 import net.minecraft.client.model.EvokerFangsModel;
 import net.minecraft.client.model.FoxModel;
+import net.minecraft.client.model.FrogModel;
 import net.minecraft.client.model.GhastModel;
 import net.minecraft.client.model.GoatModel;
 import net.minecraft.client.model.GuardianModel;
@@ -65,12 +67,14 @@ import net.minecraft.client.model.SnowGolemModel;
 import net.minecraft.client.model.SpiderModel;
 import net.minecraft.client.model.SquidModel;
 import net.minecraft.client.model.StriderModel;
+import net.minecraft.client.model.TadpoleModel;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.TropicalFishModelA;
 import net.minecraft.client.model.TropicalFishModelB;
 import net.minecraft.client.model.TurtleModel;
 import net.minecraft.client.model.VexModel;
 import net.minecraft.client.model.VillagerModel;
+import net.minecraft.client.model.WardenModel;
 import net.minecraft.client.model.WitchModel;
 import net.minecraft.client.model.WitherBossModel;
 import net.minecraft.client.model.WolfModel;
@@ -119,6 +123,7 @@ public class LayerDefinitions {
         LayerDefinition var16 = SkeletonModel.createBodyLayer();
         LayerDefinition var17 = LayerDefinition.create(VillagerModel.createBodyModel(), 64, 64);
         LayerDefinition var18 = SpiderModel.createSpiderBodyLayer();
+        var0.put(ModelLayers.ALLAY, AllayModel.createBodyLayer());
         var0.put(ModelLayers.ARMOR_STAND, ArmorStandModel.createBodyLayer());
         var0.put(ModelLayers.ARMOR_STAND_INNER_ARMOR, ArmorStandArmorModel.createBodyLayer(INNER_ARMOR_DEFORMATION));
         var0.put(ModelLayers.ARMOR_STAND_OUTER_ARMOR, ArmorStandArmorModel.createBodyLayer(OUTER_ARMOR_DEFORMATION));
@@ -165,6 +170,7 @@ public class LayerDefinitions {
         var0.put(ModelLayers.EVOKER, var8);
         var0.put(ModelLayers.EVOKER_FANGS, EvokerFangsModel.createBodyLayer());
         var0.put(ModelLayers.FOX, FoxModel.createBodyLayer());
+        var0.put(ModelLayers.FROG, FrogModel.createBodyLayer());
         var0.put(ModelLayers.FURNACE_MINECART, var5);
         var0.put(ModelLayers.GHAST, GhastModel.createBodyLayer());
         var0.put(ModelLayers.GIANT, var1);
@@ -241,6 +247,7 @@ public class LayerDefinitions {
         var0.put(ModelLayers.STRAY_OUTER_LAYER, LayerDefinition.create(HumanoidModel.createMesh(new CubeDeformation(0.25F), 0.0F), 64, 32));
         var0.put(ModelLayers.STRIDER, var14);
         var0.put(ModelLayers.STRIDER_SADDLE, var14);
+        var0.put(ModelLayers.TADPOLE, TadpoleModel.createBodyLayer());
         var0.put(ModelLayers.TNT_MINECART, var5);
         var0.put(ModelLayers.TRADER_LLAMA, var13);
         var0.put(ModelLayers.TRIDENT, TridentModel.createLayer());
@@ -252,6 +259,7 @@ public class LayerDefinitions {
         var0.put(ModelLayers.VEX, VexModel.createBodyLayer());
         var0.put(ModelLayers.VILLAGER, var17);
         var0.put(ModelLayers.VINDICATOR, var8);
+        var0.put(ModelLayers.WARDEN, WardenModel.createBodyLayer());
         var0.put(ModelLayers.WANDERING_TRADER, var17);
         var0.put(ModelLayers.WITCH, WitchModel.createBodyLayer());
         var0.put(ModelLayers.WITHER, WitherBossModel.createBodyLayer(CubeDeformation.NONE));
@@ -274,20 +282,22 @@ public class LayerDefinitions {
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN, var11);
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN_INNER_ARMOR, var4);
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN_OUTER_ARMOR, var3);
-        LayerDefinition var19 = BoatModel.createBodyModel();
+        LayerDefinition var19 = BoatModel.createBodyModel(false);
+        LayerDefinition var20 = BoatModel.createBodyModel(true);
 
-        for(Boat.Type var20 : Boat.Type.values()) {
-            var0.put(ModelLayers.createBoatModelName(var20), var19);
+        for(Boat.Type var21 : Boat.Type.values()) {
+            var0.put(ModelLayers.createBoatModelName(var21), var19);
+            var0.put(ModelLayers.createChestBoatModelName(var21), var20);
         }
 
-        LayerDefinition var21 = SignRenderer.createSignLayer();
-        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createSignModelName(param2), var21));
-        ImmutableMap<ModelLayerLocation, LayerDefinition> var22 = var0.build();
-        List<ModelLayerLocation> var23 = ModelLayers.getKnownLocations().filter(param1 -> !var22.containsKey(param1)).collect(Collectors.toList());
-        if (!var23.isEmpty()) {
-            throw new IllegalStateException("Missing layer definitions: " + var23);
+        LayerDefinition var22 = SignRenderer.createSignLayer();
+        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createSignModelName(param2), var22));
+        ImmutableMap<ModelLayerLocation, LayerDefinition> var23 = var0.build();
+        List<ModelLayerLocation> var24 = ModelLayers.getKnownLocations().filter(param1 -> !var23.containsKey(param1)).collect(Collectors.toList());
+        if (!var24.isEmpty()) {
+            throw new IllegalStateException("Missing layer definitions: " + var24);
         } else {
-            return var22;
+            return var23;
         }
     }
 }

@@ -3,11 +3,11 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import java.util.Random;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,7 +23,7 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
         float[] var1 = new float[8];
         float var2 = 0.0F;
         float var3 = 0.0F;
-        Random var4 = new Random(param0.seed);
+        RandomSource var4 = RandomSource.create(param0.seed);
 
         for(int var5 = 7; var5 >= 0; --var5) {
             var0[var5] = var2;
@@ -36,7 +36,7 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
         Matrix4f var7 = param3.last().pose();
 
         for(int var8 = 0; var8 < 4; ++var8) {
-            Random var9 = new Random(param0.seed);
+            RandomSource var9 = RandomSource.create(param0.seed);
 
             for(int var10 = 0; var10 < 3; ++var10) {
                 int var11 = 7;

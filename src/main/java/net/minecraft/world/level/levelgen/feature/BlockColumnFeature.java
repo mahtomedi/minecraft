@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockColumnConfiguration;
 
@@ -15,7 +15,7 @@ public class BlockColumnFeature extends Feature<BlockColumnConfiguration> {
     public boolean place(FeaturePlaceContext<BlockColumnConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
         BlockColumnConfiguration var1 = param0.config();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         int var3 = var1.layers().size();
         int[] var4 = new int[var3];
         int var5 = 0;

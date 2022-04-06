@@ -1,11 +1,11 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -37,7 +37,7 @@ public class BlockAgeProcessor extends StructureProcessor {
         StructureTemplate.StructureBlockInfo param4,
         StructurePlaceSettings param5
     ) {
-        Random var0 = param5.getRandom(param4.pos);
+        RandomSource var0 = param5.getRandom(param4.pos);
         BlockState var1 = param4.state;
         BlockPos var2 = param4.pos;
         BlockState var3 = null;
@@ -57,7 +57,7 @@ public class BlockAgeProcessor extends StructureProcessor {
     }
 
     @Nullable
-    private BlockState maybeReplaceFullStoneBlock(Random param0) {
+    private BlockState maybeReplaceFullStoneBlock(RandomSource param0) {
         if (param0.nextFloat() >= 0.5F) {
             return null;
         } else {
@@ -68,7 +68,7 @@ public class BlockAgeProcessor extends StructureProcessor {
     }
 
     @Nullable
-    private BlockState maybeReplaceStairs(Random param0, BlockState param1) {
+    private BlockState maybeReplaceStairs(RandomSource param0, BlockState param1) {
         Direction var0 = param1.getValue(StairBlock.FACING);
         Half var1 = param1.getValue(StairBlock.HALF);
         if (param0.nextFloat() >= 0.5F) {
@@ -83,31 +83,31 @@ public class BlockAgeProcessor extends StructureProcessor {
     }
 
     @Nullable
-    private BlockState maybeReplaceSlab(Random param0) {
+    private BlockState maybeReplaceSlab(RandomSource param0) {
         return param0.nextFloat() < this.mossiness ? Blocks.MOSSY_STONE_BRICK_SLAB.defaultBlockState() : null;
     }
 
     @Nullable
-    private BlockState maybeReplaceWall(Random param0) {
+    private BlockState maybeReplaceWall(RandomSource param0) {
         return param0.nextFloat() < this.mossiness ? Blocks.MOSSY_STONE_BRICK_WALL.defaultBlockState() : null;
     }
 
     @Nullable
-    private BlockState maybeReplaceObsidian(Random param0) {
+    private BlockState maybeReplaceObsidian(RandomSource param0) {
         return param0.nextFloat() < 0.15F ? Blocks.CRYING_OBSIDIAN.defaultBlockState() : null;
     }
 
-    private static BlockState getRandomFacingStairs(Random param0, Block param1) {
+    private static BlockState getRandomFacingStairs(RandomSource param0, Block param1) {
         return param1.defaultBlockState()
             .setValue(StairBlock.FACING, Direction.Plane.HORIZONTAL.getRandomDirection(param0))
             .setValue(StairBlock.HALF, Half.values()[param0.nextInt(Half.values().length)]);
     }
 
-    private BlockState getRandomBlock(Random param0, BlockState[] param1, BlockState[] param2) {
+    private BlockState getRandomBlock(RandomSource param0, BlockState[] param1, BlockState[] param2) {
         return param0.nextFloat() < this.mossiness ? getRandomBlock(param0, param2) : getRandomBlock(param0, param1);
     }
 
-    private static BlockState getRandomBlock(Random param0, BlockState[] param1) {
+    private static BlockState getRandomBlock(RandomSource param0, BlockState[] param1) {
         return param1[param0.nextInt(param1.length)];
     }
 

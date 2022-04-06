@@ -6,7 +6,6 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -15,6 +14,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -43,7 +43,7 @@ public class MultiPartBakedModel implements BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState param0, @Nullable Direction param1, Random param2) {
+    public List<BakedQuad> getQuads(@Nullable BlockState param0, @Nullable Direction param1, RandomSource param2) {
         if (param0 == null) {
             return Collections.emptyList();
         } else {
@@ -66,7 +66,7 @@ public class MultiPartBakedModel implements BakedModel {
 
             for(int var5 = 0; var5 < var0.length(); ++var5) {
                 if (var0.get(var5)) {
-                    var3.addAll(this.selectors.get(var5).getRight().getQuads(param0, param1, new Random(var4)));
+                    var3.addAll(this.selectors.get(var5).getRight().getQuads(param0, param1, RandomSource.create(var4)));
                 }
             }
 

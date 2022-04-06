@@ -129,7 +129,7 @@ public class HoglinAi {
         var0.setActiveActivityToFirstValid(ImmutableList.of(Activity.FIGHT, Activity.AVOID, Activity.IDLE));
         Activity var2 = var0.getActiveNonCoreActivity().orElse(null);
         if (var1 != var2) {
-            getSoundForCurrentActivity(param0).ifPresent(param0::playSound);
+            getSoundForCurrentActivity(param0).ifPresent(param0::playSoundEvent);
         }
 
         param0.setAggressive(var0.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));

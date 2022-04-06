@@ -1,10 +1,10 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -24,7 +24,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     public boolean place(FeaturePlaceContext<HugeFungusConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
         BlockPos var1 = param0.origin();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         ChunkGenerator var3 = param0.chunkGenerator();
         HugeFungusConfiguration var4 = param0.config();
         Block var5 = var4.validBaseState.getBlock();
@@ -64,7 +64,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
         });
     }
 
-    private void placeStem(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
+    private void placeStem(LevelAccessor param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockState var1 = param2.stemState;
         int var2 = param5 ? 1 : 0;
@@ -96,7 +96,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
     }
 
-    private void placeHat(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
+    private void placeHat(LevelAccessor param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         boolean var1 = param2.hatState.is(Blocks.NETHER_WART_BLOCK);
         int var2 = Math.min(param1.nextInt(1 + param4 / 3) + 5, param4);
@@ -144,7 +144,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     }
 
     private void placeHatBlock(
-        LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos.MutableBlockPos param3, float param4, float param5, float param6
+        LevelAccessor param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos.MutableBlockPos param3, float param4, float param5, float param6
     ) {
         if (param1.nextFloat() < param4) {
             this.setBlock(param0, param3, param2.decorState);
@@ -157,7 +157,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
     }
 
-    private void placeHatDropBlock(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3, boolean param4) {
+    private void placeHatDropBlock(LevelAccessor param0, RandomSource param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param0.getBlockState(param2.below()).is(param3.getBlock())) {
             this.setBlock(param0, param2, param3);
         } else if ((double)param1.nextFloat() < 0.15) {
@@ -169,7 +169,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
     }
 
-    private static void tryPlaceWeepingVines(BlockPos param0, LevelAccessor param1, Random param2) {
+    private static void tryPlaceWeepingVines(BlockPos param0, LevelAccessor param1, RandomSource param2) {
         BlockPos.MutableBlockPos var0 = param0.mutable().move(Direction.DOWN);
         if (param1.isEmptyBlock(var0)) {
             int var1 = Mth.nextInt(param2, 1, 5);

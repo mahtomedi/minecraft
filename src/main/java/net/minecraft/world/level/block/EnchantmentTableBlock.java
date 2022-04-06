@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
 import java.util.List;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -56,7 +56,7 @@ public class EnchantmentTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         super.animateTick(param0, param1, param2, param3);
 
         for(BlockPos var0 : BOOKSHELF_OFFSETS) {

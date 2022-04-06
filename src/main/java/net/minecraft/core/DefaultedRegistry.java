@@ -2,12 +2,12 @@ package net.minecraft.core;
 
 import com.mojang.serialization.Lifecycle;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 
 public class DefaultedRegistry<T> extends MappedRegistry<T> {
     private final ResourceLocation defaultKey;
@@ -61,7 +61,7 @@ public class DefaultedRegistry<T> extends MappedRegistry<T> {
     }
 
     @Override
-    public Optional<Holder<T>> getRandom(Random param0) {
+    public Optional<Holder<T>> getRandom(RandomSource param0) {
         return super.getRandom(param0).or(() -> Optional.of(this.defaultValue));
     }
 

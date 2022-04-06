@@ -1,8 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
@@ -16,7 +16,7 @@ public class BlockBlobFeature extends Feature<BlockStateConfiguration> {
     public boolean place(FeaturePlaceContext<BlockStateConfiguration> param0) {
         BlockPos var0 = param0.origin();
         WorldGenLevel var1 = param0.level();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
 
         BlockStateConfiguration var3;
         for(var3 = param0.config(); var0.getY() > var1.getMinBuildHeight() + 3; var0 = var0.below()) {

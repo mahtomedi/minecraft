@@ -298,7 +298,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             var1.write(String.format("view-distance=%d%n", var0.viewDistance));
             var1.write(String.format("simulation-distance=%d%n", var0.simulationDistance));
             var1.write(String.format("spawn-animals=%s%n", var0.spawnAnimals));
-            var1.write(String.format("generate-structures=%s%n", var0.getWorldGenSettings(this.registryAccess()).generateFeatures()));
+            var1.write(String.format("generate-structures=%s%n", var0.getWorldGenSettings(this.registryAccess()).generateStructures()));
             var1.write(String.format("use-native=%s%n", var0.useNativeTransport));
             var1.write(String.format("rate-limit=%d%n", var0.rateLimitPacketsPerSecond));
         }
@@ -542,6 +542,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
 
     public long getMaxTickLength() {
         return this.getProperties().maxTickTime;
+    }
+
+    @Override
+    public int getMaxChainedNeighborUpdates() {
+        return this.getProperties().maxChainedNeighborUpdates;
     }
 
     @Override

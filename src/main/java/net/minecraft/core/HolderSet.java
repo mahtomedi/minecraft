@@ -4,13 +4,13 @@ import com.mojang.datafixers.util.Either;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +21,7 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
 
     Either<TagKey<T>, List<Holder<T>>> unwrap();
 
-    Optional<Holder<T>> getRandomElement(Random var1);
+    Optional<Holder<T>> getRandomElement(RandomSource var1);
 
     Holder<T> get(int var1);
 
@@ -106,7 +106,7 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
         }
 
         @Override
-        public Optional<Holder<T>> getRandomElement(Random param0) {
+        public Optional<Holder<T>> getRandomElement(RandomSource param0) {
             return Util.getRandomSafe(this.contents(), param0);
         }
 

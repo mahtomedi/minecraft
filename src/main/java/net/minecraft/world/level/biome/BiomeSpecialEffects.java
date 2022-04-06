@@ -2,11 +2,8 @@ package net.minecraft.world.level.biome;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
@@ -235,11 +232,7 @@ public class BiomeSpecialEffects {
         };
 
         private final String name;
-        public static final Codec<BiomeSpecialEffects.GrassColorModifier> CODEC = StringRepresentable.fromEnum(
-            BiomeSpecialEffects.GrassColorModifier::values, BiomeSpecialEffects.GrassColorModifier::byName
-        );
-        private static final Map<String, BiomeSpecialEffects.GrassColorModifier> BY_NAME = Arrays.stream(values())
-            .collect(Collectors.toMap(BiomeSpecialEffects.GrassColorModifier::getName, param0 -> param0));
+        public static final Codec<BiomeSpecialEffects.GrassColorModifier> CODEC = StringRepresentable.fromEnum(BiomeSpecialEffects.GrassColorModifier::values);
 
         public abstract int modifyColor(double var1, double var3, int var5);
 
@@ -254,10 +247,6 @@ public class BiomeSpecialEffects {
         @Override
         public String getSerializedName() {
             return this.name;
-        }
-
-        public static BiomeSpecialEffects.GrassColorModifier byName(String param0) {
-            return BY_NAME.get(param0);
         }
     }
 }

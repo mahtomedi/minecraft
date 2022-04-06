@@ -2,10 +2,8 @@ package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
 import javax.annotation.Nullable;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.item.Items;
 
 public class SwellGoal extends Goal {
     private final Creeper creeper;
@@ -20,11 +18,7 @@ public class SwellGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity var0 = this.creeper.getTarget();
-        if (var0 != null && var0.isCrouching() && var0.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
-            return false;
-        } else {
-            return this.creeper.getSwellDir() > 0 || var0 != null && this.creeper.distanceToSqr(var0) < 9.0;
-        }
+        return this.creeper.getSwellDir() > 0 || var0 != null && this.creeper.distanceToSqr(var0) < 9.0;
     }
 
     @Override
@@ -45,28 +39,14 @@ public class SwellGoal extends Goal {
 
     @Override
     public void tick() {
-        if (!this.creeper.wasPickedUpByPlayer) {
-            if (this.target == null) {
-                this.creeper.setSwellDir(-1);
-                return;
-            }
-
-            if (this.target.isCrouching() && this.target.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL)) {
-                this.creeper.setSwellDir(-1);
-                return;
-            }
-
-            if (this.creeper.distanceToSqr(this.target) > 49.0) {
-                this.creeper.setSwellDir(-1);
-                return;
-            }
-
-            if (!this.creeper.getSensing().hasLineOfSight(this.target)) {
-                this.creeper.setSwellDir(-1);
-                return;
-            }
+        if (this.target == null) {
+            this.creeper.setSwellDir(-1);
+        } else if (this.creeper.distanceToSqr(this.target) > 49.0) {
+            this.creeper.setSwellDir(-1);
+        } else if (!this.creeper.getSensing().hasLineOfSight(this.target)) {
+            this.creeper.setSwellDir(-1);
+        } else {
+            this.creeper.setSwellDir(1);
         }
-
-        this.creeper.setSwellDir(1);
     }
 }

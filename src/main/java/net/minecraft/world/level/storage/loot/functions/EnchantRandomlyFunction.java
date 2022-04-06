@@ -13,13 +13,13 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,7 +45,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
 
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
-        Random var0 = param1.getRandom();
+        RandomSource var0 = param1.getRandom();
         Enchantment var3;
         if (this.enchantments.isEmpty()) {
             boolean var1 = param0.is(Items.BOOK);
@@ -67,7 +67,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
         return enchantItem(param0, var3, var0);
     }
 
-    private static ItemStack enchantItem(ItemStack param0, Enchantment param1, Random param2) {
+    private static ItemStack enchantItem(ItemStack param0, Enchantment param1, RandomSource param2) {
         int var0 = Mth.nextInt(param2, param1.getMinLevel(), param1.getMaxLevel());
         if (param0.is(Items.BOOK)) {
             param0 = new ItemStack(Items.ENCHANTED_BOOK);

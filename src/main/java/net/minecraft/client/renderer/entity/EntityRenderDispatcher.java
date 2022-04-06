@@ -19,6 +19,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -134,7 +135,7 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
             }
 
             param6.translate(-var1.x(), -var1.y(), -var1.z());
-            if (this.options.entityShadows && this.shouldRenderShadow && var0.shadowRadius > 0.0F && !param0.isInvisible()) {
+            if (this.options.entityShadows().get() && this.shouldRenderShadow && var0.shadowRadius > 0.0F && !param0.isInvisible()) {
                 double var5 = this.distanceToSqr(param0.getX(), param0.getY(), param0.getZ());
                 float var6 = (float)((1.0 - var5 / 256.0) * (double)var0.shadowStrength);
                 if (var6 > 0.0F) {
@@ -299,31 +300,32 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
             if (var1.isCollisionShapeFullBlock(param2, var0)) {
                 VoxelShape var2 = var1.getShape(param2, param3.below());
                 if (!var2.isEmpty()) {
-                    float var3 = (float)(((double)param8 - (param5 - (double)param3.getY()) / 2.0) * 0.5 * (double)param2.getBrightness(param3));
-                    if (var3 >= 0.0F) {
-                        if (var3 > 1.0F) {
-                            var3 = 1.0F;
+                    float var3 = LightTexture.getBrightness(param2.dimensionType(), param2.getMaxLocalRawBrightness(param3));
+                    float var4 = (float)(((double)param8 - (param5 - (double)param3.getY()) / 2.0) * 0.5 * (double)var3);
+                    if (var4 >= 0.0F) {
+                        if (var4 > 1.0F) {
+                            var4 = 1.0F;
                         }
 
-                        AABB var4 = var2.bounds();
-                        double var5 = (double)param3.getX() + var4.minX;
-                        double var6 = (double)param3.getX() + var4.maxX;
-                        double var7 = (double)param3.getY() + var4.minY;
-                        double var8 = (double)param3.getZ() + var4.minZ;
-                        double var9 = (double)param3.getZ() + var4.maxZ;
-                        float var10 = (float)(var5 - param4);
+                        AABB var5 = var2.bounds();
+                        double var6 = (double)param3.getX() + var5.minX;
+                        double var7 = (double)param3.getX() + var5.maxX;
+                        double var8 = (double)param3.getY() + var5.minY;
+                        double var9 = (double)param3.getZ() + var5.minZ;
+                        double var10 = (double)param3.getZ() + var5.maxZ;
                         float var11 = (float)(var6 - param4);
-                        float var12 = (float)(var7 - param5);
-                        float var13 = (float)(var8 - param6);
+                        float var12 = (float)(var7 - param4);
+                        float var13 = (float)(var8 - param5);
                         float var14 = (float)(var9 - param6);
-                        float var15 = -var10 / 2.0F / param7 + 0.5F;
+                        float var15 = (float)(var10 - param6);
                         float var16 = -var11 / 2.0F / param7 + 0.5F;
-                        float var17 = -var13 / 2.0F / param7 + 0.5F;
+                        float var17 = -var12 / 2.0F / param7 + 0.5F;
                         float var18 = -var14 / 2.0F / param7 + 0.5F;
-                        shadowVertex(param0, param1, var3, var10, var12, var13, var15, var17);
-                        shadowVertex(param0, param1, var3, var10, var12, var14, var15, var18);
-                        shadowVertex(param0, param1, var3, var11, var12, var14, var16, var18);
-                        shadowVertex(param0, param1, var3, var11, var12, var13, var16, var17);
+                        float var19 = -var15 / 2.0F / param7 + 0.5F;
+                        shadowVertex(param0, param1, var4, var11, var13, var14, var16, var18);
+                        shadowVertex(param0, param1, var4, var11, var13, var15, var16, var19);
+                        shadowVertex(param0, param1, var4, var12, var13, var15, var17, var19);
+                        shadowVertex(param0, param1, var4, var12, var13, var14, var17, var18);
                     }
 
                 }

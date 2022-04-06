@@ -12,7 +12,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -20,6 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -49,7 +49,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
 
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
-        Random var0 = param1.getRandom();
+        RandomSource var0 = param1.getRandom();
 
         for(SetAttributesFunction.Modifier var1 : this.modifiers) {
             UUID var2 = var1.id;

@@ -1,6 +1,6 @@
 package net.minecraft.world.item.enchantment;
 
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +30,7 @@ public class DigDurabilityEnchantment extends Enchantment {
         return param0.isDamageableItem() ? true : super.canEnchant(param0);
     }
 
-    public static boolean shouldIgnoreDurabilityDrop(ItemStack param0, int param1, Random param2) {
+    public static boolean shouldIgnoreDurabilityDrop(ItemStack param0, int param1, RandomSource param2) {
         if (param0.getItem() instanceof ArmorItem && param2.nextFloat() < 0.6F) {
             return false;
         } else {

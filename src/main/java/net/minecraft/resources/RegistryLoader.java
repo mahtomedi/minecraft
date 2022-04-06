@@ -6,10 +6,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
-import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Map.Entry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -26,11 +26,13 @@ public class RegistryLoader {
     public <E> DataResult<? extends Registry<E>> overrideRegistryFromResources(
         WritableRegistry<E> param0, ResourceKey<? extends Registry<E>> param1, Codec<E> param2, DynamicOps<JsonElement> param3
     ) {
-        Collection<ResourceKey<E>> var0 = this.resources.listResources(param1);
+        Map<ResourceKey<E>, RegistryResourceAccess.EntryThunk<E>> var0 = this.resources.listResources(param1);
         DataResult<WritableRegistry<E>> var1 = DataResult.success(param0, Lifecycle.stable());
 
-        for(ResourceKey<E> var2 : var0) {
-            var1 = var1.flatMap(param4 -> this.overrideElementFromResources(param4, param1, param2, var2, param3).map(param1x -> param4));
+        for(Entry<ResourceKey<E>, RegistryResourceAccess.EntryThunk<E>> var2 : var0.entrySet()) {
+            var1 = var1.flatMap(
+                param4 -> this.overrideElementFromResources(param4, param1, param2, var2.getKey(), Optional.of(var2.getValue()), param3).map(param1x -> param4)
+            );
         }
 
         return var1.setPartial(param0);
@@ -39,6 +41,18 @@ public class RegistryLoader {
     <E> DataResult<Holder<E>> overrideElementFromResources(
         WritableRegistry<E> param0, ResourceKey<? extends Registry<E>> param1, Codec<E> param2, ResourceKey<E> param3, DynamicOps<JsonElement> param4
     ) {
+        Optional<RegistryResourceAccess.EntryThunk<E>> var0 = this.resources.getResource(param3);
+        return this.overrideElementFromResources(param0, param1, param2, param3, var0, param4);
+    }
+
+    private <E> DataResult<Holder<E>> overrideElementFromResources(
+        WritableRegistry<E> param0,
+        ResourceKey<? extends Registry<E>> param1,
+        Codec<E> param2,
+        ResourceKey<E> param3,
+        Optional<RegistryResourceAccess.EntryThunk<E>> param4,
+        DynamicOps<JsonElement> param5
+    ) {
         RegistryLoader.ReadCache<E> var0 = this.readCache(param1);
         DataResult<Holder<E>> var1 = var0.values.get(param3);
         if (var1 != null) {
@@ -46,27 +60,26 @@ public class RegistryLoader {
         } else {
             Holder<E> var2 = param0.getOrCreateHolder(param3);
             var0.values.put(param3, DataResult.success(var2));
-            Optional<DataResult<RegistryResourceAccess.ParsedEntry<E>>> var3 = this.resources.parseElement(param4, param1, param3, param2);
-            DataResult<Holder<E>> var4;
-            if (var3.isEmpty()) {
+            DataResult<Holder<E>> var3;
+            if (param4.isEmpty()) {
                 if (param0.containsKey(param3)) {
-                    var4 = DataResult.success(var2, Lifecycle.stable());
+                    var3 = DataResult.success(var2, Lifecycle.stable());
                 } else {
-                    var4 = DataResult.error("Missing referenced custom/removed registry entry for registry " + param1 + " named " + param3.location());
+                    var3 = DataResult.error("Missing referenced custom/removed registry entry for registry " + param1 + " named " + param3.location());
                 }
             } else {
-                DataResult<RegistryResourceAccess.ParsedEntry<E>> var6 = var3.get();
-                Optional<RegistryResourceAccess.ParsedEntry<E>> var7 = var6.result();
-                if (var7.isPresent()) {
-                    RegistryResourceAccess.ParsedEntry<E> var8 = var7.get();
-                    param0.registerOrOverride(var8.fixedId(), param3, var8.value(), var6.lifecycle());
+                DataResult<RegistryResourceAccess.ParsedEntry<E>> var5 = param4.get().parseElement(param5, param2);
+                Optional<RegistryResourceAccess.ParsedEntry<E>> var6 = var5.result();
+                if (var6.isPresent()) {
+                    RegistryResourceAccess.ParsedEntry<E> var7 = var6.get();
+                    param0.registerOrOverride(var7.fixedId(), param3, var7.value(), var5.lifecycle());
                 }
 
-                var4 = var6.map(param1x -> var2);
+                var3 = var5.map(param1x -> var2);
             }
 
-            var0.values.put(param3, var4);
-            return var4;
+            var0.values.put(param3, var3);
+            return var3;
         }
     }
 

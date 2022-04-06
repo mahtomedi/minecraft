@@ -1,9 +1,9 @@
 package net.minecraft.world.entity.monster;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -21,7 +21,7 @@ public class Stray extends AbstractSkeleton {
         super(param0, param1);
     }
 
-    public static boolean checkStraySpawnRules(EntityType<Stray> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkStraySpawnRules(EntityType<Stray> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         BlockPos var0 = param3;
 
         do {

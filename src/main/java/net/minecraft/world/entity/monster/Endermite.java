@@ -1,11 +1,11 @@
 package net.minecraft.world.entity.monster;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -140,7 +140,9 @@ public class Endermite extends Monster {
 
     }
 
-    public static boolean checkEndermiteSpawnRules(EntityType<Endermite> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkEndermiteSpawnRules(
+        EntityType<Endermite> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
+    ) {
         if (checkAnyLightMonsterSpawnRules(param0, param1, param2, param3, param4)) {
             Player var0 = param1.getNearestPlayer((double)param3.getX() + 0.5, (double)param3.getY() + 0.5, (double)param3.getZ() + 0.5, 5.0, true);
             return var0 == null;

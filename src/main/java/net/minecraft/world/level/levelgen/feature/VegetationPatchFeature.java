@@ -2,11 +2,11 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,7 +22,7 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
     public boolean place(FeaturePlaceContext<VegetationPatchConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
         VegetationPatchConfiguration var1 = param0.config();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         BlockPos var3 = param0.origin();
         Predicate<BlockState> var4 = param1 -> param1.is(var1.replaceable);
         int var5 = var1.xzRadius.sample(var2) + 1;
@@ -33,7 +33,7 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
     }
 
     protected Set<BlockPos> placeGroundPatch(
-        WorldGenLevel param0, VegetationPatchConfiguration param1, Random param2, BlockPos param3, Predicate<BlockState> param4, int param5, int param6
+        WorldGenLevel param0, VegetationPatchConfiguration param1, RandomSource param2, BlockPos param3, Predicate<BlockState> param4, int param5, int param6
     ) {
         BlockPos.MutableBlockPos var0 = param3.mutable();
         BlockPos.MutableBlockPos var1 = var0.mutable();
@@ -82,7 +82,7 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
         FeaturePlaceContext<VegetationPatchConfiguration> param0,
         WorldGenLevel param1,
         VegetationPatchConfiguration param2,
-        Random param3,
+        RandomSource param3,
         Set<BlockPos> param4,
         int param5,
         int param6
@@ -95,12 +95,17 @@ public class VegetationPatchFeature extends Feature<VegetationPatchConfiguration
 
     }
 
-    protected boolean placeVegetation(WorldGenLevel param0, VegetationPatchConfiguration param1, ChunkGenerator param2, Random param3, BlockPos param4) {
+    protected boolean placeVegetation(WorldGenLevel param0, VegetationPatchConfiguration param1, ChunkGenerator param2, RandomSource param3, BlockPos param4) {
         return param1.vegetationFeature.value().place(param0, param2, param3, param4.relative(param1.surface.getDirection().getOpposite()));
     }
 
     protected boolean placeGround(
-        WorldGenLevel param0, VegetationPatchConfiguration param1, Predicate<BlockState> param2, Random param3, BlockPos.MutableBlockPos param4, int param5
+        WorldGenLevel param0,
+        VegetationPatchConfiguration param1,
+        Predicate<BlockState> param2,
+        RandomSource param3,
+        BlockPos.MutableBlockPos param4,
+        int param5
     ) {
         for(int var0 = 0; var0 < param5; ++var0) {
             BlockState var1 = param1.groundState.getState(param3, param4);

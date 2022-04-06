@@ -6,12 +6,12 @@ import com.mojang.datafixers.util.Pair;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
@@ -28,7 +28,7 @@ import net.minecraft.world.entity.ai.behavior.CrossbowAttack;
 import net.minecraft.world.entity.ai.behavior.DismountOrSkipMounting;
 import net.minecraft.world.entity.ai.behavior.DoNothing;
 import net.minecraft.world.entity.ai.behavior.EraseMemoryIf;
-import net.minecraft.world.entity.ai.behavior.GoToCelebrateLocation;
+import net.minecraft.world.entity.ai.behavior.GoToTargetLocation;
 import net.minecraft.world.entity.ai.behavior.GoToWantedItem;
 import net.minecraft.world.entity.ai.behavior.InteractWith;
 import net.minecraft.world.entity.ai.behavior.InteractWithDoor;
@@ -186,8 +186,8 @@ public class PiglinAi {
                 avoidRepellent(),
                 new SetEntityLookTarget(PiglinAi::isPlayerHoldingLovedItem, 14.0F),
                 new StartAttacking<Piglin>(AbstractPiglin::isAdult, PiglinAi::findNearestValidAttackTarget),
-                new RunIf<Piglin>(param0x -> !param0x.isDancing(), new GoToCelebrateLocation<>(2, 1.0F)),
-                new RunIf<Piglin>(Piglin::isDancing, new GoToCelebrateLocation<>(4, 0.6F)),
+                new RunIf<Piglin>(param0x -> !param0x.isDancing(), new GoToTargetLocation<>(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
+                new RunIf<Piglin>(Piglin::isDancing, new GoToTargetLocation<>(MemoryModuleType.CELEBRATE_LOCATION, 4, 0.6F)),
                 new RunOne(
                     ImmutableList.of(
                         Pair.of(new SetEntityLookTarget(EntityType.PIGLIN, 8.0F), 1),
@@ -285,7 +285,7 @@ public class PiglinAi {
         );
         Activity var2 = var0.getActiveNonCoreActivity().orElse(null);
         if (var1 != var2) {
-            getSoundForCurrentActivity(param0).ifPresent(param0::playSound);
+            getSoundForCurrentActivity(param0).ifPresent(param0::playSoundEvent);
         }
 
         param0.setAggressive(var0.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
@@ -440,7 +440,7 @@ public class PiglinAi {
         if (param1.getType() != EntityType.HOGLIN) {
             return false;
         } else {
-            return new Random(param0x.level.getGameTime()).nextFloat() < 0.1F;
+            return RandomSource.create(param0x.level.getGameTime()).nextFloat() < 0.1F;
         }
     }
 

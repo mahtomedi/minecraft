@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.monster;
 
-import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -8,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.Difficulty;
@@ -172,7 +172,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     }
 
     public static boolean checkZombifiedPiglinSpawnRules(
-        EntityType<ZombifiedPiglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+        EntityType<ZombifiedPiglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
         return param1.getDifficulty() != Difficulty.PEACEFUL && !param1.getBlockState(param3.below()).is(Blocks.NETHER_WART_BLOCK);
     }

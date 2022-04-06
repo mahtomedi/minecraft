@@ -126,14 +126,15 @@ public class PlaySoundCommand {
     ) throws CommandSyntaxException {
         double var0 = Math.pow(param5 > 1.0F ? (double)(param5 * 16.0F) : 16.0, 2.0);
         int var1 = 0;
-        Iterator var11 = param1.iterator();
+        long var2 = param0.getLevel().getRandom().nextLong();
+        Iterator var13 = param1.iterator();
 
         while(true) {
-            ServerPlayer var2;
-            Vec3 var7;
-            float var8;
+            ServerPlayer var3;
+            Vec3 var8;
+            float var9;
             while(true) {
-                if (!var11.hasNext()) {
+                if (!var13.hasNext()) {
                     if (var1 == 0) {
                         throw ERROR_TOO_FAR.create();
                     }
@@ -149,26 +150,26 @@ public class PlaySoundCommand {
                     return var1;
                 }
 
-                var2 = (ServerPlayer)var11.next();
-                double var3 = param4.x - var2.getX();
-                double var4 = param4.y - var2.getY();
-                double var5 = param4.z - var2.getZ();
-                double var6 = var3 * var3 + var4 * var4 + var5 * var5;
-                var7 = param4;
-                var8 = param5;
-                if (!(var6 > var0)) {
+                var3 = (ServerPlayer)var13.next();
+                double var4 = param4.x - var3.getX();
+                double var5 = param4.y - var3.getY();
+                double var6 = param4.z - var3.getZ();
+                double var7 = var4 * var4 + var5 * var5 + var6 * var6;
+                var8 = param4;
+                var9 = param5;
+                if (!(var7 > var0)) {
                     break;
                 }
 
                 if (!(param7 <= 0.0F)) {
-                    double var9 = Math.sqrt(var6);
-                    var7 = new Vec3(var2.getX() + var3 / var9 * 2.0, var2.getY() + var4 / var9 * 2.0, var2.getZ() + var5 / var9 * 2.0);
-                    var8 = param7;
+                    double var10 = Math.sqrt(var7);
+                    var8 = new Vec3(var3.getX() + var4 / var10 * 2.0, var3.getY() + var5 / var10 * 2.0, var3.getZ() + var6 / var10 * 2.0);
+                    var9 = param7;
                     break;
                 }
             }
 
-            var2.connection.send(new ClientboundCustomSoundPacket(param2, param3, var7, var8, param6));
+            var3.connection.send(new ClientboundCustomSoundPacket(param2, param3, var8, var9, param6, var2));
             ++var1;
         }
     }

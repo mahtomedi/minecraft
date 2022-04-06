@@ -255,7 +255,7 @@ public class ItemEntity extends Entity {
         } else {
             this.markHurt();
             this.health = (int)((float)this.health - param1);
-            this.gameEvent(GameEvent.ENTITY_DAMAGED, param0.getEntity());
+            this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
             if (this.health <= 0) {
                 this.getItem().onDestroyed(this);
                 this.discard();
@@ -438,5 +438,10 @@ public class ItemEntity extends Entity {
     @Override
     public SoundSource getSoundSource() {
         return SoundSource.AMBIENT;
+    }
+
+    @Override
+    public float getVisualRotationYInDegrees() {
+        return 180.0F - this.getSpin(0.5F) / (float) (Math.PI * 2) * 360.0F;
     }
 }

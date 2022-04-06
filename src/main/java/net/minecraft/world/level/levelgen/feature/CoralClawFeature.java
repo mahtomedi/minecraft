@@ -1,13 +1,11 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -18,14 +16,13 @@ public class CoralClawFeature extends CoralFeature {
     }
 
     @Override
-    protected boolean placeFeature(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3) {
+    protected boolean placeFeature(LevelAccessor param0, RandomSource param1, BlockPos param2, BlockState param3) {
         if (!this.placeCoralBlock(param0, param1, param2, param3)) {
             return false;
         } else {
             Direction var0 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
             int var1 = param1.nextInt(2) + 2;
-            List<Direction> var2 = Lists.newArrayList(var0, var0.getClockWise(), var0.getCounterClockWise());
-            Collections.shuffle(var2, param1);
+            List<Direction> var2 = Util.shuffledCopy(List.of(var0, var0.getClockWise(), var0.getCounterClockWise()), param1);
 
             for(Direction var4 : var2.subList(0, var1)) {
                 BlockPos.MutableBlockPos var5 = param2.mutable();

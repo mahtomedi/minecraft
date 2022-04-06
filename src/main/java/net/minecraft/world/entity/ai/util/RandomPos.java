@@ -1,20 +1,20 @@
 package net.minecraft.world.entity.ai.util;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Random;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.phys.Vec3;
 
 public class RandomPos {
     private static final int RANDOM_POS_ATTEMPTS = 10;
 
-    public static BlockPos generateRandomDirection(Random param0, int param1, int param2) {
+    public static BlockPos generateRandomDirection(RandomSource param0, int param1, int param2) {
         int var0 = param0.nextInt(2 * param1 + 1) - param1;
         int var1 = param0.nextInt(2 * param2 + 1) - param2;
         int var2 = param0.nextInt(2 * param1 + 1) - param1;
@@ -22,7 +22,9 @@ public class RandomPos {
     }
 
     @Nullable
-    public static BlockPos generateRandomDirectionWithinRadians(Random param0, int param1, int param2, int param3, double param4, double param5, double param6) {
+    public static BlockPos generateRandomDirectionWithinRadians(
+        RandomSource param0, int param1, int param2, int param3, double param4, double param5, double param6
+    ) {
         double var0 = Mth.atan2(param5, param4) - (float) (Math.PI / 2);
         double var1 = var0 + (double)(2.0F * param0.nextFloat() - 1.0F) * param6;
         double var2 = Math.sqrt(param0.nextDouble()) * (double)Mth.SQRT_OF_TWO * (double)param1;
@@ -101,7 +103,7 @@ public class RandomPos {
         return var1 != null ? Vec3.atBottomCenterOf(var1) : null;
     }
 
-    public static BlockPos generateRandomPosTowardDirection(PathfinderMob param0, int param1, Random param2, BlockPos param3) {
+    public static BlockPos generateRandomPosTowardDirection(PathfinderMob param0, int param1, RandomSource param2, BlockPos param3) {
         int var0 = param3.getX();
         int var1 = param3.getZ();
         if (param0.hasRestriction() && param1 > 1) {

@@ -3,7 +3,6 @@ package net.minecraft.server.level;
 import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -16,17 +15,19 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.WorldGenTickAccess;
 import org.slf4j.Logger;
@@ -60,19 +62,20 @@ public class WorldGenRegion implements WorldGenLevel {
     private final ServerLevel level;
     private final long seed;
     private final LevelData levelData;
-    private final Random random;
+    private final RandomSource random;
     private final DimensionType dimensionType;
     private final WorldGenTickAccess<Block> blockTicks = new WorldGenTickAccess<>(param0x -> this.getChunk(param0x).getBlockTicks());
     private final WorldGenTickAccess<Fluid> fluidTicks = new WorldGenTickAccess<>(param0x -> this.getChunk(param0x).getFluidTicks());
     private final BiomeManager biomeManager;
     private final ChunkPos firstPos;
     private final ChunkPos lastPos;
-    private final StructureFeatureManager structureFeatureManager;
+    private final StructureManager structureManager;
     private final ChunkStatus generatingStatus;
     private final int writeRadiusCutoff;
     @Nullable
     private Supplier<String> currentlyGenerating;
     private final AtomicLong subTickCount = new AtomicLong();
+    private static final ResourceLocation WORLDGEN_REGION_RANDOM = new ResourceLocation("worldgen_region_random");
 
     public WorldGenRegion(ServerLevel param0, List<ChunkAccess> param1, ChunkStatus param2, int param3) {
         this.generatingStatus = param2;
@@ -87,13 +90,17 @@ public class WorldGenRegion implements WorldGenLevel {
             this.level = param0;
             this.seed = param0.getSeed();
             this.levelData = param0.getLevelData();
-            this.random = param0.getRandom();
+            this.random = param0.getChunkSource().randomState().getOrCreateRandomFactory(WORLDGEN_REGION_RANDOM).at(this.center.getPos().getWorldPosition());
             this.dimensionType = param0.dimensionType();
             this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(this.seed));
             this.firstPos = param1.get(0).getPos();
             this.lastPos = param1.get(param1.size() - 1).getPos();
-            this.structureFeatureManager = param0.structureFeatureManager().forWorldGenRegion(this);
+            this.structureManager = param0.structureManager().forWorldGenRegion(this);
         }
+    }
+
+    public boolean isOldChunkAround(ChunkPos param0, int param1) {
+        return this.level.getChunkSource().chunkMap.isOldChunkAround(param0, param1);
     }
 
     public ChunkPos getCenter() {
@@ -395,7 +402,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public Random getRandom() {
+    public RandomSource getRandom() {
         return this.random;
     }
 
@@ -417,7 +424,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
+    public void gameEvent(@Nullable Entity param0, GameEvent param1, Vec3 param2) {
     }
 
     @Override

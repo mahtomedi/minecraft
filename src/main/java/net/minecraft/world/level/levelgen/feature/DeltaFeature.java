@@ -2,9 +2,9 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -26,7 +26,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<DeltaFeatureConfiguration> param0) {
         boolean var0 = false;
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         WorldGenLevel var2 = param0.level();
         DeltaFeatureConfiguration var3 = param0.config();
         BlockPos var4 = param0.origin();

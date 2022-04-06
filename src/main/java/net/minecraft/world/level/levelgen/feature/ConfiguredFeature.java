@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -9,6 +8,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
@@ -22,7 +22,7 @@ public record ConfiguredFeature<FC extends FeatureConfiguration, F extends Featu
         Registry.CONFIGURED_FEATURE_REGISTRY, DIRECT_CODEC
     );
 
-    public boolean place(WorldGenLevel param0, ChunkGenerator param1, Random param2, BlockPos param3) {
+    public boolean place(WorldGenLevel param0, ChunkGenerator param1, RandomSource param2, BlockPos param3) {
         return this.feature.place(this.config, param0, param1, param2, param3);
     }
 

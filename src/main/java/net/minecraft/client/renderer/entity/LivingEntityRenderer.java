@@ -18,13 +18,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -176,40 +173,36 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
     }
 
     protected void setupRotations(T param0, PoseStack param1, float param2, float param3, float param4) {
-        if (param0.getItemBySlot(EquipmentSlot.HEAD).is(Items.BARREL) && param0.isCrouching()) {
-            param3 = 0.0F;
-        } else {
-            if (this.isShaking(param0)) {
-                param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.4F);
-            }
-
-            if (!param0.hasPose(Pose.SLEEPING)) {
-                param1.mulPose(Vector3f.YP.rotationDegrees(180.0F - param3));
-            }
-
-            if (param0.deathTime > 0) {
-                float var0 = ((float)param0.deathTime + param4 - 1.0F) / 20.0F * 1.6F;
-                var0 = Mth.sqrt(var0);
-                if (var0 > 1.0F) {
-                    var0 = 1.0F;
-                }
-
-                param1.mulPose(Vector3f.ZP.rotationDegrees(var0 * this.getFlipDegrees(param0)));
-            } else if (param0.isAutoSpinAttack()) {
-                param1.mulPose(Vector3f.XP.rotationDegrees(-90.0F - param0.getXRot()));
-                param1.mulPose(Vector3f.YP.rotationDegrees(((float)param0.tickCount + param4) * -75.0F));
-            } else if (param0.hasPose(Pose.SLEEPING)) {
-                Direction var1 = param0.getBedOrientation();
-                float var2 = var1 != null ? sleepDirectionToRotation(var1) : param3;
-                param1.mulPose(Vector3f.YP.rotationDegrees(var2));
-                param1.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(param0)));
-                param1.mulPose(Vector3f.YP.rotationDegrees(270.0F));
-            } else if (isEntityUpsideDown(param0)) {
-                param1.translate(0.0, (double)(param0.getBbHeight() + 0.1F), 0.0);
-                param1.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-            }
-
+        if (this.isShaking(param0)) {
+            param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.4F);
         }
+
+        if (!param0.hasPose(Pose.SLEEPING)) {
+            param1.mulPose(Vector3f.YP.rotationDegrees(180.0F - param3));
+        }
+
+        if (param0.deathTime > 0) {
+            float var0 = ((float)param0.deathTime + param4 - 1.0F) / 20.0F * 1.6F;
+            var0 = Mth.sqrt(var0);
+            if (var0 > 1.0F) {
+                var0 = 1.0F;
+            }
+
+            param1.mulPose(Vector3f.ZP.rotationDegrees(var0 * this.getFlipDegrees(param0)));
+        } else if (param0.isAutoSpinAttack()) {
+            param1.mulPose(Vector3f.XP.rotationDegrees(-90.0F - param0.getXRot()));
+            param1.mulPose(Vector3f.YP.rotationDegrees(((float)param0.tickCount + param4) * -75.0F));
+        } else if (param0.hasPose(Pose.SLEEPING)) {
+            Direction var1 = param0.getBedOrientation();
+            float var2 = var1 != null ? sleepDirectionToRotation(var1) : param3;
+            param1.mulPose(Vector3f.YP.rotationDegrees(var2));
+            param1.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(param0)));
+            param1.mulPose(Vector3f.YP.rotationDegrees(270.0F));
+        } else if (isEntityUpsideDown(param0)) {
+            param1.translate(0.0, (double)(param0.getBbHeight() + 0.1F), 0.0);
+            param1.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+        }
+
     }
 
     protected float getAttackAnim(T param0, float param1) {
@@ -272,6 +265,6 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             }
         }
 
-        return param0 instanceof Pig && param0.getVehicle() instanceof Player;
+        return false;
     }
 }

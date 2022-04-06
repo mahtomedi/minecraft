@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -16,7 +16,7 @@ public class EndIslandFeature extends Feature<NoneFeatureConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> param0) {
         WorldGenLevel var0 = param0.level();
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         BlockPos var2 = param0.origin();
         float var3 = (float)var1.nextInt(3) + 4.0F;
 

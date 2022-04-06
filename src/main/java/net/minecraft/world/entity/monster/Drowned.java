@@ -1,15 +1,16 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -46,7 +47,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
@@ -96,7 +96,9 @@ public class Drowned extends Zombie implements RangedAttackMob {
         return param3;
     }
 
-    public static boolean checkDrownedSpawnRules(EntityType<Drowned> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkDrownedSpawnRules(
+        EntityType<Drowned> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
+    ) {
         if (!param1.getFluidState(param3.below()).is(FluidTags.WATER)) {
             return false;
         } else {
@@ -104,10 +106,10 @@ public class Drowned extends Zombie implements RangedAttackMob {
             boolean var1 = param1.getDifficulty() != Difficulty.PEACEFUL
                 && isDarkEnoughToSpawn(param1, param3, param4)
                 && (param2 == MobSpawnType.SPAWNER || param1.getFluidState(param3).is(FluidTags.WATER));
-            if (!var0.is(Biomes.RIVER) && !var0.is(Biomes.FROZEN_RIVER)) {
-                return param4.nextInt(40) == 0 && isDeepEnoughToSpawn(param1, param3) && var1;
-            } else {
+            if (var0.is(BiomeTags.MORE_FREQUENT_DROWNED_SPAWNS)) {
                 return param4.nextInt(15) == 0 && var1;
+            } else {
+                return param4.nextInt(40) == 0 && isDeepEnoughToSpawn(param1, param3) && var1;
             }
         }
     }
@@ -264,21 +266,6 @@ public class Drowned extends Zombie implements RangedAttackMob {
         this.level.addFreshEntity(var0);
     }
 
-    @Override
-    public void performVehicleAttack(float param0) {
-        if (this.isPassenger()) {
-            Vec3 var0 = this.getRootVehicle().getForward();
-            double var1 = var0.x;
-            double var2 = var0.y;
-            double var3 = var0.z;
-            ThrownTrident var4 = new ThrownTrident(this.level, this, new ItemStack(Items.TRIDENT));
-            double var5 = Math.sqrt(var1 * var1 + var3 * var3);
-            var4.shoot(var1, var2 + var5 * 0.2F, var3, 1.6F, (float)(14 - this.level.getDifficulty().getId() * 4));
-            this.playSound(SoundEvents.DROWNED_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
-            this.level.addFreshEntity(var4);
-        }
-    }
-
     public void setSearchingForLand(boolean param0) {
         this.searchingForLand = param0;
     }
@@ -390,7 +377,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
 
         @Nullable
         private Vec3 getWaterPos() {
-            Random var0 = this.mob.getRandom();
+            RandomSource var0 = this.mob.getRandom();
             BlockPos var1 = this.mob.blockPosition();
 
             for(int var2 = 0; var2 < 10; ++var2) {

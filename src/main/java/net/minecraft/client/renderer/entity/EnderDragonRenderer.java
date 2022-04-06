@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -20,6 +19,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -70,7 +70,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         if (param0.dragonDeathTime > 0) {
             float var8 = ((float)param0.dragonDeathTime + param2) / 200.0F;
             float var9 = Math.min(var8 > 0.8F ? (var8 - 0.8F) / 0.2F : 0.0F, 1.0F);
-            Random var10 = new Random(432L);
+            RandomSource var10 = RandomSource.create(432L);
             VertexConsumer var11 = param4.getBuffer(RenderType.lightning());
             param3.pushPose();
             param3.translate(0.0, -1.0, -2.0);

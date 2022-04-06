@@ -11,14 +11,10 @@ import com.mojang.logging.LogUtils;
 import com.mojang.math.Transformation;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,7 +48,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -350,53 +345,42 @@ public class ModelBakery {
                 Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>> var12 = Pair.of(var10, () -> var11);
 
                 try {
-                    List<Pair<String, BlockModelDefinition>> var13;
-                    try {
-                        var13 = this.resourceManager
-                            .getResources(var9)
-                            .stream()
-                            .map(
-                                param0x -> {
-                                    try {
-                                        Pair var3x;
-                                        try (InputStream var0x = param0x.getInputStream()) {
-                                            var3x = Pair.of(
-                                                param0x.getSourceName(),
-                                                BlockModelDefinition.fromStream(this.context, new InputStreamReader(var0x, StandardCharsets.UTF_8))
-                                            );
-                                        }
-        
-                                        return var3x;
-                                    } catch (Exception var7x) {
-                                        throw new ModelBakery.BlockStateDefinitionException(
-                                            String.format(
-                                                "Exception loading blockstate definition: '%s' in resourcepack: '%s': %s",
-                                                param0x.getLocation(),
-                                                param0x.getSourceName(),
-                                                var7x.getMessage()
-                                            )
-                                        );
+                    for(Pair<String, BlockModelDefinition> var14 : this.resourceManager
+                        .getResourceStack(var9)
+                        .stream()
+                        .map(
+                            param1 -> {
+                                try {
+                                    Pair var4x;
+                                    try (Reader var0x = param1.openAsReader()) {
+                                        var4x = Pair.of(param1.sourcePackId(), BlockModelDefinition.fromStream(this.context, var0x));
                                     }
+        
+                                    return var4x;
+                                } catch (Exception var8x) {
+                                    throw new ModelBakery.BlockStateDefinitionException(
+                                        String.format(
+                                            "Exception loading blockstate definition: '%s' in resourcepack: '%s': %s",
+                                            var9,
+                                            param1.sourcePackId(),
+                                            var8x.getMessage()
+                                        )
+                                    );
                                 }
-                            )
-                            .collect(Collectors.toList());
-                    } catch (IOException var251) {
-                        LOGGER.warn("Exception loading blockstate definition: {}: {}", var9, var251);
-                        return;
-                    }
-
-                    for(Pair<String, BlockModelDefinition> var17 : var13) {
-                        BlockModelDefinition var18 = var17.getSecond();
-                        Map<BlockState, Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>>> var19 = Maps.newIdentityHashMap();
-                        MultiPart var20;
-                        if (var18.isMultiPart()) {
-                            var20 = var18.getMultiPart();
-                            var6.forEach(param3 -> var19.put(param3, Pair.of(var20, () -> ModelBakery.ModelGroupKey.create(param3, var20, var5))));
+                            }
+                        )
+                        .toList()) {
+                        BlockModelDefinition var15 = var14.getSecond();
+                        Map<BlockState, Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>>> var16 = Maps.newIdentityHashMap();
+                        MultiPart var17;
+                        if (var15.isMultiPart()) {
+                            var17 = var15.getMultiPart();
+                            var6.forEach(param3 -> var16.put(param3, Pair.of(var17, () -> ModelBakery.ModelGroupKey.create(param3, var17, var5))));
                         } else {
-                            var20 = null;
+                            var17 = null;
                         }
 
-                        var18.getVariants()
+                        var15.getVariants()
                             .forEach(
                                 (param9, param10) -> {
                                     try {
@@ -404,14 +388,14 @@ public class ModelBakery {
                                             .filter(predicate(var4, param9))
                                             .forEach(
                                                 param6x -> {
-                                                    Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>> var0x = var19.put(
+                                                    Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>> var0x = var16.put(
                                                         param6x, Pair.of(param10, () -> ModelBakery.ModelGroupKey.create(param6x, param10, var5))
                                                     );
-                                                    if (var0x != null && var0x.getFirst() != var20) {
-                                                        var19.put(param6x, var12);
+                                                    if (var0x != null && var0x.getFirst() != var17) {
+                                                        var16.put(param6x, var12);
                                                         throw new RuntimeException(
                                                             "Overlapping definition with: "
-                                                                + (String)var18.getVariants()
+                                                                + (String)var15.getVariants()
                                                                     .entrySet()
                                                                     .stream()
                                                                     .filter(param1x -> param1x.getValue() == var0x.getFirst())
@@ -426,7 +410,7 @@ public class ModelBakery {
                                         LOGGER.warn(
                                             "Exception loading blockstate definition: '{}' in resourcepack: '{}' for variant: '{}': {}",
                                             var9,
-                                            var17.getFirst(),
+                                            var14.getFirst(),
                                             param9,
                                             var12x.getMessage()
                                         );
@@ -434,15 +418,14 @@ public class ModelBakery {
         
                                 }
                             );
-                        var8.putAll(var19);
+                        var8.putAll(var16);
                     }
-
-                } catch (ModelBakery.BlockStateDefinitionException var26) {
-                    throw var26;
-                } catch (Exception var27) {
-                    throw new ModelBakery.BlockStateDefinitionException(String.format("Exception loading blockstate definition: '%s': %s", var9, var27));
+                } catch (ModelBakery.BlockStateDefinitionException var24) {
+                    throw var24;
+                } catch (Exception var25) {
+                    throw new ModelBakery.BlockStateDefinitionException(String.format("Exception loading blockstate definition: '%s': %s", var9, var25));
                 } finally {
-                    HashMap var25 = Maps.newHashMap();
+                    HashMap var22 = Maps.newHashMap();
                     var7.forEach((param4, param5) -> {
                         Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>> var0x = var8.get(param5);
                         if (var0x == null) {
@@ -454,13 +437,13 @@ public class ModelBakery {
 
                         try {
                             ModelBakery.ModelGroupKey var1x = var0x.getSecond().get();
-                            var25.computeIfAbsent(var1x, param0x -> Sets.newIdentityHashSet()).add(param5);
+                            var22.computeIfAbsent(var1x, param0x -> Sets.newIdentityHashSet()).add(param5);
                         } catch (Exception var9x) {
                             LOGGER.warn("Exception evaluating model definition: '{}'", param4, var9x);
                         }
 
                     });
-                    var25.forEach((param0x, param1) -> {
+                    var22.forEach((param0x, param1) -> {
                         Iterator<BlockState> var0x = param1.iterator();
 
                         while(var0x.hasNext()) {
@@ -478,6 +461,7 @@ public class ModelBakery {
                     });
                 }
             }
+
         }
     }
 
@@ -519,41 +503,38 @@ public class ModelBakery {
 
     private BlockModel loadBlockModel(ResourceLocation param0) throws IOException {
         Reader var0 = null;
-        Resource var1 = null;
 
-        BlockModel var5;
+        BlockModel var4;
         try {
-            String var2 = param0.getPath();
-            if (!"builtin/generated".equals(var2)) {
-                if ("builtin/entity".equals(var2)) {
+            String var1 = param0.getPath();
+            if (!"builtin/generated".equals(var1)) {
+                if ("builtin/entity".equals(var1)) {
                     return BLOCK_ENTITY_MARKER;
                 }
 
-                if (var2.startsWith("builtin/")) {
-                    String var3 = var2.substring("builtin/".length());
-                    String var4 = BUILTIN_MODELS.get(var3);
-                    if (var4 == null) {
+                if (var1.startsWith("builtin/")) {
+                    String var2 = var1.substring("builtin/".length());
+                    String var3 = BUILTIN_MODELS.get(var2);
+                    if (var3 == null) {
                         throw new FileNotFoundException(param0.toString());
                     }
 
-                    var0 = new StringReader(var4);
+                    var0 = new StringReader(var3);
                 } else {
-                    var1 = this.resourceManager.getResource(new ResourceLocation(param0.getNamespace(), "models/" + param0.getPath() + ".json"));
-                    var0 = new InputStreamReader(var1.getInputStream(), StandardCharsets.UTF_8);
+                    var0 = this.resourceManager.openAsReader(new ResourceLocation(param0.getNamespace(), "models/" + param0.getPath() + ".json"));
                 }
 
-                var5 = BlockModel.fromStream(var0);
-                var5.name = param0.toString();
-                return var5;
+                var4 = BlockModel.fromStream(var0);
+                var4.name = param0.toString();
+                return var4;
             }
 
-            var5 = GENERATION_MARKER;
+            var4 = GENERATION_MARKER;
         } finally {
             IOUtils.closeQuietly(var0);
-            IOUtils.closeQuietly((Closeable)var1);
         }
 
-        return var5;
+        return var4;
     }
 
     public Map<ResourceLocation, BakedModel> getBakedTopLevelModels() {

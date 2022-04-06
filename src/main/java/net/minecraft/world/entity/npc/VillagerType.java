@@ -42,6 +42,7 @@ public final class VillagerType {
         param0.put(Biomes.FROZEN_PEAKS, SNOW);
         param0.put(Biomes.JAGGED_PEAKS, SNOW);
         param0.put(Biomes.SWAMP, SWAMP);
+        param0.put(Biomes.MANGROVE_SWAMP, SWAMP);
         param0.put(Biomes.OLD_GROWTH_SPRUCE_TAIGA, TAIGA);
         param0.put(Biomes.OLD_GROWTH_PINE_TAIGA, TAIGA);
         param0.put(Biomes.WINDSWEPT_GRAVELLY_HILLS, TAIGA);

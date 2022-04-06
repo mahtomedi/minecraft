@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.entity;
 import net.minecraft.client.model.SkeletonModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.entity.layers.DoubleSpyGlassLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
@@ -20,7 +19,6 @@ public class SkeletonRenderer extends HumanoidMobRenderer<AbstractSkeleton, Skel
 
     public SkeletonRenderer(EntityRendererProvider.Context param0, ModelLayerLocation param1, ModelLayerLocation param2, ModelLayerLocation param3) {
         super(param0, new SkeletonModel<>(param0.bakeLayer(param1)), 0.5F);
-        this.addLayer(new DoubleSpyGlassLayer<>(this));
         this.addLayer(new HumanoidArmorLayer<>(this, new SkeletonModel(param0.bakeLayer(param2)), new SkeletonModel(param0.bakeLayer(param3))));
     }
 

@@ -15,8 +15,13 @@ public class StartAttacking<E extends Mob> extends Behavior<E> {
     private final Function<E, Optional<? extends LivingEntity>> targetFinderFunction;
 
     public StartAttacking(Predicate<E> param0, Function<E, Optional<? extends LivingEntity>> param1) {
+        this(param0, param1, 60);
+    }
+
+    public StartAttacking(Predicate<E> param0, Function<E, Optional<? extends LivingEntity>> param1, int param2) {
         super(
-            ImmutableMap.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED)
+            ImmutableMap.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED),
+            param2
         );
         this.canAttackPredicate = param0;
         this.targetFinderFunction = param1;

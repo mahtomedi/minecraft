@@ -96,7 +96,8 @@ public class SoundEngine {
     private synchronized void loadLibrary() {
         if (!this.loaded) {
             try {
-                this.library.init("".equals(this.options.soundDevice) ? null : this.options.soundDevice);
+                String var0 = this.options.soundDevice().get();
+                this.library.init("".equals(var0) ? null : var0, this.options.directionalAudio().get());
                 this.listener.reset();
                 this.listener.setGain(this.options.getSoundSourceVolume(SoundSource.MASTER));
                 this.soundBuffers.preload(this.preloadQueue).thenRun(this.preloadQueue::clear);
@@ -186,7 +187,7 @@ public class SoundEngine {
             if (var1) {
                 this.lastDeviceCheckTime = var0;
                 if (this.devicePoolState.compareAndSet(SoundEngine.DeviceCheckState.NO_CHANGE, SoundEngine.DeviceCheckState.ONGOING)) {
-                    String var2 = this.options.soundDevice;
+                    String var2 = this.options.soundDevice().get();
                     Util.ioPool().execute(() -> {
                         if ("".equals(var2)) {
                             if (this.library.hasDefaultDeviceChanged()) {
@@ -340,7 +341,7 @@ public class SoundEngine {
                         float var3x = param0.getVolume();
                         float var4x = Math.max(var3x, 1.0F) * (float)var2x.getAttenuationDistance();
                         SoundSource var5x = param0.getSource();
-                        float var6x = this.calculateVolume(param0);
+                        float var6x = this.calculateVolume(var3x, var5x);
                         float var7x = this.calculatePitch(param0);
                         SoundInstance.Attenuation var8x = param0.getAttenuation();
                         boolean var9x = param0.isRelative();
@@ -430,7 +431,11 @@ public class SoundEngine {
     }
 
     private float calculateVolume(SoundInstance param0) {
-        return Mth.clamp(param0.getVolume() * this.getVolume(param0.getSource()), 0.0F, 1.0F);
+        return this.calculateVolume(param0.getVolume(), param0.getSource());
+    }
+
+    private float calculateVolume(float param0, SoundSource param1) {
+        return Mth.clamp(param0 * this.getVolume(param1), 0.0F, 1.0F);
     }
 
     public void pause() {

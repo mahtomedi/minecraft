@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -17,9 +16,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.VisibleForDebug;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.Entity;
@@ -38,9 +39,9 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.feature.NetherFortressFeature;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.structures.NetherFortressStructure;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
@@ -141,7 +142,7 @@ public final class NaturalSpawner {
         NaturalSpawner.SpawnPredicate param4,
         NaturalSpawner.AfterSpawnCallback param5
     ) {
-        StructureFeatureManager var0 = param1.structureFeatureManager();
+        StructureManager var0 = param1.structureManager();
         ChunkGenerator var1 = param1.getChunkSource().getGenerator();
         int var2 = param3.getY();
         BlockState var3 = param2.getBlockState(param3);
@@ -222,7 +223,7 @@ public final class NaturalSpawner {
     private static boolean isValidSpawnPostitionForType(
         ServerLevel param0,
         MobCategory param1,
-        StructureFeatureManager param2,
+        StructureManager param2,
         ChunkGenerator param3,
         MobSpawnSettings.SpawnerData param4,
         BlockPos.MutableBlockPos param5,
@@ -272,33 +273,31 @@ public final class NaturalSpawner {
     }
 
     private static Optional<MobSpawnSettings.SpawnerData> getRandomSpawnMobAt(
-        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, Random param4, BlockPos param5
+        ServerLevel param0, StructureManager param1, ChunkGenerator param2, MobCategory param3, RandomSource param4, BlockPos param5
     ) {
         Holder<Biome> var0 = param0.getBiome(param5);
-        return param3 == MobCategory.WATER_AMBIENT && Biome.getBiomeCategory(var0) == Biome.BiomeCategory.RIVER && param4.nextFloat() < 0.98F
+        return param3 == MobCategory.WATER_AMBIENT && var0.is(BiomeTags.REDUCED_WATER_AMBIENT_SPAWNS) && param4.nextFloat() < 0.98F
             ? Optional.empty()
             : mobsAt(param0, param1, param2, param3, param5, var0).getRandom(param4);
     }
 
     private static boolean canSpawnMobAt(
-        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, MobSpawnSettings.SpawnerData param4, BlockPos param5
+        ServerLevel param0, StructureManager param1, ChunkGenerator param2, MobCategory param3, MobSpawnSettings.SpawnerData param4, BlockPos param5
     ) {
         return mobsAt(param0, param1, param2, param3, param5, null).unwrap().contains(param4);
     }
 
     private static WeightedRandomList<MobSpawnSettings.SpawnerData> mobsAt(
-        ServerLevel param0, StructureFeatureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Holder<Biome> param5
+        ServerLevel param0, StructureManager param1, ChunkGenerator param2, MobCategory param3, BlockPos param4, @Nullable Holder<Biome> param5
     ) {
         return isInNetherFortressBounds(param4, param0, param3, param1)
-            ? NetherFortressFeature.FORTRESS_ENEMIES
+            ? NetherFortressStructure.FORTRESS_ENEMIES
             : param2.getMobsAt(param5 != null ? param5 : param0.getBiome(param4), param1, param3, param4);
     }
 
-    public static boolean isInNetherFortressBounds(BlockPos param0, ServerLevel param1, MobCategory param2, StructureFeatureManager param3) {
+    public static boolean isInNetherFortressBounds(BlockPos param0, ServerLevel param1, MobCategory param2, StructureManager param3) {
         if (param2 == MobCategory.MONSTER && param1.getBlockState(param0.below()).is(Blocks.NETHER_BRICKS)) {
-            ConfiguredStructureFeature<?, ?> var0 = param3.registryAccess()
-                .registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY)
-                .get(BuiltinStructures.FORTRESS);
+            Structure var0 = param3.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY).get(BuiltinStructures.FORTRESS);
             return var0 == null ? false : param3.getStructureAt(param0, var0).isValid();
         } else {
             return false;
@@ -356,7 +355,7 @@ public final class NaturalSpawner {
         }
     }
 
-    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Holder<Biome> param1, ChunkPos param2, Random param3) {
+    public static void spawnMobsForChunkGeneration(ServerLevelAccessor param0, Holder<Biome> param1, ChunkPos param2, RandomSource param3) {
         MobSpawnSettings var0 = param1.value().getMobSettings();
         WeightedRandomList<MobSpawnSettings.SpawnerData> var1 = var0.getMobs(MobCategory.CREATURE);
         if (!var1.isEmpty()) {

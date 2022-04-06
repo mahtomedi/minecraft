@@ -17,7 +17,7 @@ public class RidingMinecartSoundInstance extends AbstractTickableSoundInstance {
     private final boolean underwaterSound;
 
     public RidingMinecartSoundInstance(Player param0, AbstractMinecart param1, boolean param2) {
-        super(param2 ? SoundEvents.MINECART_INSIDE_UNDERWATER : SoundEvents.MINECART_INSIDE, SoundSource.NEUTRAL);
+        super(param2 ? SoundEvents.MINECART_INSIDE_UNDERWATER : SoundEvents.MINECART_INSIDE, SoundSource.NEUTRAL, SoundInstance.createUnseededRandom());
         this.player = param0;
         this.minecart = param1;
         this.underwaterSound = param2;

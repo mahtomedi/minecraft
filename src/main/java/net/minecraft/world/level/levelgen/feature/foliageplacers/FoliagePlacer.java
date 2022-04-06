@@ -4,15 +4,17 @@ import com.mojang.datafixers.Products.P2;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
-import java.util.Random;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.material.Fluids;
 
 public abstract class FoliagePlacer {
     public static final Codec<FoliagePlacer> CODEC = Registry.FOLIAGE_PLACER_TYPES.byNameCodec().dispatch(FoliagePlacer::type, FoliagePlacerType::codec);
@@ -36,7 +38,7 @@ public abstract class FoliagePlacer {
     public void createFoliage(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         TreeConfiguration param3,
         int param4,
         FoliagePlacer.FoliageAttachment param5,
@@ -49,7 +51,7 @@ public abstract class FoliagePlacer {
     protected abstract void createFoliage(
         LevelSimulatedReader var1,
         BiConsumer<BlockPos, BlockState> var2,
-        Random var3,
+        RandomSource var3,
         TreeConfiguration var4,
         int var5,
         FoliagePlacer.FoliageAttachment var6,
@@ -58,19 +60,19 @@ public abstract class FoliagePlacer {
         int var9
     );
 
-    public abstract int foliageHeight(Random var1, int var2, TreeConfiguration var3);
+    public abstract int foliageHeight(RandomSource var1, int var2, TreeConfiguration var3);
 
-    public int foliageRadius(Random param0, int param1) {
+    public int foliageRadius(RandomSource param0, int param1) {
         return this.radius.sample(param0);
     }
 
-    private int offset(Random param0) {
+    private int offset(RandomSource param0) {
         return this.offset.sample(param0);
     }
 
-    protected abstract boolean shouldSkipLocation(Random var1, int var2, int var3, int var4, int var5, boolean var6);
+    protected abstract boolean shouldSkipLocation(RandomSource var1, int var2, int var3, int var4, int var5, boolean var6);
 
-    protected boolean shouldSkipLocationSigned(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
+    protected boolean shouldSkipLocationSigned(RandomSource param0, int param1, int param2, int param3, int param4, boolean param5) {
         int var0;
         int var1;
         if (param5) {
@@ -87,7 +89,7 @@ public abstract class FoliagePlacer {
     protected void placeLeavesRow(
         LevelSimulatedReader param0,
         BiConsumer<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         TreeConfiguration param3,
         BlockPos param4,
         int param5,
@@ -109,10 +111,17 @@ public abstract class FoliagePlacer {
     }
 
     protected static void tryPlaceLeaf(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, Random param2, TreeConfiguration param3, BlockPos param4
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, TreeConfiguration param3, BlockPos param4
     ) {
         if (TreeFeature.validTreePos(param0, param4)) {
-            param1.accept(param4, param3.foliageProvider.getState(param2, param4));
+            BlockState var0 = param3.foliageProvider.getState(param2, param4);
+            if (var0.hasProperty(BlockStateProperties.WATERLOGGED)) {
+                var0 = var0.setValue(
+                    BlockStateProperties.WATERLOGGED, Boolean.valueOf(param0.isFluidAtPosition(param4, param0x -> param0x.isSourceOfType(Fluids.WATER)))
+                );
+            }
+
+            param1.accept(param4, var0);
         }
 
     }

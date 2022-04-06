@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -31,6 +30,7 @@ import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
@@ -239,6 +239,11 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
+    public Set<ResourceKey<T>> registryKeySet() {
+        return Collections.unmodifiableSet(this.byKey.keySet());
+    }
+
+    @Override
     public Set<Entry<ResourceKey<T>, T>> entrySet() {
         return Collections.unmodifiableSet(Maps.transformValues(this.byKey, Holder::value).entrySet());
     }
@@ -286,7 +291,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public Optional<Holder<T>> getRandom(Random param0) {
+    public Optional<Holder<T>> getRandom(RandomSource param0) {
         return Util.getRandomSafe(this.holdersInOrder(), param0).map(Holder::hackyErase);
     }
 

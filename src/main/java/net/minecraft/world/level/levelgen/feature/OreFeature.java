@@ -2,11 +2,11 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.BitSet;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BulkSectionAccess;
@@ -21,7 +21,7 @@ public class OreFeature extends Feature<OreConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<OreConfiguration> param0) {
-        Random var0 = param0.random();
+        RandomSource var0 = param0.random();
         BlockPos var1 = param0.origin();
         WorldGenLevel var2 = param0.level();
         OreConfiguration var3 = param0.config();
@@ -54,7 +54,7 @@ public class OreFeature extends Feature<OreConfiguration> {
 
     protected boolean doPlace(
         WorldGenLevel param0,
-        Random param1,
+        RandomSource param1,
         OreConfiguration param2,
         double param3,
         double param4,
@@ -168,7 +168,7 @@ public class OreFeature extends Feature<OreConfiguration> {
     public static boolean canPlaceOre(
         BlockState param0,
         Function<BlockPos, BlockState> param1,
-        Random param2,
+        RandomSource param2,
         OreConfiguration param3,
         OreConfiguration.TargetBlockState param4,
         BlockPos.MutableBlockPos param5
@@ -182,7 +182,7 @@ public class OreFeature extends Feature<OreConfiguration> {
         }
     }
 
-    protected static boolean shouldSkipAirCheck(Random param0, float param1) {
+    protected static boolean shouldSkipAirCheck(RandomSource param0, float param1) {
         if (param1 <= 0.0F) {
             return true;
         } else if (param1 >= 1.0F) {

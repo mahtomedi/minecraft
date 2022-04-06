@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
@@ -18,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -94,7 +94,7 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
             if (this.players.isEmpty()) {
                 this.location = DefaultPlayerSkin.getDefaultSkin();
             } else {
-                String var2 = this.players.get(new Random().nextInt(this.players.size())).getProfile().getName();
+                String var2 = this.players.get(RandomSource.create().nextInt(this.players.size())).getProfile().getName();
                 this.location = AbstractClientPlayer.getSkinLocation(var2);
                 AbstractClientPlayer.registerSkinTexture(this.location, var2);
             }

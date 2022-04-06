@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block;
 
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -9,6 +8,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -57,7 +57,7 @@ public class PowderSnowBlock extends Block implements BucketPickup {
         if (!(param3 instanceof LivingEntity) || param3.getFeetBlockState().is(this)) {
             param3.makeStuckInBlock(param0, new Vec3(0.9F, 1.5, 0.9F));
             if (param1.isClientSide) {
-                Random var0 = param1.getRandom();
+                RandomSource var0 = param1.getRandom();
                 boolean var1 = param3.xOld != param3.getX() || param3.zOld != param3.getZ();
                 if (var1 && var0.nextBoolean()) {
                     param1.addParticle(

@@ -1,9 +1,9 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -101,7 +101,7 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         int var0 = getDistance(param1, param2);
         BlockState var1 = param0.setValue(DISTANCE, Integer.valueOf(var0)).setValue(BOTTOM, Boolean.valueOf(this.isBottom(param1, param2, var0)));
         if (var1.getValue(DISTANCE) == 7) {

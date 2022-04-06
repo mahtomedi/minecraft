@@ -2,10 +2,10 @@ package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 
 public class AxisAlignedLinearPosTest extends PosRuleTest {
     public static final Codec<AxisAlignedLinearPosTest> CODEC = RecordCodecBuilder.create(
@@ -37,7 +37,7 @@ public class AxisAlignedLinearPosTest extends PosRuleTest {
     }
 
     @Override
-    public boolean test(BlockPos param0, BlockPos param1, BlockPos param2, Random param3) {
+    public boolean test(BlockPos param0, BlockPos param1, BlockPos param2, RandomSource param3) {
         Direction var0 = Direction.get(Direction.AxisDirection.POSITIVE, this.axis);
         float var1 = (float)Math.abs((param1.getX() - param2.getX()) * var0.getStepX());
         float var2 = (float)Math.abs((param1.getY() - param2.getY()) * var0.getStepY());

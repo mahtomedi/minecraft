@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -16,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -33,6 +33,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 public class EnchantmentHelper {
     private static final String TAG_ENCH_ID = "id";
     private static final String TAG_ENCH_LEVEL = "lvl";
+    private static final float SWIFT_SNEAK_EXTRA_FACTOR = 0.15F;
 
     public static CompoundTag storeEnchantment(@Nullable ResourceLocation param0, int param1) {
         CompoundTag var0 = new CompoundTag();
@@ -194,6 +195,10 @@ public class EnchantmentHelper {
         }
     }
 
+    public static float getSneakingSpeedBonus(LivingEntity param0) {
+        return (float)getEnchantmentLevel(Enchantments.SWIFT_SNEAK, param0) * 0.15F;
+    }
+
     public static int getKnockbackBonus(LivingEntity param0) {
         return getEnchantmentLevel(Enchantments.KNOCKBACK, param0);
     }
@@ -282,7 +287,7 @@ public class EnchantmentHelper {
         }
     }
 
-    public static int getEnchantmentCost(Random param0, int param1, int param2, ItemStack param3) {
+    public static int getEnchantmentCost(RandomSource param0, int param1, int param2, ItemStack param3) {
         Item var0 = param3.getItem();
         int var1 = var0.getEnchantmentValue();
         if (var1 <= 0) {
@@ -301,7 +306,7 @@ public class EnchantmentHelper {
         }
     }
 
-    public static ItemStack enchantItem(Random param0, ItemStack param1, int param2, boolean param3) {
+    public static ItemStack enchantItem(RandomSource param0, ItemStack param1, int param2, boolean param3) {
         List<EnchantmentInstance> var0 = selectEnchantment(param0, param1, param2, param3);
         boolean var1 = param1.is(Items.BOOK);
         if (var1) {
@@ -319,7 +324,7 @@ public class EnchantmentHelper {
         return param1;
     }
 
-    public static List<EnchantmentInstance> selectEnchantment(Random param0, ItemStack param1, int param2, boolean param3) {
+    public static List<EnchantmentInstance> selectEnchantment(RandomSource param0, ItemStack param1, int param2, boolean param3) {
         List<EnchantmentInstance> var0 = Lists.newArrayList();
         Item var1 = param1.getItem();
         int var2 = var1.getEnchantmentValue();

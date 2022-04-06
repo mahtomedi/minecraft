@@ -1,12 +1,12 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.Random;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,7 +26,7 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerM
         PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         int var0 = this.numStuck(param3);
-        Random var1 = new Random((long)param3.getId());
+        RandomSource var1 = RandomSource.create((long)param3.getId());
         if (var0 > 0) {
             for(int var2 = 0; var2 < var0; ++var2) {
                 param0.pushPose();

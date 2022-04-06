@@ -16,8 +16,9 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
     private final int z;
     private final float volume;
     private final float pitch;
+    private final long seed;
 
-    public ClientboundSoundPacket(SoundEvent param0, SoundSource param1, double param2, double param3, double param4, float param5, float param6) {
+    public ClientboundSoundPacket(SoundEvent param0, SoundSource param1, double param2, double param3, double param4, float param5, float param6, long param7) {
         Validate.notNull(param0, "sound");
         this.sound = param0;
         this.source = param1;
@@ -26,27 +27,30 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
         this.z = (int)(param4 * 8.0);
         this.volume = param5;
         this.pitch = param6;
+        this.seed = param7;
     }
 
     public ClientboundSoundPacket(FriendlyByteBuf param0) {
-        this.sound = Registry.SOUND_EVENT.byId(param0.readVarInt());
+        this.sound = param0.readById(Registry.SOUND_EVENT);
         this.source = param0.readEnum(SoundSource.class);
         this.x = param0.readInt();
         this.y = param0.readInt();
         this.z = param0.readInt();
         this.volume = param0.readFloat();
         this.pitch = param0.readFloat();
+        this.seed = param0.readLong();
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeVarInt(Registry.SOUND_EVENT.getId(this.sound));
+        param0.writeId(Registry.SOUND_EVENT, this.sound);
         param0.writeEnum(this.source);
         param0.writeInt(this.x);
         param0.writeInt(this.y);
         param0.writeInt(this.z);
         param0.writeFloat(this.volume);
         param0.writeFloat(this.pitch);
+        param0.writeLong(this.seed);
     }
 
     public SoundEvent getSound() {
@@ -75,6 +79,10 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
 
     public float getPitch() {
         return this.pitch;
+    }
+
+    public long getSeed() {
+        return this.seed;
     }
 
     public void handle(ClientGamePacketListener param0) {

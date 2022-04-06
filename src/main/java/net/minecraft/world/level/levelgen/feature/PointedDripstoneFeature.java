@@ -2,9 +2,9 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.Optional;
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.levelgen.feature.configurations.PointedDripstoneConfiguration;
 
@@ -17,7 +17,7 @@ public class PointedDripstoneFeature extends Feature<PointedDripstoneConfigurati
     public boolean place(FeaturePlaceContext<PointedDripstoneConfiguration> param0) {
         LevelAccessor var0 = param0.level();
         BlockPos var1 = param0.origin();
-        Random var2 = param0.random();
+        RandomSource var2 = param0.random();
         PointedDripstoneConfiguration var3 = param0.config();
         Optional<Direction> var4 = getTipDirection(var0, var1, var2);
         if (var4.isEmpty()) {
@@ -31,7 +31,7 @@ public class PointedDripstoneFeature extends Feature<PointedDripstoneConfigurati
         }
     }
 
-    private static Optional<Direction> getTipDirection(LevelAccessor param0, BlockPos param1, Random param2) {
+    private static Optional<Direction> getTipDirection(LevelAccessor param0, BlockPos param1, RandomSource param2) {
         boolean var0 = DripstoneUtils.isDripstoneBase(param0.getBlockState(param1.above()));
         boolean var1 = DripstoneUtils.isDripstoneBase(param0.getBlockState(param1.below()));
         if (var0 && var1) {
@@ -43,7 +43,7 @@ public class PointedDripstoneFeature extends Feature<PointedDripstoneConfigurati
         }
     }
 
-    private static void createPatchOfDripstoneBlocks(LevelAccessor param0, Random param1, BlockPos param2, PointedDripstoneConfiguration param3) {
+    private static void createPatchOfDripstoneBlocks(LevelAccessor param0, RandomSource param1, BlockPos param2, PointedDripstoneConfiguration param3) {
         DripstoneUtils.placeDripstoneBlockIfPossible(param0, param2);
 
         for(Direction var0 : Direction.Plane.HORIZONTAL) {

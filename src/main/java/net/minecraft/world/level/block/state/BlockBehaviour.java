@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -13,6 +12,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.game.DebugPackets;
@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -293,17 +294,22 @@ public abstract class BlockBehaviour {
     }
 
     @Deprecated
+    public boolean isOcclusionShapeFullBlock(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return Block.isShapeFullBlock(param0.getOcclusionShape(param1, param2));
+    }
+
+    @Deprecated
     public VoxelShape getVisualShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return this.getCollisionShape(param0, param1, param2, param3);
     }
 
     @Deprecated
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         this.tick(param0, param1, param2, param3);
     }
 
     @Deprecated
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
     }
 
     @Deprecated
@@ -408,6 +414,10 @@ public abstract class BlockBehaviour {
 
         public Block getBlock() {
             return this.owner;
+        }
+
+        public Holder<Block> getBlockHolder() {
+            return this.owner.builtInRegistryHolder();
         }
 
         public Material getMaterial() {
@@ -586,6 +596,7 @@ public abstract class BlockBehaviour {
             return this.getBlock().triggerEvent(this.asState(), param0, param1, param2, param3);
         }
 
+        @Deprecated
         public void neighborChanged(Level param0, BlockPos param1, Block param2, BlockPos param3, boolean param4) {
             this.getBlock().neighborChanged(this.asState(), param0, param1, param2, param3, param4);
         }
@@ -600,9 +611,7 @@ public abstract class BlockBehaviour {
 
             for(Direction var1 : BlockBehaviour.UPDATE_SHAPE_ORDER) {
                 var0.setWithOffset(param1, var1);
-                BlockState var2 = param0.getBlockState(var0);
-                BlockState var3 = var2.updateShape(var1.getOpposite(), this.asState(), param0, var0, param1);
-                Block.updateOrDestroy(var2, var3, param0, var0, param2, param3);
+                param0.neighborShapeChanged(var1.getOpposite(), this.asState(), var0, param1, param2, param3);
             }
 
         }
@@ -623,11 +632,11 @@ public abstract class BlockBehaviour {
             this.getBlock().onRemove(this.asState(), param0, param1, param2, param3);
         }
 
-        public void tick(ServerLevel param0, BlockPos param1, Random param2) {
+        public void tick(ServerLevel param0, BlockPos param1, RandomSource param2) {
             this.getBlock().tick(this.asState(), param0, param1, param2);
         }
 
-        public void randomTick(ServerLevel param0, BlockPos param1, Random param2) {
+        public void randomTick(ServerLevel param0, BlockPos param1, RandomSource param2) {
             this.getBlock().randomTick(this.asState(), param0, param1, param2);
         }
 
@@ -954,7 +963,7 @@ public abstract class BlockBehaviour {
             return this;
         }
 
-        public BlockBehaviour.Properties noDrops() {
+        public BlockBehaviour.Properties noLootTable() {
             this.drops = BuiltInLootTables.EMPTY;
             return this;
         }

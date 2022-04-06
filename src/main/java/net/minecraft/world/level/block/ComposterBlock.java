@@ -2,7 +2,6 @@ package net.minecraft.world.level.block;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -12,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -67,12 +67,14 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
         add(0.3F, Items.ACACIA_LEAVES);
         add(0.3F, Items.BIRCH_LEAVES);
         add(0.3F, Items.AZALEA_LEAVES);
+        add(0.3F, Items.MANGROVE_LEAVES);
         add(0.3F, Items.OAK_SAPLING);
         add(0.3F, Items.SPRUCE_SAPLING);
         add(0.3F, Items.BIRCH_SAPLING);
         add(0.3F, Items.JUNGLE_SAPLING);
         add(0.3F, Items.ACACIA_SAPLING);
         add(0.3F, Items.DARK_OAK_SAPLING);
+        add(0.3F, Items.MANGROVE_PROPAGULE);
         add(0.3F, Items.BEETROOT_SEEDS);
         add(0.3F, Items.DRIED_KELP);
         add(0.3F, Items.GRASS);
@@ -177,7 +179,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
         double var1 = var0.getShape(param0, param1).max(Direction.Axis.Y, 0.5, 0.5) + 0.03125;
         double var2 = 0.13125F;
         double var3 = 0.7375F;
-        Random var4 = param0.getRandom();
+        RandomSource var4 = param0.getRandom();
 
         for(int var5 = 0; var5 < 10; ++var5) {
             double var6 = var4.nextGaussian() * 0.02;
@@ -295,7 +297,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LEVEL) == 7) {
             param1.setBlock(param2, param0.cycle(LEVEL), 3);
             param1.playSound(null, param2, SoundEvents.COMPOSTER_READY, SoundSource.BLOCKS, 1.0F, 1.0F);

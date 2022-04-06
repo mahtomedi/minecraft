@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.placement;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 
 public class InSquarePlacement extends PlacementModifier {
     private static final InSquarePlacement INSTANCE = new InSquarePlacement();
@@ -14,7 +14,7 @@ public class InSquarePlacement extends PlacementModifier {
     }
 
     @Override
-    public Stream<BlockPos> getPositions(PlacementContext param0, Random param1, BlockPos param2) {
+    public Stream<BlockPos> getPositions(PlacementContext param0, RandomSource param1, BlockPos param2) {
         int var0 = param1.nextInt(16) + param2.getX();
         int var1 = param1.nextInt(16) + param2.getZ();
         return Stream.of(new BlockPos(var0, param2.getY(), var1));

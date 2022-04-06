@@ -1,11 +1,11 @@
 package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
@@ -72,7 +72,7 @@ public class StrollThroughVillageGoal extends Goal {
     }
 
     private void moveRandomly() {
-        Random var0 = this.mob.getRandom();
+        RandomSource var0 = this.mob.getRandom();
         BlockPos var1 = this.mob
             .level
             .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.blockPosition().offset(-8 + var0.nextInt(16), 0, -8 + var0.nextInt(16)));

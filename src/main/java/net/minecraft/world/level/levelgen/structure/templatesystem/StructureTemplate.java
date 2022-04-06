@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -23,6 +22,7 @@ import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -200,7 +200,7 @@ public class StructureTemplate {
         return transform(param1, param0.getMirror(), param0.getRotation(), param0.getRotationPivot());
     }
 
-    public boolean placeInWorld(ServerLevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, Random param4, int param5) {
+    public boolean placeInWorld(ServerLevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, RandomSource param4, int param5) {
         if (this.palettes.isEmpty()) {
             return false;
         } else {

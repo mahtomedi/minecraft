@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.monster;
 
-import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -9,6 +8,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -197,7 +197,7 @@ public class Spider extends Monster {
 
         @Override
         public boolean canContinueToUse() {
-            float var0 = this.mob.getBrightness();
+            float var0 = this.mob.getLightLevelDependentMagicValue();
             if (var0 >= 0.5F && this.mob.getRandom().nextInt(100) == 0) {
                 this.mob.setTarget(null);
                 return false;
@@ -216,7 +216,7 @@ public class Spider extends Monster {
         @Nullable
         public MobEffect effect;
 
-        public void setRandomEffect(Random param0) {
+        public void setRandomEffect(RandomSource param0) {
             int var0 = param0.nextInt(5);
             if (var0 <= 1) {
                 this.effect = MobEffects.MOVEMENT_SPEED;
@@ -238,7 +238,7 @@ public class Spider extends Monster {
 
         @Override
         public boolean canUse() {
-            float var0 = this.mob.getBrightness();
+            float var0 = this.mob.getLightLevelDependentMagicValue();
             return var0 >= 0.5F ? false : super.canUse();
         }
     }

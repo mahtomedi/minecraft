@@ -4,13 +4,13 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Predicate;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BuddingAmethystBlock;
@@ -35,7 +35,7 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<GeodeConfiguration> param0) {
         GeodeConfiguration var0 = param0.config();
-        Random var1 = param0.random();
+        RandomSource var1 = param0.random();
         BlockPos var2 = param0.origin();
         WorldGenLevel var3 = param0.level();
         int var4 = var0.minGenOffset;

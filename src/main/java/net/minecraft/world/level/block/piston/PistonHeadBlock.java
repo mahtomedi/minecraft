@@ -138,8 +138,7 @@ public class PistonHeadBlock extends DirectionalBlock {
     @Override
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
         if (param0.canSurvive(param1, param2)) {
-            BlockPos var0 = param2.relative(param0.getValue(FACING).getOpposite());
-            param1.getBlockState(var0).neighborChanged(param1, var0, param3, param4, false);
+            param1.neighborChanged(param2.relative(param0.getValue(FACING).getOpposite()), param3, param4);
         }
 
     }

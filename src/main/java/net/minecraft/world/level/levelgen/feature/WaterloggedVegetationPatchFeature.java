@@ -2,11 +2,11 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,7 +21,7 @@ public class WaterloggedVegetationPatchFeature extends VegetationPatchFeature {
 
     @Override
     protected Set<BlockPos> placeGroundPatch(
-        WorldGenLevel param0, VegetationPatchConfiguration param1, Random param2, BlockPos param3, Predicate<BlockState> param4, int param5, int param6
+        WorldGenLevel param0, VegetationPatchConfiguration param1, RandomSource param2, BlockPos param3, Predicate<BlockState> param4, int param5, int param6
     ) {
         Set<BlockPos> var0 = super.placeGroundPatch(param0, param1, param2, param3, param4, param5, param6);
         Set<BlockPos> var1 = new HashSet<>();
@@ -54,7 +54,7 @@ public class WaterloggedVegetationPatchFeature extends VegetationPatchFeature {
     }
 
     @Override
-    protected boolean placeVegetation(WorldGenLevel param0, VegetationPatchConfiguration param1, ChunkGenerator param2, Random param3, BlockPos param4) {
+    protected boolean placeVegetation(WorldGenLevel param0, VegetationPatchConfiguration param1, ChunkGenerator param2, RandomSource param3, BlockPos param4) {
         if (super.placeVegetation(param0, param1, param2, param3, param4.below())) {
             BlockState var0 = param0.getBlockState(param4);
             if (var0.hasProperty(BlockStateProperties.WATERLOGGED) && !var0.getValue(BlockStateProperties.WATERLOGGED)) {

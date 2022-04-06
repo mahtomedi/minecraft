@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.animal;
 
-import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -15,6 +14,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionHand;
@@ -216,7 +216,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
             } else if ((this.isWet || this.isShaking) && this.isShaking) {
                 if (this.shakeAnim == 0.0F) {
                     this.playSound(SoundEvents.WOLF_SHAKE, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-                    this.gameEvent(GameEvent.WOLF_SHAKING);
+                    this.gameEvent(GameEvent.ENTITY_SHAKE);
                 }
 
                 this.shakeAnimO = this.shakeAnim;
@@ -351,7 +351,6 @@ public class Wolf extends TamableAnimal implements NeutralMob {
                     }
 
                     this.heal((float)var1.getFoodProperties().getNutrition());
-                    this.gameEvent(GameEvent.MOB_INTERACT, this.eyeBlockPosition());
                     return InteractionResult.SUCCESS;
                 }
 
@@ -530,7 +529,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
     }
 
-    public static boolean checkWolfSpawnRules(EntityType<Wolf> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkWolfSpawnRules(EntityType<Wolf> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return param1.getBlockState(param3.below()).is(BlockTags.WOLVES_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
     }
 

@@ -102,9 +102,7 @@ public class Vindicator extends AbstractIllager {
 
     @Override
     public AbstractIllager.IllagerArmPose getArmPose() {
-        if (this.getCarried() != LivingEntity.Carried.NONE) {
-            return AbstractIllager.IllagerArmPose.CROSSBOW_HOLD;
-        } else if (this.isAggressive()) {
+        if (this.isAggressive()) {
             return AbstractIllager.IllagerArmPose.ATTACKING;
         } else {
             return this.isCelebrating() ? AbstractIllager.IllagerArmPose.CELEBRATING : AbstractIllager.IllagerArmPose.CROSSED;

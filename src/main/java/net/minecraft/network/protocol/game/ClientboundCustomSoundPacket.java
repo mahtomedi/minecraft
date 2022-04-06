@@ -15,8 +15,9 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
     private final int z;
     private final float volume;
     private final float pitch;
+    private final long seed;
 
-    public ClientboundCustomSoundPacket(ResourceLocation param0, SoundSource param1, Vec3 param2, float param3, float param4) {
+    public ClientboundCustomSoundPacket(ResourceLocation param0, SoundSource param1, Vec3 param2, float param3, float param4, long param5) {
         this.name = param0;
         this.source = param1;
         this.x = (int)(param2.x * 8.0);
@@ -24,6 +25,7 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
         this.z = (int)(param2.z * 8.0);
         this.volume = param3;
         this.pitch = param4;
+        this.seed = param5;
     }
 
     public ClientboundCustomSoundPacket(FriendlyByteBuf param0) {
@@ -34,6 +36,7 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
         this.z = param0.readInt();
         this.volume = param0.readFloat();
         this.pitch = param0.readFloat();
+        this.seed = param0.readLong();
     }
 
     @Override
@@ -45,6 +48,7 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
         param0.writeInt(this.z);
         param0.writeFloat(this.volume);
         param0.writeFloat(this.pitch);
+        param0.writeLong(this.seed);
     }
 
     public ResourceLocation getName() {
@@ -73,6 +77,10 @@ public class ClientboundCustomSoundPacket implements Packet<ClientGamePacketList
 
     public float getPitch() {
         return this.pitch;
+    }
+
+    public long getSeed() {
+        return this.seed;
     }
 
     public void handle(ClientGamePacketListener param0) {

@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
-import java.util.Random;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -16,7 +16,7 @@ public class TagMatchTest extends RuleTest {
     }
 
     @Override
-    public boolean test(BlockState param0, Random param1) {
+    public boolean test(BlockState param0, RandomSource param1) {
         return param0.is(this.tag);
     }
 

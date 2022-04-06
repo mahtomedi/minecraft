@@ -1,11 +1,11 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -92,7 +92,7 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
             BlockState var1 = this.pull(param0, param1, param2);
             float var2 = var1.getValue(POWERED) ? 0.6F : 0.5F;
             param1.playSound(null, param2, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, var2);
-            param1.gameEvent(param3, var1.getValue(POWERED) ? GameEvent.BLOCK_SWITCH : GameEvent.BLOCK_UNSWITCH, param2);
+            param1.gameEvent(param3, var1.getValue(POWERED) ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, param2);
             return InteractionResult.CONSUME;
         }
     }
@@ -114,7 +114,7 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(POWERED) && param3.nextFloat() < 0.25F) {
             makeParticle(param0, param1, param2, 0.5F);
         }

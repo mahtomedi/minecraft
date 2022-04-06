@@ -7,10 +7,6 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleAddExperienceOrb(ClientboundAddExperienceOrbPacket var1);
 
-    void handleAddVibrationSignal(ClientboundAddVibrationSignalPacket var1);
-
-    void handleAddMob(ClientboundAddMobPacket var1);
-
     void handleAddObjective(ClientboundSetObjectivePacket var1);
 
     void handleAddPainting(ClientboundAddPaintingPacket var1);
@@ -195,7 +191,7 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleSetChunkCacheCenter(ClientboundSetChunkCacheCenterPacket var1);
 
-    void handleBlockBreakAck(ClientboundBlockBreakAckPacket var1);
+    void handleBlockChangedAck(ClientboundBlockChangedAckPacket var1);
 
     void setActionBarText(ClientboundSetActionBarTextPacket var1);
 

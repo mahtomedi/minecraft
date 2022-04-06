@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -19,6 +18,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -282,12 +282,12 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         onCrossbowShot(param0, param1, param3);
     }
 
-    private static float[] getShotPitches(Random param0) {
+    private static float[] getShotPitches(RandomSource param0) {
         boolean var0 = param0.nextBoolean();
         return new float[]{1.0F, getRandomShotPitch(var0, param0), getRandomShotPitch(!var0, param0)};
     }
 
-    private static float getRandomShotPitch(boolean param0, Random param1) {
+    private static float getRandomShotPitch(boolean param0, RandomSource param1) {
         float var0 = param0 ? 0.63F : 0.43F;
         return 1.0F / (param1.nextFloat() * 0.5F + 1.8F) + var0;
     }

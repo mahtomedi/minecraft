@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -500,10 +500,10 @@ public class Shulker extends AbstractGolem implements Enemy {
             if (param0 == 0) {
                 this.getAttribute(Attributes.ARMOR).addPermanentModifier(COVERED_ARMOR_MODIFIER);
                 this.playSound(SoundEvents.SHULKER_CLOSE, 1.0F, 1.0F);
-                this.gameEvent(GameEvent.SHULKER_CLOSE);
+                this.gameEvent(GameEvent.CONTAINER_CLOSE);
             } else {
                 this.playSound(SoundEvents.SHULKER_OPEN, 1.0F, 1.0F);
-                this.gameEvent(GameEvent.SHULKER_OPEN);
+                this.gameEvent(GameEvent.CONTAINER_OPEN);
             }
         }
 
@@ -520,7 +520,7 @@ public class Shulker extends AbstractGolem implements Enemy {
     }
 
     @Override
-    public void recreateFromPacket(ClientboundAddMobPacket param0) {
+    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
         super.recreateFromPacket(param0);
         this.yBodyRot = 0.0F;
         this.yBodyRotO = 0.0F;

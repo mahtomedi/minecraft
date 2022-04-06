@@ -1,10 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -37,7 +37,10 @@ public class RedStoneOreBlock extends Block {
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        interact(param2, param0, param1);
+        if (!param3.isSteppingCarefully()) {
+            interact(param2, param0, param1);
+        }
+
         super.stepOn(param0, param1, param2, param3);
     }
 
@@ -69,7 +72,7 @@ public class RedStoneOreBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LIT)) {
             param1.setBlock(param2, param0.setValue(LIT, Boolean.valueOf(false)), 3);
         }
@@ -87,7 +90,7 @@ public class RedStoneOreBlock extends Block {
     }
 
     @Override
-    public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(LIT)) {
             spawnParticles(param1, param2);
         }
@@ -96,7 +99,7 @@ public class RedStoneOreBlock extends Block {
 
     private static void spawnParticles(Level param0, BlockPos param1) {
         double var0 = 0.5625;
-        Random var1 = param0.random;
+        RandomSource var1 = param0.random;
 
         for(Direction var2 : Direction.values()) {
             BlockPos var3 = param1.relative(var2);
