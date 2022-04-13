@@ -32,11 +32,6 @@ public class FlowerBlock extends BushBlock {
         return SHAPE.move(var0.x, var0.y, var0.z);
     }
 
-    @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
-
     public MobEffect getSuspiciousStewEffect() {
         return this.suspiciousStewEffect;
     }

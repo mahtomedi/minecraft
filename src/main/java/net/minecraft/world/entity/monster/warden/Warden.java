@@ -45,6 +45,8 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.behavior.StartAttacking;
+import net.minecraft.world.entity.ai.behavior.warden.SonicBoom;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -66,6 +68,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int GAME_EVENT_LISTENER_RANGE = 16;
     private static final int VIBRATION_COOLDOWN_TICKS = 40;
+    private static final int TIME_TO_USE_MELEE_UNTIL_SONIC_BOOM = 200;
     private static final int MAX_HEALTH = 500;
     private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.3F;
     private static final float KNOCKBACK_RESISTANCE = 1.0F;
@@ -93,6 +96,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public AnimationState emergeAnimationState = new AnimationState();
     public AnimationState diggingAnimationState = new AnimationState();
     public AnimationState attackAnimationState = new AnimationState();
+    public AnimationState sonicBoomAnimationState = new AnimationState();
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
     private AngerManagement angerManagement = new AngerManagement(Collections.emptyList());
 
@@ -169,7 +173,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     @Override
-    public boolean occludesVibrations() {
+    public boolean dampensVibrations() {
         return true;
     }
 
@@ -203,6 +207,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public boolean doHurtTarget(Entity param0) {
         this.level.broadcastEntityEvent(this, (byte)4);
         this.playSound(SoundEvents.WARDEN_ATTACK_IMPACT, 10.0F, this.getVoicePitch());
+        SonicBoom.setCooldown(this, 100);
         return super.doHurtTarget(param0);
     }
 
@@ -288,6 +293,8 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
             this.attackAnimationState.start();
         } else if (param0 == 61) {
             this.tendrilAnimation = 10;
+        } else if (param0 == 62) {
+            this.sonicBoomAnimationState.start();
         } else {
             super.handleEntityEvent(param0);
         }
@@ -472,6 +479,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
         return this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
     }
 
+    @Override
+    public boolean removeWhenFarAway(double param0) {
+        return !this.isPersistenceRequired();
+    }
+
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
@@ -488,17 +500,6 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     @Override
-    public double getMeleeAttackRangeSqr(LivingEntity param0) {
-        return 8.0;
-    }
-
-    @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity param0) {
-        double var0 = this.distanceToSqr(param0.getX(), param0.getY() - (double)(this.getBbHeight() / 2.0F), param0.getZ());
-        return var0 <= this.getMeleeAttackRangeSqr(param0);
-    }
-
-    @Override
     public boolean hurt(DamageSource param0, float param1) {
         boolean var0 = super.hurt(param0, param1);
         if (this.level.isClientSide) {
@@ -510,12 +511,17 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
                 if (this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty()
                     && var1 instanceof LivingEntity var2
                     && (!(param0 instanceof IndirectEntityDamageSource) || this.closerThan(var2, 5.0))) {
-                    this.brain.setMemory(MemoryModuleType.ATTACK_TARGET, var2);
+                    this.setAttackTarget(var2);
                 }
             }
 
             return var0;
         }
+    }
+
+    public void setAttackTarget(LivingEntity param0) {
+        StartAttacking.setAttackTarget(this, param0);
+        SonicBoom.setCooldown(this, 200);
     }
 
     @Override
@@ -541,13 +547,13 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     @Override
-    public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4) {
+    public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, GameEvent.Context param4) {
         if (this.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN)) {
             return false;
         } else if (this.isDiggingOrEmerging()) {
             return false;
         } else {
-            return !(param4 instanceof LivingEntity) || this.canTargetEntity(param4);
+            return !(param4.sourceEntity() instanceof LivingEntity) || this.canTargetEntity(param4.sourceEntity());
         }
     }
 

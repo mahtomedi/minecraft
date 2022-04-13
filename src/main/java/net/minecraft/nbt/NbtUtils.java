@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.core.SerializableUUID;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
@@ -182,7 +182,7 @@ public final class NbtUtils {
     }
 
     public static IntArrayTag createUUID(UUID param0) {
-        return new IntArrayTag(SerializableUUID.uuidToIntArray(param0));
+        return new IntArrayTag(UUIDUtil.uuidToIntArray(param0));
     }
 
     public static UUID loadUUID(Tag param0) {
@@ -195,7 +195,7 @@ public final class NbtUtils {
             if (var0.length != 4) {
                 throw new IllegalArgumentException("Expected UUID-Array to be of length 4, but found " + var0.length + ".");
             } else {
-                return SerializableUUID.uuidFromIntArray(var0);
+                return UUIDUtil.uuidFromIntArray(var0);
             }
         }
     }

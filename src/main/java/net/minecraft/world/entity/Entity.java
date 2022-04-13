@@ -367,6 +367,13 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.position().closerThan(param0.position(), param1);
     }
 
+    public boolean closerThan(Entity param0, double param1, double param2) {
+        double var0 = param0.getX() - this.getX();
+        double var1 = param0.getY() - this.getY();
+        double var2 = param0.getZ() - this.getZ();
+        return Mth.lengthSquared(var0, var2) < Mth.square(param1) && Mth.square(var1) < Mth.square(param2);
+    }
+
     protected void setRot(float param0, float param1) {
         this.setYRot(param0 % 360.0F);
         this.setXRot(param1 % 360.0F);
@@ -602,7 +609,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             this.onGround = this.verticalCollision && param1.y < 0.0;
-            BlockPos var5 = this.getOnPos();
+            BlockPos var5 = this.getOnPosLegacy();
             BlockState var6 = this.level.getBlockState(var5);
             this.checkFallDamage(var0.y, this.onGround, var6, var5);
             if (this.isRemoved()) {
@@ -628,7 +635,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     double var11 = var0.y;
                     double var12 = var0.z;
                     this.flyDist += (float)(var0.length() * 0.6);
-                    if (!var6.is(BlockTags.CLIMBABLE) && !var6.is(Blocks.POWDER_SNOW)) {
+                    boolean var13 = var6.is(BlockTags.CLIMBABLE) || var6.is(Blocks.POWDER_SNOW);
+                    if (!var13) {
                         var11 = 0.0;
                     }
 
@@ -638,11 +646,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                         this.nextStep = this.nextStep();
                         if (this.isInWater()) {
                             if (var9.emitsSounds()) {
-                                Entity var13 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
-                                float var14 = var13 == this ? 0.35F : 0.4F;
-                                Vec3 var15 = var13.getDeltaMovement();
-                                float var16 = Math.min(1.0F, (float)Math.sqrt(var15.x * var15.x * 0.2F + var15.y * var15.y + var15.z * var15.z * 0.2F) * var14);
-                                this.playSwimSound(var16);
+                                Entity var14 = this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this;
+                                float var15 = var14 == this ? 0.35F : 0.4F;
+                                Vec3 var16 = var14.getDeltaMovement();
+                                float var17 = Math.min(1.0F, (float)Math.sqrt(var16.x * var16.x * 0.2F + var16.y * var16.y + var16.z * var16.z * 0.2F) * var15);
+                                this.playSwimSound(var17);
                             }
 
                             if (var9.emitsEvents()) {
@@ -654,7 +662,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                                 this.playStepSound(var5, var6);
                             }
 
-                            if (var9.emitsEvents()) {
+                            if (var9.emitsEvents() && (this.onGround || param1.y == 0.0 || this.isInPowderSnow || var13)) {
                                 this.gameEvent(GameEvent.STEP);
                             }
                         }
@@ -664,8 +672,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 }
 
                 this.tryCheckInsideBlocks();
-                float var17 = this.getBlockSpeedFactor();
-                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var17, 1.0, (double)var17));
+                float var18 = this.getBlockSpeedFactor();
+                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var18, 1.0, (double)var18));
                 if (this.level
                     .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
                     .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))) {
@@ -716,9 +724,18 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
+    @Deprecated
+    public BlockPos getOnPosLegacy() {
+        return this.getOnPos(0.2F);
+    }
+
     public BlockPos getOnPos() {
+        return this.getOnPos(1.0E-5F);
+    }
+
+    private BlockPos getOnPos(float param0) {
         int var0 = Mth.floor(this.position.x);
-        int var1 = Mth.floor(this.position.y - 0.2F);
+        int var1 = Mth.floor(this.position.y - (double)param0);
         int var2 = Mth.floor(this.position.z);
         BlockPos var3 = new BlockPos(var0, var1, var2);
         if (this.level.getBlockState(var3).isAir()) {
@@ -989,7 +1006,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return Entity.MovementEmission.ALL;
     }
 
-    public boolean occludesVibrations() {
+    public boolean dampensVibrations() {
         return false;
     }
 
@@ -1141,7 +1158,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.gameEvent(GameEvent.SPLASH);
     }
 
-    protected BlockState getBlockStateOn() {
+    @Deprecated
+    protected BlockState getBlockStateOnLegacy() {
+        return this.level.getBlockState(this.getOnPosLegacy());
+    }
+
+    public BlockState getBlockStateOn() {
         return this.level.getBlockState(this.getOnPos());
     }
 
@@ -1301,11 +1323,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     var1 *= var3;
                     var0 *= 0.05F;
                     var1 *= 0.05F;
-                    if (!this.isVehicle()) {
+                    if (!this.isVehicle() && this.isPushable()) {
                         this.push(-var0, 0.0, -var1);
                     }
 
-                    if (!param0.isVehicle()) {
+                    if (!param0.isVehicle() && param0.isPushable()) {
                         param0.push(var0, 0.0, var1);
                     }
                 }

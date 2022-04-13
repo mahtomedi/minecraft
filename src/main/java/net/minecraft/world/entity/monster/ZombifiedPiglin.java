@@ -220,7 +220,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
     }
 

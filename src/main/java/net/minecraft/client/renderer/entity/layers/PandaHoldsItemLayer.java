@@ -1,8 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PandaModel;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -15,8 +15,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
-    public PandaHoldsItemLayer(RenderLayerParent<Panda, PandaModel<Panda>> param0) {
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public PandaHoldsItemLayer(RenderLayerParent<Panda, PandaModel<Panda>> param0, ItemInHandRenderer param1) {
         super(param0);
+        this.itemInHandRenderer = param1;
     }
 
     public void render(
@@ -42,7 +45,7 @@ public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
 
             param0.pushPose();
             param0.translate(0.1F, (double)var2, (double)var1);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
+            this.itemInHandRenderer.renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
             param0.popPose();
         }
     }

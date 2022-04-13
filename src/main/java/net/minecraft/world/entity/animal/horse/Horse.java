@@ -10,6 +10,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -40,10 +41,10 @@ public class Horse extends AbstractHorse {
     }
 
     @Override
-    protected void randomizeAttributes() {
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)this.generateRandomMaxHealth());
-        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed());
-        this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength());
+    protected void randomizeAttributes(RandomSource param0) {
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)this.generateRandomMaxHealth(param0));
+        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed(param0));
+        this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength(param0));
     }
 
     @Override
@@ -286,15 +287,16 @@ public class Horse extends AbstractHorse {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        Variant var0;
+        RandomSource var0 = param0.getRandom();
+        Variant var1;
         if (param3 instanceof Horse.HorseGroupData) {
-            var0 = ((Horse.HorseGroupData)param3).variant;
+            var1 = ((Horse.HorseGroupData)param3).variant;
         } else {
-            var0 = Util.getRandom(Variant.values(), this.random);
-            param3 = new Horse.HorseGroupData(var0);
+            var1 = Util.getRandom(Variant.values(), var0);
+            param3 = new Horse.HorseGroupData(var1);
         }
 
-        this.setVariantAndMarkings(var0, Util.getRandom(Markings.values(), this.random));
+        this.setVariantAndMarkings(var1, Util.getRandom(Markings.values(), var0));
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

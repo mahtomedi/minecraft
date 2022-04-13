@@ -120,7 +120,14 @@ public class Blocks {
     );
     public static final Block MANGROVE_PROPAGULE = register(
         "mangrove_propagule",
-        new MangrovePropaguleBlock(BlockBehaviour.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS))
+        new MangrovePropaguleBlock(
+            BlockBehaviour.Properties.of(Material.PLANT)
+                .noCollission()
+                .randomTicks()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block BEDROCK = register(
         "bedrock", new Block(BlockBehaviour.Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).noLootTable().isValidSpawn(Blocks::never))
@@ -344,10 +351,24 @@ public class Blocks {
         "cobweb", new WebBlock(BlockBehaviour.Properties.of(Material.WEB).noCollission().requiresCorrectToolForDrops().strength(4.0F))
     );
     public static final Block GRASS = register(
-        "grass", new TallGrassBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "grass",
+        new TallGrassBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XYZ)
+        )
     );
     public static final Block FERN = register(
-        "fern", new TallGrassBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "fern",
+        new TallGrassBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XYZ)
+        )
     );
     public static final Block DEAD_BUSH = register(
         "dead_bush",
@@ -358,7 +379,13 @@ public class Blocks {
     );
     public static final Block TALL_SEAGRASS = register(
         "tall_seagrass",
-        new TallSeagrassBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_WATER_PLANT).noCollission().instabreak().sound(SoundType.WET_GRASS))
+        new TallSeagrassBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_WATER_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.WET_GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block PISTON = register("piston", pistonBase(false));
     public static final Block PISTON_HEAD = register(
@@ -426,49 +453,107 @@ public class Blocks {
         )
     );
     public static final Block DANDELION = register(
-        "dandelion", new FlowerBlock(MobEffects.SATURATION, 7, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "dandelion",
+        new FlowerBlock(
+            MobEffects.SATURATION,
+            7,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block POPPY = register(
-        "poppy", new FlowerBlock(MobEffects.NIGHT_VISION, 5, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "poppy",
+        new FlowerBlock(
+            MobEffects.NIGHT_VISION,
+            5,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block BLUE_ORCHID = register(
         "blue_orchid",
-        new FlowerBlock(MobEffects.SATURATION, 7, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        new FlowerBlock(
+            MobEffects.SATURATION,
+            7,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block ALLIUM = register(
         "allium",
-        new FlowerBlock(MobEffects.FIRE_RESISTANCE, 4, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        new FlowerBlock(
+            MobEffects.FIRE_RESISTANCE,
+            4,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block AZURE_BLUET = register(
         "azure_bluet",
-        new FlowerBlock(MobEffects.BLINDNESS, 8, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        new FlowerBlock(
+            MobEffects.BLINDNESS,
+            8,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block RED_TULIP = register(
-        "red_tulip", new FlowerBlock(MobEffects.WEAKNESS, 9, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "red_tulip",
+        new FlowerBlock(
+            MobEffects.WEAKNESS,
+            9,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block ORANGE_TULIP = register(
         "orange_tulip",
-        new FlowerBlock(MobEffects.WEAKNESS, 9, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        new FlowerBlock(
+            MobEffects.WEAKNESS,
+            9,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block WHITE_TULIP = register(
-        "white_tulip", new FlowerBlock(MobEffects.WEAKNESS, 9, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "white_tulip",
+        new FlowerBlock(
+            MobEffects.WEAKNESS,
+            9,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block PINK_TULIP = register(
-        "pink_tulip", new FlowerBlock(MobEffects.WEAKNESS, 9, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "pink_tulip",
+        new FlowerBlock(
+            MobEffects.WEAKNESS,
+            9,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block OXEYE_DAISY = register(
         "oxeye_daisy",
-        new FlowerBlock(MobEffects.REGENERATION, 8, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        new FlowerBlock(
+            MobEffects.REGENERATION,
+            8,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block CORNFLOWER = register(
-        "cornflower", new FlowerBlock(MobEffects.JUMP, 6, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "cornflower",
+        new FlowerBlock(
+            MobEffects.JUMP,
+            6,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block WITHER_ROSE = register(
-        "wither_rose", new WitherRoseBlock(MobEffects.WITHER, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "wither_rose",
+        new WitherRoseBlock(
+            MobEffects.WITHER,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block LILY_OF_THE_VALLEY = register(
         "lily_of_the_valley",
-        new FlowerBlock(MobEffects.POISON, 12, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        new FlowerBlock(
+            MobEffects.POISON,
+            12,
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block BROWN_MUSHROOM = register(
         "brown_mushroom",
@@ -624,7 +709,10 @@ public class Blocks {
     );
     public static final Block MANGROVE_SIGN = register(
         "mangrove_sign",
-        new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).sound(SoundType.WOOD), WoodType.MANGROVE)
+        new StandingSignBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).sound(SoundType.WOOD),
+            WoodType.MANGROVE
+        )
     );
     public static final Block OAK_DOOR = register(
         "oak_door",
@@ -693,7 +781,12 @@ public class Blocks {
     public static final Block MANGROVE_WALL_SIGN = register(
         "mangrove_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).sound(SoundType.WOOD).dropsLike(MANGROVE_SIGN), WoodType.MANGROVE
+            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor())
+                .noCollission()
+                .strength(1.0F)
+                .sound(SoundType.WOOD)
+                .dropsLike(MANGROVE_SIGN),
+            WoodType.MANGROVE
         )
     );
     public static final Block LEVER = register(
@@ -1789,22 +1882,64 @@ public class Blocks {
         "packed_ice", new Block(BlockBehaviour.Properties.of(Material.ICE_SOLID).friction(0.98F).strength(0.5F).sound(SoundType.GLASS))
     );
     public static final Block SUNFLOWER = register(
-        "sunflower", new TallFlowerBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "sunflower",
+        new TallFlowerBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block LILAC = register(
-        "lilac", new TallFlowerBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "lilac",
+        new TallFlowerBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block ROSE_BUSH = register(
-        "rose_bush", new TallFlowerBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "rose_bush",
+        new TallFlowerBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block PEONY = register(
-        "peony", new TallFlowerBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "peony",
+        new TallFlowerBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block TALL_GRASS = register(
-        "tall_grass", new DoublePlantBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "tall_grass",
+        new DoublePlantBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block LARGE_FERN = register(
-        "large_fern", new DoublePlantBlock(BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT).noCollission().instabreak().sound(SoundType.GRASS))
+        "large_fern",
+        new DoublePlantBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+        )
     );
     public static final Block WHITE_BANNER = register(
         "white_banner", new BannerBlock(DyeColor.WHITE, BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).sound(SoundType.WOOD))
@@ -2789,7 +2924,13 @@ public class Blocks {
     public static final Block BAMBOO_SAPLING = register(
         "bamboo_sapling",
         new BambooSaplingBlock(
-            BlockBehaviour.Properties.of(Material.BAMBOO_SAPLING).randomTicks().instabreak().noCollission().strength(1.0F).sound(SoundType.BAMBOO_SAPLING)
+            BlockBehaviour.Properties.of(Material.BAMBOO_SAPLING)
+                .randomTicks()
+                .instabreak()
+                .noCollission()
+                .strength(1.0F)
+                .sound(SoundType.BAMBOO_SAPLING)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block BAMBOO = register(
@@ -2802,6 +2943,7 @@ public class Blocks {
                 .sound(SoundType.BAMBOO)
                 .noOcclusion()
                 .dynamicShape()
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block POTTED_BAMBOO = register(
@@ -2996,7 +3138,11 @@ public class Blocks {
     public static final Block WARPED_ROOTS = register(
         "warped_roots",
         new RootsBlock(
-            BlockBehaviour.Properties.of(Material.REPLACEABLE_FIREPROOF_PLANT, MaterialColor.COLOR_CYAN).noCollission().instabreak().sound(SoundType.ROOTS)
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_FIREPROOF_PLANT, MaterialColor.COLOR_CYAN)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.ROOTS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block NETHER_SPROUTS = register(
@@ -3006,6 +3152,7 @@ public class Blocks {
                 .noCollission()
                 .instabreak()
                 .sound(SoundType.NETHER_SPROUTS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block CRIMSON_STEM = register("crimson_stem", netherStem(MaterialColor.CRIMSON_STEM));
@@ -3066,7 +3213,11 @@ public class Blocks {
     public static final Block CRIMSON_ROOTS = register(
         "crimson_roots",
         new RootsBlock(
-            BlockBehaviour.Properties.of(Material.REPLACEABLE_FIREPROOF_PLANT, MaterialColor.NETHER).noCollission().instabreak().sound(SoundType.ROOTS)
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_FIREPROOF_PLANT, MaterialColor.NETHER)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.ROOTS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block CRIMSON_PLANKS = register(
@@ -3787,6 +3938,7 @@ public class Blocks {
                 .randomTicks()
                 .strength(1.5F, 3.0F)
                 .dynamicShape()
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block DRIPSTONE_BLOCK = register(
@@ -3837,12 +3989,19 @@ public class Blocks {
         "big_dripleaf_stem", new BigDripleafStemBlock(BlockBehaviour.Properties.of(Material.PLANT).noCollission().strength(0.1F).sound(SoundType.BIG_DRIPLEAF))
     );
     public static final Block SMALL_DRIPLEAF = register(
-        "small_dripleaf", new SmallDripleafBlock(BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.SMALL_DRIPLEAF))
+        "small_dripleaf",
+        new SmallDripleafBlock(
+            BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.SMALL_DRIPLEAF).offsetType(BlockBehaviour.OffsetType.XYZ)
+        )
     );
     public static final Block HANGING_ROOTS = register(
         "hanging_roots",
         new HangingRootsBlock(
-            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT, MaterialColor.DIRT).noCollission().instabreak().sound(SoundType.HANGING_ROOTS)
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT, MaterialColor.DIRT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.HANGING_ROOTS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
         )
     );
     public static final Block ROOTED_DIRT = register(

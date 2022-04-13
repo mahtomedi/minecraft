@@ -19,9 +19,9 @@ public class HumanoidMobRenderer<T extends Mob, M extends HumanoidModel<T>> exte
 
     public HumanoidMobRenderer(EntityRendererProvider.Context param0, M param1, float param2, float param3, float param4, float param5) {
         super(param0, param1, param2);
-        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), param3, param4, param5));
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), param3, param4, param5, param0.getItemInHandRenderer()));
         this.addLayer(new ElytraLayer<>(this, param0.getModelSet()));
-        this.addLayer(new ItemInHandLayer<>(this));
+        this.addLayer(new ItemInHandLayer<>(this, param0.getItemInHandRenderer()));
     }
 
     public ResourceLocation getTextureLocation(T param0) {

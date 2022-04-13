@@ -9,11 +9,11 @@ import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,7 +30,7 @@ public class PlayerMenuItem implements SpectatorMenuItem {
         if (var1.containsKey(Type.SKIN)) {
             this.location = var0.getSkinManager().registerTexture(var1.get(Type.SKIN), Type.SKIN);
         } else {
-            this.location = DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param0));
+            this.location = DefaultPlayerSkin.getDefaultSkin(UUIDUtil.getOrCreatePlayerUUID(param0));
         }
 
         this.name = new TextComponent(param0.getName());

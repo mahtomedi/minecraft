@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -167,20 +168,21 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob, Inve
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.populateDefaultEquipmentSlots(param1);
-        this.populateDefaultEquipmentEnchantments(param1);
+        RandomSource var0 = param0.getRandom();
+        this.populateDefaultEquipmentSlots(var0, param1);
+        this.populateDefaultEquipmentEnchantments(var0, param1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.CROSSBOW));
     }
 
     @Override
-    protected void enchantSpawnedWeapon(float param0) {
-        super.enchantSpawnedWeapon(param0);
-        if (this.random.nextInt(300) == 0) {
+    protected void enchantSpawnedWeapon(RandomSource param0, float param1) {
+        super.enchantSpawnedWeapon(param0, param1);
+        if (param0.nextInt(300) == 0) {
             ItemStack var0 = this.getMainHandItem();
             if (var0.is(Items.CROSSBOW)) {
                 Map<Enchantment, Integer> var1 = EnchantmentHelper.getEnchantments(var0);

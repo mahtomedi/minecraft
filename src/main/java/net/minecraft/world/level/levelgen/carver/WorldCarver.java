@@ -13,7 +13,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -34,52 +33,6 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     protected static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
     protected static final FluidState WATER = Fluids.WATER.defaultFluidState();
     protected static final FluidState LAVA = Fluids.LAVA.defaultFluidState();
-    protected Set<Block> replaceableBlocks = ImmutableSet.of(
-        Blocks.WATER,
-        Blocks.STONE,
-        Blocks.GRANITE,
-        Blocks.DIORITE,
-        Blocks.ANDESITE,
-        Blocks.DIRT,
-        Blocks.COARSE_DIRT,
-        Blocks.PODZOL,
-        Blocks.GRASS_BLOCK,
-        Blocks.TERRACOTTA,
-        Blocks.WHITE_TERRACOTTA,
-        Blocks.ORANGE_TERRACOTTA,
-        Blocks.MAGENTA_TERRACOTTA,
-        Blocks.LIGHT_BLUE_TERRACOTTA,
-        Blocks.YELLOW_TERRACOTTA,
-        Blocks.LIME_TERRACOTTA,
-        Blocks.PINK_TERRACOTTA,
-        Blocks.GRAY_TERRACOTTA,
-        Blocks.LIGHT_GRAY_TERRACOTTA,
-        Blocks.CYAN_TERRACOTTA,
-        Blocks.PURPLE_TERRACOTTA,
-        Blocks.BLUE_TERRACOTTA,
-        Blocks.BROWN_TERRACOTTA,
-        Blocks.GREEN_TERRACOTTA,
-        Blocks.RED_TERRACOTTA,
-        Blocks.BLACK_TERRACOTTA,
-        Blocks.SANDSTONE,
-        Blocks.RED_SANDSTONE,
-        Blocks.MYCELIUM,
-        Blocks.SNOW,
-        Blocks.PACKED_ICE,
-        Blocks.DEEPSLATE,
-        Blocks.CALCITE,
-        Blocks.SAND,
-        Blocks.RED_SAND,
-        Blocks.GRAVEL,
-        Blocks.TUFF,
-        Blocks.GRANITE,
-        Blocks.IRON_ORE,
-        Blocks.DEEPSLATE_IRON_ORE,
-        Blocks.RAW_IRON_BLOCK,
-        Blocks.COPPER_ORE,
-        Blocks.DEEPSLATE_COPPER_ORE,
-        Blocks.RAW_COPPER_BLOCK
-    );
     protected Set<Fluid> liquids = ImmutableSet.of(Fluids.WATER);
     private final Codec<ConfiguredWorldCarver<C>> configuredCodec;
 
@@ -179,7 +132,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             param8.setTrue();
         }
 
-        if (!this.canReplaceBlock(var0) && !isDebugEnabled(param1)) {
+        if (!this.canReplaceBlock(param1, var0) && !isDebugEnabled(param1)) {
             return false;
         } else {
             BlockState var1 = this.getCarveState(param0, param1, param5, param7);
@@ -240,8 +193,8 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
 
     public abstract boolean isStartChunk(C var1, RandomSource var2);
 
-    protected boolean canReplaceBlock(BlockState param0) {
-        return this.replaceableBlocks.contains(param0.getBlock());
+    protected boolean canReplaceBlock(C param0, BlockState param1) {
+        return param1.is(param0.replaceable);
     }
 
     protected static boolean canReach(ChunkPos param0, double param1, double param2, int param3, int param4, float param5) {

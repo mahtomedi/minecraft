@@ -112,10 +112,10 @@ public class ItemInHandRenderer {
     private final EntityRenderDispatcher entityRenderDispatcher;
     private final ItemRenderer itemRenderer;
 
-    public ItemInHandRenderer(Minecraft param0) {
+    public ItemInHandRenderer(Minecraft param0, EntityRenderDispatcher param1, ItemRenderer param2) {
         this.minecraft = param0;
-        this.entityRenderDispatcher = param0.getEntityRenderDispatcher();
-        this.itemRenderer = param0.getItemRenderer();
+        this.entityRenderDispatcher = param1;
+        this.itemRenderer = param2;
     }
 
     public void renderItem(

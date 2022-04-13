@@ -7,12 +7,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -205,7 +201,6 @@ import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
@@ -294,7 +289,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final DebugQueryHandler debugQueryHandler = new DebugQueryHandler(this);
     private int serverChunkRadius = 3;
     private int serverSimulationDistance = 3;
-    private final RandomSource random = RandomSource.create();
+    private final RandomSource random = RandomSource.createThreadSafe();
     private CommandDispatcher<SharedSuggestionProvider> commands = new CommandDispatcher<>();
     private final RecipeManager recipeManager = new RecipeManager();
     private final UUID id = UUID.randomUUID();
@@ -1631,85 +1626,70 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     @Override
     public void handleResourcePack(ClientboundResourcePackPacket param0) {
-        String var0 = param0.getUrl();
-        String var1 = param0.getHash();
-        boolean var2 = param0.isRequired();
-        if (this.validateResourcePackUrl(var0)) {
-            if (var0.startsWith("level://")) {
-                try {
-                    String var3 = URLDecoder.decode(var0.substring("level://".length()), StandardCharsets.UTF_8.toString());
-                    File var4 = new File(this.minecraft.gameDirectory, "saves");
-                    File var5 = new File(var4, var3);
-                    if (var5.isFile()) {
-                        this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                        CompletableFuture<?> var6 = this.minecraft.getClientPackSource().setServerPack(var5, PackSource.WORLD);
-                        this.downloadCallback(var6);
-                        return;
-                    }
-                } catch (UnsupportedEncodingException var9) {
+        URL var0 = parseResourcePackUrl(param0.getUrl());
+        if (var0 == null) {
+            this.send(ServerboundResourcePackPacket.Action.FAILED_DOWNLOAD);
+        } else {
+            String var1 = param0.getHash();
+            boolean var2 = param0.isRequired();
+            ServerData var3 = this.minecraft.getCurrentServer();
+            if (var3 != null && var3.getResourcePackStatus() == ServerData.ServerPackStatus.ENABLED) {
+                this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
+                this.downloadCallback(this.minecraft.getClientPackSource().downloadAndSelectResourcePack(var0, var1, true));
+            } else if (var3 != null
+                && var3.getResourcePackStatus() != ServerData.ServerPackStatus.PROMPT
+                && (!var2 || var3.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
+                this.send(ServerboundResourcePackPacket.Action.DECLINED);
+                if (var2) {
+                    this.connection.disconnect(new TranslatableComponent("multiplayer.requiredTexturePrompt.disconnect"));
                 }
-
-                this.send(ServerboundResourcePackPacket.Action.FAILED_DOWNLOAD);
             } else {
-                ServerData var7 = this.minecraft.getCurrentServer();
-                if (var7 != null && var7.getResourcePackStatus() == ServerData.ServerPackStatus.ENABLED) {
-                    this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                    this.downloadCallback(this.minecraft.getClientPackSource().downloadAndSelectResourcePack(var0, var1, true));
-                } else if (var7 != null
-                    && var7.getResourcePackStatus() != ServerData.ServerPackStatus.PROMPT
-                    && (!var2 || var7.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
-                    this.send(ServerboundResourcePackPacket.Action.DECLINED);
-                    if (var2) {
-                        this.connection.disconnect(new TranslatableComponent("multiplayer.requiredTexturePrompt.disconnect"));
-                    }
-                } else {
-                    this.minecraft
-                        .execute(
-                            () -> this.minecraft
-                                    .setScreen(
-                                        new ConfirmScreen(
-                                            param3x -> {
-                                                this.minecraft.setScreen(null);
-                                                ServerData var0x = this.minecraft.getCurrentServer();
-                                                if (param3x) {
-                                                    if (var0x != null) {
-                                                        var0x.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
-                                                    }
-                    
-                                                    this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                                                    this.downloadCallback(this.minecraft.getClientPackSource().downloadAndSelectResourcePack(var0, var1, true));
-                                                } else {
-                                                    this.send(ServerboundResourcePackPacket.Action.DECLINED);
-                                                    if (var2) {
-                                                        this.connection.disconnect(new TranslatableComponent("multiplayer.requiredTexturePrompt.disconnect"));
-                                                    } else if (var0x != null) {
-                                                        var0x.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
-                                                    }
-                                                }
-                    
+                this.minecraft
+                    .execute(
+                        () -> this.minecraft
+                                .setScreen(
+                                    new ConfirmScreen(
+                                        param3x -> {
+                                            this.minecraft.setScreen(null);
+                                            ServerData var0x = this.minecraft.getCurrentServer();
+                                            if (param3x) {
                                                 if (var0x != null) {
-                                                    ServerList.saveSingleServer(var0x);
+                                                    var0x.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
                                                 }
                     
-                                            },
-                                            var2
-                                                ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line1")
-                                                : new TranslatableComponent("multiplayer.texturePrompt.line1"),
-                                            preparePackPrompt(
-                                                (Component)(var2
-                                                    ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line2")
-                                                        .withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD})
-                                                    : new TranslatableComponent("multiplayer.texturePrompt.line2")),
-                                                param0.getPrompt()
-                                            ),
-                                            var2 ? CommonComponents.GUI_PROCEED : CommonComponents.GUI_YES,
-                                            (Component)(var2 ? new TranslatableComponent("menu.disconnect") : CommonComponents.GUI_NO)
-                                        )
+                                                this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
+                                                this.downloadCallback(this.minecraft.getClientPackSource().downloadAndSelectResourcePack(var0, var1, true));
+                                            } else {
+                                                this.send(ServerboundResourcePackPacket.Action.DECLINED);
+                                                if (var2) {
+                                                    this.connection.disconnect(new TranslatableComponent("multiplayer.requiredTexturePrompt.disconnect"));
+                                                } else if (var0x != null) {
+                                                    var0x.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
+                                                }
+                                            }
+                    
+                                            if (var0x != null) {
+                                                ServerList.saveSingleServer(var0x);
+                                            }
+                    
+                                        },
+                                        var2
+                                            ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line1")
+                                            : new TranslatableComponent("multiplayer.texturePrompt.line1"),
+                                        preparePackPrompt(
+                                            (Component)(var2
+                                                ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line2")
+                                                    .withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD})
+                                                : new TranslatableComponent("multiplayer.texturePrompt.line2")),
+                                            param0.getPrompt()
+                                        ),
+                                        var2 ? CommonComponents.GUI_PROCEED : CommonComponents.GUI_YES,
+                                        (Component)(var2 ? new TranslatableComponent("menu.disconnect") : CommonComponents.GUI_NO)
                                     )
-                        );
-                }
-
+                                )
+                    );
             }
+
         }
     }
 
@@ -1717,21 +1697,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
         return (Component)(param1 == null ? param0 : new TranslatableComponent("multiplayer.texturePrompt.serverPrompt", param0, param1));
     }
 
-    private boolean validateResourcePackUrl(String param0) {
+    @Nullable
+    private static URL parseResourcePackUrl(String param0) {
         try {
-            URI var0 = new URI(param0);
-            String var1 = var0.getScheme();
-            boolean var2 = "level".equals(var1);
-            if (!"http".equals(var1) && !"https".equals(var1) && !var2) {
-                throw new URISyntaxException(param0, "Wrong protocol");
-            } else if (!var2 || !param0.contains("..") && param0.endsWith("/resources.zip")) {
-                return true;
-            } else {
-                throw new URISyntaxException(param0, "Invalid levelstorage resourcepack path");
-            }
-        } catch (URISyntaxException var5) {
-            this.send(ServerboundResourcePackPacket.Action.FAILED_DOWNLOAD);
-            return false;
+            URL var0 = new URL(param0);
+            String var1 = var0.getProtocol();
+            return !"http".equals(var1) && !"https".equals(var1) ? null : var0;
+        } catch (MalformedURLException var3) {
+            return null;
         }
     }
 

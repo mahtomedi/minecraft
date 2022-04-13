@@ -6,6 +6,7 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -230,20 +231,36 @@ import net.minecraft.util.datafix.schemas.V704;
 import net.minecraft.util.datafix.schemas.V705;
 import net.minecraft.util.datafix.schemas.V808;
 import net.minecraft.util.datafix.schemas.V99;
+import org.slf4j.Logger;
 
 public class DataFixers {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final BiFunction<Integer, Schema, Schema> SAME = Schema::new;
     private static final BiFunction<Integer, Schema, Schema> SAME_NAMESPACED = NamespacedSchema::new;
-    private static final DataFixer DATA_FIXER = createFixerUpper();
+    private static final DataFixer dataFixer = createFixerUpper();
+    public static final int BLENDING_VERSION = 3088;
 
-    private static DataFixer createFixerUpper() {
-        DataFixerBuilder var0 = new DataFixerBuilder(SharedConstants.getCurrentVersion().getWorldVersion());
-        addFixers(var0);
-        return var0.build(Util.bootstrapExecutor());
+    private DataFixers() {
     }
 
     public static DataFixer getDataFixer() {
-        return DATA_FIXER;
+        return dataFixer;
+    }
+
+    private static synchronized DataFixer createFixerUpper() {
+        DataFixerBuilder var0 = new DataFixerBuilder(SharedConstants.getCurrentVersion().getWorldVersion());
+        addFixers(var0);
+
+        boolean var1 = switch(SharedConstants.DATAFIXER_OPTIMIZATION_OPTION) {
+            case UNINITIALIZED_OPTIMIZED -> true;
+            case UNINITIALIZED_UNOPTIMIZED -> false;
+            default -> throw new IllegalStateException("Already loaded");
+        };
+        SharedConstants.DATAFIXER_OPTIMIZATION_OPTION = var1
+            ? DataFixerOptimizationOption.INITIALIZED_OPTIMIZED
+            : DataFixerOptimizationOption.INITIALIZED_UNOPTIMIZED;
+        LOGGER.info("Building {} datafixer", var1 ? "optimized" : "unoptimized");
+        return var1 ? var0.buildOptimized(Util.bootstrapExecutor()) : var0.buildUnoptimized();
     }
 
     private static void addFixers(DataFixerBuilder param0) {
@@ -873,18 +890,16 @@ public class DataFixers {
         param0.addFixer(new AddNewChoices(var160, "Added Frog", References.ENTITY));
         param0.addFixer(new AddNewChoices(var160, "Added Tadpole", References.ENTITY));
         param0.addFixer(new AddNewChoices(var160, "Added Sculk Shrieker", References.BLOCK_ENTITY));
-        Schema var161 = param0.addSchema(3079, SAME_NAMESPACED);
-        param0.addFixer(new BlendingDataFix(var161, "Blending Data Fix v3079"));
-        Schema var162 = param0.addSchema(3081, V3081::new);
-        param0.addFixer(new AddNewChoices(var162, "Added Warden", References.ENTITY));
-        Schema var163 = param0.addSchema(3082, V3082::new);
-        param0.addFixer(new AddNewChoices(var163, "Added Chest Boat", References.ENTITY));
-        Schema var164 = param0.addSchema(3083, V3083::new);
-        param0.addFixer(new AddNewChoices(var164, "Added Allay", References.ENTITY));
-        Schema var165 = param0.addSchema(3084, SAME_NAMESPACED);
+        Schema var161 = param0.addSchema(3081, V3081::new);
+        param0.addFixer(new AddNewChoices(var161, "Added Warden", References.ENTITY));
+        Schema var162 = param0.addSchema(3082, V3082::new);
+        param0.addFixer(new AddNewChoices(var162, "Added Chest Boat", References.ENTITY));
+        Schema var163 = param0.addSchema(3083, V3083::new);
+        param0.addFixer(new AddNewChoices(var163, "Added Allay", References.ENTITY));
+        Schema var164 = param0.addSchema(3084, SAME_NAMESPACED);
         param0.addFixer(
             new SimpleRenameFix(
-                var165,
+                var164,
                 References.GAME_EVENT_NAME,
                 ImmutableMap.<String, String>builder()
                     .put("minecraft:block_press", "minecraft:block_activate")
@@ -905,12 +920,10 @@ public class DataFixers {
                     .build()
             )
         );
-        Schema var166 = param0.addSchema(3085, SAME_NAMESPACED);
-        param0.addFixer(new BlendingDataFix(var166, "Blending Data Fix v3085"));
-        Schema var167 = param0.addSchema(3086, SAME_NAMESPACED);
+        Schema var165 = param0.addSchema(3086, SAME_NAMESPACED);
         param0.addFixer(
             new EntityVariantFix(
-                var167, "Change cat variant type", References.ENTITY, "minecraft:cat", "CatType", Util.make(new Int2ObjectOpenHashMap(), param0x -> {
+                var165, "Change cat variant type", References.ENTITY, "minecraft:cat", "CatType", Util.make(new Int2ObjectOpenHashMap(), param0x -> {
                     param0x.defaultReturnValue("minecraft:tabby");
                     param0x.put(0, "minecraft:tabby");
                     param0x.put(1, "minecraft:black");
@@ -926,7 +939,7 @@ public class DataFixers {
                 })::get
             )
         );
-        ImmutableMap<String, String> var168 = ImmutableMap.<String, String>builder()
+        ImmutableMap<String, String> var166 = ImmutableMap.<String, String>builder()
             .put("textures/entity/cat/tabby.png", "minecraft:tabby")
             .put("textures/entity/cat/black.png", "minecraft:black")
             .put("textures/entity/cat/red.png", "minecraft:red")
@@ -941,21 +954,21 @@ public class DataFixers {
             .build();
         param0.addFixer(
             new CriteriaRenameFix(
-                var167, "Migrate cat variant advancement", "minecraft:husbandry/complete_catalogue", param1 -> var168.getOrDefault(param1, param1)
+                var165, "Migrate cat variant advancement", "minecraft:husbandry/complete_catalogue", param1 -> var166.getOrDefault(param1, param1)
             )
         );
-        Schema var169 = param0.addSchema(3087, SAME_NAMESPACED);
+        Schema var167 = param0.addSchema(3087, SAME_NAMESPACED);
         param0.addFixer(
             new EntityVariantFix(
-                var169, "Change frog variant type", References.ENTITY, "minecraft:frog", "Variant", Util.make(new Int2ObjectOpenHashMap(), param0x -> {
+                var167, "Change frog variant type", References.ENTITY, "minecraft:frog", "Variant", Util.make(new Int2ObjectOpenHashMap(), param0x -> {
                     param0x.put(0, "minecraft:temperate");
                     param0x.put(1, "minecraft:warm");
                     param0x.put(2, "minecraft:cold");
                 })::get
             )
         );
-        Schema var170 = param0.addSchema(3088, SAME_NAMESPACED);
-        param0.addFixer(new BlendingDataFix(var170, "Blending Data Fix v3088"));
+        Schema var168 = param0.addSchema(3088, SAME_NAMESPACED);
+        param0.addFixer(new BlendingDataFix(var168));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

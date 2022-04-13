@@ -237,16 +237,16 @@ public class Fox extends Animal {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
-        if (this.random.nextFloat() < 0.2F) {
-            float var0 = this.random.nextFloat();
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
+        if (param0.nextFloat() < 0.2F) {
+            float var0 = param0.nextFloat();
             ItemStack var1;
             if (var0 < 0.05F) {
                 var1 = new ItemStack(Items.EMERALD);
             } else if (var0 < 0.2F) {
                 var1 = new ItemStack(Items.EGG);
             } else if (var0 < 0.4F) {
-                var1 = this.random.nextBoolean() ? new ItemStack(Items.RABBIT_FOOT) : new ItemStack(Items.RABBIT_HIDE);
+                var1 = param0.nextBoolean() ? new ItemStack(Items.RABBIT_FOOT) : new ItemStack(Items.RABBIT_HIDE);
             } else if (var0 < 0.6F) {
                 var1 = new ItemStack(Items.WHEAT);
             } else if (var0 < 0.8F) {
@@ -313,9 +313,9 @@ public class Fox extends Animal {
         Holder<Biome> var0 = param0.getBiome(this.blockPosition());
         Fox.Type var1 = Fox.Type.byBiome(var0);
         boolean var2 = false;
-        if (param3 instanceof Fox.FoxGroupData) {
-            var1 = ((Fox.FoxGroupData)param3).type;
-            if (((Fox.FoxGroupData)param3).getGroupSize() >= 2) {
+        if (param3 instanceof Fox.FoxGroupData var3) {
+            var1 = var3.type;
+            if (var3.getGroupSize() >= 2) {
                 var2 = true;
             }
         } else {
@@ -331,7 +331,7 @@ public class Fox extends Animal {
             this.setTargetGoals();
         }
 
-        this.populateDefaultEquipmentSlots(param1);
+        this.populateDefaultEquipmentSlots(param0.getRandom(), param1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

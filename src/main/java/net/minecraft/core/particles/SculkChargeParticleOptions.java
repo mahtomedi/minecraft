@@ -14,6 +14,7 @@ public record SculkChargeParticleOptions(float roll) implements ParticleOptions 
     );
     public static final ParticleOptions.Deserializer<SculkChargeParticleOptions> DESERIALIZER = new ParticleOptions.Deserializer<SculkChargeParticleOptions>() {
         public SculkChargeParticleOptions fromCommand(ParticleType<SculkChargeParticleOptions> param0, StringReader param1) throws CommandSyntaxException {
+            param1.expect(' ');
             float var0 = param1.readFloat();
             return new SculkChargeParticleOptions(var0);
         }

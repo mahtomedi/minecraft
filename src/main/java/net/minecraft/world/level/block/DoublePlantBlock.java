@@ -117,11 +117,6 @@ public class DoublePlantBlock extends BushBlock {
     }
 
     @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
-
-    @Override
     public long getSeed(BlockState param0, BlockPos param1) {
         return Mth.getSeed(param1.getX(), param1.below(param0.getValue(HALF) == DoubleBlockHalf.LOWER ? 0 : 1).getY(), param1.getZ());
     }

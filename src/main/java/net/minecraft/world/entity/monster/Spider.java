@@ -156,24 +156,25 @@ public class Spider extends Monster {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        if (param0.getRandom().nextInt(100) == 0) {
-            Skeleton var0 = EntityType.SKELETON.create(this.level);
-            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-            var0.finalizeSpawn(param0, param1, param2, null, null);
-            var0.startRiding(this);
+        RandomSource var0 = param0.getRandom();
+        if (var0.nextInt(100) == 0) {
+            Skeleton var1 = EntityType.SKELETON.create(this.level);
+            var1.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+            var1.finalizeSpawn(param0, param1, param2, null, null);
+            var1.startRiding(this);
         }
 
         if (param3 == null) {
             param3 = new Spider.SpiderEffectsGroupData();
-            if (param0.getDifficulty() == Difficulty.HARD && param0.getRandom().nextFloat() < 0.1F * param1.getSpecialMultiplier()) {
-                ((Spider.SpiderEffectsGroupData)param3).setRandomEffect(param0.getRandom());
+            if (param0.getDifficulty() == Difficulty.HARD && var0.nextFloat() < 0.1F * param1.getSpecialMultiplier()) {
+                ((Spider.SpiderEffectsGroupData)param3).setRandomEffect(var0);
             }
         }
 
         if (param3 instanceof Spider.SpiderEffectsGroupData) {
-            MobEffect var1 = ((Spider.SpiderEffectsGroupData)param3).effect;
-            if (var1 != null) {
-                this.addEffect(new MobEffectInstance(var1, Integer.MAX_VALUE));
+            MobEffect var2 = ((Spider.SpiderEffectsGroupData)param3).effect;
+            if (var2 != null) {
+                this.addEffect(new MobEffectInstance(var2, Integer.MAX_VALUE));
             }
         }
 

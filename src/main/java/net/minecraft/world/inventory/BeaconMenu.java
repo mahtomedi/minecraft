@@ -1,5 +1,6 @@
 package net.minecraft.world.inventory;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
@@ -142,10 +143,10 @@ public class BeaconMenu extends AbstractContainerMenu {
         return MobEffect.byId(this.beaconData.get(2));
     }
 
-    public void updateEffects(MobEffect param0, MobEffect param1) {
+    public void updateEffects(Optional<MobEffect> param0, Optional<MobEffect> param1) {
         if (this.paymentSlot.hasItem()) {
-            this.beaconData.set(1, MobEffect.getId(param0));
-            this.beaconData.set(2, MobEffect.getId(param1));
+            this.beaconData.set(1, param0.map(MobEffect::getId).orElse(-1));
+            this.beaconData.set(2, param1.map(MobEffect::getId).orElse(-1));
             this.paymentSlot.remove(1);
             this.access.execute(Level::blockEntityChanged);
         }

@@ -88,7 +88,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        if (this.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty() && this.random.nextFloat() < 0.03F) {
+        if (this.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty() && param0.getRandom().nextFloat() < 0.03F) {
             this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.NAUTILUS_SHELL));
             this.handDropChances[EquipmentSlot.OFFHAND.getIndex()] = 2.0F;
         }
@@ -154,9 +154,9 @@ public class Drowned extends Zombie implements RangedAttackMob {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
-        if ((double)this.random.nextFloat() > 0.9) {
-            int var0 = this.random.nextInt(16);
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
+        if ((double)param0.nextFloat() > 0.9) {
+            int var0 = param0.nextInt(16);
             if (var0 < 10) {
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.TRIDENT));
             } else {

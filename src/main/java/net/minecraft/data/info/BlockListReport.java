@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +26,7 @@ public class BlockListReport implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) throws IOException {
+    public void run(CachedOutput param0) throws IOException {
         JsonObject var0 = new JsonObject();
 
         for(Block var1 : Registry.BLOCK) {

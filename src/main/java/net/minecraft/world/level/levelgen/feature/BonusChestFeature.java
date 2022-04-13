@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import java.util.List;
-import java.util.stream.Collectors;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.IntStream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -27,8 +26,8 @@ public class BonusChestFeature extends Feature<NoneFeatureConfiguration> {
         RandomSource var0 = param0.random();
         WorldGenLevel var1 = param0.level();
         ChunkPos var2 = new ChunkPos(param0.origin());
-        List<Integer> var3 = Util.shuffledCopy(IntStream.rangeClosed(var2.getMinBlockX(), var2.getMaxBlockX()).boxed().collect(Collectors.toList()), var0);
-        List<Integer> var4 = Util.shuffledCopy(IntStream.rangeClosed(var2.getMinBlockZ(), var2.getMaxBlockZ()).boxed().collect(Collectors.toList()), var0);
+        IntArrayList var3 = Util.toShuffledList(IntStream.rangeClosed(var2.getMinBlockX(), var2.getMaxBlockX()), var0);
+        IntArrayList var4 = Util.toShuffledList(IntStream.rangeClosed(var2.getMinBlockZ(), var2.getMaxBlockZ()), var0);
         BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
 
         for(Integer var6 : var3) {

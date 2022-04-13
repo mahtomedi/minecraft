@@ -131,7 +131,7 @@ public class EntityPredicate {
                 return false;
             } else {
                 if (this.steppingOnLocation != LocationPredicate.ANY) {
-                    Vec3 var0 = Vec3.atCenterOf(param2.getOnPos());
+                    Vec3 var0 = Vec3.atCenterOf(param2.getOnPosLegacy());
                     if (!this.steppingOnLocation.matches(param0, var0.x(), var0.y(), var0.z())) {
                         return false;
                     }

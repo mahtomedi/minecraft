@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -130,13 +131,14 @@ public class Vindicator extends AbstractIllager {
     ) {
         SpawnGroupData var0 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
-        this.populateDefaultEquipmentSlots(param1);
-        this.populateDefaultEquipmentEnchantments(param1);
+        RandomSource var1 = param0.getRandom();
+        this.populateDefaultEquipmentSlots(var1, param1);
+        this.populateDefaultEquipmentEnchantments(var1, param1);
         return var0;
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
         if (this.getCurrentRaid() == null) {
             this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
         }

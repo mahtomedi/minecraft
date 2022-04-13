@@ -2,9 +2,9 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
@@ -16,8 +16,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CampfireRenderer implements BlockEntityRenderer<CampfireBlockEntity> {
     private static final float SIZE = 0.375F;
+    private final ItemRenderer itemRenderer;
 
     public CampfireRenderer(BlockEntityRendererProvider.Context param0) {
+        this.itemRenderer = param0.getItemRenderer();
     }
 
     public void render(CampfireBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
@@ -36,7 +38,7 @@ public class CampfireRenderer implements BlockEntityRenderer<CampfireBlockEntity
                 param2.mulPose(Vector3f.XP.rotationDegrees(90.0F));
                 param2.translate(-0.3125, -0.3125, 0.0);
                 param2.scale(0.375F, 0.375F, 0.375F);
-                Minecraft.getInstance().getItemRenderer().renderStatic(var4, ItemTransforms.TransformType.FIXED, param4, param5, param2, param3, var2 + var3);
+                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, param4, param5, param2, param3, var2 + var3);
                 param2.popPose();
             }
         }

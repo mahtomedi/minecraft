@@ -16,9 +16,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.data.models.blockstates.BlockStateGenerator;
 import net.minecraft.data.models.model.DelegatedModel;
 import net.minecraft.data.models.model.ModelLocationUtils;
@@ -37,7 +37,7 @@ public class ModelProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) {
+    public void run(CachedOutput param0) {
         Path var0 = this.generator.getOutputFolder();
         Map<Block, BlockStateGenerator> var1 = Maps.newHashMap();
         Consumer<BlockStateGenerator> var2 = param1 -> {
@@ -81,7 +81,7 @@ public class ModelProvider implements DataProvider {
         }
     }
 
-    private <T> void saveCollection(HashCache param0, Path param1, Map<T, ? extends Supplier<JsonElement>> param2, BiFunction<Path, T, Path> param3) {
+    private <T> void saveCollection(CachedOutput param0, Path param1, Map<T, ? extends Supplier<JsonElement>> param2, BiFunction<Path, T, Path> param3) {
         param2.forEach((param3x, param4) -> {
             Path var0 = param3.apply(param1, param3x);
 

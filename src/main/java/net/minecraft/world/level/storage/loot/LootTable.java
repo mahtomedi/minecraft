@@ -9,6 +9,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
@@ -82,8 +83,8 @@ public class LootTable {
         this.getRandomItemsRaw(param0, createStackSplitter(param1));
     }
 
-    public List<ItemStack> getRandomItems(LootContext param0) {
-        List<ItemStack> var0 = Lists.newArrayList();
+    public ObjectArrayList<ItemStack> getRandomItems(LootContext param0) {
+        ObjectArrayList<ItemStack> var0 = new ObjectArrayList<>();
         this.getRandomItems(param0, var0::add);
         return var0;
     }
@@ -104,7 +105,7 @@ public class LootTable {
     }
 
     public void fill(Container param0, LootContext param1) {
-        List<ItemStack> var0 = this.getRandomItems(param1);
+        ObjectArrayList<ItemStack> var0 = this.getRandomItems(param1);
         RandomSource var1 = param1.getRandom();
         List<Integer> var2 = this.getAvailableSlots(param0, var1);
         this.shuffleAndSplitItems(var0, var2.size(), var1);
@@ -124,7 +125,7 @@ public class LootTable {
 
     }
 
-    private void shuffleAndSplitItems(List<ItemStack> param0, int param1, RandomSource param2) {
+    private void shuffleAndSplitItems(ObjectArrayList<ItemStack> param0, int param1, RandomSource param2) {
         List<ItemStack> var0 = Lists.newArrayList();
         Iterator<ItemStack> var1 = param0.iterator();
 
@@ -160,7 +161,7 @@ public class LootTable {
     }
 
     private List<Integer> getAvailableSlots(Container param0, RandomSource param1) {
-        List<Integer> var0 = Lists.newArrayList();
+        ObjectArrayList<Integer> var0 = new ObjectArrayList<>();
 
         for(int var1 = 0; var1 < param0.getContainerSize(); ++var1) {
             if (param0.getItem(var1).isEmpty()) {

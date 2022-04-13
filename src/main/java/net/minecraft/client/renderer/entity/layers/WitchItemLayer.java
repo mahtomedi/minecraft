@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.WitchModel;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,8 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class WitchItemLayer<T extends LivingEntity> extends CrossedArmsItemLayer<T, WitchModel<T>> {
-    public WitchItemLayer(RenderLayerParent<T, WitchModel<T>> param0) {
-        super(param0);
+    public WitchItemLayer(RenderLayerParent<T, WitchModel<T>> param0, ItemInHandRenderer param1) {
+        super(param0, param1);
     }
 
     @Override

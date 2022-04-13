@@ -92,6 +92,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected float oThunderLevel;
     protected float thunderLevel;
     public final RandomSource random = RandomSource.create();
+    @Deprecated
+    private final RandomSource threadSafeRandom = RandomSource.createThreadSafe();
     final DimensionType dimensionType;
     private final Holder<DimensionType> dimensionTypeRegistration;
     protected final WritableLevelData levelData;
@@ -278,7 +280,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
             boolean var3 = this.setBlock(param0, var1.createLegacyBlock(), 3, param3);
             if (var3) {
-                this.gameEvent(param2, GameEvent.BLOCK_DESTROY, param0);
+                this.gameEvent(GameEvent.BLOCK_DESTROY, param0, GameEvent.Context.of(param2, var0));
             }
 
             return var3;
@@ -379,11 +381,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void playSound(
         @Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5, float param6, float param7
     ) {
-        this.playSeededSound(param0, param1, param2, param3, param4, param5, param6, param7, this.random.nextLong());
+        this.playSeededSound(param0, param1, param2, param3, param4, param5, param6, param7, this.threadSafeRandom.nextLong());
     }
 
     public void playSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
-        this.playSeededSound(param0, param1, param2, param3, param4, param5, this.random.nextLong());
+        this.playSeededSound(param0, param1, param2, param3, param4, param5, this.threadSafeRandom.nextLong());
     }
 
     public void playLocalSound(double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7) {

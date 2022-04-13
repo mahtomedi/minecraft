@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
@@ -55,9 +56,9 @@ public class GoatAi {
     public static final float ADULT_RAM_KNOCKBACK_FORCE = 2.5F;
     public static final float BABY_RAM_KNOCKBACK_FORCE = 1.0F;
 
-    protected static void initMemories(Goat param0) {
-        param0.getBrain().setMemory(MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, TIME_BETWEEN_LONG_JUMPS.sample(param0.level.random));
-        param0.getBrain().setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, TIME_BETWEEN_RAMS.sample(param0.level.random));
+    protected static void initMemories(Goat param0, RandomSource param1) {
+        param0.getBrain().setMemory(MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, TIME_BETWEEN_LONG_JUMPS.sample(param1));
+        param0.getBrain().setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, TIME_BETWEEN_RAMS.sample(param1));
     }
 
     protected static Brain<?> makeBrain(Brain<Goat> param0) {

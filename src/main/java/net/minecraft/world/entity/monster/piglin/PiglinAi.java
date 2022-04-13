@@ -121,8 +121,8 @@ public class PiglinAi {
         return param1;
     }
 
-    protected static void initMemories(Piglin param0) {
-        int var0 = TIME_BETWEEN_HUNTS.sample(param0.level.random);
+    protected static void initMemories(Piglin param0, RandomSource param1) {
+        int var0 = TIME_BETWEEN_HUNTS.sample(param1);
         param0.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)var0);
     }
 
@@ -428,12 +428,13 @@ public class PiglinAi {
 
     private static List<ItemStack> getBarterResponseItems(Piglin param0) {
         LootTable var0 = param0.level.getServer().getLootTables().get(BuiltInLootTables.PIGLIN_BARTERING);
-        return var0.getRandomItems(
+        List<ItemStack> var1 = var0.getRandomItems(
             new LootContext.Builder((ServerLevel)param0.level)
                 .withParameter(LootContextParams.THIS_ENTITY, param0)
                 .withRandom(param0.level.random)
                 .create(LootContextParamSets.PIGLIN_BARTER)
         );
+        return var1;
     }
 
     private static boolean wantsToDance(LivingEntity param0x, LivingEntity param1) {

@@ -1,9 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.MinecartTNT;
@@ -13,8 +13,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TntMinecartRenderer extends MinecartRenderer<MinecartTNT> {
+    private final BlockRenderDispatcher blockRenderer;
+
     public TntMinecartRenderer(EntityRendererProvider.Context param0) {
         super(param0, ModelLayers.TNT_MINECART);
+        this.blockRenderer = param0.getBlockRenderDispatcher();
     }
 
     protected void renderMinecartContents(MinecartTNT param0, float param1, BlockState param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -28,17 +31,19 @@ public class TntMinecartRenderer extends MinecartRenderer<MinecartTNT> {
             param3.scale(var2, var2, var2);
         }
 
-        renderWhiteSolidBlock(param2, param3, param4, param5, var0 > -1 && var0 / 5 % 2 == 0);
+        renderWhiteSolidBlock(this.blockRenderer, param2, param3, param4, param5, var0 > -1 && var0 / 5 % 2 == 0);
     }
 
-    public static void renderWhiteSolidBlock(BlockState param0, PoseStack param1, MultiBufferSource param2, int param3, boolean param4) {
+    public static void renderWhiteSolidBlock(
+        BlockRenderDispatcher param0, BlockState param1, PoseStack param2, MultiBufferSource param3, int param4, boolean param5
+    ) {
         int var0;
-        if (param4) {
+        if (param5) {
             var0 = OverlayTexture.pack(OverlayTexture.u(1.0F), 10);
         } else {
             var0 = OverlayTexture.NO_OVERLAY;
         }
 
-        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param0, param1, param2, param3, var0);
+        param0.renderSingleBlock(param1, param2, param3, param4, var0);
     }
 }

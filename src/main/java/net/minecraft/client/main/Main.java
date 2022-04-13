@@ -30,13 +30,13 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.NativeModuleLister;
 import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -48,6 +48,7 @@ public class Main {
     @DontObfuscate
     public static void main(String[] param0) {
         SharedConstants.tryDetectVersion();
+        SharedConstants.enableDataFixerOptimizations();
         OptionParser var0 = new OptionParser();
         var0.allowsUnrecognizedOptions();
         var0.accepts("demo");
@@ -123,7 +124,7 @@ public class Main {
         File var46 = parseArgument(var27, var4);
         File var47 = var27.has(var5) ? parseArgument(var27, var5) : new File(var46, "assets/");
         File var48 = var27.has(var6) ? parseArgument(var27, var6) : new File(var46, "resourcepacks/");
-        String var49 = var27.has(var12) ? var12.value(var27) : Player.createPlayerUUID(var11.value(var27)).toString();
+        String var49 = var27.has(var12) ? var12.value(var27) : UUIDUtil.createOfflinePlayerUUID(var11.value(var27)).toString();
         String var50 = var27.has(var23) ? var23.value(var27) : null;
         String var51 = var27.valueOf(var13);
         String var52 = var27.valueOf(var14);

@@ -17,8 +17,8 @@ import net.minecraft.world.level.material.Fluid;
 
 public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
     Codec<BlockPredicate> CODEC = Registry.BLOCK_PREDICATE_TYPES.byNameCodec().dispatch(BlockPredicate::type, BlockPredicateType::codec);
-    BlockPredicate ONLY_IN_AIR_PREDICATE = matchesBlock(Blocks.AIR, BlockPos.ZERO);
-    BlockPredicate ONLY_IN_AIR_OR_WATER_PREDICATE = matchesBlocks(List.of(Blocks.AIR, Blocks.WATER), BlockPos.ZERO);
+    BlockPredicate ONLY_IN_AIR_PREDICATE = matchesBlocks(Blocks.AIR);
+    BlockPredicate ONLY_IN_AIR_OR_WATER_PREDICATE = matchesBlocks(Blocks.AIR, Blocks.WATER);
 
     BlockPredicateType<?> type();
 
@@ -46,32 +46,40 @@ public interface BlockPredicate extends BiPredicate<WorldGenLevel, BlockPos> {
         return anyOf(List.of(param0, param1));
     }
 
-    static BlockPredicate matchesBlocks(List<Block> param0, Vec3i param1) {
-        return new MatchingBlocksPredicate(param1, HolderSet.direct(Block::builtInRegistryHolder, param0));
+    static BlockPredicate matchesBlocks(Vec3i param0, List<Block> param1) {
+        return new MatchingBlocksPredicate(param0, HolderSet.direct(Block::builtInRegistryHolder, param1));
     }
 
     static BlockPredicate matchesBlocks(List<Block> param0) {
-        return matchesBlocks(param0, Vec3i.ZERO);
+        return matchesBlocks(Vec3i.ZERO, param0);
     }
 
-    static BlockPredicate matchesBlock(Block param0, Vec3i param1) {
-        return matchesBlocks(List.of(param0), param1);
+    static BlockPredicate matchesBlocks(Vec3i param0, Block... param1) {
+        return matchesBlocks(param0, List.of(param1));
     }
 
-    static BlockPredicate matchesTag(TagKey<Block> param0, Vec3i param1) {
-        return new MatchingBlockTagPredicate(param1, param0);
+    static BlockPredicate matchesBlocks(Block... param0) {
+        return matchesBlocks(Vec3i.ZERO, param0);
+    }
+
+    static BlockPredicate matchesTag(Vec3i param0, TagKey<Block> param1) {
+        return new MatchingBlockTagPredicate(param0, param1);
     }
 
     static BlockPredicate matchesTag(TagKey<Block> param0) {
-        return matchesTag(param0, Vec3i.ZERO);
+        return matchesTag(Vec3i.ZERO, param0);
     }
 
-    static BlockPredicate matchesFluids(List<Fluid> param0, Vec3i param1) {
-        return new MatchingFluidsPredicate(param1, HolderSet.direct(Fluid::builtInRegistryHolder, param0));
+    static BlockPredicate matchesFluids(Vec3i param0, List<Fluid> param1) {
+        return new MatchingFluidsPredicate(param0, HolderSet.direct(Fluid::builtInRegistryHolder, param1));
     }
 
-    static BlockPredicate matchesFluid(Fluid param0, Vec3i param1) {
-        return matchesFluids(List.of(param0), param1);
+    static BlockPredicate matchesFluids(Vec3i param0, Fluid... param1) {
+        return matchesFluids(param0, List.of(param1));
+    }
+
+    static BlockPredicate matchesFluids(Fluid... param0) {
+        return matchesFluids(Vec3i.ZERO, param0);
     }
 
     static BlockPredicate not(BlockPredicate param0) {

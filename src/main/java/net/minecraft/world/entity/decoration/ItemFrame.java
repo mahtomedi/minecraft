@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.decoration;
 
 import com.mojang.logging.LogUtils;
+import java.util.OptionalInt;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -181,12 +182,12 @@ public class ItemFrame extends HangingEntity {
 
     @Override
     public int getWidth() {
-        return 12;
+        return this.hasFramedMap() ? 16 : 12;
     }
 
     @Override
     public int getHeight() {
-        return 12;
+        return this.hasFramedMap() ? 16 : 12;
     }
 
     @Override
@@ -247,19 +248,35 @@ public class ItemFrame extends HangingEntity {
     }
 
     private void removeFramedMap(ItemStack param0) {
-        if (param0.is(Items.FILLED_MAP)) {
-            MapItemSavedData var0 = MapItem.getSavedData(param0, this.level);
+        this.getFramedMapId().ifPresent(param0x -> {
+            MapItemSavedData var0 = MapItem.getSavedData(param0x, this.level);
             if (var0 != null) {
                 var0.removedFromFrame(this.pos, this.getId());
                 var0.setDirty(true);
             }
-        }
 
+        });
         param0.setEntityRepresentation(null);
     }
 
     public ItemStack getItem() {
         return this.getEntityData().get(DATA_ITEM);
+    }
+
+    public OptionalInt getFramedMapId() {
+        ItemStack var0 = this.getItem();
+        if (var0.is(Items.FILLED_MAP)) {
+            Integer var1 = MapItem.getMapId(var0);
+            if (var1 != null) {
+                return OptionalInt.of(var1);
+            }
+        }
+
+        return OptionalInt.empty();
+    }
+
+    public boolean hasFramedMap() {
+        return this.getFramedMapId().isPresent();
     }
 
     public void setItem(ItemStack param0) {
@@ -270,9 +287,9 @@ public class ItemFrame extends HangingEntity {
         if (!param0.isEmpty()) {
             param0 = param0.copy();
             param0.setCount(1);
-            param0.setEntityRepresentation(this);
         }
 
+        this.onItemChanged(param0);
         this.getEntityData().set(DATA_ITEM, param0);
         if (!param0.isEmpty()) {
             this.playSound(this.getAddItemSound(), 1.0F, 1.0F);
@@ -307,12 +324,17 @@ public class ItemFrame extends HangingEntity {
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
         if (param0.equals(DATA_ITEM)) {
-            ItemStack var0 = this.getItem();
-            if (!var0.isEmpty() && var0.getFrame() != this) {
-                var0.setEntityRepresentation(this);
-            }
+            this.onItemChanged(this.getItem());
         }
 
+    }
+
+    private void onItemChanged(ItemStack param0) {
+        if (!param0.isEmpty() && param0.getFrame() != this) {
+            param0.setEntityRepresentation(this);
+        }
+
+        this.recalculateBoundingBox();
     }
 
     public int getRotation() {

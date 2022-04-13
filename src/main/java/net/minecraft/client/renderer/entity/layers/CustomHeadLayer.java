@@ -4,11 +4,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -35,17 +35,19 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
     private final float scaleY;
     private final float scaleZ;
     private final Map<SkullBlock.Type, SkullModelBase> skullModels;
+    private final ItemInHandRenderer itemInHandRenderer;
 
-    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1) {
-        this(param0, param1, 1.0F, 1.0F, 1.0F);
+    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, ItemInHandRenderer param2) {
+        this(param0, param1, 1.0F, 1.0F, 1.0F, param2);
     }
 
-    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, float param2, float param3, float param4) {
+    public CustomHeadLayer(RenderLayerParent<T, M> param0, EntityModelSet param1, float param2, float param3, float param4, ItemInHandRenderer param5) {
         super(param0);
         this.scaleX = param2;
         this.scaleY = param3;
         this.scaleZ = param4;
         this.skullModels = SkullBlockRenderer.createSkullRenderers(param1);
+        this.itemInHandRenderer = param5;
     }
 
     public void render(
@@ -88,7 +90,7 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var9, var10);
             } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
                 translateToHead(param0, var2);
-                Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);
+                this.itemInHandRenderer.renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);
             }
 
             param0.popPose();

@@ -6,9 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +14,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.Registry;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
@@ -46,7 +44,7 @@ public abstract class TagsProvider<T> implements DataProvider {
     protected abstract void addTags();
 
     @Override
-    public void run(HashCache param0) {
+    public void run(CachedOutput param0) {
         this.builders.clear();
         this.addTags();
         this.builders
@@ -69,18 +67,9 @@ public abstract class TagsProvider<T> implements DataProvider {
         
                         try {
                             String var3 = GSON.toJson((JsonElement)var1x);
-                            String var4 = SHA1.hashUnencodedChars(var3).toString();
-                            if (!Objects.equals(param0.getHash(var2), var4) || !Files.exists(var2)) {
-                                Files.createDirectories(var2.getParent());
-        
-                                try (BufferedWriter var5 = Files.newBufferedWriter(var2)) {
-                                    var5.write(var3);
-                                }
-                            }
-        
-                            param0.putNew(var2, var4);
-                        } catch (IOException var14) {
-                            LOGGER.error("Couldn't save tags to {}", var2, var14);
+                            param0.writeIfNeeded(var2, var3);
+                        } catch (IOException var8) {
+                            LOGGER.error("Couldn't save tags to {}", var2, var8);
                         }
         
                     }

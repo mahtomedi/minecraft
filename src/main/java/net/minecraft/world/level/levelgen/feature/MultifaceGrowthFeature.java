@@ -2,8 +2,6 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.stream.Collectors;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -26,7 +24,7 @@ public class MultifaceGrowthFeature extends Feature<MultifaceGrowthConfiguration
         if (!isAirOrWater(var0.getBlockState(var1))) {
             return false;
         } else {
-            List<Direction> var4 = getShuffledDirections(var3, var2);
+            List<Direction> var4 = var3.getShuffledDirections(var2);
             if (placeGrowthIfPossible(var0, var1, var0.getBlockState(var1), var3, var2, var4)) {
                 return true;
             } else {
@@ -34,7 +32,7 @@ public class MultifaceGrowthFeature extends Feature<MultifaceGrowthConfiguration
 
                 for(Direction var6 : var4) {
                     var5.set(var1);
-                    List<Direction> var7 = getShuffledDirectionsExcept(var3, var2, var6.getOpposite());
+                    List<Direction> var7 = var3.getShuffledDirectionsExcept(var2, var6.getOpposite());
 
                     for(int var8 = 0; var8 < var3.searchRange; ++var8) {
                         var5.setWithOffset(var1, var6);
@@ -78,14 +76,6 @@ public class MultifaceGrowthFeature extends Feature<MultifaceGrowthConfiguration
         }
 
         return false;
-    }
-
-    public static List<Direction> getShuffledDirections(MultifaceGrowthConfiguration param0, RandomSource param1) {
-        return Util.shuffledCopy(param0.validDirections, param1);
-    }
-
-    public static List<Direction> getShuffledDirectionsExcept(MultifaceGrowthConfiguration param0, RandomSource param1, Direction param2) {
-        return Util.shuffledCopy(param0.validDirections.stream().filter(param1x -> param1x != param2).collect(Collectors.toList()), param1);
     }
 
     private static boolean isAirOrWater(BlockState param0) {

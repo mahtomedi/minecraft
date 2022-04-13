@@ -370,10 +370,10 @@ public class Zombie extends Monster {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
-        super.populateDefaultEquipmentSlots(param0);
-        if (this.random.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.05F : 0.01F)) {
-            int var0 = this.random.nextInt(3);
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
+        super.populateDefaultEquipmentSlots(param0, param1);
+        if (param0.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.05F : 0.01F)) {
+            int var0 = param0.nextInt(3);
             if (var0 == 0) {
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
             } else {
@@ -448,53 +448,54 @@ public class Zombie extends Monster {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
+        RandomSource var0 = param0.getRandom();
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        float var0 = param1.getSpecialMultiplier();
-        this.setCanPickUpLoot(this.random.nextFloat() < 0.55F * var0);
+        float var1 = param1.getSpecialMultiplier();
+        this.setCanPickUpLoot(var0.nextFloat() < 0.55F * var1);
         if (param3 == null) {
-            param3 = new Zombie.ZombieGroupData(getSpawnAsBabyOdds(param0.getRandom()), true);
+            param3 = new Zombie.ZombieGroupData(getSpawnAsBabyOdds(var0), true);
         }
 
-        if (param3 instanceof Zombie.ZombieGroupData var1) {
-            if (var1.isBaby) {
+        if (param3 instanceof Zombie.ZombieGroupData var2) {
+            if (var2.isBaby) {
                 this.setBaby(true);
-                if (var1.canSpawnJockey) {
-                    if ((double)param0.getRandom().nextFloat() < 0.05) {
-                        List<Chicken> var2 = param0.getEntitiesOfClass(
+                if (var2.canSpawnJockey) {
+                    if ((double)var0.nextFloat() < 0.05) {
+                        List<Chicken> var3 = param0.getEntitiesOfClass(
                             Chicken.class, this.getBoundingBox().inflate(5.0, 3.0, 5.0), EntitySelector.ENTITY_NOT_BEING_RIDDEN
                         );
-                        if (!var2.isEmpty()) {
-                            Chicken var3 = var2.get(0);
-                            var3.setChickenJockey(true);
-                            this.startRiding(var3);
+                        if (!var3.isEmpty()) {
+                            Chicken var4 = var3.get(0);
+                            var4.setChickenJockey(true);
+                            this.startRiding(var4);
                         }
-                    } else if ((double)param0.getRandom().nextFloat() < 0.05) {
-                        Chicken var4 = EntityType.CHICKEN.create(this.level);
-                        var4.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                        var4.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
-                        var4.setChickenJockey(true);
-                        this.startRiding(var4);
-                        param0.addFreshEntity(var4);
+                    } else if ((double)var0.nextFloat() < 0.05) {
+                        Chicken var5 = EntityType.CHICKEN.create(this.level);
+                        var5.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                        var5.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
+                        var5.setChickenJockey(true);
+                        this.startRiding(var5);
+                        param0.addFreshEntity(var5);
                     }
                 }
             }
 
-            this.setCanBreakDoors(this.supportsBreakDoorGoal() && this.random.nextFloat() < var0 * 0.1F);
-            this.populateDefaultEquipmentSlots(param1);
-            this.populateDefaultEquipmentEnchantments(param1);
+            this.setCanBreakDoors(this.supportsBreakDoorGoal() && var0.nextFloat() < var1 * 0.1F);
+            this.populateDefaultEquipmentSlots(var0, param1);
+            this.populateDefaultEquipmentEnchantments(var0, param1);
         }
 
         if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
-            LocalDate var5 = LocalDate.now();
-            int var6 = var5.get(ChronoField.DAY_OF_MONTH);
-            int var7 = var5.get(ChronoField.MONTH_OF_YEAR);
-            if (var7 == 10 && var6 == 31 && this.random.nextFloat() < 0.25F) {
-                this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(this.random.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
+            LocalDate var6 = LocalDate.now();
+            int var7 = var6.get(ChronoField.DAY_OF_MONTH);
+            int var8 = var6.get(ChronoField.MONTH_OF_YEAR);
+            if (var8 == 10 && var7 == 31 && var0.nextFloat() < 0.25F) {
+                this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(var0.nextFloat() < 0.1F ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
                 this.armorDropChances[EquipmentSlot.HEAD.getIndex()] = 0.0F;
             }
         }
 
-        this.handleAttributes(var0);
+        this.handleAttributes(var1);
         return param3;
     }
 

@@ -217,31 +217,32 @@ public class TropicalFish extends AbstractSchoolingFish {
             this.setVariant(param4.getInt("BucketVariantTag"));
             return param3;
         } else {
-            int var1;
+            RandomSource var0 = param0.getRandom();
             int var2;
             int var3;
             int var4;
-            if (param3 instanceof TropicalFish.TropicalFishGroupData var0) {
-                var1 = var0.base;
-                var2 = var0.pattern;
-                var3 = var0.baseColor;
-                var4 = var0.patternColor;
-            } else if ((double)this.random.nextFloat() < 0.9) {
-                int var5 = Util.getRandom(COMMON_VARIANTS, this.random);
-                var1 = var5 & 0xFF;
-                var2 = (var5 & 0xFF00) >> 8;
-                var3 = (var5 & 0xFF0000) >> 16;
-                var4 = (var5 & 0xFF000000) >> 24;
-                param3 = new TropicalFish.TropicalFishGroupData(this, var1, var2, var3, var4);
+            int var5;
+            if (param3 instanceof TropicalFish.TropicalFishGroupData var1) {
+                var2 = var1.base;
+                var3 = var1.pattern;
+                var4 = var1.baseColor;
+                var5 = var1.patternColor;
+            } else if ((double)var0.nextFloat() < 0.9) {
+                int var6 = Util.getRandom(COMMON_VARIANTS, var0);
+                var2 = var6 & 0xFF;
+                var3 = (var6 & 0xFF00) >> 8;
+                var4 = (var6 & 0xFF0000) >> 16;
+                var5 = (var6 & 0xFF000000) >> 24;
+                param3 = new TropicalFish.TropicalFishGroupData(this, var2, var3, var4, var5);
             } else {
                 this.isSchool = false;
-                var1 = this.random.nextInt(2);
-                var2 = this.random.nextInt(6);
-                var3 = this.random.nextInt(15);
-                var4 = this.random.nextInt(15);
+                var2 = var0.nextInt(2);
+                var3 = var0.nextInt(6);
+                var4 = var0.nextInt(15);
+                var5 = var0.nextInt(15);
             }
 
-            this.setVariant(var1 | var2 << 8 | var3 << 16 | var4 << 24);
+            this.setVariant(var2 | var3 << 8 | var4 << 16 | var5 << 24);
             return param3;
         }
     }

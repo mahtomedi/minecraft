@@ -320,13 +320,14 @@ public class Slime extends Mob implements Enemy {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        int var0 = this.random.nextInt(3);
-        if (var0 < 2 && this.random.nextFloat() < 0.5F * param1.getSpecialMultiplier()) {
-            ++var0;
+        RandomSource var0 = param0.getRandom();
+        int var1 = var0.nextInt(3);
+        if (var1 < 2 && var0.nextFloat() < 0.5F * param1.getSpecialMultiplier()) {
+            ++var1;
         }
 
-        int var1 = 1 << var0;
-        this.setSize(var1, true);
+        int var2 = 1 << var1;
+        this.setSize(var2, true);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

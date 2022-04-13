@@ -1,8 +1,11 @@
 package net.minecraft.world.level.gameevent;
 
+import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class GameEvent {
     public static final GameEvent BLOCK_ACTIVATE = register("block_activate");
@@ -85,5 +88,19 @@ public class GameEvent {
 
     public boolean is(TagKey<GameEvent> param0) {
         return this.builtInRegistryHolder.is(param0);
+    }
+
+    public static record Context(@Nullable Entity sourceEntity, @Nullable BlockState affectedState) {
+        public static GameEvent.Context of(@Nullable Entity param0) {
+            return new GameEvent.Context(param0, null);
+        }
+
+        public static GameEvent.Context of(@Nullable BlockState param0) {
+            return new GameEvent.Context(null, param0);
+        }
+
+        public static GameEvent.Context of(@Nullable Entity param0, @Nullable BlockState param1) {
+            return new GameEvent.Context(param0, param1);
+        }
     }
 }

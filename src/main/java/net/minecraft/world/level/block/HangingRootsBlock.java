@@ -72,9 +72,4 @@ public class HangingRootsBlock extends Block implements SimpleWaterloggedBlock {
             return super.updateShape(param0, param1, param2, param3, param4, param5);
         }
     }
-
-    @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
 }

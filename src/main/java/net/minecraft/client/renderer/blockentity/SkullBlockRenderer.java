@@ -22,8 +22,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.WallSkullBlock;
@@ -103,7 +103,7 @@ public class SkullBlockRenderer implements BlockEntityRenderer<SkullBlockEntity>
             Map<Type, MinecraftProfileTexture> var2 = var1.getSkinManager().getInsecureSkinInformation(param1);
             return var2.containsKey(Type.SKIN)
                 ? RenderType.entityTranslucent(var1.getSkinManager().registerTexture(var2.get(Type.SKIN), Type.SKIN))
-                : RenderType.entityCutoutNoCull(DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param1)));
+                : RenderType.entityCutoutNoCull(DefaultPlayerSkin.getDefaultSkin(UUIDUtil.getOrCreatePlayerUUID(param1)));
         } else {
             return RenderType.entityCutoutNoCullZOffset(var0);
         }

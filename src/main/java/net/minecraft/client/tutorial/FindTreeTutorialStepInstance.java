@@ -1,16 +1,17 @@
 package net.minecraft.client.tutorial;
 
-import com.google.common.collect.Sets;
-import java.util.Set;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -20,34 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class FindTreeTutorialStepInstance implements TutorialStepInstance {
     private static final int HINT_DELAY = 6000;
-    private static final Set<Block> TREE_BLOCKS = Sets.newHashSet(
-        Blocks.OAK_LOG,
-        Blocks.SPRUCE_LOG,
-        Blocks.BIRCH_LOG,
-        Blocks.JUNGLE_LOG,
-        Blocks.ACACIA_LOG,
-        Blocks.DARK_OAK_LOG,
-        Blocks.WARPED_STEM,
-        Blocks.CRIMSON_STEM,
-        Blocks.OAK_WOOD,
-        Blocks.SPRUCE_WOOD,
-        Blocks.BIRCH_WOOD,
-        Blocks.JUNGLE_WOOD,
-        Blocks.ACACIA_WOOD,
-        Blocks.DARK_OAK_WOOD,
-        Blocks.WARPED_HYPHAE,
-        Blocks.CRIMSON_HYPHAE,
-        Blocks.OAK_LEAVES,
-        Blocks.SPRUCE_LEAVES,
-        Blocks.BIRCH_LEAVES,
-        Blocks.JUNGLE_LEAVES,
-        Blocks.ACACIA_LEAVES,
-        Blocks.DARK_OAK_LEAVES,
-        Blocks.NETHER_WART_BLOCK,
-        Blocks.WARPED_WART_BLOCK,
-        Blocks.AZALEA_LEAVES,
-        Blocks.FLOWERING_AZALEA_LEAVES
-    );
     private static final Component TITLE = new TranslatableComponent("tutorial.find_tree.title");
     private static final Component DESCRIPTION = new TranslatableComponent("tutorial.find_tree.description");
     private final Tutorial tutorial;
@@ -66,18 +39,9 @@ public class FindTreeTutorialStepInstance implements TutorialStepInstance {
         } else {
             if (this.timeWaiting == 1) {
                 LocalPlayer var0 = this.tutorial.getMinecraft().player;
-                if (var0 != null) {
-                    for(Block var1 : TREE_BLOCKS) {
-                        if (var0.getInventory().contains(new ItemStack(var1))) {
-                            this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
-                            return;
-                        }
-                    }
-
-                    if (hasPunchedTreesPreviously(var0)) {
-                        this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
-                        return;
-                    }
+                if (var0 != null && (hasCollectedTreeItems(var0) || hasPunchedTreesPreviously(var0))) {
+                    this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
+                    return;
                 }
             }
 
@@ -102,7 +66,7 @@ public class FindTreeTutorialStepInstance implements TutorialStepInstance {
     public void onLookAt(ClientLevel param0, HitResult param1) {
         if (param1.getType() == HitResult.Type.BLOCK) {
             BlockState var0 = param0.getBlockState(((BlockHitResult)param1).getBlockPos());
-            if (TREE_BLOCKS.contains(var0.getBlock())) {
+            if (var0.is(BlockTags.COMPLETES_FIND_TREE_TUTORIAL)) {
                 this.tutorial.setStep(TutorialSteps.PUNCH_TREE);
             }
         }
@@ -111,18 +75,20 @@ public class FindTreeTutorialStepInstance implements TutorialStepInstance {
 
     @Override
     public void onGetItem(ItemStack param0) {
-        for(Block var0 : TREE_BLOCKS) {
-            if (param0.is(var0.asItem())) {
-                this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
-                return;
-            }
+        if (param0.is(ItemTags.COMPLETES_FIND_TREE_TUTORIAL)) {
+            this.tutorial.setStep(TutorialSteps.CRAFT_PLANKS);
         }
 
     }
 
+    private static boolean hasCollectedTreeItems(LocalPlayer param0) {
+        return param0.getInventory().hasAnyMatching(param0x -> param0x.is(ItemTags.COMPLETES_FIND_TREE_TUTORIAL));
+    }
+
     public static boolean hasPunchedTreesPreviously(LocalPlayer param0) {
-        for(Block var0 : TREE_BLOCKS) {
-            if (param0.getStats().getValue(Stats.BLOCK_MINED.get(var0)) > 0) {
+        for(Holder<Block> var0 : Registry.BLOCK.getTagOrEmpty(BlockTags.COMPLETES_FIND_TREE_TUTORIAL)) {
+            Block var1 = var0.value();
+            if (param0.getStats().getValue(Stats.BLOCK_MINED.get(var1)) > 0) {
                 return true;
             }
         }

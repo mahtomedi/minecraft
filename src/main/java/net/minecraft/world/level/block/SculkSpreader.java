@@ -9,6 +9,7 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -184,8 +185,8 @@ public class SculkSpreader {
     }
 
     public static class ChargeCursor {
-        private static final List<Vec3i> NON_CORNER_NEIGHBOURS = Util.make(
-            new ArrayList<>(18),
+        private static final ObjectArrayList<Vec3i> NON_CORNER_NEIGHBOURS = Util.make(
+            new ObjectArrayList<>(18),
             param0 -> BlockPos.betweenClosedStream(new BlockPos(-1, -1, -1), new BlockPos(1, 1, 1))
                     .filter(param0x -> (param0x.getX() == 0 || param0x.getY() == 0 || param0x.getZ() == 0) && !param0x.equals(BlockPos.ZERO))
                     .map(BlockPos::immutable)

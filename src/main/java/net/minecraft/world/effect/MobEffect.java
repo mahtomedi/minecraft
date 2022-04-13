@@ -37,6 +37,10 @@ public class MobEffect {
         return Registry.MOB_EFFECT.getId(param0);
     }
 
+    public static int getIdFromNullable(@Nullable MobEffect param0) {
+        return Registry.MOB_EFFECT.getId(param0);
+    }
+
     protected MobEffect(MobEffectCategory param0, int param1) {
         this.category = param0;
         this.color = param1;

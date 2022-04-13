@@ -3,11 +3,11 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.MinecartModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -22,11 +22,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer<T> {
     private static final ResourceLocation MINECART_LOCATION = new ResourceLocation("textures/entity/minecart.png");
     protected final EntityModel<T> model;
+    private final BlockRenderDispatcher blockRenderer;
 
     public MinecartRenderer(EntityRendererProvider.Context param0, ModelLayerLocation param1) {
         super(param0);
         this.shadowRadius = 0.7F;
         this.model = new MinecartModel<>(param0.bakeLayer(param1));
+        this.blockRenderer = param0.getBlockRenderDispatcher();
     }
 
     public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -101,6 +103,6 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
     }
 
     protected void renderMinecartContents(T param0, float param1, BlockState param2, PoseStack param3, MultiBufferSource param4, int param5) {
-        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param2, param3, param4, param5, OverlayTexture.NO_OVERLAY);
+        this.blockRenderer.renderSingleBlock(param2, param3, param4, param5, OverlayTexture.NO_OVERLAY);
     }
 }

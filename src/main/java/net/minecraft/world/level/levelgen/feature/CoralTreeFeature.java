@@ -1,9 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import java.util.List;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -31,7 +29,7 @@ public class CoralTreeFeature extends CoralFeature {
 
         BlockPos var3 = var0.immutable();
         int var4 = param1.nextInt(3) + 2;
-        List<Direction> var5 = Util.shuffledCopy(Lists.newArrayList(Direction.Plane.HORIZONTAL), param1);
+        List<Direction> var5 = Direction.Plane.HORIZONTAL.shuffledCopy(param1);
 
         for(Direction var7 : var5.subList(0, var4)) {
             var0.set(var3);

@@ -20,8 +20,9 @@ import net.minecraft.advancements.critereon.ItemInteractWithBlockTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.PickedUpItemTrigger;
 import net.minecraft.advancements.critereon.PlacedBlockTrigger;
-import net.minecraft.advancements.critereon.PlayerTrigger;
+import net.minecraft.advancements.critereon.PlayerInteractTrigger;
 import net.minecraft.advancements.critereon.StartRidingTrigger;
 import net.minecraft.advancements.critereon.TameAnimalTrigger;
 import net.minecraft.core.Registry;
@@ -365,8 +366,21 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .save(param0, "husbandry/tadpole_in_a_bucket");
-        Advancement.Builder.advancement()
+        Advancement var10 = this.addLeashedFrogVariants(Advancement.Builder.advancement())
             .parent(var9)
+            .display(
+                Items.LEAD,
+                new TranslatableComponent("advancements.husbandry.leash_all_frog_variants.title"),
+                new TranslatableComponent("advancements.husbandry.leash_all_frog_variants.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .save(param0, "husbandry/leash_all_frog_variants");
+        Advancement.Builder.advancement()
+            .parent(var10)
             .display(
                 Items.VERDANT_FROGLIGHT,
                 new TranslatableComponent("advancements.husbandry.froglights.title"),
@@ -447,7 +461,7 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 )
             )
             .save(param0, "husbandry/make_a_sign_glow");
-        Advancement var10 = Advancement.Builder.advancement()
+        Advancement var11 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
                 Items.COOKIE,
@@ -459,14 +473,21 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 true
             )
-            .addCriterion("allay_deliver_item_to_player", PlayerTrigger.TriggerInstance.itemDeliveredToPlayer())
+            .addCriterion(
+                "allay_deliver_item_to_player",
+                PickedUpItemTrigger.TriggerInstance.thrownItemPickedUpByPlayer(
+                    EntityPredicate.Composite.ANY,
+                    ItemPredicate.ANY,
+                    EntityPredicate.Composite.wrap(EntityPredicate.Builder.entity().of(EntityType.ALLAY).build())
+                )
+            )
             .save(param0, "husbandry/allay_deliver_item_to_player");
         Advancement.Builder.advancement()
-            .parent(var10)
+            .parent(var11)
             .display(
                 Items.NOTE_BLOCK,
-                new TranslatableComponent("advancements.husbandry.allay_deliver_cake_to_noteblock.title"),
-                new TranslatableComponent("advancements.husbandry.allay_deliver_cake_to_noteblock.description"),
+                new TranslatableComponent("advancements.husbandry.allay_deliver_cake_to_note_block.title"),
+                new TranslatableComponent("advancements.husbandry.allay_deliver_cake_to_note_block.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -474,13 +495,30 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 true
             )
             .addCriterion(
-                "allay_deliver_cake_to_noteblock",
+                "allay_deliver_cake_to_note_block",
                 ItemInteractWithBlockTrigger.TriggerInstance.allayDropItemOnBlock(
                     LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.NOTE_BLOCK).build()),
                     ItemPredicate.Builder.item().of(Items.CAKE)
                 )
             )
-            .save(param0, "husbandry/allay_deliver_cake_to_noteblock");
+            .save(param0, "husbandry/allay_deliver_cake_to_note_block");
+    }
+
+    private Advancement.Builder addLeashedFrogVariants(Advancement.Builder param0) {
+        Registry.FROG_VARIANT
+            .holders()
+            .forEach(
+                param1 -> param0.addCriterion(
+                        param1.key().location().toString(),
+                        PlayerInteractTrigger.TriggerInstance.itemUsedOnEntity(
+                            ItemPredicate.Builder.item().of(Items.LEAD),
+                            EntityPredicate.Composite.wrap(
+                                EntityPredicate.Builder.entity().of(EntityType.FROG).subPredicate(EntitySubPredicate.variant(param1.value())).build()
+                            )
+                        )
+                    )
+            );
+        return param0;
     }
 
     private Advancement.Builder addFood(Advancement.Builder param0) {

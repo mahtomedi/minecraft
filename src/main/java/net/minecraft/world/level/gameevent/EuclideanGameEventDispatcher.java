@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 public class EuclideanGameEventDispatcher implements GameEventDispatcher {
@@ -50,7 +49,7 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
     }
 
     @Override
-    public void post(GameEvent param0, @Nullable Entity param1, Vec3 param2) {
+    public void post(GameEvent param0, Vec3 param1, @Nullable GameEvent.Context param2) {
         boolean var0 = false;
         this.processing = true;
 
@@ -61,7 +60,7 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
                 GameEventListener var2 = var1.next();
                 if (this.listenersToRemove.remove(var2)) {
                     var1.remove();
-                } else if (postToListener(this.level, param0, param1, param2, var2)) {
+                } else if (postToListener(this.level, param0, param2, param1, var2)) {
                     var0 = true;
                 }
             }
@@ -80,12 +79,12 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
         }
 
         if (var0) {
-            DebugPackets.sendGameEventInfo(this.level, param0, param2);
+            DebugPackets.sendGameEventInfo(this.level, param0, param1);
         }
 
     }
 
-    private static boolean postToListener(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3, GameEventListener param4) {
+    private static boolean postToListener(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3, GameEventListener param4) {
         Optional<Vec3> var0 = param4.getListenerSource().getPosition(param0);
         if (var0.isEmpty()) {
             return false;

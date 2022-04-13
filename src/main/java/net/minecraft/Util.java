@@ -12,6 +12,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.Hash.Strategy;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -28,7 +30,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -691,13 +692,37 @@ public class Util {
         };
     }
 
-    public static <T> List<T> shuffledCopy(List<T> param0, RandomSource param1) {
-        List<T> var0 = new ArrayList<>(param0);
+    public static <T> List<T> toShuffledList(Stream<T> param0, RandomSource param1) {
+        ObjectArrayList<T> var0 = param0.collect(ObjectArrayList.toList());
         shuffle(var0, param1);
         return var0;
     }
 
-    public static <T> void shuffle(List<T> param0, RandomSource param1) {
+    public static IntArrayList toShuffledList(IntStream param0, RandomSource param1) {
+        IntArrayList var0 = IntArrayList.wrap(param0.toArray());
+        int var1 = var0.size();
+
+        for(int var2 = var1; var2 > 1; --var2) {
+            int var3 = param1.nextInt(var2);
+            var0.set(var2 - 1, var0.set(var3, var0.getInt(var2 - 1)));
+        }
+
+        return var0;
+    }
+
+    public static <T> List<T> shuffledCopy(T[] param0, RandomSource param1) {
+        ObjectArrayList<T> var0 = new ObjectArrayList<>(param0);
+        shuffle(var0, param1);
+        return var0;
+    }
+
+    public static <T> List<T> shuffledCopy(ObjectArrayList<T> param0, RandomSource param1) {
+        ObjectArrayList<T> var0 = new ObjectArrayList<>(param0);
+        shuffle(var0, param1);
+        return var0;
+    }
+
+    public static <T> void shuffle(ObjectArrayList<T> param0, RandomSource param1) {
         int var0 = param0.size();
 
         for(int var1 = var0; var1 > 1; --var1) {

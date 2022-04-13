@@ -431,7 +431,7 @@ public class Block extends BlockBehaviour implements ItemLike {
             PiglinAi.angerNearbyPiglins(param3, false);
         }
 
-        param0.gameEvent(param3, GameEvent.BLOCK_DESTROY, param1);
+        param0.gameEvent(GameEvent.BLOCK_DESTROY, param1, GameEvent.Context.of(param3, param2));
     }
 
     public void handlePrecipitation(BlockState param0, Level param1, BlockPos param2, Biome.Precipitation param3) {

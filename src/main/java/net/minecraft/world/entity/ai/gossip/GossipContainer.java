@@ -22,7 +22,7 @@ import java.util.function.DoublePredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import net.minecraft.core.SerializableUUID;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.VisibleForDebug;
 
@@ -246,7 +246,7 @@ public class GossipContainer {
                 param0.createMap(
                     ImmutableMap.of(
                         param0.createString("Target"),
-                        SerializableUUID.CODEC.encodeStart(param0, this.target).result().orElseThrow(RuntimeException::new),
+                        UUIDUtil.CODEC.encodeStart(param0, this.target).result().orElseThrow(RuntimeException::new),
                         param0.createString("Type"),
                         param0.createString(this.type.id),
                         param0.createString("Value"),
@@ -260,7 +260,7 @@ public class GossipContainer {
             return DataResult.unbox(
                 DataResult.instance()
                     .group(
-                        param0.get("Target").read(SerializableUUID.CODEC),
+                        param0.get("Target").read(UUIDUtil.CODEC),
                         param0.get("Type").asString().map(GossipType::byId),
                         param0.get("Value").asNumber().map(Number::intValue)
                     )

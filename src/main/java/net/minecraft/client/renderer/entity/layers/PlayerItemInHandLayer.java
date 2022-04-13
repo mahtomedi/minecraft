@@ -1,11 +1,11 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -20,11 +20,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerItemInHandLayer<T extends Player, M extends EntityModel<T> & ArmedModel & HeadedModel> extends ItemInHandLayer<T, M> {
+    private final ItemInHandRenderer itemInHandRenderer;
     private static final float X_ROT_MIN = (float) (-Math.PI / 6);
     private static final float X_ROT_MAX = (float) (Math.PI / 2);
 
-    public PlayerItemInHandLayer(RenderLayerParent<T, M> param0) {
-        super(param0);
+    public PlayerItemInHandLayer(RenderLayerParent<T, M> param0, ItemInHandRenderer param1) {
+        super(param0, param1);
+        this.itemInHandRenderer = param1;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class PlayerItemInHandLayer<T extends Player, M extends EntityModel<T> & 
         CustomHeadLayer.translateToHead(param3, false);
         boolean var2 = param2 == HumanoidArm.LEFT;
         param3.translate((double)((var2 ? -2.5F : 2.5F) / 16.0F), -0.0625, 0.0);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param0, param1, ItemTransforms.TransformType.HEAD, false, param3, param4, param5);
+        this.itemInHandRenderer.renderItem(param0, param1, ItemTransforms.TransformType.HEAD, false, param3, param4, param5);
         param3.popPose();
     }
 }

@@ -14,6 +14,8 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -33,8 +35,14 @@ public class BlockEntityRenderDispatcher implements ResourceManagerReloadListene
     public Camera camera;
     public HitResult cameraHitResult;
     private final Supplier<BlockRenderDispatcher> blockRenderDispatcher;
+    private final Supplier<ItemRenderer> itemRenderer;
+    private final Supplier<EntityRenderDispatcher> entityRenderer;
 
-    public BlockEntityRenderDispatcher(Font param0, EntityModelSet param1, Supplier<BlockRenderDispatcher> param2) {
+    public BlockEntityRenderDispatcher(
+        Font param0, EntityModelSet param1, Supplier<BlockRenderDispatcher> param2, Supplier<ItemRenderer> param3, Supplier<EntityRenderDispatcher> param4
+    ) {
+        this.itemRenderer = param3;
+        this.entityRenderer = param4;
         this.font = param0;
         this.entityModelSet = param1;
         this.blockRenderDispatcher = param2;
@@ -111,7 +119,7 @@ public class BlockEntityRenderDispatcher implements ResourceManagerReloadListene
     @Override
     public void onResourceManagerReload(ResourceManager param0) {
         BlockEntityRendererProvider.Context var0 = new BlockEntityRendererProvider.Context(
-            this, this.blockRenderDispatcher.get(), this.entityModelSet, this.font
+            this, this.blockRenderDispatcher.get(), this.itemRenderer.get(), this.entityRenderer.get(), this.entityModelSet, this.font
         );
         this.renderers = BlockEntityRenderers.createEntityRenderers(var0);
     }

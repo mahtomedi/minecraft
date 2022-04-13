@@ -16,7 +16,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SerializableUUID;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -215,7 +215,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             WorldBorder.Settings.read(param0, WorldBorder.DEFAULT_SETTINGS),
             param0.get("WanderingTraderSpawnDelay").asInt(0),
             param0.get("WanderingTraderSpawnChance").asInt(0),
-            param0.get("WanderingTraderId").read(SerializableUUID.CODEC).result().orElse(null),
+            param0.get("WanderingTraderId").read(UUIDUtil.CODEC).result().orElse(null),
             param0.get("ServerBrands")
                 .asStream()
                 .flatMap(param0x -> param0x.asString().result().stream())

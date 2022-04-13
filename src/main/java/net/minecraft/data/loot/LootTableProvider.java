@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -45,7 +45,7 @@ public class LootTableProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) {
+    public void run(CachedOutput param0) {
         Path var0 = this.generator.getOutputFolder();
         Map<ResourceLocation, LootTable> var1 = Maps.newHashMap();
         this.subProviders.forEach(param1 -> param1.getFirst().get().accept((param2, param3) -> {

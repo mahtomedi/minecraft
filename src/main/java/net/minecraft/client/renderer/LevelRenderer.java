@@ -243,11 +243,11 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     private final float[] rainSizeX = new float[1024];
     private final float[] rainSizeZ = new float[1024];
 
-    public LevelRenderer(Minecraft param0, RenderBuffers param1) {
+    public LevelRenderer(Minecraft param0, EntityRenderDispatcher param1, BlockEntityRenderDispatcher param2, RenderBuffers param3) {
         this.minecraft = param0;
-        this.entityRenderDispatcher = param0.getEntityRenderDispatcher();
-        this.blockEntityRenderDispatcher = param0.getBlockEntityRenderDispatcher();
-        this.renderBuffers = param1;
+        this.entityRenderDispatcher = param1;
+        this.blockEntityRenderDispatcher = param2;
+        this.renderBuffers = param3;
 
         for(int var0 = 0; var0 < 32; ++var0) {
             for(int var1 = 0; var1 < 32; ++var1) {

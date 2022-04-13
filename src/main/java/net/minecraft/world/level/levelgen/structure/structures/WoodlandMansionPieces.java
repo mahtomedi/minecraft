@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -305,7 +306,7 @@ public class WoodlandMansionPieces {
         }
 
         private void identifyRooms(WoodlandMansionPieces.SimpleGrid param0, WoodlandMansionPieces.SimpleGrid param1) {
-            List<Tuple<Integer, Integer>> var0 = Lists.newArrayList();
+            ObjectArrayList<Tuple<Integer, Integer>> var0 = new ObjectArrayList<>();
 
             for(int var1 = 0; var1 < param0.height; ++var1) {
                 for(int var2 = 0; var2 < param0.width; ++var2) {

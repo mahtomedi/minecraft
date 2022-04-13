@@ -582,6 +582,20 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("kill_mob_near_sculk_catalyst", KilledTrigger.TriggerInstance.playerKilledEntityNearSculkCatalyst())
             .save(param0, "adventure/kill_mob_near_sculk_catalyst");
+        Advancement.Builder.advancement()
+            .parent(var0)
+            .display(
+                Blocks.SCULK_SENSOR,
+                new TranslatableComponent("advancements.adventure.avoid_vibration.title"),
+                new TranslatableComponent("advancements.adventure.avoid_vibration.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .addCriterion("avoid_vibration", PlayerTrigger.TriggerInstance.avoidVibration())
+            .save(param0, "adventure/avoid_vibration");
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {

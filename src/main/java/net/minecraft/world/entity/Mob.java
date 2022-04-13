@@ -884,19 +884,19 @@ public abstract class Mob extends LivingEntity {
         };
     }
 
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
-        if (this.random.nextFloat() < 0.15F * param0.getSpecialMultiplier()) {
-            int var0 = this.random.nextInt(2);
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
+        if (param0.nextFloat() < 0.15F * param1.getSpecialMultiplier()) {
+            int var0 = param0.nextInt(2);
             float var1 = this.level.getDifficulty() == Difficulty.HARD ? 0.1F : 0.25F;
-            if (this.random.nextFloat() < 0.095F) {
+            if (param0.nextFloat() < 0.095F) {
                 ++var0;
             }
 
-            if (this.random.nextFloat() < 0.095F) {
+            if (param0.nextFloat() < 0.095F) {
                 ++var0;
             }
 
-            if (this.random.nextFloat() < 0.095F) {
+            if (param0.nextFloat() < 0.095F) {
                 ++var0;
             }
 
@@ -905,7 +905,7 @@ public abstract class Mob extends LivingEntity {
             for(EquipmentSlot var3 : EquipmentSlot.values()) {
                 if (var3.getType() == EquipmentSlot.Type.ARMOR) {
                     ItemStack var4 = this.getItemBySlot(var3);
-                    if (!var2 && this.random.nextFloat() < var1) {
+                    if (!var2 && param0.nextFloat() < var1) {
                         break;
                     }
 
@@ -978,32 +978,31 @@ public abstract class Mob extends LivingEntity {
         }
     }
 
-    protected void populateDefaultEquipmentEnchantments(DifficultyInstance param0) {
-        float var0 = param0.getSpecialMultiplier();
-        this.enchantSpawnedWeapon(var0);
+    protected void populateDefaultEquipmentEnchantments(RandomSource param0, DifficultyInstance param1) {
+        float var0 = param1.getSpecialMultiplier();
+        this.enchantSpawnedWeapon(param0, var0);
 
         for(EquipmentSlot var1 : EquipmentSlot.values()) {
             if (var1.getType() == EquipmentSlot.Type.ARMOR) {
-                this.enchantSpawnedArmor(var0, var1);
+                this.enchantSpawnedArmor(param0, var0, var1);
             }
         }
 
     }
 
-    protected void enchantSpawnedWeapon(float param0) {
-        if (!this.getMainHandItem().isEmpty() && this.random.nextFloat() < 0.25F * param0) {
+    protected void enchantSpawnedWeapon(RandomSource param0, float param1) {
+        if (!this.getMainHandItem().isEmpty() && param0.nextFloat() < 0.25F * param1) {
             this.setItemSlot(
-                EquipmentSlot.MAINHAND,
-                EnchantmentHelper.enchantItem(this.random, this.getMainHandItem(), (int)(5.0F + param0 * (float)this.random.nextInt(18)), false)
+                EquipmentSlot.MAINHAND, EnchantmentHelper.enchantItem(param0, this.getMainHandItem(), (int)(5.0F + param1 * (float)param0.nextInt(18)), false)
             );
         }
 
     }
 
-    protected void enchantSpawnedArmor(float param0, EquipmentSlot param1) {
-        ItemStack var0 = this.getItemBySlot(param1);
-        if (!var0.isEmpty() && this.random.nextFloat() < 0.5F * param0) {
-            this.setItemSlot(param1, EnchantmentHelper.enchantItem(this.random, var0, (int)(5.0F + param0 * (float)this.random.nextInt(18)), false));
+    protected void enchantSpawnedArmor(RandomSource param0, float param1, EquipmentSlot param2) {
+        ItemStack var0 = this.getItemBySlot(param2);
+        if (!var0.isEmpty() && param0.nextFloat() < 0.5F * param1) {
+            this.setItemSlot(param2, EnchantmentHelper.enchantItem(param0, var0, (int)(5.0F + param1 * (float)param0.nextInt(18)), false));
         }
 
     }
@@ -1012,9 +1011,10 @@ public abstract class Mob extends LivingEntity {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
+        RandomSource var0 = param0.getRandom();
         this.getAttribute(Attributes.FOLLOW_RANGE)
-            .addPermanentModifier(new AttributeModifier("Random spawn bonus", this.random.nextGaussian() * 0.05, AttributeModifier.Operation.MULTIPLY_BASE));
-        if (this.random.nextFloat() < 0.05F) {
+            .addPermanentModifier(new AttributeModifier("Random spawn bonus", var0.nextGaussian() * 0.05, AttributeModifier.Operation.MULTIPLY_BASE));
+        if (var0.nextFloat() < 0.05F) {
             this.setLeftHanded(true);
         } else {
             this.setLeftHanded(false);

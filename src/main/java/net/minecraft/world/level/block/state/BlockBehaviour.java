@@ -183,10 +183,6 @@ public abstract class BlockBehaviour {
         return false;
     }
 
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.NONE;
-    }
-
     public float getMaxHorizontalOffset() {
         return 0.25F;
     }
@@ -384,6 +380,7 @@ public abstract class BlockBehaviour {
         private final BlockBehaviour.StatePredicate isViewBlocking;
         private final BlockBehaviour.StatePredicate hasPostProcess;
         private final BlockBehaviour.StatePredicate emissiveRendering;
+        private final BlockBehaviour.OffsetType offsetType;
         @Nullable
         protected BlockBehaviour.BlockStateBase.Cache cache;
 
@@ -403,6 +400,7 @@ public abstract class BlockBehaviour {
             this.isViewBlocking = var0.isViewBlocking;
             this.hasPostProcess = var0.hasPostProcess;
             this.emissiveRendering = var0.emissiveRendering;
+            this.offsetType = var0.offsetType.apply(this.asState());
         }
 
         public void initCache() {
@@ -576,19 +574,18 @@ public abstract class BlockBehaviour {
         }
 
         public Vec3 getOffset(BlockGetter param0, BlockPos param1) {
-            Block var0 = this.getBlock();
-            BlockBehaviour.OffsetType var1 = var0.getOffsetType();
-            if (var1 == BlockBehaviour.OffsetType.NONE) {
+            if (this.offsetType == BlockBehaviour.OffsetType.NONE) {
                 return Vec3.ZERO;
             } else {
-                long var2 = Mth.getSeed(param1.getX(), 0, param1.getZ());
-                float var3 = var0.getMaxHorizontalOffset();
-                double var4 = Mth.clamp(((double)((float)(var2 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
-                double var5 = var1 == BlockBehaviour.OffsetType.XYZ
-                    ? ((double)((float)(var2 >> 4 & 15L) / 15.0F) - 1.0) * (double)var0.getMaxVerticalOffset()
+                Block var0 = this.getBlock();
+                long var1 = Mth.getSeed(param1.getX(), 0, param1.getZ());
+                float var2 = var0.getMaxHorizontalOffset();
+                double var3 = Mth.clamp(((double)((float)(var1 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var2), (double)var2);
+                double var4 = this.offsetType == BlockBehaviour.OffsetType.XYZ
+                    ? ((double)((float)(var1 >> 4 & 15L) / 15.0F) - 1.0) * (double)var0.getMaxVerticalOffset()
                     : 0.0;
-                double var6 = Mth.clamp(((double)((float)(var2 >> 8 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var3), (double)var3);
-                return new Vec3(var4, var5, var6);
+                double var5 = Mth.clamp(((double)((float)(var1 >> 8 & 15L) / 15.0F) - 0.5) * 0.5, (double)(-var2), (double)var2);
+                return new Vec3(var3, var4, var5);
             }
         }
 
@@ -764,6 +761,10 @@ public abstract class BlockBehaviour {
             return this.requiresCorrectToolForDrops;
         }
 
+        public BlockBehaviour.OffsetType getOffsetType() {
+            return this.offsetType;
+        }
+
         static final class Cache {
             private static final Direction[] DIRECTIONS = Direction.values();
             private static final int SUPPORT_TYPE_COUNT = SupportType.values().length;
@@ -794,7 +795,7 @@ public abstract class BlockBehaviour {
                 }
 
                 this.collisionShape = var0.getCollisionShape(param0, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, CollisionContext.empty());
-                if (!this.collisionShape.isEmpty() && var0.getOffsetType() != BlockBehaviour.OffsetType.NONE) {
+                if (!this.collisionShape.isEmpty() && param0.getOffsetType() != BlockBehaviour.OffsetType.NONE) {
                     throw new IllegalStateException(
                         String.format(
                             "%s has a collision shape and an offset type, but is not marked as dynamicShape in its properties.", Registry.BLOCK.getKey(var0)
@@ -859,6 +860,7 @@ public abstract class BlockBehaviour {
         BlockBehaviour.StatePredicate hasPostProcess = (param0x, param1x, param2) -> false;
         BlockBehaviour.StatePredicate emissiveRendering = (param0x, param1x, param2) -> false;
         boolean dynamicShape;
+        Function<BlockState, BlockBehaviour.OffsetType> offsetType = param0x -> BlockBehaviour.OffsetType.NONE;
 
         private Properties(Material param0, MaterialColor param1) {
             this(param0, param1x -> param1);
@@ -901,6 +903,7 @@ public abstract class BlockBehaviour {
             var0.canOcclude = param0.properties.canOcclude;
             var0.isAir = param0.properties.isAir;
             var0.requiresCorrectToolForDrops = param0.properties.requiresCorrectToolForDrops;
+            var0.offsetType = param0.properties.offsetType;
             return var0;
         }
 
@@ -1025,6 +1028,15 @@ public abstract class BlockBehaviour {
 
         public BlockBehaviour.Properties explosionResistance(float param0) {
             this.explosionResistance = Math.max(0.0F, param0);
+            return this;
+        }
+
+        public BlockBehaviour.Properties offsetType(BlockBehaviour.OffsetType param0) {
+            return this.offsetType(param1 -> param0);
+        }
+
+        public BlockBehaviour.Properties offsetType(Function<BlockState, BlockBehaviour.OffsetType> param0) {
+            this.offsetType = param0;
             return this;
         }
     }

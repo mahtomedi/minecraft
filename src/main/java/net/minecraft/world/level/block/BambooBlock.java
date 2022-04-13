@@ -55,11 +55,6 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
-
-    @Override
     public boolean propagatesSkylightDown(BlockState param0, BlockGetter param1, BlockPos param2) {
         return true;
     }

@@ -2,15 +2,11 @@ package net.minecraft.world.level.levelgen.feature.treedecorators;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
-import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
 
 public class CocoaDecorator extends TreeDecorator {
     public static final Codec<CocoaDecorator> CODEC = Codec.floatRange(0.0F, 1.0F)
@@ -29,30 +25,25 @@ public class CocoaDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(
-        LevelSimulatedReader param0,
-        BiConsumer<BlockPos, BlockState> param1,
-        RandomSource param2,
-        List<BlockPos> param3,
-        List<BlockPos> param4,
-        List<BlockPos> param5
-    ) {
-        if (!(param2.nextFloat() >= this.probability)) {
-            int var0 = param3.get(0).getY();
-            param3.stream()
-                .filter(param1x -> param1x.getY() - var0 <= 2)
+    public void place(TreeDecorator.Context param0) {
+        RandomSource var0 = param0.random();
+        if (!(var0.nextFloat() >= this.probability)) {
+            List<BlockPos> var1 = param0.logs();
+            int var2 = var1.get(0).getY();
+            var1.stream()
+                .filter(param1 -> param1.getY() - var2 <= 2)
                 .forEach(
-                    param3x -> {
+                    param2 -> {
                         for(Direction var0x : Direction.Plane.HORIZONTAL) {
-                            if (param2.nextFloat() <= 0.25F) {
+                            if (var0.nextFloat() <= 0.25F) {
                                 Direction var1x = var0x.getOpposite();
-                                BlockPos var2x = param3x.offset(var1x.getStepX(), 0, var1x.getStepZ());
-                                if (Feature.isAir(param0, var2x)) {
-                                    param1.accept(
+                                BlockPos var2x = param2.offset(var1x.getStepX(), 0, var1x.getStepZ());
+                                if (param0.isAir(var2x)) {
+                                    param0.setBlock(
                                         var2x,
                                         Blocks.COCOA
                                             .defaultBlockState()
-                                            .setValue(CocoaBlock.AGE, Integer.valueOf(param2.nextInt(3)))
+                                            .setValue(CocoaBlock.AGE, Integer.valueOf(var0.nextInt(3)))
                                             .setValue(CocoaBlock.FACING, var0x)
                                     );
                                 }

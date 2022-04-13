@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
+import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +23,7 @@ public class CoralClawFeature extends CoralFeature {
         } else {
             Direction var0 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
             int var1 = param1.nextInt(2) + 2;
-            List<Direction> var2 = Util.shuffledCopy(List.of(var0, var0.getClockWise(), var0.getCounterClockWise()), param1);
+            List<Direction> var2 = Util.toShuffledList(Stream.of(var0, var0.getClockWise(), var0.getCounterClockWise()), param1);
 
             for(Direction var4 : var2.subList(0, var1)) {
                 BlockPos.MutableBlockPos var5 = param2.mutable();

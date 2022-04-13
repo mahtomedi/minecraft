@@ -41,9 +41,4 @@ public class TallGrassBlock extends BushBlock implements BonemealableBlock {
         }
 
     }
-
-    @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XYZ;
-    }
 }

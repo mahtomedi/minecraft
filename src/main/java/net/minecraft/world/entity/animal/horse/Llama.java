@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -78,9 +79,9 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         this.entityData.set(DATA_STRENGTH_ID, Math.max(1, Math.min(5, param0)));
     }
 
-    private void setRandomStrength() {
-        int var0 = this.random.nextFloat() < 0.04F ? 5 : 3;
-        this.setStrength(1 + this.random.nextInt(var0));
+    private void setRandomStrength(RandomSource param0) {
+        int var0 = param0.nextFloat() < 0.04F ? 5 : 3;
+        this.setStrength(1 + param0.nextInt(var0));
     }
 
     public int getStrength() {
@@ -253,16 +254,17 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.setRandomStrength();
-        int var0;
+        RandomSource var0 = param0.getRandom();
+        this.setRandomStrength(var0);
+        int var1;
         if (param3 instanceof Llama.LlamaGroupData) {
-            var0 = ((Llama.LlamaGroupData)param3).variant;
+            var1 = ((Llama.LlamaGroupData)param3).variant;
         } else {
-            var0 = this.random.nextInt(4);
-            param3 = new Llama.LlamaGroupData(var0);
+            var1 = var0.nextInt(4);
+            param3 = new Llama.LlamaGroupData(var1);
         }
 
-        this.setVariant(var0);
+        this.setVariant(var1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

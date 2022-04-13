@@ -17,7 +17,7 @@ public class EvokerRenderer<T extends SpellcasterIllager> extends IllagerRendere
     public EvokerRenderer(EntityRendererProvider.Context param0) {
         super(param0, new IllagerModel<>(param0.bakeLayer(ModelLayers.EVOKER)), 0.5F);
         this.addLayer(
-            new ItemInHandLayer<T, IllagerModel<T>>(this) {
+            new ItemInHandLayer<T, IllagerModel<T>>(this, param0.getItemInHandRenderer()) {
                 public void render(
                     PoseStack param0,
                     MultiBufferSource param1,

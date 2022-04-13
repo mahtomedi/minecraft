@@ -2,8 +2,8 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -15,8 +15,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CrossedArmsItemLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
-    public CrossedArmsItemLayer(RenderLayerParent<T, M> param0) {
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public CrossedArmsItemLayer(RenderLayerParent<T, M> param0, ItemInHandRenderer param1) {
         super(param0);
+        this.itemInHandRenderer = param1;
     }
 
     public void render(
@@ -26,7 +29,7 @@ public class CrossedArmsItemLayer<T extends LivingEntity, M extends EntityModel<
         param0.translate(0.0, 0.4F, -0.4F);
         param0.mulPose(Vector3f.XP.rotationDegrees(180.0F));
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.MAINHAND);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
+        this.itemInHandRenderer.renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

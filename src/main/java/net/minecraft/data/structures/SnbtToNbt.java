@@ -5,18 +5,16 @@ import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
@@ -50,7 +48,7 @@ public class SnbtToNbt implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) throws IOException {
+    public void run(CachedOutput param0) throws IOException {
         Path var0 = this.generator.getOutputFolder();
         List<CompletableFuture<SnbtToNbt.TaskResult>> var1 = Lists.newArrayList();
 
@@ -114,31 +112,23 @@ public class SnbtToNbt implements DataProvider {
         }
     }
 
-    private void storeStructureIfChanged(HashCache param0, SnbtToNbt.TaskResult param1, Path param2) {
+    private void storeStructureIfChanged(CachedOutput param0, SnbtToNbt.TaskResult param1, Path param2) {
         if (param1.snbtPayload != null) {
             Path var0 = DUMP_SNBT_TO.resolve(param1.name + ".snbt");
 
             try {
                 NbtToSnbt.writeSnbt(var0, param1.snbtPayload);
-            } catch (IOException var9) {
-                LOGGER.error("Couldn't write structure SNBT {} at {}", param1.name, var0, var9);
+            } catch (IOException var7) {
+                LOGGER.error("Couldn't write structure SNBT {} at {}", param1.name, var0, var7);
             }
         }
 
         Path var2 = param2.resolve(param1.name + ".nbt");
 
         try {
-            if (!Objects.equals(param0.getHash(var2), param1.hash) || !Files.exists(var2)) {
-                Files.createDirectories(var2.getParent());
-
-                try (OutputStream var3 = Files.newOutputStream(var2)) {
-                    var3.write(param1.payload);
-                }
-            }
-
-            param0.putNew(var2, param1.hash);
-        } catch (IOException var11) {
-            LOGGER.error("Couldn't write structure {} at {}", param1.name, var2, var11);
+            param0.writeIfNeeded(var2, param1.payload, param1.hash);
+        } catch (IOException var6) {
+            LOGGER.error("Couldn't write structure {} at {}", param1.name, var2, var6);
         }
 
     }

@@ -30,9 +30,9 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
                 new ArmorStandArmorModel(param0.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR))
             )
         );
-        this.addLayer(new ItemInHandLayer<>(this));
+        this.addLayer(new ItemInHandLayer<>(this, param0.getItemInHandRenderer()));
         this.addLayer(new ElytraLayer<>(this, param0.getModelSet()));
-        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), param0.getItemInHandRenderer()));
     }
 
     public ResourceLocation getTextureLocation(ArmorStand param0) {

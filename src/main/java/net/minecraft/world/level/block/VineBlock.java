@@ -131,8 +131,7 @@ public class VineBlock extends Block {
     }
 
     public static boolean isAcceptableNeighbour(BlockGetter param0, BlockPos param1, Direction param2) {
-        BlockState var0 = param0.getBlockState(param1);
-        return Block.isFaceFull(var0.getCollisionShape(param0, param1), param2.getOpposite());
+        return MultifaceBlock.canAttachTo(param0, param2, param1, param0.getBlockState(param1));
     }
 
     private BlockState getUpdatedState(BlockState param0, BlockGetter param1, BlockPos param2) {

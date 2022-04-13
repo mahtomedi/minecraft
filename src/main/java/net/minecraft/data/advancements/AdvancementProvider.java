@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
@@ -30,7 +30,7 @@ public class AdvancementProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) {
+    public void run(CachedOutput param0) {
         Path var0 = this.generator.getOutputFolder();
         Set<ResourceLocation> var1 = Sets.newHashSet();
         Consumer<Advancement> var2 = param3 -> {

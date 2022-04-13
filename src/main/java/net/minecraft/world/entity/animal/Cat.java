@@ -353,7 +353,10 @@ public class Cat extends TamableAnimal {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         boolean var0 = param0.getMoonBrightness() > 0.9F;
         TagKey<CatVariant> var1 = var0 ? CatVariantTags.FULL_MOON_SPAWNS : CatVariantTags.DEFAULT_SPAWNS;
-        Registry.CAT_VARIANT.getTag(var1).flatMap(param0x -> param0x.getRandomElement(this.random)).ifPresent(param0x -> this.setCatVariant(param0x.value()));
+        Registry.CAT_VARIANT
+            .getTag(var1)
+            .flatMap(param1x -> param1x.getRandomElement(param0.getRandom()))
+            .ifPresent(param0x -> this.setCatVariant(param0x.value()));
         ServerLevel var2 = param0.getLevel();
         if (var2.structureManager().getStructureWithPieceAt(this.blockPosition(), StructureTags.CATS_SPAWN_AS_BLACK).isValid()) {
             this.setCatVariant(CatVariant.ALL_BLACK);

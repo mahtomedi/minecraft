@@ -1,7 +1,6 @@
 package net.minecraft.world.level.block.entity;
 
 import com.google.common.annotations.VisibleForTesting;
-import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -39,24 +38,27 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
     }
 
     @Override
-    public boolean handleGameEvent(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3) {
-        if (param1 == GameEvent.ENTITY_DIE && param2 instanceof LivingEntity var0) {
-            if (!var0.wasExperienceConsumed()) {
-                this.sculkSpreader.addCursors(new BlockPos(param3), var0.getExperienceReward());
-                var0.skipDropExperience();
-                LivingEntity var1 = var0.getLastHurtByMob();
-                if (var1 instanceof ServerPlayer var2) {
-                    DamageSource var3 = var0.getLastDamageSource() == null ? DamageSource.playerAttack(var2) : var0.getLastDamageSource();
-                    CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.trigger(var2, param2, var3);
+    public boolean handleGameEvent(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3) {
+        if (param1 == GameEvent.ENTITY_DIE) {
+            Entity var1 = param2.sourceEntity();
+            if (var1 instanceof LivingEntity var0) {
+                if (!var0.wasExperienceConsumed()) {
+                    this.sculkSpreader.addCursors(new BlockPos(param3), var0.getExperienceReward());
+                    var0.skipDropExperience();
+                    LivingEntity var1x = var0.getLastHurtByMob();
+                    if (var1x instanceof ServerPlayer var2) {
+                        DamageSource var3 = var0.getLastDamageSource() == null ? DamageSource.playerAttack(var2) : var0.getLastDamageSource();
+                        CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.trigger(var2, param2.sourceEntity(), var3);
+                    }
+
+                    SculkCatalystBlock.bloom(param0, this.worldPosition, this.getBlockState(), param0.getRandom());
                 }
 
-                SculkCatalystBlock.bloom(param0, this.worldPosition, this.getBlockState(), param0.getRandom());
+                return true;
             }
-
-            return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public static void serverTick(Level param0, BlockPos param1, BlockState param2, SculkCatalystBlockEntity param3) {

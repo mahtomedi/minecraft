@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class NbtToSnbt implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) throws IOException {
+    public void run(CachedOutput param0) throws IOException {
         Path var0 = this.generator.getOutputFolder();
 
         for(Path var1 : this.generator.getInputFolders()) {

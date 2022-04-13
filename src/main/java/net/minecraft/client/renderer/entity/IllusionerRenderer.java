@@ -19,7 +19,7 @@ public class IllusionerRenderer extends IllagerRenderer<Illusioner> {
     public IllusionerRenderer(EntityRendererProvider.Context param0) {
         super(param0, new IllagerModel<>(param0.bakeLayer(ModelLayers.ILLUSIONER)), 0.5F);
         this.addLayer(
-            new ItemInHandLayer<Illusioner, IllagerModel<Illusioner>>(this) {
+            new ItemInHandLayer<Illusioner, IllagerModel<Illusioner>>(this, param0.getItemInHandRenderer()) {
                 public void render(
                     PoseStack param0,
                     MultiBufferSource param1,

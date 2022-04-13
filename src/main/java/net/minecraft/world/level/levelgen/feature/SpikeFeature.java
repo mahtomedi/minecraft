@@ -6,9 +6,9 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -180,7 +180,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
 
     static class SpikeCacheLoader extends CacheLoader<Long, List<SpikeFeature.EndSpike>> {
         public List<SpikeFeature.EndSpike> load(Long param0) {
-            List<Integer> var0 = Util.shuffledCopy(IntStream.range(0, 10).boxed().collect(Collectors.toList()), RandomSource.create(param0));
+            IntArrayList var0 = Util.toShuffledList(IntStream.range(0, 10), RandomSource.create(param0));
             List<SpikeFeature.EndSpike> var1 = Lists.newArrayList();
 
             for(int var2 = 0; var2 < 10; ++var2) {

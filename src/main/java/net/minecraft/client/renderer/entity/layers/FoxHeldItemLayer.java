@@ -2,8 +2,8 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.FoxModel;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -15,8 +15,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FoxHeldItemLayer extends RenderLayer<Fox, FoxModel<Fox>> {
-    public FoxHeldItemLayer(RenderLayerParent<Fox, FoxModel<Fox>> param0) {
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public FoxHeldItemLayer(RenderLayerParent<Fox, FoxModel<Fox>> param0, ItemInHandRenderer param1) {
         super(param0);
+        this.itemInHandRenderer = param1;
     }
 
     public void render(
@@ -56,7 +59,7 @@ public class FoxHeldItemLayer extends RenderLayer<Fox, FoxModel<Fox>> {
         }
 
         ItemStack var4 = param3.getItemBySlot(EquipmentSlot.MAINHAND);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
+        this.itemInHandRenderer.renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

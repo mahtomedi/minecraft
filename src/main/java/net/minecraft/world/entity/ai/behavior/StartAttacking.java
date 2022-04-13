@@ -41,10 +41,10 @@ public class StartAttacking<E extends Mob> extends Behavior<E> {
     }
 
     protected void start(ServerLevel param0, E param1, long param2) {
-        this.targetFinderFunction.apply(param1).ifPresent(param1x -> this.setAttackTarget(param1, param1x));
+        this.targetFinderFunction.apply(param1).ifPresent(param1x -> setAttackTarget(param1, param1x));
     }
 
-    private void setAttackTarget(E param0, LivingEntity param1) {
+    public static <E extends Mob> void setAttackTarget(E param0, LivingEntity param1) {
         param0.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, param1);
         param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
     }

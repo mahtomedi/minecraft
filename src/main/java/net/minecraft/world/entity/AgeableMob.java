@@ -32,7 +32,7 @@ public abstract class AgeableMob extends PathfinderMob {
         }
 
         AgeableMob.AgeableMobGroupData var0 = (AgeableMob.AgeableMobGroupData)param3;
-        if (var0.isShouldSpawnBaby() && var0.getGroupSize() > 0 && this.random.nextFloat() <= var0.getBabySpawnChance()) {
+        if (var0.isShouldSpawnBaby() && var0.getGroupSize() > 0 && param0.getRandom().nextFloat() <= var0.getBabySpawnChance()) {
             this.setAge(-24000);
         }
 

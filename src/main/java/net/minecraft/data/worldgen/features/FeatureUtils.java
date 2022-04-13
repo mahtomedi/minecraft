@@ -2,7 +2,7 @@ package net.minecraft.data.worldgen.features;
 
 import java.util.List;
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -35,7 +35,7 @@ public class FeatureUtils {
     private static BlockPredicate simplePatchPredicate(List<Block> param0) {
         BlockPredicate var0;
         if (!param0.isEmpty()) {
-            var0 = BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, BlockPredicate.matchesBlocks(param0, new BlockPos(0, -1, 0)));
+            var0 = BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, BlockPredicate.matchesBlocks(Direction.DOWN.getNormal(), param0));
         } else {
             var0 = BlockPredicate.ONLY_IN_AIR_PREDICATE;
         }

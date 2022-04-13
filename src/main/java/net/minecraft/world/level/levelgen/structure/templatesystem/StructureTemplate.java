@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import java.util.Collections;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -173,11 +173,11 @@ public class StructureTemplate {
         return this.filterBlocks(param0, param1, param2, true);
     }
 
-    public List<StructureTemplate.StructureBlockInfo> filterBlocks(BlockPos param0, StructurePlaceSettings param1, Block param2, boolean param3) {
-        List<StructureTemplate.StructureBlockInfo> var0 = Lists.newArrayList();
+    public ObjectArrayList<StructureTemplate.StructureBlockInfo> filterBlocks(BlockPos param0, StructurePlaceSettings param1, Block param2, boolean param3) {
+        ObjectArrayList<StructureTemplate.StructureBlockInfo> var0 = new ObjectArrayList<>();
         BoundingBox var1 = param1.getBoundingBox();
         if (this.palettes.isEmpty()) {
-            return Collections.emptyList();
+            return var0;
         } else {
             for(StructureTemplate.StructureBlockInfo var2 : param1.getRandomPalette(this.palettes, param0).blocks(param2)) {
                 BlockPos var3 = param3 ? calculateRelativePosition(param1, var2.pos).offset(param0) : var2.pos;

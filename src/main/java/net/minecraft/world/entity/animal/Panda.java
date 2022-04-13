@@ -557,8 +557,9 @@ public class Panda extends Animal {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.setMainGene(Panda.Gene.getRandom(this.random));
-        this.setHiddenGene(Panda.Gene.getRandom(this.random));
+        RandomSource var0 = param0.getRandom();
+        this.setMainGene(Panda.Gene.getRandom(var0));
+        this.setHiddenGene(Panda.Gene.getRandom(var0));
         this.setAttributes();
         if (param3 == null) {
             param3 = new AgeableMob.AgeableMobGroupData(0.2F);

@@ -1,8 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.DolphinModel;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -15,8 +15,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<Dolphin>> {
-    public DolphinCarryingItemLayer(RenderLayerParent<Dolphin, DolphinModel<Dolphin>> param0) {
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public DolphinCarryingItemLayer(RenderLayerParent<Dolphin, DolphinModel<Dolphin>> param0, ItemInHandRenderer param1) {
         super(param0);
+        this.itemInHandRenderer = param1;
     }
 
     public void render(
@@ -43,7 +46,7 @@ public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<
         }
 
         ItemStack var4 = var0 ? param3.getMainHandItem() : param3.getOffhandItem();
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
+        this.itemInHandRenderer.renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

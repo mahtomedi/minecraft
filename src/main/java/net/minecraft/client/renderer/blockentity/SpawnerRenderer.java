@@ -2,8 +2,8 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BaseSpawner;
@@ -13,7 +13,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SpawnerRenderer implements BlockEntityRenderer<SpawnerBlockEntity> {
+    private final EntityRenderDispatcher entityRenderer;
+
     public SpawnerRenderer(BlockEntityRendererProvider.Context param0) {
+        this.entityRenderer = param0.getEntityRenderer();
     }
 
     public void render(SpawnerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
@@ -33,7 +36,7 @@ public class SpawnerRenderer implements BlockEntityRenderer<SpawnerBlockEntity> 
             param2.translate(0.0, -0.2F, 0.0);
             param2.mulPose(Vector3f.XP.rotationDegrees(-30.0F));
             param2.scale(var2, var2, var2);
-            Minecraft.getInstance().getEntityRenderDispatcher().render(var1, 0.0, 0.0, 0.0, 0.0F, param1, param2, param3, param4);
+            this.entityRenderer.render(var1, 0.0, 0.0, 0.0, 0.0F, param1, param2, param3, param4);
         }
 
         param2.popPose();

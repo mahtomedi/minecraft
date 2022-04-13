@@ -8,13 +8,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -30,9 +27,9 @@ import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BlockFamilies;
 import net.minecraft.data.BlockFamily;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -84,7 +81,7 @@ public class RecipeProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) {
+    public void run(CachedOutput param0) {
         Path var0 = this.generator.getOutputFolder();
         Set<ResourceLocation> var1 = Sets.newHashSet();
         buildCraftingRecipes(
@@ -116,40 +113,22 @@ public class RecipeProvider implements DataProvider {
         );
     }
 
-    private static void saveRecipe(HashCache param0, JsonObject param1, Path param2) {
+    private static void saveRecipe(CachedOutput param0, JsonObject param1, Path param2) {
         try {
             String var0 = GSON.toJson((JsonElement)param1);
-            String var1 = SHA1.hashUnencodedChars(var0).toString();
-            if (!Objects.equals(param0.getHash(param2), var1) || !Files.exists(param2)) {
-                Files.createDirectories(param2.getParent());
-
-                try (BufferedWriter var2 = Files.newBufferedWriter(param2)) {
-                    var2.write(var0);
-                }
-            }
-
-            param0.putNew(param2, var1);
-        } catch (IOException var10) {
-            LOGGER.error("Couldn't save recipe {}", param2, var10);
+            param0.writeIfNeeded(param2, var0);
+        } catch (IOException var4) {
+            LOGGER.error("Couldn't save recipe {}", param2, var4);
         }
 
     }
 
-    private static void saveAdvancement(HashCache param0, JsonObject param1, Path param2) {
+    private static void saveAdvancement(CachedOutput param0, JsonObject param1, Path param2) {
         try {
             String var0 = GSON.toJson((JsonElement)param1);
-            String var1 = SHA1.hashUnencodedChars(var0).toString();
-            if (!Objects.equals(param0.getHash(param2), var1) || !Files.exists(param2)) {
-                Files.createDirectories(param2.getParent());
-
-                try (BufferedWriter var2 = Files.newBufferedWriter(param2)) {
-                    var2.write(var0);
-                }
-            }
-
-            param0.putNew(param2, var1);
-        } catch (IOException var10) {
-            LOGGER.error("Couldn't save recipe advancement {}", param2, var10);
+            param0.writeIfNeeded(param2, var0);
+        } catch (IOException var4) {
+            LOGGER.error("Couldn't save recipe advancement {}", param2, var4);
         }
 
     }

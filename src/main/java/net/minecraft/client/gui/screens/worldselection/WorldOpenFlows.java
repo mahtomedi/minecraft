@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
+import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -19,6 +20,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.RegistryOps;
@@ -155,13 +157,43 @@ public class WorldOpenFlows {
             boolean var6 = var5.worldGenSettings().isOldCustomizedWorld();
             boolean var7 = var5.worldGenSettingsLifecycle() != Lifecycle.stable();
             if (!param3 || !var6 && !var7) {
-                this.minecraft.doWorldLoad(param1, var0, var1, var2);
+                this.minecraft.getClientPackSource().loadBundledResourcePack(var0).thenApply(param0x -> true).exceptionallyComposeAsync(param0x -> {
+                    LOGGER.warn("Failed to load pack: ", param0x);
+                    return this.promptBundledPackLoadFailure();
+                }, this.minecraft).thenAcceptAsync(param5 -> {
+                    if (param5) {
+                        this.minecraft.doWorldLoad(param1, var0, var1, var2);
+                    } else {
+                        var2.close();
+                        safeCloseAccess(var0, param1);
+                        this.minecraft.getClientPackSource().clearServerPack().thenRunAsync(() -> this.minecraft.setScreen(param0), this.minecraft);
+                    }
+
+                }, this.minecraft).exceptionally(param0x -> {
+                    this.minecraft.delayCrash(() -> CrashReport.forThrowable(param0x, "Load world"));
+                    return null;
+                });
             } else {
                 this.askForBackup(param0, param1, var6, () -> this.doLoadLevel(param0, param1, param2, false));
                 var2.close();
                 safeCloseAccess(var0, param1);
             }
         }
+    }
+
+    private CompletableFuture<Boolean> promptBundledPackLoadFailure() {
+        CompletableFuture<Boolean> var0 = new CompletableFuture<>();
+        this.minecraft
+            .setScreen(
+                new ConfirmScreen(
+                    var0::complete,
+                    new TranslatableComponent("multiplayer.texturePrompt.failure.line1"),
+                    new TranslatableComponent("multiplayer.texturePrompt.failure.line2"),
+                    CommonComponents.GUI_PROCEED,
+                    CommonComponents.GUI_CANCEL
+                )
+            );
+        return var0;
     }
 
     private static void safeCloseAccess(LevelStorageSource.LevelStorageAccess param0, String param1) {

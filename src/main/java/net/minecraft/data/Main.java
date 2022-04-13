@@ -9,6 +9,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.SharedConstants;
+import net.minecraft.WorldVersion;
 import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
@@ -57,7 +58,15 @@ public class Main {
             boolean var16 = var12 || var10.has(var5);
             boolean var17 = var12 || var10.has(var6);
             DataGenerator var18 = createStandardGenerator(
-                var11, var10.valuesOf(var9).stream().map(param0x -> Paths.get(param0x)).collect(Collectors.toList()), var13, var14, var15, var16, var17
+                var11,
+                var10.valuesOf(var9).stream().map(param0x -> Paths.get(param0x)).collect(Collectors.toList()),
+                var13,
+                var14,
+                var15,
+                var16,
+                var17,
+                SharedConstants.getCurrentVersion(),
+                true
             );
             var18.run();
         } else {
@@ -66,46 +75,39 @@ public class Main {
     }
 
     public static DataGenerator createStandardGenerator(
-        Path param0, Collection<Path> param1, boolean param2, boolean param3, boolean param4, boolean param5, boolean param6
+        Path param0,
+        Collection<Path> param1,
+        boolean param2,
+        boolean param3,
+        boolean param4,
+        boolean param5,
+        boolean param6,
+        WorldVersion param7,
+        boolean param8
     ) {
-        DataGenerator var0 = new DataGenerator(param0, param1);
-        if (param2 || param3) {
-            var0.addProvider(new SnbtToNbt(var0).addFilter(new StructureUpdater()));
-        }
-
-        if (param2) {
-            var0.addProvider(new ModelProvider(var0));
-        }
-
-        if (param3) {
-            var0.addProvider(new FluidTagsProvider(var0));
-            BlockTagsProvider var1 = new BlockTagsProvider(var0);
-            var0.addProvider(var1);
-            var0.addProvider(new ItemTagsProvider(var0, var1));
-            var0.addProvider(new EntityTypeTagsProvider(var0));
-            var0.addProvider(new RecipeProvider(var0));
-            var0.addProvider(new AdvancementProvider(var0));
-            var0.addProvider(new LootTableProvider(var0));
-            var0.addProvider(new GameEventTagsProvider(var0));
-            var0.addProvider(new BiomeTagsProvider(var0));
-            var0.addProvider(new StructureTagsProvider(var0));
-            var0.addProvider(new WorldPresetTagsProvider(var0));
-            var0.addProvider(new FlatLevelGeneratorPresetTagsProvider(var0));
-            var0.addProvider(new CatVariantTagsProvider(var0));
-        }
-
-        if (param4) {
-            var0.addProvider(new NbtToSnbt(var0));
-        }
-
-        if (param5) {
-            var0.addProvider(new BlockListReport(var0));
-            var0.addProvider(new RegistryDumpReport(var0));
-            var0.addProvider(new CommandsReport(var0));
-            var0.addProvider(new WorldgenRegistryDumpReport(var0));
-            var0.addProvider(new BiomeParametersDumpReport(var0));
-        }
-
+        DataGenerator var0 = new DataGenerator(param0, param1, param7, param8);
+        var0.addProvider(param2 || param3, new SnbtToNbt(var0).addFilter(new StructureUpdater()));
+        var0.addProvider(param2, new ModelProvider(var0));
+        var0.addProvider(param3, new FluidTagsProvider(var0));
+        BlockTagsProvider var1 = new BlockTagsProvider(var0);
+        var0.addProvider(param3, var1);
+        var0.addProvider(param3, new ItemTagsProvider(var0, var1));
+        var0.addProvider(param3, new EntityTypeTagsProvider(var0));
+        var0.addProvider(param3, new RecipeProvider(var0));
+        var0.addProvider(param3, new AdvancementProvider(var0));
+        var0.addProvider(param3, new LootTableProvider(var0));
+        var0.addProvider(param3, new GameEventTagsProvider(var0));
+        var0.addProvider(param3, new BiomeTagsProvider(var0));
+        var0.addProvider(param3, new StructureTagsProvider(var0));
+        var0.addProvider(param3, new WorldPresetTagsProvider(var0));
+        var0.addProvider(param3, new FlatLevelGeneratorPresetTagsProvider(var0));
+        var0.addProvider(param3, new CatVariantTagsProvider(var0));
+        var0.addProvider(param4, new NbtToSnbt(var0));
+        var0.addProvider(param5, new BlockListReport(var0));
+        var0.addProvider(param5, new RegistryDumpReport(var0));
+        var0.addProvider(param5, new CommandsReport(var0));
+        var0.addProvider(param5, new WorldgenRegistryDumpReport(var0));
+        var0.addProvider(param5, new BiomeParametersDumpReport(var0));
         return var0;
     }
 }

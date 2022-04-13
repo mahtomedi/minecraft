@@ -1,0 +1,88 @@
+package net.minecraft.world.entity.ai.behavior.warden;
+
+import com.google.common.collect.ImmutableMap;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Unit;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.world.phys.Vec3;
+
+public class SonicBoom extends Behavior<Warden> {
+    private static final int DISTANCE_XZ = 15;
+    private static final int DISTANCE_Y = 20;
+    private static final double KNOCKBACK_VERTICAL = 0.5;
+    private static final double KNOCKBACK_HORIZONTAL = 2.5;
+    public static final int COOLDOWN = 100;
+    private static final int TICKS_BEFORE_PLAYING_SOUND = 34;
+    private static final int DURATION = Mth.ceil(60.0F);
+
+    public SonicBoom() {
+        super(
+            ImmutableMap.of(
+                MemoryModuleType.ATTACK_TARGET,
+                MemoryStatus.VALUE_PRESENT,
+                MemoryModuleType.SONIC_BOOM_COOLDOWN,
+                MemoryStatus.VALUE_ABSENT,
+                MemoryModuleType.SONIC_BOOM_SOUND_COOLDOWN,
+                MemoryStatus.REGISTERED,
+                MemoryModuleType.SONIC_BOOM_SOUND_DELAY,
+                MemoryStatus.REGISTERED
+            ),
+            DURATION
+        );
+    }
+
+    protected boolean checkExtraStartConditions(ServerLevel param0, Warden param1) {
+        return param1.closerThan(param1.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get(), 15.0, 20.0);
+    }
+
+    protected boolean canStillUse(ServerLevel param0, Warden param1, long param2) {
+        return true;
+    }
+
+    protected void start(ServerLevel param0, Warden param1, long param2) {
+        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, (long)DURATION);
+        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.SONIC_BOOM_SOUND_DELAY, Unit.INSTANCE, 34L);
+        param0.broadcastEntityEvent(param1, (byte)62);
+        param1.playSound(SoundEvents.WARDEN_SONIC_CHARGE, 3.0F, 1.0F);
+    }
+
+    protected void tick(ServerLevel param0, Warden param1, long param2) {
+        if (!param1.getBrain().hasMemoryValue(MemoryModuleType.SONIC_BOOM_SOUND_DELAY)
+            && !param1.getBrain().hasMemoryValue(MemoryModuleType.SONIC_BOOM_SOUND_COOLDOWN)) {
+            param1.getBrain().setMemoryWithExpiry(MemoryModuleType.SONIC_BOOM_SOUND_COOLDOWN, Unit.INSTANCE, (long)(DURATION - 34));
+            param1.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).filter(param1x -> param1.closerThan(param1x, 15.0, 20.0)).ifPresent(param2x -> {
+                Vec3 var0 = param1.position().add(0.0, 1.6F, 0.0);
+                Vec3 var1x = param2x.getEyePosition().subtract(var0);
+                Vec3 var2x = var1x.normalize();
+
+                for(int var3 = 1; var3 < Mth.floor(var1x.length()) + 7; ++var3) {
+                    Vec3 var4 = var0.add(var2x.scale((double)var3));
+                    param0.sendParticles(ParticleTypes.SONIC_BOOM, var4.x, var4.y, var4.z, 1, 0.0, 0.0, 0.0, 0.0);
+                }
+
+                param1.playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
+                param2x.hurt(DamageSource.mobAttack(param1), (float)param1.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                double var5 = 0.5 * (1.0 - param2x.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+                double var6 = 2.5 * (1.0 - param2x.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+                param2x.push(var2x.x() * var6, var2x.y() * var5, var2x.z() * var6);
+            });
+        }
+    }
+
+    protected void stop(ServerLevel param0, Warden param1, long param2) {
+        setCooldown(param1, 100);
+    }
+
+    public static void setCooldown(LivingEntity param0, int param1) {
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.SONIC_BOOM_COOLDOWN, Unit.INSTANCE, (long)param1);
+    }
+}

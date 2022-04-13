@@ -1,6 +1,7 @@
 package net.minecraft.world;
 
 import java.util.Set;
+import java.util.function.Predicate;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -52,9 +53,13 @@ public interface Container extends Clearable {
     }
 
     default boolean hasAnyOf(Set<Item> param0) {
+        return this.hasAnyMatching(param1 -> !param1.isEmpty() && param0.contains(param1.getItem()));
+    }
+
+    default boolean hasAnyMatching(Predicate<ItemStack> param0) {
         for(int var0 = 0; var0 < this.getContainerSize(); ++var0) {
             ItemStack var1 = this.getItem(var0);
-            if (param0.contains(var1.getItem()) && var1.getCount() > 0) {
+            if (param0.test(var1)) {
                 return true;
             }
         }

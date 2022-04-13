@@ -8,13 +8,9 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -25,85 +21,54 @@ public class MangroveRootPlacer extends RootPlacer {
     public static final int ROOT_LENGTH_LIMIT = 15;
     public static final Codec<MangroveRootPlacer> CODEC = RecordCodecBuilder.create(
         param0 -> rootPlacerParts(param0)
-                .and(
-                    param0.group(
-                        RegistryCodecs.homogeneousList(Registry.BLOCK_REGISTRY).fieldOf("can_grow_through").forGetter(param0x -> param0x.canGrowThrough),
-                        RegistryCodecs.homogeneousList(Registry.BLOCK_REGISTRY).fieldOf("muddy_roots_in").forGetter(param0x -> param0x.muddyRootsIn),
-                        BlockStateProvider.CODEC.fieldOf("muddy_roots_provider").forGetter(param0x -> param0x.muddyRootsProvider),
-                        Codec.intRange(1, 12).fieldOf("max_root_width").forGetter(param0x -> param0x.maxRootWidth),
-                        Codec.intRange(1, 64).fieldOf("max_root_length").forGetter(param0x -> param0x.maxRootLength),
-                        IntProvider.CODEC.fieldOf("y_offset").forGetter(param0x -> param0x.yOffset),
-                        Codec.floatRange(0.0F, 1.0F).fieldOf("random_skew_chance").forGetter(param0x -> param0x.randomSkewChance)
-                    )
-                )
+                .and(MangroveRootPlacement.CODEC.fieldOf("mangrove_root_placement").forGetter(param0x -> param0x.mangroveRootPlacement))
                 .apply(param0, MangroveRootPlacer::new)
     );
-    private final HolderSet<Block> canGrowThrough;
-    private final HolderSet<Block> muddyRootsIn;
-    private final BlockStateProvider muddyRootsProvider;
-    private final int maxRootWidth;
-    private final int maxRootLength;
-    private final IntProvider yOffset;
-    private final float randomSkewChance;
+    private final MangroveRootPlacement mangroveRootPlacement;
 
-    public MangroveRootPlacer(
-        BlockStateProvider param0,
-        HolderSet<Block> param1,
-        HolderSet<Block> param2,
-        BlockStateProvider param3,
-        int param4,
-        int param5,
-        IntProvider param6,
-        float param7
-    ) {
-        super(param0);
-        this.canGrowThrough = param1;
-        this.muddyRootsIn = param2;
-        this.muddyRootsProvider = param3;
-        this.maxRootWidth = param4;
-        this.maxRootLength = param5;
-        this.yOffset = param6;
-        this.randomSkewChance = param7;
+    public MangroveRootPlacer(IntProvider param0, BlockStateProvider param1, Optional<AboveRootPlacement> param2, MangroveRootPlacement param3) {
+        super(param0, param1, param2);
+        this.mangroveRootPlacement = param3;
     }
 
     @Override
-    public Optional<BlockPos> placeRoots(
-        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, BlockPos param3, TreeConfiguration param4
+    public boolean placeRoots(
+        LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, BlockPos param3, BlockPos param4, TreeConfiguration param5
     ) {
-        BlockPos var0 = param3.offset(0, this.yOffset.sample(param2), 0);
-        List<BlockPos> var1 = Lists.newArrayList();
-        if (!this.canPlaceRoot(param0, var0)) {
-            return Optional.empty();
+        List<BlockPos> var0 = Lists.newArrayList();
+        if (!this.canPlaceRoot(param0, param4)) {
+            return false;
         } else {
-            var1.add(var0.below());
+            var0.add(param4.below());
 
-            for(Direction var2 : Direction.Plane.HORIZONTAL) {
-                BlockPos var3 = var0.relative(var2);
-                List<BlockPos> var4 = Lists.newArrayList();
-                if (!this.simulateRoots(param0, param2, var3, var2, var0, var4, 0)) {
-                    return Optional.empty();
+            for(Direction var1 : Direction.Plane.HORIZONTAL) {
+                BlockPos var2 = param4.relative(var1);
+                List<BlockPos> var3 = Lists.newArrayList();
+                if (!this.simulateRoots(param0, param2, var2, var1, param4, var3, 0)) {
+                    return false;
                 }
 
-                var1.addAll(var4);
-                var1.add(var0.relative(var2));
+                var0.addAll(var3);
+                var0.add(param4.relative(var1));
             }
 
-            for(BlockPos var5 : var1) {
-                this.placeRoot(param0, param1, param2, var5, param4);
+            for(BlockPos var4 : var0) {
+                this.placeRoot(param0, param1, param2, var4, param5);
             }
 
-            return Optional.of(var0);
+            return true;
         }
     }
 
     private boolean simulateRoots(
         LevelSimulatedReader param0, RandomSource param1, BlockPos param2, Direction param3, BlockPos param4, List<BlockPos> param5, int param6
     ) {
-        if (param6 != this.maxRootLength && param5.size() <= this.maxRootLength) {
-            for(BlockPos var1 : this.potentialRootPositions(param2, param3, param1, param4)) {
-                if (this.canPlaceRoot(param0, var1)) {
-                    param5.add(var1);
-                    if (!this.simulateRoots(param0, param1, var1, param3, param4, param5, param6 + 1)) {
+        int var0 = this.mangroveRootPlacement.maxRootLength();
+        if (param6 != var0 && param5.size() <= var0) {
+            for(BlockPos var2 : this.potentialRootPositions(param2, param3, param1, param4)) {
+                if (this.canPlaceRoot(param0, var2)) {
+                    param5.add(var2);
+                    if (!this.simulateRoots(param0, param1, var2, param3, param4, param5, param6 + 1)) {
                         return false;
                     }
                 }
@@ -119,11 +84,13 @@ public class MangroveRootPlacer extends RootPlacer {
         BlockPos var0 = param0.below();
         BlockPos var1 = param0.relative(param1);
         int var2 = param0.distManhattan(param3);
-        if (var2 > this.maxRootWidth - 3 && var2 <= this.maxRootWidth) {
-            return param2.nextFloat() < this.randomSkewChance ? List.of(var0, var1.below()) : List.of(var0);
-        } else if (var2 > this.maxRootWidth) {
+        int var3 = this.mangroveRootPlacement.maxRootWidth();
+        float var4 = this.mangroveRootPlacement.randomSkewChance();
+        if (var2 > var3 - 3 && var2 <= var3) {
+            return param2.nextFloat() < var4 ? List.of(var0, var1.below()) : List.of(var0);
+        } else if (var2 > var3) {
             return List.of(var0);
-        } else if (param2.nextFloat() < this.randomSkewChance) {
+        } else if (param2.nextFloat() < var4) {
             return List.of(var0);
         } else {
             return param2.nextBoolean() ? List.of(var1) : List.of(var0);
@@ -131,15 +98,15 @@ public class MangroveRootPlacer extends RootPlacer {
     }
 
     protected boolean canPlaceRoot(LevelSimulatedReader param0, BlockPos param1) {
-        return TreeFeature.validTreePos(param0, param1) || param0.isStateAtPosition(param1, param0x -> param0x.is(this.canGrowThrough));
+        return TreeFeature.validTreePos(param0, param1) || param0.isStateAtPosition(param1, param0x -> param0x.is(this.mangroveRootPlacement.canGrowThrough()));
     }
 
     @Override
     protected void placeRoot(
         LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, BlockPos param3, TreeConfiguration param4
     ) {
-        if (param0.isStateAtPosition(param3, param0x -> param0x.is(this.muddyRootsIn))) {
-            BlockState var0 = this.muddyRootsProvider.getState(param2, param3);
+        if (param0.isStateAtPosition(param3, param0x -> param0x.is(this.mangroveRootPlacement.muddyRootsIn()))) {
+            BlockState var0 = this.mangroveRootPlacement.muddyRootsProvider().getState(param2, param3);
             param1.accept(param3, this.getPotentiallyWaterloggedState(param0, param3, var0));
         } else {
             super.placeRoot(param0, param1, param2, param3, param4);

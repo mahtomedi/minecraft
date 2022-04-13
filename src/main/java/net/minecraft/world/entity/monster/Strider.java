@@ -303,7 +303,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
         if (!this.isNoAi()) {
             BlockState var0 = this.level.getBlockState(this.blockPosition());
-            BlockState var1 = this.getBlockStateOn();
+            BlockState var1 = this.getBlockStateOnLegacy();
             boolean var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
             this.setSuffocating(!var2);
         }
@@ -452,21 +452,22 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         if (this.isBaby()) {
             return super.finalizeSpawn(param0, param1, param2, param3, param4);
         } else {
-            Object var7;
-            if (this.random.nextInt(30) == 0) {
-                Mob var0 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
-                var7 = this.spawnJockey(param0, param1, var0, new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(this.random), false));
-                var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
+            RandomSource var0 = param0.getRandom();
+            Object var8;
+            if (var0.nextInt(30) == 0) {
+                Mob var1 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
+                var8 = this.spawnJockey(param0, param1, var1, new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(var0), false));
+                var1.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
                 this.equipSaddle(null);
-            } else if (this.random.nextInt(10) == 0) {
-                AgeableMob var1 = EntityType.STRIDER.create(param0.getLevel());
-                var1.setAge(-24000);
-                var7 = this.spawnJockey(param0, param1, var1, null);
+            } else if (var0.nextInt(10) == 0) {
+                AgeableMob var2 = EntityType.STRIDER.create(param0.getLevel());
+                var2.setAge(-24000);
+                var8 = this.spawnJockey(param0, param1, var2, null);
             } else {
-                var7 = new AgeableMob.AgeableMobGroupData(0.5F);
+                var8 = new AgeableMob.AgeableMobGroupData(0.5F);
             }
 
-            return super.finalizeSpawn(param0, param1, param2, (SpawnGroupData)var7, param4);
+            return super.finalizeSpawn(param0, param1, param2, (SpawnGroupData)var8, param4);
         }
     }
 

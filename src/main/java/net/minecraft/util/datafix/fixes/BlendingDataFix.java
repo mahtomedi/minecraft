@@ -18,9 +18,9 @@ public class BlendingDataFix extends DataFix {
         "minecraft:empty", "minecraft:structure_starts", "minecraft:structure_references", "minecraft:biomes"
     );
 
-    public BlendingDataFix(Schema param0, String param1) {
+    public BlendingDataFix(Schema param0) {
         super(param0, false);
-        this.name = param1;
+        this.name = "Blending Data Fix v" + param0.getVersionKey();
     }
 
     @Override

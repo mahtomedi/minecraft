@@ -29,11 +29,6 @@ public class BambooSaplingBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
-
-    @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         Vec3 var0 = param0.getOffset(param1, param2);
         return SAPLING_SHAPE.move(var0.x, var0.y, var0.z);

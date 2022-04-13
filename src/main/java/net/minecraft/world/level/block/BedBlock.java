@@ -111,7 +111,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 return InteractionResult.SUCCESS;
             } else {
                 param3.startSleepInBed(param2).ifLeft(param1x -> {
-                    if (param1x != null) {
+                    if (param1x.getMessage() != null) {
                         param3.displayClientMessage(param1x.getMessage(), true);
                     }
 

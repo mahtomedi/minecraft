@@ -568,19 +568,13 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
     }
 
     private static LootTable.Builder createMangroveLeavesDrops(Block param0) {
-        return createShearsOnlyDrop(param0)
-            .withPool(
-                LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0F))
-                    .when(HAS_NO_SHEARS_OR_SILK_TOUCH)
-                    .add(
-                        applyExplosionDecay(
-                                Blocks.MANGROVE_LEAVES,
-                                LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
-                            )
-                            .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE, NORMAL_LEAVES_STICK_CHANCES))
-                    )
-            );
+        return createSilkTouchOrShearsDispatchTable(
+            param0,
+            applyExplosionDecay(
+                    Blocks.MANGROVE_LEAVES, LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
+                )
+                .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE, NORMAL_LEAVES_STICK_CHANCES))
+        );
     }
 
     private static LootTable.Builder createCropDrops(Block param0, Item param1, Item param2, LootItemCondition.Builder param3) {

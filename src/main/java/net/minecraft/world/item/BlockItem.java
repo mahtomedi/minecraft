@@ -82,7 +82,7 @@ public class BlockItem extends Item {
 
                     SoundType var7 = var6.getSoundType();
                     var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var7.getVolume() + 1.0F) / 2.0F, var7.getPitch() * 0.8F);
-                    var3.gameEvent(var4, GameEvent.BLOCK_PLACE, var2);
+                    var3.gameEvent(GameEvent.BLOCK_PLACE, var2, GameEvent.Context.of(var4, var6));
                     if (var4 == null || !var4.getAbilities().instabuild) {
                         var5.shrink(1);
                     }

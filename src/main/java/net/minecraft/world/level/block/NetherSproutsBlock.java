@@ -24,9 +24,4 @@ public class NetherSproutsBlock extends BushBlock {
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.is(BlockTags.NYLIUM) || param0.is(Blocks.SOUL_SOIL) || super.mayPlaceOn(param0, param1, param2);
     }
-
-    @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
 }

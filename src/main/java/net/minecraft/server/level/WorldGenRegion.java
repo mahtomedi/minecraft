@@ -424,7 +424,7 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity param0, GameEvent param1, Vec3 param2) {
+    public void gameEvent(GameEvent param0, Vec3 param1, @Nullable GameEvent.Context param2) {
     }
 
     @Override

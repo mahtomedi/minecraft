@@ -280,11 +280,6 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
     }
 
     @Override
-    public BlockBehaviour.OffsetType getOffsetType() {
-        return BlockBehaviour.OffsetType.XZ;
-    }
-
-    @Override
     public float getMaxHorizontalOffset() {
         return 0.125F;
     }

@@ -23,6 +23,7 @@ import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
@@ -410,7 +411,7 @@ public abstract class PlayerList {
     }
 
     public ServerPlayer getPlayerForLogin(GameProfile param0) {
-        UUID var0 = Player.createPlayerUUID(param0);
+        UUID var0 = UUIDUtil.getOrCreatePlayerUUID(param0);
         List<ServerPlayer> var1 = Lists.newArrayList();
 
         for(int var2 = 0; var2 < this.players.size(); ++var2) {

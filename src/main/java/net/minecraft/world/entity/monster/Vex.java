@@ -10,6 +10,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -203,13 +204,14 @@ public class Vex extends Monster {
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.populateDefaultEquipmentSlots(param1);
-        this.populateDefaultEquipmentEnchantments(param1);
+        RandomSource var0 = param0.getRandom();
+        this.populateDefaultEquipmentSlots(var0, param1);
+        this.populateDefaultEquipmentEnchantments(var0, param1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
     }

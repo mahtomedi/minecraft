@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -72,7 +73,7 @@ public class EndDragonFight {
         .setPlayBossMusic(true)
         .setCreateWorldFog(true);
     private final ServerLevel level;
-    private final List<Integer> gateways = Lists.newArrayList();
+    private final ObjectArrayList<Integer> gateways = new ObjectArrayList<>();
     private final BlockPattern exitPortalPattern;
     private int ticksSinceDragonSeen;
     private int crystalsAlive;

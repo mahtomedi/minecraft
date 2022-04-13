@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,7 +107,7 @@ public enum Direction implements StringRepresentable {
     }
 
     public static Collection<Direction> allShuffled(RandomSource param0) {
-        return Util.shuffledCopy(Arrays.asList(values()), param0);
+        return Util.shuffledCopy(values(), param0);
     }
 
     public static Stream<Direction> stream() {
@@ -507,6 +508,10 @@ public enum Direction implements StringRepresentable {
 
         public Stream<Direction> stream() {
             return Arrays.stream(this.faces);
+        }
+
+        public List<Direction> shuffledCopy(RandomSource param0) {
+            return Util.shuffledCopy(this.faces, param0);
         }
     }
 }

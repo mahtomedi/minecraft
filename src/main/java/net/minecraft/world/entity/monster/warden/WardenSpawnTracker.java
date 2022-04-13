@@ -118,8 +118,6 @@ public class WardenSpawnTracker {
     }
 
     private void copyWarningLevelFrom(WardenSpawnTracker param0) {
-        this.ticksSinceLastWarning = param0.ticksSinceLastWarning;
         this.warningLevel = param0.warningLevel;
-        this.cooldownTicks = param0.cooldownTicks;
     }
 }

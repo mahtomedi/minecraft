@@ -17,7 +17,7 @@ public class VindicatorRenderer extends IllagerRenderer<Vindicator> {
     public VindicatorRenderer(EntityRendererProvider.Context param0) {
         super(param0, new IllagerModel<>(param0.bakeLayer(ModelLayers.VINDICATOR)), 0.5F);
         this.addLayer(
-            new ItemInHandLayer<Vindicator, IllagerModel<Vindicator>>(this) {
+            new ItemInHandLayer<Vindicator, IllagerModel<Vindicator>>(this, param0.getItemInHandRenderer()) {
                 public void render(
                     PoseStack param0,
                     MultiBufferSource param1,

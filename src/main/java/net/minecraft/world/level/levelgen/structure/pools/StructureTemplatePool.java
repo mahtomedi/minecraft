@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.function.Function;
 import net.minecraft.Util;
@@ -41,14 +42,14 @@ public class StructureTemplatePool {
     public static final Codec<Holder<StructureTemplatePool>> CODEC = RegistryFileCodec.create(Registry.TEMPLATE_POOL_REGISTRY, DIRECT_CODEC);
     private final ResourceLocation name;
     private final List<Pair<StructurePoolElement, Integer>> rawTemplates;
-    private final List<StructurePoolElement> templates;
+    private final ObjectArrayList<StructurePoolElement> templates;
     private final ResourceLocation fallback;
     private int maxSize = Integer.MIN_VALUE;
 
     public StructureTemplatePool(ResourceLocation param0, ResourceLocation param1, List<Pair<StructurePoolElement, Integer>> param2) {
         this.name = param0;
         this.rawTemplates = param2;
-        this.templates = Lists.newArrayList();
+        this.templates = new ObjectArrayList<>();
 
         for(Pair<StructurePoolElement, Integer> var0 : param2) {
             StructurePoolElement var1 = var0.getFirst();
@@ -69,7 +70,7 @@ public class StructureTemplatePool {
     ) {
         this.name = param0;
         this.rawTemplates = Lists.newArrayList();
-        this.templates = Lists.newArrayList();
+        this.templates = new ObjectArrayList<>();
 
         for(Pair<Function<StructureTemplatePool.Projection, ? extends StructurePoolElement>, Integer> var0 : param2) {
             StructurePoolElement var1 = var0.getFirst().apply(param3);

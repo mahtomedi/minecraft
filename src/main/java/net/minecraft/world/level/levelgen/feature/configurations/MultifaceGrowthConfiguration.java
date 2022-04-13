@@ -1,15 +1,16 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Collections;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.MultifaceBlock;
@@ -39,7 +40,7 @@ public class MultifaceGrowthConfiguration implements FeatureConfiguration {
     public final boolean canPlaceOnWall;
     public final float chanceOfSpreading;
     public final HolderSet<Block> canBePlacedOn;
-    public final List<Direction> validDirections;
+    private final ObjectArrayList<Direction> validDirections;
 
     private static DataResult<MultifaceBlock> apply(Block param0) {
         return param0 instanceof MultifaceBlock var0 ? DataResult.success(var0) : DataResult.error("Growth block should be a multiface block");
@@ -55,19 +56,26 @@ public class MultifaceGrowthConfiguration implements FeatureConfiguration {
         this.canPlaceOnWall = param4;
         this.chanceOfSpreading = param5;
         this.canBePlacedOn = param6;
-        List<Direction> var0 = Lists.newArrayList();
+        this.validDirections = new ObjectArrayList<>(6);
         if (param3) {
-            var0.add(Direction.UP);
+            this.validDirections.add(Direction.UP);
         }
 
         if (param2) {
-            var0.add(Direction.DOWN);
+            this.validDirections.add(Direction.DOWN);
         }
 
         if (param4) {
-            Direction.Plane.HORIZONTAL.forEach(var0::add);
+            Direction.Plane.HORIZONTAL.forEach(this.validDirections::add);
         }
 
-        this.validDirections = Collections.unmodifiableList(var0);
+    }
+
+    public List<Direction> getShuffledDirectionsExcept(RandomSource param0, Direction param1) {
+        return Util.toShuffledList(this.validDirections.stream().filter(param1x -> param1x != param1), param0);
+    }
+
+    public List<Direction> getShuffledDirections(RandomSource param0) {
+        return Util.shuffledCopy(this.validDirections, param0);
     }
 }

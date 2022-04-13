@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.Util;
@@ -116,7 +115,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     public Optional<BlockPos> getRandom(
         Predicate<PoiType> param0, Predicate<BlockPos> param1, PoiManager.Occupancy param2, BlockPos param3, int param4, RandomSource param5
     ) {
-        List<PoiRecord> var0 = Util.shuffledCopy(this.getInRange(param0, param3, param4, param2).collect(Collectors.toList()), param5);
+        List<PoiRecord> var0 = Util.toShuffledList(this.getInRange(param0, param3, param4, param2), param5);
         return var0.stream().filter(param1x -> param1.test(param1x.getPos())).findFirst().map(PoiRecord::getPos);
     }
 

@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
@@ -105,7 +106,7 @@ public abstract class AbstractClientPlayer extends Player {
             AbstractTexture var4 = new HttpTexture(
                 null,
                 String.format("http://skins.minecraft.net/MinecraftSkins/%s.png", StringUtil.stripColor(param1)),
-                DefaultPlayerSkin.getDefaultSkin(createPlayerUUID(param1)),
+                DefaultPlayerSkin.getDefaultSkin(UUIDUtil.createOfflinePlayerUUID(param1)),
                 true,
                 null
             );

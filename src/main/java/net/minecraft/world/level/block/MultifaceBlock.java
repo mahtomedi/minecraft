@@ -229,8 +229,9 @@ public abstract class MultifaceBlock extends Block {
         return param0.hasProperty(var0) && param0.getValue(var0);
     }
 
-    protected static boolean canAttachTo(BlockGetter param0, Direction param1, BlockPos param2, BlockState param3) {
-        return Block.isFaceFull(param3.getCollisionShape(param0, param2), param1.getOpposite());
+    public static boolean canAttachTo(BlockGetter param0, Direction param1, BlockPos param2, BlockState param3) {
+        return Block.isFaceFull(param3.getBlockSupportShape(param0, param2), param1.getOpposite())
+            || Block.isFaceFull(param3.getCollisionShape(param0, param2), param1.getOpposite());
     }
 
     private boolean isWaterloggable() {

@@ -97,9 +97,17 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
         this.levelEvent(null, param0, param1, param2);
     }
 
-    void gameEvent(@Nullable Entity var1, GameEvent var2, Vec3 var3);
+    void gameEvent(GameEvent var1, Vec3 var2, @Nullable GameEvent.Context var3);
+
+    default void gameEvent(@Nullable Entity param0, GameEvent param1, Vec3 param2) {
+        this.gameEvent(param1, param2, new GameEvent.Context(param0, null));
+    }
 
     default void gameEvent(@Nullable Entity param0, GameEvent param1, BlockPos param2) {
-        this.gameEvent(param0, param1, Vec3.atCenterOf(param2));
+        this.gameEvent(param1, param2, new GameEvent.Context(param0, null));
+    }
+
+    default void gameEvent(GameEvent param0, BlockPos param1, GameEvent.Context param2) {
+        this.gameEvent(param0, Vec3.atCenterOf(param1), param2);
     }
 }

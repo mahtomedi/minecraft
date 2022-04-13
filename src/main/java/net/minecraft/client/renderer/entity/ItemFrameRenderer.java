@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import java.util.OptionalInt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -33,12 +34,13 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
     private static final ModelResourceLocation GLOW_MAP_FRAME_LOCATION = new ModelResourceLocation("glow_item_frame", "map=true");
     public static final int GLOW_FRAME_BRIGHTNESS = 5;
     public static final int BRIGHT_MAP_LIGHT_ADJUSTMENT = 30;
-    private final Minecraft minecraft = Minecraft.getInstance();
     private final ItemRenderer itemRenderer;
+    private final BlockRenderDispatcher blockRenderer;
 
     public ItemFrameRenderer(EntityRendererProvider.Context param0) {
         super(param0);
         this.itemRenderer = param0.getItemRenderer();
+        this.blockRenderer = param0.getBlockRenderDispatcher();
     }
 
     protected int getBlockLightLevel(T param0, BlockPos param1) {
@@ -60,44 +62,43 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
         boolean var3 = param0.isInvisible();
         ItemStack var4 = param0.getItem();
         if (!var3) {
-            BlockRenderDispatcher var5 = this.minecraft.getBlockRenderer();
-            ModelManager var6 = var5.getBlockModelShaper().getModelManager();
-            ModelResourceLocation var7 = this.getFrameModelResourceLoc(param0, var4);
+            ModelManager var5 = this.blockRenderer.getBlockModelShaper().getModelManager();
+            ModelResourceLocation var6 = this.getFrameModelResourceLoc(param0, var4);
             param3.pushPose();
             param3.translate(-0.5, -0.5, -0.5);
-            var5.getModelRenderer()
+            this.blockRenderer
+                .getModelRenderer()
                 .renderModel(
-                    param3.last(), param4.getBuffer(Sheets.solidBlockSheet()), null, var6.getModel(var7), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
+                    param3.last(), param4.getBuffer(Sheets.solidBlockSheet()), null, var5.getModel(var6), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
                 );
             param3.popPose();
         }
 
         if (!var4.isEmpty()) {
-            boolean var8 = var4.is(Items.FILLED_MAP);
+            OptionalInt var7 = param0.getFramedMapId();
             if (var3) {
                 param3.translate(0.0, 0.0, 0.5);
             } else {
                 param3.translate(0.0, 0.0, 0.4375);
             }
 
-            int var9 = var8 ? param0.getRotation() % 4 * 2 : param0.getRotation();
-            param3.mulPose(Vector3f.ZP.rotationDegrees((float)var9 * 360.0F / 8.0F));
-            if (var8) {
+            int var8 = var7.isPresent() ? param0.getRotation() % 4 * 2 : param0.getRotation();
+            param3.mulPose(Vector3f.ZP.rotationDegrees((float)var8 * 360.0F / 8.0F));
+            if (var7.isPresent()) {
                 param3.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-                float var10 = 0.0078125F;
+                float var9 = 0.0078125F;
                 param3.scale(0.0078125F, 0.0078125F, 0.0078125F);
                 param3.translate(-64.0, -64.0, 0.0);
-                Integer var11 = MapItem.getMapId(var4);
-                MapItemSavedData var12 = MapItem.getSavedData(var11, param0.level);
+                MapItemSavedData var10 = MapItem.getSavedData(var7.getAsInt(), param0.level);
                 param3.translate(0.0, 0.0, -1.0);
-                if (var12 != null) {
-                    int var13 = this.getLightVal(param0, 15728850, param5);
-                    this.minecraft.gameRenderer.getMapRenderer().render(param3, param4, var11, var12, true, var13);
+                if (var10 != null) {
+                    int var11 = this.getLightVal(param0, 15728850, param5);
+                    Minecraft.getInstance().gameRenderer.getMapRenderer().render(param3, param4, var7.getAsInt(), var10, true, var11);
                 }
             } else {
-                int var14 = this.getLightVal(param0, 15728880, param5);
+                int var12 = this.getLightVal(param0, 15728880, param5);
                 param3.scale(0.5F, 0.5F, 0.5F);
-                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, var14, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
+                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, var12, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
             }
         }
 

@@ -6,8 +6,10 @@ import com.google.common.hash.Hashing;
 import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,6 +41,8 @@ import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.util.HttpUtil;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FileUtils;
@@ -108,8 +112,8 @@ public class ClientPackSource implements RepositorySource {
         return var0;
     }
 
-    public CompletableFuture<?> downloadAndSelectResourcePack(String param0, String param1, boolean param2) {
-        String var0 = Hashing.sha1().hashString(param0, StandardCharsets.UTF_8).toString();
+    public CompletableFuture<?> downloadAndSelectResourcePack(URL param0, String param1, boolean param2) {
+        String var0 = Hashing.sha1().hashString(param0.toString(), StandardCharsets.UTF_8).toString();
         String var1 = SHA1.matcher(param1).matches() ? param1 : "";
         this.downloadLock.lock();
 
@@ -191,23 +195,27 @@ public class ClientPackSource implements RepositorySource {
 
     }
 
-    public void clearServerPack() {
+    public CompletableFuture<?> clearServerPack() {
         this.downloadLock.lock();
 
+        CompletableFuture var1;
         try {
             if (this.currentDownload != null) {
                 this.currentDownload.cancel(true);
             }
 
             this.currentDownload = null;
-            if (this.serverPack != null) {
-                this.serverPack = null;
-                Minecraft.getInstance().delayTextureReload();
+            if (this.serverPack == null) {
+                return CompletableFuture.completedFuture(null);
             }
+
+            this.serverPack = null;
+            var1 = Minecraft.getInstance().delayTextureReload();
         } finally {
             this.downloadLock.unlock();
         }
 
+        return var1;
     }
 
     private boolean checkHash(String param0, File param1) {
@@ -249,6 +257,11 @@ public class ClientPackSource implements RepositorySource {
             }
 
         }
+    }
+
+    public CompletableFuture<Void> loadBundledResourcePack(LevelStorageSource.LevelStorageAccess param0) {
+        Path var0 = param0.getLevelPath(LevelResource.MAP_RESOURCE_FILE);
+        return Files.exists(var0) && !Files.isDirectory(var0) ? this.setServerPack(var0.toFile(), PackSource.WORLD) : CompletableFuture.completedFuture(null);
     }
 
     public CompletableFuture<Void> setServerPack(File param0, PackSource param1) {

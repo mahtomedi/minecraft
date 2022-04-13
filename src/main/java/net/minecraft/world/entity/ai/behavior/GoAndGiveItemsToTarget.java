@@ -7,7 +7,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -63,15 +62,8 @@ public class GoAndGiveItemsToTarget<E extends LivingEntity & InventoryCarrier> e
                 ItemStack var3 = param1.getInventory().removeItem(0, 1);
                 if (!var3.isEmpty()) {
                     BehaviorUtils.throwItem(param1, var3, getThrowPosition(var1));
-                    if (var1 instanceof EntityTracker var4) {
-                        Entity var12 = var4.getEntity();
-                        if (var12 instanceof ServerPlayer var5) {
-                            CriteriaTriggers.ITEM_DELIVERED_TO_PLAYER.trigger(var5);
-                        }
-                    }
-
-                    if (param1 instanceof Allay var6) {
-                        AllayAi.getLikedPlayer(var6).ifPresent(param2x -> this.triggerDropItemOnBlock(var1, var3, param2x));
+                    if (param1 instanceof Allay var4) {
+                        AllayAi.getLikedPlayer(var4).ifPresent(param2x -> this.triggerDropItemOnBlock(var1, var3, param2x));
                     }
 
                     param1.getBrain().setMemory(MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS, 100);

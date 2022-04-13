@@ -160,17 +160,16 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
         if (param2 == MobSpawnType.BUCKET) {
             return param3;
         } else {
+            RandomSource var1 = param0.getRandom();
             if (param3 instanceof Axolotl.AxolotlGroupData) {
                 if (((Axolotl.AxolotlGroupData)param3).getGroupSize() >= 2) {
                     var0 = true;
                 }
             } else {
-                param3 = new Axolotl.AxolotlGroupData(
-                    Axolotl.Variant.getCommonSpawnVariant(this.level.random), Axolotl.Variant.getCommonSpawnVariant(this.level.random)
-                );
+                param3 = new Axolotl.AxolotlGroupData(Axolotl.Variant.getCommonSpawnVariant(var1), Axolotl.Variant.getCommonSpawnVariant(var1));
             }
 
-            this.setVariant(((Axolotl.AxolotlGroupData)param3).getVariant(this.level.random));
+            this.setVariant(((Axolotl.AxolotlGroupData)param3).getVariant(var1));
             if (var0) {
                 this.setAge(-24000);
             }

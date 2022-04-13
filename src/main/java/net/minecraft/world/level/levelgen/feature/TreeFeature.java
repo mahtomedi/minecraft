@@ -4,15 +4,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
@@ -24,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.material.Material;
@@ -52,7 +50,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
     private static boolean isReplaceablePlant(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> {
             Material var0x = param0x.getMaterial();
-            return var0x == Material.REPLACEABLE_PLANT || var0x == Material.REPLACEABLE_WATER_PLANT;
+            return var0x == Material.REPLACEABLE_PLANT || var0x == Material.REPLACEABLE_WATER_PLANT || var0x == Material.REPLACEABLE_FIREPROOF_PLANT;
         });
     }
 
@@ -77,23 +75,20 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         int var1 = param6.foliagePlacer.foliageHeight(param1, var0, param6);
         int var2 = var0 - var1;
         int var3 = param6.foliagePlacer.foliageRadius(param1, var2);
-        if (param2.getY() >= param0.getMinBuildHeight() + 1 && param2.getY() + var0 + 1 <= param0.getMaxBuildHeight()) {
-            OptionalInt var4 = param6.minimumSize.minClippedHeight();
-            int var5 = this.getMaxFreeTreeHeight(param0, var0, param2, param6);
-            if (var5 >= var0 || var4.isPresent() && var5 >= var4.getAsInt()) {
-                BlockPos var6 = param2;
-                if (param6.rootPlacer.isPresent()) {
-                    Optional<BlockPos> var7 = param6.rootPlacer.get().placeRoots(param0, param3, param1, param2, param6);
-                    if (var7.isEmpty()) {
-                        return false;
-                    }
-
-                    var6 = var7.get();
+        BlockPos var4 = param6.rootPlacer.<BlockPos>map(param2x -> param2x.getTrunkOrigin(param2, param1)).orElse(param2);
+        int var5 = Math.min(param2.getY(), var4.getY());
+        int var6 = Math.max(param2.getY(), var4.getY()) + var0 + 1;
+        if (var5 >= param0.getMinBuildHeight() + 1 && var6 <= param0.getMaxBuildHeight()) {
+            OptionalInt var7 = param6.minimumSize.minClippedHeight();
+            int var8 = this.getMaxFreeTreeHeight(param0, var0, var4, param6);
+            if (var8 >= var0 || !var7.isEmpty() && var8 >= var7.getAsInt()) {
+                if (param6.rootPlacer.isPresent() && !param6.rootPlacer.get().placeRoots(param0, param3, param1, param2, var4, param6)) {
+                    return false;
+                } else {
+                    List<FoliagePlacer.FoliageAttachment> var9 = param6.trunkPlacer.placeTrunk(param0, param4, param1, var8, var4, param6);
+                    var9.forEach(param7 -> param6.foliagePlacer.createFoliage(param0, param5, param1, param6, var8, param7, var1, var3));
+                    return true;
                 }
-
-                List<FoliagePlacer.FoliageAttachment> var8 = param6.trunkPlacer.placeTrunk(param0, param4, param1, var5, var6, param6);
-                var8.forEach(param7 -> param6.foliagePlacer.createFoliage(param0, param5, param1, param6, var5, param7, var1, var3));
-                return true;
             } else {
                 return false;
             }
@@ -155,13 +150,8 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         boolean var12 = this.doPlace(var0, var1, var2, var8, var9, var10, var3);
         if (var12 && (!var5.isEmpty() || !var6.isEmpty())) {
             if (!var3.decorators.isEmpty()) {
-                List<BlockPos> var13 = Lists.newArrayList(var4);
-                List<BlockPos> var14 = Lists.newArrayList(var5);
-                List<BlockPos> var15 = Lists.newArrayList(var6);
-                var14.sort(Comparator.comparingInt(Vec3i::getY));
-                var15.sort(Comparator.comparingInt(Vec3i::getY));
-                var13.sort(Comparator.comparingInt(Vec3i::getY));
-                var3.decorators.forEach(param6 -> param6.place(var0, var11, var1, var14, var15, var13));
+                TreeDecorator.Context var13 = new TreeDecorator.Context(var0, var11, var1, var5, var6, var4);
+                var3.decorators.forEach(param1 -> param1.place(var13));
             }
 
             return BoundingBox.encapsulatingPositions(Iterables.concat(var5, var6, var7)).map(param3 -> {

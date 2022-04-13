@@ -81,6 +81,7 @@ public class BehaviorUtils {
     public static void throwItem(LivingEntity param0, ItemStack param1, Vec3 param2) {
         double var0 = param0.getEyeY() - 0.3F;
         ItemEntity var1 = new ItemEntity(param0.level, param0.getX(), var0, param0.getZ(), param1);
+        var1.setThrower(param0.getUUID());
         float var2 = 0.3F;
         Vec3 var3 = param2.subtract(param0.position());
         var3 = var3.normalize().scale(0.3F);

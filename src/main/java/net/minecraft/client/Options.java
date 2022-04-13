@@ -989,6 +989,7 @@ public class Options {
         param0.process("fov", this.fov);
         param0.process("screenEffectScale", this.screenEffectScale);
         param0.process("fovEffectScale", this.fovEffectScale);
+        param0.process("darknessEffectScale", this.darknessEffectScale);
         param0.process("gamma", this.gamma);
         param0.process("renderDistance", this.renderDistance);
         param0.process("simulationDistance", this.simulationDistance);
@@ -1381,6 +1382,7 @@ public class Options {
             .add(Pair.of("forceUnicodeFont", this.forceUnicodeFont.get()))
             .add(Pair.of("fov", this.fov.get()))
             .add(Pair.of("fovEffectScale", this.fovEffectScale.get()))
+            .add(Pair.of("darknessEffectScale", this.darknessEffectScale.get()))
             .add(Pair.of("prioritizeChunkUpdates", this.prioritizeChunkUpdates.get()))
             .add(Pair.of("fullscreen", this.fullscreen.get()))
             .add(Pair.of("fullscreenResolution", String.valueOf(this.fullscreenVideoModeString)))

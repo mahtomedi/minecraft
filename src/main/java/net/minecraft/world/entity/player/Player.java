@@ -7,13 +7,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -23,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -118,7 +117,6 @@ import org.slf4j.Logger;
 
 public abstract class Player extends LivingEntity {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
     public static final int MAX_NAME_LENGTH = 16;
     public static final int MAX_HEALTH = 20;
     public static final int SLEEP_DURATION = 100;
@@ -183,7 +181,7 @@ public abstract class Player extends LivingEntity {
 
     public Player(Level param0, BlockPos param1, float param2, GameProfile param3) {
         super(EntityType.PLAYER, param0);
-        this.setUUID(createPlayerUUID(param3));
+        this.setUUID(UUIDUtil.getOrCreatePlayerUUID(param3));
         this.gameProfile = param3;
         this.inventoryMenu = new InventoryMenu(this.inventory, !param0.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
@@ -768,7 +766,7 @@ public abstract class Player extends LivingEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.setUUID(createPlayerUUID(this.gameProfile));
+        this.setUUID(UUIDUtil.getOrCreatePlayerUUID(this.gameProfile));
         ListTag var0 = param0.getList("Inventory", 10);
         this.inventory.load(var0);
         this.inventory.selected = param0.getInt("SelectedItemSlot");
@@ -1938,19 +1936,6 @@ public abstract class Player extends LivingEntity {
     @Override
     public float getAbsorptionAmount() {
         return this.getEntityData().get(DATA_PLAYER_ABSORPTION_ID);
-    }
-
-    public static UUID createPlayerUUID(GameProfile param0) {
-        UUID var0 = param0.getId();
-        if (var0 == null) {
-            var0 = createPlayerUUID(param0.getName());
-        }
-
-        return var0;
-    }
-
-    public static UUID createPlayerUUID(String param0) {
-        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + param0).getBytes(StandardCharsets.UTF_8));
     }
 
     public boolean isModelPartShown(PlayerModelPart param0) {

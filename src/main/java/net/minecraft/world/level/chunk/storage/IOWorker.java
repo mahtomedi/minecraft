@@ -20,7 +20,6 @@ import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.StreamTagVisitor;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.visitors.CollectFields;
 import net.minecraft.nbt.visitors.FieldSelector;
@@ -90,51 +89,26 @@ public class IOWorker implements AutoCloseable, ChunkScanAccess {
     }
 
     private CompletableFuture<BitSet> createOldDataForRegion(int param0, int param1) {
-        return CompletableFuture.supplyAsync(
-            () -> {
-                ChunkPos var0 = ChunkPos.minFromRegion(param0, param1);
-                ChunkPos var1x = ChunkPos.maxFromRegion(param0, param1);
-                BitSet var2x = new BitSet();
-                ChunkPos.rangeClosed(var0, var1x)
-                    .forEach(
-                        param1x -> {
-                            CollectFields var0x = new CollectFields(
-                                new FieldSelector("Level", IntTag.TYPE, "DataVersion"),
-                                new FieldSelector(IntTag.TYPE, "DataVersion"),
-                                new FieldSelector("Level", "blending_data", StringTag.TYPE, "old_noise"),
-                                new FieldSelector(CompoundTag.TYPE, "blending_data")
-                            );
-                            this.scanChunk(param1x, var0x).join();
-                            Tag var1xx = var0x.getResult();
-                            if (var1xx instanceof CompoundTag var2xx) {
-                                int var3x = param1x.getRegionLocalZ() * 32 + param1x.getRegionLocalX();
-                                var2x.set(var3x, this.isOldChunk(var2xx));
-                            }
-            
-                        }
-                    );
-                return var2x;
-            },
-            Util.backgroundExecutor()
-        );
+        return CompletableFuture.supplyAsync(() -> {
+            ChunkPos var0 = ChunkPos.minFromRegion(param0, param1);
+            ChunkPos var1x = ChunkPos.maxFromRegion(param0, param1);
+            BitSet var2x = new BitSet();
+            ChunkPos.rangeClosed(var0, var1x).forEach(param1x -> {
+                CollectFields var0x = new CollectFields(new FieldSelector(IntTag.TYPE, "DataVersion"), new FieldSelector(CompoundTag.TYPE, "blending_data"));
+                this.scanChunk(param1x, var0x).join();
+                Tag var1xx = var0x.getResult();
+                if (var1xx instanceof CompoundTag var2xx) {
+                    int var3x = param1x.getRegionLocalZ() * 32 + param1x.getRegionLocalX();
+                    var2x.set(var3x, this.isOldChunk(var2xx));
+                }
+
+            });
+            return var2x;
+        }, Util.backgroundExecutor());
     }
 
     private boolean isOldChunk(CompoundTag param0) {
-        if (param0.contains("Level", 10)) {
-            CompoundTag var0 = param0.getCompound("Level");
-            if (var0.contains("blending_data", 10) || var0.contains("DataVersion", 99)) {
-                param0 = var0;
-            }
-        }
-
-        if (param0.contains("blending_data", 10)) {
-            CompoundTag var1 = param0.getCompound("blending_data");
-            return var1.contains("old_noise", 99) ? var1.getBoolean("old_noise") : true;
-        } else if (param0.contains("DataVersion", 99)) {
-            return param0.getInt("DataVersion") < 2832;
-        } else {
-            return true;
-        }
+        return param0.contains("DataVersion", 99) && param0.getInt("DataVersion") >= 3088 ? param0.contains("blending_data", 10) : true;
     }
 
     public CompletableFuture<Void> store(ChunkPos param0, @Nullable CompoundTag param1) {

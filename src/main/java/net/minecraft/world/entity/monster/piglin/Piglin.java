@@ -195,17 +195,18 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
+        RandomSource var0 = param0.getRandom();
         if (param2 != MobSpawnType.STRUCTURE) {
-            if (param0.getRandom().nextFloat() < 0.2F) {
+            if (var0.nextFloat() < 0.2F) {
                 this.setBaby(true);
             } else if (this.isAdult()) {
                 this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
             }
         }
 
-        PiglinAi.initMemories(this);
-        this.populateDefaultEquipmentSlots(param1);
-        this.populateDefaultEquipmentEnchantments(param1);
+        PiglinAi.initMemories(this, param0.getRandom());
+        this.populateDefaultEquipmentSlots(var0, param1);
+        this.populateDefaultEquipmentEnchantments(var0, param1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
@@ -220,18 +221,18 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
         if (this.isAdult()) {
-            this.maybeWearArmor(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET));
-            this.maybeWearArmor(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE));
-            this.maybeWearArmor(EquipmentSlot.LEGS, new ItemStack(Items.GOLDEN_LEGGINGS));
-            this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS));
+            this.maybeWearArmor(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET), param0);
+            this.maybeWearArmor(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE), param0);
+            this.maybeWearArmor(EquipmentSlot.LEGS, new ItemStack(Items.GOLDEN_LEGGINGS), param0);
+            this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), param0);
         }
 
     }
 
-    private void maybeWearArmor(EquipmentSlot param0, ItemStack param1) {
-        if (this.level.random.nextFloat() < 0.1F) {
+    private void maybeWearArmor(EquipmentSlot param0, ItemStack param1, RandomSource param2) {
+        if (param2.nextFloat() < 0.1F) {
             this.setItemSlot(param0, param1);
         }
 

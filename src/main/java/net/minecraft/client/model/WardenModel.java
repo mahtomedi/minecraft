@@ -110,6 +110,7 @@ public class WardenModel<T extends Warden> extends HierarchicalModel<T> {
         this.animateIdlePose(param3);
         this.animateTendrils(param0, param3, var0);
         this.animate(param0.attackAnimationState, WardenAnimation.WARDEN_ATTACK, var1);
+        this.animate(param0.sonicBoomAnimationState, WardenAnimation.WARDEN_SONIC_BOOM, var1);
         this.animate(param0.diggingAnimationState, WardenAnimation.WARDEN_DIG, var1);
         this.animate(param0.emergeAnimationState, WardenAnimation.WARDEN_EMERGE, var1);
         this.animate(param0.roarAnimationState, WardenAnimation.WARDEN_ROAR, var1);

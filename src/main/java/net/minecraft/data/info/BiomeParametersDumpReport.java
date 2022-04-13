@@ -12,9 +12,9 @@ import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -31,7 +31,7 @@ public class BiomeParametersDumpReport implements DataProvider {
     }
 
     @Override
-    public void run(HashCache param0) {
+    public void run(CachedOutput param0) {
         Path var0 = this.generator.getOutputFolder();
         RegistryAccess.Frozen var1 = RegistryAccess.BUILTIN.get();
         DynamicOps<JsonElement> var2 = RegistryOps.create(JsonOps.INSTANCE, var1);
@@ -42,7 +42,7 @@ public class BiomeParametersDumpReport implements DataProvider {
         });
     }
 
-    private static <E> void dumpValue(Path param0, HashCache param1, DynamicOps<JsonElement> param2, Encoder<E> param3, E param4) {
+    private static <E> void dumpValue(Path param0, CachedOutput param1, DynamicOps<JsonElement> param2, Encoder<E> param3, E param4) {
         try {
             Optional<JsonElement> var0 = param3.encodeStart(param2, param4)
                 .resultOrPartial(param1x -> LOGGER.error("Couldn't serialize element {}: {}", param0, param1x));

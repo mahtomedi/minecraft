@@ -1,14 +1,9 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
 import com.mojang.serialization.Codec;
-import java.util.List;
-import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.VineBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
 
 public class TrunkVineDecorator extends TreeDecorator {
     public static final Codec<TrunkVineDecorator> CODEC = Codec.unit(() -> TrunkVineDecorator.INSTANCE);
@@ -20,40 +15,34 @@ public class TrunkVineDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(
-        LevelSimulatedReader param0,
-        BiConsumer<BlockPos, BlockState> param1,
-        RandomSource param2,
-        List<BlockPos> param3,
-        List<BlockPos> param4,
-        List<BlockPos> param5
-    ) {
-        param3.forEach(param3x -> {
-            if (param2.nextInt(3) > 0) {
-                BlockPos var3x = param3x.west();
-                if (Feature.isAir(param0, var3x)) {
-                    placeVine(param1, var3x, VineBlock.EAST);
+    public void place(TreeDecorator.Context param0) {
+        RandomSource var0 = param0.random();
+        param0.logs().forEach(param2 -> {
+            if (var0.nextInt(3) > 0) {
+                BlockPos var0x = param2.west();
+                if (param0.isAir(var0x)) {
+                    param0.placeVine(var0x, VineBlock.EAST);
                 }
             }
 
-            if (param2.nextInt(3) > 0) {
-                BlockPos var5x = param3x.east();
-                if (Feature.isAir(param0, var5x)) {
-                    placeVine(param1, var5x, VineBlock.WEST);
+            if (var0.nextInt(3) > 0) {
+                BlockPos var1 = param2.east();
+                if (param0.isAir(var1)) {
+                    param0.placeVine(var1, VineBlock.WEST);
                 }
             }
 
-            if (param2.nextInt(3) > 0) {
-                BlockPos var6x = param3x.north();
-                if (Feature.isAir(param0, var6x)) {
-                    placeVine(param1, var6x, VineBlock.SOUTH);
+            if (var0.nextInt(3) > 0) {
+                BlockPos var2 = param2.north();
+                if (param0.isAir(var2)) {
+                    param0.placeVine(var2, VineBlock.SOUTH);
                 }
             }
 
-            if (param2.nextInt(3) > 0) {
-                BlockPos var3 = param3x.south();
-                if (Feature.isAir(param0, var3)) {
-                    placeVine(param1, var3, VineBlock.NORTH);
+            if (var0.nextInt(3) > 0) {
+                BlockPos var3 = param2.south();
+                if (param0.isAir(var3)) {
+                    param0.placeVine(var3, VineBlock.NORTH);
                 }
             }
 

@@ -2,7 +2,7 @@ package net.minecraft.network.protocol.login;
 
 import com.mojang.authlib.GameProfile;
 import java.util.UUID;
-import net.minecraft.core.SerializableUUID;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
@@ -20,14 +20,14 @@ public class ClientboundGameProfilePacket implements Packet<ClientLoginPacketLis
             var0[var1] = param0.readInt();
         }
 
-        UUID var2 = SerializableUUID.uuidFromIntArray(var0);
+        UUID var2 = UUIDUtil.uuidFromIntArray(var0);
         String var3 = param0.readUtf(16);
         this.gameProfile = new GameProfile(var2, var3);
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        for(int var0 : SerializableUUID.uuidToIntArray(this.gameProfile.getId())) {
+        for(int var0 : UUIDUtil.uuidToIntArray(this.gameProfile.getId())) {
             param0.writeInt(var0);
         }
 

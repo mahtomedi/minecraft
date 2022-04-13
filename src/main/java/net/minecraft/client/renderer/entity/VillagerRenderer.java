@@ -17,9 +17,9 @@ public class VillagerRenderer extends MobRenderer<Villager, VillagerModel<Villag
 
     public VillagerRenderer(EntityRendererProvider.Context param0) {
         super(param0, new VillagerModel<>(param0.bakeLayer(ModelLayers.VILLAGER)), 0.5F);
-        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet()));
+        this.addLayer(new CustomHeadLayer<>(this, param0.getModelSet(), param0.getItemInHandRenderer()));
         this.addLayer(new VillagerProfessionLayer<>(this, param0.getResourceManager(), "villager"));
-        this.addLayer(new CrossedArmsItemLayer<>(this));
+        this.addLayer(new CrossedArmsItemLayer<>(this, param0.getItemInHandRenderer()));
     }
 
     public ResourceLocation getTextureLocation(Villager param0) {

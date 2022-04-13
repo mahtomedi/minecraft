@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
@@ -13,12 +12,9 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
 
 public class BeehiveDecorator extends TreeDecorator {
     public static final Codec<BeehiveDecorator> CODEC = Codec.floatRange(0.0F, 1.0F)
@@ -42,36 +38,30 @@ public class BeehiveDecorator extends TreeDecorator {
     }
 
     @Override
-    public void place(
-        LevelSimulatedReader param0,
-        BiConsumer<BlockPos, BlockState> param1,
-        RandomSource param2,
-        List<BlockPos> param3,
-        List<BlockPos> param4,
-        List<BlockPos> param5
-    ) {
-        if (!(param2.nextFloat() >= this.probability)) {
-            int var0 = !param4.isEmpty()
-                ? Math.max(param4.get(0).getY() - 1, param3.get(0).getY() + 1)
-                : Math.min(param3.get(0).getY() + 1 + param2.nextInt(3), param3.get(param3.size() - 1).getY());
-            List<BlockPos> var1 = param3.stream()
-                .filter(param1x -> param1x.getY() == var0)
+    public void place(TreeDecorator.Context param0) {
+        RandomSource var0 = param0.random();
+        if (!(var0.nextFloat() >= this.probability)) {
+            List<BlockPos> var1 = param0.leaves();
+            List<BlockPos> var2 = param0.logs();
+            int var3 = !var1.isEmpty()
+                ? Math.max(var1.get(0).getY() - 1, var2.get(0).getY() + 1)
+                : Math.min(var2.get(0).getY() + 1 + var0.nextInt(3), var2.get(var2.size() - 1).getY());
+            List<BlockPos> var4 = var2.stream()
+                .filter(param1 -> param1.getY() == var3)
                 .flatMap(param0x -> Stream.of(SPAWN_DIRECTIONS).map(param0x::relative))
                 .collect(Collectors.toList());
-            if (!var1.isEmpty()) {
-                Collections.shuffle(var1);
-                Optional<BlockPos> var2 = var1.stream()
-                    .filter(param1x -> Feature.isAir(param0, param1x) && Feature.isAir(param0, param1x.relative(WORLDGEN_FACING)))
-                    .findFirst();
-                if (!var2.isEmpty()) {
-                    param1.accept(var2.get(), Blocks.BEE_NEST.defaultBlockState().setValue(BeehiveBlock.FACING, WORLDGEN_FACING));
-                    param0.getBlockEntity(var2.get(), BlockEntityType.BEEHIVE).ifPresent(param1x -> {
-                        int var0x = 2 + param2.nextInt(2);
+            if (!var4.isEmpty()) {
+                Collections.shuffle(var4);
+                Optional<BlockPos> var5 = var4.stream().filter(param1 -> param0.isAir(param1) && param0.isAir(param1.relative(WORLDGEN_FACING))).findFirst();
+                if (!var5.isEmpty()) {
+                    param0.setBlock(var5.get(), Blocks.BEE_NEST.defaultBlockState().setValue(BeehiveBlock.FACING, WORLDGEN_FACING));
+                    param0.level().getBlockEntity(var5.get(), BlockEntityType.BEEHIVE).ifPresent(param1 -> {
+                        int var0x = 2 + var0.nextInt(2);
 
                         for(int var1x = 0; var1x < var0x; ++var1x) {
                             CompoundTag var2x = new CompoundTag();
                             var2x.putString("id", Registry.ENTITY_TYPE.getKey(EntityType.BEE).toString());
-                            param1x.storeBee(var2x, param2.nextInt(599), false);
+                            param1.storeBee(var2x, var0.nextInt(599), false);
                         }
 
                     });

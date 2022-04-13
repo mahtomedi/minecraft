@@ -5,11 +5,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.GameEventTags;
 import net.minecraft.tags.TagKey;
@@ -19,7 +21,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.ClipBlockStateContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
@@ -99,7 +100,7 @@ public class VibrationListener implements GameEventListener {
     }
 
     @Override
-    public boolean handleGameEvent(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3) {
+    public boolean handleGameEvent(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3) {
         if (this.receivingEvent != null) {
             return false;
         } else if (!this.config.isValidVibration(param1, param2)) {
@@ -122,9 +123,9 @@ public class VibrationListener implements GameEventListener {
         }
     }
 
-    private void scheduleSignal(ServerLevel param0, GameEvent param1, @Nullable Entity param2, Vec3 param3, Vec3 param4) {
+    private void scheduleSignal(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3, Vec3 param4) {
         this.receivingDistance = Mth.floor(param3.distanceTo(param4));
-        this.receivingEvent = new VibrationListener.ReceivingEvent(param1, this.receivingDistance, param3, param2);
+        this.receivingEvent = new VibrationListener.ReceivingEvent(param1, this.receivingDistance, param3, param2.sourceEntity());
         this.travelTimeInTicks = this.receivingDistance;
         param0.sendParticles(new VibrationParticleOption(this.listenerSource, this.travelTimeInTicks), param3.x, param3.y, param3.z, 1, 0.0, 0.0, 0.0, 0.0);
         this.config.onSignalSchedule();
@@ -199,34 +200,42 @@ public class VibrationListener implements GameEventListener {
             return GameEventTags.VIBRATIONS;
         }
 
-        default boolean isValidVibration(GameEvent param0, @Nullable Entity param1) {
+        default boolean isValidVibration(GameEvent param0, GameEvent.Context param1) {
             if (!param0.is(this.getListenableEvents())) {
                 return false;
             } else {
-                if (param1 != null) {
-                    if (param1.isSpectator()) {
+                Entity var0 = param1.sourceEntity();
+                if (var0 != null) {
+                    if (var0.isSpectator()) {
                         return false;
                     }
 
-                    if (param1.isSteppingCarefully() && param0.is(GameEventTags.IGNORE_VIBRATIONS_SNEAKING)) {
+                    if (var0.isSteppingCarefully() && param0.is(GameEventTags.IGNORE_VIBRATIONS_SNEAKING)) {
+                        if (var0 instanceof ServerPlayer var1) {
+                            CriteriaTriggers.AVOID_VIBRATION.trigger(var1);
+                        }
+
                         return false;
                     }
 
-                    if (param1.occludesVibrations()) {
+                    if (var0.dampensVibrations()) {
                         return false;
                     }
 
-                    if (param0.is(GameEventTags.IGNORE_VIBRATIONS_ON_OCCLUDING_BLOCK)) {
-                        BlockState var0 = param1.getLevel().getBlockState(param1.getOnPos());
-                        return !var0.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS);
+                    if (param0.is(GameEventTags.DAMPENABLE_VIBRATIONS)) {
+                        return !var0.getBlockStateOn().is(BlockTags.DAMPENS_VIBRATIONS);
                     }
                 }
 
-                return true;
+                if (param1.affectedState() != null) {
+                    return !param1.affectedState().is(BlockTags.DAMPENS_VIBRATIONS);
+                } else {
+                    return true;
+                }
             }
         }
 
-        boolean shouldListen(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5);
+        boolean shouldListen(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, GameEvent.Context var5);
 
         void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5, @Nullable Entity var6, int var7);
 

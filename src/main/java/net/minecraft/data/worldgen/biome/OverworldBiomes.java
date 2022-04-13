@@ -588,6 +588,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.commonSpawns(var0);
         var0.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.SLIME, 1, 1, 1));
         var0.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.FROG, 10, 2, 5));
+        var0.addSpawn(MobCategory.WATER_AMBIENT, new MobSpawnSettings.SpawnerData(EntityType.TROPICAL_FISH, 25, 8, 8));
         BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder();
         BiomeDefaultFeatures.addFossilDecoration(var1);
         globalOverworldGeneration(var1);
@@ -602,7 +603,7 @@ public class OverworldBiomes {
             .specialEffects(
                 new BiomeSpecialEffects.Builder()
                     .waterColor(3832426)
-                    .waterFogColor(2302743)
+                    .waterFogColor(5077600)
                     .fogColor(12638463)
                     .skyColor(calculateSkyColor(0.8F))
                     .foliageColorOverride(9285927)

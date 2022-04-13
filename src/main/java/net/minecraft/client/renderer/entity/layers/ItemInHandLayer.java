@@ -2,9 +2,9 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -16,8 +16,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & ArmedModel> extends RenderLayer<T, M> {
-    public ItemInHandLayer(RenderLayerParent<T, M> param0) {
+    private final ItemInHandRenderer itemInHandRenderer;
+
+    public ItemInHandLayer(RenderLayerParent<T, M> param0, ItemInHandRenderer param1) {
         super(param0);
+        this.itemInHandRenderer = param1;
     }
 
     public void render(
@@ -50,7 +53,7 @@ public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & 
             param4.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean var0 = param3 == HumanoidArm.LEFT;
             param4.translate((double)((float)(var0 ? -1 : 1) / 16.0F), 0.125, -0.625);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(param0, param1, param2, var0, param4, param5, param6);
+            this.itemInHandRenderer.renderItem(param0, param1, param2, var0, param4, param5, param6);
             param4.popPose();
         }
     }

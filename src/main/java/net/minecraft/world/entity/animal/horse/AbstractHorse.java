@@ -20,6 +20,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.DifficultyInstance;
@@ -846,15 +847,15 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     protected void setOffspringAttributes(AgeableMob param0, AbstractHorse param1) {
         double var0 = this.getAttributeBaseValue(Attributes.MAX_HEALTH)
             + param0.getAttributeBaseValue(Attributes.MAX_HEALTH)
-            + (double)this.generateRandomMaxHealth();
+            + (double)this.generateRandomMaxHealth(this.random);
         param1.getAttribute(Attributes.MAX_HEALTH).setBaseValue(var0 / 3.0);
         double var1 = this.getAttributeBaseValue(Attributes.JUMP_STRENGTH)
             + param0.getAttributeBaseValue(Attributes.JUMP_STRENGTH)
-            + this.generateRandomJumpStrength();
+            + this.generateRandomJumpStrength(this.random);
         param1.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(var1 / 3.0);
         double var2 = this.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
             + param0.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
-            + this.generateRandomSpeed();
+            + this.generateRandomSpeed(this.random);
         param1.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(var2 / 3.0);
     }
 
@@ -953,16 +954,16 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     }
 
-    protected float generateRandomMaxHealth() {
-        return 15.0F + (float)this.random.nextInt(8) + (float)this.random.nextInt(9);
+    protected float generateRandomMaxHealth(RandomSource param0) {
+        return 15.0F + (float)param0.nextInt(8) + (float)param0.nextInt(9);
     }
 
-    protected double generateRandomJumpStrength() {
-        return 0.4F + this.random.nextDouble() * 0.2 + this.random.nextDouble() * 0.2 + this.random.nextDouble() * 0.2;
+    protected double generateRandomJumpStrength(RandomSource param0) {
+        return 0.4F + param0.nextDouble() * 0.2 + param0.nextDouble() * 0.2 + param0.nextDouble() * 0.2;
     }
 
-    protected double generateRandomSpeed() {
-        return (0.45F + this.random.nextDouble() * 0.3 + this.random.nextDouble() * 0.3 + this.random.nextDouble() * 0.3) * 0.25;
+    protected double generateRandomSpeed(RandomSource param0) {
+        return (0.45F + param0.nextDouble() * 0.3 + param0.nextDouble() * 0.3 + param0.nextDouble() * 0.3) * 0.25;
     }
 
     @Override
@@ -1090,7 +1091,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         }
     }
 
-    protected void randomizeAttributes() {
+    protected void randomizeAttributes(RandomSource param0) {
     }
 
     @Nullable
@@ -1102,7 +1103,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             param3 = new AgeableMob.AgeableMobGroupData(0.2F);
         }
 
-        this.randomizeAttributes();
+        this.randomizeAttributes(param0.getRandom());
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

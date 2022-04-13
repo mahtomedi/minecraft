@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.structure.structures;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.Util;
@@ -282,7 +283,7 @@ public class OceanMonumentPieces {
             this.coreRoom.connections[Direction.EAST.get3DDataValue()].connections[Direction.UP.get3DDataValue()].claimed = true;
             this.coreRoom.connections[Direction.NORTH.get3DDataValue()].connections[Direction.UP.get3DDataValue()].claimed = true;
             this.coreRoom.connections[Direction.EAST.get3DDataValue()].connections[Direction.NORTH.get3DDataValue()].connections[Direction.UP.get3DDataValue()].claimed = true;
-            List<OceanMonumentPieces.RoomDefinition> var25 = Lists.newArrayList();
+            ObjectArrayList<OceanMonumentPieces.RoomDefinition> var25 = new ObjectArrayList<>();
 
             for(OceanMonumentPieces.RoomDefinition var26 : var0) {
                 if (var26 != null) {

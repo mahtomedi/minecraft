@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -70,12 +71,12 @@ public class WitherSkeleton extends AbstractSkeleton {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentSlots(RandomSource param0, DifficultyInstance param1) {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
     }
 
     @Override
-    protected void populateDefaultEquipmentEnchantments(DifficultyInstance param0) {
+    protected void populateDefaultEquipmentEnchantments(RandomSource param0, DifficultyInstance param1) {
     }
 
     @Nullable

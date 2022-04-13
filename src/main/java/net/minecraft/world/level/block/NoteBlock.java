@@ -6,7 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -67,8 +66,7 @@ public class NoteBlock extends Block {
     }
 
     private void playNote(@Nullable Entity param0, Level param1, BlockPos param2) {
-        BlockState var0 = param1.getBlockState(param2.above());
-        if (!var0.is(BlockTags.WOOL) && !var0.is(BlockTags.WOOL_CARPETS)) {
+        if (param1.getBlockState(param2.above()).isAir()) {
             param1.blockEvent(param2, this, 0, 0);
             param1.gameEvent(param0, GameEvent.NOTE_BLOCK_PLAY, param2);
         }

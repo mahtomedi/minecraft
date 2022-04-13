@@ -90,7 +90,7 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
         if (this.isIdle(param2)) {
             float var1 = param3 * 9.0F * (float) (Math.PI / 180.0);
             this.root.y = 23.5F + Mth.cos(var1) * 0.25F;
-            this.right_arm.zRot = 0.43633232F - Mth.cos(var1 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F;
+            this.right_arm.zRot = 0.43633232F - Mth.cos(var1 + ((float) (Math.PI * 3.0 / 2.0))) * (float) Math.PI * 0.075F;
             this.left_arm.zRot = -0.43633232F + Mth.cos(var1 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F;
         } else {
             this.root.y = 23.5F;
