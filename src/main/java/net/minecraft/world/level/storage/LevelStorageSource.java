@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -179,7 +180,7 @@ public class LevelStorageSource {
             );
         }
 
-        return Util.sequenceFailFastAndCancel(var0);
+        return Util.sequenceFailFastAndCancel(var0).thenApply(param0x -> param0x.stream().filter(Objects::nonNull).toList());
     }
 
     private int getStorageVersion() {

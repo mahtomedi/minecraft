@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -145,17 +145,14 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
             CreateWorldScreen.openFresh(this.minecraft, null);
             return CompletableFuture.completedFuture(List.of());
         } else {
-            return (CompletableFuture<List<LevelSummary>>)this.minecraft
-                .getLevelSource()
-                .loadLevelSummaries(var0)
-                .thenApply((Function<? super List<LevelSummary>, ? extends List<LevelSummary>>)(param0 -> {
-                    Collections.sort(param0);
-                    return param0;
-                }))
-                .exceptionally(param0 -> {
-                    this.minecraft.delayCrash(() -> CrashReport.forThrowable(param0, "Couldn't load level list"));
-                    return List.of();
-                });
+            return this.minecraft.getLevelSource().loadLevelSummaries(var0).thenApply(param0 -> {
+                List var1x = new ArrayList<>(param0);
+                Collections.sort(var1x);
+                return var1x;
+            }).exceptionally(param0 -> {
+                this.minecraft.delayCrash(() -> CrashReport.forThrowable(param0, "Couldn't load level list"));
+                return List.of();
+            });
         }
     }
 
