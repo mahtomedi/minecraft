@@ -2512,7 +2512,7 @@ public abstract class LivingEntity extends Entity {
 
         if (this.isControlledByLocalInstance()) {
             this.lerpSteps = 0;
-            this.setPacketCoordinates(this.getX(), this.getY(), this.getZ());
+            this.syncPacketPositionCodec(this.getX(), this.getY(), this.getZ());
         }
 
         if (this.lerpSteps > 0) {
@@ -3403,7 +3403,7 @@ public abstract class LivingEntity extends Entity {
         double var2 = param0.getZ();
         float var3 = param0.getYRot();
         float var4 = param0.getXRot();
-        this.setPacketCoordinates(var0, var1, var2);
+        this.syncPacketPositionCodec(var0, var1, var2);
         this.yBodyRot = param0.getYHeadRot();
         this.yHeadRot = param0.getYHeadRot();
         this.yBodyRotO = this.yBodyRot;

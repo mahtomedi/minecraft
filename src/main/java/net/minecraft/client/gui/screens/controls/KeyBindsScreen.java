@@ -10,7 +10,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.OptionsSubScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -23,7 +23,7 @@ public class KeyBindsScreen extends OptionsSubScreen {
     private Button resetButton;
 
     public KeyBindsScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("controls.keybinds.title"));
+        super(param0, param1, Component.translatable("controls.keybinds.title"));
     }
 
     @Override
@@ -31,7 +31,7 @@ public class KeyBindsScreen extends OptionsSubScreen {
         this.keyBindsList = new KeyBindsList(this, this.minecraft);
         this.addWidget(this.keyBindsList);
         this.resetButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 155, this.height - 29, 150, 20, new TranslatableComponent("controls.resetAll"), param0 -> {
+            new Button(this.width / 2 - 155, this.height - 29, 150, 20, Component.translatable("controls.resetAll"), param0 -> {
                 for(KeyMapping var0 : this.options.keyMappings) {
                     var0.setKey(var0.getDefaultKey());
                 }

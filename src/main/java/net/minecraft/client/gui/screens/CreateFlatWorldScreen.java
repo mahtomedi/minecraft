@@ -11,8 +11,6 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -41,7 +39,7 @@ public class CreateFlatWorldScreen extends Screen {
     private Button deleteLayerButton;
 
     public CreateFlatWorldScreen(CreateWorldScreen param0, Consumer<FlatLevelGeneratorSettings> param1, FlatLevelGeneratorSettings param2) {
-        super(new TranslatableComponent("createWorld.customize.flat.title"));
+        super(Component.translatable("createWorld.customize.flat.title"));
         this.parent = param0;
         this.applySettings = param1;
         this.generator = param2;
@@ -57,12 +55,12 @@ public class CreateFlatWorldScreen extends Screen {
 
     @Override
     protected void init() {
-        this.columnType = new TranslatableComponent("createWorld.customize.flat.tile");
-        this.columnHeight = new TranslatableComponent("createWorld.customize.flat.height");
+        this.columnType = Component.translatable("createWorld.customize.flat.tile");
+        this.columnHeight = Component.translatable("createWorld.customize.flat.height");
         this.list = new CreateFlatWorldScreen.DetailsList();
         this.addWidget(this.list);
         this.deleteLayerButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 155, this.height - 52, 150, 20, new TranslatableComponent("createWorld.customize.flat.removeLayer"), param0 -> {
+            new Button(this.width / 2 - 155, this.height - 52, 150, 20, Component.translatable("createWorld.customize.flat.removeLayer"), param0 -> {
                 if (this.hasValidSelection()) {
                     List<FlatLayerInfo> var0 = this.generator.getLayersInfo();
                     int var1 = this.list.children().indexOf(this.list.getSelected());
@@ -75,13 +73,11 @@ public class CreateFlatWorldScreen extends Screen {
                 }
             })
         );
-        this.addRenderableWidget(
-            new Button(this.width / 2 + 5, this.height - 52, 150, 20, new TranslatableComponent("createWorld.customize.presets"), param0 -> {
-                this.minecraft.setScreen(new PresetFlatWorldScreen(this));
-                this.generator.updateLayers();
-                this.updateButtonValidity();
-            })
-        );
+        this.addRenderableWidget(new Button(this.width / 2 + 5, this.height - 52, 150, 20, Component.translatable("createWorld.customize.presets"), param0 -> {
+            this.minecraft.setScreen(new PresetFlatWorldScreen(this));
+            this.generator.updateLayers();
+            this.updateButtonValidity();
+        }));
         this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 28, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             this.applySettings.accept(this.generator);
             this.minecraft.setScreen(this.parent);
@@ -182,11 +178,11 @@ public class CreateFlatWorldScreen extends Screen {
                 CreateFlatWorldScreen.this.font.draw(param0, var2.getHoverName(), (float)(param3 + 18 + 5), (float)(param2 + 3), 16777215);
                 Component var3;
                 if (param1 == 0) {
-                    var3 = new TranslatableComponent("createWorld.customize.flat.layer.top", var0.getHeight());
+                    var3 = Component.translatable("createWorld.customize.flat.layer.top", var0.getHeight());
                 } else if (param1 == CreateFlatWorldScreen.this.generator.getLayersInfo().size() - 1) {
-                    var3 = new TranslatableComponent("createWorld.customize.flat.layer.bottom", var0.getHeight());
+                    var3 = Component.translatable("createWorld.customize.flat.layer.bottom", var0.getHeight());
                 } else {
-                    var3 = new TranslatableComponent("createWorld.customize.flat.layer", var0.getHeight());
+                    var3 = Component.translatable("createWorld.customize.flat.layer", var0.getHeight());
                 }
 
                 CreateFlatWorldScreen.this.font
@@ -212,7 +208,7 @@ public class CreateFlatWorldScreen extends Screen {
                     .getLayersInfo()
                     .get(CreateFlatWorldScreen.this.generator.getLayersInfo().size() - DetailsList.this.children().indexOf(this) - 1);
                 ItemStack var1 = this.getDisplayItem(var0.getBlockState());
-                return (Component)(!var1.isEmpty() ? new TranslatableComponent("narrator.select", var1.getHoverName()) : TextComponent.EMPTY);
+                return (Component)(!var1.isEmpty() ? Component.translatable("narrator.select", var1.getHoverName()) : CommonComponents.EMPTY);
             }
 
             @Override

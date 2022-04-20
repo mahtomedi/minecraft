@@ -7,7 +7,7 @@ import net.minecraft.client.gui.screens.MouseSettingsScreen;
 import net.minecraft.client.gui.screens.OptionsSubScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,7 +16,7 @@ public class ControlsScreen extends OptionsSubScreen {
     private static final int ROW_SPACING = 24;
 
     public ControlsScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("controls.title"));
+        super(param0, param1, Component.translatable("controls.title"));
     }
 
     @Override
@@ -31,13 +31,13 @@ public class ControlsScreen extends OptionsSubScreen {
                 var2,
                 150,
                 20,
-                new TranslatableComponent("options.mouse_settings"),
+                Component.translatable("options.mouse_settings"),
                 param0 -> this.minecraft.setScreen(new MouseSettingsScreen(this, this.options))
             )
         );
         this.addRenderableWidget(
             new Button(
-                var1, var2, 150, 20, new TranslatableComponent("controls.keybinds"), param0 -> this.minecraft.setScreen(new KeyBindsScreen(this, this.options))
+                var1, var2, 150, 20, Component.translatable("controls.keybinds"), param0 -> this.minecraft.setScreen(new KeyBindsScreen(this, this.options))
             )
         );
         var2 += 24;

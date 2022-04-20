@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -36,7 +35,7 @@ public class DisconnectedScreen extends Screen {
                 Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30),
                 200,
                 20,
-                new TranslatableComponent("gui.toMenu"),
+                Component.translatable("gui.toMenu"),
                 param0 -> this.minecraft.setScreen(this.parent)
             )
         );

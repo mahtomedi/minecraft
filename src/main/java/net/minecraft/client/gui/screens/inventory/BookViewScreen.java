@@ -22,8 +22,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -58,7 +56,7 @@ public class BookViewScreen extends Screen {
     private int currentPage;
     private List<FormattedCharSequence> cachedPageComponents = Collections.emptyList();
     private int cachedPage = -1;
-    private Component pageMsg = TextComponent.EMPTY;
+    private Component pageMsg = CommonComponents.EMPTY;
     private PageButton forwardButton;
     private PageButton backButton;
     private final boolean playTurnSound;
@@ -173,7 +171,7 @@ public class BookViewScreen extends Screen {
         if (this.cachedPage != this.currentPage) {
             FormattedText var2 = this.bookAccess.getPage(this.currentPage);
             this.cachedPageComponents = this.font.split(var2, 114);
-            this.pageMsg = new TranslatableComponent("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
+            this.pageMsg = Component.translatable("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         }
 
         this.cachedPage = this.currentPage;
@@ -340,7 +338,7 @@ public class BookViewScreen extends Screen {
             CompoundTag var0 = param0.getTag();
             return (List<String>)(var0 != null && WrittenBookItem.makeSureTagIsValid(var0)
                 ? BookViewScreen.loadPages(var0)
-                : ImmutableList.of(Component.Serializer.toJson(new TranslatableComponent("book.invalid.tag").withStyle(ChatFormatting.DARK_RED))));
+                : ImmutableList.of(Component.Serializer.toJson(Component.translatable("book.invalid.tag").withStyle(ChatFormatting.DARK_RED))));
         }
 
         @Override

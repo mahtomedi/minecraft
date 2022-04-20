@@ -16,8 +16,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.decoration.Motive;
 import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,7 +30,7 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
     public void render(Painting param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
         param3.mulPose(Vector3f.YP.rotationDegrees(180.0F - param1));
-        Motive var0 = param0.motive;
+        PaintingVariant var0 = param0.getVariant().value();
         float var1 = 0.0625F;
         param3.scale(0.0625F, 0.0625F, 0.0625F);
         VertexConsumer var2 = param4.getBuffer(RenderType.entitySolid(this.getTextureLocation(param0)));

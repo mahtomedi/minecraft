@@ -10,7 +10,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemInput;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -53,7 +53,7 @@ public class GiveCommand {
         int var0 = param1.getItem().getMaxStackSize();
         int var1 = var0 * 100;
         if (param3 > var1) {
-            param0.sendFailure(new TranslatableComponent("commands.give.failed.toomanyitems", var1, param1.createItemStack(param3, false).getDisplayName()));
+            param0.sendFailure(Component.translatable("commands.give.failed.toomanyitems", var1, param1.createItemStack(param3, false).getDisplayName()));
             return 0;
         } else {
             for(ServerPlayer var2 : param2) {
@@ -95,7 +95,7 @@ public class GiveCommand {
 
             if (param2.size() == 1) {
                 param0.sendSuccess(
-                    new TranslatableComponent(
+                    Component.translatable(
                         "commands.give.success.single",
                         param3,
                         param1.createItemStack(param3, false).getDisplayName(),
@@ -105,8 +105,7 @@ public class GiveCommand {
                 );
             } else {
                 param0.sendSuccess(
-                    new TranslatableComponent("commands.give.success.single", param3, param1.createItemStack(param3, false).getDisplayName(), param2.size()),
-                    true
+                    Component.translatable("commands.give.success.single", param3, param1.createItemStack(param3, false).getDisplayName(), param2.size()), true
                 );
             }
 

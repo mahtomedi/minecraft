@@ -29,13 +29,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -613,7 +612,7 @@ public final class ItemStack {
 
     public List<Component> getTooltipLines(@Nullable Player param0, TooltipFlag param1) {
         List<Component> var0 = Lists.newArrayList();
-        MutableComponent var1 = new TextComponent("").append(this.getHoverName()).withStyle(this.getRarity().color);
+        MutableComponent var1 = Component.empty().append(this.getHoverName()).withStyle(this.getRarity().color);
         if (this.hasCustomHoverName()) {
             var1.withStyle(ChatFormatting.ITALIC);
         }
@@ -622,7 +621,7 @@ public final class ItemStack {
         if (!param1.isAdvanced() && !this.hasCustomHoverName() && this.is(Items.FILLED_MAP)) {
             Integer var2 = MapItem.getMapId(this);
             if (var2 != null) {
-                var0.add(new TextComponent("#" + var2).withStyle(ChatFormatting.GRAY));
+                var0.add(Component.literal("#" + var2).withStyle(ChatFormatting.GRAY));
             }
         }
 
@@ -640,9 +639,9 @@ public final class ItemStack {
                 CompoundTag var4 = this.tag.getCompound("display");
                 if (shouldShowInTooltip(var3, ItemStack.TooltipPart.DYE) && var4.contains("color", 99)) {
                     if (param1.isAdvanced()) {
-                        var0.add(new TranslatableComponent("item.color", String.format("#%06X", var4.getInt("color"))).withStyle(ChatFormatting.GRAY));
+                        var0.add(Component.translatable("item.color", String.format("#%06X", var4.getInt("color"))).withStyle(ChatFormatting.GRAY));
                     } else {
-                        var0.add(new TranslatableComponent("item.dyed").withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}));
+                        var0.add(Component.translatable("item.dyed").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
                     }
                 }
 
@@ -669,8 +668,8 @@ public final class ItemStack {
             for(EquipmentSlot var10 : EquipmentSlot.values()) {
                 Multimap<Attribute, AttributeModifier> var11 = this.getAttributeModifiers(var10);
                 if (!var11.isEmpty()) {
-                    var0.add(TextComponent.EMPTY);
-                    var0.add(new TranslatableComponent("item.modifiers." + var10.getName()).withStyle(ChatFormatting.GRAY));
+                    var0.add(CommonComponents.EMPTY);
+                    var0.add(Component.translatable("item.modifiers." + var10.getName()).withStyle(ChatFormatting.GRAY));
 
                     for(Entry<Attribute, AttributeModifier> var12 : var11.entries()) {
                         AttributeModifier var13 = var12.getValue();
@@ -699,32 +698,32 @@ public final class ItemStack {
 
                         if (var15) {
                             var0.add(
-                                new TextComponent(" ")
+                                Component.literal(" ")
                                     .append(
-                                        new TranslatableComponent(
+                                        Component.translatable(
                                             "attribute.modifier.equals." + var13.getOperation().toValue(),
                                             ATTRIBUTE_MODIFIER_FORMAT.format(var16),
-                                            new TranslatableComponent(var12.getKey().getDescriptionId())
+                                            Component.translatable(var12.getKey().getDescriptionId())
                                         )
                                     )
                                     .withStyle(ChatFormatting.DARK_GREEN)
                             );
                         } else if (var14 > 0.0) {
                             var0.add(
-                                new TranslatableComponent(
+                                Component.translatable(
                                         "attribute.modifier.plus." + var13.getOperation().toValue(),
                                         ATTRIBUTE_MODIFIER_FORMAT.format(var16),
-                                        new TranslatableComponent(var12.getKey().getDescriptionId())
+                                        Component.translatable(var12.getKey().getDescriptionId())
                                     )
                                     .withStyle(ChatFormatting.BLUE)
                             );
                         } else if (var14 < 0.0) {
                             var16 *= -1.0;
                             var0.add(
-                                new TranslatableComponent(
+                                Component.translatable(
                                         "attribute.modifier.take." + var13.getOperation().toValue(),
                                         ATTRIBUTE_MODIFIER_FORMAT.format(var16),
-                                        new TranslatableComponent(var12.getKey().getDescriptionId())
+                                        Component.translatable(var12.getKey().getDescriptionId())
                                     )
                                     .withStyle(ChatFormatting.RED)
                             );
@@ -736,14 +735,14 @@ public final class ItemStack {
 
         if (this.hasTag()) {
             if (shouldShowInTooltip(var3, ItemStack.TooltipPart.UNBREAKABLE) && this.tag.getBoolean("Unbreakable")) {
-                var0.add(new TranslatableComponent("item.unbreakable").withStyle(ChatFormatting.BLUE));
+                var0.add(Component.translatable("item.unbreakable").withStyle(ChatFormatting.BLUE));
             }
 
             if (shouldShowInTooltip(var3, ItemStack.TooltipPart.CAN_DESTROY) && this.tag.contains("CanDestroy", 9)) {
                 ListTag var19 = this.tag.getList("CanDestroy", 8);
                 if (!var19.isEmpty()) {
-                    var0.add(TextComponent.EMPTY);
-                    var0.add(new TranslatableComponent("item.canBreak").withStyle(ChatFormatting.GRAY));
+                    var0.add(CommonComponents.EMPTY);
+                    var0.add(Component.translatable("item.canBreak").withStyle(ChatFormatting.GRAY));
 
                     for(int var20 = 0; var20 < var19.size(); ++var20) {
                         var0.addAll(expandBlockState(var19.getString(var20)));
@@ -754,8 +753,8 @@ public final class ItemStack {
             if (shouldShowInTooltip(var3, ItemStack.TooltipPart.CAN_PLACE) && this.tag.contains("CanPlaceOn", 9)) {
                 ListTag var21 = this.tag.getList("CanPlaceOn", 8);
                 if (!var21.isEmpty()) {
-                    var0.add(TextComponent.EMPTY);
-                    var0.add(new TranslatableComponent("item.canPlace").withStyle(ChatFormatting.GRAY));
+                    var0.add(CommonComponents.EMPTY);
+                    var0.add(Component.translatable("item.canPlace").withStyle(ChatFormatting.GRAY));
 
                     for(int var22 = 0; var22 < var21.size(); ++var22) {
                         var0.addAll(expandBlockState(var21.getString(var22)));
@@ -766,12 +765,12 @@ public final class ItemStack {
 
         if (param1.isAdvanced()) {
             if (this.isDamaged()) {
-                var0.add(new TranslatableComponent("item.durability", this.getMaxDamage() - this.getDamageValue(), this.getMaxDamage()));
+                var0.add(Component.translatable("item.durability", this.getMaxDamage() - this.getDamageValue(), this.getMaxDamage()));
             }
 
-            var0.add(new TextComponent(Registry.ITEM.getKey(this.getItem()).toString()).withStyle(ChatFormatting.DARK_GRAY));
+            var0.add(Component.literal(Registry.ITEM.getKey(this.getItem()).toString()).withStyle(ChatFormatting.DARK_GRAY));
             if (this.hasTag()) {
-                var0.add(new TranslatableComponent("item.nbt_tags", this.tag.getAllKeys().size()).withStyle(ChatFormatting.DARK_GRAY));
+                var0.add(Component.translatable("item.nbt_tags", this.tag.getAllKeys().size()).withStyle(ChatFormatting.DARK_GRAY));
             }
         }
 
@@ -812,7 +811,7 @@ public final class ItemStack {
                             .collect(Collectors.toList())
                 );
         } catch (CommandSyntaxException var2) {
-            return Lists.newArrayList(new TextComponent("missingno").withStyle(ChatFormatting.DARK_GRAY));
+            return Lists.newArrayList(Component.literal("missingno").withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
@@ -922,7 +921,7 @@ public final class ItemStack {
     }
 
     public Component getDisplayName() {
-        MutableComponent var0 = new TextComponent("").append(this.getHoverName());
+        MutableComponent var0 = Component.empty().append(this.getHoverName());
         if (this.hasCustomHoverName()) {
             var0.withStyle(ChatFormatting.ITALIC);
         }

@@ -18,20 +18,17 @@ import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class VideoSettingsScreen extends OptionsSubScreen {
-    private static final Component FABULOUS = new TranslatableComponent("options.graphics.fabulous").withStyle(ChatFormatting.ITALIC);
-    private static final Component WARNING_MESSAGE = new TranslatableComponent("options.graphics.warning.message", FABULOUS, FABULOUS);
-    private static final Component WARNING_TITLE = new TranslatableComponent("options.graphics.warning.title").withStyle(ChatFormatting.RED);
-    private static final Component BUTTON_ACCEPT = new TranslatableComponent("options.graphics.warning.accept");
-    private static final Component BUTTON_CANCEL = new TranslatableComponent("options.graphics.warning.cancel");
-    private static final Component NEW_LINE = new TextComponent("\n");
+    private static final Component FABULOUS = Component.translatable("options.graphics.fabulous").withStyle(ChatFormatting.ITALIC);
+    private static final Component WARNING_MESSAGE = Component.translatable("options.graphics.warning.message", FABULOUS, FABULOUS);
+    private static final Component WARNING_TITLE = Component.translatable("options.graphics.warning.title").withStyle(ChatFormatting.RED);
+    private static final Component BUTTON_ACCEPT = Component.translatable("options.graphics.warning.accept");
+    private static final Component BUTTON_CANCEL = Component.translatable("options.graphics.warning.cancel");
     private OptionsList list;
     private final GpuWarnlistManager gpuWarnlistManager;
     private final int oldMipmaps;
@@ -62,7 +59,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
     }
 
     public VideoSettingsScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("options.videoTitle"));
+        super(param0, param1, Component.translatable("options.videoTitle"));
         this.gpuWarnlistManager = param0.minecraft.getGpuWarnlistManager();
         this.gpuWarnlistManager.resetWarnings();
         if (param1.graphicsMode().get() == GraphicsStatus.FABULOUS) {
@@ -91,11 +88,11 @@ public class VideoSettingsScreen extends OptionsSubScreen {
             OptionInstance.noTooltip(),
             (param1, param2) -> {
                 if (var2 == null) {
-                    return new TranslatableComponent("options.fullscreen.unavailable");
+                    return Component.translatable("options.fullscreen.unavailable");
                 } else {
                     return param2 == -1
-                        ? Options.genericValueLabel(param1, new TranslatableComponent("options.fullscreen.current"))
-                        : Options.genericValueLabel(param1, new TextComponent(var2.getMode(param2).toString()));
+                        ? Options.genericValueLabel(param1, Component.translatable("options.fullscreen.current"))
+                        : Options.genericValueLabel(param1, Component.literal(var2.getMode(param2).toString()));
                 }
             },
             new OptionInstance.IntRange(-1, var2 != null ? var2.getModeCount() - 1 : -1),
@@ -136,23 +133,23 @@ public class VideoSettingsScreen extends OptionsSubScreen {
             }
 
             if (this.gpuWarnlistManager.isShowingWarning()) {
-                List<Component> var1 = Lists.newArrayList(WARNING_MESSAGE, NEW_LINE);
+                List<Component> var1 = Lists.newArrayList(WARNING_MESSAGE, CommonComponents.NEW_LINE);
                 String var2 = this.gpuWarnlistManager.getRendererWarnings();
                 if (var2 != null) {
-                    var1.add(NEW_LINE);
-                    var1.add(new TranslatableComponent("options.graphics.warning.renderer", var2).withStyle(ChatFormatting.GRAY));
+                    var1.add(CommonComponents.NEW_LINE);
+                    var1.add(Component.translatable("options.graphics.warning.renderer", var2).withStyle(ChatFormatting.GRAY));
                 }
 
                 String var3 = this.gpuWarnlistManager.getVendorWarnings();
                 if (var3 != null) {
-                    var1.add(NEW_LINE);
-                    var1.add(new TranslatableComponent("options.graphics.warning.vendor", var3).withStyle(ChatFormatting.GRAY));
+                    var1.add(CommonComponents.NEW_LINE);
+                    var1.add(Component.translatable("options.graphics.warning.vendor", var3).withStyle(ChatFormatting.GRAY));
                 }
 
                 String var4 = this.gpuWarnlistManager.getVersionWarnings();
                 if (var4 != null) {
-                    var1.add(NEW_LINE);
-                    var1.add(new TranslatableComponent("options.graphics.warning.version", var4).withStyle(ChatFormatting.GRAY));
+                    var1.add(CommonComponents.NEW_LINE);
+                    var1.add(Component.translatable("options.graphics.warning.version", var4).withStyle(ChatFormatting.GRAY));
                 }
 
                 this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var1, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {

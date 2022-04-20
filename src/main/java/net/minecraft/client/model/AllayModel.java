@@ -11,7 +11,6 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,6 +24,9 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
     private final ModelPart left_arm;
     private final ModelPart right_wing;
     private final ModelPart left_wing;
+    private static final float FLYING_ANIMATION_X_ROT = (float) (Math.PI * 2.0 / 9.0);
+    private static final float MAX_HAND_HOLDING_ITEM_X_ROT_RAD = (float) (-Math.PI / 4);
+    private static final float MIN_HAND_HOLDING_ITEM_X_ROT_RAD = (float) (-Math.PI / 3);
 
     public AllayModel(ModelPart param0) {
         this.root = param0.getChild("root");
@@ -82,31 +84,30 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
     }
 
     public void setupAnim(Allay param0, float param1, float param2, float param3, float param4, float param5) {
+        this.root().getAllParts().forEach(ModelPart::resetPose);
         float var0 = param3 * 20.0F * (float) (Math.PI / 180.0) + param2;
+        float var1 = Mth.cos(var0) * (float) Math.PI * 0.15F;
+        float var2 = param3 - (float)param0.tickCount;
+        float var3 = param3 * 9.0F * (float) (Math.PI / 180.0);
+        float var4 = Math.min(param2 / 0.3F, 1.0F);
+        float var5 = 1.0F - var4;
+        float var6 = param0.getHoldingItemAnimationProgress(var2);
         this.right_wing.xRot = 0.43633232F;
-        this.right_wing.yRot = -0.61086524F + Mth.cos(var0) * (float) Math.PI * 0.15F;
+        this.right_wing.yRot = -0.61086524F + var1;
         this.left_wing.xRot = 0.43633232F;
-        this.left_wing.yRot = 0.61086524F - Mth.cos(var0) * (float) Math.PI * 0.15F;
-        if (this.isIdle(param2)) {
-            float var1 = param3 * 9.0F * (float) (Math.PI / 180.0);
-            this.root.y = 23.5F + Mth.cos(var1) * 0.25F;
-            this.right_arm.zRot = 0.43633232F - Mth.cos(var1 + ((float) (Math.PI * 3.0 / 2.0))) * (float) Math.PI * 0.075F;
-            this.left_arm.zRot = -0.43633232F + Mth.cos(var1 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F;
-        } else {
-            this.root.y = 23.5F;
-            this.right_arm.zRot = 0.43633232F;
-            this.left_arm.zRot = -0.43633232F;
-        }
-
-        if (!param0.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
-            this.right_arm.xRot = -1.134464F;
-            this.right_arm.yRot = 0.27925268F;
-            this.right_arm.zRot = (float) (-Math.PI / 180.0);
-            this.left_arm.xRot = -1.134464F;
-            this.left_arm.yRot = (float) (-Math.PI / 15);
-            this.left_arm.zRot = (float) (Math.PI / 180.0);
-        }
-
+        this.left_wing.yRot = 0.61086524F - var1;
+        float var7 = var4 * (float) (Math.PI * 2.0 / 9.0);
+        this.body.xRot = var7;
+        float var8 = Mth.lerp(var6, var7, Mth.lerp(var4, (float) (-Math.PI / 3), (float) (-Math.PI / 4)));
+        this.root.y += (float)Math.cos((double)var3) * 0.25F * var5;
+        this.right_arm.xRot = var8;
+        this.left_arm.xRot = var8;
+        float var9 = var5 * (1.0F - var6);
+        float var10 = 0.43633232F - Mth.cos(var3 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F * var9;
+        this.left_arm.zRot = -var10;
+        this.right_arm.zRot = var10;
+        this.right_arm.yRot = 0.27925268F * var6;
+        this.left_arm.yRot = -0.27925268F * var6;
     }
 
     @Override
@@ -114,24 +115,15 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
         this.root.render(param0, param1, param2, param3);
     }
 
-    public void prepareMobModel(Allay param0, float param1, float param2, float param3) {
-        this.right_arm.xRot = 0.0F;
-        this.right_arm.yRot = 0.0F;
-        this.right_arm.zRot = 0.3927F;
-        this.left_arm.xRot = 0.0F;
-        this.left_arm.yRot = 0.0F;
-        this.left_arm.zRot = -0.3927F;
-    }
-
     @Override
     public void translateToHand(HumanoidArm param0, PoseStack param1) {
+        float var0 = -1.5F;
+        float var1 = 1.5F;
+        this.root.translateAndRotate(param1);
+        this.body.translateAndRotate(param1);
+        param1.translate(0.0, -0.09375, 0.09375);
+        param1.mulPose(Vector3f.XP.rotation(this.right_arm.xRot + 0.43633232F));
         param1.scale(0.7F, 0.7F, 0.7F);
-        float var0 = 1.8F + (this.root.y - 23.5F) / 11.2F;
-        param1.translate(0.05F, (double)var0, 0.2F);
-        param1.mulPose(Vector3f.XP.rotationDegrees(-65.0F));
-    }
-
-    private boolean isIdle(float param0) {
-        return param0 == 0.0F;
+        param1.translate(0.0625, 0.0, 0.0);
     }
 }

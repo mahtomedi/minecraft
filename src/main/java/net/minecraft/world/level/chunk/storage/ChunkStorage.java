@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -23,7 +24,7 @@ public class ChunkStorage implements AutoCloseable {
     private final IOWorker worker;
     protected final DataFixer fixerUpper;
     @Nullable
-    private LegacyStructureDataHandler legacyStructureHandler;
+    private volatile LegacyStructureDataHandler legacyStructureHandler;
 
     public ChunkStorage(Path param0, DataFixer param1, boolean param2) {
         this.fixerUpper = param1;
@@ -41,11 +42,8 @@ public class ChunkStorage implements AutoCloseable {
         if (var0 < 1493) {
             param2 = NbtUtils.update(this.fixerUpper, DataFixTypes.CHUNK, param2, var0, 1493);
             if (param2.getCompound("Level").getBoolean("hasLegacyStructureData")) {
-                if (this.legacyStructureHandler == null) {
-                    this.legacyStructureHandler = LegacyStructureDataHandler.getLegacyStructureHandler(param0, param1.get());
-                }
-
-                param2 = this.legacyStructureHandler.updateFromLegacy(param2);
+                LegacyStructureDataHandler var1 = this.getLegacyStructureHandler(param0, param1);
+                param2 = var1.updateFromLegacy(param2);
             }
         }
 
@@ -59,6 +57,20 @@ public class ChunkStorage implements AutoCloseable {
         return param2;
     }
 
+    private LegacyStructureDataHandler getLegacyStructureHandler(ResourceKey<Level> param0, Supplier<DimensionDataStorage> param1) {
+        LegacyStructureDataHandler var0 = this.legacyStructureHandler;
+        if (var0 == null) {
+            synchronized(this) {
+                var0 = this.legacyStructureHandler;
+                if (var0 == null) {
+                    this.legacyStructureHandler = var0 = LegacyStructureDataHandler.getLegacyStructureHandler(param0, param1.get());
+                }
+            }
+        }
+
+        return var0;
+    }
+
     public static void injectDatafixingContext(CompoundTag param0, ResourceKey<Level> param1, Optional<ResourceKey<Codec<? extends ChunkGenerator>>> param2) {
         CompoundTag var0 = new CompoundTag();
         var0.putString("dimension", param1.location().toString());
@@ -70,9 +82,8 @@ public class ChunkStorage implements AutoCloseable {
         return param0.contains("DataVersion", 99) ? param0.getInt("DataVersion") : -1;
     }
 
-    @Nullable
-    public CompoundTag read(ChunkPos param0) throws IOException {
-        return this.worker.load(param0);
+    public CompletableFuture<Optional<CompoundTag>> read(ChunkPos param0) {
+        return this.worker.loadAsync(param0);
     }
 
     public void write(ChunkPos param0, CompoundTag param1) {

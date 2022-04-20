@@ -13,7 +13,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ObjectiveArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.Objective;
@@ -23,10 +23,10 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 public class TriggerCommand {
     private static final SimpleCommandExceptionType ERROR_NOT_PRIMED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.trigger.failed.unprimed")
+        Component.translatable("commands.trigger.failed.unprimed")
     );
     private static final SimpleCommandExceptionType ERROR_INVALID_OBJECTIVE = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.trigger.failed.invalid")
+        Component.translatable("commands.trigger.failed.invalid")
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -93,19 +93,19 @@ public class TriggerCommand {
 
     private static int addValue(CommandSourceStack param0, Score param1, int param2) {
         param1.add(param2);
-        param0.sendSuccess(new TranslatableComponent("commands.trigger.add.success", param1.getObjective().getFormattedDisplayName(), param2), true);
+        param0.sendSuccess(Component.translatable("commands.trigger.add.success", param1.getObjective().getFormattedDisplayName(), param2), true);
         return param1.getScore();
     }
 
     private static int setValue(CommandSourceStack param0, Score param1, int param2) {
         param1.setScore(param2);
-        param0.sendSuccess(new TranslatableComponent("commands.trigger.set.success", param1.getObjective().getFormattedDisplayName(), param2), true);
+        param0.sendSuccess(Component.translatable("commands.trigger.set.success", param1.getObjective().getFormattedDisplayName(), param2), true);
         return param2;
     }
 
     private static int simpleTrigger(CommandSourceStack param0, Score param1) {
         param1.add(1);
-        param0.sendSuccess(new TranslatableComponent("commands.trigger.simple.success", param1.getObjective().getFormattedDisplayName()), true);
+        param0.sendSuccess(Component.translatable("commands.trigger.simple.success", param1.getObjective().getFormattedDisplayName()), true);
         return param1.getScore();
     }
 

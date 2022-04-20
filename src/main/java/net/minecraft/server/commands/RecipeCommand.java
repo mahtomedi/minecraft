@@ -10,13 +10,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.Recipe;
 
 public class RecipeCommand {
-    private static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.recipe.give.failed"));
-    private static final SimpleCommandExceptionType ERROR_TAKE_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.recipe.take.failed"));
+    private static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.recipe.give.failed"));
+    private static final SimpleCommandExceptionType ERROR_TAKE_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.recipe.take.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -91,10 +91,10 @@ public class RecipeCommand {
         } else {
             if (param1.size() == 1) {
                 param0.sendSuccess(
-                    new TranslatableComponent("commands.recipe.give.success.single", param2.size(), param1.iterator().next().getDisplayName()), true
+                    Component.translatable("commands.recipe.give.success.single", param2.size(), param1.iterator().next().getDisplayName()), true
                 );
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.recipe.give.success.multiple", param2.size(), param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.recipe.give.success.multiple", param2.size(), param1.size()), true);
             }
 
             return var0;
@@ -113,10 +113,10 @@ public class RecipeCommand {
         } else {
             if (param1.size() == 1) {
                 param0.sendSuccess(
-                    new TranslatableComponent("commands.recipe.take.success.single", param2.size(), param1.iterator().next().getDisplayName()), true
+                    Component.translatable("commands.recipe.take.success.single", param2.size(), param1.iterator().next().getDisplayName()), true
                 );
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.recipe.take.success.multiple", param2.size(), param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.recipe.take.success.multiple", param2.size(), param1.size()), true);
             }
 
             return var0;

@@ -400,7 +400,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         param0.vertex((double)(param1 + param3), (double)(param2 + param4), 0.0).color(param5, param6, param7, param8).endVertex();
         param0.vertex((double)(param1 + param3), (double)(param2 + 0), 0.0).color(param5, param6, param7, param8).endVertex();
         param0.end();
-        BufferUploader.end(param0);
+        BufferUploader.drawWithShader(param0);
     }
 
     @Override

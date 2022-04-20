@@ -9,7 +9,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,7 +27,7 @@ public class PopupScreen extends Screen {
     protected PopupScreen(Component param0, List<Component> param1, ImmutableList<PopupScreen.ButtonOption> param2) {
         super(param0);
         this.message = FormattedText.composite(param1);
-        this.narrationMessage = CommonComponents.joinForNarration(param0, ComponentUtils.formatList(param1, TextComponent.EMPTY));
+        this.narrationMessage = CommonComponents.joinForNarration(param0, ComponentUtils.formatList(param1, CommonComponents.EMPTY));
         this.buttonOptions = param2;
     }
 

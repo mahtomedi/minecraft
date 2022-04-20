@@ -22,7 +22,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.WorldLoader;
@@ -187,8 +186,8 @@ public class WorldOpenFlows {
             .setScreen(
                 new ConfirmScreen(
                     var0::complete,
-                    new TranslatableComponent("multiplayer.texturePrompt.failure.line1"),
-                    new TranslatableComponent("multiplayer.texturePrompt.failure.line2"),
+                    Component.translatable("multiplayer.texturePrompt.failure.line1"),
+                    Component.translatable("multiplayer.texturePrompt.failure.line2"),
                     CommonComponents.GUI_PROCEED,
                     CommonComponents.GUI_CANCEL
                 )
@@ -209,11 +208,11 @@ public class WorldOpenFlows {
         Component var0;
         Component var1;
         if (param2) {
-            var0 = new TranslatableComponent("selectWorld.backupQuestion.customized");
-            var1 = new TranslatableComponent("selectWorld.backupWarning.customized");
+            var0 = Component.translatable("selectWorld.backupQuestion.customized");
+            var1 = Component.translatable("selectWorld.backupWarning.customized");
         } else {
-            var0 = new TranslatableComponent("selectWorld.backupQuestion.experimental");
-            var1 = new TranslatableComponent("selectWorld.backupWarning.experimental");
+            var0 = Component.translatable("selectWorld.backupQuestion.experimental");
+            var1 = Component.translatable("selectWorld.backupWarning.experimental");
         }
 
         this.minecraft.setScreen(new BackupConfirmScreen(param0, (param2x, param3x) -> {
@@ -240,16 +239,16 @@ public class WorldOpenFlows {
             param0.setScreen(
                 new ConfirmScreen(
                     var0,
-                    new TranslatableComponent("selectWorld.import_worldgen_settings.experimental.title"),
-                    new TranslatableComponent("selectWorld.import_worldgen_settings.experimental.question")
+                    Component.translatable("selectWorld.import_worldgen_settings.experimental.title"),
+                    Component.translatable("selectWorld.import_worldgen_settings.experimental.question")
                 )
             );
         } else {
             param0.setScreen(
                 new ConfirmScreen(
                     var0,
-                    new TranslatableComponent("selectWorld.import_worldgen_settings.deprecated.title"),
-                    new TranslatableComponent("selectWorld.import_worldgen_settings.deprecated.question")
+                    Component.translatable("selectWorld.import_worldgen_settings.deprecated.title"),
+                    Component.translatable("selectWorld.import_worldgen_settings.deprecated.question")
                 )
             );
         }

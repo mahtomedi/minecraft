@@ -26,7 +26,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
@@ -52,28 +51,28 @@ import net.minecraft.world.scores.Team;
 public class EntitySelectorOptions {
     private static final Map<String, EntitySelectorOptions.Option> OPTIONS = Maps.newHashMap();
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_OPTION = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.entity.options.unknown", param0)
+        param0 -> Component.translatable("argument.entity.options.unknown", param0)
     );
     public static final DynamicCommandExceptionType ERROR_INAPPLICABLE_OPTION = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.entity.options.inapplicable", param0)
+        param0 -> Component.translatable("argument.entity.options.inapplicable", param0)
     );
     public static final SimpleCommandExceptionType ERROR_RANGE_NEGATIVE = new SimpleCommandExceptionType(
-        new TranslatableComponent("argument.entity.options.distance.negative")
+        Component.translatable("argument.entity.options.distance.negative")
     );
     public static final SimpleCommandExceptionType ERROR_LEVEL_NEGATIVE = new SimpleCommandExceptionType(
-        new TranslatableComponent("argument.entity.options.level.negative")
+        Component.translatable("argument.entity.options.level.negative")
     );
     public static final SimpleCommandExceptionType ERROR_LIMIT_TOO_SMALL = new SimpleCommandExceptionType(
-        new TranslatableComponent("argument.entity.options.limit.toosmall")
+        Component.translatable("argument.entity.options.limit.toosmall")
     );
     public static final DynamicCommandExceptionType ERROR_SORT_UNKNOWN = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.entity.options.sort.irreversible", param0)
+        param0 -> Component.translatable("argument.entity.options.sort.irreversible", param0)
     );
     public static final DynamicCommandExceptionType ERROR_GAME_MODE_INVALID = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.entity.options.mode.invalid", param0)
+        param0 -> Component.translatable("argument.entity.options.mode.invalid", param0)
     );
     public static final DynamicCommandExceptionType ERROR_ENTITY_TYPE_INVALID = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.entity.options.type.invalid", param0)
+        param0 -> Component.translatable("argument.entity.options.type.invalid", param0)
     );
 
     private static void register(String param0, EntitySelectorOptions.Modifier param1, Predicate<EntitySelectorParser> param2, Component param3) {
@@ -98,7 +97,7 @@ public class EntitySelectorOptions {
 
                     param0.addPredicate(param2 -> param2.getName().getString().equals(var2) != var1);
                 }
-            }, param0 -> !param0.hasNameEquals(), new TranslatableComponent("argument.entity.options.name.description"));
+            }, param0 -> !param0.hasNameEquals(), Component.translatable("argument.entity.options.name.description"));
             register("distance", param0 -> {
                 int var0 = param0.getReader().getCursor();
                 MinMaxBounds.Doubles var1 = MinMaxBounds.Doubles.fromReader(param0.getReader());
@@ -109,7 +108,7 @@ public class EntitySelectorOptions {
                     param0.getReader().setCursor(var0);
                     throw ERROR_RANGE_NEGATIVE.createWithContext(param0.getReader());
                 }
-            }, param0 -> param0.getDistance().isAny(), new TranslatableComponent("argument.entity.options.distance.description"));
+            }, param0 -> param0.getDistance().isAny(), Component.translatable("argument.entity.options.distance.description"));
             register("level", param0 -> {
                 int var0 = param0.getReader().getCursor();
                 MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromReader(param0.getReader());
@@ -120,42 +119,42 @@ public class EntitySelectorOptions {
                     param0.getReader().setCursor(var0);
                     throw ERROR_LEVEL_NEGATIVE.createWithContext(param0.getReader());
                 }
-            }, param0 -> param0.getLevel().isAny(), new TranslatableComponent("argument.entity.options.level.description"));
+            }, param0 -> param0.getLevel().isAny(), Component.translatable("argument.entity.options.level.description"));
             register("x", param0 -> {
                 param0.setWorldLimited();
                 param0.setX(param0.getReader().readDouble());
-            }, param0 -> param0.getX() == null, new TranslatableComponent("argument.entity.options.x.description"));
+            }, param0 -> param0.getX() == null, Component.translatable("argument.entity.options.x.description"));
             register("y", param0 -> {
                 param0.setWorldLimited();
                 param0.setY(param0.getReader().readDouble());
-            }, param0 -> param0.getY() == null, new TranslatableComponent("argument.entity.options.y.description"));
+            }, param0 -> param0.getY() == null, Component.translatable("argument.entity.options.y.description"));
             register("z", param0 -> {
                 param0.setWorldLimited();
                 param0.setZ(param0.getReader().readDouble());
-            }, param0 -> param0.getZ() == null, new TranslatableComponent("argument.entity.options.z.description"));
+            }, param0 -> param0.getZ() == null, Component.translatable("argument.entity.options.z.description"));
             register("dx", param0 -> {
                 param0.setWorldLimited();
                 param0.setDeltaX(param0.getReader().readDouble());
-            }, param0 -> param0.getDeltaX() == null, new TranslatableComponent("argument.entity.options.dx.description"));
+            }, param0 -> param0.getDeltaX() == null, Component.translatable("argument.entity.options.dx.description"));
             register("dy", param0 -> {
                 param0.setWorldLimited();
                 param0.setDeltaY(param0.getReader().readDouble());
-            }, param0 -> param0.getDeltaY() == null, new TranslatableComponent("argument.entity.options.dy.description"));
+            }, param0 -> param0.getDeltaY() == null, Component.translatable("argument.entity.options.dy.description"));
             register("dz", param0 -> {
                 param0.setWorldLimited();
                 param0.setDeltaZ(param0.getReader().readDouble());
-            }, param0 -> param0.getDeltaZ() == null, new TranslatableComponent("argument.entity.options.dz.description"));
+            }, param0 -> param0.getDeltaZ() == null, Component.translatable("argument.entity.options.dz.description"));
             register(
                 "x_rotation",
                 param0 -> param0.setRotX(WrappedMinMaxBounds.fromReader(param0.getReader(), true, Mth::wrapDegrees)),
                 param0 -> param0.getRotX() == WrappedMinMaxBounds.ANY,
-                new TranslatableComponent("argument.entity.options.x_rotation.description")
+                Component.translatable("argument.entity.options.x_rotation.description")
             );
             register(
                 "y_rotation",
                 param0 -> param0.setRotY(WrappedMinMaxBounds.fromReader(param0.getReader(), true, Mth::wrapDegrees)),
                 param0 -> param0.getRotY() == WrappedMinMaxBounds.ANY,
-                new TranslatableComponent("argument.entity.options.y_rotation.description")
+                Component.translatable("argument.entity.options.y_rotation.description")
             );
             register("limit", param0 -> {
                 int var0 = param0.getReader().getCursor();
@@ -167,7 +166,7 @@ public class EntitySelectorOptions {
                     param0.setMaxResults(var1);
                     param0.setLimited(true);
                 }
-            }, param0 -> !param0.isCurrentEntity() && !param0.isLimited(), new TranslatableComponent("argument.entity.options.limit.description"));
+            }, param0 -> !param0.isCurrentEntity() && !param0.isLimited(), Component.translatable("argument.entity.options.limit.description"));
             register(
                 "sort",
                 param0 -> {
@@ -199,7 +198,7 @@ public class EntitySelectorOptions {
                     param0.setSorted(true);
                 },
                 param0 -> !param0.isCurrentEntity() && !param0.isSorted(),
-                new TranslatableComponent("argument.entity.options.sort.description")
+                Component.translatable("argument.entity.options.sort.description")
             );
             register("gamemode", param0 -> {
                 param0.setSuggestions((param1, param2) -> {
@@ -258,7 +257,7 @@ public class EntitySelectorOptions {
 
                     }
                 }
-            }, param0 -> !param0.hasGamemodeEquals(), new TranslatableComponent("argument.entity.options.gamemode.description"));
+            }, param0 -> !param0.hasGamemodeEquals(), Component.translatable("argument.entity.options.gamemode.description"));
             register("team", param0 -> {
                 boolean var0 = param0.shouldInvertValue();
                 String var1 = param0.getReader().readUnquotedString();
@@ -277,7 +276,7 @@ public class EntitySelectorOptions {
                     param0.setHasTeamEquals(true);
                 }
 
-            }, param0 -> !param0.hasTeamEquals(), new TranslatableComponent("argument.entity.options.team.description"));
+            }, param0 -> !param0.hasTeamEquals(), Component.translatable("argument.entity.options.team.description"));
             register("type", param0 -> {
                 param0.setSuggestions((param1, param2) -> {
                     SharedSuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet(), param1, String.valueOf('!'));
@@ -319,7 +318,7 @@ public class EntitySelectorOptions {
                     }
 
                 }
-            }, param0 -> !param0.isTypeLimited(), new TranslatableComponent("argument.entity.options.type.description"));
+            }, param0 -> !param0.isTypeLimited(), Component.translatable("argument.entity.options.type.description"));
             register("tag", param0 -> {
                 boolean var0 = param0.shouldInvertValue();
                 String var1 = param0.getReader().readUnquotedString();
@@ -330,7 +329,7 @@ public class EntitySelectorOptions {
                         return param2.getTags().contains(var1) != var0;
                     }
                 });
-            }, param0 -> true, new TranslatableComponent("argument.entity.options.tag.description"));
+            }, param0 -> true, Component.translatable("argument.entity.options.tag.description"));
             register("nbt", param0 -> {
                 boolean var0 = param0.shouldInvertValue();
                 CompoundTag var1 = new TagParser(param0.getReader()).readStruct();
@@ -345,7 +344,7 @@ public class EntitySelectorOptions {
 
                     return NbtUtils.compareNbt(var1, var0x, true) != var0;
                 });
-            }, param0 -> true, new TranslatableComponent("argument.entity.options.nbt.description"));
+            }, param0 -> true, Component.translatable("argument.entity.options.nbt.description"));
             register("scores", param0 -> {
                 StringReader var0 = param0.getReader();
                 Map<String, MinMaxBounds.Ints> var1 = Maps.newHashMap();
@@ -394,7 +393,7 @@ public class EntitySelectorOptions {
                 }
 
                 param0.setHasScores(true);
-            }, param0 -> !param0.hasScores(), new TranslatableComponent("argument.entity.options.scores.description"));
+            }, param0 -> !param0.hasScores(), Component.translatable("argument.entity.options.scores.description"));
             register("advancements", param0 -> {
                 StringReader var0 = param0.getReader();
                 Map<ResourceLocation, Predicate<AdvancementProgress>> var1 = Maps.newHashMap();
@@ -475,7 +474,7 @@ public class EntitySelectorOptions {
                 }
 
                 param0.setHasAdvancements(true);
-            }, param0 -> !param0.hasAdvancements(), new TranslatableComponent("argument.entity.options.advancements.description"));
+            }, param0 -> !param0.hasAdvancements(), Component.translatable("argument.entity.options.advancements.description"));
             register(
                 "predicate",
                 param0 -> {
@@ -502,7 +501,7 @@ public class EntitySelectorOptions {
                     );
                 },
                 param0 -> true,
-                new TranslatableComponent("argument.entity.options.predicate.description")
+                Component.translatable("argument.entity.options.predicate.description")
             );
         }
     }

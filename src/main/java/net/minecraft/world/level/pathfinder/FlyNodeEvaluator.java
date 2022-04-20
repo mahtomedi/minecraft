@@ -55,12 +55,12 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             )) {
                 BlockPathTypes var8 = this.getCachedBlockPathType(var4.getX(), var0, var4.getZ());
                 if (this.mob.getPathfindingMalus(var8) >= 0.0F) {
-                    return super.getNode(var7.getX(), var7.getY(), var7.getZ());
+                    return super.getStartNode(var7);
                 }
             }
         }
 
-        return super.getNode(var4.getX(), var0, var4.getZ());
+        return super.getStartNode(new BlockPos(var4.getX(), var0, var4.getZ()));
     }
 
     @Override

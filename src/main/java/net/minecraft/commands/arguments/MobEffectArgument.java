@@ -13,14 +13,14 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 
 public class MobEffectArgument implements ArgumentType<MobEffect> {
     private static final Collection<String> EXAMPLES = Arrays.asList("spooky", "effect");
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_EFFECT = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("effect.effectNotFound", param0)
+        param0 -> Component.translatable("effect.effectNotFound", param0)
     );
 
     public static MobEffectArgument effect() {

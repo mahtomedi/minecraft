@@ -104,7 +104,8 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
         BiomeDefaultFeatures.addCommonBerryBushes(var1);
-        return biome(Biome.Precipitation.RAIN, param0 ? 0.25F : 0.3F, 0.8F, var0, var1, NORMAL_MUSIC);
+        Music var2 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA);
+        return biome(Biome.Precipitation.RAIN, param0 ? 0.25F : 0.3F, 0.8F, var0, var1, var2);
     }
 
     public static Biome sparseJungle() {
@@ -161,7 +162,8 @@ public class OverworldBiomes {
             BiomeDefaultFeatures.addJungleMelons(var0);
         }
 
-        return biome(Biome.Precipitation.RAIN, 0.95F, param0, param4, var0, NORMAL_MUSIC);
+        Music var1 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_JUNGLE_AND_FOREST);
+        return biome(Biome.Precipitation.RAIN, 0.95F, param0, param4, var0, var1);
     }
 
     public static Biome windsweptHills(boolean param0) {
@@ -477,7 +479,8 @@ public class OverworldBiomes {
         }
 
         float var2 = param0 ? 0.6F : 0.7F;
-        return biome(Biome.Precipitation.RAIN, var2, param0 ? 0.6F : 0.8F, var1, var0, NORMAL_MUSIC);
+        Music var3 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_JUNGLE_AND_FOREST);
+        return biome(Biome.Precipitation.RAIN, var2, param0 ? 0.6F : 0.8F, var1, var0, var3);
     }
 
     public static Biome taiga(boolean param0) {
@@ -529,6 +532,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addForestGrass(var1);
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addDefaultExtraVegetation(var1);
+        Music var2 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_JUNGLE_AND_FOREST);
         return new Biome.BiomeBuilder()
             .precipitation(Biome.Precipitation.RAIN)
             .temperature(0.7F)
@@ -541,6 +545,7 @@ public class OverworldBiomes {
                     .skyColor(calculateSkyColor(0.7F))
                     .grassColorModifier(BiomeSpecialEffects.GrassColorModifier.DARK_FOREST)
                     .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+                    .backgroundMusic(var2)
                     .build()
             )
             .mobSpawnSettings(var0.build())
@@ -563,6 +568,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultMushrooms(var1);
         BiomeDefaultFeatures.addSwampExtraVegetation(var1);
         var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEAGRASS_SWAMP);
+        Music var2 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_SWAMP);
         return new Biome.BiomeBuilder()
             .precipitation(Biome.Precipitation.RAIN)
             .temperature(0.8F)
@@ -576,6 +582,7 @@ public class OverworldBiomes {
                     .foliageColorOverride(6975545)
                     .grassColorModifier(BiomeSpecialEffects.GrassColorModifier.SWAMP)
                     .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+                    .backgroundMusic(var2)
                     .build()
             )
             .mobSpawnSettings(var0.build())
@@ -596,6 +603,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addMangroveSwampDisks(var1);
         BiomeDefaultFeatures.addMangroveSwampVegetation(var1);
         var1.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEAGRASS_SWAMP);
+        Music var2 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_SWAMP);
         return new Biome.BiomeBuilder()
             .precipitation(Biome.Precipitation.RAIN)
             .temperature(0.8F)
@@ -609,6 +617,7 @@ public class OverworldBiomes {
                     .foliageColorOverride(9285927)
                     .grassColorModifier(BiomeSpecialEffects.GrassColorModifier.SWAMP)
                     .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+                    .backgroundMusic(var2)
                     .build()
             )
             .mobSpawnSettings(var0.build())

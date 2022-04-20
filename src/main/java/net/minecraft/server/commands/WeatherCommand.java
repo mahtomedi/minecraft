@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class WeatherCommand {
     private static final int DEFAULT_TIME = 6000;
@@ -42,19 +42,19 @@ public class WeatherCommand {
 
     private static int setClear(CommandSourceStack param0, int param1) {
         param0.getLevel().setWeatherParameters(param1, 0, false, false);
-        param0.sendSuccess(new TranslatableComponent("commands.weather.set.clear"), true);
+        param0.sendSuccess(Component.translatable("commands.weather.set.clear"), true);
         return param1;
     }
 
     private static int setRain(CommandSourceStack param0, int param1) {
         param0.getLevel().setWeatherParameters(0, param1, true, false);
-        param0.sendSuccess(new TranslatableComponent("commands.weather.set.rain"), true);
+        param0.sendSuccess(Component.translatable("commands.weather.set.rain"), true);
         return param1;
     }
 
     private static int setThunder(CommandSourceStack param0, int param1) {
         param0.getLevel().setWeatherParameters(0, param1, true, true);
-        param0.sendSuccess(new TranslatableComponent("commands.weather.set.thunder"), true);
+        param0.sendSuccess(Component.translatable("commands.weather.set.thunder"), true);
         return param1;
     }
 }

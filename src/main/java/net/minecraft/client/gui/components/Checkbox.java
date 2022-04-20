@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,9 +44,9 @@ public class Checkbox extends AbstractButton {
         param0.add(NarratedElementType.TITLE, (Component)this.createNarrationMessage());
         if (this.active) {
             if (this.isFocused()) {
-                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.checkbox.usage.focused")));
+                param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.checkbox.usage.focused"));
             } else {
-                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.checkbox.usage.hovered")));
+                param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.checkbox.usage.hovered"));
             }
         }
 

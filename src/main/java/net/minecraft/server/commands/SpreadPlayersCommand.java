@@ -19,7 +19,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec2Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -34,13 +34,13 @@ import net.minecraft.world.scores.Team;
 public class SpreadPlayersCommand {
     private static final int MAX_ITERATION_COUNT = 10000;
     private static final Dynamic4CommandExceptionType ERROR_FAILED_TO_SPREAD_TEAMS = new Dynamic4CommandExceptionType(
-        (param0, param1, param2, param3) -> new TranslatableComponent("commands.spreadplayers.failed.teams", param0, param1, param2, param3)
+        (param0, param1, param2, param3) -> Component.translatable("commands.spreadplayers.failed.teams", param0, param1, param2, param3)
     );
     private static final Dynamic4CommandExceptionType ERROR_FAILED_TO_SPREAD_ENTITIES = new Dynamic4CommandExceptionType(
-        (param0, param1, param2, param3) -> new TranslatableComponent("commands.spreadplayers.failed.entities", param0, param1, param2, param3)
+        (param0, param1, param2, param3) -> Component.translatable("commands.spreadplayers.failed.entities", param0, param1, param2, param3)
     );
     private static final Dynamic2CommandExceptionType ERROR_INVALID_MAX_HEIGHT = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.spreadplayers.failed.invalid.height", param0, param1)
+        (param0, param1) -> Component.translatable("commands.spreadplayers.failed.invalid.height", param0, param1)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -116,7 +116,7 @@ public class SpreadPlayersCommand {
             spreadPositions(param1, (double)param2, var0, var2, var3, var4, var5, var6, param4, var7, param5);
             double var8 = setPlayerPositions(param6, var0, var7, param4, param5);
             param0.sendSuccess(
-                new TranslatableComponent(
+                Component.translatable(
                     "commands.spreadplayers.success." + (param5 ? "teams" : "entities"),
                     var7.length,
                     param1.x,

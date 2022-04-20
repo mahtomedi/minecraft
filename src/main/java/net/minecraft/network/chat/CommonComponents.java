@@ -4,32 +4,33 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class CommonComponents {
-    public static final Component OPTION_ON = new TranslatableComponent("options.on");
-    public static final Component OPTION_OFF = new TranslatableComponent("options.off");
-    public static final Component GUI_DONE = new TranslatableComponent("gui.done");
-    public static final Component GUI_CANCEL = new TranslatableComponent("gui.cancel");
-    public static final Component GUI_YES = new TranslatableComponent("gui.yes");
-    public static final Component GUI_NO = new TranslatableComponent("gui.no");
-    public static final Component GUI_PROCEED = new TranslatableComponent("gui.proceed");
-    public static final Component GUI_BACK = new TranslatableComponent("gui.back");
-    public static final Component CONNECT_FAILED = new TranslatableComponent("connect.failed");
-    public static final Component NEW_LINE = new TextComponent("\n");
-    public static final Component NARRATION_SEPARATOR = new TextComponent(". ");
+    public static final Component EMPTY = Component.empty();
+    public static final Component OPTION_ON = Component.translatable("options.on");
+    public static final Component OPTION_OFF = Component.translatable("options.off");
+    public static final Component GUI_DONE = Component.translatable("gui.done");
+    public static final Component GUI_CANCEL = Component.translatable("gui.cancel");
+    public static final Component GUI_YES = Component.translatable("gui.yes");
+    public static final Component GUI_NO = Component.translatable("gui.no");
+    public static final Component GUI_PROCEED = Component.translatable("gui.proceed");
+    public static final Component GUI_BACK = Component.translatable("gui.back");
+    public static final Component CONNECT_FAILED = Component.translatable("connect.failed");
+    public static final Component NEW_LINE = Component.literal("\n");
+    public static final Component NARRATION_SEPARATOR = Component.literal(". ");
 
     public static Component optionStatus(boolean param0) {
         return param0 ? OPTION_ON : OPTION_OFF;
     }
 
     public static MutableComponent optionStatus(Component param0, boolean param1) {
-        return new TranslatableComponent(param1 ? "options.on.composed" : "options.off.composed", param0);
+        return Component.translatable(param1 ? "options.on.composed" : "options.off.composed", param0);
     }
 
     public static MutableComponent optionNameValue(Component param0, Component param1) {
-        return new TranslatableComponent("options.generic_value", param0, param1);
+        return Component.translatable("options.generic_value", param0, param1);
     }
 
     public static MutableComponent joinForNarration(Component param0, Component param1) {
-        return new TextComponent("").append(param0).append(NARRATION_SEPARATOR).append(param1);
+        return Component.empty().append(param0).append(NARRATION_SEPARATOR).append(param1);
     }
 
     public static Component joinLines(Component... param0) {

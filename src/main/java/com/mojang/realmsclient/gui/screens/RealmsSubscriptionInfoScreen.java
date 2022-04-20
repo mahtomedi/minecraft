@@ -18,8 +18,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,17 +26,17 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     static final Logger LOGGER = LogUtils.getLogger();
-    private static final Component SUBSCRIPTION_TITLE = new TranslatableComponent("mco.configure.world.subscription.title");
-    private static final Component SUBSCRIPTION_START_LABEL = new TranslatableComponent("mco.configure.world.subscription.start");
-    private static final Component TIME_LEFT_LABEL = new TranslatableComponent("mco.configure.world.subscription.timeleft");
-    private static final Component DAYS_LEFT_LABEL = new TranslatableComponent("mco.configure.world.subscription.recurring.daysleft");
-    private static final Component SUBSCRIPTION_EXPIRED_TEXT = new TranslatableComponent("mco.configure.world.subscription.expired");
-    private static final Component SUBSCRIPTION_LESS_THAN_A_DAY_TEXT = new TranslatableComponent("mco.configure.world.subscription.less_than_a_day");
-    private static final Component MONTH_SUFFIX = new TranslatableComponent("mco.configure.world.subscription.month");
-    private static final Component MONTHS_SUFFIX = new TranslatableComponent("mco.configure.world.subscription.months");
-    private static final Component DAY_SUFFIX = new TranslatableComponent("mco.configure.world.subscription.day");
-    private static final Component DAYS_SUFFIX = new TranslatableComponent("mco.configure.world.subscription.days");
-    private static final Component UNKNOWN = new TranslatableComponent("mco.configure.world.subscription.unknown");
+    private static final Component SUBSCRIPTION_TITLE = Component.translatable("mco.configure.world.subscription.title");
+    private static final Component SUBSCRIPTION_START_LABEL = Component.translatable("mco.configure.world.subscription.start");
+    private static final Component TIME_LEFT_LABEL = Component.translatable("mco.configure.world.subscription.timeleft");
+    private static final Component DAYS_LEFT_LABEL = Component.translatable("mco.configure.world.subscription.recurring.daysleft");
+    private static final Component SUBSCRIPTION_EXPIRED_TEXT = Component.translatable("mco.configure.world.subscription.expired");
+    private static final Component SUBSCRIPTION_LESS_THAN_A_DAY_TEXT = Component.translatable("mco.configure.world.subscription.less_than_a_day");
+    private static final Component MONTH_SUFFIX = Component.translatable("mco.configure.world.subscription.month");
+    private static final Component MONTHS_SUFFIX = Component.translatable("mco.configure.world.subscription.months");
+    private static final Component DAY_SUFFIX = Component.translatable("mco.configure.world.subscription.day");
+    private static final Component DAYS_SUFFIX = Component.translatable("mco.configure.world.subscription.days");
+    private static final Component UNKNOWN = Component.translatable("mco.configure.world.subscription.unknown");
     private final Screen lastScreen;
     final RealmsServer serverData;
     final Screen mainScreen;
@@ -65,7 +63,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
                 row(6),
                 200,
                 20,
-                new TranslatableComponent("mco.configure.world.subscription.extend"),
+                Component.translatable("mco.configure.world.subscription.extend"),
                 param0 -> {
                     String var0 = "https://aka.ms/ExtendJavaRealms?subscriptionId="
                         + this.serverData.remoteSubscriptionId
@@ -81,9 +79,9 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
         );
         if (this.serverData.expired) {
             this.addRenderableWidget(
-                new Button(this.width / 2 - 100, row(10), 200, 20, new TranslatableComponent("mco.configure.world.delete.button"), param0 -> {
-                    Component var0 = new TranslatableComponent("mco.configure.world.delete.question.line1");
-                    Component var1 = new TranslatableComponent("mco.configure.world.delete.question.line2");
+                new Button(this.width / 2 - 100, row(10), 200, 20, Component.translatable("mco.configure.world.delete.button"), param0 -> {
+                    Component var0 = Component.translatable("mco.configure.world.delete.question.line1");
+                    Component var1 = Component.translatable("mco.configure.world.delete.question.line2");
                     this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true));
                 })
             );
@@ -136,7 +134,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private static Component localPresentation(long param0) {
         Calendar var0 = new GregorianCalendar(TimeZone.getDefault());
         var0.setTimeInMillis(param0);
-        return new TextComponent(DateFormat.getDateTimeInstance().format(var0.getTime()));
+        return Component.literal(DateFormat.getDateTimeInstance().format(var0.getTime()));
     }
 
     @Override
@@ -179,7 +177,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
         } else {
             int var0 = param0 / 30;
             int var1 = param0 % 30;
-            MutableComponent var2 = new TextComponent("");
+            MutableComponent var2 = Component.empty();
             if (var0 > 0) {
                 var2.append(Integer.toString(var0)).append(" ");
                 if (var0 == 1) {

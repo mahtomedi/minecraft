@@ -24,7 +24,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -35,28 +35,28 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 public class BlockStateParser {
     public static final SimpleCommandExceptionType ERROR_NO_TAGS_ALLOWED = new SimpleCommandExceptionType(
-        new TranslatableComponent("argument.block.tag.disallowed")
+        Component.translatable("argument.block.tag.disallowed")
     );
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_BLOCK = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.block.id.invalid", param0)
+        param0 -> Component.translatable("argument.block.id.invalid", param0)
     );
     public static final Dynamic2CommandExceptionType ERROR_UNKNOWN_PROPERTY = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("argument.block.property.unknown", param0, param1)
+        (param0, param1) -> Component.translatable("argument.block.property.unknown", param0, param1)
     );
     public static final Dynamic2CommandExceptionType ERROR_DUPLICATE_PROPERTY = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("argument.block.property.duplicate", param1, param0)
+        (param0, param1) -> Component.translatable("argument.block.property.duplicate", param1, param0)
     );
     public static final Dynamic3CommandExceptionType ERROR_INVALID_VALUE = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> new TranslatableComponent("argument.block.property.invalid", param0, param2, param1)
+        (param0, param1, param2) -> Component.translatable("argument.block.property.invalid", param0, param2, param1)
     );
     public static final Dynamic2CommandExceptionType ERROR_EXPECTED_VALUE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("argument.block.property.novalue", param0, param1)
+        (param0, param1) -> Component.translatable("argument.block.property.novalue", param0, param1)
     );
     public static final SimpleCommandExceptionType ERROR_EXPECTED_END_OF_PROPERTIES = new SimpleCommandExceptionType(
-        new TranslatableComponent("argument.block.property.unclosed")
+        Component.translatable("argument.block.property.unclosed")
     );
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("arguments.block.tag.unknown", param0)
+        param0 -> Component.translatable("arguments.block.tag.unknown", param0)
     );
     private static final char SYNTAX_START_PROPERTIES = '[';
     private static final char SYNTAX_START_NBT = '{';

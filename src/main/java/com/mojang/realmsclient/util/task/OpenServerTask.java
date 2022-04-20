@@ -8,7 +8,7 @@ import com.mojang.realmsclient.exception.RetryCallException;
 import com.mojang.realmsclient.gui.screens.RealmsConfigureWorldScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ public class OpenServerTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(new TranslatableComponent("mco.configure.world.opening"));
+        this.setTitle(Component.translatable("mco.configure.world.opening"));
         RealmsClient var0 = RealmsClient.create();
 
         for(int var1 = 0; var1 < 25; ++var1) {

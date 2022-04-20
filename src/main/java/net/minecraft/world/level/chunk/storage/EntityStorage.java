@@ -48,12 +48,12 @@ public class EntityStorage implements EntityPersistentStorage<Entity> {
         return this.emptyChunks.contains(param0.toLong())
             ? CompletableFuture.completedFuture(emptyChunk(param0))
             : this.worker.loadAsync(param0).thenApplyAsync(param1 -> {
-                if (param1 == null) {
+                if (param1.isEmpty()) {
                     this.emptyChunks.add(param0.toLong());
                     return emptyChunk(param0);
                 } else {
                     try {
-                        ChunkPos var0 = readChunkPos(param1);
+                        ChunkPos var0 = readChunkPos(param1.get());
                         if (!Objects.equals(param0, var0)) {
                             LOGGER.error("Chunk file at {} is in the wrong location. (Expected {}, got {})", param0, param0, var0);
                         }
@@ -61,7 +61,7 @@ public class EntityStorage implements EntityPersistentStorage<Entity> {
                         LOGGER.warn("Failed to parse chunk {} position info", param0, var6);
                     }
     
-                    CompoundTag var2 = this.upgradeChunkTag(param1);
+                    CompoundTag var2 = this.upgradeChunkTag(param1.get());
                     ListTag var3 = var2.getList("Entities", 10);
                     List<Entity> var4 = EntityType.loadEntitiesRecursive(var3, this.level).collect(ImmutableList.toImmutableList());
                     return new ChunkEntities<>(param0, var4);

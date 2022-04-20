@@ -14,7 +14,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -71,7 +70,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     }
 
     public static MutableComponent wrapDefaultNarrationMessage(Component param0) {
-        return new TranslatableComponent("gui.narrate.button", param0);
+        return Component.translatable("gui.narrate.button", param0);
     }
 
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
@@ -235,9 +234,9 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         param0.add(NarratedElementType.TITLE, (Component)this.createNarrationMessage());
         if (this.active) {
             if (this.isFocused()) {
-                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.button.usage.focused")));
+                param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.button.usage.focused"));
             } else {
-                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.button.usage.hovered")));
+                param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.button.usage.hovered"));
             }
         }
 

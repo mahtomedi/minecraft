@@ -16,6 +16,8 @@ import com.mojang.math.Transformation;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -85,6 +88,7 @@ public class DebugScreenOverlay extends GuiComponent {
         param0.put(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, "ML");
     });
     private final Minecraft minecraft;
+    private final DebugScreenOverlay.AllocationRateCalculator allocationRateCalculator;
     private final Font font;
     private HitResult block;
     private HitResult liquid;
@@ -100,6 +104,7 @@ public class DebugScreenOverlay extends GuiComponent {
 
     public DebugScreenOverlay(Minecraft param0) {
         this.minecraft = param0;
+        this.allocationRateCalculator = new DebugScreenOverlay.AllocationRateCalculator();
         this.font = param0.font;
     }
 
@@ -424,6 +429,7 @@ public class DebugScreenOverlay extends GuiComponent {
         List<String> var4 = Lists.newArrayList(
             String.format("Java: %s %dbit", System.getProperty("java.version"), this.minecraft.is64Bit() ? 64 : 32),
             String.format("Mem: % 2d%% %03d/%03dMB", var3 * 100L / var0, bytesToMegabytes(var3), bytesToMegabytes(var0)),
+            String.format("Allocation rate: %03dMB /s", bytesToMegabytes(this.allocationRateCalculator.bytesAllocatedPerSecond(var3))),
             String.format("Allocated: % 2d%% %03dMB", var1 * 100L / var0, bytesToMegabytes(var1)),
             "",
             String.format("CPU: %s", GlUtil.getCpuInfo()),
@@ -534,7 +540,7 @@ public class DebugScreenOverlay extends GuiComponent {
         }
 
         var13.end();
-        BufferUploader.end(var13);
+        BufferUploader.drawWithShader(var13);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
         if (param4) {
@@ -591,5 +597,44 @@ public class DebugScreenOverlay extends GuiComponent {
 
     private static long bytesToMegabytes(long param0) {
         return param0 / 1024L / 1024L;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static class AllocationRateCalculator {
+        private static final int UPDATE_INTERVAL_MS = 500;
+        private static final List<GarbageCollectorMXBean> GC_MBEANS = ManagementFactory.getGarbageCollectorMXBeans();
+        private long lastTime = 0L;
+        private long lastHeapUsage = -1L;
+        private long lastGcCounts = -1L;
+        private long lastRate = 0L;
+
+        long bytesAllocatedPerSecond(long param0) {
+            long var0 = System.currentTimeMillis();
+            if (var0 - this.lastTime < 500L) {
+                return this.lastRate;
+            } else {
+                long var1 = gcCounts();
+                if (this.lastTime != 0L && var1 == this.lastGcCounts) {
+                    double var2 = (double)TimeUnit.SECONDS.toMillis(1L) / (double)(var0 - this.lastTime);
+                    long var3 = param0 - this.lastHeapUsage;
+                    this.lastRate = Math.round((double)var3 * var2);
+                }
+
+                this.lastTime = var0;
+                this.lastHeapUsage = param0;
+                this.lastGcCounts = var1;
+                return this.lastRate;
+            }
+        }
+
+        private static long gcCounts() {
+            long var0 = 0L;
+
+            for(GarbageCollectorMXBean var1 : GC_MBEANS) {
+                var0 += var1.getCollectionCount();
+            }
+
+            return var0;
+        }
     }
 }

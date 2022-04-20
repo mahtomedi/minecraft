@@ -14,7 +14,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +22,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
 public class PlaySoundCommand {
-    private static final SimpleCommandExceptionType ERROR_TOO_FAR = new SimpleCommandExceptionType(new TranslatableComponent("commands.playsound.failed"));
+    private static final SimpleCommandExceptionType ERROR_TOO_FAR = new SimpleCommandExceptionType(Component.translatable("commands.playsound.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> var0 = Commands.argument("sound", ResourceLocationArgument.id())
@@ -140,11 +140,9 @@ public class PlaySoundCommand {
                     }
 
                     if (param1.size() == 1) {
-                        param0.sendSuccess(
-                            new TranslatableComponent("commands.playsound.success.single", param2, param1.iterator().next().getDisplayName()), true
-                        );
+                        param0.sendSuccess(Component.translatable("commands.playsound.success.single", param2, param1.iterator().next().getDisplayName()), true);
                     } else {
-                        param0.sendSuccess(new TranslatableComponent("commands.playsound.success.multiple", param2, param1.size()), true);
+                        param0.sendSuccess(Component.translatable("commands.playsound.success.multiple", param2, param1.size()), true);
                     }
 
                     return var1;

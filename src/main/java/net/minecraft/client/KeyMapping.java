@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -138,7 +137,7 @@ public class KeyMapping implements Comparable<KeyMapping> {
 
     public static Supplier<Component> createNameSupplier(String param0) {
         KeyMapping var0 = ALL.get(param0);
-        return var0 == null ? () -> new TranslatableComponent(param0) : var0::getTranslatedKeyMessage;
+        return var0 == null ? () -> Component.translatable(param0) : var0::getTranslatedKeyMessage;
     }
 
     public boolean same(KeyMapping param0) {

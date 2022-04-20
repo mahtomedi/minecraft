@@ -9,7 +9,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -71,21 +70,21 @@ public class RaidCommand {
         if (var0 != null) {
             int var1 = var0.getMaxBadOmenLevel();
             if (param1 > var1) {
-                param0.sendFailure(new TextComponent("Sorry, the max bad omen level you can set is " + var1));
+                param0.sendFailure(Component.literal("Sorry, the max bad omen level you can set is " + var1));
             } else {
                 int var2 = var0.getBadOmenLevel();
                 var0.setBadOmenLevel(param1);
-                param0.sendSuccess(new TextComponent("Changed village's bad omen level from " + var2 + " to " + param1), false);
+                param0.sendSuccess(Component.literal("Changed village's bad omen level from " + var2 + " to " + param1), false);
             }
         } else {
-            param0.sendFailure(new TextComponent("No raid found here"));
+            param0.sendFailure(Component.literal("No raid found here"));
         }
 
         return 1;
     }
 
     private static int spawnLeader(CommandSourceStack param0) {
-        param0.sendSuccess(new TextComponent("Spawned a raid captain"), false);
+        param0.sendSuccess(Component.literal("Spawned a raid captain"), false);
         Raider var0 = EntityType.PILLAGER.create(param0.getLevel());
         var0.setPatrolLeader(true);
         var0.setItemSlot(EquipmentSlot.HEAD, Raid.getLeaderBannerInstance());
@@ -107,7 +106,7 @@ public class RaidCommand {
         ServerPlayer var0 = param0.getPlayerOrException();
         BlockPos var1 = var0.blockPosition();
         if (var0.getLevel().isRaided(var1)) {
-            param0.sendFailure(new TextComponent("Raid already started close by"));
+            param0.sendFailure(Component.literal("Raid already started close by"));
             return -1;
         } else {
             Raids var2 = var0.getLevel().getRaids();
@@ -115,9 +114,9 @@ public class RaidCommand {
             if (var3 != null) {
                 var3.setBadOmenLevel(param1);
                 var2.setDirty();
-                param0.sendSuccess(new TextComponent("Created a raid in your local village"), false);
+                param0.sendSuccess(Component.literal("Created a raid in your local village"), false);
             } else {
-                param0.sendFailure(new TextComponent("Failed to create a raid in your local village"));
+                param0.sendFailure(Component.literal("Failed to create a raid in your local village"));
             }
 
             return 1;
@@ -130,10 +129,10 @@ public class RaidCommand {
         Raid var2 = var0.getLevel().getRaidAt(var1);
         if (var2 != null) {
             var2.stop();
-            param0.sendSuccess(new TextComponent("Stopped raid"), false);
+            param0.sendSuccess(Component.literal("Stopped raid"), false);
             return 1;
         } else {
-            param0.sendFailure(new TextComponent("No raid here"));
+            param0.sendFailure(Component.literal("No raid here"));
             return -1;
         }
     }
@@ -143,7 +142,7 @@ public class RaidCommand {
         if (var0 != null) {
             StringBuilder var1 = new StringBuilder();
             var1.append("Found a started raid! ");
-            param0.sendSuccess(new TextComponent(var1.toString()), false);
+            param0.sendSuccess(Component.literal(var1.toString()), false);
             var1 = new StringBuilder();
             var1.append("Num groups spawned: ");
             var1.append(var0.getGroupsSpawned());
@@ -155,10 +154,10 @@ public class RaidCommand {
             var1.append(var0.getHealthOfLivingRaiders());
             var1.append(" / ");
             var1.append(var0.getTotalHealth());
-            param0.sendSuccess(new TextComponent(var1.toString()), false);
+            param0.sendSuccess(Component.literal(var1.toString()), false);
             return 1;
         } else {
-            param0.sendFailure(new TextComponent("Found no started raids"));
+            param0.sendFailure(Component.literal("Found no started raids"));
             return 0;
         }
     }

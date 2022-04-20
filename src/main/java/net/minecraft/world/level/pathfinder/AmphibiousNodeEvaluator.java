@@ -1,5 +1,6 @@
 package net.minecraft.world.level.pathfinder;
 
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -35,8 +36,8 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public Node getStart() {
-        return this.getNode(
-            Mth.floor(this.mob.getBoundingBox().minX), Mth.floor(this.mob.getBoundingBox().minY + 0.5), Mth.floor(this.mob.getBoundingBox().minZ)
+        return this.getStartNode(
+            new BlockPos(Mth.floor(this.mob.getBoundingBox().minX), Mth.floor(this.mob.getBoundingBox().minY + 0.5), Mth.floor(this.mob.getBoundingBox().minZ))
         );
     }
 
@@ -60,11 +61,11 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
         double var5 = this.getFloorLevel(new BlockPos(param1.x, param1.y, param1.z));
         Node var6 = this.findAcceptedNode(param1.x, param1.y + 1, param1.z, Math.max(0, var3 - 1), var5, Direction.UP, var2);
         Node var7 = this.findAcceptedNode(param1.x, param1.y - 1, param1.z, var3, var5, Direction.DOWN, var2);
-        if (this.isNeighborValid(var6, param1)) {
+        if (this.isVerticalNeighborValid(var6, param1)) {
             param0[var0++] = var6;
         }
 
-        if (this.isNeighborValid(var7, param1) && var2 != BlockPathTypes.TRAPDOOR) {
+        if (this.isVerticalNeighborValid(var7, param1) && var2 != BlockPathTypes.TRAPDOOR) {
             param0[var0++] = var7;
         }
 
@@ -76,6 +77,10 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
         }
 
         return var0;
+    }
+
+    private boolean isVerticalNeighborValid(@Nullable Node param0, Node param1) {
+        return this.isNeighborValid(param0, param1) && param0.type == BlockPathTypes.WATER;
     }
 
     @Override

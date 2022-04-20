@@ -16,17 +16,16 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
 public class LocateCommand {
     private static final DynamicCommandExceptionType ERROR_FAILED = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.locate.failed", param0)
+        param0 -> Component.translatable("commands.locate.failed", param0)
     );
     private static final DynamicCommandExceptionType ERROR_INVALID = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.locate.invalid", param0)
+        param0 -> Component.translatable("commands.locate.invalid", param0)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -75,13 +74,13 @@ public class LocateCommand {
             );
         int var2 = param5 ? Mth.floor(Mth.sqrt((float)param2.distSqr(var0))) : Mth.floor(dist(param2.getX(), param2.getZ(), var0.getX(), var0.getZ()));
         String var3 = param5 ? String.valueOf(var0.getY()) : "~";
-        Component var4 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", var0.getX(), var3, var0.getZ()))
+        Component var4 = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", var0.getX(), var3, var0.getZ()))
             .withStyle(
                 param2x -> param2x.withColor(ChatFormatting.GREEN)
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var0.getX() + " " + var3 + " " + var0.getZ()))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.coordinates.tooltip")))
             );
-        param0.sendSuccess(new TranslatableComponent(param4, var1, var4, var2), false);
+        param0.sendSuccess(Component.translatable(param4, var1, var4, var2), false);
         return var2;
     }
 

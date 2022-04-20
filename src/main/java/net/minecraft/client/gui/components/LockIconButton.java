@@ -4,8 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,7 +14,7 @@ public class LockIconButton extends Button {
     private boolean locked;
 
     public LockIconButton(int param0, int param1, Button.OnPress param2) {
-        super(param0, param1, 20, 20, new TranslatableComponent("narrator.button.difficulty_lock"), param2);
+        super(param0, param1, 20, 20, Component.translatable("narrator.button.difficulty_lock"), param2);
     }
 
     @Override
@@ -22,8 +22,8 @@ public class LockIconButton extends Button {
         return CommonComponents.joinForNarration(
             super.createNarrationMessage(),
             this.isLocked()
-                ? new TranslatableComponent("narrator.button.difficulty_lock.locked")
-                : new TranslatableComponent("narrator.button.difficulty_lock.unlocked")
+                ? Component.translatable("narrator.button.difficulty_lock.locked")
+                : Component.translatable("narrator.button.difficulty_lock.unlocked")
         );
     }
 

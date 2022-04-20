@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.decoration.Motive;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,11 +19,11 @@ public class PaintingTextureManager extends TextureAtlasHolder {
 
     @Override
     protected Stream<ResourceLocation> getResourcesToLoad() {
-        return Stream.concat(Registry.MOTIVE.keySet().stream(), Stream.of(BACK_SPRITE_LOCATION));
+        return Stream.concat(Registry.PAINTING_VARIANT.keySet().stream(), Stream.of(BACK_SPRITE_LOCATION));
     }
 
-    public TextureAtlasSprite get(Motive param0) {
-        return this.getSprite(Registry.MOTIVE.getKey(param0));
+    public TextureAtlasSprite get(PaintingVariant param0) {
+        return this.getSprite(Registry.PAINTING_VARIANT.getKey(param0));
     }
 
     public TextureAtlasSprite getBackSprite() {

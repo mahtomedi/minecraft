@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.components;
 
 import net.minecraft.client.Options;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -10,7 +10,7 @@ public abstract class AbstractOptionSliderButton extends AbstractSliderButton {
     protected final Options options;
 
     protected AbstractOptionSliderButton(Options param0, int param1, int param2, int param3, int param4, double param5) {
-        super(param1, param2, param3, param4, TextComponent.EMPTY, param5);
+        super(param1, param2, param3, param4, CommonComponents.EMPTY, param5);
         this.options = param0;
     }
 }

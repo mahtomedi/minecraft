@@ -10,9 +10,8 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.Mth;
@@ -28,7 +27,7 @@ public class RecipeButton extends AbstractWidget {
     private static final float ANIMATION_TIME = 15.0F;
     private static final int BACKGROUND_SIZE = 25;
     public static final int TICKS_TO_SWAP = 30;
-    private static final Component MORE_RECIPES_TOOLTIP = new TranslatableComponent("gui.recipebook.moreRecipes");
+    private static final Component MORE_RECIPES_TOOLTIP = Component.translatable("gui.recipebook.moreRecipes");
     private RecipeBookMenu<?> menu;
     private RecipeBook book;
     private RecipeCollection collection;
@@ -37,7 +36,7 @@ public class RecipeButton extends AbstractWidget {
     private int currentIndex;
 
     public RecipeButton() {
-        super(0, 0, 25, 25, TextComponent.EMPTY);
+        super(0, 0, 25, 25, CommonComponents.EMPTY);
     }
 
     public void init(RecipeCollection param0, RecipeBookPage param1) {
@@ -145,15 +144,13 @@ public class RecipeButton extends AbstractWidget {
     @Override
     public void updateNarration(NarrationElementOutput param0) {
         ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem();
-        param0.add(NarratedElementType.TITLE, (Component)(new TranslatableComponent("narration.recipe", var0.getHoverName())));
+        param0.add(NarratedElementType.TITLE, (Component)Component.translatable("narration.recipe", var0.getHoverName()));
         if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
             param0.add(
-                NarratedElementType.USAGE,
-                new TranslatableComponent("narration.button.usage.hovered"),
-                new TranslatableComponent("narration.recipe.usage.more")
+                NarratedElementType.USAGE, Component.translatable("narration.button.usage.hovered"), Component.translatable("narration.recipe.usage.more")
             );
         } else {
-            param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.button.usage.hovered")));
+            param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.button.usage.hovered"));
         }
 
     }

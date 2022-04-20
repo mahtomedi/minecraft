@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,7 +20,7 @@ public class PauseScreen extends Screen {
     private final boolean showPauseMenu;
 
     public PauseScreen(boolean param0) {
-        super(param0 ? new TranslatableComponent("menu.game") : new TranslatableComponent("menu.paused"));
+        super(param0 ? Component.translatable("menu.game") : Component.translatable("menu.paused"));
         this.showPauseMenu = param0;
     }
 
@@ -36,19 +35,17 @@ public class PauseScreen extends Screen {
     private void createPauseMenu() {
         int var0 = -16;
         int var1 = 98;
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 102, this.height / 4 + 24 + -16, 204, 20, new TranslatableComponent("menu.returnToGame"), param0 -> {
-                this.minecraft.setScreen(null);
-                this.minecraft.mouseHandler.grabMouse();
-            })
-        );
+        this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 24 + -16, 204, 20, Component.translatable("menu.returnToGame"), param0 -> {
+            this.minecraft.setScreen(null);
+            this.minecraft.mouseHandler.grabMouse();
+        }));
         this.addRenderableWidget(
             new Button(
                 this.width / 2 - 102,
                 this.height / 4 + 48 + -16,
                 98,
                 20,
-                new TranslatableComponent("gui.advancements"),
+                Component.translatable("gui.advancements"),
                 param0 -> this.minecraft.setScreen(new AdvancementsScreen(this.minecraft.player.connection.getAdvancements()))
             )
         );
@@ -58,7 +55,7 @@ public class PauseScreen extends Screen {
                 this.height / 4 + 48 + -16,
                 98,
                 20,
-                new TranslatableComponent("gui.stats"),
+                Component.translatable("gui.stats"),
                 param0 -> this.minecraft.setScreen(new StatsScreen(this, this.minecraft.player.getStats()))
             )
         );
@@ -69,7 +66,7 @@ public class PauseScreen extends Screen {
                 this.height / 4 + 72 + -16,
                 98,
                 20,
-                new TranslatableComponent("menu.sendFeedback"),
+                Component.translatable("menu.sendFeedback"),
                 param1 -> this.minecraft.setScreen(new ConfirmLinkScreen(param1x -> {
                         if (param1x) {
                             Util.getPlatform().openUri(var2);
@@ -85,7 +82,7 @@ public class PauseScreen extends Screen {
                 this.height / 4 + 72 + -16,
                 98,
                 20,
-                new TranslatableComponent("menu.reportBugs"),
+                Component.translatable("menu.reportBugs"),
                 param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
                         if (param0x) {
                             Util.getPlatform().openUri("https://aka.ms/snapshotbugs?ref=game");
@@ -102,7 +99,7 @@ public class PauseScreen extends Screen {
                 this.height / 4 + 96 + -16,
                 98,
                 20,
-                new TranslatableComponent("menu.options"),
+                Component.translatable("menu.options"),
                 param0 -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))
             )
         );
@@ -112,19 +109,19 @@ public class PauseScreen extends Screen {
                 this.height / 4 + 96 + -16,
                 98,
                 20,
-                new TranslatableComponent("menu.shareToLan"),
+                Component.translatable("menu.shareToLan"),
                 param0 -> this.minecraft.setScreen(new ShareToLanScreen(this))
             )
         );
         var4.active = this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished();
-        Component var5 = this.minecraft.isLocalServer() ? new TranslatableComponent("menu.returnToMenu") : new TranslatableComponent("menu.disconnect");
+        Component var5 = this.minecraft.isLocalServer() ? Component.translatable("menu.returnToMenu") : Component.translatable("menu.disconnect");
         this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, var5, param0 -> {
             boolean var0x = this.minecraft.isLocalServer();
             boolean var1x = this.minecraft.isConnectedToRealms();
             param0.active = false;
             this.minecraft.level.disconnect();
             if (var0x) {
-                this.minecraft.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
+                this.minecraft.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
             } else {
                 this.minecraft.clearLevel();
             }

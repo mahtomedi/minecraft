@@ -307,27 +307,55 @@ public class Style {
 
     @Override
     public String toString() {
-        return "Style{ color="
-            + this.color
-            + ", bold="
-            + this.bold
-            + ", italic="
-            + this.italic
-            + ", underlined="
-            + this.underlined
-            + ", strikethrough="
-            + this.strikethrough
-            + ", obfuscated="
-            + this.obfuscated
-            + ", clickEvent="
-            + this.getClickEvent()
-            + ", hoverEvent="
-            + this.getHoverEvent()
-            + ", insertion="
-            + this.getInsertion()
-            + ", font="
-            + this.getFont()
-            + "}";
+        final StringBuilder var0 = new StringBuilder("{");
+
+        class Collector {
+            private boolean isNotFirst;
+
+            private void prependSeparator() {
+                if (this.isNotFirst) {
+                    var0.append(',');
+                }
+
+                this.isNotFirst = true;
+            }
+
+            void addFlagString(String param0, @Nullable Boolean param1) {
+                if (param1 != null) {
+                    this.prependSeparator();
+                    if (!param1) {
+                        var0.append('!');
+                    }
+
+                    var0.append(param0);
+                }
+
+            }
+
+            void addValueString(String param0, @Nullable Object param1) {
+                if (param1 != null) {
+                    this.prependSeparator();
+                    var0.append(param0);
+                    var0.append('=');
+                    var0.append(param1);
+                }
+
+            }
+        }
+
+        Collector var1 = new Collector();
+        var1.addValueString("color", this.color);
+        var1.addFlagString("bold", this.bold);
+        var1.addFlagString("italic", this.italic);
+        var1.addFlagString("underlined", this.underlined);
+        var1.addFlagString("strikethrough", this.strikethrough);
+        var1.addFlagString("obfuscated", this.obfuscated);
+        var1.addValueString("clickEvent", this.clickEvent);
+        var1.addValueString("hoverEvent", this.hoverEvent);
+        var1.addValueString("insertion", this.insertion);
+        var1.addValueString("font", this.font);
+        var0.append("}");
+        return var0.toString();
     }
 
     @Override

@@ -197,22 +197,23 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             throw new IllegalStateException("Not building!");
         } else {
             int var0 = this.mode.indexCount(this.vertices);
-            VertexFormat.IndexType var1 = VertexFormat.IndexType.least(var0);
-            boolean var3;
+            int var1 = !this.indexOnly ? this.vertices * this.format.getVertexSize() : 0;
+            VertexFormat.IndexType var2 = VertexFormat.IndexType.least(var0);
+            boolean var4;
             if (this.sortingPoints != null) {
-                int var2 = Mth.roundToward(var0 * var1.bytes, 4);
-                this.ensureCapacity(var2);
-                this.putSortedQuadIndices(var1);
-                var3 = false;
-                this.nextElementByte += var2;
-                this.totalRenderedBytes += this.vertices * this.format.getVertexSize() + var2;
+                int var3 = Mth.roundToward(var0 * var2.bytes, 4);
+                this.ensureCapacity(var3);
+                this.putSortedQuadIndices(var2);
+                var4 = false;
+                this.nextElementByte += var3;
+                this.totalRenderedBytes += var1 + var3;
             } else {
-                var3 = true;
-                this.totalRenderedBytes += this.vertices * this.format.getVertexSize();
+                var4 = true;
+                this.totalRenderedBytes += var1;
             }
 
             this.building = false;
-            this.drawStates.add(new BufferBuilder.DrawState(this.format, this.vertices, var0, this.mode, var1, this.indexOnly, var3));
+            this.drawStates.add(new BufferBuilder.DrawState(this.format, this.vertices, var0, this.mode, var2, this.indexOnly, var4));
             this.vertices = 0;
             this.currentElement = null;
             this.elementIndex = 0;
@@ -423,12 +424,28 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             return this.vertexCount * this.format.getVertexSize();
         }
 
+        public int vertexBufferStart() {
+            return 0;
+        }
+
+        public int vertexBufferEnd() {
+            return this.vertexBufferSize();
+        }
+
+        public int indexBufferStart() {
+            return this.indexOnly ? 0 : this.vertexBufferEnd();
+        }
+
+        public int indexBufferEnd() {
+            return this.indexBufferStart() + this.indexBufferSize();
+        }
+
         private int indexBufferSize() {
             return this.sequentialIndex ? 0 : this.indexCount * this.indexType.bytes;
         }
 
         public int bufferSize() {
-            return this.vertexBufferSize() + this.indexBufferSize();
+            return this.indexBufferEnd();
         }
 
         public boolean indexOnly() {

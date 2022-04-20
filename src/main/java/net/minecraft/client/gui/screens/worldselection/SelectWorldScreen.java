@@ -3,12 +3,13 @@ package net.minecraft.client.gui.screens.worldselection;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.util.List;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,7 +29,7 @@ public class SelectWorldScreen extends Screen {
     private WorldSelectionList list;
 
     public SelectWorldScreen(Screen param0) {
-        super(new TranslatableComponent("selectWorld.title"));
+        super(Component.translatable("selectWorld.title"));
         this.lastScreen = param0;
     }
 
@@ -45,9 +46,9 @@ public class SelectWorldScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.searchBox = new EditBox(this.font, this.width / 2 - 100, 22, 200, 20, this.searchBox, new TranslatableComponent("selectWorld.search"));
-        this.searchBox.setResponder(param0 -> this.list.refreshList(() -> param0, false));
-        this.list = new WorldSelectionList(this, this.minecraft, this.width, this.height, 48, this.height - 64, 36, () -> this.searchBox.getValue(), this.list);
+        this.searchBox = new EditBox(this.font, this.width / 2 - 100, 22, 200, 20, this.searchBox, Component.translatable("selectWorld.search"));
+        this.searchBox.setResponder(param0 -> this.list.refreshList(param0));
+        this.list = new WorldSelectionList(this, this.minecraft, this.width, this.height, 48, this.height - 64, 36, this.getFilterSupplier(), this.list);
         this.addWidget(this.searchBox);
         this.addWidget(this.list);
         this.selectButton = this.addRenderableWidget(
@@ -56,7 +57,7 @@ public class SelectWorldScreen extends Screen {
                 this.height - 52,
                 150,
                 20,
-                new TranslatableComponent("selectWorld.select"),
+                Component.translatable("selectWorld.select"),
                 param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::joinWorld)
             )
         );
@@ -66,7 +67,7 @@ public class SelectWorldScreen extends Screen {
                 this.height - 52,
                 150,
                 20,
-                new TranslatableComponent("selectWorld.create"),
+                Component.translatable("selectWorld.create"),
                 param0 -> CreateWorldScreen.openFresh(this.minecraft, this)
             )
         );
@@ -76,7 +77,7 @@ public class SelectWorldScreen extends Screen {
                 this.height - 28,
                 72,
                 20,
-                new TranslatableComponent("selectWorld.edit"),
+                Component.translatable("selectWorld.edit"),
                 param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::editWorld)
             )
         );
@@ -86,7 +87,7 @@ public class SelectWorldScreen extends Screen {
                 this.height - 28,
                 72,
                 20,
-                new TranslatableComponent("selectWorld.delete"),
+                Component.translatable("selectWorld.delete"),
                 param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::deleteWorld)
             )
         );
@@ -96,7 +97,7 @@ public class SelectWorldScreen extends Screen {
                 this.height - 28,
                 72,
                 20,
-                new TranslatableComponent("selectWorld.recreate"),
+                Component.translatable("selectWorld.recreate"),
                 param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::recreateWorld)
             )
         );
@@ -149,8 +150,12 @@ public class SelectWorldScreen extends Screen {
     @Override
     public void removed() {
         if (this.list != null) {
-            this.list.children().forEach(WorldSelectionList.WorldListEntry::close);
+            this.list.children().forEach(WorldSelectionList.Entry::close);
         }
 
+    }
+
+    public Supplier<String> getFilterSupplier() {
+        return () -> this.searchBox.getValue();
     }
 }

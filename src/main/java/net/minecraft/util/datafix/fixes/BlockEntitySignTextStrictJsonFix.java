@@ -12,9 +12,9 @@ import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.serialization.Dynamic;
 import java.lang.reflect.Type;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,7 +22,7 @@ public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(Component.class, new JsonDeserializer<Component>() {
         public MutableComponent deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             if (param0.isJsonPrimitive()) {
-                return new TextComponent(param0.getAsString());
+                return Component.literal(param0.getAsString());
             } else if (param0.isJsonArray()) {
                 JsonArray var0 = param0.getAsJsonArray();
                 MutableComponent var1 = null;
@@ -55,7 +55,7 @@ public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
                 try {
                     var1 = GsonHelper.fromJson(GSON, var0, Component.class, true);
                     if (var1 == null) {
-                        var1 = TextComponent.EMPTY;
+                        var1 = CommonComponents.EMPTY;
                     }
                 } catch (Exception var8) {
                 }
@@ -75,13 +75,13 @@ public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
                 }
 
                 if (var1 == null) {
-                    var1 = new TextComponent(var0);
+                    var1 = Component.literal(var0);
                 }
             } else {
-                var1 = new TextComponent(var0);
+                var1 = Component.literal(var0);
             }
         } else {
-            var1 = TextComponent.EMPTY;
+            var1 = CommonComponents.EMPTY;
         }
 
         return param0.set(param1, param0.createString(Component.Serializer.toJson(var1)));

@@ -9,7 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.TooltipAccessor;
 import net.minecraft.client.gui.components.VolumeSlider;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,7 +21,7 @@ public class SoundOptionsScreen extends OptionsSubScreen {
     private AbstractWidget directionalAudioButton;
 
     public SoundOptionsScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("options.sounds.title"));
+        super(param0, param1, Component.translatable("options.sounds.title"));
     }
 
     @Override

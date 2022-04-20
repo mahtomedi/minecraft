@@ -14,7 +14,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.CommandStorage;
 
@@ -62,16 +61,16 @@ public class StorageDataAccessor implements DataAccessor {
 
     @Override
     public Component getModifiedSuccess() {
-        return new TranslatableComponent("commands.data.storage.modified", this.id);
+        return Component.translatable("commands.data.storage.modified", this.id);
     }
 
     @Override
     public Component getPrintSuccess(Tag param0) {
-        return new TranslatableComponent("commands.data.storage.query", this.id, NbtUtils.toPrettyComponent(param0));
+        return Component.translatable("commands.data.storage.query", this.id, NbtUtils.toPrettyComponent(param0));
     }
 
     @Override
     public Component getPrintSuccess(NbtPathArgument.NbtPath param0, double param1, int param2) {
-        return new TranslatableComponent("commands.data.storage.get", param0, this.id, String.format(Locale.ROOT, "%.2f", param1), param2);
+        return Component.translatable("commands.data.storage.get", param0, this.id, String.format(Locale.ROOT, "%.2f", param1), param2);
     }
 }

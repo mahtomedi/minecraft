@@ -20,7 +20,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,14 +31,12 @@ public class ConnectScreen extends Screen {
     private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
     static final Logger LOGGER = LogUtils.getLogger();
     private static final long NARRATION_DELAY_MS = 2000L;
-    public static final Component UNKNOWN_HOST_MESSAGE = new TranslatableComponent(
-        "disconnect.genericReason", new TranslatableComponent("disconnect.unknownHost")
-    );
+    public static final Component UNKNOWN_HOST_MESSAGE = Component.translatable("disconnect.genericReason", Component.translatable("disconnect.unknownHost"));
     @Nullable
     volatile Connection connection;
     volatile boolean aborted;
     final Screen parent;
-    private Component status = new TranslatableComponent("connect.connecting");
+    private Component status = Component.translatable("connect.connecting");
     private long lastNarration = -1L;
 
     private ConnectScreen(Screen param0) {
@@ -112,7 +109,7 @@ public class ConnectScreen extends Screen {
                     param0.execute(
                         () -> param0.setScreen(
                                 new DisconnectedScreen(
-                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", var6)
+                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var6)
                                 )
                             )
                     );
@@ -150,7 +147,7 @@ public class ConnectScreen extends Screen {
         this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, param0 -> {
             this.aborted = true;
             if (this.connection != null) {
-                this.connection.disconnect(new TranslatableComponent("connect.aborted"));
+                this.connection.disconnect(Component.translatable("connect.aborted"));
             }
 
             this.minecraft.setScreen(this.parent);
@@ -163,7 +160,7 @@ public class ConnectScreen extends Screen {
         long var0 = Util.getMillis();
         if (var0 - this.lastNarration > 2000L) {
             this.lastNarration = var0;
-            NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.joining"));
+            NarratorChatListener.INSTANCE.sayNow(Component.translatable("narrator.joining"));
         }
 
         drawCenteredString(param0, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);

@@ -6,8 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,7 +17,7 @@ public class ServerData {
     public Component motd;
     public long ping;
     public int protocol = SharedConstants.getCurrentVersion().getProtocolVersion();
-    public Component version = new TextComponent(SharedConstants.getCurrentVersion().getName());
+    public Component version = Component.literal(SharedConstants.getCurrentVersion().getName());
     public boolean pinged;
     public List<Component> playerList = Collections.emptyList();
     private ServerData.ServerPackStatus packStatus = ServerData.ServerPackStatus.PROMPT;
@@ -107,7 +105,7 @@ public class ServerData {
         private final Component name;
 
         private ServerPackStatus(String param0) {
-            this.name = new TranslatableComponent("addServer.resourcePack." + param0);
+            this.name = Component.translatable("addServer.resourcePack." + param0);
         }
 
         public Component getName() {

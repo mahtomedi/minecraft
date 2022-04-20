@@ -12,19 +12,19 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.MobEffectArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EffectCommands {
-    private static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.effect.give.failed"));
+    private static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.effect.give.failed"));
     private static final SimpleCommandExceptionType ERROR_CLEAR_EVERYTHING_FAILED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.effect.clear.everything.failed")
+        Component.translatable("commands.effect.clear.everything.failed")
     );
     private static final SimpleCommandExceptionType ERROR_CLEAR_SPECIFIC_FAILED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.effect.clear.specific.failed")
+        Component.translatable("commands.effect.clear.specific.failed")
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -141,13 +141,11 @@ public class EffectCommands {
         } else {
             if (param1.size() == 1) {
                 param0.sendSuccess(
-                    new TranslatableComponent(
-                        "commands.effect.give.success.single", param2.getDisplayName(), param1.iterator().next().getDisplayName(), var1 / 20
-                    ),
+                    Component.translatable("commands.effect.give.success.single", param2.getDisplayName(), param1.iterator().next().getDisplayName(), var1 / 20),
                     true
                 );
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.effect.give.success.multiple", param2.getDisplayName(), param1.size(), var1 / 20), true);
+                param0.sendSuccess(Component.translatable("commands.effect.give.success.multiple", param2.getDisplayName(), param1.size(), var1 / 20), true);
             }
 
             return var0;
@@ -167,11 +165,9 @@ public class EffectCommands {
             throw ERROR_CLEAR_EVERYTHING_FAILED.create();
         } else {
             if (param1.size() == 1) {
-                param0.sendSuccess(
-                    new TranslatableComponent("commands.effect.clear.everything.success.single", param1.iterator().next().getDisplayName()), true
-                );
+                param0.sendSuccess(Component.translatable("commands.effect.clear.everything.success.single", param1.iterator().next().getDisplayName()), true);
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.effect.clear.everything.success.multiple", param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.effect.clear.everything.success.multiple", param1.size()), true);
             }
 
             return var0;
@@ -192,13 +188,11 @@ public class EffectCommands {
         } else {
             if (param1.size() == 1) {
                 param0.sendSuccess(
-                    new TranslatableComponent(
-                        "commands.effect.clear.specific.success.single", param2.getDisplayName(), param1.iterator().next().getDisplayName()
-                    ),
+                    Component.translatable("commands.effect.clear.specific.success.single", param2.getDisplayName(), param1.iterator().next().getDisplayName()),
                     true
                 );
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.effect.clear.specific.success.multiple", param2.getDisplayName(), param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.effect.clear.specific.success.multiple", param2.getDisplayName(), param1.size()), true);
             }
 
             return var0;

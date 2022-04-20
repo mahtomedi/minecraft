@@ -23,7 +23,6 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
@@ -38,7 +37,7 @@ public class WinScreen extends Screen {
     private static final ResourceLocation LOGO_LOCATION = new ResourceLocation("textures/gui/title/minecraft.png");
     private static final ResourceLocation EDITION_LOCATION = new ResourceLocation("textures/gui/title/edition.png");
     private static final ResourceLocation VIGNETTE_LOCATION = new ResourceLocation("textures/misc/vignette.png");
-    private static final Component SECTION_HEADING = new TextComponent("============").withStyle(ChatFormatting.WHITE);
+    private static final Component SECTION_HEADING = Component.literal("============").withStyle(ChatFormatting.WHITE);
     private static final String NAME_PREFIX = "           ";
     private static final String OBFUSCATE_TOKEN = "" + ChatFormatting.WHITE + ChatFormatting.OBFUSCATED + ChatFormatting.GREEN + ChatFormatting.AQUA;
     private static final int LOGO_WIDTH = 274;
@@ -176,7 +175,7 @@ public class WinScreen extends Screen {
             JsonObject var2 = var1.getAsJsonObject();
             String var3 = var2.get("section").getAsString();
             this.addCreditsLine(SECTION_HEADING, true);
-            this.addCreditsLine(new TextComponent(var3).withStyle(ChatFormatting.YELLOW), true);
+            this.addCreditsLine(Component.literal(var3).withStyle(ChatFormatting.YELLOW), true);
             this.addCreditsLine(SECTION_HEADING, true);
             this.addEmptyLine();
             this.addEmptyLine();
@@ -185,11 +184,11 @@ public class WinScreen extends Screen {
                 JsonObject var6 = var5.getAsJsonObject();
                 String var7 = var6.get("title").getAsString();
                 JsonArray var8 = var6.getAsJsonArray("names");
-                this.addCreditsLine(new TextComponent(var7).withStyle(ChatFormatting.GRAY), false);
+                this.addCreditsLine(Component.literal(var7).withStyle(ChatFormatting.GRAY), false);
 
                 for(JsonElement var9 : var8) {
                     String var10 = var9.getAsString();
-                    this.addCreditsLine(new TextComponent("           ").append(var10).withStyle(ChatFormatting.WHITE), false);
+                    this.addCreditsLine(Component.literal("           ").append(var10).withStyle(ChatFormatting.WHITE), false);
                 }
 
                 this.addEmptyLine();
@@ -204,7 +203,7 @@ public class WinScreen extends Screen {
     }
 
     private void addPoemLines(String param0) {
-        this.lines.addAll(this.minecraft.font.split(new TextComponent(param0), 274));
+        this.lines.addAll(this.minecraft.font.split(Component.literal(param0), 274));
     }
 
     private void addCreditsLine(Component param0, boolean param1) {

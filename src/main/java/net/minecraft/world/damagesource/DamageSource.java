@@ -2,7 +2,6 @@ package net.minecraft.world.damagesource;
 
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -210,8 +209,8 @@ public class DamageSource {
         String var1 = "death.attack." + this.msgId;
         String var2 = var1 + ".player";
         return var0 != null
-            ? new TranslatableComponent(var2, param0.getDisplayName(), var0.getDisplayName())
-            : new TranslatableComponent(var1, param0.getDisplayName());
+            ? Component.translatable(var2, param0.getDisplayName(), var0.getDisplayName())
+            : Component.translatable(var1, param0.getDisplayName());
     }
 
     public boolean isFire() {

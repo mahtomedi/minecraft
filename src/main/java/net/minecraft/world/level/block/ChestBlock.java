@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stat;
@@ -104,7 +103,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
                     if (param0.hasCustomName()) {
                         return param0.getDisplayName();
                     } else {
-                        return (Component)(param1.hasCustomName() ? param1.getDisplayName() : new TranslatableComponent("container.chestDouble"));
+                        return (Component)(param1.hasCustomName() ? param1.getDisplayName() : Component.translatable("container.chestDouble"));
                     }
                 }
             });

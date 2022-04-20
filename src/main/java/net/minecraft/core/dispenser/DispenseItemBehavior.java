@@ -318,9 +318,9 @@ public interface DispenseItemBehavior {
                 double var4 = var1.z() + (double)((float)var0.getStepZ() * 0.3F);
                 Level var5 = param0.getLevel();
                 RandomSource var6 = var5.random;
-                double var7 = var6.nextGaussian() * 0.05 + (double)var0.getStepX();
-                double var8 = var6.nextGaussian() * 0.05 + (double)var0.getStepY();
-                double var9 = var6.nextGaussian() * 0.05 + (double)var0.getStepZ();
+                double var7 = var6.triangle((double)var0.getStepX(), 0.11485000000000001);
+                double var8 = var6.triangle((double)var0.getStepY(), 0.11485000000000001);
+                double var9 = var6.triangle((double)var0.getStepZ(), 0.11485000000000001);
                 SmallFireball var10 = new SmallFireball(var5, var2, var3, var4, var7, var8, var9);
                 var5.addFreshEntity(Util.make(var10, param1x -> param1x.setItem(param1)));
                 param1.shrink(1);

@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,8 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RecipeToast implements Toast {
     private static final long DISPLAY_TIME = 5000L;
-    private static final Component TITLE_TEXT = new TranslatableComponent("recipe.toast.title");
-    private static final Component DESCRIPTION_TEXT = new TranslatableComponent("recipe.toast.description");
+    private static final Component TITLE_TEXT = Component.translatable("recipe.toast.title");
+    private static final Component DESCRIPTION_TEXT = Component.translatable("recipe.toast.description");
     private final List<Recipe<?>> recipes = Lists.newArrayList();
     private long lastChanged;
     private boolean changed;

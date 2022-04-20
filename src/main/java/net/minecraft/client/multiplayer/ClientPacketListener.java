@@ -83,13 +83,11 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAddExperienceOrbPacket;
-import net.minecraft.network.protocol.game.ClientboundAddPaintingPacket;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundAwardStatsPacket;
@@ -197,6 +195,7 @@ import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
+import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceKey;
@@ -224,7 +223,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
@@ -276,7 +274,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ClientPacketListener implements ClientGamePacketListener {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Component GENERIC_DISCONNECT_MESSAGE = new TranslatableComponent("disconnect.lost");
+    private static final Component GENERIC_DISCONNECT_MESSAGE = Component.translatable("disconnect.lost");
     private final Connection connection;
     private final GameProfile localGameProfile;
     private final Screen callbackScreen;
@@ -424,20 +422,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
         double var1 = param0.getY();
         double var2 = param0.getZ();
         Entity var3 = new ExperienceOrb(this.level, var0, var1, var2, param0.getValue());
-        var3.setPacketCoordinates(var0, var1, var2);
+        var3.syncPacketPositionCodec(var0, var1, var2);
         var3.setYRot(0.0F);
         var3.setXRot(0.0F);
         var3.setId(param0.getId());
         this.level.putNonPlayerEntity(param0.getId(), var3);
-    }
-
-    @Override
-    public void handleAddPainting(ClientboundAddPaintingPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Painting var0 = new Painting(this.level, param0.getPos(), param0.getDirection(), param0.getMotive());
-        var0.setId(param0.getId());
-        var0.setUUID(param0.getUUID());
-        this.level.putNonPlayerEntity(param0.getId(), var0);
     }
 
     @Override
@@ -470,7 +459,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var5 = param0.getEntityId();
         RemotePlayer var6 = new RemotePlayer(this.minecraft.level, this.getPlayerInfo(param0.getPlayerId()).getProfile());
         var6.setId(var5);
-        var6.setPacketCoordinates(var0, var1, var2);
+        var6.syncPacketPositionCodec(var0, var1, var2);
         var6.absMoveTo(var0, var1, var2, var3, var4);
         var6.setOldPosAndRot();
         this.level.addPlayer(var5, var6);
@@ -484,7 +473,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             double var1 = param0.getX();
             double var2 = param0.getY();
             double var3 = param0.getZ();
-            var0.setPacketCoordinates(var1, var2, var3);
+            var0.syncPacketPositionCodec(var1, var2, var3);
             if (!var0.isControlledByLocalInstance()) {
                 float var4 = (float)(param0.getyRot() * 360) / 256.0F;
                 float var5 = (float)(param0.getxRot() * 360) / 256.0F;
@@ -511,15 +500,16 @@ public class ClientPacketListener implements ClientGamePacketListener {
         if (var0 != null) {
             if (!var0.isControlledByLocalInstance()) {
                 if (param0.hasPosition()) {
-                    Vec3 var1 = param0.updateEntityPosition(var0.getPacketCoordinates());
-                    var0.setPacketCoordinates(var1);
-                    float var2 = param0.hasRotation() ? (float)(param0.getyRot() * 360) / 256.0F : var0.getYRot();
-                    float var3 = param0.hasRotation() ? (float)(param0.getxRot() * 360) / 256.0F : var0.getXRot();
-                    var0.lerpTo(var1.x(), var1.y(), var1.z(), var2, var3, 3, false);
+                    VecDeltaCodec var1 = var0.getPositionCodec();
+                    Vec3 var2 = var1.decode((long)param0.getXa(), (long)param0.getYa(), (long)param0.getZa());
+                    var1.setBase(var2);
+                    float var3 = param0.hasRotation() ? (float)(param0.getyRot() * 360) / 256.0F : var0.getYRot();
+                    float var4 = param0.hasRotation() ? (float)(param0.getxRot() * 360) / 256.0F : var0.getXRot();
+                    var0.lerpTo(var2.x(), var2.y(), var2.z(), var3, var4, 3, false);
                 } else if (param0.hasRotation()) {
-                    float var4 = (float)(param0.getyRot() * 360) / 256.0F;
-                    float var5 = (float)(param0.getxRot() * 360) / 256.0F;
-                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 3, false);
+                    float var5 = (float)(param0.getyRot() * 360) / 256.0F;
+                    float var6 = (float)(param0.getxRot() * 360) / 256.0F;
+                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var5, var6, 3, false);
                 }
 
                 var0.setOnGround(param0.isOnGround());
@@ -837,7 +827,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
                         this.minecraft
                             .gui
-                            .setOverlayMessage(new TranslatableComponent("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage()), false);
+                            .setOverlayMessage(Component.translatable("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage()), false);
                     }
                 }
             }
@@ -1120,7 +1110,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         float var2 = param0.getParam();
         int var3 = Mth.floor(var2 + 0.5F);
         if (var1 == ClientboundGameEventPacket.NO_RESPAWN_BLOCK_AVAILABLE) {
-            var0.displayClientMessage(new TranslatableComponent("block.minecraft.spawn.not_valid"), false);
+            var0.displayClientMessage(Component.translatable("block.minecraft.spawn.not_valid"), false);
         } else if (var1 == ClientboundGameEventPacket.START_RAINING) {
             this.level.getLevelData().setRaining(true);
             this.level.setRainLevel(0.0F);
@@ -1154,7 +1144,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     .gui
                     .getChat()
                     .addMessage(
-                        new TranslatableComponent(
+                        Component.translatable(
                             "demo.help.movement",
                             var4.keyUp.getTranslatedKeyMessage(),
                             var4.keyLeft.getTranslatedKeyMessage(),
@@ -1163,11 +1153,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
                         )
                     );
             } else if (var2 == 102.0F) {
-                this.minecraft.gui.getChat().addMessage(new TranslatableComponent("demo.help.jump", var4.keyJump.getTranslatedKeyMessage()));
+                this.minecraft.gui.getChat().addMessage(Component.translatable("demo.help.jump", var4.keyJump.getTranslatedKeyMessage()));
             } else if (var2 == 103.0F) {
-                this.minecraft.gui.getChat().addMessage(new TranslatableComponent("demo.help.inventory", var4.keyInventory.getTranslatedKeyMessage()));
+                this.minecraft.gui.getChat().addMessage(Component.translatable("demo.help.inventory", var4.keyInventory.getTranslatedKeyMessage()));
             } else if (var2 == 104.0F) {
-                this.minecraft.gui.getChat().addMessage(new TranslatableComponent("demo.day.6", var4.keyScreenshot.getTranslatedKeyMessage()));
+                this.minecraft.gui.getChat().addMessage(Component.translatable("demo.day.6", var4.keyScreenshot.getTranslatedKeyMessage()));
             }
         } else if (var1 == ClientboundGameEventPacket.ARROW_HIT_PLAYER) {
             this.level.playSound(var0, var0.getX(), var0.getEyeY(), var0.getZ(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 0.45F);
@@ -1641,7 +1631,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 && (!var2 || var3.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
                 this.send(ServerboundResourcePackPacket.Action.DECLINED);
                 if (var2) {
-                    this.connection.disconnect(new TranslatableComponent("multiplayer.requiredTexturePrompt.disconnect"));
+                    this.connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
                 }
             } else {
                 this.minecraft
@@ -1662,7 +1652,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                                             } else {
                                                 this.send(ServerboundResourcePackPacket.Action.DECLINED);
                                                 if (var2) {
-                                                    this.connection.disconnect(new TranslatableComponent("multiplayer.requiredTexturePrompt.disconnect"));
+                                                    this.connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
                                                 } else if (var0x != null) {
                                                     var0x.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
                                                 }
@@ -1674,17 +1664,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     
                                         },
                                         var2
-                                            ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line1")
-                                            : new TranslatableComponent("multiplayer.texturePrompt.line1"),
+                                            ? Component.translatable("multiplayer.requiredTexturePrompt.line1")
+                                            : Component.translatable("multiplayer.texturePrompt.line1"),
                                         preparePackPrompt(
-                                            (Component)(var2
-                                                ? new TranslatableComponent("multiplayer.requiredTexturePrompt.line2")
-                                                    .withStyle(new ChatFormatting[]{ChatFormatting.YELLOW, ChatFormatting.BOLD})
-                                                : new TranslatableComponent("multiplayer.texturePrompt.line2")),
+                                            var2
+                                                ? Component.translatable("multiplayer.requiredTexturePrompt.line2")
+                                                    .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)
+                                                : Component.translatable("multiplayer.texturePrompt.line2"),
                                             param0.getPrompt()
                                         ),
                                         var2 ? CommonComponents.GUI_PROCEED : CommonComponents.GUI_YES,
-                                        (Component)(var2 ? new TranslatableComponent("menu.disconnect") : CommonComponents.GUI_NO)
+                                        (Component)(var2 ? Component.translatable("menu.disconnect") : CommonComponents.GUI_NO)
                                     )
                                 )
                     );
@@ -1694,7 +1684,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     private static Component preparePackPrompt(Component param0, @Nullable Component param1) {
-        return (Component)(param1 == null ? param0 : new TranslatableComponent("multiplayer.texturePrompt.serverPrompt", param0, param1));
+        return (Component)(param1 == null ? param0 : Component.translatable("multiplayer.texturePrompt.serverPrompt", param0, param1));
     }
 
     @Nullable

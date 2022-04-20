@@ -91,9 +91,9 @@ public class FishingHook extends Projectile {
         Vec3 var9 = new Vec3((double)(-var3), (double)Mth.clamp(-(var5 / var4), -5.0F, 5.0F), (double)(-var2));
         double var10 = var9.length();
         var9 = var9.multiply(
-            0.6 / var10 + 0.5 + this.random.nextGaussian() * 0.0045,
-            0.6 / var10 + 0.5 + this.random.nextGaussian() * 0.0045,
-            0.6 / var10 + 0.5 + this.random.nextGaussian() * 0.0045
+            0.6 / var10 + this.random.triangle(0.5, 0.0103365),
+            0.6 / var10 + this.random.triangle(0.5, 0.0103365),
+            0.6 / var10 + this.random.triangle(0.5, 0.0103365)
         );
         this.setDeltaMovement(var9);
         this.setYRot((float)(Mth.atan2(var9.x, var9.z) * 180.0F / (float)Math.PI));
@@ -302,7 +302,7 @@ public class FishingHook extends Projectile {
         } else if (this.timeUntilHooked > 0) {
             this.timeUntilHooked -= var1;
             if (this.timeUntilHooked > 0) {
-                this.fishAngle += (float)(this.random.nextGaussian() * 4.0);
+                this.fishAngle += (float)this.random.triangle(0.0, 9.188);
                 float var3 = this.fishAngle * (float) (Math.PI / 180.0);
                 float var4 = Mth.sin(var3);
                 float var5 = Mth.cos(var3);

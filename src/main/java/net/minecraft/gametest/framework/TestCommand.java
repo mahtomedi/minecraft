@@ -32,7 +32,6 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -256,22 +255,22 @@ public class TestCommand {
         }
 
         if (!var3.isPresent()) {
-            param0.sendFailure(new TextComponent("Can't find a structure block that contains the targeted pos " + var1));
+            param0.sendFailure(Component.literal("Can't find a structure block that contains the targeted pos " + var1));
             return 0;
         } else {
             StructureBlockEntity var4 = (StructureBlockEntity)var2.getBlockEntity(var3.get());
             BlockPos var5 = var1.subtract(var3.get());
             String var6 = var5.getX() + ", " + var5.getY() + ", " + var5.getZ();
             String var7 = var4.getStructurePath();
-            Component var8 = new TextComponent(var6)
+            Component var8 = Component.literal(var6)
                 .setStyle(
                     Style.EMPTY
                         .withBold(true)
                         .withColor(ChatFormatting.GREEN)
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent("Click to copy to clipboard")))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to copy to clipboard")))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "final BlockPos " + param1 + " = new BlockPos(" + var6 + ");"))
                 );
-            param0.sendSuccess(new TextComponent("Position relative to " + var7 + ": ").append(var8), false);
+            param0.sendSuccess(Component.literal("Position relative to " + var7 + ": ").append(var8), false);
             DebugPackets.sendGameTestAddMarker(var2, new BlockPos(var1), var6, -2147418368, 10000);
             return 1;
         }
@@ -421,7 +420,7 @@ public class TestCommand {
     }
 
     private static void say(CommandSourceStack param0, String param1) {
-        param0.sendSuccess(new TextComponent(param1), false);
+        param0.sendSuccess(Component.literal(param1), false);
     }
 
     private static int exportNearestTestStructure(CommandSourceStack param0) {
@@ -484,7 +483,7 @@ public class TestCommand {
     }
 
     private static void say(ServerLevel param0, String param1, ChatFormatting param2) {
-        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2 + param1), Util.NIL_UUID));
+        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(Component.literal(param2 + param1), Util.NIL_UUID));
     }
 
     static class TestSummaryDisplayer implements GameTestListener {

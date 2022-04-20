@@ -15,13 +15,13 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 
 public class SlotArgument implements ArgumentType<Integer> {
     private static final Collection<String> EXAMPLES = Arrays.asList("container.5", "12", "weapon");
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_SLOT = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("slot.unknown", param0)
+        param0 -> Component.translatable("slot.unknown", param0)
     );
     private static final Map<String, Integer> SLOTS = Util.make(Maps.newHashMap(), param0 -> {
         for(int var0 = 0; var0 < 54; ++var0) {

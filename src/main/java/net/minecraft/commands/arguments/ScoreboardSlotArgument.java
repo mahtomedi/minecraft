@@ -12,13 +12,13 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.scores.Scoreboard;
 
 public class ScoreboardSlotArgument implements ArgumentType<Integer> {
     private static final Collection<String> EXAMPLES = Arrays.asList("sidebar", "foo.bar");
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.scoreboardDisplaySlot.invalid", param0)
+        param0 -> Component.translatable("argument.scoreboardDisplaySlot.invalid", param0)
     );
 
     private ScoreboardSlotArgument() {

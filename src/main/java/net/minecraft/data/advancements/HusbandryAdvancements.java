@@ -26,7 +26,7 @@ import net.minecraft.advancements.critereon.PlayerInteractTrigger;
 import net.minecraft.advancements.critereon.StartRidingTrigger;
 import net.minecraft.advancements.critereon.TameAnimalTrigger;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
@@ -112,8 +112,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
         Advancement var0 = Advancement.Builder.advancement()
             .display(
                 Blocks.HAY_BLOCK,
-                new TranslatableComponent("advancements.husbandry.root.title"),
-                new TranslatableComponent("advancements.husbandry.root.description"),
+                Component.translatable("advancements.husbandry.root.title"),
+                Component.translatable("advancements.husbandry.root.description"),
                 new ResourceLocation("textures/gui/advancements/backgrounds/husbandry.png"),
                 FrameType.TASK,
                 false,
@@ -126,8 +126,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.WHEAT,
-                new TranslatableComponent("advancements.husbandry.plant_seed.title"),
-                new TranslatableComponent("advancements.husbandry.plant_seed.description"),
+                Component.translatable("advancements.husbandry.plant_seed.title"),
+                Component.translatable("advancements.husbandry.plant_seed.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -145,8 +145,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.WHEAT,
-                new TranslatableComponent("advancements.husbandry.breed_an_animal.title"),
-                new TranslatableComponent("advancements.husbandry.breed_an_animal.description"),
+                Component.translatable("advancements.husbandry.breed_an_animal.title"),
+                Component.translatable("advancements.husbandry.breed_an_animal.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -160,8 +160,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var1)
             .display(
                 Items.APPLE,
-                new TranslatableComponent("advancements.husbandry.balanced_diet.title"),
-                new TranslatableComponent("advancements.husbandry.balanced_diet.description"),
+                Component.translatable("advancements.husbandry.balanced_diet.title"),
+                Component.translatable("advancements.husbandry.balanced_diet.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -174,8 +174,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var1)
             .display(
                 Items.NETHERITE_HOE,
-                new TranslatableComponent("advancements.husbandry.netherite_hoe.title"),
-                new TranslatableComponent("advancements.husbandry.netherite_hoe.description"),
+                Component.translatable("advancements.husbandry.netherite_hoe.title"),
+                Component.translatable("advancements.husbandry.netherite_hoe.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -189,8 +189,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.LEAD,
-                new TranslatableComponent("advancements.husbandry.tame_an_animal.title"),
-                new TranslatableComponent("advancements.husbandry.tame_an_animal.description"),
+                Component.translatable("advancements.husbandry.tame_an_animal.title"),
+                Component.translatable("advancements.husbandry.tame_an_animal.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -203,8 +203,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var2)
             .display(
                 Items.GOLDEN_CARROT,
-                new TranslatableComponent("advancements.husbandry.breed_all_animals.title"),
-                new TranslatableComponent("advancements.husbandry.breed_all_animals.description"),
+                Component.translatable("advancements.husbandry.breed_all_animals.title"),
+                Component.translatable("advancements.husbandry.breed_all_animals.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -218,8 +218,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .requirements(RequirementsStrategy.OR)
             .display(
                 Items.FISHING_ROD,
-                new TranslatableComponent("advancements.husbandry.fishy_business.title"),
-                new TranslatableComponent("advancements.husbandry.fishy_business.description"),
+                Component.translatable("advancements.husbandry.fishy_business.title"),
+                Component.translatable("advancements.husbandry.fishy_business.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -232,8 +232,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .requirements(RequirementsStrategy.OR)
             .display(
                 Items.PUFFERFISH_BUCKET,
-                new TranslatableComponent("advancements.husbandry.tactical_fishing.title"),
-                new TranslatableComponent("advancements.husbandry.tactical_fishing.description"),
+                Component.translatable("advancements.husbandry.tactical_fishing.title"),
+                Component.translatable("advancements.husbandry.tactical_fishing.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -250,8 +250,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .display(
                 Items.AXOLOTL_BUCKET,
-                new TranslatableComponent("advancements.husbandry.axolotl_in_a_bucket.title"),
-                new TranslatableComponent("advancements.husbandry.axolotl_in_a_bucket.description"),
+                Component.translatable("advancements.husbandry.axolotl_in_a_bucket.title"),
+                Component.translatable("advancements.husbandry.axolotl_in_a_bucket.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -266,8 +266,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .display(
                 Items.TROPICAL_FISH_BUCKET,
-                new TranslatableComponent("advancements.husbandry.kill_axolotl_target.title"),
-                new TranslatableComponent("advancements.husbandry.kill_axolotl_target.description"),
+                Component.translatable("advancements.husbandry.kill_axolotl_target.title"),
+                Component.translatable("advancements.husbandry.kill_axolotl_target.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -279,8 +279,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var3)
             .display(
                 Items.COD,
-                new TranslatableComponent("advancements.husbandry.complete_catalogue.title"),
-                new TranslatableComponent("advancements.husbandry.complete_catalogue.description"),
+                Component.translatable("advancements.husbandry.complete_catalogue.title"),
+                Component.translatable("advancements.husbandry.complete_catalogue.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -300,8 +300,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .display(
                 Items.HONEY_BOTTLE,
-                new TranslatableComponent("advancements.husbandry.safely_harvest_honey.title"),
-                new TranslatableComponent("advancements.husbandry.safely_harvest_honey.description"),
+                Component.translatable("advancements.husbandry.safely_harvest_honey.title"),
+                Component.translatable("advancements.husbandry.safely_harvest_honey.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -313,8 +313,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var7)
             .display(
                 Items.HONEYCOMB,
-                new TranslatableComponent("advancements.husbandry.wax_on.title"),
-                new TranslatableComponent("advancements.husbandry.wax_on.description"),
+                Component.translatable("advancements.husbandry.wax_on.title"),
+                Component.translatable("advancements.husbandry.wax_on.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -333,8 +333,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var8)
             .display(
                 Items.STONE_AXE,
-                new TranslatableComponent("advancements.husbandry.wax_off.title"),
-                new TranslatableComponent("advancements.husbandry.wax_off.description"),
+                Component.translatable("advancements.husbandry.wax_off.title"),
+                Component.translatable("advancements.husbandry.wax_off.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -357,8 +357,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .display(
                 Items.TADPOLE_BUCKET,
-                new TranslatableComponent("advancements.husbandry.tadpole_in_a_bucket.title"),
-                new TranslatableComponent("advancements.husbandry.tadpole_in_a_bucket.description"),
+                Component.translatable("advancements.husbandry.tadpole_in_a_bucket.title"),
+                Component.translatable("advancements.husbandry.tadpole_in_a_bucket.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -370,8 +370,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var9)
             .display(
                 Items.LEAD,
-                new TranslatableComponent("advancements.husbandry.leash_all_frog_variants.title"),
-                new TranslatableComponent("advancements.husbandry.leash_all_frog_variants.description"),
+                Component.translatable("advancements.husbandry.leash_all_frog_variants.title"),
+                Component.translatable("advancements.husbandry.leash_all_frog_variants.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -383,8 +383,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var10)
             .display(
                 Items.VERDANT_FROGLIGHT,
-                new TranslatableComponent("advancements.husbandry.froglights.title"),
-                new TranslatableComponent("advancements.husbandry.froglights.description"),
+                Component.translatable("advancements.husbandry.froglights.title"),
+                Component.translatable("advancements.husbandry.froglights.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -407,8 +407,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .display(
                 Blocks.BEE_NEST,
-                new TranslatableComponent("advancements.husbandry.silk_touch_nest.title"),
-                new TranslatableComponent("advancements.husbandry.silk_touch_nest.description"),
+                Component.translatable("advancements.husbandry.silk_touch_nest.title"),
+                Component.translatable("advancements.husbandry.silk_touch_nest.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -420,8 +420,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.OAK_BOAT,
-                new TranslatableComponent("advancements.husbandry.ride_a_boat_with_a_goat.title"),
-                new TranslatableComponent("advancements.husbandry.ride_a_boat_with_a_goat.description"),
+                Component.translatable("advancements.husbandry.ride_a_boat_with_a_goat.title"),
+                Component.translatable("advancements.husbandry.ride_a_boat_with_a_goat.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -445,8 +445,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.GLOW_INK_SAC,
-                new TranslatableComponent("advancements.husbandry.make_a_sign_glow.title"),
-                new TranslatableComponent("advancements.husbandry.make_a_sign_glow.description"),
+                Component.translatable("advancements.husbandry.make_a_sign_glow.title"),
+                Component.translatable("advancements.husbandry.make_a_sign_glow.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -465,8 +465,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.COOKIE,
-                new TranslatableComponent("advancements.husbandry.allay_deliver_item_to_player.title"),
-                new TranslatableComponent("advancements.husbandry.allay_deliver_item_to_player.description"),
+                Component.translatable("advancements.husbandry.allay_deliver_item_to_player.title"),
+                Component.translatable("advancements.husbandry.allay_deliver_item_to_player.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -486,8 +486,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var11)
             .display(
                 Items.NOTE_BLOCK,
-                new TranslatableComponent("advancements.husbandry.allay_deliver_cake_to_note_block.title"),
-                new TranslatableComponent("advancements.husbandry.allay_deliver_cake_to_note_block.description"),
+                Component.translatable("advancements.husbandry.allay_deliver_cake_to_note_block.title"),
+                Component.translatable("advancements.husbandry.allay_deliver_cake_to_note_block.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,

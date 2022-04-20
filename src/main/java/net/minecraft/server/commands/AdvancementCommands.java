@@ -14,7 +14,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class AdvancementCommands {
@@ -249,42 +249,42 @@ public class AdvancementCommands {
             if (param3.size() == 1) {
                 if (param1.size() == 1) {
                     throw new CommandRuntimeException(
-                        new TranslatableComponent(
+                        Component.translatable(
                             param2.getKey() + ".one.to.one.failure", param3.iterator().next().getChatComponent(), param1.iterator().next().getDisplayName()
                         )
                     );
                 } else {
                     throw new CommandRuntimeException(
-                        new TranslatableComponent(param2.getKey() + ".one.to.many.failure", param3.iterator().next().getChatComponent(), param1.size())
+                        Component.translatable(param2.getKey() + ".one.to.many.failure", param3.iterator().next().getChatComponent(), param1.size())
                     );
                 }
             } else if (param1.size() == 1) {
                 throw new CommandRuntimeException(
-                    new TranslatableComponent(param2.getKey() + ".many.to.one.failure", param3.size(), param1.iterator().next().getDisplayName())
+                    Component.translatable(param2.getKey() + ".many.to.one.failure", param3.size(), param1.iterator().next().getDisplayName())
                 );
             } else {
-                throw new CommandRuntimeException(new TranslatableComponent(param2.getKey() + ".many.to.many.failure", param3.size(), param1.size()));
+                throw new CommandRuntimeException(Component.translatable(param2.getKey() + ".many.to.many.failure", param3.size(), param1.size()));
             }
         } else {
             if (param3.size() == 1) {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        new TranslatableComponent(
+                        Component.translatable(
                             param2.getKey() + ".one.to.one.success", param3.iterator().next().getChatComponent(), param1.iterator().next().getDisplayName()
                         ),
                         true
                     );
                 } else {
                     param0.sendSuccess(
-                        new TranslatableComponent(param2.getKey() + ".one.to.many.success", param3.iterator().next().getChatComponent(), param1.size()), true
+                        Component.translatable(param2.getKey() + ".one.to.many.success", param3.iterator().next().getChatComponent(), param1.size()), true
                     );
                 }
             } else if (param1.size() == 1) {
                 param0.sendSuccess(
-                    new TranslatableComponent(param2.getKey() + ".many.to.one.success", param3.size(), param1.iterator().next().getDisplayName()), true
+                    Component.translatable(param2.getKey() + ".many.to.one.success", param3.size(), param1.iterator().next().getDisplayName()), true
                 );
             } else {
-                param0.sendSuccess(new TranslatableComponent(param2.getKey() + ".many.to.many.success", param3.size(), param1.size()), true);
+                param0.sendSuccess(Component.translatable(param2.getKey() + ".many.to.many.success", param3.size(), param1.size()), true);
             }
 
             return var0;
@@ -296,7 +296,7 @@ public class AdvancementCommands {
     ) {
         int var0 = 0;
         if (!param3.getCriteria().containsKey(param4)) {
-            throw new CommandRuntimeException(new TranslatableComponent("commands.advancement.criterionNotFound", param3.getChatComponent(), param4));
+            throw new CommandRuntimeException(Component.translatable("commands.advancement.criterionNotFound", param3.getChatComponent(), param4));
         } else {
             for(ServerPlayer var1 : param1) {
                 if (param2.performCriterion(var1, param3, param4)) {
@@ -307,26 +307,26 @@ public class AdvancementCommands {
             if (var0 == 0) {
                 if (param1.size() == 1) {
                     throw new CommandRuntimeException(
-                        new TranslatableComponent(
+                        Component.translatable(
                             param2.getKey() + ".criterion.to.one.failure", param4, param3.getChatComponent(), param1.iterator().next().getDisplayName()
                         )
                     );
                 } else {
                     throw new CommandRuntimeException(
-                        new TranslatableComponent(param2.getKey() + ".criterion.to.many.failure", param4, param3.getChatComponent(), param1.size())
+                        Component.translatable(param2.getKey() + ".criterion.to.many.failure", param4, param3.getChatComponent(), param1.size())
                     );
                 }
             } else {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        new TranslatableComponent(
+                        Component.translatable(
                             param2.getKey() + ".criterion.to.one.success", param4, param3.getChatComponent(), param1.iterator().next().getDisplayName()
                         ),
                         true
                     );
                 } else {
                     param0.sendSuccess(
-                        new TranslatableComponent(param2.getKey() + ".criterion.to.many.success", param4, param3.getChatComponent(), param1.size()), true
+                        Component.translatable(param2.getKey() + ".criterion.to.many.success", param4, param3.getChatComponent(), param1.size()), true
                     );
                 }
 

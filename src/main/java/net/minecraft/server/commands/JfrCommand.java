@@ -13,15 +13,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
 
 public class JfrCommand {
-    private static final SimpleCommandExceptionType START_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.jfr.start.failed"));
+    private static final SimpleCommandExceptionType START_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.jfr.start.failed"));
     private static final DynamicCommandExceptionType DUMP_FAILED = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.jfr.dump.failed", param0)
+        param0 -> Component.translatable("commands.jfr.dump.failed", param0)
     );
 
     private JfrCommand() {
@@ -41,7 +39,7 @@ public class JfrCommand {
         if (!JvmProfiler.INSTANCE.start(var0)) {
             throw START_FAILED.create();
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.jfr.started"), false);
+            param0.sendSuccess(Component.translatable("commands.jfr.started"), false);
             return 1;
         }
     }
@@ -50,13 +48,13 @@ public class JfrCommand {
         try {
             Path var0 = Paths.get(".").relativize(JvmProfiler.INSTANCE.stop().normalize());
             Path var1 = param0.getServer().isPublished() && !SharedConstants.IS_RUNNING_IN_IDE ? var0 : var0.toAbsolutePath();
-            Component var2 = new TextComponent(var0.toString())
+            Component var2 = Component.literal(var0.toString())
                 .withStyle(ChatFormatting.UNDERLINE)
                 .withStyle(
                     param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, var1.toString()))
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.copy.click")))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.copy.click")))
                 );
-            param0.sendSuccess(new TranslatableComponent("commands.jfr.stopped", var2), false);
+            param0.sendSuccess(Component.translatable("commands.jfr.stopped", var2), false);
             return 1;
         } catch (Throwable var4) {
             throw DUMP_FAILED.create(var4.getMessage());

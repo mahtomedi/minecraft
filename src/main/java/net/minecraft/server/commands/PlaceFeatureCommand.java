@@ -10,12 +10,12 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class PlaceFeatureCommand {
-    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.placefeature.failed"));
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.placefeature.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -51,7 +51,7 @@ public class PlaceFeatureCommand {
             throw ERROR_FAILED.create();
         } else {
             String var2 = param1.unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]");
-            param0.sendSuccess(new TranslatableComponent("commands.placefeature.success", var2, param2.getX(), param2.getY(), param2.getZ()), true);
+            param0.sendSuccess(Component.translatable("commands.placefeature.success", var2, param2.getX(), param2.getY(), param2.getZ()), true);
             return 1;
         }
     }

@@ -38,8 +38,6 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
@@ -55,7 +53,7 @@ import org.slf4j.Logger;
 public class TitleScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String DEMO_LEVEL_ID = "Demo_World";
-    public static final Component COPYRIGHT_TEXT = new TextComponent("Copyright Mojang AB. Do not distribute!");
+    public static final Component COPYRIGHT_TEXT = Component.literal("Copyright Mojang AB. Do not distribute!");
     public static final CubeMap CUBE_MAP = new CubeMap(new ResourceLocation("textures/gui/title/background/panorama"));
     private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
     private static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
@@ -79,7 +77,7 @@ public class TitleScreen extends Screen {
     }
 
     public TitleScreen(boolean param0) {
-        super(new TranslatableComponent("narrator.screen.title"));
+        super(Component.translatable("narrator.screen.title"));
         this.fading = param0;
         this.minceraftEasterEgg = (double)RandomSource.create().nextFloat() < 1.0E-4;
         this.realmsClient = RealmsClient.create();
@@ -162,7 +160,7 @@ public class TitleScreen extends Screen {
                 256,
                 256,
                 param0 -> this.minecraft.setScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager())),
-                new TranslatableComponent("narrator.button.language")
+                Component.translatable("narrator.button.language")
             )
         );
         this.addRenderableWidget(
@@ -171,13 +169,11 @@ public class TitleScreen extends Screen {
                 var3 + 72 + 12,
                 98,
                 20,
-                new TranslatableComponent("menu.options"),
+                Component.translatable("menu.options"),
                 param0 -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))
             )
         );
-        this.addRenderableWidget(
-            new Button(this.width / 2 + 2, var3 + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), param0 -> this.minecraft.stop())
-        );
+        this.addRenderableWidget(new Button(this.width / 2 + 2, var3 + 72 + 12, 98, 20, Component.translatable("menu.quit"), param0 -> this.minecraft.stop()));
         this.addRenderableWidget(
             new ImageButton(
                 this.width / 2 + 104,
@@ -191,7 +187,7 @@ public class TitleScreen extends Screen {
                 32,
                 64,
                 param0 -> this.minecraft.setScreen(new AccessibilityOptionsScreen(this, this.minecraft.options)),
-                new TranslatableComponent("narrator.button.accessibility")
+                Component.translatable("narrator.button.accessibility")
             )
         );
         this.addRenderableWidget(
@@ -213,7 +209,7 @@ public class TitleScreen extends Screen {
                 ? this.warning32Bit.realmsSubscriptionFuture
                 : CompletableFuture.supplyAsync(this::hasRealmsSubscription, Util.backgroundExecutor());
             this.warning32Bit = new TitleScreen.Warning32Bit(
-                MultiLineLabel.create(this.font, new TranslatableComponent("title.32bit.deprecation"), 350, 2), this.width / 2, var3 - 24, var4
+                MultiLineLabel.create(this.font, Component.translatable("title.32bit.deprecation"), 350, 2), this.width / 2, var3 - 24, var4
             );
         }
 
@@ -238,7 +234,7 @@ public class TitleScreen extends Screen {
                 param0,
                 200,
                 20,
-                new TranslatableComponent("menu.singleplayer"),
+                Component.translatable("menu.singleplayer"),
                 param0x -> this.minecraft.setScreen(new SelectWorldScreen(this))
             )
         );
@@ -246,7 +242,7 @@ public class TitleScreen extends Screen {
         Button.OnTooltip var1 = var0
             ? Button.NO_TOOLTIP
             : new Button.OnTooltip() {
-                private final Component text = new TranslatableComponent("title.multiplayer.disabled");
+                private final Component text = Component.translatable("title.multiplayer.disabled");
     
                 @Override
                 public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
@@ -263,13 +259,13 @@ public class TitleScreen extends Screen {
                     param0.accept(this.text);
                 }
             };
-        this.addRenderableWidget(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, new TranslatableComponent("menu.multiplayer"), param0x -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, Component.translatable("menu.multiplayer"), param0x -> {
             Screen var0x = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
             this.minecraft.setScreen(var0x);
         }, var1)).active = var0;
         this.addRenderableWidget(
                 new Button(
-                    this.width / 2 - 100, param0 + param1 * 2, 200, 20, new TranslatableComponent("menu.online"), param0x -> this.realmsButtonClicked(), var1
+                    this.width / 2 - 100, param0 + param1 * 2, 200, 20, Component.translatable("menu.online"), param0x -> this.realmsButtonClicked(), var1
                 )
             )
             .active = var0;
@@ -277,7 +273,7 @@ public class TitleScreen extends Screen {
 
     private void createDemoMenuOptions(int param0, int param1) {
         boolean var0 = this.checkDemoWorldPresence();
-        this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, new TranslatableComponent("menu.playdemo"), param1x -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, Component.translatable("menu.playdemo"), param1x -> {
             if (var0) {
                 this.minecraft.createWorldOpenFlows().loadLevel(this, "Demo_World");
             } else {
@@ -292,7 +288,7 @@ public class TitleScreen extends Screen {
                 param0 + param1 * 1,
                 200,
                 20,
-                new TranslatableComponent("menu.resetdemo"),
+                Component.translatable("menu.resetdemo"),
                 param0x -> {
                     LevelStorageSource var0x = this.minecraft.getLevelSource();
         
@@ -303,9 +299,9 @@ public class TitleScreen extends Screen {
                                 .setScreen(
                                     new ConfirmScreen(
                                         this::confirmDemo,
-                                        new TranslatableComponent("selectWorld.deleteQuestion"),
-                                        new TranslatableComponent("selectWorld.deleteWarning", var2x.getLevelName()),
-                                        new TranslatableComponent("selectWorld.deleteButton"),
+                                        Component.translatable("selectWorld.deleteQuestion"),
+                                        Component.translatable("selectWorld.deleteWarning", var2x.getLevelName()),
+                                        Component.translatable("selectWorld.deleteButton"),
                                         CommonComponents.GUI_CANCEL
                                     )
                                 );

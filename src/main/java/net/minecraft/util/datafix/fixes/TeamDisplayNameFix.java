@@ -10,7 +10,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public class TeamDisplayNameFix extends DataFix {
     public TeamDisplayNameFix(Schema param0, boolean param1) {
@@ -31,7 +30,7 @@ public class TeamDisplayNameFix extends DataFix {
                                     "DisplayName",
                                     param1 -> DataFixUtils.orElse(
                                             param1.asString()
-                                                .map(param0xxxx -> Component.Serializer.toJson(new TextComponent(param0xxxx)))
+                                                .map(param0xxxx -> Component.Serializer.toJson(Component.literal(param0xxxx)))
                                                 .map(param0xx::createString)
                                                 .result(),
                                             param1

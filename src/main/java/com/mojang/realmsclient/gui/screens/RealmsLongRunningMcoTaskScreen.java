@@ -12,7 +12,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.realms.RepeatedNarrator;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,7 +23,7 @@ public class RealmsLongRunningMcoTaskScreen extends RealmsScreen implements Erro
     private static final RepeatedNarrator REPEATED_NARRATOR = new RepeatedNarrator(Duration.ofSeconds(5L));
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Screen lastScreen;
-    private volatile Component title = TextComponent.EMPTY;
+    private volatile Component title = CommonComponents.EMPTY;
     @Nullable
     private volatile Component errorMessage;
     private volatile boolean aborted;

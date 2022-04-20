@@ -48,8 +48,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
@@ -60,9 +60,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
@@ -316,7 +314,7 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
 
     @Override
     protected PathNavigation createNavigation(Level param0) {
-        return new Axolotl.AxolotlPathNavigation(this, param0);
+        return new AmphibiousPathNavigation(this, param0);
     }
 
     @Override
@@ -571,28 +569,6 @@ public class Axolotl extends Animal implements LerpingModel, Bucketable {
                 super.tick();
             }
 
-        }
-    }
-
-    static class AxolotlPathNavigation extends WaterBoundPathNavigation {
-        AxolotlPathNavigation(Axolotl param0, Level param1) {
-            super(param0, param1);
-        }
-
-        @Override
-        protected boolean canUpdatePath() {
-            return true;
-        }
-
-        @Override
-        protected PathFinder createPathFinder(int param0) {
-            this.nodeEvaluator = new AmphibiousNodeEvaluator(false);
-            return new PathFinder(this.nodeEvaluator, param0);
-        }
-
-        @Override
-        public boolean isStableDestination(BlockPos param0) {
-            return !this.level.getBlockState(param0.below()).isAir();
         }
     }
 

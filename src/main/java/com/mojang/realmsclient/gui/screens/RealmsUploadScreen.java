@@ -35,8 +35,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
@@ -51,7 +49,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final ReentrantLock UPLOAD_LOCK = new ReentrantLock();
     private static final String[] DOTS = new String[]{"", ".", ". .", ". . ."};
-    private static final Component VERIFYING_TEXT = new TranslatableComponent("mco.upload.verifying");
+    private static final Component VERIFYING_TEXT = Component.translatable("mco.upload.verifying");
     private final RealmsResetWorldScreen lastScreen;
     private final LevelSummary selectedLevel;
     private final long worldId;
@@ -60,7 +58,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     private final RateLimiter narrationRateLimiter;
     @Nullable
     private volatile Component[] errorMessage;
-    private volatile Component status = new TranslatableComponent("mco.upload.preparing");
+    private volatile Component status = Component.translatable("mco.upload.preparing");
     private volatile String progress;
     private volatile boolean cancelled;
     private volatile boolean uploadFinished;
@@ -243,7 +241,7 @@ public class RealmsUploadScreen extends RealmsScreen {
         List<Component> var0 = Lists.newArrayList();
         var0.add(this.status);
         if (this.progress != null) {
-            var0.add(new TextComponent(this.progress + "%"));
+            var0.add(Component.literal(this.progress + "%"));
         }
 
         if (this.errorMessage != null) {
@@ -285,13 +283,13 @@ public class RealmsUploadScreen extends RealmsScreen {
                                 }
         
                                 if (var3 == null) {
-                                    this.status = new TranslatableComponent("mco.upload.close.failure");
+                                    this.status = Component.translatable("mco.upload.close.failure");
                                     return;
                                 }
         
                                 UploadTokenCache.put(var2, var3.getToken());
                                 if (!var3.isWorldClosed()) {
-                                    this.status = new TranslatableComponent("mco.upload.close.failure");
+                                    this.status = Component.translatable("mco.upload.close.failure");
                                     return;
                                 }
         
@@ -308,7 +306,7 @@ public class RealmsUploadScreen extends RealmsScreen {
                                 }
         
                                 if (this.verify(var0)) {
-                                    this.status = new TranslatableComponent("mco.upload.uploading", this.selectedLevel.getLevelName());
+                                    this.status = Component.translatable("mco.upload.uploading", this.selectedLevel.getLevelName());
                                     FileUpload var11 = new FileUpload(
                                         var0,
                                         this.worldId,
@@ -321,13 +319,13 @@ public class RealmsUploadScreen extends RealmsScreen {
                                     var11.upload(param1 -> {
                                         if (param1.statusCode >= 200 && param1.statusCode < 300) {
                                             this.uploadFinished = true;
-                                            this.status = new TranslatableComponent("mco.upload.done");
+                                            this.status = Component.translatable("mco.upload.done");
                                             this.backButton.setMessage(CommonComponents.GUI_DONE);
                                             UploadTokenCache.invalidate(var2);
                                         } else if (param1.statusCode == 400 && param1.errorMessage != null) {
-                                            this.setErrorMessage(new TranslatableComponent("mco.upload.failed", param1.errorMessage));
+                                            this.setErrorMessage(Component.translatable("mco.upload.failed", param1.errorMessage));
                                         } else {
-                                            this.setErrorMessage(new TranslatableComponent("mco.upload.failed", param1.statusCode));
+                                            this.setErrorMessage(Component.translatable("mco.upload.failed", param1.statusCode));
                                         }
         
                                     });
@@ -355,8 +353,8 @@ public class RealmsUploadScreen extends RealmsScreen {
                                 if (Unit.humanReadable(var7, var8).equals(Unit.humanReadable(5368709120L, var9)) && var8 != Unit.B) {
                                     Unit var10 = Unit.values()[var8.ordinal() - 1];
                                     this.setErrorMessage(
-                                        new TranslatableComponent("mco.upload.size.failure.line1", this.selectedLevel.getLevelName()),
-                                        new TranslatableComponent(
+                                        Component.translatable("mco.upload.size.failure.line1", this.selectedLevel.getLevelName()),
+                                        Component.translatable(
                                             "mco.upload.size.failure.line2", Unit.humanReadable(var7, var10), Unit.humanReadable(5368709120L, var10)
                                         )
                                     );
@@ -364,22 +362,22 @@ public class RealmsUploadScreen extends RealmsScreen {
                                 }
         
                                 this.setErrorMessage(
-                                    new TranslatableComponent("mco.upload.size.failure.line1", this.selectedLevel.getLevelName()),
-                                    new TranslatableComponent(
+                                    Component.translatable("mco.upload.size.failure.line1", this.selectedLevel.getLevelName()),
+                                    Component.translatable(
                                         "mco.upload.size.failure.line2", Unit.humanReadable(var7, var8), Unit.humanReadable(5368709120L, var9)
                                     )
                                 );
                                 return;
                             }
         
-                            this.status = new TranslatableComponent("mco.upload.close.failure");
+                            this.status = Component.translatable("mco.upload.close.failure");
                         } catch (IOException var21) {
                             var3 = var21;
-                            this.setErrorMessage(new TranslatableComponent("mco.upload.failed", var21.getMessage()));
+                            this.setErrorMessage(Component.translatable("mco.upload.failed", var21.getMessage()));
                             return;
                         } catch (RealmsServiceException var22) {
                             var3 = var22;
-                            this.setErrorMessage(new TranslatableComponent("mco.upload.failed", var22.toString()));
+                            this.setErrorMessage(Component.translatable("mco.upload.failed", var22.toString()));
                             return;
                         } catch (InterruptedException var23) {
                             var3 = var23;
@@ -413,7 +411,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     }
 
     private void uploadCancelled() {
-        this.status = new TranslatableComponent("mco.upload.cancelled");
+        this.status = Component.translatable("mco.upload.cancelled");
         LOGGER.debug("Upload was cancelled");
     }
 

@@ -4,9 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -40,9 +39,9 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     private static final int SCROLL_BAR_HEIGHT = 139;
     private static final int SCROLL_BAR_TOP_POS_Y = 18;
     private static final int SCROLL_BAR_START_X = 94;
-    private static final Component TRADES_LABEL = new TranslatableComponent("merchant.trades");
-    private static final Component LEVEL_SEPARATOR = new TextComponent(" - ");
-    private static final Component DEPRECATED_TOOLTIP = new TranslatableComponent("merchant.deprecated");
+    private static final Component TRADES_LABEL = Component.translatable("merchant.trades");
+    private static final Component LEVEL_SEPARATOR = Component.literal(" - ");
+    private static final Component DEPRECATED_TOOLTIP = Component.translatable("merchant.deprecated");
     private int shopItem;
     private final MerchantScreen.TradeOfferButton[] tradeOfferButtons = new MerchantScreen.TradeOfferButton[7];
     int scrollOff;
@@ -84,7 +83,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     protected void renderLabels(PoseStack param0, int param1, int param2) {
         int var0 = this.menu.getTraderLevel();
         if (var0 > 0 && var0 <= 5 && this.menu.showProgressBar()) {
-            Component var1 = this.title.copy().append(LEVEL_SEPARATOR).append(new TranslatableComponent("merchant.level." + var0));
+            Component var1 = this.title.copy().append(LEVEL_SEPARATOR).append(Component.translatable("merchant.level." + var0));
             int var2 = this.font.width(var1);
             int var3 = 49 + this.imageWidth / 2 - var2 / 2;
             this.font.draw(param0, var1, (float)var3, 6.0F, 4210752);
@@ -307,7 +306,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
         final int index;
 
         public TradeOfferButton(int param0, int param1, int param2, Button.OnPress param3) {
-            super(param0, param1, 89, 20, TextComponent.EMPTY, param3);
+            super(param0, param1, 89, 20, CommonComponents.EMPTY, param3);
             this.index = param2;
             this.visible = false;
         }

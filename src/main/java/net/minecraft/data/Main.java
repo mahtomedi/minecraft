@@ -30,6 +30,7 @@ import net.minecraft.data.tags.FlatLevelGeneratorPresetTagsProvider;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.data.tags.GameEventTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.PaintingVariantTagsProvider;
 import net.minecraft.data.tags.StructureTagsProvider;
 import net.minecraft.data.tags.WorldPresetTagsProvider;
 import net.minecraft.obfuscate.DontObfuscate;
@@ -102,6 +103,7 @@ public class Main {
         var0.addProvider(param3, new WorldPresetTagsProvider(var0));
         var0.addProvider(param3, new FlatLevelGeneratorPresetTagsProvider(var0));
         var0.addProvider(param3, new CatVariantTagsProvider(var0));
+        var0.addProvider(param3, new PaintingVariantTagsProvider(var0));
         var0.addProvider(param4, new NbtToSnbt(var0));
         var0.addProvider(param5, new BlockListReport(var0));
         var0.addProvider(param5, new RegistryDumpReport(var0));

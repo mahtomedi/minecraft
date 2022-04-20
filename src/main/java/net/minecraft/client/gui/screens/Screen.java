@@ -48,7 +48,6 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -62,7 +61,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Set<String> ALLOWED_PROTOCOLS = Sets.newHashSet("http", "https");
     private static final int EXTRA_SPACE_AFTER_FIRST_TOOLTIP_LINE = 2;
-    private static final Component USAGE_NARRATION = new TranslatableComponent("narrator.screen.usage");
+    private static final Component USAGE_NARRATION = Component.translatable("narrator.screen.usage");
     protected final Component title;
     private final List<GuiEventListener> children = Lists.newArrayList();
     private final List<NarratableEntry> narratables = Lists.newArrayList();
@@ -244,7 +243,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             var14.end();
-            BufferUploader.end(var14);
+            BufferUploader.drawWithShader(var14);
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
             MultiBufferSource.BufferSource var16 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
@@ -553,7 +552,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
     }
 
-    protected void triggerImmediateNarration(boolean param0) {
+    public void triggerImmediateNarration(boolean param0) {
         if (this.shouldRunNarration()) {
             this.runNarration(param0);
         }
@@ -584,9 +583,9 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
             }
 
             if (var0.size() > 1) {
-                param0.add(NarratedElementType.POSITION, (Component)(new TranslatableComponent("narrator.position.screen", var1.index + 1, var0.size())));
+                param0.add(NarratedElementType.POSITION, (Component)Component.translatable("narrator.position.screen", var1.index + 1, var0.size()));
                 if (var1.priority == NarratableEntry.NarrationPriority.FOCUSED) {
-                    param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.component_list.usage")));
+                    param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.component_list.usage"));
                 }
             }
 

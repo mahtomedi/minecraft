@@ -9,7 +9,7 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.chase.ChaseClient;
 import net.minecraft.server.chase.ChaseServer;
@@ -72,13 +72,13 @@ public class ChaseCommand {
     private static int stop(CommandSourceStack param0) {
         if (chaseClient != null) {
             chaseClient.stop();
-            param0.sendSuccess(new TextComponent("You have now stopped chasing"), false);
+            param0.sendSuccess(Component.literal("You have now stopped chasing"), false);
             chaseClient = null;
         }
 
         if (chaseServer != null) {
             chaseServer.stop();
-            param0.sendSuccess(new TextComponent("You are no longer being chased"), false);
+            param0.sendSuccess(Component.literal("You are no longer being chased"), false);
             chaseServer = null;
         }
 
@@ -87,10 +87,10 @@ public class ChaseCommand {
 
     private static boolean alreadyRunning(CommandSourceStack param0) {
         if (chaseServer != null) {
-            param0.sendFailure(new TextComponent("Chase server is already running. Stop it using /chase stop"));
+            param0.sendFailure(Component.literal("Chase server is already running. Stop it using /chase stop"));
             return true;
         } else if (chaseClient != null) {
-            param0.sendFailure(new TextComponent("You are already chasing someone. Stop it using /chase stop"));
+            param0.sendFailure(Component.literal("You are already chasing someone. Stop it using /chase stop"));
             return true;
         } else {
             return false;
@@ -106,11 +106,11 @@ public class ChaseCommand {
             try {
                 chaseServer.start();
                 param0.sendSuccess(
-                    new TextComponent("Chase server is now running on port " + param2 + ". Clients can follow you using /chase follow <ip> <port>"), false
+                    Component.literal("Chase server is now running on port " + param2 + ". Clients can follow you using /chase follow <ip> <port>"), false
                 );
             } catch (IOException var4) {
                 var4.printStackTrace();
-                param0.sendFailure(new TextComponent("Failed to start chase server on port " + param2));
+                param0.sendFailure(Component.literal("Failed to start chase server on port " + param2));
                 chaseServer = null;
             }
 
@@ -125,7 +125,7 @@ public class ChaseCommand {
             chaseClient = new ChaseClient(param1, param2, param0.getServer());
             chaseClient.start();
             param0.sendSuccess(
-                new TextComponent(
+                Component.literal(
                     "You are now chasing "
                         + param1
                         + ":"

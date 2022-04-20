@@ -8,14 +8,13 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsParentalConsentScreen extends RealmsScreen {
-    private static final Component MESSAGE = new TranslatableComponent("mco.account.privacyinfo");
+    private static final Component MESSAGE = Component.translatable("mco.account.privacyinfo");
     private final Screen nextScreen;
     private MultiLineLabel messageLines = MultiLineLabel.EMPTY;
 
@@ -26,10 +25,10 @@ public class RealmsParentalConsentScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        Component var0 = new TranslatableComponent("mco.account.update");
+        Component var0 = Component.translatable("mco.account.update");
         Component var1 = CommonComponents.GUI_BACK;
         int var2 = Math.max(this.font.width(var0), this.font.width(var1)) + 30;
-        Component var3 = new TranslatableComponent("mco.account.privacy.info");
+        Component var3 = Component.translatable("mco.account.privacy.info");
         int var4 = (int)((double)this.font.width(var3) * 1.2);
         this.addRenderableWidget(
             new Button(this.width / 2 - var4 / 2, row(11), var4, 20, var3, param0 -> Util.getPlatform().openUri("https://aka.ms/MinecraftGDPR"))

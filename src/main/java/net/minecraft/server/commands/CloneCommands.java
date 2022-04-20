@@ -16,7 +16,7 @@ import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.level.block.Blocks;
@@ -27,11 +27,11 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class CloneCommands {
     private static final int MAX_CLONE_AREA = 32768;
-    private static final SimpleCommandExceptionType ERROR_OVERLAP = new SimpleCommandExceptionType(new TranslatableComponent("commands.clone.overlap"));
+    private static final SimpleCommandExceptionType ERROR_OVERLAP = new SimpleCommandExceptionType(Component.translatable("commands.clone.overlap"));
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.clone.toobig", param0, param1)
+        (param0, param1) -> Component.translatable("commands.clone.toobig", param0, param1)
     );
-    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.clone.failed"));
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.clone.failed"));
     public static final Predicate<BlockInWorld> FILTER_AIR = param0 -> !param0.getState().isAir();
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
@@ -315,7 +315,7 @@ public class CloneCommands {
                     if (var26 == 0) {
                         throw ERROR_FAILED.create();
                     } else {
-                        param0.sendSuccess(new TranslatableComponent("commands.clone.success", var26), true);
+                        param0.sendSuccess(Component.translatable("commands.clone.success", var26), true);
                         return var26;
                     }
                 } else {

@@ -20,7 +20,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.login.ClientLoginPacketListener;
 import net.minecraft.network.protocol.login.ClientboundCustomQueryPacket;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
@@ -72,7 +71,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             throw new IllegalStateException("Protocol error", var81);
         }
 
-        this.updateStatus.accept(new TranslatableComponent("connect.authorizing"));
+        this.updateStatus.accept(Component.translatable("connect.authorizing"));
         HttpUtil.DOWNLOAD_EXECUTOR.submit(() -> {
             Component var0x = this.authenticateServer(var2);
             if (var0x != null) {
@@ -84,7 +83,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
                 LOGGER.warn(var0x.getString());
             }
 
-            this.updateStatus.accept(new TranslatableComponent("connect.encrypting"));
+            this.updateStatus.accept(Component.translatable("connect.encrypting"));
             this.connection.send(var5, param2x -> this.connection.setEncryptionKey(var3, var4));
         });
     }
@@ -95,13 +94,13 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             this.getMinecraftSessionService().joinServer(this.minecraft.getUser().getGameProfile(), this.minecraft.getUser().getAccessToken(), param0);
             return null;
         } catch (AuthenticationUnavailableException var3) {
-            return new TranslatableComponent("disconnect.loginFailedInfo", new TranslatableComponent("disconnect.loginFailedInfo.serversUnavailable"));
+            return Component.translatable("disconnect.loginFailedInfo", Component.translatable("disconnect.loginFailedInfo.serversUnavailable"));
         } catch (InvalidCredentialsException var4) {
-            return new TranslatableComponent("disconnect.loginFailedInfo", new TranslatableComponent("disconnect.loginFailedInfo.invalidSession"));
+            return Component.translatable("disconnect.loginFailedInfo", Component.translatable("disconnect.loginFailedInfo.invalidSession"));
         } catch (InsufficientPrivilegesException var5) {
-            return new TranslatableComponent("disconnect.loginFailedInfo", new TranslatableComponent("disconnect.loginFailedInfo.insufficientPrivileges"));
+            return Component.translatable("disconnect.loginFailedInfo", Component.translatable("disconnect.loginFailedInfo.insufficientPrivileges"));
         } catch (AuthenticationException var6) {
-            return new TranslatableComponent("disconnect.loginFailedInfo", var6.getMessage());
+            return Component.translatable("disconnect.loginFailedInfo", var6.getMessage());
         }
     }
 
@@ -111,7 +110,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
 
     @Override
     public void handleGameProfile(ClientboundGameProfilePacket param0) {
-        this.updateStatus.accept(new TranslatableComponent("connect.joining"));
+        this.updateStatus.accept(Component.translatable("connect.joining"));
         this.localGameProfile = param0.getGameProfile();
         this.connection.setProtocol(ConnectionProtocol.PLAY);
         this.connection
@@ -148,7 +147,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
 
     @Override
     public void handleCustomQuery(ClientboundCustomQueryPacket param0) {
-        this.updateStatus.accept(new TranslatableComponent("connect.negotiating"));
+        this.updateStatus.accept(Component.translatable("connect.negotiating"));
         this.connection.send(new ServerboundCustomQueryPacket(param0.getTransactionId(), null));
     }
 }

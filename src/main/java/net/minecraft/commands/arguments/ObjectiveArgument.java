@@ -12,17 +12,17 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 
 public class ObjectiveArgument implements ArgumentType<String> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "*", "012");
     private static final DynamicCommandExceptionType ERROR_OBJECTIVE_NOT_FOUND = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("arguments.objective.notFound", param0)
+        param0 -> Component.translatable("arguments.objective.notFound", param0)
     );
     private static final DynamicCommandExceptionType ERROR_OBJECTIVE_READ_ONLY = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("arguments.objective.readonly", param0)
+        param0 -> Component.translatable("arguments.objective.readonly", param0)
     );
 
     public static ObjectiveArgument objective() {

@@ -39,7 +39,11 @@ public class Containers {
         while(!param4.isEmpty()) {
             ItemEntity var6 = new ItemEntity(param0, var3, var4, var5, param4.split(param0.random.nextInt(21) + 10));
             float var7 = 0.05F;
-            var6.setDeltaMovement(param0.random.nextGaussian() * 0.05F, param0.random.nextGaussian() * 0.05F + 0.2F, param0.random.nextGaussian() * 0.05F);
+            var6.setDeltaMovement(
+                param0.random.triangle(0.0, 0.11485000171139836),
+                param0.random.triangle(0.2, 0.11485000171139836),
+                param0.random.triangle(0.0, 0.11485000171139836)
+            );
             param0.addFreshEntity(var6);
         }
 

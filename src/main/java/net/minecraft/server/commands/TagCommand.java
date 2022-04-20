@@ -11,15 +11,13 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 
 public class TagCommand {
-    private static final SimpleCommandExceptionType ERROR_ADD_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.tag.add.failed"));
-    private static final SimpleCommandExceptionType ERROR_REMOVE_FAILED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.tag.remove.failed")
-    );
+    private static final SimpleCommandExceptionType ERROR_ADD_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.tag.add.failed"));
+    private static final SimpleCommandExceptionType ERROR_REMOVE_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.tag.remove.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -86,9 +84,9 @@ public class TagCommand {
             throw ERROR_ADD_FAILED.create();
         } else {
             if (param1.size() == 1) {
-                param0.sendSuccess(new TranslatableComponent("commands.tag.add.success.single", param2, param1.iterator().next().getDisplayName()), true);
+                param0.sendSuccess(Component.translatable("commands.tag.add.success.single", param2, param1.iterator().next().getDisplayName()), true);
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.tag.add.success.multiple", param2, param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.tag.add.success.multiple", param2, param1.size()), true);
             }
 
             return var0;
@@ -108,9 +106,9 @@ public class TagCommand {
             throw ERROR_REMOVE_FAILED.create();
         } else {
             if (param1.size() == 1) {
-                param0.sendSuccess(new TranslatableComponent("commands.tag.remove.success.single", param2, param1.iterator().next().getDisplayName()), true);
+                param0.sendSuccess(Component.translatable("commands.tag.remove.success.single", param2, param1.iterator().next().getDisplayName()), true);
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.tag.remove.success.multiple", param2, param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.tag.remove.success.multiple", param2, param1.size()), true);
             }
 
             return var0;
@@ -127,18 +125,16 @@ public class TagCommand {
         if (param1.size() == 1) {
             Entity var2 = param1.iterator().next();
             if (var0.isEmpty()) {
-                param0.sendSuccess(new TranslatableComponent("commands.tag.list.single.empty", var2.getDisplayName()), false);
+                param0.sendSuccess(Component.translatable("commands.tag.list.single.empty", var2.getDisplayName()), false);
             } else {
                 param0.sendSuccess(
-                    new TranslatableComponent("commands.tag.list.single.success", var2.getDisplayName(), var0.size(), ComponentUtils.formatList(var0)), false
+                    Component.translatable("commands.tag.list.single.success", var2.getDisplayName(), var0.size(), ComponentUtils.formatList(var0)), false
                 );
             }
         } else if (var0.isEmpty()) {
-            param0.sendSuccess(new TranslatableComponent("commands.tag.list.multiple.empty", param1.size()), false);
+            param0.sendSuccess(Component.translatable("commands.tag.list.multiple.empty", param1.size()), false);
         } else {
-            param0.sendSuccess(
-                new TranslatableComponent("commands.tag.list.multiple.success", param1.size(), var0.size(), ComponentUtils.formatList(var0)), false
-            );
+            param0.sendSuccess(Component.translatable("commands.tag.list.multiple.success", param1.size(), var0.size(), ComponentUtils.formatList(var0)), false);
         }
 
         return var0.size();

@@ -5,21 +5,19 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ConfirmLinkScreen extends ConfirmScreen {
-    private static final Component COPY_BUTTON_TEXT = new TranslatableComponent("chat.copy");
-    private static final Component WARNING_TEXT = new TranslatableComponent("chat.link.warning");
+    private static final Component COPY_BUTTON_TEXT = Component.translatable("chat.copy");
+    private static final Component WARNING_TEXT = Component.translatable("chat.link.warning");
     private final String url;
     private final boolean showWarning;
 
     public ConfirmLinkScreen(BooleanConsumer param0, String param1, boolean param2) {
-        super(param0, new TranslatableComponent(param2 ? "chat.link.confirmTrusted" : "chat.link.confirm"), new TextComponent(param1));
-        this.yesButton = (Component)(param2 ? new TranslatableComponent("chat.link.open") : CommonComponents.GUI_YES);
+        super(param0, Component.translatable(param2 ? "chat.link.confirmTrusted" : "chat.link.confirm"), Component.literal(param1));
+        this.yesButton = (Component)(param2 ? Component.translatable("chat.link.open") : CommonComponents.GUI_YES);
         this.noButton = param2 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO;
         this.showWarning = !param2;
         this.url = param1;

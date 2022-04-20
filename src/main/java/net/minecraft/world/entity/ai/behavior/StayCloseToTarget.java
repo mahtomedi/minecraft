@@ -11,23 +11,30 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 public class StayCloseToTarget<E extends LivingEntity> extends Behavior<E> {
     private final Function<LivingEntity, Optional<PositionTracker>> targetPositionGetter;
     private final int closeEnough;
+    private final int tooFar;
     private final float speedModifier;
 
-    public StayCloseToTarget(Function<LivingEntity, Optional<PositionTracker>> param0, int param1, float param2) {
+    public StayCloseToTarget(Function<LivingEntity, Optional<PositionTracker>> param0, int param1, int param2, float param3) {
         super(Map.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
         this.targetPositionGetter = param0;
         this.closeEnough = param1;
-        this.speedModifier = param2;
+        this.tooFar = param2;
+        this.speedModifier = param3;
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
         Optional<PositionTracker> var0 = this.targetPositionGetter.apply(param1);
-        return var0.isPresent() && !param1.position().closerThan(var0.get().currentPosition(), (double)this.closeEnough);
+        if (var0.isEmpty()) {
+            return false;
+        } else {
+            PositionTracker var1 = var0.get();
+            return var1.isVisibleBy(param1) && !param1.position().closerThan(var1.currentPosition(), (double)this.tooFar);
+        }
     }
 
     @Override
     protected void start(ServerLevel param0, E param1, long param2) {
-        BehaviorUtils.setWalkAndLookTargetMemories(param1, this.targetPositionGetter.apply(param1).get(), this.speedModifier, this.closeEnough / 2);
+        BehaviorUtils.setWalkAndLookTargetMemories(param1, this.targetPositionGetter.apply(param1).get(), this.speedModifier, this.closeEnough);
     }
 }

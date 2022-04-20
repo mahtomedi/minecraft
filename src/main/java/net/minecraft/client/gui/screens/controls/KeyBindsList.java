@@ -16,8 +16,6 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
@@ -38,10 +36,10 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             String var3 = var2.getCategory();
             if (!var3.equals(var1)) {
                 var1 = var3;
-                this.addEntry(new KeyBindsList.CategoryEntry(new TranslatableComponent(var3)));
+                this.addEntry(new KeyBindsList.CategoryEntry(Component.translatable(var3)));
             }
 
-            Component var4 = new TranslatableComponent(var2.getName());
+            Component var4 = Component.translatable(var2.getName());
             int var5 = param1.font.width(var4);
             if (var5 > this.maxNameWidth) {
                 this.maxNameWidth = var5;
@@ -123,17 +121,17 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
                 @Override
                 protected MutableComponent createNarrationMessage() {
                     return param1.isUnbound()
-                        ? new TranslatableComponent("narrator.controls.unbound", param2)
-                        : new TranslatableComponent("narrator.controls.bound", param2, super.createNarrationMessage());
+                        ? Component.translatable("narrator.controls.unbound", param2)
+                        : Component.translatable("narrator.controls.bound", param2, super.createNarrationMessage());
                 }
             };
-            this.resetButton = new Button(0, 0, 50, 20, new TranslatableComponent("controls.reset"), param1x -> {
+            this.resetButton = new Button(0, 0, 50, 20, Component.translatable("controls.reset"), param1x -> {
                 KeyBindsList.this.minecraft.options.setKey(param1, param1.getDefaultKey());
                 KeyMapping.resetMapping();
             }) {
                 @Override
                 protected MutableComponent createNarrationMessage() {
-                    return new TranslatableComponent("narrator.controls.reset", param2);
+                    return Component.translatable("narrator.controls.reset", param2);
                 }
             };
         }
@@ -163,7 +161,7 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             if (var0) {
                 this.changeButton
                     .setMessage(
-                        new TextComponent("> ")
+                        Component.literal("> ")
                             .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.YELLOW))
                             .append(" <")
                             .withStyle(ChatFormatting.YELLOW)

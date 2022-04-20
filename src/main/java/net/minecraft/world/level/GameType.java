@@ -2,7 +2,6 @@ package net.minecraft.world.level;
 
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Abilities;
 
 public enum GameType {
@@ -21,8 +20,8 @@ public enum GameType {
     private GameType(int param0, String param1) {
         this.id = param0;
         this.name = param1;
-        this.shortName = new TranslatableComponent("selectWorld.gameMode." + param1);
-        this.longName = new TranslatableComponent("gameMode." + param1);
+        this.shortName = Component.translatable("selectWorld.gameMode." + param1);
+        this.longName = Component.translatable("gameMode." + param1);
     }
 
     public int getId() {

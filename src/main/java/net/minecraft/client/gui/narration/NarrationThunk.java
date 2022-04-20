@@ -25,7 +25,7 @@ public class NarrationThunk<T> {
     }
 
     public static NarrationThunk<?> from(Component param0) {
-        return new NarrationThunk<>(param0, (param0x, param1) -> param0x.accept(param1.getContents()));
+        return new NarrationThunk<>(param0, (param0x, param1) -> param0x.accept(param1.getString()));
     }
 
     public static NarrationThunk<?> from(List<Component> param0) {

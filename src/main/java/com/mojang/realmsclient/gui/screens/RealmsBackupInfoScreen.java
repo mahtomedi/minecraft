@@ -11,21 +11,19 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBackupInfoScreen extends RealmsScreen {
-    private static final Component TEXT_UNKNOWN = new TextComponent("UNKNOWN");
+    private static final Component TEXT_UNKNOWN = Component.literal("UNKNOWN");
     private final Screen lastScreen;
     final Backup backup;
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
 
     public RealmsBackupInfoScreen(Screen param0, Backup param1) {
-        super(new TextComponent("Changes from last backup"));
+        super(Component.literal("Changes from last backup"));
         this.lastScreen = param0;
         this.backup = param1;
     }
@@ -75,7 +73,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         if (var0.contains("game") && var0.contains("mode")) {
             return this.gameModeMetadata(param1);
         } else {
-            return (Component)(var0.contains("game") && var0.contains("difficulty") ? this.gameDifficultyMetadata(param1) : new TextComponent(param1));
+            return (Component)(var0.contains("game") && var0.contains("difficulty") ? this.gameDifficultyMetadata(param1) : Component.literal(param1));
         }
     }
 
@@ -128,7 +126,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
         @Override
         public Component getNarration() {
-            return new TranslatableComponent("narrator.select", this.key + " " + this.value);
+            return Component.translatable("narrator.select", this.key + " " + this.value);
         }
     }
 }

@@ -15,7 +15,7 @@ import java.util.Scanner;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.commands.ChaseCommand;
@@ -155,7 +155,7 @@ public class ChaseClient {
                         ServerPlayer var1x = var0.get(0);
                         ServerLevel var2 = this.server.overworld();
                         CommandSourceStack var3 = new CommandSourceStack(
-                            var1x, Vec3.atLowerCornerOf(var2.getSharedSpawnPos()), Vec2.ZERO, var2, 4, "", TextComponent.EMPTY, this.server, var1x
+                            var1x, Vec3.atLowerCornerOf(var2.getSharedSpawnPos()), Vec2.ZERO, var2, 4, "", CommonComponents.EMPTY, this.server, var1x
                         );
                         Commands var4 = this.server.getCommands();
                         var4.performCommand(var3, param0);

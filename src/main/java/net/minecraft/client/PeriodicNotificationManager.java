@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -168,8 +168,8 @@ public class PeriodicNotificationManager
                                 () -> SystemToast.add(
                                         Minecraft.getInstance().getToasts(),
                                         SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                                        new TranslatableComponent(var2.title, var3),
-                                        new TranslatableComponent(var2.message, var3)
+                                        Component.translatable(var2.title, var3),
+                                        Component.translatable(var2.message, var3)
                                     )
                             );
                         return;

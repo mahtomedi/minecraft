@@ -12,7 +12,7 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,7 +35,7 @@ public class RealmsConnect {
         final Minecraft var0 = Minecraft.getInstance();
         var0.setConnectedToRealms(true);
         var0.prepareForMultiplayer();
-        NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("mco.connect.success"));
+        NarratorChatListener.INSTANCE.sayNow(Component.translatable("mco.connect.success"));
         final String var1 = param1.getHost();
         final int var2 = param1.getPort();
         (new Thread("Realms-connect-task") {
@@ -84,7 +84,7 @@ public class RealmsConnect {
                         }
     
                         DisconnectedRealmsScreen var4 = new DisconnectedRealmsScreen(
-                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", var2)
+                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var2)
                         );
                         var0.execute(() -> var0.setScreen(var4));
                     }
@@ -97,7 +97,7 @@ public class RealmsConnect {
     public void abort() {
         this.aborted = true;
         if (this.connection != null && this.connection.isConnected()) {
-            this.connection.disconnect(new TranslatableComponent("disconnect.genericReason"));
+            this.connection.disconnect(Component.translatable("disconnect.genericReason"));
             this.connection.handleDisconnection();
         }
 

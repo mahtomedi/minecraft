@@ -23,7 +23,6 @@ import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -155,7 +154,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             if (var2 != null) {
                 Score var3 = var1.getOrCreatePlayerScore(param0.getScoreboardName(), var2);
                 super.renderNameTag(
-                    param0, new TextComponent(Integer.toString(var3.getScore())).append(" ").append(var2.getDisplayName()), param2, param3, param4
+                    param0, Component.literal(Integer.toString(var3.getScore())).append(" ").append(var2.getDisplayName()), param2, param3, param4
                 );
                 param2.translate(0.0, (double)(9.0F * 1.15F * 0.025F), 0.0);
             }

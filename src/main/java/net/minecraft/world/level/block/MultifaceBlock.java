@@ -76,35 +76,26 @@ public abstract class MultifaceBlock extends Block {
         }
     }
 
-    @Nullable
     public static Set<Direction> unpack(byte param0) {
-        if (param0 == -1) {
-            return null;
-        } else {
-            Set<Direction> var0 = EnumSet.noneOf(Direction.class);
+        Set<Direction> var0 = EnumSet.noneOf(Direction.class);
 
-            for(Direction var1 : Direction.values()) {
-                if ((param0 & (byte)(1 << var1.ordinal())) > 0) {
-                    var0.add(var1);
-                }
+        for(Direction var1 : Direction.values()) {
+            if ((param0 & (byte)(1 << var1.ordinal())) > 0) {
+                var0.add(var1);
             }
-
-            return var0;
         }
+
+        return var0;
     }
 
-    public static byte pack(@Nullable Collection<Direction> param0) {
-        if (param0 == null) {
-            return -1;
-        } else {
-            byte var0 = 0;
+    public static byte pack(Collection<Direction> param0) {
+        byte var0 = 0;
 
-            for(Direction var1 : param0) {
-                var0 = (byte)(var0 | 1 << var1.ordinal());
-            }
-
-            return var0;
+        for(Direction var1 : param0) {
+            var0 = (byte)(var0 | 1 << var1.ordinal());
         }
+
+        return var0;
     }
 
     protected boolean isFaceSupported(Direction param0x) {

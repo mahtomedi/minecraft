@@ -128,7 +128,18 @@ public class WardenAi {
     }
 
     private static void initIdleActivity(Brain<Warden> param0) {
-        param0.addActivity(Activity.IDLE, 10, ImmutableList.of(new SetRoarTarget<>(Warden::getEntityAngryAt), new TryToSniff(), createIdleMovementBehaviors()));
+        param0.addActivity(
+            Activity.IDLE,
+            10,
+            ImmutableList.of(
+                new SetRoarTarget<>(Warden::getEntityAngryAt),
+                new TryToSniff(),
+                new RunOne(
+                    ImmutableMap.of(MemoryModuleType.IS_SNIFFING, MemoryStatus.VALUE_ABSENT),
+                    ImmutableList.of(Pair.of(new RandomStroll(0.5F), 2), Pair.of(new DoNothing(30, 60), 1))
+                )
+            )
+        );
     }
 
     private static void initInvestigateActivity(Brain<Warden> param0) {
@@ -182,10 +193,6 @@ public class WardenAi {
         setDigCooldown(param0x);
     }
 
-    private static RunOne<Warden> createIdleMovementBehaviors() {
-        return new RunOne<>(ImmutableList.of(Pair.of(new RandomStroll(0.5F), 2), Pair.of(new DoNothing(30, 60), 1)));
-    }
-
     public static void setDigCooldown(LivingEntity param0) {
         if (param0.getBrain().hasMemoryValue(MemoryModuleType.DIG_COOLDOWN)) {
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.DIG_COOLDOWN, Unit.INSTANCE, 1200L);
@@ -194,17 +201,14 @@ public class WardenAi {
     }
 
     public static void setDisturbanceLocation(Warden param0, BlockPos param1) {
-        if (shouldInvestigate(param0)) {
+        if (param0.level.getWorldBorder().isWithinBounds(param1)
+            && !param0.getEntityAngryAt().isPresent()
+            && !param0.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
             setDigCooldown(param0);
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.SNIFF_COOLDOWN, Unit.INSTANCE, 100L);
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(param1), 100L);
             param0.getBrain().setMemoryWithExpiry(MemoryModuleType.DISTURBANCE_LOCATION, param1, 100L);
             param0.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         }
-
-    }
-
-    private static boolean shouldInvestigate(Warden param0) {
-        return param0.getEntityAngryAt().isEmpty() && param0.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty();
     }
 }

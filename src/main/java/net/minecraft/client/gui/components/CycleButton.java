@@ -13,7 +13,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -135,9 +134,9 @@ public class CycleButton<T> extends AbstractButton implements TooltipAccessor {
             T var0 = this.getCycledValue(1);
             Component var1 = this.createLabelForValue(var0);
             if (this.isFocused()) {
-                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.cycle_button.usage.focused", var1)));
+                param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.cycle_button.usage.focused", var1));
             } else {
-                param0.add(NarratedElementType.USAGE, (Component)(new TranslatableComponent("narration.cycle_button.usage.hovered", var1)));
+                param0.add(NarratedElementType.USAGE, (Component)Component.translatable("narration.cycle_button.usage.hovered", var1));
             }
         }
 

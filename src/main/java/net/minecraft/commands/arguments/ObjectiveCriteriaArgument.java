@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
@@ -23,7 +23,7 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 public class ObjectiveCriteriaArgument implements ArgumentType<ObjectiveCriteria> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo.bar.baz", "minecraft:foo");
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.criteria.invalid", param0)
+        param0 -> Component.translatable("argument.criteria.invalid", param0)
     );
 
     private ObjectiveCriteriaArgument() {

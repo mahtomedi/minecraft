@@ -12,18 +12,15 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.PlayerTeam;
 
 public class TeamMsgCommand {
     private static final Style SUGGEST_STYLE = Style.EMPTY
-        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.type.team.hover")))
+        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.type.team.hover")))
         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/teammsg "));
-    private static final SimpleCommandExceptionType ERROR_NOT_ON_TEAM = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.teammsg.failed.noteam")
-    );
+    private static final SimpleCommandExceptionType ERROR_NOT_ON_TEAM = new SimpleCommandExceptionType(Component.translatable("commands.teammsg.failed.noteam"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         LiteralCommandNode<CommandSourceStack> var0 = param0.register(
@@ -47,9 +44,9 @@ public class TeamMsgCommand {
 
             for(ServerPlayer var4 : var3) {
                 if (var4 == var0) {
-                    var4.sendMessage(new TranslatableComponent("chat.type.team.sent", var2, param0.getDisplayName(), param1), var0.getUUID());
+                    var4.sendMessage(Component.translatable("chat.type.team.sent", var2, param0.getDisplayName(), param1), var0.getUUID());
                 } else if (var4.getTeam() == var1) {
-                    var4.sendMessage(new TranslatableComponent("chat.type.team.text", var2, param0.getDisplayName(), param1), var0.getUUID());
+                    var4.sendMessage(Component.translatable("chat.type.team.text", var2, param0.getDisplayName(), param1), var0.getUUID());
                 }
             }
 

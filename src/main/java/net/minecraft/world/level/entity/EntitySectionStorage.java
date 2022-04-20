@@ -33,26 +33,27 @@ public class EntitySectionStorage<T extends EntityAccess> {
     }
 
     public void forEachAccessibleNonEmptySection(AABB param0, Consumer<EntitySection<T>> param1) {
-        int var0 = SectionPos.posToSectionCoord(param0.minX - 2.0);
-        int var1 = SectionPos.posToSectionCoord(param0.minY - 2.0);
-        int var2 = SectionPos.posToSectionCoord(param0.minZ - 2.0);
-        int var3 = SectionPos.posToSectionCoord(param0.maxX + 2.0);
-        int var4 = SectionPos.posToSectionCoord(param0.maxY + 2.0);
-        int var5 = SectionPos.posToSectionCoord(param0.maxZ + 2.0);
+        int var0 = 2;
+        int var1 = SectionPos.posToSectionCoord(param0.minX - 2.0);
+        int var2 = SectionPos.posToSectionCoord(param0.minY - 4.0);
+        int var3 = SectionPos.posToSectionCoord(param0.minZ - 2.0);
+        int var4 = SectionPos.posToSectionCoord(param0.maxX + 2.0);
+        int var5 = SectionPos.posToSectionCoord(param0.maxY + 0.0);
+        int var6 = SectionPos.posToSectionCoord(param0.maxZ + 2.0);
 
-        for(int var6 = var0; var6 <= var3; ++var6) {
-            long var7 = SectionPos.asLong(var6, 0, 0);
-            long var8 = SectionPos.asLong(var6, -1, -1);
-            LongIterator var9 = this.sectionIds.subSet(var7, var8 + 1L).iterator();
+        for(int var7 = var1; var7 <= var4; ++var7) {
+            long var8 = SectionPos.asLong(var7, 0, 0);
+            long var9 = SectionPos.asLong(var7, -1, -1);
+            LongIterator var10 = this.sectionIds.subSet(var8, var9 + 1L).iterator();
 
-            while(var9.hasNext()) {
-                long var10 = var9.nextLong();
-                int var11 = SectionPos.y(var10);
-                int var12 = SectionPos.z(var10);
-                if (var11 >= var1 && var11 <= var4 && var12 >= var2 && var12 <= var5) {
-                    EntitySection<T> var13 = this.sections.get(var10);
-                    if (var13 != null && !var13.isEmpty() && var13.getStatus().isAccessible()) {
-                        param1.accept(var13);
+            while(var10.hasNext()) {
+                long var11 = var10.nextLong();
+                int var12 = SectionPos.y(var11);
+                int var13 = SectionPos.z(var11);
+                if (var12 >= var2 && var12 <= var5 && var13 >= var3 && var13 <= var6) {
+                    EntitySection<T> var14 = this.sections.get(var11);
+                    if (var14 != null && !var14.isEmpty() && var14.getStatus().isAccessible()) {
+                        param1.accept(var14);
                     }
                 }
             }

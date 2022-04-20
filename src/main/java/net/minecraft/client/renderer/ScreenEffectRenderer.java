@@ -87,7 +87,7 @@ public class ScreenEffectRenderer {
         var0.vertex(var11, 1.0F, 1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var7, var9).endVertex();
         var0.vertex(var11, -1.0F, 1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var8, var9).endVertex();
         var0.end();
-        BufferUploader.end(var0);
+        BufferUploader.drawWithShader(var0);
     }
 
     private static void renderWater(Minecraft param0, PoseStack param1) {
@@ -115,7 +115,7 @@ public class ScreenEffectRenderer {
         var0.vertex(var11, 1.0F, 1.0F, -0.5F).uv(0.0F + var9, 0.0F + var10).endVertex();
         var0.vertex(var11, -1.0F, 1.0F, -0.5F).uv(4.0F + var9, 0.0F + var10).endVertex();
         var0.end();
-        BufferUploader.end(var0);
+        BufferUploader.drawWithShader(var0);
         RenderSystem.disableBlend();
     }
 
@@ -158,7 +158,7 @@ public class ScreenEffectRenderer {
             var0.vertex(var20, 0.5F, 0.5F, -0.5F).color(1.0F, 1.0F, 1.0F, 0.9F).uv(var9, var11).endVertex();
             var0.vertex(var20, -0.5F, 0.5F, -0.5F).color(1.0F, 1.0F, 1.0F, 0.9F).uv(var10, var11).endVertex();
             var0.end();
-            BufferUploader.end(var0);
+            BufferUploader.drawWithShader(var0);
             param1.popPose();
         }
 

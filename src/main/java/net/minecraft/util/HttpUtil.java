@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -50,8 +50,8 @@ public class HttpUtil {
             InputStream var1x = null;
             OutputStream var2x = null;
             if (param4 != null) {
-                param4.progressStart(new TranslatableComponent("resourcepack.downloading"));
-                param4.progressStage(new TranslatableComponent("resourcepack.requesting"));
+                param4.progressStart(Component.translatable("resourcepack.downloading"));
+                param4.progressStage(Component.translatable("resourcepack.requesting"));
             }
 
             try {
@@ -73,7 +73,7 @@ public class HttpUtil {
                     var5 = (float)var0x.getContentLength();
                     int var7 = var0x.getContentLength();
                     if (param4 != null) {
-                        param4.progressStage(new TranslatableComponent("resourcepack.progress", String.format(Locale.ROOT, "%.2f", var5 / 1000.0F / 1000.0F)));
+                        param4.progressStage(Component.translatable("resourcepack.progress", String.format(Locale.ROOT, "%.2f", var5 / 1000.0F / 1000.0F)));
                     }
 
                     if (param0.exists()) {

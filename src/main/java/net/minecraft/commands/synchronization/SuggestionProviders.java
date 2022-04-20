@@ -12,7 +12,7 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
@@ -35,7 +35,7 @@ public class SuggestionProviders {
                 Registry.ENTITY_TYPE.stream().filter(EntityType::canSummon),
                 param1,
                 EntityType::getKey,
-                param0x -> new TranslatableComponent(Util.makeDescriptionId("entity", EntityType.getKey(param0x)))
+                param0x -> Component.translatable(Util.makeDescriptionId("entity", EntityType.getKey(param0x)))
             )
     );
 

@@ -37,7 +37,7 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -342,7 +342,7 @@ public class ClientLevel extends Level {
 
     @Override
     public void disconnect() {
-        this.connection.getConnection().disconnect(new TranslatableComponent("multiplayer.status.quitting"));
+        this.connection.getConnection().disconnect(Component.translatable("multiplayer.status.quitting"));
     }
 
     public void animateTick(int param0, int param1, int param2) {
@@ -614,7 +614,7 @@ public class ClientLevel extends Level {
     @Override
     public void levelEvent(@Nullable Player param0, int param1, BlockPos param2, int param3) {
         try {
-            this.levelRenderer.levelEvent(param0, param1, param2, param3);
+            this.levelRenderer.levelEvent(param1, param2, param3);
         } catch (Throwable var8) {
             CrashReport var1 = CrashReport.forThrowable(var8, "Playing level event");
             CrashReportCategory var2 = var1.addCategory("Level event being played");

@@ -2,7 +2,6 @@ package net.minecraft.world.damagesource;
 
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -35,7 +34,7 @@ public class IndirectEntityDamageSource extends EntityDamageSource {
         String var2 = "death.attack." + this.msgId;
         String var3 = var2 + ".item";
         return !var1.isEmpty() && var1.hasCustomHoverName()
-            ? new TranslatableComponent(var3, param0.getDisplayName(), var0, var1.getDisplayName())
-            : new TranslatableComponent(var2, param0.getDisplayName(), var0);
+            ? Component.translatable(var3, param0.getDisplayName(), var0, var1.getDisplayName())
+            : Component.translatable(var2, param0.getDisplayName(), var0);
     }
 }

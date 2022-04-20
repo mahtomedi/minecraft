@@ -25,6 +25,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.warden.WardenSpawnTracker;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.SculkShriekerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
@@ -171,8 +172,11 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
     }
 
     private static void trySummonWarden(ServerLevel param0, BlockPos param1) {
-        SpawnUtil.trySpawnMob(EntityType.WARDEN, MobSpawnType.TRIGGERED, param0, param1, 20, 5, 6)
-            .ifPresent(param0x -> param0x.playSound(SoundEvents.WARDEN_AGITATED, 5.0F, 1.0F));
+        if (param0.getGameRules().getBoolean(GameRules.RULE_DO_WARDEN_SPAWNING)) {
+            SpawnUtil.trySpawnMob(EntityType.WARDEN, MobSpawnType.TRIGGERED, param0, param1, 20, 5, 6)
+                .ifPresent(param0x -> param0x.playSound(SoundEvents.WARDEN_AGITATED, 5.0F, 1.0F));
+        }
+
     }
 
     @Override

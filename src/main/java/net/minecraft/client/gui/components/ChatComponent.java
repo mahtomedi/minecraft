@@ -14,7 +14,6 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.ChatVisiblity;
@@ -91,9 +90,7 @@ public class ChatComponent extends GuiComponent {
                     fill(param0, -2, 0, var4 + 4, 9, var20 << 24);
                     RenderSystem.enableBlend();
                     param0.translate(0.0, 0.0, 50.0);
-                    this.minecraft
-                        .font
-                        .drawShadow(param0, new TranslatableComponent("chat.queue", this.chatQueue.size()), 0.0F, 1.0F, 16777215 + (var19 << 24));
+                    this.minecraft.font.drawShadow(param0, Component.translatable("chat.queue", this.chatQueue.size()), 0.0F, 1.0F, 16777215 + (var19 << 24));
                     param0.popPose();
                     RenderSystem.disableBlend();
                 }

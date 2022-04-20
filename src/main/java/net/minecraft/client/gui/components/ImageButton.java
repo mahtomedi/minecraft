@@ -3,8 +3,8 @@ package net.minecraft.client.gui.components;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -39,7 +39,7 @@ public class ImageButton extends Button {
         int param9,
         Button.OnPress param10
     ) {
-        this(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, TextComponent.EMPTY);
+        this(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, CommonComponents.EMPTY);
     }
 
     public ImageButton(

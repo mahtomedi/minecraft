@@ -7,7 +7,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 public class KickCommand {
@@ -19,9 +18,7 @@ public class KickCommand {
                     Commands.argument("targets", EntityArgument.players())
                         .executes(
                             param0x -> kickPlayers(
-                                    param0x.getSource(),
-                                    EntityArgument.getPlayers(param0x, "targets"),
-                                    new TranslatableComponent("multiplayer.disconnect.kicked")
+                                    param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), Component.translatable("multiplayer.disconnect.kicked")
                                 )
                         )
                         .then(
@@ -39,7 +36,7 @@ public class KickCommand {
     private static int kickPlayers(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2) {
         for(ServerPlayer var0 : param1) {
             var0.connection.disconnect(param2);
-            param0.sendSuccess(new TranslatableComponent("commands.kick.success", var0.getDisplayName(), param2), true);
+            param0.sendSuccess(Component.translatable("commands.kick.success", var0.getDisplayName(), param2), true);
         }
 
         return param1.size();

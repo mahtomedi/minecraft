@@ -9,12 +9,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class ComponentArgument implements ArgumentType<Component> {
     private static final Collection<String> EXAMPLES = Arrays.asList("\"hello world\"", "\"\"", "\"{\"text\":\"hello world\"}", "[\"\"]");
     public static final DynamicCommandExceptionType ERROR_INVALID_JSON = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("argument.component.invalid", param0)
+        param0 -> Component.translatable("argument.component.invalid", param0)
     );
 
     private ComponentArgument() {

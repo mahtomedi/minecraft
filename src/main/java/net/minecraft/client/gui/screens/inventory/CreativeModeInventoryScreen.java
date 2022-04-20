@@ -25,9 +25,8 @@ import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -60,7 +59,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private static final int SCROLLER_WIDTH = 12;
     private static final int SCROLLER_HEIGHT = 15;
     static final SimpleContainer CONTAINER = new SimpleContainer(45);
-    private static final Component TRASH_SLOT_TOOLTIP = new TranslatableComponent("inventory.binSlot");
+    private static final Component TRASH_SLOT_TOOLTIP = Component.translatable("inventory.binSlot");
     private static final int TEXT_COLOR = 16777215;
     private static int selectedTab = CreativeModeTab.TAB_BUILDING_BLOCKS.getId();
     private float scrollOffs;
@@ -76,7 +75,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private final Set<TagKey<Item>> visibleTags = new HashSet<>();
 
     public CreativeModeInventoryScreen(Player param0) {
-        super(new CreativeModeInventoryScreen.ItemPickerMenu(param0), param0.getInventory(), TextComponent.EMPTY);
+        super(new CreativeModeInventoryScreen.ItemPickerMenu(param0), param0.getInventory(), CommonComponents.EMPTY);
         param0.containerMenu = this.menu;
         this.passEvents = true;
         this.imageHeight = 136;
@@ -240,7 +239,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         if (this.minecraft.gameMode.hasInfiniteItems()) {
             super.init();
             this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-            this.searchBox = new EditBox(this.font, this.leftPos + 82, this.topPos + 6, 80, 9, new TranslatableComponent("itemGroup.search"));
+            this.searchBox = new EditBox(this.font, this.leftPos + 82, this.topPos + 6, 80, 9, Component.translatable("itemGroup.search"));
             this.searchBox.setMaxLength(50);
             this.searchBox.setBordered(false);
             this.searchBox.setVisible(false);
@@ -446,7 +445,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                             var5.getOrCreateTagElement("CustomCreativeLock");
                             Component var6 = this.minecraft.options.keyHotbarSlots[var2].getTranslatedKeyMessage();
                             Component var7 = this.minecraft.options.keySaveHotbarActivator.getTranslatedKeyMessage();
-                            var5.setHoverName(new TranslatableComponent("inventory.hotbarInfo", var7, var6));
+                            var5.setHoverName(Component.translatable("inventory.hotbarInfo", var7, var6));
                             this.menu.items.add(var5);
                         } else {
                             this.menu.items.add(ItemStack.EMPTY);
@@ -622,7 +621,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
             this.visibleTags.forEach(param2x -> {
                 if (param1.is(param2x)) {
-                    var1.add(1, new TextComponent("#" + param2x.location()).withStyle(ChatFormatting.DARK_PURPLE));
+                    var1.add(1, Component.literal("#" + param2x.location()).withStyle(ChatFormatting.DARK_PURPLE));
                 }
 
             });
@@ -775,7 +774,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
             Component var6 = param0.options.keyHotbarSlots[param1].getTranslatedKeyMessage();
             Component var7 = param0.options.keyLoadHotbarActivator.getTranslatedKeyMessage();
-            param0.gui.setOverlayMessage(new TranslatableComponent("inventory.hotbarSaved", var7, var6), false);
+            param0.gui.setOverlayMessage(Component.translatable("inventory.hotbarSaved", var7, var6), false);
             var1.save();
         }
 

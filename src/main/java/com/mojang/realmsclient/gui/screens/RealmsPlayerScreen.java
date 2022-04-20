@@ -20,8 +20,6 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -36,10 +34,10 @@ public class RealmsPlayerScreen extends RealmsScreen {
     private static final ResourceLocation USER_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/user_icon.png");
     private static final ResourceLocation CROSS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/cross_player_icon.png");
     private static final ResourceLocation OPTIONS_BACKGROUND = new ResourceLocation("minecraft", "textures/gui/options_background.png");
-    private static final Component NORMAL_USER_TOOLTIP = new TranslatableComponent("mco.configure.world.invites.normal.tooltip");
-    private static final Component OP_TOOLTIP = new TranslatableComponent("mco.configure.world.invites.ops.tooltip");
-    private static final Component REMOVE_ENTRY_TOOLTIP = new TranslatableComponent("mco.configure.world.invites.remove.tooltip");
-    private static final Component INVITED_LABEL = new TranslatableComponent("mco.configure.world.invited");
+    private static final Component NORMAL_USER_TOOLTIP = Component.translatable("mco.configure.world.invites.normal.tooltip");
+    private static final Component OP_TOOLTIP = Component.translatable("mco.configure.world.invites.ops.tooltip");
+    private static final Component REMOVE_ENTRY_TOOLTIP = Component.translatable("mco.configure.world.invites.remove.tooltip");
+    private static final Component INVITED_LABEL = Component.translatable("mco.configure.world.invited");
     @Nullable
     private Component toolTip;
     private final RealmsConfigureWorldScreen lastScreen;
@@ -57,7 +55,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
     RealmsPlayerScreen.UserAction hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
 
     public RealmsPlayerScreen(RealmsConfigureWorldScreen param0, RealmsServer param1) {
-        super(new TranslatableComponent("mco.configure.world.players.title"));
+        super(Component.translatable("mco.configure.world.players.title"));
         this.lastScreen = param0;
         this.serverData = param1;
     }
@@ -82,7 +80,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
                 row(1),
                 this.columnWidth + 10,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.invite"),
+                Component.translatable("mco.configure.world.buttons.invite"),
                 param0 -> this.minecraft.setScreen(new RealmsInviteScreen(this.lastScreen, this, this.serverData))
             )
         );
@@ -92,12 +90,12 @@ public class RealmsPlayerScreen extends RealmsScreen {
                 row(7),
                 this.columnWidth + 10,
                 20,
-                new TranslatableComponent("mco.configure.world.invites.remove.tooltip"),
+                Component.translatable("mco.configure.world.invites.remove.tooltip"),
                 param0 -> this.uninvite(this.player)
             )
         );
         this.opdeopButton = this.addRenderableWidget(
-            new Button(this.column2X, row(9), this.columnWidth + 10, 20, new TranslatableComponent("mco.configure.world.invites.ops.tooltip"), param0 -> {
+            new Button(this.column2X, row(9), this.columnWidth + 10, 20, Component.translatable("mco.configure.world.invites.ops.tooltip"), param0 -> {
                 if (this.serverData.players.get(this.player).isOperator()) {
                     this.deop(this.player);
                 } else {
@@ -191,28 +189,24 @@ public class RealmsPlayerScreen extends RealmsScreen {
             PlayerInfo var0 = this.serverData.players.get(param0);
             this.selectedInvited = var0.getUuid();
             this.selectedInvitedIndex = param0;
-            RealmsConfirmScreen var1 = new RealmsConfirmScreen(
-                param0x -> {
-                    if (param0x) {
-                        RealmsClient var0x = RealmsClient.create();
-    
-                        try {
-                            var0x.uninvite(this.serverData.id, this.selectedInvited);
-                        } catch (RealmsServiceException var4) {
-                            LOGGER.error("Couldn't uninvite user");
-                        }
-    
-                        this.deleteFromInvitedList(this.selectedInvitedIndex);
-                        this.player = -1;
-                        this.updateButtonStates();
+            RealmsConfirmScreen var1 = new RealmsConfirmScreen(param0x -> {
+                if (param0x) {
+                    RealmsClient var0x = RealmsClient.create();
+
+                    try {
+                        var0x.uninvite(this.serverData.id, this.selectedInvited);
+                    } catch (RealmsServiceException var4) {
+                        LOGGER.error("Couldn't uninvite user");
                     }
-    
-                    this.stateChanged = true;
-                    this.minecraft.setScreen(this);
-                },
-                new TextComponent("Question"),
-                new TranslatableComponent("mco.configure.world.uninvite.question").append(" '").append(var0.getName()).append("' ?")
-            );
+
+                    this.deleteFromInvitedList(this.selectedInvitedIndex);
+                    this.player = -1;
+                    this.updateButtonStates();
+                }
+
+                this.stateChanged = true;
+                this.minecraft.setScreen(this);
+            }, Component.literal("Question"), Component.translatable("mco.configure.world.uninvite.question").append(" '").append(var0.getName()).append("' ?"));
             this.minecraft.setScreen(var1);
         }
 
@@ -252,7 +246,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
             this.font
                 .draw(
                     param0,
-                    new TextComponent("").append(INVITED_LABEL).append(" (").append(Integer.toString(this.serverData.players.size())).append(")"),
+                    Component.empty().append(INVITED_LABEL).append(" (").append(Integer.toString(this.serverData.players.size())).append(")"),
                     (float)this.column1X,
                     (float)row(0),
                     10526880
@@ -362,7 +356,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
         @Override
         public Component getNarration() {
-            return new TranslatableComponent("narrator.select", this.playerInfo.getName());
+            return Component.translatable("narrator.select", this.playerInfo.getName());
         }
     }
 

@@ -84,6 +84,7 @@ public abstract class Mob extends LivingEntity {
     public static final float MAX_ENCHANTED_WEAPON_CHANCE = 0.25F;
     public static final String LEASH_TAG = "Leash";
     public static final float DEFAULT_EQUIPMENT_DROP_CHANCE = 0.085F;
+    public static final int PRESERVE_ITEM_DROP_CHANCE = 2;
     public static final int UPDATE_GOAL_SELECTOR_EVERY_N_TICKS = 2;
     public int ambientSoundTime;
     protected int xpReward;
@@ -1013,7 +1014,9 @@ public abstract class Mob extends LivingEntity {
     ) {
         RandomSource var0 = param0.getRandom();
         this.getAttribute(Attributes.FOLLOW_RANGE)
-            .addPermanentModifier(new AttributeModifier("Random spawn bonus", var0.nextGaussian() * 0.05, AttributeModifier.Operation.MULTIPLY_BASE));
+            .addPermanentModifier(
+                new AttributeModifier("Random spawn bonus", var0.triangle(0.0, 0.11485000000000001), AttributeModifier.Operation.MULTIPLY_BASE)
+            );
         if (var0.nextFloat() < 0.05F) {
             this.setLeftHanded(true);
         } else {

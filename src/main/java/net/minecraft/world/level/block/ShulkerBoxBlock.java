@@ -9,8 +9,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
@@ -183,7 +181,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
         CompoundTag var0 = BlockItem.getBlockEntityData(param0);
         if (var0 != null) {
             if (var0.contains("LootTable", 8)) {
-                param2.add(new TextComponent("???????"));
+                param2.add(Component.literal("???????"));
             }
 
             if (var0.contains("Items", 9)) {
@@ -205,7 +203,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                 }
 
                 if (var3 - var2 > 0) {
-                    param2.add(new TranslatableComponent("container.shulkerBox.more", var3 - var2).withStyle(ChatFormatting.ITALIC));
+                    param2.add(Component.translatable("container.shulkerBox.more", var3 - var2).withStyle(ChatFormatting.ITALIC));
                 }
             }
         }

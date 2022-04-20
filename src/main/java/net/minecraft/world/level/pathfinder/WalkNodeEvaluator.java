@@ -94,17 +94,18 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 || this.hasPositiveMalus(var0.set(var6.minX, (double)var1, var6.maxZ))
                 || this.hasPositiveMalus(var0.set(var6.maxX, (double)var1, var6.minZ))
                 || this.hasPositiveMalus(var0.set(var6.maxX, (double)var1, var6.maxZ))) {
-                Node var7 = this.getNode(var0);
-                var7.type = this.getBlockPathType(this.mob, var7.asBlockPos());
-                var7.costMalus = this.mob.getPathfindingMalus(var7.type);
-                return var7;
+                return this.getStartNode(var0);
             }
         }
 
-        Node var8 = this.getNode(var4.getX(), var1, var4.getZ());
-        var8.type = this.getBlockPathType(this.mob, var8.asBlockPos());
-        var8.costMalus = this.mob.getPathfindingMalus(var8.type);
-        return var8;
+        return this.getStartNode(new BlockPos(var4.getX(), var1, var4.getZ()));
+    }
+
+    protected Node getStartNode(BlockPos param0) {
+        Node var0 = this.getNode(param0);
+        var0.type = this.getBlockPathType(this.mob, var0.asBlockPos());
+        var0.costMalus = this.mob.getPathfindingMalus(var0.type);
+        return var0;
     }
 
     private boolean hasPositiveMalus(BlockPos param0) {
@@ -192,15 +193,23 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         }
     }
 
+    private static boolean doesBlockHavePartialCollision(BlockPathTypes param0) {
+        return param0 == BlockPathTypes.FENCE || param0 == BlockPathTypes.DOOR_WOOD_CLOSED || param0 == BlockPathTypes.DOOR_IRON_CLOSED;
+    }
+
     private boolean canReachWithoutCollision(Node param0) {
-        Vec3 var0 = new Vec3((double)param0.x - this.mob.getX(), (double)param0.y - this.mob.getY(), (double)param0.z - this.mob.getZ());
-        AABB var1 = this.mob.getBoundingBox();
-        int var2 = Mth.ceil(var0.length() / var1.getSize());
-        var0 = var0.scale((double)(1.0F / (float)var2));
+        AABB var0 = this.mob.getBoundingBox();
+        Vec3 var1 = new Vec3(
+            (double)param0.x - this.mob.getX() + var0.getXsize() / 2.0,
+            (double)param0.y - this.mob.getY() + var0.getYsize() / 2.0,
+            (double)param0.z - this.mob.getZ() + var0.getZsize() / 2.0
+        );
+        int var2 = Mth.ceil(var1.length() / var0.getSize());
+        var1 = var1.scale((double)(1.0F / (float)var2));
 
         for(int var3 = 1; var3 <= var2; ++var3) {
-            var1 = var1.move(var0);
-            if (this.hasCollisions(var1)) {
+            var0 = var0.move(var1);
+            if (this.hasCollisions(var0)) {
                 return false;
             }
         }
@@ -239,7 +248,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 var0.costMalus = Math.max(var0.costMalus, var4);
             }
 
-            if (param6 == BlockPathTypes.FENCE && var0 != null && var0.costMalus >= 0.0F && !this.canReachWithoutCollision(var0)) {
+            if (doesBlockHavePartialCollision(param6) && var0 != null && var0.costMalus >= 0.0F && !this.canReachWithoutCollision(var0)) {
                 var0 = null;
             }
 
@@ -322,7 +331,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     }
                 }
 
-                if (var3 == BlockPathTypes.FENCE) {
+                if (doesBlockHavePartialCollision(var3)) {
                     var0 = this.getNode(param0, param1, param2);
                     var0.closed = true;
                     var0.type = var3;

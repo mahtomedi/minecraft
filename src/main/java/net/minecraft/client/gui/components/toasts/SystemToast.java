@@ -8,8 +8,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -136,8 +134,8 @@ public class SystemToast implements Toast {
         add(
             param0.getToasts(),
             SystemToast.SystemToastIds.WORLD_ACCESS_FAILURE,
-            new TranslatableComponent("selectWorld.access_failure"),
-            new TextComponent(param1)
+            Component.translatable("selectWorld.access_failure"),
+            Component.literal(param1)
         );
     }
 
@@ -145,13 +143,13 @@ public class SystemToast implements Toast {
         add(
             param0.getToasts(),
             SystemToast.SystemToastIds.WORLD_ACCESS_FAILURE,
-            new TranslatableComponent("selectWorld.delete_failure"),
-            new TextComponent(param1)
+            Component.translatable("selectWorld.delete_failure"),
+            Component.literal(param1)
         );
     }
 
     public static void onPackCopyFailure(Minecraft param0, String param1) {
-        add(param0.getToasts(), SystemToast.SystemToastIds.PACK_COPY_FAILURE, new TranslatableComponent("pack.copyFailure"), new TextComponent(param1));
+        add(param0.getToasts(), SystemToast.SystemToastIds.PACK_COPY_FAILURE, Component.translatable("pack.copyFailure"), Component.literal(param1));
     }
 
     @OnlyIn(Dist.CLIENT)

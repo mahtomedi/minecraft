@@ -20,8 +20,6 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -34,9 +32,9 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     static final Logger LOGGER = LogUtils.getLogger();
     static final ResourceLocation ACCEPT_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/accept_icon.png");
     static final ResourceLocation REJECT_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/reject_icon.png");
-    private static final Component NO_PENDING_INVITES_TEXT = new TranslatableComponent("mco.invites.nopending");
-    static final Component ACCEPT_INVITE_TOOLTIP = new TranslatableComponent("mco.invites.button.accept");
-    static final Component REJECT_INVITE_TOOLTIP = new TranslatableComponent("mco.invites.button.reject");
+    private static final Component NO_PENDING_INVITES_TEXT = Component.translatable("mco.invites.nopending");
+    static final Component ACCEPT_INVITE_TOOLTIP = Component.translatable("mco.invites.button.accept");
+    static final Component REJECT_INVITE_TOOLTIP = Component.translatable("mco.invites.button.reject");
     private final Screen lastScreen;
     @Nullable
     Component toolTip;
@@ -47,7 +45,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     private Button rejectButton;
 
     public RealmsPendingInvitesScreen(Screen param0) {
-        super(new TranslatableComponent("mco.invites.title"));
+        super(Component.translatable("mco.invites.title"));
         this.lastScreen = param0;
     }
 
@@ -78,7 +76,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             .start();
         this.addWidget(this.pendingInvitationSelectionList);
         this.acceptButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 174, this.height - 32, 100, 20, new TranslatableComponent("mco.invites.button.accept"), param0 -> {
+            new Button(this.width / 2 - 174, this.height - 32, 100, 20, Component.translatable("mco.invites.button.accept"), param0 -> {
                 this.accept(this.selectedInvite);
                 this.selectedInvite = -1;
                 this.updateButtonStates();
@@ -95,7 +93,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             )
         );
         this.rejectButton = this.addRenderableWidget(
-            new Button(this.width / 2 + 74, this.height - 32, 100, 20, new TranslatableComponent("mco.invites.button.reject"), param0 -> {
+            new Button(this.width / 2 + 74, this.height - 32, 100, 20, Component.translatable("mco.invites.button.reject"), param0 -> {
                 this.reject(this.selectedInvite);
                 this.selectedInvite = -1;
                 this.updateButtonStates();
@@ -230,11 +228,11 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         @Override
         public Component getNarration() {
             Component var0 = CommonComponents.joinLines(
-                new TextComponent(this.pendingInvite.worldName),
-                new TextComponent(this.pendingInvite.worldOwnerName),
-                new TextComponent(RealmsUtil.convertToAgePresentationFromInstant(this.pendingInvite.date))
+                Component.literal(this.pendingInvite.worldName),
+                Component.literal(this.pendingInvite.worldOwnerName),
+                Component.literal(RealmsUtil.convertToAgePresentationFromInstant(this.pendingInvite.date))
             );
-            return new TranslatableComponent("narrator.select", var0);
+            return Component.translatable("narrator.select", var0);
         }
 
         @OnlyIn(Dist.CLIENT)

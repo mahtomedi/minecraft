@@ -1,4 +1,4 @@
-package net.minecraft.network.chat;
+package net.minecraft.network.chat.contents;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -8,13 +8,16 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
 
-public class ScoreComponent extends BaseComponent implements ContextAwareComponent {
+public class ScoreContents implements ComponentContents {
     private static final String SCORER_PLACEHOLDER = "*";
     private final String name;
     @Nullable
@@ -30,14 +33,10 @@ public class ScoreComponent extends BaseComponent implements ContextAwareCompone
         }
     }
 
-    public ScoreComponent(String param0, String param1) {
-        this(param0, parseSelector(param0), param1);
-    }
-
-    private ScoreComponent(String param0, @Nullable EntitySelector param1, String param2) {
+    public ScoreContents(String param0, String param1) {
         this.name = param0;
-        this.selector = param1;
-        this.objective = param2;
+        this.selector = parseSelector(param0);
+        this.objective = param1;
     }
 
     public String getName() {
@@ -82,18 +81,14 @@ public class ScoreComponent extends BaseComponent implements ContextAwareCompone
         return "";
     }
 
-    public ScoreComponent plainCopy() {
-        return new ScoreComponent(this.name, this.selector, this.objective);
-    }
-
     @Override
     public MutableComponent resolve(@Nullable CommandSourceStack param0, @Nullable Entity param1, int param2) throws CommandSyntaxException {
         if (param0 == null) {
-            return new TextComponent("");
+            return Component.empty();
         } else {
             String var0 = this.findTargetName(param0);
             String var1 = param1 != null && var0.equals("*") ? param1.getScoreboardName() : var0;
-            return new TextComponent(this.getScore(var1, param0));
+            return Component.literal(this.getScore(var1, param0));
         }
     }
 
@@ -101,16 +96,23 @@ public class ScoreComponent extends BaseComponent implements ContextAwareCompone
     public boolean equals(Object param0) {
         if (this == param0) {
             return true;
-        } else if (!(param0 instanceof ScoreComponent)) {
-            return false;
         } else {
-            ScoreComponent var0 = (ScoreComponent)param0;
-            return this.name.equals(var0.name) && this.objective.equals(var0.objective) && super.equals(param0);
+            if (param0 instanceof ScoreContents var0 && this.name.equals(var0.name) && this.objective.equals(var0.objective)) {
+                return true;
+            }
+
+            return false;
         }
     }
 
     @Override
+    public int hashCode() {
+        int var0 = this.name.hashCode();
+        return 31 * var0 + this.objective.hashCode();
+    }
+
+    @Override
     public String toString() {
-        return "ScoreComponent{name='" + this.name + "'objective='" + this.objective + "', siblings=" + this.siblings + ", style=" + this.getStyle() + "}";
+        return "score{name='" + this.name + "', objective='" + this.objective + "'}";
     }
 }

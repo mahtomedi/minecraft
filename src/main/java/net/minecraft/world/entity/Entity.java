@@ -45,6 +45,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -205,7 +206,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     protected static final EntityDataAccessor<Pose> DATA_POSE = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.POSE);
     private static final EntityDataAccessor<Integer> DATA_TICKS_FROZEN = SynchedEntityData.defineId(Entity.class, EntityDataSerializers.INT);
     private EntityInLevelCallback levelCallback = EntityInLevelCallback.NULL;
-    private Vec3 packetCoordinates;
+    private final VecDeltaCodec packetPositionCodec = new VecDeltaCodec();
     public boolean noCulling;
     public boolean hasImpulse;
     private int portalCooldown;
@@ -237,7 +238,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.position = Vec3.ZERO;
         this.blockPosition = BlockPos.ZERO;
         this.chunkPosition = ChunkPos.ZERO;
-        this.packetCoordinates = Vec3.ZERO;
         this.entityData = new SynchedEntityData(this);
         this.entityData.define(DATA_SHARED_FLAGS_ID, (byte)0);
         this.entityData.define(DATA_AIR_SUPPLY_ID, this.getMaxAirSupply());
@@ -278,16 +278,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
-    public void setPacketCoordinates(double param0, double param1, double param2) {
-        this.setPacketCoordinates(new Vec3(param0, param1, param2));
+    public void syncPacketPositionCodec(double param0, double param1, double param2) {
+        this.packetPositionCodec.setBase(new Vec3(param0, param1, param2));
     }
 
-    public void setPacketCoordinates(Vec3 param0) {
-        this.packetCoordinates = param0;
-    }
-
-    public Vec3 getPacketCoordinates() {
-        return this.packetCoordinates;
+    public VecDeltaCodec getPositionCodec() {
+        return this.packetPositionCodec;
     }
 
     public EntityType<?> getType() {
@@ -2943,6 +2939,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.position;
     }
 
+    public Vec3 trackingPosition() {
+        return this.position();
+    }
+
     @Override
     public BlockPos blockPosition() {
         return this.blockPosition;
@@ -3055,7 +3055,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         double var1 = param0.getX();
         double var2 = param0.getY();
         double var3 = param0.getZ();
-        this.setPacketCoordinates(var1, var2, var3);
+        this.syncPacketPositionCodec(var1, var2, var3);
         this.moveTo(var1, var2, var3);
         this.setXRot(param0.getXRot());
         this.setYRot(param0.getYRot());

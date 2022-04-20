@@ -18,8 +18,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -64,13 +62,13 @@ public class Screenshot {
                 () -> {
                     try {
                         var0.writeToFile(var2);
-                        Component var0x = new TextComponent(var2.getName())
+                        Component var0x = Component.literal(var2.getName())
                             .withStyle(ChatFormatting.UNDERLINE)
                             .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var2.getAbsolutePath())));
-                        param3.accept(new TranslatableComponent("screenshot.success", var0x));
+                        param3.accept(Component.translatable("screenshot.success", var0x));
                     } catch (Exception var7) {
                         LOGGER.warn("Couldn't save screenshot", (Throwable)var7);
-                        param3.accept(new TranslatableComponent("screenshot.failure", var7.getMessage()));
+                        param3.accept(Component.translatable("screenshot.failure", var7.getMessage()));
                     } finally {
                         var0.close();
                     }

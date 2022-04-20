@@ -8,15 +8,15 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
 
 public class SpectateCommand {
-    private static final SimpleCommandExceptionType ERROR_SELF = new SimpleCommandExceptionType(new TranslatableComponent("commands.spectate.self"));
+    private static final SimpleCommandExceptionType ERROR_SELF = new SimpleCommandExceptionType(Component.translatable("commands.spectate.self"));
     private static final DynamicCommandExceptionType ERROR_NOT_SPECTATOR = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.spectate.not_spectator", param0)
+        param0 -> Component.translatable("commands.spectate.not_spectator", param0)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -49,9 +49,9 @@ public class SpectateCommand {
         } else {
             param2.setCamera(param1);
             if (param1 != null) {
-                param0.sendSuccess(new TranslatableComponent("commands.spectate.success.started", param1.getDisplayName()), false);
+                param0.sendSuccess(Component.translatable("commands.spectate.success.started", param1.getDisplayName()), false);
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.spectate.success.stopped"), false);
+                param0.sendSuccess(Component.translatable("commands.spectate.success.stopped"), false);
             }
 
             return 1;

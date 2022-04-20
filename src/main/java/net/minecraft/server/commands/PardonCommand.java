@@ -9,12 +9,12 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.players.UserBanList;
 
 public class PardonCommand {
-    private static final SimpleCommandExceptionType ERROR_NOT_BANNED = new SimpleCommandExceptionType(new TranslatableComponent("commands.pardon.failed"));
+    private static final SimpleCommandExceptionType ERROR_NOT_BANNED = new SimpleCommandExceptionType(Component.translatable("commands.pardon.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -40,7 +40,7 @@ public class PardonCommand {
             if (var0.isBanned(var2)) {
                 var0.remove(var2);
                 ++var1;
-                param0.sendSuccess(new TranslatableComponent("commands.pardon.success", ComponentUtils.getDisplayName(var2)), true);
+                param0.sendSuccess(Component.translatable("commands.pardon.success", ComponentUtils.getDisplayName(var2)), true);
             }
         }
 

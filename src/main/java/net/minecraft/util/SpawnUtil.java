@@ -35,19 +35,23 @@ public class SpawnUtil {
     }
 
     private static boolean moveToPossibleSpawnPosition(ServerLevel param0, int param1, BlockPos.MutableBlockPos param2) {
-        BlockState var0 = param0.getBlockState(param2);
+        if (!param0.getWorldBorder().isWithinBounds(param2)) {
+            return false;
+        } else {
+            BlockState var0 = param0.getBlockState(param2);
 
-        for(int var1 = param1; var1 >= -param1; --var1) {
-            param2.move(Direction.DOWN);
-            BlockState var2 = param0.getBlockState(param2);
-            if ((var0.isAir() || var0.getMaterial().isLiquid()) && var2.getMaterial().isSolidBlocking()) {
-                param2.move(Direction.UP);
-                return true;
+            for(int var1 = param1; var1 >= -param1; --var1) {
+                param2.move(Direction.DOWN);
+                BlockState var2 = param0.getBlockState(param2);
+                if ((var0.isAir() || var0.getMaterial().isLiquid()) && var2.getMaterial().isSolidBlocking()) {
+                    param2.move(Direction.UP);
+                    return true;
+                }
+
+                var0 = var2;
             }
 
-            var0 = var2;
+            return false;
         }
-
-        return false;
     }
 }

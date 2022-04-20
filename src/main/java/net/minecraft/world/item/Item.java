@@ -17,7 +17,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -198,7 +197,7 @@ public class Item implements ItemLike {
     }
 
     public Component getDescription() {
-        return new TranslatableComponent(this.getDescriptionId());
+        return Component.translatable(this.getDescriptionId());
     }
 
     @Override
@@ -268,7 +267,7 @@ public class Item implements ItemLike {
     }
 
     public Component getName(ItemStack param0) {
-        return new TranslatableComponent(this.getDescriptionId(param0));
+        return Component.translatable(this.getDescriptionId(param0));
     }
 
     public boolean isFoil(ItemStack param0) {

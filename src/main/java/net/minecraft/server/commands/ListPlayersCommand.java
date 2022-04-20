@@ -7,7 +7,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
@@ -26,14 +25,14 @@ public class ListPlayersCommand {
     }
 
     private static int listPlayersWithUuids(CommandSourceStack param0) {
-        return format(param0, param0x -> new TranslatableComponent("commands.list.nameAndId", param0x.getName(), param0x.getGameProfile().getId()));
+        return format(param0, param0x -> Component.translatable("commands.list.nameAndId", param0x.getName(), param0x.getGameProfile().getId()));
     }
 
     private static int format(CommandSourceStack param0, Function<ServerPlayer, Component> param1) {
         PlayerList var0 = param0.getServer().getPlayerList();
         List<ServerPlayer> var1 = var0.getPlayers();
         Component var2 = ComponentUtils.formatList(var1, param1);
-        param0.sendSuccess(new TranslatableComponent("commands.list.players", var1.size(), var0.getMaxPlayers(), var2), false);
+        param0.sendSuccess(Component.translatable("commands.list.players", var1.size(), var0.getMaxPlayers(), var2), false);
         return var1.size();
     }
 }

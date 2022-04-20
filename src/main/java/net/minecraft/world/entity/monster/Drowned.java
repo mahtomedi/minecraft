@@ -90,7 +90,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
         param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         if (this.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty() && param0.getRandom().nextFloat() < 0.03F) {
             this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.NAUTILUS_SHELL));
-            this.handDropChances[EquipmentSlot.OFFHAND.getIndex()] = 2.0F;
+            this.setGuaranteedDrop(EquipmentSlot.OFFHAND);
         }
 
         return param3;

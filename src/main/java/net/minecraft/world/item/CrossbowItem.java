@@ -11,8 +11,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -371,13 +369,13 @@ public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
         List<ItemStack> var0 = getChargedProjectiles(param0);
         if (isCharged(param0) && !var0.isEmpty()) {
             ItemStack var1 = var0.get(0);
-            param2.add(new TranslatableComponent("item.minecraft.crossbow.projectile").append(" ").append(var1.getDisplayName()));
+            param2.add(Component.translatable("item.minecraft.crossbow.projectile").append(" ").append(var1.getDisplayName()));
             if (param3.isAdvanced() && var1.is(Items.FIREWORK_ROCKET)) {
                 List<Component> var2 = Lists.newArrayList();
                 Items.FIREWORK_ROCKET.appendHoverText(var1, param1, var2, param3);
                 if (!var2.isEmpty()) {
                     for(int var3 = 0; var3 < var2.size(); ++var3) {
-                        var2.set(var3, new TextComponent("  ").append(var2.get(var3)).withStyle(ChatFormatting.GRAY));
+                        var2.set(var3, Component.literal("  ").append(var2.get(var3)).withStyle(ChatFormatting.GRAY));
                     }
 
                     param2.addAll(var2);

@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -72,7 +71,7 @@ public abstract class BaseContainerBlockEntity extends BlockEntity implements Co
 
     public static boolean canUnlock(Player param0, LockCode param1, Component param2) {
         if (!param0.isSpectator() && !param1.unlocksWith(param0.getMainHandItem())) {
-            param0.displayClientMessage(new TranslatableComponent("container.isLocked", param2), true);
+            param0.displayClientMessage(Component.translatable("container.isLocked", param2), true);
             param0.playNotifySound(SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0F, 1.0F);
             return false;
         } else {

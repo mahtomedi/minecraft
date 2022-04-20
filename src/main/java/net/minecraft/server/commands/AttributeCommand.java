@@ -14,7 +14,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -24,16 +24,16 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 public class AttributeCommand {
     private static final DynamicCommandExceptionType ERROR_NOT_LIVING_ENTITY = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.attribute.failed.entity", param0)
+        param0 -> Component.translatable("commands.attribute.failed.entity", param0)
     );
     private static final Dynamic2CommandExceptionType ERROR_NO_SUCH_ATTRIBUTE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.attribute.failed.no_attribute", param0, param1)
+        (param0, param1) -> Component.translatable("commands.attribute.failed.no_attribute", param0, param1)
     );
     private static final Dynamic3CommandExceptionType ERROR_NO_SUCH_MODIFIER = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> new TranslatableComponent("commands.attribute.failed.no_modifier", param1, param0, param2)
+        (param0, param1, param2) -> Component.translatable("commands.attribute.failed.no_modifier", param1, param0, param2)
     );
     private static final Dynamic3CommandExceptionType ERROR_MODIFIER_ALREADY_PRESENT = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> new TranslatableComponent("commands.attribute.failed.modifier_already_present", param2, param1, param0)
+        (param0, param1, param2) -> Component.translatable("commands.attribute.failed.modifier_already_present", param2, param1, param0)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -214,7 +214,7 @@ public class AttributeCommand {
     private static AttributeInstance getAttributeInstance(Entity param0, Attribute param1) throws CommandSyntaxException {
         AttributeInstance var0 = getLivingEntity(param0).getAttributes().getInstance(param1);
         if (var0 == null) {
-            throw ERROR_NO_SUCH_ATTRIBUTE.create(param0.getName(), new TranslatableComponent(param1.getDescriptionId()));
+            throw ERROR_NO_SUCH_ATTRIBUTE.create(param0.getName(), Component.translatable(param1.getDescriptionId()));
         } else {
             return var0;
         }
@@ -231,7 +231,7 @@ public class AttributeCommand {
     private static LivingEntity getEntityWithAttribute(Entity param0, Attribute param1) throws CommandSyntaxException {
         LivingEntity var0 = getLivingEntity(param0);
         if (!var0.getAttributes().hasAttribute(param1)) {
-            throw ERROR_NO_SUCH_ATTRIBUTE.create(param0.getName(), new TranslatableComponent(param1.getDescriptionId()));
+            throw ERROR_NO_SUCH_ATTRIBUTE.create(param0.getName(), Component.translatable(param1.getDescriptionId()));
         } else {
             return var0;
         }
@@ -241,8 +241,7 @@ public class AttributeCommand {
         LivingEntity var0 = getEntityWithAttribute(param1, param2);
         double var1 = var0.getAttributeValue(param2);
         param0.sendSuccess(
-            new TranslatableComponent("commands.attribute.value.get.success", new TranslatableComponent(param2.getDescriptionId()), param1.getName(), var1),
-            false
+            Component.translatable("commands.attribute.value.get.success", Component.translatable(param2.getDescriptionId()), param1.getName(), var1), false
         );
         return (int)(var1 * param3);
     }
@@ -251,7 +250,7 @@ public class AttributeCommand {
         LivingEntity var0 = getEntityWithAttribute(param1, param2);
         double var1 = var0.getAttributeBaseValue(param2);
         param0.sendSuccess(
-            new TranslatableComponent("commands.attribute.base_value.get.success", new TranslatableComponent(param2.getDescriptionId()), param1.getName(), var1),
+            Component.translatable("commands.attribute.base_value.get.success", Component.translatable(param2.getDescriptionId()), param1.getName(), var1),
             false
         );
         return (int)(var1 * param3);
@@ -261,12 +260,12 @@ public class AttributeCommand {
         LivingEntity var0 = getEntityWithAttribute(param1, param2);
         AttributeMap var1 = var0.getAttributes();
         if (!var1.hasModifier(param2, param3)) {
-            throw ERROR_NO_SUCH_MODIFIER.create(param1.getName(), new TranslatableComponent(param2.getDescriptionId()), param3);
+            throw ERROR_NO_SUCH_MODIFIER.create(param1.getName(), Component.translatable(param2.getDescriptionId()), param3);
         } else {
             double var2 = var1.getModifierValue(param2, param3);
             param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.attribute.modifier.value.get.success", param3, new TranslatableComponent(param2.getDescriptionId()), param1.getName(), var2
+                Component.translatable(
+                    "commands.attribute.modifier.value.get.success", param3, Component.translatable(param2.getDescriptionId()), param1.getName(), var2
                 ),
                 false
             );
@@ -277,9 +276,7 @@ public class AttributeCommand {
     private static int setAttributeBase(CommandSourceStack param0, Entity param1, Attribute param2, double param3) throws CommandSyntaxException {
         getAttributeInstance(param1, param2).setBaseValue(param3);
         param0.sendSuccess(
-            new TranslatableComponent(
-                "commands.attribute.base_value.set.success", new TranslatableComponent(param2.getDescriptionId()), param1.getName(), param3
-            ),
+            Component.translatable("commands.attribute.base_value.set.success", Component.translatable(param2.getDescriptionId()), param1.getName(), param3),
             false
         );
         return 1;
@@ -291,13 +288,11 @@ public class AttributeCommand {
         AttributeInstance var0 = getAttributeInstance(param1, param2);
         AttributeModifier var1 = new AttributeModifier(param3, param4, param5, param6);
         if (var0.hasModifier(var1)) {
-            throw ERROR_MODIFIER_ALREADY_PRESENT.create(param1.getName(), new TranslatableComponent(param2.getDescriptionId()), param3);
+            throw ERROR_MODIFIER_ALREADY_PRESENT.create(param1.getName(), Component.translatable(param2.getDescriptionId()), param3);
         } else {
             var0.addPermanentModifier(var1);
             param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.attribute.modifier.add.success", param3, new TranslatableComponent(param2.getDescriptionId()), param1.getName()
-                ),
+                Component.translatable("commands.attribute.modifier.add.success", param3, Component.translatable(param2.getDescriptionId()), param1.getName()),
                 false
             );
             return 1;
@@ -308,14 +303,14 @@ public class AttributeCommand {
         AttributeInstance var0 = getAttributeInstance(param1, param2);
         if (var0.removePermanentModifier(param3)) {
             param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.attribute.modifier.remove.success", param3, new TranslatableComponent(param2.getDescriptionId()), param1.getName()
+                Component.translatable(
+                    "commands.attribute.modifier.remove.success", param3, Component.translatable(param2.getDescriptionId()), param1.getName()
                 ),
                 false
             );
             return 1;
         } else {
-            throw ERROR_NO_SUCH_MODIFIER.create(param1.getName(), new TranslatableComponent(param2.getDescriptionId()), param3);
+            throw ERROR_NO_SUCH_MODIFIER.create(param1.getName(), Component.translatable(param2.getDescriptionId()), param3);
         }
     }
 }

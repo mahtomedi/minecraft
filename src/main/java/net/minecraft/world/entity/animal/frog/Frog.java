@@ -25,6 +25,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -45,8 +46,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
@@ -58,6 +59,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
@@ -388,6 +390,12 @@ public class Frog extends Animal {
         return TEMPTATION_ITEM.test(param0);
     }
 
+    public static boolean checkFrogSpawnRules(
+        EntityType<? extends Animal> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
+    ) {
+        return param1.getBlockState(param3.below()).is(BlockTags.FROGS_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
+    }
+
     class FrogLookControl extends LookControl {
         FrogLookControl(Mob param0) {
             super(param0);
@@ -414,7 +422,7 @@ public class Frog extends Animal {
         }
     }
 
-    static class FrogPathNavigation extends WaterBoundPathNavigation {
+    static class FrogPathNavigation extends AmphibiousPathNavigation {
         FrogPathNavigation(Frog param0, Level param1) {
             super(param0, param1);
         }
@@ -422,17 +430,8 @@ public class Frog extends Animal {
         @Override
         protected PathFinder createPathFinder(int param0) {
             this.nodeEvaluator = new Frog.FrogNodeEvaluator(true);
+            this.nodeEvaluator.setCanPassDoors(true);
             return new PathFinder(this.nodeEvaluator, param0);
-        }
-
-        @Override
-        protected boolean canUpdatePath() {
-            return true;
-        }
-
-        @Override
-        public boolean isStableDestination(BlockPos param0) {
-            return !this.level.getBlockState(param0.below()).isAir();
         }
     }
 }

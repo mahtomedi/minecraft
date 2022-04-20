@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,7 +19,7 @@ public class StateSwitchingButton extends AbstractWidget {
     protected int yDiffTex;
 
     public StateSwitchingButton(int param0, int param1, int param2, int param3, boolean param4) {
-        super(param0, param1, param2, param3, TextComponent.EMPTY);
+        super(param0, param1, param2, param3, CommonComponents.EMPTY);
         this.isStateTriggered = param4;
     }
 

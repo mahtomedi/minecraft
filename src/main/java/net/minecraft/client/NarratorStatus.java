@@ -3,7 +3,6 @@ package net.minecraft.client;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,7 +22,7 @@ public enum NarratorStatus {
 
     private NarratorStatus(int param0, String param1) {
         this.id = param0;
-        this.name = new TranslatableComponent(param1);
+        this.name = Component.translatable(param1);
     }
 
     public int getId() {

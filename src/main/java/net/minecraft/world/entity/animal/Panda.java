@@ -536,7 +536,7 @@ public class Panda extends Animal {
             this.onItemPickup(param0);
             ItemStack var0 = param0.getItem();
             this.setItemSlot(EquipmentSlot.MAINHAND, var0);
-            this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
+            this.setGuaranteedDrop(EquipmentSlot.MAINHAND);
             this.take(param0, var0.getCount());
             param0.discard();
         }

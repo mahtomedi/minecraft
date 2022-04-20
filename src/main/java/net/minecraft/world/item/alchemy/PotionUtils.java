@@ -11,10 +11,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -28,7 +27,7 @@ public class PotionUtils {
     public static final String TAG_CUSTOM_POTION_COLOR = "CustomPotionColor";
     public static final String TAG_POTION = "Potion";
     private static final int EMPTY_COLOR = 16253176;
-    private static final Component NO_EFFECT = new TranslatableComponent("effect.none").withStyle(ChatFormatting.GRAY);
+    private static final Component NO_EFFECT = Component.translatable("effect.none").withStyle(ChatFormatting.GRAY);
 
     public static List<MobEffectInstance> getMobEffects(ItemStack param0) {
         return getAllEffects(param0.getTag());
@@ -160,7 +159,7 @@ public class PotionUtils {
             param1.add(NO_EFFECT);
         } else {
             for(MobEffectInstance var2 : var0) {
-                MutableComponent var3 = new TranslatableComponent(var2.getDescriptionId());
+                MutableComponent var3 = Component.translatable(var2.getDescriptionId());
                 MobEffect var4 = var2.getEffect();
                 Map<Attribute, AttributeModifier> var5 = var4.getAttributeModifiers();
                 if (!var5.isEmpty()) {
@@ -174,11 +173,11 @@ public class PotionUtils {
                 }
 
                 if (var2.getAmplifier() > 0) {
-                    var3 = new TranslatableComponent("potion.withAmplifier", var3, new TranslatableComponent("potion.potency." + var2.getAmplifier()));
+                    var3 = Component.translatable("potion.withAmplifier", var3, Component.translatable("potion.potency." + var2.getAmplifier()));
                 }
 
                 if (var2.getDuration() > 20) {
-                    var3 = new TranslatableComponent("potion.withDuration", var3, MobEffectUtil.formatDuration(var2, param2));
+                    var3 = Component.translatable("potion.withDuration", var3, MobEffectUtil.formatDuration(var2, param2));
                 }
 
                 param1.add(var3.withStyle(var4.getCategory().getTooltipFormatting()));
@@ -186,8 +185,8 @@ public class PotionUtils {
         }
 
         if (!var1.isEmpty()) {
-            param1.add(TextComponent.EMPTY);
-            param1.add(new TranslatableComponent("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
+            param1.add(CommonComponents.EMPTY);
+            param1.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
 
             for(Pair<Attribute, AttributeModifier> var9 : var1) {
                 AttributeModifier var10 = var9.getSecond();
@@ -201,20 +200,20 @@ public class PotionUtils {
 
                 if (var11 > 0.0) {
                     param1.add(
-                        new TranslatableComponent(
+                        Component.translatable(
                                 "attribute.modifier.plus." + var10.getOperation().toValue(),
                                 ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var13),
-                                new TranslatableComponent(var9.getFirst().getDescriptionId())
+                                Component.translatable(var9.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.BLUE)
                     );
                 } else if (var11 < 0.0) {
                     var13 *= -1.0;
                     param1.add(
-                        new TranslatableComponent(
+                        Component.translatable(
                                 "attribute.modifier.take." + var10.getOperation().toValue(),
                                 ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var13),
-                                new TranslatableComponent(var9.getFirst().getDescriptionId())
+                                Component.translatable(var9.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.RED)
                     );

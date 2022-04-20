@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.ProgressListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,7 +36,7 @@ public class ProgressScreen extends Screen implements ProgressListener {
     @Override
     public void progressStart(Component param0) {
         this.header = param0;
-        this.progressStage(new TranslatableComponent("progress.working"));
+        this.progressStage(Component.translatable("progress.working"));
     }
 
     @Override
@@ -71,7 +69,7 @@ public class ProgressScreen extends Screen implements ProgressListener {
             }
 
             if (this.stage != null && this.progress != 0) {
-                drawCenteredString(param0, this.font, new TextComponent("").append(this.stage).append(" " + this.progress + "%"), this.width / 2, 90, 16777215);
+                drawCenteredString(param0, this.font, Component.empty().append(this.stage).append(" " + this.progress + "%"), this.width / 2, 90, 16777215);
             }
 
             super.render(param0, param1, param2, param3);

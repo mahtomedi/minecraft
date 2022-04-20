@@ -61,8 +61,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.gametest.framework.GameTestTicker;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.status.ServerStatus;
@@ -633,7 +631,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         try {
             if (this.initServer()) {
                 this.nextTickTime = Util.getMillis();
-                this.status.setDescription(new TextComponent(this.motd));
+                this.status.setDescription(Component.literal(this.motd));
                 this.status
                     .setVersion(
                         new ServerStatus.Version(SharedConstants.getCurrentVersion().getName(), SharedConstants.getCurrentVersion().getProtocolVersion())
@@ -1364,7 +1362,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
             for(ServerPlayer var3 : Lists.newArrayList(var0.getPlayers())) {
                 if (!var1.isWhiteListed(var3.getGameProfile())) {
-                    var3.connection.disconnect(new TranslatableComponent("multiplayer.disconnect.not_whitelisted"));
+                    var3.connection.disconnect(Component.translatable("multiplayer.disconnect.not_whitelisted"));
                 }
             }
 
@@ -1388,7 +1386,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             var0,
             4,
             "Server",
-            new TextComponent("Server"),
+            Component.literal("Server"),
             this,
             null
         );

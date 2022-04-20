@@ -2,7 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,7 +12,7 @@ public class ChatOptionsScreen extends SimpleOptionsSubScreen {
         super(
             param0,
             param1,
-            new TranslatableComponent("options.chat.title"),
+            Component.translatable("options.chat.title"),
             new OptionInstance[]{
                 param1.chatVisibility(),
                 param1.chatColors(),

@@ -2,12 +2,12 @@ package com.mojang.blaze3d.vertex;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,9 +17,8 @@ public class VertexFormat {
     private final ImmutableMap<String, VertexFormatElement> elementMapping;
     private final IntList offsets = new IntArrayList();
     private final int vertexSize;
-    private int vertexArrayObject;
-    private int vertexBufferObject;
-    private int indexBufferObject;
+    @Nullable
+    private VertexBuffer immediateDrawVertexBuffer;
 
     public VertexFormat(ImmutableMap<String, VertexFormatElement> param0) {
         this.elementMapping = param0;
@@ -111,28 +110,13 @@ public class VertexFormat {
 
     }
 
-    public int getOrCreateVertexArrayObject() {
-        if (this.vertexArrayObject == 0) {
-            this.vertexArrayObject = GlStateManager._glGenVertexArrays();
+    public VertexBuffer getImmediateDrawVertexBuffer() {
+        VertexBuffer var0 = this.immediateDrawVertexBuffer;
+        if (var0 == null) {
+            this.immediateDrawVertexBuffer = var0 = new VertexBuffer();
         }
 
-        return this.vertexArrayObject;
-    }
-
-    public int getOrCreateVertexBufferObject() {
-        if (this.vertexBufferObject == 0) {
-            this.vertexBufferObject = GlStateManager._glGenBuffers();
-        }
-
-        return this.vertexBufferObject;
-    }
-
-    public int getOrCreateIndexBufferObject() {
-        if (this.indexBufferObject == 0) {
-            this.indexBufferObject = GlStateManager._glGenBuffers();
-        }
-
-        return this.indexBufferObject;
+        return var0;
     }
 
     @OnlyIn(Dist.CLIENT)

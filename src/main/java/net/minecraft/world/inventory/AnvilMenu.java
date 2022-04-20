@@ -2,7 +2,7 @@ package net.minecraft.world.inventory;
 
 import com.mojang.logging.LogUtils;
 import java.util.Map;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -220,7 +220,7 @@ public class AnvilMenu extends ItemCombinerMenu {
             } else if (!this.itemName.equals(var0.getHoverName().getString())) {
                 var3 = 1;
                 var1 += var3;
-                var4.setHoverName(new TextComponent(this.itemName));
+                var4.setHoverName(Component.literal(this.itemName));
             }
 
             this.cost.set(var2 + var1);
@@ -266,7 +266,7 @@ public class AnvilMenu extends ItemCombinerMenu {
             if (StringUtils.isBlank(param0)) {
                 var0.resetHoverName();
             } else {
-                var0.setHoverName(new TextComponent(this.itemName));
+                var0.setHoverName(Component.literal(this.itemName));
             }
         }
 

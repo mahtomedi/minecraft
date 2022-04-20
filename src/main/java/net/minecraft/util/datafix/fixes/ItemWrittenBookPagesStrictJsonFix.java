@@ -9,8 +9,8 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.serialization.Dynamic;
 import java.util.function.Function;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,7 +38,7 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                                                     try {
                                                         var1x = GsonHelper.fromJson(BlockEntitySignTextStrictJsonFix.GSON, var0x, Component.class, true);
                                                         if (var1x == null) {
-                                                            var1x = TextComponent.EMPTY;
+                                                            var1x = CommonComponents.EMPTY;
                                                         }
                                                     } catch (Exception var6) {
                                                     }
@@ -58,13 +58,13 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                                                     }
                     
                                                     if (var1x == null) {
-                                                        var1x = new TextComponent(var0x);
+                                                        var1x = Component.literal(var0x);
                                                     }
                                                 } else {
-                                                    var1x = new TextComponent(var0x);
+                                                    var1x = Component.literal(var0x);
                                                 }
                                             } else {
-                                                var1x = TextComponent.EMPTY;
+                                                var1x = CommonComponents.EMPTY;
                                             }
                     
                                             return param0xx.createString(Component.Serializer.toJson(var1x));

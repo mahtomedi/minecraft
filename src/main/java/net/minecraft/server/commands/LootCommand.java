@@ -22,7 +22,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,10 +50,10 @@ public class LootCommand {
         return SharedSuggestionProvider.suggestResource(var0.getIds(), param1);
     };
     private static final DynamicCommandExceptionType ERROR_NO_HELD_ITEMS = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.drop.no_held_items", param0)
+        param0 -> Component.translatable("commands.drop.no_held_items", param0)
     );
     private static final DynamicCommandExceptionType ERROR_NO_LOOT_TABLE = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.drop.no_loot_table", param0)
+        param0 -> Component.translatable("commands.drop.no_loot_table", param0)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
@@ -407,9 +407,9 @@ public class LootCommand {
     private static void callback(CommandSourceStack param0, List<ItemStack> param1) {
         if (param1.size() == 1) {
             ItemStack var0 = param1.get(0);
-            param0.sendSuccess(new TranslatableComponent("commands.drop.success.single", var0.getCount(), var0.getDisplayName()), false);
+            param0.sendSuccess(Component.translatable("commands.drop.success.single", var0.getCount(), var0.getDisplayName()), false);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.drop.success.multiple", param1.size()), false);
+            param0.sendSuccess(Component.translatable("commands.drop.success.multiple", param1.size()), false);
         }
 
     }
@@ -417,9 +417,9 @@ public class LootCommand {
     private static void callback(CommandSourceStack param0, List<ItemStack> param1, ResourceLocation param2) {
         if (param1.size() == 1) {
             ItemStack var0 = param1.get(0);
-            param0.sendSuccess(new TranslatableComponent("commands.drop.success.single_with_table", var0.getCount(), var0.getDisplayName(), param2), false);
+            param0.sendSuccess(Component.translatable("commands.drop.success.single_with_table", var0.getCount(), var0.getDisplayName(), param2), false);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.drop.success.multiple_with_table", param1.size(), param2), false);
+            param0.sendSuccess(Component.translatable("commands.drop.success.multiple_with_table", param1.size(), param2), false);
         }
 
     }

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -40,7 +39,7 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
 
     @Override
     public Component getNarrationMessage() {
-        return new TextComponent("").append(this.title).append(": ").append(this.reason);
+        return Component.empty().append(this.title).append(": ").append(this.reason);
     }
 
     @Override

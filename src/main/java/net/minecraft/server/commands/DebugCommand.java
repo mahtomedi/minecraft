@@ -23,7 +23,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerFunctionManager;
@@ -33,9 +32,9 @@ import org.slf4j.Logger;
 
 public class DebugCommand {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final SimpleCommandExceptionType ERROR_NOT_RUNNING = new SimpleCommandExceptionType(new TranslatableComponent("commands.debug.notRunning"));
+    private static final SimpleCommandExceptionType ERROR_NOT_RUNNING = new SimpleCommandExceptionType(Component.translatable("commands.debug.notRunning"));
     private static final SimpleCommandExceptionType ERROR_ALREADY_RUNNING = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.debug.alreadyRunning")
+        Component.translatable("commands.debug.alreadyRunning")
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -62,7 +61,7 @@ public class DebugCommand {
             throw ERROR_ALREADY_RUNNING.create();
         } else {
             var0.startTimeProfiler();
-            param0.sendSuccess(new TranslatableComponent("commands.debug.started"), true);
+            param0.sendSuccess(Component.translatable("commands.debug.started"), true);
             return 0;
         }
     }
@@ -76,9 +75,7 @@ public class DebugCommand {
             double var2 = (double)var1.getNanoDuration() / (double)TimeUtil.NANOSECONDS_PER_SECOND;
             double var3 = (double)var1.getTickDuration() / var2;
             param0.sendSuccess(
-                new TranslatableComponent(
-                    "commands.debug.stopped", String.format(Locale.ROOT, "%.2f", var2), var1.getTickDuration(), String.format("%.2f", var3)
-                ),
+                Component.translatable("commands.debug.stopped", String.format(Locale.ROOT, "%.2f", var2), var1.getTickDuration(), String.format("%.2f", var3)),
                 true
             );
             return (int)var3;
@@ -105,13 +102,13 @@ public class DebugCommand {
             }
         } catch (IOException | UncheckedIOException var13) {
             LOGGER.warn("Tracing failed", (Throwable)var13);
-            param0.sendFailure(new TranslatableComponent("commands.debug.function.traceFailed"));
+            param0.sendFailure(Component.translatable("commands.debug.function.traceFailed"));
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.debug.function.success.single", var0, param1.iterator().next().getId(), var2), true);
+            param0.sendSuccess(Component.translatable("commands.debug.function.success.single", var0, param1.iterator().next().getId(), var2), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.debug.function.success.multiple", var0, param1.size(), var2), true);
+            param0.sendSuccess(Component.translatable("commands.debug.function.success.multiple", var0, param1.size(), var2), true);
         }
 
         return var0;

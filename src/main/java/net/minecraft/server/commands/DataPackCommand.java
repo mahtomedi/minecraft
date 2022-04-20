@@ -13,20 +13,20 @@ import java.util.stream.Collectors;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 
 public class DataPackCommand {
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PACK = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.datapack.unknown", param0)
+        param0 -> Component.translatable("commands.datapack.unknown", param0)
     );
     private static final DynamicCommandExceptionType ERROR_PACK_ALREADY_ENABLED = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.datapack.enable.failed", param0)
+        param0 -> Component.translatable("commands.datapack.enable.failed", param0)
     );
     private static final DynamicCommandExceptionType ERROR_PACK_ALREADY_DISABLED = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.datapack.disable.failed", param0)
+        param0 -> Component.translatable("commands.datapack.disable.failed", param0)
     );
     private static final SuggestionProvider<CommandSourceStack> SELECTED_PACKS = (param0, param1) -> SharedSuggestionProvider.suggest(
             param0.getSource().getServer().getPackRepository().getSelectedIds().stream().map(StringArgumentType::escapeIfRequired), param1
@@ -115,7 +115,7 @@ public class DataPackCommand {
         PackRepository var0 = param0.getServer().getPackRepository();
         List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         param2.apply(var1, param1);
-        param0.sendSuccess(new TranslatableComponent("commands.datapack.modify.enable", param1.getChatLink(true)), true);
+        param0.sendSuccess(Component.translatable("commands.datapack.modify.enable", param1.getChatLink(true)), true);
         ReloadCommand.reloadPacks(var1.stream().map(Pack::getId).collect(Collectors.toList()), param0);
         return var1.size();
     }
@@ -124,7 +124,7 @@ public class DataPackCommand {
         PackRepository var0 = param0.getServer().getPackRepository();
         List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         var1.remove(param1);
-        param0.sendSuccess(new TranslatableComponent("commands.datapack.modify.disable", param1.getChatLink(true)), true);
+        param0.sendSuccess(Component.translatable("commands.datapack.modify.disable", param1.getChatLink(true)), true);
         ReloadCommand.reloadPacks(var1.stream().map(Pack::getId).collect(Collectors.toList()), param0);
         return var1.size();
     }
@@ -140,10 +140,10 @@ public class DataPackCommand {
         Collection<? extends Pack> var2 = var0.getAvailablePacks();
         List<Pack> var3 = var2.stream().filter(param1 -> !var1.contains(param1)).collect(Collectors.toList());
         if (var3.isEmpty()) {
-            param0.sendSuccess(new TranslatableComponent("commands.datapack.list.available.none"), false);
+            param0.sendSuccess(Component.translatable("commands.datapack.list.available.none"), false);
         } else {
             param0.sendSuccess(
-                new TranslatableComponent(
+                Component.translatable(
                     "commands.datapack.list.available.success", var3.size(), ComponentUtils.formatList(var3, param0x -> param0x.getChatLink(false))
                 ),
                 false
@@ -158,10 +158,10 @@ public class DataPackCommand {
         var0.reload();
         Collection<? extends Pack> var1 = var0.getSelectedPacks();
         if (var1.isEmpty()) {
-            param0.sendSuccess(new TranslatableComponent("commands.datapack.list.enabled.none"), false);
+            param0.sendSuccess(Component.translatable("commands.datapack.list.enabled.none"), false);
         } else {
             param0.sendSuccess(
-                new TranslatableComponent(
+                Component.translatable(
                     "commands.datapack.list.enabled.success", var1.size(), ComponentUtils.formatList(var1, param0x -> param0x.getChatLink(true))
                 ),
                 false

@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.item.FunctionArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.ServerFunctionManager;
 
 public class FunctionCommand {
@@ -38,9 +38,9 @@ public class FunctionCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.function.success.single", var0, param1.iterator().next().getId()), true);
+            param0.sendSuccess(Component.translatable("commands.function.success.single", var0, param1.iterator().next().getId()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.function.success.multiple", var0, param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.function.success.multiple", var0, param1.size()), true);
         }
 
         return var0;

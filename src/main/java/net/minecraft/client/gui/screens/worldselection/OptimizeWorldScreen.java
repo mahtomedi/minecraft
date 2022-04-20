@@ -12,7 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.WorldStem;
 import net.minecraft.util.Mth;
@@ -60,7 +60,7 @@ public class OptimizeWorldScreen extends Screen {
     private OptimizeWorldScreen(
         BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, LevelSettings param3, boolean param4, WorldGenSettings param5
     ) {
-        super(new TranslatableComponent("optimizeWorld.title", param3.levelName()));
+        super(Component.translatable("optimizeWorld.title", param3.levelName()));
         this.callback = param0;
         this.upgrader = new WorldUpgrader(param2, param1, param5, param4);
     }
@@ -103,11 +103,9 @@ public class OptimizeWorldScreen extends Screen {
         drawCenteredString(param0, this.font, this.upgrader.getStatus(), this.width / 2, var2 - 9 - 2, 10526880);
         if (this.upgrader.getTotalChunks() > 0) {
             fill(param0, var0 - 1, var2 - 1, var1 + 1, var3 + 1, -16777216);
-            drawString(param0, this.font, new TranslatableComponent("optimizeWorld.info.converted", this.upgrader.getConverted()), var0, 40, 10526880);
-            drawString(param0, this.font, new TranslatableComponent("optimizeWorld.info.skipped", this.upgrader.getSkipped()), var0, 40 + 9 + 3, 10526880);
-            drawString(
-                param0, this.font, new TranslatableComponent("optimizeWorld.info.total", this.upgrader.getTotalChunks()), var0, 40 + (9 + 3) * 2, 10526880
-            );
+            drawString(param0, this.font, Component.translatable("optimizeWorld.info.converted", this.upgrader.getConverted()), var0, 40, 10526880);
+            drawString(param0, this.font, Component.translatable("optimizeWorld.info.skipped", this.upgrader.getSkipped()), var0, 40 + 9 + 3, 10526880);
+            drawString(param0, this.font, Component.translatable("optimizeWorld.info.total", this.upgrader.getTotalChunks()), var0, 40 + (9 + 3) * 2, 10526880);
             int var4 = 0;
 
             for(ResourceKey<Level> var5 : this.upgrader.levels()) {

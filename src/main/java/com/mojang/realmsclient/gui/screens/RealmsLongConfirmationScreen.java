@@ -6,8 +6,6 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,7 +34,7 @@ public class RealmsLongConfirmationScreen extends RealmsScreen {
             this.addRenderableWidget(new Button(this.width / 2 + 5, row(8), 100, 20, CommonComponents.GUI_NO, param0 -> this.callback.accept(false)));
         } else {
             this.addRenderableWidget(
-                new Button(this.width / 2 - 50, row(8), 100, 20, new TranslatableComponent("mco.gui.ok"), param0 -> this.callback.accept(true))
+                new Button(this.width / 2 - 50, row(8), 100, 20, Component.translatable("mco.gui.ok"), param0 -> this.callback.accept(true))
             );
         }
 
@@ -75,7 +73,7 @@ public class RealmsLongConfirmationScreen extends RealmsScreen {
         public final Component text;
 
         private Type(String param0, int param1) {
-            this.text = new TextComponent(param0);
+            this.text = Component.literal(param0);
             this.colorCode = param1;
         }
     }

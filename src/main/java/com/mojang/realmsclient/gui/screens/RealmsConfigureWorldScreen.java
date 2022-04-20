@@ -22,7 +22,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,14 +35,14 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     private static final ResourceLocation OFF_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/off_icon.png");
     private static final ResourceLocation EXPIRED_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/expired_icon.png");
     private static final ResourceLocation EXPIRES_SOON_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/expires_soon_icon.png");
-    private static final Component WORLD_LIST_TITLE = new TranslatableComponent("mco.configure.worlds.title");
-    private static final Component TITLE = new TranslatableComponent("mco.configure.world.title");
-    private static final Component MINIGAME_PREFIX = new TranslatableComponent("mco.configure.current.minigame").append(": ");
-    private static final Component SERVER_EXPIRED_TOOLTIP = new TranslatableComponent("mco.selectServer.expired");
-    private static final Component SERVER_EXPIRING_SOON_TOOLTIP = new TranslatableComponent("mco.selectServer.expires.soon");
-    private static final Component SERVER_EXPIRING_IN_DAY_TOOLTIP = new TranslatableComponent("mco.selectServer.expires.day");
-    private static final Component SERVER_OPEN_TOOLTIP = new TranslatableComponent("mco.selectServer.open");
-    private static final Component SERVER_CLOSED_TOOLTIP = new TranslatableComponent("mco.selectServer.closed");
+    private static final Component WORLD_LIST_TITLE = Component.translatable("mco.configure.worlds.title");
+    private static final Component TITLE = Component.translatable("mco.configure.world.title");
+    private static final Component MINIGAME_PREFIX = Component.translatable("mco.configure.current.minigame").append(": ");
+    private static final Component SERVER_EXPIRED_TOOLTIP = Component.translatable("mco.selectServer.expired");
+    private static final Component SERVER_EXPIRING_SOON_TOOLTIP = Component.translatable("mco.selectServer.expires.soon");
+    private static final Component SERVER_EXPIRING_IN_DAY_TOOLTIP = Component.translatable("mco.selectServer.expires.day");
+    private static final Component SERVER_OPEN_TOOLTIP = Component.translatable("mco.selectServer.open");
+    private static final Component SERVER_CLOSED_TOOLTIP = Component.translatable("mco.selectServer.closed");
     private static final int DEFAULT_BUTTON_WIDTH = 80;
     private static final int DEFAULT_BUTTON_OFFSET = 5;
     @Nullable
@@ -87,7 +86,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(0),
                 100,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.players"),
+                Component.translatable("mco.configure.world.buttons.players"),
                 param0 -> this.minecraft.setScreen(new RealmsPlayerScreen(this, this.serverData))
             )
         );
@@ -97,7 +96,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(0),
                 100,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.settings"),
+                Component.translatable("mco.configure.world.buttons.settings"),
                 param0 -> this.minecraft.setScreen(new RealmsSettingsScreen(this, this.serverData.clone()))
             )
         );
@@ -107,7 +106,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(0),
                 100,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.subscription"),
+                Component.translatable("mco.configure.world.buttons.subscription"),
                 param0 -> this.minecraft.setScreen(new RealmsSubscriptionInfoScreen(this, this.serverData.clone(), this.lastScreen))
             )
         );
@@ -123,11 +122,11 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(13) - 5,
                 100,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.switchminigame"),
+                Component.translatable("mco.configure.world.buttons.switchminigame"),
                 param0 -> this.minecraft
                         .setScreen(
                             new RealmsSelectWorldTemplateScreen(
-                                new TranslatableComponent("mco.template.title.minigame"), this::templateSelectionCallback, RealmsServer.WorldType.MINIGAME
+                                Component.translatable("mco.template.title.minigame"), this::templateSelectionCallback, RealmsServer.WorldType.MINIGAME
                             )
                         )
             )
@@ -138,7 +137,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(13) - 5,
                 90,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.options"),
+                Component.translatable("mco.configure.world.buttons.options"),
                 param0 -> this.minecraft
                         .setScreen(
                             new RealmsSlotOptionsScreen(
@@ -153,7 +152,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(13) - 5,
                 90,
                 20,
-                new TranslatableComponent("mco.configure.world.backup"),
+                Component.translatable("mco.configure.world.backup"),
                 param0 -> this.minecraft.setScreen(new RealmsBackupScreen(this, this.serverData.clone(), this.serverData.activeSlot))
             )
         );
@@ -163,7 +162,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 row(13) - 5,
                 90,
                 20,
-                new TranslatableComponent("mco.configure.world.buttons.resetworld"),
+                Component.translatable("mco.configure.world.buttons.resetworld"),
                 param0 -> this.minecraft
                         .setScreen(
                             new RealmsResetWorldScreen(
@@ -350,15 +349,15 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void switchToMinigame() {
         RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(
-            new TranslatableComponent("mco.template.title.minigame"), this::templateSelectionCallback, RealmsServer.WorldType.MINIGAME
+            Component.translatable("mco.template.title.minigame"), this::templateSelectionCallback, RealmsServer.WorldType.MINIGAME
         );
-        var0.setWarning(new TranslatableComponent("mco.minigame.world.info.line1"), new TranslatableComponent("mco.minigame.world.info.line2"));
+        var0.setWarning(Component.translatable("mco.minigame.world.info.line1"), Component.translatable("mco.minigame.world.info.line2"));
         this.minecraft.setScreen(var0);
     }
 
     private void switchToFullSlot(int param0, RealmsServer param1) {
-        Component var0 = new TranslatableComponent("mco.configure.world.slot.switch.question.line1");
-        Component var1 = new TranslatableComponent("mco.configure.world.slot.switch.question.line2");
+        Component var0 = Component.translatable("mco.configure.world.slot.switch.question.line1");
+        Component var1 = Component.translatable("mco.configure.world.slot.switch.question.line2");
         this.minecraft
             .setScreen(
                 new RealmsLongConfirmationScreen(
@@ -385,8 +384,8 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     }
 
     private void switchToEmptySlot(int param0, RealmsServer param1) {
-        Component var0 = new TranslatableComponent("mco.configure.world.slot.switch.question.line1");
-        Component var1 = new TranslatableComponent("mco.configure.world.slot.switch.question.line2");
+        Component var0 = Component.translatable("mco.configure.world.slot.switch.question.line1");
+        Component var1 = Component.translatable("mco.configure.world.slot.switch.question.line2");
         this.minecraft
             .setScreen(
                 new RealmsLongConfirmationScreen(
@@ -395,15 +394,15 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                             RealmsResetWorldScreen var0x = new RealmsResetWorldScreen(
                                 this,
                                 param1,
-                                new TranslatableComponent("mco.configure.world.switch.slot"),
-                                new TranslatableComponent("mco.configure.world.switch.slot.subtitle"),
+                                Component.translatable("mco.configure.world.switch.slot"),
+                                Component.translatable("mco.configure.world.switch.slot.subtitle"),
                                 10526880,
                                 CommonComponents.GUI_CANCEL,
                                 () -> this.minecraft.execute(() -> this.minecraft.setScreen(this.getNewScreen())),
                                 () -> this.minecraft.setScreen(this.getNewScreen())
                             );
                             var0x.setSlot(param0);
-                            var0x.setResetTitle(new TranslatableComponent("mco.create.world.reset.title"));
+                            var0x.setResetTitle(Component.translatable("mco.create.world.reset.title"));
                             this.minecraft.setScreen(var0x);
                         } else {
                             this.minecraft.setScreen(this);
@@ -470,7 +469,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
             } else if (param5 == 1) {
                 this.toolTip = SERVER_EXPIRING_IN_DAY_TOOLTIP;
             } else {
-                this.toolTip = new TranslatableComponent("mco.selectServer.expires.days", param5);
+                this.toolTip = Component.translatable("mco.selectServer.expires.days", param5);
             }
         }
 

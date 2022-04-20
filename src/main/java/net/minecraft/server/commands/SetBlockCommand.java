@@ -12,7 +12,7 @@ import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class SetBlockCommand {
-    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.setblock.failed"));
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.setblock.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
@@ -101,7 +101,7 @@ public class SetBlockCommand {
                 throw ERROR_FAILED.create();
             } else {
                 var0.blockUpdated(param1, param2.getState().getBlock());
-                param0.sendSuccess(new TranslatableComponent("commands.setblock.success", param1.getX(), param1.getY(), param1.getZ()), true);
+                param0.sendSuccess(Component.translatable("commands.setblock.success", param1.getX(), param1.getY(), param1.getZ()), true);
                 return 1;
             }
         }

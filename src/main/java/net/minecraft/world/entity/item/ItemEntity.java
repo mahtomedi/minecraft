@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -331,7 +330,7 @@ public class ItemEntity extends Entity {
     @Override
     public Component getName() {
         Component var0 = this.getCustomName();
-        return (Component)(var0 != null ? var0 : new TranslatableComponent(this.getItem().getDescriptionId()));
+        return (Component)(var0 != null ? var0 : Component.translatable(this.getItem().getDescriptionId()));
     }
 
     @Override

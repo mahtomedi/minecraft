@@ -14,11 +14,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,9 +26,9 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
-    static final Component WORLD_TEXT = new TranslatableComponent("selectWorld.world");
-    static final Component HARDCORE_TEXT = new TranslatableComponent("mco.upload.hardcore").withStyle(ChatFormatting.DARK_RED);
-    static final Component CHEATS_TEXT = new TranslatableComponent("selectWorld.cheats");
+    static final Component WORLD_TEXT = Component.translatable("selectWorld.world");
+    static final Component HARDCORE_TEXT = Component.translatable("mco.upload.hardcore").withStyle(ChatFormatting.DARK_RED);
+    static final Component CHEATS_TEXT = Component.translatable("selectWorld.cheats");
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat();
     private final RealmsResetWorldScreen lastScreen;
     private final long worldId;
@@ -41,7 +40,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private final Runnable callback;
 
     public RealmsSelectFileToUploadScreen(long param0, int param1, RealmsResetWorldScreen param2, Runnable param3) {
-        super(new TranslatableComponent("mco.upload.select.world.title"));
+        super(Component.translatable("mco.upload.select.world.title"));
         this.lastScreen = param2;
         this.worldId = param0;
         this.slotId = param1;
@@ -49,9 +48,11 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     }
 
     private void loadLevelList() throws Exception {
+        LevelStorageSource.LevelCandidates var0 = this.minecraft.getLevelSource().findLevelCandidates();
         this.levelList = this.minecraft
             .getLevelSource()
-            .getLevelList()
+            .loadLevelSummaries(var0)
+            .join()
             .stream()
             .filter(param0 -> !param0.requiresManualConversion() && !param0.isLocked())
             .sorted((param0, param1) -> {
@@ -63,8 +64,8 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
             })
             .collect(Collectors.toList());
 
-        for(LevelSummary var0 : this.levelList) {
-            this.worldSelectionList.addEntry(var0);
+        for(LevelSummary var1 : this.levelList) {
+            this.worldSelectionList.addEntry(var1);
         }
 
     }
@@ -79,21 +80,21 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
         } catch (Exception var2) {
             LOGGER.error("Couldn't load level list", (Throwable)var2);
             this.minecraft
-                .setScreen(new RealmsGenericErrorScreen(new TextComponent("Unable to load worlds"), Component.nullToEmpty(var2.getMessage()), this.lastScreen));
+                .setScreen(new RealmsGenericErrorScreen(Component.literal("Unable to load worlds"), Component.nullToEmpty(var2.getMessage()), this.lastScreen));
             return;
         }
 
         this.addWidget(this.worldSelectionList);
         this.uploadButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 154, this.height - 32, 153, 20, new TranslatableComponent("mco.upload.button.name"), param0 -> this.upload())
+            new Button(this.width / 2 - 154, this.height - 32, 153, 20, Component.translatable("mco.upload.button.name"), param0 -> this.upload())
         );
         this.uploadButton.active = this.selectedWorld >= 0 && this.selectedWorld < this.levelList.size();
         this.addRenderableWidget(
             new Button(this.width / 2 + 6, this.height - 32, 153, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
-        this.addLabel(new RealmsLabel(new TranslatableComponent("mco.upload.select.world.subtitle"), this.width / 2, row(-1), 10526880));
+        this.addLabel(new RealmsLabel(Component.translatable("mco.upload.select.world.subtitle"), this.width / 2, row(-1), 10526880));
         if (this.levelList.isEmpty()) {
-            this.addLabel(new RealmsLabel(new TranslatableComponent("mco.upload.select.world.none"), this.width / 2, this.height / 2 - 20, 16777215));
+            this.addLabel(new RealmsLabel(Component.translatable("mco.upload.select.world.none"), this.width / 2, this.height / 2 - 20, 16777215));
         }
 
     }
@@ -194,11 +195,11 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
         @Override
         public Component getNarration() {
             Component var0 = CommonComponents.joinLines(
-                new TextComponent(this.levelSummary.getLevelName()),
-                new TextComponent(RealmsSelectFileToUploadScreen.formatLastPlayed(this.levelSummary)),
+                Component.literal(this.levelSummary.getLevelName()),
+                Component.literal(RealmsSelectFileToUploadScreen.formatLastPlayed(this.levelSummary)),
                 RealmsSelectFileToUploadScreen.gameModeName(this.levelSummary)
             );
-            return new TranslatableComponent("narrator.select", var0);
+            return Component.translatable("narrator.select", var0);
         }
     }
 

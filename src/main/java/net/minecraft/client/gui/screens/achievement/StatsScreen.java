@@ -22,8 +22,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -41,7 +39,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StatsScreen extends Screen implements StatsUpdateListener {
-    private static final Component PENDING_TEXT = new TranslatableComponent("multiplayer.downloadingStats");
+    private static final Component PENDING_TEXT = Component.translatable("multiplayer.downloadingStats");
     protected final Screen lastScreen;
     private StatsScreen.GeneralStatisticsList statsList;
     StatsScreen.ItemStatisticsList itemStatsList;
@@ -64,7 +62,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     private static final int SORT_UP = 1;
 
     public StatsScreen(Screen param0, StatsCounter param1) {
-        super(new TranslatableComponent("gui.stats"));
+        super(Component.translatable("gui.stats"));
         this.lastScreen = param0;
         this.stats = param1;
     }
@@ -84,17 +82,17 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     public void initButtons() {
         this.addRenderableWidget(
             new Button(
-                this.width / 2 - 120, this.height - 52, 80, 20, new TranslatableComponent("stat.generalButton"), param0 -> this.setActiveList(this.statsList)
+                this.width / 2 - 120, this.height - 52, 80, 20, Component.translatable("stat.generalButton"), param0 -> this.setActiveList(this.statsList)
             )
         );
         Button var0 = this.addRenderableWidget(
             new Button(
-                this.width / 2 - 40, this.height - 52, 80, 20, new TranslatableComponent("stat.itemsButton"), param0 -> this.setActiveList(this.itemStatsList)
+                this.width / 2 - 40, this.height - 52, 80, 20, Component.translatable("stat.itemsButton"), param0 -> this.setActiveList(this.itemStatsList)
             )
         );
         Button var1 = this.addRenderableWidget(
             new Button(
-                this.width / 2 + 40, this.height - 52, 80, 20, new TranslatableComponent("stat.mobsButton"), param0 -> this.setActiveList(this.mobsStatsList)
+                this.width / 2 + 40, this.height - 52, 80, 20, Component.translatable("stat.mobsButton"), param0 -> this.setActiveList(this.mobsStatsList)
             )
         );
         this.addRenderableWidget(
@@ -209,7 +207,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             Entry(Stat<ResourceLocation> param0) {
                 this.stat = param0;
-                this.statDisplay = new TranslatableComponent(StatsScreen.getTranslationKey(param0));
+                this.statDisplay = Component.translatable(StatsScreen.getTranslationKey(param0));
             }
 
             private String getValueText() {
@@ -229,7 +227,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public Component getNarration() {
-                return new TranslatableComponent("narrator.select", new TextComponent("").append(this.statDisplay).append(" ").append(this.getValueText()));
+                return Component.translatable("narrator.select", Component.empty().append(this.statDisplay).append(" ").append(this.getValueText()));
             }
         }
     }
@@ -473,7 +471,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public Component getNarration() {
-                return new TranslatableComponent("narrator.select", this.item.getDescription());
+                return Component.translatable("narrator.select", this.item.getDescription());
             }
         }
 
@@ -535,19 +533,19 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 this.mobName = param0.getDescription();
                 int param1 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED.get(param0));
                 if (param1 == 0) {
-                    this.kills = new TranslatableComponent("stat_type.minecraft.killed.none", this.mobName);
+                    this.kills = Component.translatable("stat_type.minecraft.killed.none", this.mobName);
                     this.hasKills = false;
                 } else {
-                    this.kills = new TranslatableComponent("stat_type.minecraft.killed", param1, this.mobName);
+                    this.kills = Component.translatable("stat_type.minecraft.killed", param1, this.mobName);
                     this.hasKills = true;
                 }
 
                 int var0 = StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED_BY.get(param0));
                 if (var0 == 0) {
-                    this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by.none", this.mobName);
+                    this.killedBy = Component.translatable("stat_type.minecraft.killed_by.none", this.mobName);
                     this.wasKilledBy = false;
                 } else {
-                    this.killedBy = new TranslatableComponent("stat_type.minecraft.killed_by", this.mobName, var0);
+                    this.killedBy = Component.translatable("stat_type.minecraft.killed_by", this.mobName, var0);
                     this.wasKilledBy = true;
                 }
 
@@ -564,7 +562,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public Component getNarration() {
-                return new TranslatableComponent("narrator.select", CommonComponents.joinForNarration(this.kills, this.killedBy));
+                return Component.translatable("narrator.select", CommonComponents.joinForNarration(this.kills, this.killedBy));
             }
         }
     }

@@ -6,8 +6,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Clearable;
@@ -196,7 +194,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
         Component var1;
         if (param0 == null) {
             var0 = "Lectern";
-            var1 = new TextComponent("Lectern");
+            var1 = Component.literal("Lectern");
         } else {
             var0 = param0.getName().getString();
             var1 = param0.getDisplayName();
@@ -246,6 +244,6 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
 
     @Override
     public Component getDisplayName() {
-        return new TranslatableComponent("container.lectern");
+        return Component.translatable("container.lectern");
     }
 }

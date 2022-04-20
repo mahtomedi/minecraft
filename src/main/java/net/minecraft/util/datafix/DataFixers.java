@@ -69,6 +69,7 @@ import net.minecraft.util.datafix.fixes.EntityHorseSplitFix;
 import net.minecraft.util.datafix.fixes.EntityIdFix;
 import net.minecraft.util.datafix.fixes.EntityItemFrameDirectionFix;
 import net.minecraft.util.datafix.fixes.EntityMinecartIdentifiersFix;
+import net.minecraft.util.datafix.fixes.EntityPaintingFieldsRenameFix;
 import net.minecraft.util.datafix.fixes.EntityPaintingItemFrameDirectionFix;
 import net.minecraft.util.datafix.fixes.EntityPaintingMotiveFix;
 import net.minecraft.util.datafix.fixes.EntityProjectileOwnerFix;
@@ -969,6 +970,8 @@ public class DataFixers {
         );
         Schema var168 = param0.addSchema(3088, SAME_NAMESPACED);
         param0.addFixer(new BlendingDataFix(var168));
+        Schema var169 = param0.addSchema(3090, SAME_NAMESPACED);
+        param0.addFixer(new EntityPaintingFieldsRenameFix(var169));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

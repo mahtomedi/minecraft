@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
@@ -33,7 +33,7 @@ public class DefaultGameModeCommands {
             }
         }
 
-        param0.sendSuccess(new TranslatableComponent("commands.defaultgamemode.success", param1.getLongDisplayName()), true);
+        param0.sendSuccess(Component.translatable("commands.defaultgamemode.success", param1.getLongDisplayName()), true);
         return var0;
     }
 }

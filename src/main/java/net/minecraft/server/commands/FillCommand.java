@@ -17,7 +17,7 @@ import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.level.block.Block;
@@ -29,10 +29,10 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class FillCommand {
     private static final int MAX_FILL_AREA = 32768;
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.fill.toobig", param0, param1)
+        (param0, param1) -> Component.translatable("commands.fill.toobig", param0, param1)
     );
     static final BlockInput HOLLOW_CORE = new BlockInput(Blocks.AIR.defaultBlockState(), Collections.emptySet(), null);
-    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.fill.failed"));
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.fill.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
@@ -184,7 +184,7 @@ public class FillCommand {
             if (var3 == 0) {
                 throw ERROR_FAILED.create();
             } else {
-                param0.sendSuccess(new TranslatableComponent("commands.fill.success", var3), true);
+                param0.sendSuccess(Component.translatable("commands.fill.success", var3), true);
                 return var3;
             }
         }

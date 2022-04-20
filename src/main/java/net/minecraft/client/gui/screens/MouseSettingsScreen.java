@@ -9,7 +9,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,7 +24,7 @@ public class MouseSettingsScreen extends OptionsSubScreen {
     }
 
     public MouseSettingsScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("options.mouse_settings.title"));
+        super(param0, param1, Component.translatable("options.mouse_settings.title"));
     }
 
     @Override

@@ -2,7 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,7 +17,7 @@ public class InBedChatScreen extends ChatScreen {
     protected void init() {
         super.init();
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 40, 200, 20, new TranslatableComponent("multiplayer.stopSleeping"), param0 -> this.sendWakeUp())
+            new Button(this.width / 2 - 100, this.height - 40, 200, 20, Component.translatable("multiplayer.stopSleeping"), param0 -> this.sendWakeUp())
         );
     }
 

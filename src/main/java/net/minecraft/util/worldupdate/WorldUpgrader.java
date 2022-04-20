@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +26,6 @@ import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -52,7 +52,7 @@ public class WorldUpgrader {
     private volatile int converted;
     private volatile int skipped;
     private final Object2FloatMap<ResourceKey<Level>> progressMap = Object2FloatMaps.synchronize(new Object2FloatOpenCustomHashMap<>(Util.identityStrategy()));
-    private volatile Component status = new TranslatableComponent("optimizeWorld.stage.counting");
+    private volatile Component status = Component.translatable("optimizeWorld.stage.counting");
     private static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca$");
     private final DimensionDataStorage overworldDataStorage;
 
@@ -65,7 +65,7 @@ public class WorldUpgrader {
         this.thread = THREAD_FACTORY.newThread(this::work);
         this.thread.setUncaughtExceptionHandler((param0x, param1x) -> {
             LOGGER.error("Error upgrading world", param1x);
-            this.status = new TranslatableComponent("optimizeWorld.stage.failed");
+            this.status = Component.translatable("optimizeWorld.stage.failed");
             this.finished = true;
         });
         this.thread.start();
@@ -106,7 +106,7 @@ public class WorldUpgrader {
 
             ImmutableMap<ResourceKey<Level>, ChunkStorage> var9 = var6.build();
             long var10 = Util.getMillis();
-            this.status = new TranslatableComponent("optimizeWorld.stage.upgrading");
+            this.status = Component.translatable("optimizeWorld.stage.upgrading");
 
             while(this.running) {
                 boolean var11 = false;
@@ -120,7 +120,7 @@ public class WorldUpgrader {
                         boolean var17 = false;
 
                         try {
-                            CompoundTag var18 = var15.read(var16);
+                            CompoundTag var18 = var15.read(var16).join().orElse(null);
                             if (var18 != null) {
                                 int var19 = ChunkStorage.getVersion(var18);
                                 ChunkGenerator var20 = this.worldGenSettings.dimensions().get(WorldGenSettings.levelToLevelStem(var13)).generator();
@@ -152,15 +152,13 @@ public class WorldUpgrader {
                                     var17 = true;
                                 }
                             }
-                        } catch (ReportedException var27) {
-                            Throwable var28 = var27.getCause();
+                        } catch (CompletionException | ReportedException var271) {
+                            Throwable var28 = var271.getCause();
                             if (!(var28 instanceof IOException)) {
-                                throw var27;
+                                throw var271;
                             }
 
                             LOGGER.error("Error upgrading chunk {}", var16, var28);
-                        } catch (IOException var281) {
-                            LOGGER.error("Error upgrading chunk {}", var16, var281);
                         }
 
                         if (var17) {
@@ -172,9 +170,9 @@ public class WorldUpgrader {
                         var11 = true;
                     }
 
-                    float var30 = (float)var14.nextIndex() / var4;
-                    this.progressMap.put(var13, var30);
-                    var12 += var30;
+                    float var29 = (float)var14.nextIndex() / var4;
+                    this.progressMap.put(var13, var29);
+                    var12 += var29;
                 }
 
                 this.progress = var12;
@@ -183,11 +181,11 @@ public class WorldUpgrader {
                 }
             }
 
-            this.status = new TranslatableComponent("optimizeWorld.stage.finished");
+            this.status = Component.translatable("optimizeWorld.stage.finished");
 
-            for(ChunkStorage var31 : var9.values()) {
+            for(ChunkStorage var30 : var9.values()) {
                 try {
-                    var31.close();
+                    var30.close();
                 } catch (IOException var261) {
                     LOGGER.error("Error upgrading chunk", (Throwable)var261);
                 }

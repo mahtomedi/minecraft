@@ -14,8 +14,6 @@ import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -303,15 +301,15 @@ public class InputConstants {
     public static enum Type {
         KEYSYM("key.keyboard", (param0, param1) -> {
             String var0 = GLFW.glfwGetKeyName(param0, -1);
-            return (Component)(var0 != null ? new TextComponent(var0) : new TranslatableComponent(param1));
+            return var0 != null ? Component.literal(var0) : Component.translatable(param1);
         }),
         SCANCODE("scancode", (param0, param1) -> {
             String var0 = GLFW.glfwGetKeyName(-1, param0);
-            return (Component)(var0 != null ? new TextComponent(var0) : new TranslatableComponent(param1));
+            return var0 != null ? Component.literal(var0) : Component.translatable(param1);
         }),
         MOUSE(
             "key.mouse",
-            (param0, param1) -> Language.getInstance().has(param1) ? new TranslatableComponent(param1) : new TranslatableComponent("key.mouse", param0 + 1)
+            (param0, param1) -> Language.getInstance().has(param1) ? Component.translatable(param1) : Component.translatable("key.mouse", param0 + 1)
         );
 
         private final Int2ObjectMap<InputConstants.Key> map = new Int2ObjectOpenHashMap<>();

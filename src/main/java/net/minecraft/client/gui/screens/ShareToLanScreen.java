@@ -5,7 +5,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.HttpUtil;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,15 +12,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ShareToLanScreen extends Screen {
-    private static final Component ALLOW_COMMANDS_LABEL = new TranslatableComponent("selectWorld.allowCommands");
-    private static final Component GAME_MODE_LABEL = new TranslatableComponent("selectWorld.gameMode");
-    private static final Component INFO_TEXT = new TranslatableComponent("lanServer.otherPlayers");
+    private static final Component ALLOW_COMMANDS_LABEL = Component.translatable("selectWorld.allowCommands");
+    private static final Component GAME_MODE_LABEL = Component.translatable("selectWorld.gameMode");
+    private static final Component INFO_TEXT = Component.translatable("lanServer.otherPlayers");
     private final Screen lastScreen;
     private GameType gameMode = GameType.SURVIVAL;
     private boolean commands;
 
     public ShareToLanScreen(Screen param0) {
-        super(new TranslatableComponent("lanServer.title"));
+        super(Component.translatable("lanServer.title"));
         this.lastScreen = param0;
     }
 
@@ -36,14 +35,14 @@ public class ShareToLanScreen extends Screen {
         this.addRenderableWidget(
             CycleButton.onOffBuilder(this.commands).create(this.width / 2 + 5, 100, 150, 20, ALLOW_COMMANDS_LABEL, (param0, param1) -> this.commands = param1)
         );
-        this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("lanServer.start"), param0 -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 28, 150, 20, Component.translatable("lanServer.start"), param0 -> {
             this.minecraft.setScreen(null);
             int var0 = HttpUtil.getAvailablePort();
             Component var1;
             if (this.minecraft.getSingleplayerServer().publishServer(this.gameMode, this.commands, var0)) {
-                var1 = new TranslatableComponent("commands.publish.started", var0);
+                var1 = Component.translatable("commands.publish.started", var0);
             } else {
-                var1 = new TranslatableComponent("commands.publish.failed");
+                var1 = Component.translatable("commands.publish.failed");
             }
 
             this.minecraft.gui.getChat().addMessage(var1);

@@ -16,8 +16,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -26,7 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CreateBuffetWorldScreen extends Screen {
-    private static final Component BIOME_SELECT_INFO = new TranslatableComponent("createWorld.customize.buffet.biome");
+    private static final Component BIOME_SELECT_INFO = Component.translatable("createWorld.customize.buffet.biome");
     private final Screen parent;
     private final Consumer<Holder<Biome>> applySettings;
     final Registry<Biome> biomes;
@@ -35,7 +33,7 @@ public class CreateBuffetWorldScreen extends Screen {
     private Button doneButton;
 
     public CreateBuffetWorldScreen(Screen param0, WorldCreationContext param1, Consumer<Holder<Biome>> param2) {
-        super(new TranslatableComponent("createWorld.customize.buffet.title"));
+        super(Component.translatable("createWorld.customize.buffet.title"));
         this.parent = param0;
         this.applySettings = param2;
         this.biomes = param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
@@ -119,16 +117,16 @@ public class CreateBuffetWorldScreen extends Screen {
                 ResourceLocation param1 = param0.key().location();
                 String var0 = param1.toLanguageKey("biome");
                 if (Language.getInstance().has(var0)) {
-                    this.name = new TranslatableComponent(var0);
+                    this.name = Component.translatable(var0);
                 } else {
-                    this.name = new TextComponent(param1.toString());
+                    this.name = Component.literal(param1.toString());
                 }
 
             }
 
             @Override
             public Component getNarration() {
-                return new TranslatableComponent("narrator.select", this.name);
+                return Component.translatable("narrator.select", this.name);
             }
 
             @Override

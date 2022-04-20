@@ -16,7 +16,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.SystemReport;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.FileZipper;
 import net.minecraft.util.TimeUtil;
@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 
 public class PerfCommand {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final SimpleCommandExceptionType ERROR_NOT_RUNNING = new SimpleCommandExceptionType(new TranslatableComponent("commands.perf.notRunning"));
+    private static final SimpleCommandExceptionType ERROR_NOT_RUNNING = new SimpleCommandExceptionType(Component.translatable("commands.perf.notRunning"));
     private static final SimpleCommandExceptionType ERROR_ALREADY_RUNNING = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.perf.alreadyRunning")
+        Component.translatable("commands.perf.alreadyRunning")
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -50,7 +50,7 @@ public class PerfCommand {
             Consumer<ProfileResults> var1 = param1 -> whenStopped(param0, param1);
             Consumer<Path> var2 = param2 -> saveResults(param0, param2, var0);
             var0.startRecordingMetrics(var1, var2);
-            param0.sendSuccess(new TranslatableComponent("commands.perf.started"), false);
+            param0.sendSuccess(Component.translatable("commands.perf.started"), false);
             return 0;
         }
     }
@@ -77,7 +77,7 @@ public class PerfCommand {
         try {
             var1 = FileUtil.findAvailableName(MetricsPersister.PROFILING_RESULTS_DIR, var0, ".zip");
         } catch (IOException var11) {
-            param0.sendFailure(new TranslatableComponent("commands.perf.reportFailed"));
+            param0.sendFailure(Component.translatable("commands.perf.reportFailed"));
             LOGGER.error("Failed to create report name", (Throwable)var11);
             return;
         }
@@ -93,7 +93,7 @@ public class PerfCommand {
             LOGGER.warn("Failed to delete temporary profiling file {}", param1, var9);
         }
 
-        param0.sendSuccess(new TranslatableComponent("commands.perf.reportSaved", var1), false);
+        param0.sendSuccess(Component.translatable("commands.perf.reportSaved", var1), false);
     }
 
     private static void whenStopped(CommandSourceStack param0, ProfileResults param1) {
@@ -101,7 +101,7 @@ public class PerfCommand {
             int var0 = param1.getTickDuration();
             double var1 = (double)param1.getNanoDuration() / (double)TimeUtil.NANOSECONDS_PER_SECOND;
             param0.sendSuccess(
-                new TranslatableComponent(
+                Component.translatable(
                     "commands.perf.stopped", String.format(Locale.ROOT, "%.2f", var1), var0, String.format(Locale.ROOT, "%.2f", (double)var0 / var1)
                 ),
                 false

@@ -24,8 +24,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -45,7 +43,7 @@ public class SignEditScreen extends Screen {
     private final String[] messages;
 
     public SignEditScreen(SignBlockEntity param0, boolean param1) {
-        super(new TranslatableComponent("sign.edit"));
+        super(Component.translatable("sign.edit"));
         this.messages = IntStream.range(0, 4)
             .mapToObj(param2 -> param0.getMessage(param2, param1))
             .map(Component::getString)
@@ -62,7 +60,7 @@ public class SignEditScreen extends Screen {
             () -> this.messages[this.line],
             param0 -> {
                 this.messages[this.line] = param0;
-                this.sign.setMessage(this.line, new TextComponent(param0));
+                this.sign.setMessage(this.line, Component.literal(param0));
             },
             TextFieldHelper.createClipboardGetter(this.minecraft),
             TextFieldHelper.createClipboardSetter(this.minecraft),
@@ -210,7 +208,7 @@ public class SignEditScreen extends Screen {
                     var30.vertex(var13, (float)var28, (float)var12, 0.0F).color(0, 0, 255, 255).endVertex();
                     var30.vertex(var13, (float)var27, (float)var12, 0.0F).color(0, 0, 255, 255).endVertex();
                     var30.end();
-                    BufferUploader.end(var30);
+                    BufferUploader.drawWithShader(var30);
                     RenderSystem.disableColorLogicOp();
                     RenderSystem.enableTexture();
                 }

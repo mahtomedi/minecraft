@@ -32,7 +32,7 @@ import net.minecraft.advancements.critereon.PlayerInteractTrigger;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -88,8 +88,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
         Advancement var0 = Advancement.Builder.advancement()
             .display(
                 Blocks.RED_NETHER_BRICKS,
-                new TranslatableComponent("advancements.nether.root.title"),
-                new TranslatableComponent("advancements.nether.root.description"),
+                Component.translatable("advancements.nether.root.title"),
+                Component.translatable("advancements.nether.root.description"),
                 new ResourceLocation("textures/gui/advancements/backgrounds/nether.png"),
                 FrameType.TASK,
                 false,
@@ -102,8 +102,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.FIRE_CHARGE,
-                new TranslatableComponent("advancements.nether.return_to_sender.title"),
-                new TranslatableComponent("advancements.nether.return_to_sender.description"),
+                Component.translatable("advancements.nether.return_to_sender.title"),
+                Component.translatable("advancements.nether.return_to_sender.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -123,8 +123,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Blocks.NETHER_BRICKS,
-                new TranslatableComponent("advancements.nether.find_fortress.title"),
-                new TranslatableComponent("advancements.nether.find_fortress.description"),
+                Component.translatable("advancements.nether.find_fortress.title"),
+                Component.translatable("advancements.nether.find_fortress.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -137,8 +137,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.MAP,
-                new TranslatableComponent("advancements.nether.fast_travel.title"),
-                new TranslatableComponent("advancements.nether.fast_travel.description"),
+                Component.translatable("advancements.nether.fast_travel.title"),
+                Component.translatable("advancements.nether.fast_travel.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -154,8 +154,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var1)
             .display(
                 Items.GHAST_TEAR,
-                new TranslatableComponent("advancements.nether.uneasy_alliance.title"),
-                new TranslatableComponent("advancements.nether.uneasy_alliance.description"),
+                Component.translatable("advancements.nether.uneasy_alliance.title"),
+                Component.translatable("advancements.nether.uneasy_alliance.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -174,8 +174,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var2)
             .display(
                 Blocks.WITHER_SKELETON_SKULL,
-                new TranslatableComponent("advancements.nether.get_wither_skull.title"),
-                new TranslatableComponent("advancements.nether.get_wither_skull.description"),
+                Component.translatable("advancements.nether.get_wither_skull.title"),
+                Component.translatable("advancements.nether.get_wither_skull.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -188,8 +188,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var3)
             .display(
                 Items.NETHER_STAR,
-                new TranslatableComponent("advancements.nether.summon_wither.title"),
-                new TranslatableComponent("advancements.nether.summon_wither.description"),
+                Component.translatable("advancements.nether.summon_wither.title"),
+                Component.translatable("advancements.nether.summon_wither.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -202,8 +202,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var2)
             .display(
                 Items.BLAZE_ROD,
-                new TranslatableComponent("advancements.nether.obtain_blaze_rod.title"),
-                new TranslatableComponent("advancements.nether.obtain_blaze_rod.description"),
+                Component.translatable("advancements.nether.obtain_blaze_rod.title"),
+                Component.translatable("advancements.nether.obtain_blaze_rod.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -216,8 +216,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var4)
             .display(
                 Blocks.BEACON,
-                new TranslatableComponent("advancements.nether.create_beacon.title"),
-                new TranslatableComponent("advancements.nether.create_beacon.description"),
+                Component.translatable("advancements.nether.create_beacon.title"),
+                Component.translatable("advancements.nether.create_beacon.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -230,8 +230,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var6)
             .display(
                 Blocks.BEACON,
-                new TranslatableComponent("advancements.nether.create_full_beacon.title"),
-                new TranslatableComponent("advancements.nether.create_full_beacon.description"),
+                Component.translatable("advancements.nether.create_full_beacon.title"),
+                Component.translatable("advancements.nether.create_full_beacon.description"),
                 null,
                 FrameType.GOAL,
                 true,
@@ -244,8 +244,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var5)
             .display(
                 Items.POTION,
-                new TranslatableComponent("advancements.nether.brew_potion.title"),
-                new TranslatableComponent("advancements.nether.brew_potion.description"),
+                Component.translatable("advancements.nether.brew_potion.title"),
+                Component.translatable("advancements.nether.brew_potion.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -258,8 +258,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var7)
             .display(
                 Items.MILK_BUCKET,
-                new TranslatableComponent("advancements.nether.all_potions.title"),
-                new TranslatableComponent("advancements.nether.all_potions.description"),
+                Component.translatable("advancements.nether.all_potions.title"),
+                Component.translatable("advancements.nether.all_potions.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -291,8 +291,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var8)
             .display(
                 Items.BUCKET,
-                new TranslatableComponent("advancements.nether.all_effects.title"),
-                new TranslatableComponent("advancements.nether.all_effects.description"),
+                Component.translatable("advancements.nether.all_effects.title"),
+                Component.translatable("advancements.nether.all_effects.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -338,8 +338,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.ANCIENT_DEBRIS,
-                new TranslatableComponent("advancements.nether.obtain_ancient_debris.title"),
-                new TranslatableComponent("advancements.nether.obtain_ancient_debris.description"),
+                Component.translatable("advancements.nether.obtain_ancient_debris.title"),
+                Component.translatable("advancements.nether.obtain_ancient_debris.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -352,8 +352,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var9)
             .display(
                 Items.NETHERITE_CHESTPLATE,
-                new TranslatableComponent("advancements.nether.netherite_armor.title"),
-                new TranslatableComponent("advancements.nether.netherite_armor.description"),
+                Component.translatable("advancements.nether.netherite_armor.title"),
+                Component.translatable("advancements.nether.netherite_armor.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -372,8 +372,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var9)
             .display(
                 Items.LODESTONE,
-                new TranslatableComponent("advancements.nether.use_lodestone.title"),
-                new TranslatableComponent("advancements.nether.use_lodestone.description"),
+                Component.translatable("advancements.nether.use_lodestone.title"),
+                Component.translatable("advancements.nether.use_lodestone.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -392,8 +392,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.CRYING_OBSIDIAN,
-                new TranslatableComponent("advancements.nether.obtain_crying_obsidian.title"),
-                new TranslatableComponent("advancements.nether.obtain_crying_obsidian.description"),
+                Component.translatable("advancements.nether.obtain_crying_obsidian.title"),
+                Component.translatable("advancements.nether.obtain_crying_obsidian.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -406,8 +406,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var10)
             .display(
                 Items.RESPAWN_ANCHOR,
-                new TranslatableComponent("advancements.nether.charge_respawn_anchor.title"),
-                new TranslatableComponent("advancements.nether.charge_respawn_anchor.description"),
+                Component.translatable("advancements.nether.charge_respawn_anchor.title"),
+                Component.translatable("advancements.nether.charge_respawn_anchor.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -432,8 +432,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.WARPED_FUNGUS_ON_A_STICK,
-                new TranslatableComponent("advancements.nether.ride_strider.title"),
-                new TranslatableComponent("advancements.nether.ride_strider.description"),
+                Component.translatable("advancements.nether.ride_strider.title"),
+                Component.translatable("advancements.nether.ride_strider.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -455,8 +455,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var11)
             .display(
                 Items.WARPED_FUNGUS_ON_A_STICK,
-                new TranslatableComponent("advancements.nether.ride_strider_in_overworld_lava.title"),
-                new TranslatableComponent("advancements.nether.ride_strider_in_overworld_lava.description"),
+                Component.translatable("advancements.nether.ride_strider_in_overworld_lava.title"),
+                Component.translatable("advancements.nether.ride_strider_in_overworld_lava.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -477,8 +477,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var11)
             .display(
                 Items.NETHERITE_BOOTS,
-                new TranslatableComponent("advancements.nether.explore_nether.title"),
-                new TranslatableComponent("advancements.nether.explore_nether.description"),
+                Component.translatable("advancements.nether.explore_nether.title"),
+                Component.translatable("advancements.nether.explore_nether.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -491,8 +491,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var0)
             .display(
                 Items.POLISHED_BLACKSTONE_BRICKS,
-                new TranslatableComponent("advancements.nether.find_bastion.title"),
-                new TranslatableComponent("advancements.nether.find_bastion.description"),
+                Component.translatable("advancements.nether.find_bastion.title"),
+                Component.translatable("advancements.nether.find_bastion.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -505,8 +505,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .parent(var12)
             .display(
                 Blocks.CHEST,
-                new TranslatableComponent("advancements.nether.loot_bastion.title"),
-                new TranslatableComponent("advancements.nether.loot_bastion.description"),
+                Component.translatable("advancements.nether.loot_bastion.title"),
+                Component.translatable("advancements.nether.loot_bastion.description"),
                 null,
                 FrameType.TASK,
                 true,
@@ -526,8 +526,8 @@ public class NetherAdvancements implements Consumer<Consumer<Advancement>> {
             .requirements(RequirementsStrategy.OR)
             .display(
                 Items.GOLD_INGOT,
-                new TranslatableComponent("advancements.nether.distract_piglin.title"),
-                new TranslatableComponent("advancements.nether.distract_piglin.description"),
+                Component.translatable("advancements.nether.distract_piglin.title"),
+                Component.translatable("advancements.nether.distract_piglin.description"),
                 null,
                 FrameType.TASK,
                 true,

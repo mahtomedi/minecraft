@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
@@ -129,7 +128,7 @@ public abstract class CreativeModeTab {
     public CreativeModeTab(int param0, String param1) {
         this.id = param0;
         this.langId = param1;
-        this.displayName = new TranslatableComponent("itemGroup." + param1);
+        this.displayName = Component.translatable("itemGroup." + param1);
         this.iconItemStack = ItemStack.EMPTY;
         TABS[param0] = this;
     }

@@ -20,8 +20,6 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -36,8 +34,8 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public class CommandSourceStack implements SharedSuggestionProvider {
-    public static final SimpleCommandExceptionType ERROR_NOT_PLAYER = new SimpleCommandExceptionType(new TranslatableComponent("permissions.requires.player"));
-    public static final SimpleCommandExceptionType ERROR_NOT_ENTITY = new SimpleCommandExceptionType(new TranslatableComponent("permissions.requires.entity"));
+    public static final SimpleCommandExceptionType ERROR_NOT_PLAYER = new SimpleCommandExceptionType(Component.translatable("permissions.requires.player"));
+    public static final SimpleCommandExceptionType ERROR_NOT_ENTITY = new SimpleCommandExceptionType(Component.translatable("permissions.requires.entity"));
     private final CommandSource source;
     private final Vec3 worldPosition;
     private final ServerLevel level;
@@ -376,8 +374,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
     }
 
     private void broadcastToAdmins(Component param0) {
-        Component var0 = new TranslatableComponent("chat.type.admin", this.getDisplayName(), param0)
-            .withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC});
+        Component var0 = Component.translatable("chat.type.admin", this.getDisplayName(), param0).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
         if (this.server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
             for(ServerPlayer var1 : this.server.getPlayerList().getPlayers()) {
                 if (var1 != this.source && this.server.getPlayerList().isOp(var1.getGameProfile())) {
@@ -394,7 +391,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
 
     public void sendFailure(Component param0) {
         if (this.source.acceptsFailure() && !this.silent) {
-            this.source.sendMessage(new TextComponent("").append(param0).withStyle(ChatFormatting.RED), Util.NIL_UUID);
+            this.source.sendMessage(Component.empty().append(param0).withStyle(ChatFormatting.RED), Util.NIL_UUID);
         }
 
     }

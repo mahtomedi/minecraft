@@ -9,9 +9,9 @@ import java.nio.file.Path;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -119,30 +119,15 @@ public class IOWorker implements AutoCloseable, ChunkScanAccess {
         }).thenCompose(Function.identity());
     }
 
-    @Nullable
-    public CompoundTag load(ChunkPos param0) throws IOException {
-        CompletableFuture<CompoundTag> var0 = this.loadAsync(param0);
-
-        try {
-            return var0.join();
-        } catch (CompletionException var4) {
-            if (var4.getCause() instanceof IOException) {
-                throw (IOException)var4.getCause();
-            } else {
-                throw var4;
-            }
-        }
-    }
-
-    protected CompletableFuture<CompoundTag> loadAsync(ChunkPos param0) {
+    public CompletableFuture<Optional<CompoundTag>> loadAsync(ChunkPos param0) {
         return this.submitTask(() -> {
             IOWorker.PendingStore var0 = this.pendingWrites.get(param0);
             if (var0 != null) {
-                return Either.left(var0.data);
+                return Either.left(Optional.ofNullable(var0.data));
             } else {
                 try {
                     CompoundTag var1 = this.storage.read(param0);
-                    return Either.left(var1);
+                    return Either.left(Optional.ofNullable(var1));
                 } catch (Exception var4) {
                     LOGGER.warn("Failed to read chunk {}", param0, var4);
                     return Either.right(var4);

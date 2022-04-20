@@ -12,7 +12,7 @@ import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
 import net.minecraft.server.packs.repository.Pack;
@@ -29,7 +29,7 @@ public class OptionsScreen extends Screen {
     private LockIconButton lockButton;
 
     public OptionsScreen(Screen param0, Options param1) {
-        super(new TranslatableComponent("options.title"));
+        super(Component.translatable("options.title"));
         this.lastScreen = param0;
         this.options = param1;
     }
@@ -57,10 +57,8 @@ public class OptionsScreen extends Screen {
                                 .setScreen(
                                     new ConfirmScreen(
                                         this::lockCallback,
-                                        new TranslatableComponent("difficulty.lock.title"),
-                                        new TranslatableComponent(
-                                            "difficulty.lock.question", this.minecraft.level.getLevelData().getDifficulty().getDisplayName()
-                                        )
+                                        Component.translatable("difficulty.lock.title"),
+                                        Component.translatable("difficulty.lock.question", this.minecraft.level.getLevelData().getDifficulty().getDisplayName())
                                     )
                                 )
                     )
@@ -78,7 +76,7 @@ public class OptionsScreen extends Screen {
                     this.height / 6 - 12 + 24 * (var0 >> 1),
                     150,
                     20,
-                    new TranslatableComponent("options.online"),
+                    Component.translatable("options.online"),
                     param0 -> this.minecraft.setScreen(new OnlineOptionsScreen(this, this.options))
                 )
             );
@@ -90,7 +88,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 48 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.skinCustomisation"),
+                Component.translatable("options.skinCustomisation"),
                 param0 -> this.minecraft.setScreen(new SkinCustomizationScreen(this, this.options))
             )
         );
@@ -100,7 +98,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 48 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.sounds"),
+                Component.translatable("options.sounds"),
                 param0 -> this.minecraft.setScreen(new SoundOptionsScreen(this, this.options))
             )
         );
@@ -110,7 +108,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 72 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.video"),
+                Component.translatable("options.video"),
                 param0 -> this.minecraft.setScreen(new VideoSettingsScreen(this, this.options))
             )
         );
@@ -120,7 +118,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 72 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.controls"),
+                Component.translatable("options.controls"),
                 param0 -> this.minecraft.setScreen(new ControlsScreen(this, this.options))
             )
         );
@@ -130,7 +128,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 96 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.language"),
+                Component.translatable("options.language"),
                 param0 -> this.minecraft.setScreen(new LanguageSelectScreen(this, this.options, this.minecraft.getLanguageManager()))
             )
         );
@@ -140,7 +138,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 96 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.chat.title"),
+                Component.translatable("options.chat.title"),
                 param0 -> this.minecraft.setScreen(new ChatOptionsScreen(this, this.options))
             )
         );
@@ -150,7 +148,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 120 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.resourcepack"),
+                Component.translatable("options.resourcepack"),
                 param0 -> this.minecraft
                         .setScreen(
                             new PackSelectionScreen(
@@ -158,7 +156,7 @@ public class OptionsScreen extends Screen {
                                 this.minecraft.getResourcePackRepository(),
                                 this::updatePackList,
                                 this.minecraft.getResourcePackDirectory(),
-                                new TranslatableComponent("resourcePack.title")
+                                Component.translatable("resourcePack.title")
                             )
                         )
             )
@@ -169,7 +167,7 @@ public class OptionsScreen extends Screen {
                 this.height / 6 + 120 - 6,
                 150,
                 20,
-                new TranslatableComponent("options.accessibility.title"),
+                Component.translatable("options.accessibility.title"),
                 param0 -> this.minecraft.setScreen(new AccessibilityOptionsScreen(this, this.options))
             )
         );
@@ -187,7 +185,7 @@ public class OptionsScreen extends Screen {
                 param2 / 6 - 12 + 24 * (param0 >> 1),
                 150,
                 20,
-                new TranslatableComponent(param3),
+                Component.translatable(param3),
                 (param1x, param2x) -> param4.getConnection().send(new ServerboundChangeDifficultyPacket(param2x))
             );
     }

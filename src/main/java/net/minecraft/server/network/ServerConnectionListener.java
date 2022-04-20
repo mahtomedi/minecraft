@@ -41,7 +41,6 @@ import net.minecraft.network.RateKickingConnection;
 import net.minecraft.network.Varint21FrameDecoder;
 import net.minecraft.network.Varint21LengthFieldPrepender;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.server.MinecraftServer;
@@ -163,7 +162,7 @@ public class ServerConnectionListener {
                             }
 
                             LOGGER.warn("Failed to handle packet for {}", var1.getRemoteAddress(), var7);
-                            Component var3 = new TextComponent("Internal server error");
+                            Component var3 = Component.literal("Internal server error");
                             var1.send(new ClientboundDisconnectPacket(var3), param2 -> var1.disconnect(var3));
                             var1.setReadOnly();
                         }

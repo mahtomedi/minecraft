@@ -16,7 +16,6 @@ import net.minecraft.client.gui.spectator.SpectatorMenuCategory;
 import net.minecraft.client.gui.spectator.SpectatorMenuItem;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,8 +25,8 @@ public class TeleportToPlayerMenuCategory implements SpectatorMenuCategory, Spec
     private static final Ordering<PlayerInfo> PROFILE_ORDER = Ordering.from(
         (param0, param1) -> ComparisonChain.start().compare(param0.getProfile().getId(), param1.getProfile().getId()).result()
     );
-    private static final Component TELEPORT_TEXT = new TranslatableComponent("spectatorMenu.teleport");
-    private static final Component TELEPORT_PROMPT = new TranslatableComponent("spectatorMenu.teleport.prompt");
+    private static final Component TELEPORT_TEXT = Component.translatable("spectatorMenu.teleport");
+    private static final Component TELEPORT_PROMPT = Component.translatable("spectatorMenu.teleport.prompt");
     private final List<SpectatorMenuItem> items = Lists.newArrayList();
 
     public TeleportToPlayerMenuCategory() {

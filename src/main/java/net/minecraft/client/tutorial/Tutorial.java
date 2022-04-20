@@ -11,7 +11,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.Input;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.KeybindComponent;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
@@ -137,7 +136,7 @@ public class Tutorial {
     }
 
     public static Component key(String param0) {
-        return new KeybindComponent("key." + param0).withStyle(ChatFormatting.BOLD);
+        return Component.keybind("key." + param0).withStyle(ChatFormatting.BOLD);
     }
 
     public void onInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {

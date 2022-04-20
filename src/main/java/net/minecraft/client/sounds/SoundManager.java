@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Options;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundEventRegistration;
 import net.minecraft.client.resources.sounds.SoundEventRegistrationSerializer;
@@ -23,7 +22,7 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -100,19 +99,16 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             for(ResourceLocation var0 : this.registry.keySet()) {
                 WeighedSoundEvents var1 = this.registry.get(var0);
-                if (var1.getSubtitle() instanceof TranslatableComponent) {
-                    String var2 = ((TranslatableComponent)var1.getSubtitle()).getKey();
-                    if (!I18n.exists(var2) && Registry.SOUND_EVENT.containsKey(var0)) {
-                        LOGGER.error("Missing subtitle {} for sound event: {}", var2, var0);
-                    }
+                if (!ComponentUtils.isTranslationResolvable(var1.getSubtitle()) && Registry.SOUND_EVENT.containsKey(var0)) {
+                    LOGGER.error("Missing subtitle {} for sound event: {}", var1.getSubtitle(), var0);
                 }
             }
         }
 
         if (LOGGER.isDebugEnabled()) {
-            for(ResourceLocation var3 : this.registry.keySet()) {
-                if (!Registry.SOUND_EVENT.containsKey(var3)) {
-                    LOGGER.debug("Not having sound event for: {}", var3);
+            for(ResourceLocation var2 : this.registry.keySet()) {
+                if (!Registry.SOUND_EVENT.containsKey(var2)) {
+                    LOGGER.debug("Not having sound event for: {}", var2);
                 }
             }
         }

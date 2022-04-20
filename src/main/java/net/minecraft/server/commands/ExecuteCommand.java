@@ -49,7 +49,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
@@ -72,13 +72,13 @@ import net.minecraft.world.scores.Scoreboard;
 public class ExecuteCommand {
     private static final int MAX_TEST_AREA = 32768;
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.execute.blocks.toobig", param0, param1)
+        (param0, param1) -> Component.translatable("commands.execute.blocks.toobig", param0, param1)
     );
     private static final SimpleCommandExceptionType ERROR_CONDITIONAL_FAILED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.execute.conditional.fail")
+        Component.translatable("commands.execute.conditional.fail")
     );
     private static final DynamicCommandExceptionType ERROR_CONDITIONAL_FAILED_COUNT = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.execute.conditional.fail_count", param0)
+        param0 -> Component.translatable("commands.execute.conditional.fail_count", param0)
     );
     private static final BinaryOperator<ResultConsumer<CommandSourceStack>> CALLBACK_CHAINER = (param0, param1) -> (param2, param3, param4) -> {
             param0.onCommandComplete(param2, param3, param4);
@@ -577,7 +577,7 @@ public class ExecuteCommand {
         return param0 ? param1x -> {
             int var0x = param1.test(param1x);
             if (var0x > 0) {
-                param1x.getSource().sendSuccess(new TranslatableComponent("commands.execute.conditional.pass_count", var0x), false);
+                param1x.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass_count", var0x), false);
                 return var0x;
             } else {
                 throw ERROR_CONDITIONAL_FAILED.create();
@@ -585,7 +585,7 @@ public class ExecuteCommand {
         } : param1x -> {
             int var0x = param1.test(param1x);
             if (var0x == 0) {
-                param1x.getSource().sendSuccess(new TranslatableComponent("commands.execute.conditional.pass"), false);
+                param1x.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass"), false);
                 return 1;
             } else {
                 throw ERROR_CONDITIONAL_FAILED_COUNT.create(var0x);
@@ -636,7 +636,7 @@ public class ExecuteCommand {
     ) {
         return param1.fork(param0, param2x -> expect(param2x, param2, param3.test(param2x))).executes(param2x -> {
             if (param2 == param3.test(param2x)) {
-                param2x.getSource().sendSuccess(new TranslatableComponent("commands.execute.conditional.pass"), false);
+                param2x.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass"), false);
                 return 1;
             } else {
                 throw ERROR_CONDITIONAL_FAILED.create();
@@ -654,7 +654,7 @@ public class ExecuteCommand {
     private static int checkIfRegions(CommandContext<CommandSourceStack> param0, boolean param1) throws CommandSyntaxException {
         OptionalInt var0 = checkRegions(param0, param1);
         if (var0.isPresent()) {
-            param0.getSource().sendSuccess(new TranslatableComponent("commands.execute.conditional.pass_count", var0.getAsInt()), false);
+            param0.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass_count", var0.getAsInt()), false);
             return var0.getAsInt();
         } else {
             throw ERROR_CONDITIONAL_FAILED.create();
@@ -666,7 +666,7 @@ public class ExecuteCommand {
         if (var0.isPresent()) {
             throw ERROR_CONDITIONAL_FAILED_COUNT.create(var0.getAsInt());
         } else {
-            param0.getSource().sendSuccess(new TranslatableComponent("commands.execute.conditional.pass"), false);
+            param0.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass"), false);
             return 1;
         }
     }

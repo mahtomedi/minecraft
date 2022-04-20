@@ -5,7 +5,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SkinCustomizationScreen extends OptionsSubScreen {
     public SkinCustomizationScreen(Screen param0, Options param1) {
-        super(param0, param1, new TranslatableComponent("options.skinCustomisation.title"));
+        super(param0, param1, Component.translatable("options.skinCustomisation.title"));
     }
 
     @Override

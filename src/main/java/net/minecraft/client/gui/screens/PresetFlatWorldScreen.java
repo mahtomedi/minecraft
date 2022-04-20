@@ -19,7 +19,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FlatLevelGeneratorPresetTags;
@@ -48,7 +47,7 @@ public class PresetFlatWorldScreen extends Screen {
     private static final int SLOT_FG_X = 2;
     private static final int SLOT_FG_Y = 2;
     private static final ResourceKey<Biome> DEFAULT_BIOME = Biomes.PLAINS;
-    public static final Component UNKNOWN_PRESET = new TranslatableComponent("flat_world_preset.unknown");
+    public static final Component UNKNOWN_PRESET = Component.translatable("flat_world_preset.unknown");
     private final CreateFlatWorldScreen parent;
     private Component shareText;
     private Component listText;
@@ -58,7 +57,7 @@ public class PresetFlatWorldScreen extends Screen {
     FlatLevelGeneratorSettings settings;
 
     public PresetFlatWorldScreen(CreateFlatWorldScreen param0) {
-        super(new TranslatableComponent("createWorld.customize.presets.title"));
+        super(Component.translatable("createWorld.customize.presets.title"));
         this.parent = param0;
     }
 
@@ -162,8 +161,8 @@ public class PresetFlatWorldScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.shareText = new TranslatableComponent("createWorld.customize.presets.share");
-        this.listText = new TranslatableComponent("createWorld.customize.presets.list");
+        this.shareText = Component.translatable("createWorld.customize.presets.share");
+        this.listText = Component.translatable("createWorld.customize.presets.list");
         this.export = new EditBox(this.font, 50, 40, this.width - 100, 20, this.shareText);
         this.export.setMaxLength(1230);
         RegistryAccess var0 = this.parent.parent.worldGenSettingsComponent.registryHolder();
@@ -175,7 +174,7 @@ public class PresetFlatWorldScreen extends Screen {
         this.list = new PresetFlatWorldScreen.PresetsList(this.parent.parent.worldGenSettingsComponent.registryHolder());
         this.addWidget(this.list);
         this.selectButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("createWorld.customize.presets.select"), param2 -> {
+            new Button(this.width / 2 - 155, this.height - 28, 150, 20, Component.translatable("createWorld.customize.presets.select"), param2 -> {
                 FlatLevelGeneratorSettings var0x = fromString(var1, var2, this.export.getValue(), this.settings);
                 this.parent.setConfig(var0x);
                 this.minecraft.setScreen(this.parent);
@@ -283,7 +282,7 @@ public class PresetFlatWorldScreen extends Screen {
             public Entry(Holder<FlatLevelGeneratorPreset> param1) {
                 this.preset = param1.value();
                 this.name = param1.unwrapKey()
-                    .map(param0x -> new TranslatableComponent(param0x.location().toLanguageKey("flat_world_preset")))
+                    .map(param0x -> Component.translatable(param0x.location().toLanguageKey("flat_world_preset")))
                     .orElse(PresetFlatWorldScreen.UNKNOWN_PRESET);
             }
 
@@ -324,7 +323,7 @@ public class PresetFlatWorldScreen extends Screen {
 
             @Override
             public Component getNarration() {
-                return new TranslatableComponent("narrator.select", this.name);
+                return Component.translatable("narrator.select", this.name);
             }
         }
     }

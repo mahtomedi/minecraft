@@ -254,7 +254,7 @@ public abstract class RenderTarget {
         var8.vertex((double)var3, 0.0, 0.0).uv(var5, var6).color(255, 255, 255, 255).endVertex();
         var8.vertex(0.0, 0.0, 0.0).uv(0.0F, var6).color(255, 255, 255, 255).endVertex();
         var8.end();
-        BufferUploader._endInternal(var8);
+        BufferUploader.draw(var8);
         var1.clear();
         GlStateManager._depthMask(true);
         GlStateManager._colorMask(true, true, true, true);

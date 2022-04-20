@@ -20,7 +20,7 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 
 public class ScoreHolderArgument implements ArgumentType<ScoreHolderArgument.Result> {
@@ -37,7 +37,7 @@ public class ScoreHolderArgument implements ArgumentType<ScoreHolderArgument.Res
         return var1.fillSuggestions(param1, param1x -> SharedSuggestionProvider.suggest(param0.getSource().getOnlinePlayerNames(), param1x));
     };
     private static final Collection<String> EXAMPLES = Arrays.asList("Player", "0123", "*", "@e");
-    private static final SimpleCommandExceptionType ERROR_NO_RESULTS = new SimpleCommandExceptionType(new TranslatableComponent("argument.scoreHolder.empty"));
+    private static final SimpleCommandExceptionType ERROR_NO_RESULTS = new SimpleCommandExceptionType(Component.translatable("argument.scoreHolder.empty"));
     final boolean multiple;
 
     public ScoreHolderArgument(boolean param0) {

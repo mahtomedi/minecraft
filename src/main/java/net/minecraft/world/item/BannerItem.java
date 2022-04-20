@@ -6,7 +6,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractBannerBlock;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +31,7 @@ public class BannerItem extends StandingAndWallBlockItem {
                 DyeColor var4 = DyeColor.byId(var3.getInt("Color"));
                 BannerPattern var5 = BannerPattern.byHash(var3.getString("Pattern"));
                 if (var5 != null) {
-                    param1.add(new TranslatableComponent("block.minecraft.banner." + var5.getFilename() + "." + var4.getName()).withStyle(ChatFormatting.GRAY));
+                    param1.add(Component.translatable("block.minecraft.banner." + var5.getFilename() + "." + var4.getName()).withStyle(ChatFormatting.GRAY));
                 }
             }
 

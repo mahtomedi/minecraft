@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public class WardenSpawnTrackerCommand {
@@ -40,9 +40,9 @@ public class WardenSpawnTrackerCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.warden_spawn_tracker.set.success.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.set.success.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.warden_spawn_tracker.set.success.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.set.success.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -54,9 +54,9 @@ public class WardenSpawnTrackerCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.warden_spawn_tracker.clear.success.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.clear.success.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.warden_spawn_tracker.clear.success.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.clear.success.multiple", param1.size()), true);
         }
 
         return param1.size();

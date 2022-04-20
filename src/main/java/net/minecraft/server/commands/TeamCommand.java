@@ -17,45 +17,43 @@ import net.minecraft.commands.arguments.ScoreHolderArgument;
 import net.minecraft.commands.arguments.TeamArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 
 public class TeamCommand {
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_EXISTS = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.add.duplicate")
+        Component.translatable("commands.team.add.duplicate")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_EMPTY = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.empty.unchanged")
+        Component.translatable("commands.team.empty.unchanged")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_NAME = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.name.unchanged")
+        Component.translatable("commands.team.option.name.unchanged")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_COLOR = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.color.unchanged")
+        Component.translatable("commands.team.option.color.unchanged")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_FRIENDLYFIRE_ENABLED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.friendlyfire.alreadyEnabled")
+        Component.translatable("commands.team.option.friendlyfire.alreadyEnabled")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_FRIENDLYFIRE_DISABLED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.friendlyfire.alreadyDisabled")
+        Component.translatable("commands.team.option.friendlyfire.alreadyDisabled")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_FRIENDLYINVISIBLES_ENABLED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.seeFriendlyInvisibles.alreadyEnabled")
+        Component.translatable("commands.team.option.seeFriendlyInvisibles.alreadyEnabled")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_ALREADY_FRIENDLYINVISIBLES_DISABLED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.seeFriendlyInvisibles.alreadyDisabled")
+        Component.translatable("commands.team.option.seeFriendlyInvisibles.alreadyDisabled")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_NAMETAG_VISIBLITY_UNCHANGED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.nametagVisibility.unchanged")
+        Component.translatable("commands.team.option.nametagVisibility.unchanged")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_DEATH_MESSAGE_VISIBLITY_UNCHANGED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.deathMessageVisibility.unchanged")
+        Component.translatable("commands.team.option.deathMessageVisibility.unchanged")
     );
     private static final SimpleCommandExceptionType ERROR_TEAM_COLLISION_UNCHANGED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.team.option.collisionRule.unchanged")
+        Component.translatable("commands.team.option.collisionRule.unchanged")
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -333,9 +331,9 @@ public class TeamCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.team.leave.success.single", param1.iterator().next()), true);
+            param0.sendSuccess(Component.translatable("commands.team.leave.success.single", param1.iterator().next()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.team.leave.success.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.team.leave.success.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -349,9 +347,9 @@ public class TeamCommand {
         }
 
         if (param2.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.team.join.success.single", param2.iterator().next(), param1.getFormattedDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.team.join.success.single", param2.iterator().next(), param1.getFormattedDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.team.join.success.multiple", param2.size(), param1.getFormattedDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.team.join.success.multiple", param2.size(), param1.getFormattedDisplayName()), true);
         }
 
         return param2.size();
@@ -363,7 +361,7 @@ public class TeamCommand {
         } else {
             param1.setNameTagVisibility(param2);
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.option.nametagVisibility.success", param1.getFormattedDisplayName(), param2.getDisplayName()), true
+                Component.translatable("commands.team.option.nametagVisibility.success", param1.getFormattedDisplayName(), param2.getDisplayName()), true
             );
             return 0;
         }
@@ -375,8 +373,7 @@ public class TeamCommand {
         } else {
             param1.setDeathMessageVisibility(param2);
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.option.deathMessageVisibility.success", param1.getFormattedDisplayName(), param2.getDisplayName()),
-                true
+                Component.translatable("commands.team.option.deathMessageVisibility.success", param1.getFormattedDisplayName(), param2.getDisplayName()), true
             );
             return 0;
         }
@@ -388,7 +385,7 @@ public class TeamCommand {
         } else {
             param1.setCollisionRule(param2);
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.option.collisionRule.success", param1.getFormattedDisplayName(), param2.getDisplayName()), true
+                Component.translatable("commands.team.option.collisionRule.success", param1.getFormattedDisplayName(), param2.getDisplayName()), true
             );
             return 0;
         }
@@ -404,7 +401,7 @@ public class TeamCommand {
         } else {
             param1.setSeeFriendlyInvisibles(param2);
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.option.seeFriendlyInvisibles." + (param2 ? "enabled" : "disabled"), param1.getFormattedDisplayName()),
+                Component.translatable("commands.team.option.seeFriendlyInvisibles." + (param2 ? "enabled" : "disabled"), param1.getFormattedDisplayName()),
                 true
             );
             return 0;
@@ -421,7 +418,7 @@ public class TeamCommand {
         } else {
             param1.setAllowFriendlyFire(param2);
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.option.friendlyfire." + (param2 ? "enabled" : "disabled"), param1.getFormattedDisplayName()), true
+                Component.translatable("commands.team.option.friendlyfire." + (param2 ? "enabled" : "disabled"), param1.getFormattedDisplayName()), true
             );
             return 0;
         }
@@ -432,7 +429,7 @@ public class TeamCommand {
             throw ERROR_TEAM_ALREADY_NAME.create();
         } else {
             param1.setDisplayName(param2);
-            param0.sendSuccess(new TranslatableComponent("commands.team.option.name.success", param1.getFormattedDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.team.option.name.success", param1.getFormattedDisplayName()), true);
             return 0;
         }
     }
@@ -442,7 +439,7 @@ public class TeamCommand {
             throw ERROR_TEAM_ALREADY_COLOR.create();
         } else {
             param1.setColor(param2);
-            param0.sendSuccess(new TranslatableComponent("commands.team.option.color.success", param1.getFormattedDisplayName(), param2.getName()), true);
+            param0.sendSuccess(Component.translatable("commands.team.option.color.success", param1.getFormattedDisplayName(), param2.getName()), true);
             return 0;
         }
     }
@@ -457,7 +454,7 @@ public class TeamCommand {
                 var0.removePlayerFromTeam(var2, param1);
             }
 
-            param0.sendSuccess(new TranslatableComponent("commands.team.empty.success", var1.size(), param1.getFormattedDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.team.empty.success", var1.size(), param1.getFormattedDisplayName()), true);
             return var1.size();
         }
     }
@@ -465,12 +462,12 @@ public class TeamCommand {
     private static int deleteTeam(CommandSourceStack param0, PlayerTeam param1) {
         Scoreboard var0 = param0.getServer().getScoreboard();
         var0.removePlayerTeam(param1);
-        param0.sendSuccess(new TranslatableComponent("commands.team.remove.success", param1.getFormattedDisplayName()), true);
+        param0.sendSuccess(Component.translatable("commands.team.remove.success", param1.getFormattedDisplayName()), true);
         return var0.getPlayerTeams().size();
     }
 
     private static int createTeam(CommandSourceStack param0, String param1) throws CommandSyntaxException {
-        return createTeam(param0, param1, new TextComponent(param1));
+        return createTeam(param0, param1, Component.literal(param1));
     }
 
     private static int createTeam(CommandSourceStack param0, String param1, Component param2) throws CommandSyntaxException {
@@ -480,7 +477,7 @@ public class TeamCommand {
         } else {
             PlayerTeam var1 = var0.addPlayerTeam(param1);
             var1.setDisplayName(param2);
-            param0.sendSuccess(new TranslatableComponent("commands.team.add.success", var1.getFormattedDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.team.add.success", var1.getFormattedDisplayName()), true);
             return var0.getPlayerTeams().size();
         }
     }
@@ -488,10 +485,10 @@ public class TeamCommand {
     private static int listMembers(CommandSourceStack param0, PlayerTeam param1) {
         Collection<String> var0 = param1.getPlayers();
         if (var0.isEmpty()) {
-            param0.sendSuccess(new TranslatableComponent("commands.team.list.members.empty", param1.getFormattedDisplayName()), false);
+            param0.sendSuccess(Component.translatable("commands.team.list.members.empty", param1.getFormattedDisplayName()), false);
         } else {
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.list.members.success", param1.getFormattedDisplayName(), var0.size(), ComponentUtils.formatList(var0)),
+                Component.translatable("commands.team.list.members.success", param1.getFormattedDisplayName(), var0.size(), ComponentUtils.formatList(var0)),
                 false
             );
         }
@@ -502,10 +499,10 @@ public class TeamCommand {
     private static int listTeams(CommandSourceStack param0) {
         Collection<PlayerTeam> var0 = param0.getServer().getScoreboard().getPlayerTeams();
         if (var0.isEmpty()) {
-            param0.sendSuccess(new TranslatableComponent("commands.team.list.teams.empty"), false);
+            param0.sendSuccess(Component.translatable("commands.team.list.teams.empty"), false);
         } else {
             param0.sendSuccess(
-                new TranslatableComponent("commands.team.list.teams.success", var0.size(), ComponentUtils.formatList(var0, PlayerTeam::getFormattedDisplayName)),
+                Component.translatable("commands.team.list.teams.success", var0.size(), ComponentUtils.formatList(var0, PlayerTeam::getFormattedDisplayName)),
                 false
             );
         }
@@ -515,13 +512,13 @@ public class TeamCommand {
 
     private static int setPrefix(CommandSourceStack param0, PlayerTeam param1, Component param2) {
         param1.setPlayerPrefix(param2);
-        param0.sendSuccess(new TranslatableComponent("commands.team.option.prefix.success", param2), false);
+        param0.sendSuccess(Component.translatable("commands.team.option.prefix.success", param2), false);
         return 1;
     }
 
     private static int setSuffix(CommandSourceStack param0, PlayerTeam param1, Component param2) {
         param1.setPlayerSuffix(param2);
-        param0.sendSuccess(new TranslatableComponent("commands.team.option.suffix.success", param2), false);
+        param0.sendSuccess(Component.translatable("commands.team.option.suffix.success", param2), false);
         return 1;
     }
 }

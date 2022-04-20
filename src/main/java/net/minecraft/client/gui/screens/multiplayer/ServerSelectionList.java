@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.LoadingDotsText;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
@@ -30,9 +31,8 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.server.LanServer;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
@@ -53,12 +53,12 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
     );
     static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
     static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
-    static final Component SCANNING_LABEL = new TranslatableComponent("lanServer.scanning");
-    static final Component CANT_RESOLVE_TEXT = new TranslatableComponent("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
-    static final Component CANT_CONNECT_TEXT = new TranslatableComponent("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
-    static final Component INCOMPATIBLE_TOOLTIP = new TranslatableComponent("multiplayer.status.incompatible");
-    static final Component NO_CONNECTION_TOOLTIP = new TranslatableComponent("multiplayer.status.no_connection");
-    static final Component PINGING_TOOLTIP = new TranslatableComponent("multiplayer.status.pinging");
+    static final Component SCANNING_LABEL = Component.translatable("lanServer.scanning");
+    static final Component CANT_RESOLVE_TEXT = Component.translatable("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
+    static final Component CANT_CONNECT_TEXT = Component.translatable("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
+    static final Component INCOMPATIBLE_TOOLTIP = Component.translatable("multiplayer.status.incompatible");
+    static final Component NO_CONNECTION_TOOLTIP = Component.translatable("multiplayer.status.no_connection");
+    static final Component PINGING_TOOLTIP = Component.translatable("multiplayer.status.pinging");
     private final JoinMultiplayerScreen screen;
     private final List<ServerSelectionList.OnlineServerEntry> onlineServers = Lists.newArrayList();
     private final ServerSelectionList.Entry lanHeader = new ServerSelectionList.LANHeader();
@@ -147,26 +147,21 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                     (float)var0,
                     16777215
                 );
-
-            String var3 = switch((int)(Util.getMillis() / 300L % 4L)) {
-                default -> "O o o";
-                case 1, 3 -> "o O o";
-                case 2 -> "o o O";
-            };
-            this.minecraft.font.draw(param0, var3, (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(var3) / 2), (float)(var0 + 9), 8421504);
+            String var1 = LoadingDotsText.get(Util.getMillis());
+            this.minecraft.font.draw(param0, var1, (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(var1) / 2), (float)(var0 + 9), 8421504);
         }
 
         @Override
         public Component getNarration() {
-            return TextComponent.EMPTY;
+            return CommonComponents.EMPTY;
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     public static class NetworkServerEntry extends ServerSelectionList.Entry {
         private static final int ICON_WIDTH = 32;
-        private static final Component LAN_SERVER_HEADER = new TranslatableComponent("lanServer.title");
-        private static final Component HIDDEN_ADDRESS_TEXT = new TranslatableComponent("selectServer.hiddenAddress");
+        private static final Component LAN_SERVER_HEADER = Component.translatable("lanServer.title");
+        private static final Component HIDDEN_ADDRESS_TEXT = Component.translatable("selectServer.hiddenAddress");
         private final JoinMultiplayerScreen screen;
         protected final Minecraft minecraft;
         protected final LanServer serverData;
@@ -207,7 +202,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
 
         @Override
         public Component getNarration() {
-            return new TranslatableComponent("narrator.select", new TextComponent("").append(LAN_SERVER_HEADER).append(" ").append(this.serverData.getMotd()));
+            return Component.translatable("narrator.select", Component.empty().append(LAN_SERVER_HEADER).append(" ").append(this.serverData.getMotd()));
         }
     }
 
@@ -248,8 +243,8 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             if (!this.serverData.pinged) {
                 this.serverData.pinged = true;
                 this.serverData.ping = -2L;
-                this.serverData.motd = TextComponent.EMPTY;
-                this.serverData.status = TextComponent.EMPTY;
+                this.serverData.motd = CommonComponents.EMPTY;
+                this.serverData.status = CommonComponents.EMPTY;
                 ServerSelectionList.THREAD_POOL.submit(() -> {
                     try {
                         this.screen.getPinger().pingServer(this.serverData, () -> this.minecraft.execute(this::updateServerList));
@@ -302,7 +297,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                     var7 = ServerSelectionList.NO_CONNECTION_TOOLTIP;
                     var8 = Collections.emptyList();
                 } else {
-                    var7 = new TranslatableComponent("multiplayer.status.ping", this.serverData.ping);
+                    var7 = Component.translatable("multiplayer.status.ping", this.serverData.ping);
                     var8 = this.serverData.playerList;
                 }
             } else {
@@ -487,7 +482,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
 
         @Override
         public Component getNarration() {
-            return new TranslatableComponent("narrator.select", this.serverData.name);
+            return Component.translatable("narrator.select", this.serverData.name);
         }
     }
 }

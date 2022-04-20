@@ -9,13 +9,12 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DirectJoinServerScreen extends Screen {
-    private static final Component ENTER_IP_LABEL = new TranslatableComponent("addServer.enterIp");
+    private static final Component ENTER_IP_LABEL = Component.translatable("addServer.enterIp");
     private Button selectButton;
     private final ServerData serverData;
     private EditBox ipEdit;
@@ -23,7 +22,7 @@ public class DirectJoinServerScreen extends Screen {
     private final Screen lastScreen;
 
     public DirectJoinServerScreen(Screen param0, BooleanConsumer param1, ServerData param2) {
-        super(new TranslatableComponent("selectServer.direct"));
+        super(Component.translatable("selectServer.direct"));
         this.lastScreen = param0;
         this.serverData = param2;
         this.callback = param1;
@@ -48,12 +47,12 @@ public class DirectJoinServerScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.selectButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 96 + 12, 200, 20, new TranslatableComponent("selectServer.select"), param0 -> this.onSelect())
+            new Button(this.width / 2 - 100, this.height / 4 + 96 + 12, 200, 20, Component.translatable("selectServer.select"), param0 -> this.onSelect())
         );
         this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
         );
-        this.ipEdit = new EditBox(this.font, this.width / 2 - 100, 116, 200, 20, new TranslatableComponent("addServer.enterIp"));
+        this.ipEdit = new EditBox(this.font, this.width / 2 - 100, 116, 200, 20, Component.translatable("addServer.enterIp"));
         this.ipEdit.setMaxLength(128);
         this.ipEdit.setFocus(true);
         this.ipEdit.setValue(this.minecraft.options.lastMpIp);

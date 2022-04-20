@@ -25,7 +25,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -90,7 +89,7 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
     @Override
     protected MutableComponent createNarrationMessage() {
         Component var0 = this.getMessage();
-        return new TranslatableComponent("gui.narrate.editBox", var0, this.value);
+        return Component.translatable("gui.narrate.editBox", var0, this.value);
     }
 
     public void setValue(String param0) {
@@ -600,6 +599,6 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
 
     @Override
     public void updateNarration(NarrationElementOutput param0) {
-        param0.add(NarratedElementType.TITLE, (Component)(new TranslatableComponent("narration.edit_box", this.getValue())));
+        param0.add(NarratedElementType.TITLE, (Component)Component.translatable("narration.edit_box", this.getValue()));
     }
 }

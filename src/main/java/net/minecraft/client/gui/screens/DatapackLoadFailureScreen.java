@@ -3,7 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -13,7 +13,7 @@ public class DatapackLoadFailureScreen extends Screen {
     private final Runnable callback;
 
     public DatapackLoadFailureScreen(Runnable param0) {
-        super(new TranslatableComponent("datapackFailure.title"));
+        super(Component.translatable("datapackFailure.title"));
         this.callback = param0;
     }
 
@@ -22,13 +22,11 @@ public class DatapackLoadFailureScreen extends Screen {
         super.init();
         this.message = MultiLineLabel.create(this.font, this.getTitle(), this.width - 50);
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 155, this.height / 6 + 96, 150, 20, new TranslatableComponent("datapackFailure.safeMode"), param0 -> this.callback.run()
-            )
+            new Button(this.width / 2 - 155, this.height / 6 + 96, 150, 20, Component.translatable("datapackFailure.safeMode"), param0 -> this.callback.run())
         );
         this.addRenderableWidget(
             new Button(
-                this.width / 2 - 155 + 160, this.height / 6 + 96, 150, 20, new TranslatableComponent("gui.toTitle"), param0 -> this.minecraft.setScreen(null)
+                this.width / 2 - 155 + 160, this.height / 6 + 96, 150, 20, Component.translatable("gui.toTitle"), param0 -> this.minecraft.setScreen(null)
             )
         );
     }

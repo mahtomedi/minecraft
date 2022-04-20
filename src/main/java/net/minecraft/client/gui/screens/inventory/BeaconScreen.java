@@ -15,8 +15,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSetBeaconPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
@@ -33,8 +31,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
     static final ResourceLocation BEACON_LOCATION = new ResourceLocation("textures/gui/container/beacon.png");
-    private static final Component PRIMARY_EFFECT_LABEL = new TranslatableComponent("block.minecraft.beacon.primary");
-    private static final Component SECONDARY_EFFECT_LABEL = new TranslatableComponent("block.minecraft.beacon.secondary");
+    private static final Component PRIMARY_EFFECT_LABEL = Component.translatable("block.minecraft.beacon.primary");
+    private static final Component SECONDARY_EFFECT_LABEL = Component.translatable("block.minecraft.beacon.secondary");
     private final List<BeaconScreen.BeaconButton> beaconButtons = Lists.newArrayList();
     @Nullable
     MobEffect primary;
@@ -220,7 +218,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         }
 
         protected MutableComponent createEffectDescription(MobEffect param0) {
-            return new TranslatableComponent(param0.getDescriptionId());
+            return Component.translatable(param0.getDescriptionId());
         }
 
         @Override
@@ -264,7 +262,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         private boolean selected;
 
         protected BeaconScreenButton(int param0, int param1) {
-            super(param0, param1, 22, 22, TextComponent.EMPTY);
+            super(param0, param1, 22, 22, CommonComponents.EMPTY);
         }
 
         protected BeaconScreenButton(int param0, int param1, Component param2) {
@@ -341,7 +339,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         protected MutableComponent createEffectDescription(MobEffect param0) {
-            return new TranslatableComponent(param0.getDescriptionId()).append(" II");
+            return Component.translatable(param0.getDescriptionId()).append(" II");
         }
 
         @Override

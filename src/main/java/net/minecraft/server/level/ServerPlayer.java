@@ -26,10 +26,9 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
@@ -575,10 +574,8 @@ public class ServerPlayer extends Player {
                         if (!param1.isSuccess()) {
                             int var0x = 256;
                             String var1x = var1.getString(256);
-                            Component var2x = new TranslatableComponent(
-                                "death.attack.message_too_long", new TextComponent(var1x).withStyle(ChatFormatting.YELLOW)
-                            );
-                            Component var3x = new TranslatableComponent("death.attack.even_more_magic", this.getDisplayName())
+                            Component var2x = Component.translatable("death.attack.message_too_long", Component.literal(var1x).withStyle(ChatFormatting.YELLOW));
+                            Component var3x = Component.translatable("death.attack.even_more_magic", this.getDisplayName())
                                 .withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
                             this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var3x));
                         }
@@ -594,7 +591,7 @@ public class ServerPlayer extends Player {
                 this.server.getPlayerList().broadcastToAllExceptTeam(this, var1);
             }
         } else {
-            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), TextComponent.EMPTY));
+            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), CommonComponents.EMPTY));
         }
 
         this.removeEntitiesOnShoulder();
@@ -881,7 +878,7 @@ public class ServerPlayer extends Player {
                     CriteriaTriggers.SLEPT_IN_BED.trigger(this);
                 });
                 if (!this.getLevel().canSleepThroughNights()) {
-                    this.displayClientMessage(new TranslatableComponent("sleep.not_possible"), true);
+                    this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
                 }
 
                 ((ServerLevel)this.level).updateSleepingPlayerList();
@@ -1006,7 +1003,7 @@ public class ServerPlayer extends Player {
             AbstractContainerMenu var0 = param0.createMenu(this.containerCounter, this.getInventory(), this);
             if (var0 == null) {
                 if (this.isSpectator()) {
-                    this.displayClientMessage(new TranslatableComponent("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
+                    this.displayClientMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
                 }
 
                 return OptionalInt.empty();
@@ -1302,11 +1299,11 @@ public class ServerPlayer extends Player {
                         if (!param3.isSuccess() && (param1 == ChatType.GAME_INFO || param1 == ChatType.SYSTEM) && this.acceptsChat(ChatType.SYSTEM)) {
                             int var0 = 256;
                             String var1x = param0.getString(256);
-                            Component var2x = new TextComponent(var1x).withStyle(ChatFormatting.YELLOW);
+                            Component var2x = Component.literal(var1x).withStyle(ChatFormatting.YELLOW);
                             this.connection
                                 .send(
                                     new ClientboundChatPacket(
-                                        new TranslatableComponent("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED),
+                                        Component.translatable("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED),
                                         ChatType.SYSTEM,
                                         param2
                                     )
@@ -1501,7 +1498,7 @@ public class ServerPlayer extends Player {
         if (param1 != null) {
             boolean var0 = param1.equals(this.respawnPosition) && param0.equals(this.respawnDimension);
             if (param4 && !var0) {
-                this.sendMessage(new TranslatableComponent("block.minecraft.set_spawn"), Util.NIL_UUID);
+                this.sendMessage(Component.translatable("block.minecraft.set_spawn"), Util.NIL_UUID);
             }
 
             this.respawnPosition = param1;

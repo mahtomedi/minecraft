@@ -2,7 +2,6 @@ package net.minecraft.server.packs.repository;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public interface PackSource {
     PackSource DEFAULT = passThrough();
@@ -17,7 +16,7 @@ public interface PackSource {
     }
 
     static PackSource decorating(String param0) {
-        Component var0 = new TranslatableComponent(param0);
-        return param1 -> new TranslatableComponent("pack.nameAndSource", param1, var0).withStyle(ChatFormatting.GRAY);
+        Component var0 = Component.translatable(param0);
+        return param1 -> Component.translatable("pack.nameAndSource", param1, var0).withStyle(ChatFormatting.GRAY);
     }
 }

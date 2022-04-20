@@ -2,9 +2,9 @@ package net.minecraft.client.gui.screens.inventory;
 
 import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
@@ -100,7 +100,7 @@ public class EnchantmentNames {
             var0.append(Util.getRandom(this.words, this.random));
         }
 
-        return param0.getSplitter().headByWidth(new TextComponent(var0.toString()).withStyle(ROOT_STYLE), param1, Style.EMPTY);
+        return param0.getSplitter().headByWidth(Component.literal(var0.toString()).withStyle(ROOT_STYLE), param1, Style.EMPTY);
     }
 
     public void initSeed(long param0) {

@@ -110,7 +110,6 @@ public class ParticleTypes {
     public static final ParticleType<ShriekParticleOption> SHRIEK = register(
         "shriek", false, ShriekParticleOption.DESERIALIZER, param0 -> ShriekParticleOption.CODEC
     );
-    public static final SimpleParticleType ALLAY_DUST = register("allay_dust", true);
     public static final Codec<ParticleOptions> CODEC = Registry.PARTICLE_TYPE.byNameCodec().dispatch("type", ParticleOptions::getType, ParticleType::codec);
 
     private static SimpleParticleType register(String param0, boolean param1) {

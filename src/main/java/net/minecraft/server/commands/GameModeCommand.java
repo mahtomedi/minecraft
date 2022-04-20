@@ -10,7 +10,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
@@ -36,15 +35,15 @@ public class GameModeCommand {
     }
 
     private static void logGamemodeChange(CommandSourceStack param0, ServerPlayer param1, GameType param2) {
-        Component var0 = new TranslatableComponent("gameMode." + param2.getName());
+        Component var0 = Component.translatable("gameMode." + param2.getName());
         if (param0.getEntity() == param1) {
-            param0.sendSuccess(new TranslatableComponent("commands.gamemode.success.self", var0), true);
+            param0.sendSuccess(Component.translatable("commands.gamemode.success.self", var0), true);
         } else {
             if (param0.getLevel().getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
-                param1.sendMessage(new TranslatableComponent("gameMode.changed", var0), Util.NIL_UUID);
+                param1.sendMessage(Component.translatable("gameMode.changed", var0), Util.NIL_UUID);
             }
 
-            param0.sendSuccess(new TranslatableComponent("commands.gamemode.success.other", param1.getDisplayName(), var0), true);
+            param0.sendSuccess(Component.translatable("commands.gamemode.success.other", param1.getDisplayName(), var0), true);
         }
 
     }

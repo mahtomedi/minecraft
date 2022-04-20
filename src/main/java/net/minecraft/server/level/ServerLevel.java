@@ -44,7 +44,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
@@ -530,9 +529,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 int var0 = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
                 Component var1;
                 if (this.sleepStatus.areEnoughSleeping(var0)) {
-                    var1 = new TranslatableComponent("sleep.skipping_night");
+                    var1 = Component.translatable("sleep.skipping_night");
                 } else {
-                    var1 = new TranslatableComponent("sleep.players_sleeping", this.sleepStatus.amountSleeping(), this.sleepStatus.sleepersNeeded(var0));
+                    var1 = Component.translatable("sleep.players_sleeping", this.sleepStatus.amountSleeping(), this.sleepStatus.sleepersNeeded(var0));
                 }
 
                 for(ServerPlayer var3 : this.players) {
@@ -711,12 +710,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
         ServerChunkCache var0 = this.getChunkSource();
         if (!param2) {
             if (param0 != null) {
-                param0.progressStartNoAbort(new TranslatableComponent("menu.savingLevel"));
+                param0.progressStartNoAbort(Component.translatable("menu.savingLevel"));
             }
 
             this.saveLevelData();
             if (param0 != null) {
-                param0.progressStage(new TranslatableComponent("menu.savingChunks"));
+                param0.progressStage(Component.translatable("menu.savingChunks"));
             }
 
             var0.save(param1);

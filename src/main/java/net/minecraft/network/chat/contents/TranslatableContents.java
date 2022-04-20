@@ -1,4 +1,4 @@
-package net.minecraft.network.chat;
+package net.minecraft.network.chat.contents;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -12,9 +12,15 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.Entity;
 
-public class TranslatableComponent extends BaseComponent implements ContextAwareComponent {
+public class TranslatableContents implements ComponentContents {
     private static final Object[] NO_ARGS = new Object[0];
     private static final FormattedText TEXT_PERCENT = FormattedText.of("%");
     private static final FormattedText TEXT_NULL = FormattedText.of("null");
@@ -25,12 +31,12 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
     private List<FormattedText> decomposedParts = ImmutableList.of();
     private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
 
-    public TranslatableComponent(String param0) {
+    public TranslatableContents(String param0) {
         this.key = param0;
         this.args = NO_ARGS;
     }
 
-    public TranslatableComponent(String param0, Object... param1) {
+    public TranslatableContents(String param0, Object... param1) {
         this.key = param0;
         this.args = param1;
     }
@@ -116,12 +122,8 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
         }
     }
 
-    public TranslatableComponent plainCopy() {
-        return new TranslatableComponent(this.key, this.args);
-    }
-
     @Override
-    public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> param0, Style param1) {
+    public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         this.decompose();
 
         for(FormattedText var0 : this.decomposedParts) {
@@ -135,7 +137,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
     }
 
     @Override
-    public <T> Optional<T> visitSelf(FormattedText.ContentConsumer<T> param0) {
+    public <T> Optional<T> visit(FormattedText.ContentConsumer<T> param0) {
         this.decompose();
 
         for(FormattedText var0 : this.decomposedParts) {
@@ -161,18 +163,19 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
             }
         }
 
-        return new TranslatableComponent(this.key, var0);
+        return MutableComponent.create(new TranslatableContents(this.key, var0));
     }
 
     @Override
     public boolean equals(Object param0) {
         if (this == param0) {
             return true;
-        } else if (!(param0 instanceof TranslatableComponent)) {
-            return false;
         } else {
-            TranslatableComponent var0 = (TranslatableComponent)param0;
-            return Arrays.equals(this.args, var0.args) && this.key.equals(var0.key) && super.equals(param0);
+            if (param0 instanceof TranslatableContents var0 && this.key.equals(var0.key) && Arrays.equals(this.args, var0.args)) {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -185,15 +188,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
 
     @Override
     public String toString() {
-        return "TranslatableComponent{key='"
-            + this.key
-            + "', args="
-            + Arrays.toString(this.args)
-            + ", siblings="
-            + this.siblings
-            + ", style="
-            + this.getStyle()
-            + "}";
+        return "translation{key='" + this.key + "', args=" + Arrays.toString(this.args) + "}";
     }
 
     public String getKey() {

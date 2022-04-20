@@ -8,7 +8,6 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -96,7 +95,7 @@ public abstract class Enchantment {
     }
 
     public Component getFullname(int param0) {
-        MutableComponent var0 = new TranslatableComponent(this.getDescriptionId());
+        MutableComponent var0 = Component.translatable(this.getDescriptionId());
         if (this.isCurse()) {
             var0.withStyle(ChatFormatting.RED);
         } else {
@@ -104,7 +103,7 @@ public abstract class Enchantment {
         }
 
         if (param0 != 1 || this.getMaxLevel() != 1) {
-            var0.append(" ").append(new TranslatableComponent("enchantment.level." + param0));
+            var0.append(" ").append(Component.translatable("enchantment.level." + param0));
         }
 
         return var0;

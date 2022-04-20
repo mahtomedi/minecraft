@@ -29,8 +29,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -46,10 +44,10 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class WorldGenSettingsComponent implements Widget {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Component CUSTOM_WORLD_DESCRIPTION = new TranslatableComponent("generator.custom");
-    private static final Component AMPLIFIED_HELP_TEXT = new TranslatableComponent("generator.minecraft.amplified.info");
-    private static final Component MAP_FEATURES_INFO = new TranslatableComponent("selectWorld.mapFeatures.info");
-    private static final Component SELECT_FILE_PROMPT = new TranslatableComponent("selectWorld.import_worldgen_settings.select_file");
+    private static final Component CUSTOM_WORLD_DESCRIPTION = Component.translatable("generator.custom");
+    private static final Component AMPLIFIED_HELP_TEXT = Component.translatable("generator.minecraft.amplified.info");
+    private static final Component MAP_FEATURES_INFO = Component.translatable("selectWorld.mapFeatures.info");
+    private static final Component SELECT_FILE_PROMPT = Component.translatable("selectWorld.import_worldgen_settings.select_file");
     private MultiLineLabel amplifiedWorldInfo = MultiLineLabel.EMPTY;
     private Font font;
     private int width;
@@ -77,7 +75,7 @@ public class WorldGenSettingsComponent implements Widget {
     public void init(CreateWorldScreen param0, Minecraft param1, Font param2) {
         this.font = param2;
         this.width = param0.width;
-        this.seedEdit = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, new TranslatableComponent("selectWorld.enterSeed"));
+        this.seedEdit = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, Component.translatable("selectWorld.enterSeed"));
         this.seedEdit.setValue(toString(this.seed));
         this.seedEdit.setResponder(param0x -> this.seed = WorldGenSettings.parseSeed(this.seedEdit.getValue()));
         param0.addWidget(this.seedEdit);
@@ -87,7 +85,7 @@ public class WorldGenSettingsComponent implements Widget {
             CycleButton.onOffBuilder(this.settings.worldGenSettings().generateStructures())
                 .withCustomNarration(
                     param0x -> CommonComponents.joinForNarration(
-                            param0x.createDefaultNarrationMessage(), new TranslatableComponent("selectWorld.mapFeatures.info")
+                            param0x.createDefaultNarrationMessage(), Component.translatable("selectWorld.mapFeatures.info")
                         )
                 )
                 .create(
@@ -95,7 +93,7 @@ public class WorldGenSettingsComponent implements Widget {
                     100,
                     150,
                     20,
-                    new TranslatableComponent("selectWorld.mapFeatures"),
+                    Component.translatable("selectWorld.mapFeatures"),
                     (param0x, param1x) -> this.updateSettings(WorldGenSettings::withStructuresToggled)
                 )
         );
@@ -111,7 +109,7 @@ public class WorldGenSettingsComponent implements Widget {
                             ? CommonComponents.joinForNarration(param0x.createDefaultNarrationMessage(), AMPLIFIED_HELP_TEXT)
                             : param0x.createDefaultNarrationMessage()
                 )
-                .create(var1, 100, 150, 20, new TranslatableComponent("selectWorld.mapType"), (param1x, param2x) -> {
+                .create(var1, 100, 150, 20, Component.translatable("selectWorld.mapType"), (param1x, param2x) -> {
                     this.preset = Optional.of(param2x);
                     this.updateSettings(param1xx -> ((WorldPreset)param2x.value()).recreateWorldGenSettings(param1xx));
                     param0.refreshWorldGenSettingsVisibility();
@@ -121,21 +119,19 @@ public class WorldGenSettingsComponent implements Widget {
         this.typeButton.visible = false;
         this.customWorldDummyButton = param0.addRenderableWidget(
             new Button(
-                var1, 100, 150, 20, CommonComponents.optionNameValue(new TranslatableComponent("selectWorld.mapType"), CUSTOM_WORLD_DESCRIPTION), param0x -> {
+                var1, 100, 150, 20, CommonComponents.optionNameValue(Component.translatable("selectWorld.mapType"), CUSTOM_WORLD_DESCRIPTION), param0x -> {
                 }
             )
         );
         this.customWorldDummyButton.active = false;
         this.customWorldDummyButton.visible = false;
-        this.customizeTypeButton = param0.addRenderableWidget(
-            new Button(var1, 120, 150, 20, new TranslatableComponent("selectWorld.customizeType"), param2x -> {
-                PresetEditor var0x = PresetEditor.EDITORS.get(this.preset.flatMap(Holder::unwrapKey));
-                if (var0x != null) {
-                    param1.setScreen(var0x.createEditScreen(param0, this.settings));
-                }
-    
-            })
-        );
+        this.customizeTypeButton = param0.addRenderableWidget(new Button(var1, 120, 150, 20, Component.translatable("selectWorld.customizeType"), param2x -> {
+            PresetEditor var0x = PresetEditor.EDITORS.get(this.preset.flatMap(Holder::unwrapKey));
+            if (var0x != null) {
+                param1.setScreen(var0x.createEditScreen(param0, this.settings));
+            }
+
+        }));
         this.customizeTypeButton.visible = false;
         this.bonusItemsButton = param0.addRenderableWidget(
             CycleButton.onOffBuilder(this.settings.worldGenSettings().generateBonusChest() && !param0.hardCore)
@@ -144,7 +140,7 @@ public class WorldGenSettingsComponent implements Widget {
                     151,
                     150,
                     20,
-                    new TranslatableComponent("selectWorld.bonusItems"),
+                    Component.translatable("selectWorld.bonusItems"),
                     (param0x, param1x) -> this.updateSettings(WorldGenSettings::withBonusChestToggled)
                 )
         );
@@ -155,7 +151,7 @@ public class WorldGenSettingsComponent implements Widget {
                 185,
                 150,
                 20,
-                new TranslatableComponent("selectWorld.import_worldgen_settings"),
+                Component.translatable("selectWorld.import_worldgen_settings"),
                 param2x -> {
                     String var0x = TinyFileDialogs.tinyfd_openFileDialog(SELECT_FILE_PROMPT.getString(), null, null, null, false);
                     if (var0x != null) {
@@ -170,10 +166,10 @@ public class WorldGenSettingsComponent implements Widget {
                         }
         
                         if (var7x.error().isPresent()) {
-                            Component var8 = new TranslatableComponent("selectWorld.import_worldgen_settings.failure");
+                            Component var8 = Component.translatable("selectWorld.import_worldgen_settings.failure");
                             String var9 = ((PartialResult)var7x.error().get()).message();
                             LOGGER.error("Error parsing world settings: {}", var9);
-                            Component var10 = new TextComponent(var9);
+                            Component var10 = Component.literal(var9);
                             param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var8, var10));
                         } else {
                             Lifecycle var11 = var7x.lifecycle();
@@ -197,7 +193,7 @@ public class WorldGenSettingsComponent implements Widget {
     }
 
     private static Component describePreset(Holder<WorldPreset> param0x) {
-        return param0x.unwrapKey().map(param0xx -> new TranslatableComponent(param0xx.location().toLanguageKey("generator"))).orElse(CUSTOM_WORLD_DESCRIPTION);
+        return param0x.unwrapKey().map(param0xx -> Component.translatable(param0xx.location().toLanguageKey("generator"))).orElse(CUSTOM_WORLD_DESCRIPTION);
     }
 
     private void importSettings(WorldGenSettings param0) {

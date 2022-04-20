@@ -11,7 +11,6 @@ import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
@@ -107,9 +106,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.title.cleared.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.title.cleared.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.title.cleared.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.title.cleared.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -123,9 +122,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.title.reset.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.title.reset.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.title.reset.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.title.reset.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -139,9 +138,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.title.show." + param3 + ".single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.title.show." + param3 + ".single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.title.show." + param3 + ".multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.title.show." + param3 + ".multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -155,9 +154,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.title.times.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.title.times.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.title.times.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.title.times.multiple", param1.size()), true);
         }
 
         return param1.size();

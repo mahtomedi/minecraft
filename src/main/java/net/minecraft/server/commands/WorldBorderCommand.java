@@ -10,38 +10,38 @@ import java.util.Locale;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Vec2Argument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.Vec2;
 
 public class WorldBorderCommand {
     private static final SimpleCommandExceptionType ERROR_SAME_CENTER = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.center.failed")
+        Component.translatable("commands.worldborder.center.failed")
     );
     private static final SimpleCommandExceptionType ERROR_SAME_SIZE = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.set.failed.nochange")
+        Component.translatable("commands.worldborder.set.failed.nochange")
     );
     private static final SimpleCommandExceptionType ERROR_TOO_SMALL = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.set.failed.small")
+        Component.translatable("commands.worldborder.set.failed.small")
     );
     private static final SimpleCommandExceptionType ERROR_TOO_BIG = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.set.failed.big", 5.9999968E7)
+        Component.translatable("commands.worldborder.set.failed.big", 5.9999968E7)
     );
     private static final SimpleCommandExceptionType ERROR_TOO_FAR_OUT = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.set.failed.far", 2.9999984E7)
+        Component.translatable("commands.worldborder.set.failed.far", 2.9999984E7)
     );
     private static final SimpleCommandExceptionType ERROR_SAME_WARNING_TIME = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.warning.time.failed")
+        Component.translatable("commands.worldborder.warning.time.failed")
     );
     private static final SimpleCommandExceptionType ERROR_SAME_WARNING_DISTANCE = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.warning.distance.failed")
+        Component.translatable("commands.worldborder.warning.distance.failed")
     );
     private static final SimpleCommandExceptionType ERROR_SAME_DAMAGE_BUFFER = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.damage.buffer.failed")
+        Component.translatable("commands.worldborder.damage.buffer.failed")
     );
     private static final SimpleCommandExceptionType ERROR_SAME_DAMAGE_AMOUNT = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.worldborder.damage.amount.failed")
+        Component.translatable("commands.worldborder.damage.amount.failed")
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -141,7 +141,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_DAMAGE_BUFFER.create();
         } else {
             var0.setDamageSafeZone((double)param1);
-            param0.sendSuccess(new TranslatableComponent("commands.worldborder.damage.buffer.success", String.format(Locale.ROOT, "%.2f", param1)), true);
+            param0.sendSuccess(Component.translatable("commands.worldborder.damage.buffer.success", String.format(Locale.ROOT, "%.2f", param1)), true);
             return (int)param1;
         }
     }
@@ -152,7 +152,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_DAMAGE_AMOUNT.create();
         } else {
             var0.setDamagePerBlock((double)param1);
-            param0.sendSuccess(new TranslatableComponent("commands.worldborder.damage.amount.success", String.format(Locale.ROOT, "%.2f", param1)), true);
+            param0.sendSuccess(Component.translatable("commands.worldborder.damage.amount.success", String.format(Locale.ROOT, "%.2f", param1)), true);
             return (int)param1;
         }
     }
@@ -163,7 +163,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_WARNING_TIME.create();
         } else {
             var0.setWarningTime(param1);
-            param0.sendSuccess(new TranslatableComponent("commands.worldborder.warning.time.success", param1), true);
+            param0.sendSuccess(Component.translatable("commands.worldborder.warning.time.success", param1), true);
             return param1;
         }
     }
@@ -174,14 +174,14 @@ public class WorldBorderCommand {
             throw ERROR_SAME_WARNING_DISTANCE.create();
         } else {
             var0.setWarningBlocks(param1);
-            param0.sendSuccess(new TranslatableComponent("commands.worldborder.warning.distance.success", param1), true);
+            param0.sendSuccess(Component.translatable("commands.worldborder.warning.distance.success", param1), true);
             return param1;
         }
     }
 
     private static int getSize(CommandSourceStack param0) {
         double var0 = param0.getServer().overworld().getWorldBorder().getSize();
-        param0.sendSuccess(new TranslatableComponent("commands.worldborder.get", String.format(Locale.ROOT, "%.0f", var0)), false);
+        param0.sendSuccess(Component.translatable("commands.worldborder.get", String.format(Locale.ROOT, "%.0f", var0)), false);
         return Mth.floor(var0 + 0.5);
     }
 
@@ -192,7 +192,7 @@ public class WorldBorderCommand {
         } else if (!((double)Math.abs(param1.x) > 2.9999984E7) && !((double)Math.abs(param1.y) > 2.9999984E7)) {
             var0.setCenter((double)param1.x, (double)param1.y);
             param0.sendSuccess(
-                new TranslatableComponent("commands.worldborder.center.success", String.format(Locale.ROOT, "%.2f", param1.x), String.format("%.2f", param1.y)),
+                Component.translatable("commands.worldborder.center.success", String.format(Locale.ROOT, "%.2f", param1.x), String.format("%.2f", param1.y)),
                 true
             );
             return 0;
@@ -215,18 +215,18 @@ public class WorldBorderCommand {
                 var0.lerpSizeBetween(var1, param1, param2);
                 if (param1 > var1) {
                     param0.sendSuccess(
-                        new TranslatableComponent("commands.worldborder.set.grow", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
+                        Component.translatable("commands.worldborder.set.grow", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
                         true
                     );
                 } else {
                     param0.sendSuccess(
-                        new TranslatableComponent("commands.worldborder.set.shrink", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
+                        Component.translatable("commands.worldborder.set.shrink", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
                         true
                     );
                 }
             } else {
                 var0.setSize(param1);
-                param0.sendSuccess(new TranslatableComponent("commands.worldborder.set.immediate", String.format(Locale.ROOT, "%.1f", param1)), true);
+                param0.sendSuccess(Component.translatable("commands.worldborder.set.immediate", String.format(Locale.ROOT, "%.1f", param1)), true);
             }
 
             return (int)(param1 - var1);

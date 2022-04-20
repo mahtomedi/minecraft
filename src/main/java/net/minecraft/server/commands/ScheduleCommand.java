@@ -15,7 +15,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.commands.arguments.item.FunctionArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.Tag;
@@ -24,9 +24,9 @@ import net.minecraft.world.level.timers.FunctionTagCallback;
 import net.minecraft.world.level.timers.TimerQueue;
 
 public class ScheduleCommand {
-    private static final SimpleCommandExceptionType ERROR_SAME_TICK = new SimpleCommandExceptionType(new TranslatableComponent("commands.schedule.same_tick"));
+    private static final SimpleCommandExceptionType ERROR_SAME_TICK = new SimpleCommandExceptionType(Component.translatable("commands.schedule.same_tick"));
     private static final DynamicCommandExceptionType ERROR_CANT_REMOVE = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.schedule.cleared.failure", param0)
+        param0 -> Component.translatable("commands.schedule.cleared.failure", param0)
     );
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_SCHEDULE = (param0, param1) -> SharedSuggestionProvider.suggest(
             param0.getSource().getServer().getWorldData().overworldData().getScheduledEvents().getEventsIds(), param1
@@ -103,7 +103,7 @@ public class ScheduleCommand {
                 }
 
                 var2.schedule(var0x, var0, new FunctionCallback(var1));
-                param0.sendSuccess(new TranslatableComponent("commands.schedule.created.function", var1, param2, var0), true);
+                param0.sendSuccess(Component.translatable("commands.schedule.created.function", var1, param2, var0), true);
             }).ifRight(param6 -> {
                 String var0x = "#" + var1;
                 if (param3) {
@@ -111,7 +111,7 @@ public class ScheduleCommand {
                 }
 
                 var2.schedule(var0x, var0, new FunctionTagCallback(var1));
-                param0.sendSuccess(new TranslatableComponent("commands.schedule.created.tag", var1, param2, var0), true);
+                param0.sendSuccess(Component.translatable("commands.schedule.created.tag", var1, param2, var0), true);
             });
             return Math.floorMod(var0, Integer.MAX_VALUE);
         }
@@ -122,7 +122,7 @@ public class ScheduleCommand {
         if (var0 == 0) {
             throw ERROR_CANT_REMOVE.create(param1);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.schedule.cleared.success", var0, param1), true);
+            param0.sendSuccess(Component.translatable("commands.schedule.cleared.success", var0, param1), true);
             return var0;
         }
     }

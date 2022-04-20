@@ -26,8 +26,6 @@ import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.WorldStem;
 import net.minecraft.util.Mth;
@@ -44,14 +42,14 @@ import org.slf4j.Logger;
 public class EditWorldScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson WORLD_GEN_SETTINGS_GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create();
-    private static final Component NAME_LABEL = new TranslatableComponent("selectWorld.enterName");
+    private static final Component NAME_LABEL = Component.translatable("selectWorld.enterName");
     private Button renameButton;
     private final BooleanConsumer callback;
     private EditBox nameEdit;
     private final LevelStorageSource.LevelStorageAccess levelAccess;
 
     public EditWorldScreen(BooleanConsumer param0, LevelStorageSource.LevelStorageAccess param1) {
-        super(new TranslatableComponent("selectWorld.edit.title"));
+        super(Component.translatable("selectWorld.edit.title"));
         this.callback = param0;
         this.levelAccess = param1;
     }
@@ -65,7 +63,7 @@ public class EditWorldScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         Button var0 = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 0 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.resetIcon"), param0 -> {
+            new Button(this.width / 2 - 100, this.height / 4 + 0 + 5, 200, 20, Component.translatable("selectWorld.edit.resetIcon"), param0 -> {
                 this.levelAccess.getIconFile().ifPresent(param0x -> FileUtils.deleteQuietly(param0x.toFile()));
                 param0.active = false;
             })
@@ -76,18 +74,18 @@ public class EditWorldScreen extends Screen {
                 this.height / 4 + 24 + 5,
                 200,
                 20,
-                new TranslatableComponent("selectWorld.edit.openFolder"),
+                Component.translatable("selectWorld.edit.openFolder"),
                 param0 -> Util.getPlatform().openFile(this.levelAccess.getLevelPath(LevelResource.ROOT).toFile())
             )
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 48 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.backup"), param0 -> {
+            new Button(this.width / 2 - 100, this.height / 4 + 48 + 5, 200, 20, Component.translatable("selectWorld.edit.backup"), param0 -> {
                 boolean var0x = makeBackupAndShowToast(this.levelAccess);
                 this.callback.accept(!var0x);
             })
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 72 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.backupFolder"), param0 -> {
+            new Button(this.width / 2 - 100, this.height / 4 + 72 + 5, 200, 20, Component.translatable("selectWorld.edit.backupFolder"), param0 -> {
                 LevelStorageSource var0x = this.minecraft.getLevelSource();
                 Path var1x = var0x.getBackupPath();
     
@@ -106,7 +104,7 @@ public class EditWorldScreen extends Screen {
                 this.height / 4 + 96 + 5,
                 200,
                 20,
-                new TranslatableComponent("selectWorld.edit.optimize"),
+                Component.translatable("selectWorld.edit.optimize"),
                 param0 -> this.minecraft.setScreen(new BackupConfirmScreen(this, (param0x, param1) -> {
                         if (param0x) {
                             makeBackupAndShowToast(this.levelAccess);
@@ -114,7 +112,7 @@ public class EditWorldScreen extends Screen {
         
                         this.minecraft
                             .setScreen(OptimizeWorldScreen.create(this.minecraft, this.callback, this.minecraft.getFixerUpper(), this.levelAccess, param1));
-                    }, new TranslatableComponent("optimizeWorld.confirm.title"), new TranslatableComponent("optimizeWorld.confirm.description"), true))
+                    }, Component.translatable("optimizeWorld.confirm.title"), Component.translatable("optimizeWorld.confirm.description"), true))
             )
         );
         this.addRenderableWidget(
@@ -123,7 +121,7 @@ public class EditWorldScreen extends Screen {
                 this.height / 4 + 120 + 5,
                 200,
                 20,
-                new TranslatableComponent("selectWorld.edit.export_worldgen_settings"),
+                Component.translatable("selectWorld.edit.export_worldgen_settings"),
                 param0 -> {
                     DataResult<String> var3;
                     try (WorldStem var0x = this.minecraft.createWorldOpenFlows().loadWorldStem(this.levelAccess, false)) {
@@ -145,8 +143,8 @@ public class EditWorldScreen extends Screen {
                         var3 = DataResult.error("Could not parse level data: " + var81.getMessage());
                     }
         
-                    Component var7 = new TextComponent(var3.get().map(Function.identity(), PartialResult::message));
-                    Component var8 = new TranslatableComponent(
+                    Component var7 = Component.literal(var3.get().map(Function.identity(), PartialResult::message));
+                    Component var8 = Component.translatable(
                         var3.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
                     );
                     var3.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
@@ -157,7 +155,7 @@ public class EditWorldScreen extends Screen {
             )
         );
         this.renameButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20, new TranslatableComponent("selectWorld.edit.save"), param0 -> this.onRename())
+            new Button(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20, Component.translatable("selectWorld.edit.save"), param0 -> this.onRename())
         );
         this.addRenderableWidget(
             new Button(this.width / 2 + 2, this.height / 4 + 144 + 5, 98, 20, CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
@@ -165,7 +163,7 @@ public class EditWorldScreen extends Screen {
         var0.active = this.levelAccess.getIconFile().filter(param0 -> Files.isRegularFile(param0)).isPresent();
         LevelSummary var1 = this.levelAccess.getSummary();
         String var2 = var1 == null ? "" : var1.getLevelName();
-        this.nameEdit = new EditBox(this.font, this.width / 2 - 100, 38, 200, 20, new TranslatableComponent("selectWorld.enterName"));
+        this.nameEdit = new EditBox(this.font, this.width / 2 - 100, 38, 200, 20, Component.translatable("selectWorld.enterName"));
         this.nameEdit.setValue(var2);
         this.nameEdit.setResponder(param0 -> this.renameButton.active = !param0.trim().isEmpty());
         this.addWidget(this.nameEdit);
@@ -228,13 +226,13 @@ public class EditWorldScreen extends Screen {
         }
 
         if (var1 != null) {
-            Component var3 = new TranslatableComponent("selectWorld.edit.backupFailed");
-            Component var4 = new TextComponent(var1.getMessage());
+            Component var3 = Component.translatable("selectWorld.edit.backupFailed");
+            Component var4 = Component.literal(var1.getMessage());
             Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastIds.WORLD_BACKUP, var3, var4));
             return false;
         } else {
-            Component var5 = new TranslatableComponent("selectWorld.edit.backupCreated", param0.getLevelId());
-            Component var6 = new TranslatableComponent("selectWorld.edit.backupSize", Mth.ceil((double)var0 / 1048576.0));
+            Component var5 = Component.translatable("selectWorld.edit.backupCreated", param0.getLevelId());
+            Component var6 = Component.translatable("selectWorld.edit.backupSize", Mth.ceil((double)var0 / 1048576.0));
             Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastIds.WORLD_BACKUP, var5, var6));
             return true;
         }

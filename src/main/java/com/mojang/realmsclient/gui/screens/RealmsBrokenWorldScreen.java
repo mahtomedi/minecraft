@@ -25,8 +25,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,7 +41,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     private RealmsServer serverData;
     private final long serverId;
     private final Component[] message = new Component[]{
-        new TranslatableComponent("mco.brokenworld.message.line1"), new TranslatableComponent("mco.brokenworld.message.line2")
+        Component.translatable("mco.brokenworld.message.line1"), Component.translatable("mco.brokenworld.message.line2")
     };
     private int leftX;
     private int rightX;
@@ -51,7 +49,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     private int animTick;
 
     public RealmsBrokenWorldScreen(Screen param0, RealmsMainScreen param1, long param2, boolean param3) {
-        super(param3 ? new TranslatableComponent("mco.brokenworld.minigame.title") : new TranslatableComponent("mco.brokenworld.title"));
+        super(param3 ? Component.translatable("mco.brokenworld.minigame.title") : Component.translatable("mco.brokenworld.title"));
         this.lastScreen = param0;
         this.mainScreen = param1;
         this.serverId = param2;
@@ -73,7 +71,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
 
     @Override
     public Component getNarrationMessage() {
-        return ComponentUtils.formatList(Stream.concat(Stream.of(this.title), Stream.of(this.message)).collect(Collectors.toList()), new TextComponent(" "));
+        return ComponentUtils.formatList(Stream.concat(Stream.of(this.title), Stream.of(this.message)).collect(Collectors.toList()), Component.literal(" "));
     }
 
     private void addButtons() {
@@ -87,14 +85,14 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                     row(8),
                     80,
                     20,
-                    new TranslatableComponent("mco.brokenworld.play"),
+                    Component.translatable("mco.brokenworld.play"),
                     param1 -> {
                         if (this.serverData.slots.get(var1).empty) {
                             RealmsResetWorldScreen var0x = new RealmsResetWorldScreen(
                                 this,
                                 this.serverData,
-                                new TranslatableComponent("mco.configure.world.switch.slot"),
-                                new TranslatableComponent("mco.configure.world.switch.slot.subtitle"),
+                                Component.translatable("mco.configure.world.switch.slot"),
+                                Component.translatable("mco.configure.world.switch.slot.subtitle"),
                                 10526880,
                                 CommonComponents.GUI_CANCEL,
                                 this::doSwitchOrReset,
@@ -104,7 +102,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                                 }
                             );
                             var0x.setSlot(var1);
-                            var0x.setResetTitle(new TranslatableComponent("mco.create.world.reset.title"));
+                            var0x.setResetTitle(Component.translatable("mco.create.world.reset.title"));
                             this.minecraft.setScreen(var0x);
                         } else {
                             this.minecraft
@@ -116,9 +114,9 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                     }
                 );
             } else {
-                var3 = new Button(this.getFramePositionX(var1), row(8), 80, 20, new TranslatableComponent("mco.brokenworld.download"), param1 -> {
-                    Component var0x = new TranslatableComponent("mco.configure.world.restore.download.question.line1");
-                    Component var1x = new TranslatableComponent("mco.configure.world.restore.download.question.line2");
+                var3 = new Button(this.getFramePositionX(var1), row(8), 80, 20, Component.translatable("mco.brokenworld.download"), param1 -> {
+                    Component var0x = Component.translatable("mco.configure.world.restore.download.question.line1");
+                    Component var1x = Component.translatable("mco.configure.world.restore.download.question.line2");
                     this.minecraft.setScreen(new RealmsLongConfirmationScreen(param1x -> {
                         if (param1x) {
                             this.downloadWorld(var1);
@@ -132,11 +130,11 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
 
             if (this.slotsThatHasBeenDownloaded.contains(var1)) {
                 var3.active = false;
-                var3.setMessage(new TranslatableComponent("mco.brokenworld.downloaded"));
+                var3.setMessage(Component.translatable("mco.brokenworld.downloaded"));
             }
 
             this.addRenderableWidget(var3);
-            this.addRenderableWidget(new Button(this.getFramePositionX(var1), row(10), 80, 20, new TranslatableComponent("mco.brokenworld.reset"), param1 -> {
+            this.addRenderableWidget(new Button(this.getFramePositionX(var1), row(10), 80, 20, Component.translatable("mco.brokenworld.reset"), param1 -> {
                 RealmsResetWorldScreen var0x = new RealmsResetWorldScreen(this, this.serverData, this::doSwitchOrReset, () -> {
                     this.minecraft.setScreen(this);
                     this.doSwitchOrReset();

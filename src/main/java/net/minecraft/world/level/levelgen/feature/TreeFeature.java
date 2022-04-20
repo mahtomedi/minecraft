@@ -154,9 +154,9 @@ public class TreeFeature extends Feature<TreeConfiguration> {
                 var3.decorators.forEach(param1 -> param1.place(var13));
             }
 
-            return BoundingBox.encapsulatingPositions(Iterables.concat(var5, var6, var7)).map(param3 -> {
-                DiscreteVoxelShape var0x = updateLeaves(var0, param3, var5, var7);
-                StructureTemplate.updateShapeAtEdge(var0, 3, var0x, param3.minX(), param3.minY(), param3.minZ());
+            return BoundingBox.encapsulatingPositions(Iterables.concat(var4, var5, var6, var7)).map(param4 -> {
+                DiscreteVoxelShape var0x = updateLeaves(var0, param4, var5, var7, var4);
+                StructureTemplate.updateShapeAtEdge(var0, 3, var0x, param4.minX(), param4.minY(), param4.minZ());
                 return true;
             }).orElse(false);
         } else {
@@ -164,7 +164,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         }
     }
 
-    private static DiscreteVoxelShape updateLeaves(LevelAccessor param0, BoundingBox param1, Set<BlockPos> param2, Set<BlockPos> param3) {
+    private static DiscreteVoxelShape updateLeaves(LevelAccessor param0, BoundingBox param1, Set<BlockPos> param2, Set<BlockPos> param3, Set<BlockPos> param4) {
         List<Set<BlockPos>> var0 = Lists.newArrayList();
         DiscreteVoxelShape var1 = new BitSetDiscreteVoxelShape(param1.getXSpan(), param1.getYSpan(), param1.getZSpan());
         int var2 = 6;
@@ -175,7 +175,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
 
         BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
 
-        for(BlockPos var5 : Lists.newArrayList(param3)) {
+        for(BlockPos var5 : Lists.newArrayList(Sets.union(param3, param4))) {
             if (param1.isInside(var5)) {
                 var1.fill(var5.getX() - param1.minX(), var5.getY() - param1.minY(), var5.getZ() - param1.minZ());
             }

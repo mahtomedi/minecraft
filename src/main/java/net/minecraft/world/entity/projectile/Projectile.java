@@ -118,9 +118,9 @@ public abstract class Projectile extends Entity {
         Vec3 var0 = new Vec3(param0, param1, param2)
             .normalize()
             .add(
-                this.random.nextGaussian() * 0.0075F * (double)param4,
-                this.random.nextGaussian() * 0.0075F * (double)param4,
-                this.random.nextGaussian() * 0.0075F * (double)param4
+                this.random.triangle(0.0, 0.0172275 * (double)param4),
+                this.random.triangle(0.0, 0.0172275 * (double)param4),
+                this.random.triangle(0.0, 0.0172275 * (double)param4)
             )
             .scale((double)param3);
         this.setDeltaMovement(var0);

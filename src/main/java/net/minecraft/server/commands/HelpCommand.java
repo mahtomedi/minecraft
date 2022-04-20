@@ -9,11 +9,10 @@ import com.mojang.brigadier.tree.CommandNode;
 import java.util.Map;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class HelpCommand {
-    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.help.failed"));
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.help.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -22,7 +21,7 @@ public class HelpCommand {
                     Map<CommandNode<CommandSourceStack>, String> var0x = param0.getSmartUsage(param0.getRoot(), param1.getSource());
         
                     for(String var1 : var0x.values()) {
-                        param1.getSource().sendSuccess(new TextComponent("/" + var1), false);
+                        param1.getSource().sendSuccess(Component.literal("/" + var1), false);
                     }
         
                     return var0x.size();
@@ -40,7 +39,7 @@ public class HelpCommand {
                                     );
                     
                                     for(String var2 : var1.values()) {
-                                        param1.getSource().sendSuccess(new TextComponent("/" + var0x.getReader().getString() + " " + var2), false);
+                                        param1.getSource().sendSuccess(Component.literal("/" + var0x.getReader().getString() + " " + var2), false);
                                     }
                     
                                     return var1.size();

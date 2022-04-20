@@ -6,7 +6,7 @@ import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 
 public class KillCommand {
@@ -28,9 +28,9 @@ public class KillCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(new TranslatableComponent("commands.kill.success.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(Component.translatable("commands.kill.success.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(new TranslatableComponent("commands.kill.success.multiple", param1.size()), true);
+            param0.sendSuccess(Component.translatable("commands.kill.success.multiple", param1.size()), true);
         }
 
         return param1.size();

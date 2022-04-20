@@ -1,14 +1,12 @@
 package net.minecraft.world.level.storage;
 
-import java.io.File;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.WorldVersion;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
@@ -20,11 +18,11 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private final String levelId;
     private final boolean requiresManualConversion;
     private final boolean locked;
-    private final File icon;
+    private final Path icon;
     @Nullable
     private Component info;
 
-    public LevelSummary(LevelSettings param0, LevelVersion param1, String param2, boolean param3, boolean param4, File param5) {
+    public LevelSummary(LevelSettings param0, LevelVersion param1, String param2, boolean param3, boolean param4, Path param5) {
         this.settings = param0;
         this.levelVersion = param1;
         this.levelId = param2;
@@ -41,7 +39,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return StringUtils.isEmpty(this.settings.levelName()) ? this.levelId : this.settings.levelName();
     }
 
-    public File getIcon() {
+    public Path getIcon() {
         return this.icon;
     }
 
@@ -78,9 +76,9 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     public MutableComponent getWorldVersionName() {
-        return (MutableComponent)(StringUtil.isNullOrEmpty(this.levelVersion.minecraftVersionName())
-            ? new TranslatableComponent("selectWorld.versionUnknown")
-            : new TextComponent(this.levelVersion.minecraftVersionName()));
+        return StringUtil.isNullOrEmpty(this.levelVersion.minecraftVersionName())
+            ? Component.translatable("selectWorld.versionUnknown")
+            : Component.literal(this.levelVersion.minecraftVersionName());
     }
 
     public LevelVersion levelVersion() {
@@ -132,21 +130,21 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
     private Component createInfo() {
         if (this.isLocked()) {
-            return new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+            return Component.translatable("selectWorld.locked").withStyle(ChatFormatting.RED);
         } else if (this.requiresManualConversion()) {
-            return new TranslatableComponent("selectWorld.conversion").withStyle(ChatFormatting.RED);
+            return Component.translatable("selectWorld.conversion").withStyle(ChatFormatting.RED);
         } else if (!this.isCompatible()) {
-            return new TranslatableComponent("selectWorld.incompatible_series").withStyle(ChatFormatting.RED);
+            return Component.translatable("selectWorld.incompatible_series").withStyle(ChatFormatting.RED);
         } else {
-            MutableComponent var0 = (MutableComponent)(this.isHardcore()
-                ? new TextComponent("").append(new TranslatableComponent("gameMode.hardcore").withStyle(ChatFormatting.DARK_RED))
-                : new TranslatableComponent("gameMode." + this.getGameMode().getName()));
+            MutableComponent var0 = this.isHardcore()
+                ? Component.empty().append(Component.translatable("gameMode.hardcore").withStyle(ChatFormatting.DARK_RED))
+                : Component.translatable("gameMode." + this.getGameMode().getName());
             if (this.hasCheats()) {
-                var0.append(", ").append(new TranslatableComponent("selectWorld.cheats"));
+                var0.append(", ").append(Component.translatable("selectWorld.cheats"));
             }
 
             MutableComponent var1 = this.getWorldVersionName();
-            MutableComponent var2 = new TextComponent(", ").append(new TranslatableComponent("selectWorld.version")).append(" ");
+            MutableComponent var2 = Component.literal(", ").append(Component.translatable("selectWorld.version")).append(" ");
             if (this.markVersionInList()) {
                 var2.append(var1.withStyle(this.askToOpenWorld() ? ChatFormatting.RED : ChatFormatting.ITALIC));
             } else {

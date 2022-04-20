@@ -28,8 +28,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,7 +44,7 @@ public class EditGameRulesScreen extends Screen {
     private final GameRules gameRules;
 
     public EditGameRulesScreen(GameRules param0, Consumer<Optional<GameRules>> param1) {
-        super(new TranslatableComponent("editGamerule.title"));
+        super(Component.translatable("editGamerule.title"));
         this.gameRules = param0;
         this.exitCallback = param1;
     }
@@ -270,17 +268,17 @@ public class EditGameRulesScreen extends Screen {
                     }
     
                     private <T extends GameRules.Value<T>> void addEntry(GameRules.Key<T> param0, EditGameRulesScreen.EntryFactory<T> param1x) {
-                        Component var0 = new TranslatableComponent(param0.getDescriptionId());
-                        Component var1 = new TextComponent(param0.getId()).withStyle(ChatFormatting.YELLOW);
+                        Component var0 = Component.translatable(param0.getDescriptionId());
+                        Component var1 = Component.literal(param0.getId()).withStyle(ChatFormatting.YELLOW);
                         T var2 = param1.getRule(param0);
                         String var3 = var2.serialize();
-                        Component var4 = new TranslatableComponent("editGamerule.default", new TextComponent(var3)).withStyle(ChatFormatting.GRAY);
+                        Component var4 = Component.translatable("editGamerule.default", Component.literal(var3)).withStyle(ChatFormatting.GRAY);
                         String var5 = param0.getDescriptionId() + ".description";
                         List<FormattedCharSequence> var8;
                         String var9;
                         if (I18n.exists(var5)) {
                             Builder<FormattedCharSequence> var6 = ImmutableList.<FormattedCharSequence>builder().add(var1.getVisualOrderText());
-                            Component var7 = new TranslatableComponent(var5);
+                            Component var7 = Component.translatable(var5);
                             EditGameRulesScreen.this.font.split(var7, 150).forEach(var6::add);
                             var8 = var6.add(var4.getVisualOrderText()).build();
                             var9 = var7.getString() + "\n" + var4.getString();
@@ -300,8 +298,7 @@ public class EditGameRulesScreen extends Screen {
                     param0x -> {
                         this.addEntry(
                             EditGameRulesScreen.this.new CategoryRuleEntry(
-                                new TranslatableComponent(param0x.getKey().getDescriptionId())
-                                    .withStyle(new ChatFormatting[]{ChatFormatting.BOLD, ChatFormatting.YELLOW})
+                                Component.translatable(param0x.getKey().getDescriptionId()).withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW)
                             )
                         );
                         param0x.getValue()

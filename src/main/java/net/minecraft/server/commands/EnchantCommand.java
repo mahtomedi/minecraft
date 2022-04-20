@@ -11,7 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ItemEnchantmentArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -20,20 +20,18 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class EnchantCommand {
     private static final DynamicCommandExceptionType ERROR_NOT_LIVING_ENTITY = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.enchant.failed.entity", param0)
+        param0 -> Component.translatable("commands.enchant.failed.entity", param0)
     );
     private static final DynamicCommandExceptionType ERROR_NO_ITEM = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.enchant.failed.itemless", param0)
+        param0 -> Component.translatable("commands.enchant.failed.itemless", param0)
     );
     private static final DynamicCommandExceptionType ERROR_INCOMPATIBLE = new DynamicCommandExceptionType(
-        param0 -> new TranslatableComponent("commands.enchant.failed.incompatible", param0)
+        param0 -> Component.translatable("commands.enchant.failed.incompatible", param0)
     );
     private static final Dynamic2CommandExceptionType ERROR_LEVEL_TOO_HIGH = new Dynamic2CommandExceptionType(
-        (param0, param1) -> new TranslatableComponent("commands.enchant.failed.level", param0, param1)
+        (param0, param1) -> Component.translatable("commands.enchant.failed.level", param0, param1)
     );
-    private static final SimpleCommandExceptionType ERROR_NOTHING_HAPPENED = new SimpleCommandExceptionType(
-        new TranslatableComponent("commands.enchant.failed")
-    );
+    private static final SimpleCommandExceptionType ERROR_NOTHING_HAPPENED = new SimpleCommandExceptionType(Component.translatable("commands.enchant.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -96,11 +94,10 @@ public class EnchantCommand {
             } else {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        new TranslatableComponent("commands.enchant.success.single", param2.getFullname(param3), param1.iterator().next().getDisplayName()),
-                        true
+                        Component.translatable("commands.enchant.success.single", param2.getFullname(param3), param1.iterator().next().getDisplayName()), true
                     );
                 } else {
-                    param0.sendSuccess(new TranslatableComponent("commands.enchant.success.multiple", param2.getFullname(param3), param1.size()), true);
+                    param0.sendSuccess(Component.translatable("commands.enchant.success.multiple", param2.getFullname(param3), param1.size()), true);
                 }
 
                 return var0;

@@ -40,6 +40,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
@@ -50,9 +51,9 @@ import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.phys.Vec3;
 
 public class Allay extends PathfinderMob implements InventoryCarrier, GameEventListener {
-    private static final boolean USE_V2_MOVE_PARTICLES = false;
     private static final int GAME_EVENT_LISTENER_RANGE = 16;
     private static final Vec3i ITEM_PICKUP_REACH = new Vec3i(1, 1, 1);
+    private static final int ANIMATION_DURATION = 5;
     protected static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS
     );
@@ -68,9 +69,14 @@ public class Allay extends PathfinderMob implements InventoryCarrier, GameEventL
         MemoryModuleType.LIKED_NOTEBLOCK_COOLDOWN_TICKS,
         MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS
     );
+    public static final ImmutableList<Float> THROW_SOUND_PITCHES = ImmutableList.of(
+        0.5625F, 0.625F, 0.75F, 0.9375F, 1.0F, 1.0F, 1.125F, 1.25F, 1.5F, 1.875F, 2.0F, 2.25F, 2.5F, 3.0F, 3.75F, 4.0F
+    );
     private final EntityPositionSource entityPositionSource = new EntityPositionSource(this, this.getEyeHeight());
     private final DynamicGameEventListener<Allay> dynamicGameEventListener;
     private final SimpleContainer inventory = new SimpleContainer(1);
+    private float holdingItemAnimationTicks;
+    private float holdingItemAnimationTicks0;
 
     public Allay(EntityType<? extends Allay> param0, Level param1) {
         super(param0, param1);
@@ -96,9 +102,9 @@ public class Allay extends PathfinderMob implements InventoryCarrier, GameEventL
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-            .add(Attributes.MAX_HEALTH, 10.0)
-            .add(Attributes.FLYING_SPEED, 0.6F)
-            .add(Attributes.MOVEMENT_SPEED, 0.3F)
+            .add(Attributes.MAX_HEALTH, 20.0)
+            .add(Attributes.FLYING_SPEED, 0.1F)
+            .add(Attributes.MOVEMENT_SPEED, 0.1F)
             .add(Attributes.ATTACK_DAMAGE, 2.0)
             .add(Attributes.FOLLOW_RANGE, 48.0);
     }
@@ -124,17 +130,9 @@ public class Allay extends PathfinderMob implements InventoryCarrier, GameEventL
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
             } else {
-                float var0;
-                if (this.onGround) {
-                    var0 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.91F;
-                } else {
-                    var0 = 0.91F;
-                }
-
-                float var2 = Mth.cube(0.6F) * Mth.cube(0.91F) / Mth.cube(var0);
-                this.moveRelative(this.onGround ? 0.1F * var2 : 0.02F, param0);
+                this.moveRelative(this.getSpeed(), param0);
                 this.move(MoverType.SELF, this.getDeltaMovement());
-                this.setDeltaMovement(this.getDeltaMovement().scale((double)var0));
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.91F));
             }
         }
 
@@ -213,8 +211,26 @@ public class Allay extends PathfinderMob implements InventoryCarrier, GameEventL
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (this.level.isClientSide) {
+            this.holdingItemAnimationTicks0 = this.holdingItemAnimationTicks;
+            if (this.hasItemInHand()) {
+                this.holdingItemAnimationTicks = Mth.clamp(this.holdingItemAnimationTicks + 1.0F, 0.0F, 5.0F);
+            } else {
+                this.holdingItemAnimationTicks = Mth.clamp(this.holdingItemAnimationTicks - 1.0F, 0.0F, 5.0F);
+            }
+        }
+
+    }
+
+    @Override
     public boolean canPickUpLoot() {
-        return !this.isOnPickupCooldown() && !this.getItemInHand(InteractionHand.MAIN_HAND).isEmpty();
+        return !this.isOnPickupCooldown() && this.hasItemInHand();
+    }
+
+    public boolean hasItemInHand() {
+        return !this.getItemInHand(InteractionHand.MAIN_HAND).isEmpty();
     }
 
     private boolean isOnPickupCooldown() {
@@ -328,5 +344,30 @@ public class Allay extends PathfinderMob implements InventoryCarrier, GameEventL
             AllayAi.hearNoteblock(this, new BlockPos(param3));
             return true;
         }
+    }
+
+    public boolean isFlying() {
+        return this.animationSpeed > 0.3F;
+    }
+
+    public float getHoldingItemAnimationProgress(float param0) {
+        return Mth.lerp(param0, this.holdingItemAnimationTicks0, this.holdingItemAnimationTicks) / 5.0F;
+    }
+
+    @Override
+    protected void dropEquipment() {
+        super.dropEquipment();
+        this.inventory.removeAllItems().forEach(this::spawnAtLocation);
+        ItemStack var0 = this.getItemBySlot(EquipmentSlot.MAINHAND);
+        if (!var0.isEmpty() && !EnchantmentHelper.hasVanishingCurse(var0)) {
+            this.spawnAtLocation(var0);
+            this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        }
+
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double param0) {
+        return false;
     }
 }

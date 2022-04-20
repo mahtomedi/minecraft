@@ -369,22 +369,37 @@ public class Util {
     }
 
     public static <V> CompletableFuture<List<V>> sequenceFailFast(List<? extends CompletableFuture<? extends V>> param0) {
+        CompletableFuture<List<V>> var0 = new CompletableFuture<>();
+        return fallibleSequence(param0, var0::completeExceptionally).applyToEither(var0, Function.identity());
+    }
+
+    public static <V> CompletableFuture<List<V>> sequenceFailFastAndCancel(List<? extends CompletableFuture<? extends V>> param0) {
+        CompletableFuture<List<V>> var0 = new CompletableFuture<>();
+        return fallibleSequence(param0, param2 -> {
+            for(CompletableFuture<? extends V> var0x : param0) {
+                var0x.cancel(true);
+            }
+
+            var0.completeExceptionally(param2);
+        }).applyToEither(var0, Function.identity());
+    }
+
+    private static <V> CompletableFuture<List<V>> fallibleSequence(List<? extends CompletableFuture<? extends V>> param0, Consumer<Throwable> param1) {
         List<V> var0 = Lists.newArrayListWithCapacity(param0.size());
         CompletableFuture<?>[] var1 = new CompletableFuture[param0.size()];
-        CompletableFuture<Void> var2 = new CompletableFuture<>();
         param0.forEach(param3 -> {
             int var0x = var0.size();
             var0.add((V)null);
             var1[var0x] = param3.whenComplete((param3x, param4) -> {
                 if (param4 != null) {
-                    var2.completeExceptionally(param4);
+                    param1.accept(param4);
                 } else {
                     var0.set(var0x, param3x);
                 }
 
             });
         });
-        return CompletableFuture.allOf(var1).applyToEither(var2, param1 -> var0);
+        return CompletableFuture.allOf(var1).thenApply(param1x -> var0);
     }
 
     public static <T> Optional<T> ifElse(Optional<T> param0, Consumer<T> param1, Runnable param2) {
