@@ -212,6 +212,7 @@ public abstract class AbstractVillager extends AgeableMob implements InventoryCa
         return false;
     }
 
+    @Override
     public SimpleContainer getInventory() {
         return this.inventory;
     }

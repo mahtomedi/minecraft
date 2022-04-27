@@ -596,9 +596,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         this.darkBuffer = new VertexBuffer();
-        buildSkyDisc(var1, -16.0F);
+        BufferBuilder.RenderedBuffer var2 = buildSkyDisc(var1, -16.0F);
         this.darkBuffer.bind();
-        this.darkBuffer.upload(var1);
+        this.darkBuffer.upload(var2);
         VertexBuffer.unbind();
     }
 
@@ -610,13 +610,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         this.skyBuffer = new VertexBuffer();
-        buildSkyDisc(var1, 16.0F);
+        BufferBuilder.RenderedBuffer var2 = buildSkyDisc(var1, 16.0F);
         this.skyBuffer.bind();
-        this.skyBuffer.upload(var1);
+        this.skyBuffer.upload(var2);
         VertexBuffer.unbind();
     }
 
-    private static void buildSkyDisc(BufferBuilder param0, float param1) {
+    private static BufferBuilder.RenderedBuffer buildSkyDisc(BufferBuilder param0, float param1) {
         float var0 = Math.signum(param1) * 512.0F;
         float var1 = 512.0F;
         RenderSystem.setShader(GameRenderer::getPositionShader);
@@ -632,7 +632,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 .endVertex();
         }
 
-        param0.end();
+        return param0.end();
     }
 
     private void createStars() {
@@ -644,14 +644,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         this.starBuffer = new VertexBuffer();
-        this.drawStars(var1);
-        var1.end();
+        BufferBuilder.RenderedBuffer var2 = this.drawStars(var1);
         this.starBuffer.bind();
-        this.starBuffer.upload(var1);
+        this.starBuffer.upload(var2);
         VertexBuffer.unbind();
     }
 
-    private void drawStars(BufferBuilder param0) {
+    private BufferBuilder.RenderedBuffer drawStars(BufferBuilder param0) {
         RandomSource var0 = RandomSource.create(10842L);
         param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
@@ -695,6 +694,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             }
         }
 
+        return param0.end();
     }
 
     public void setLevel(@Nullable ClientLevel param0) {
@@ -1958,8 +1958,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                             var6.vertex(var13, var17 * 120.0F, var18 * 120.0F, -var18 * 40.0F * var8[3]).color(var8[0], var8[1], var8[2], 0.0F).endVertex();
                         }
 
-                        var6.end();
-                        BufferUploader.drawWithShader(var6);
+                        BufferUploader.drawWithShader(var6.end());
                         param0.popPose();
                     }
 
@@ -1981,8 +1980,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     var6.vertex(var20, var21, 100.0F, -var21).uv(1.0F, 0.0F).endVertex();
                     var6.vertex(var20, var21, 100.0F, var21).uv(1.0F, 1.0F).endVertex();
                     var6.vertex(var20, -var21, 100.0F, var21).uv(0.0F, 1.0F).endVertex();
-                    var6.end();
-                    BufferUploader.drawWithShader(var6);
+                    BufferUploader.drawWithShader(var6.end());
                     var21 = 20.0F;
                     RenderSystem.setShaderTexture(0, MOON_LOCATION);
                     int var22 = this.level.getMoonPhase();
@@ -1997,8 +1995,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     var6.vertex(var20, var21, -100.0F, var21).uv(var25, var28).endVertex();
                     var6.vertex(var20, var21, -100.0F, -var21).uv(var25, var26).endVertex();
                     var6.vertex(var20, -var21, -100.0F, -var21).uv(var27, var26).endVertex();
-                    var6.end();
-                    BufferUploader.drawWithShader(var6);
+                    BufferUploader.drawWithShader(var6.end());
                     RenderSystem.disableTexture();
                     float var29 = this.level.getStarBrightness(param2) * var19;
                     if (var29 > 0.0F) {
@@ -2088,10 +2085,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 }
 
                 this.cloudBuffer = new VertexBuffer();
-                this.buildClouds(var15, var5, var6, var7, var11);
-                var15.end();
+                BufferBuilder.RenderedBuffer var16 = this.buildClouds(var15, var5, var6, var7, var11);
                 this.cloudBuffer.bind();
-                this.cloudBuffer.upload(var15);
+                this.cloudBuffer.upload(var16);
                 VertexBuffer.unbind();
             }
 
@@ -2103,17 +2099,17 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             param0.translate((double)(-var8), (double)var9, (double)(-var10));
             if (this.cloudBuffer != null) {
                 this.cloudBuffer.bind();
-                int var16 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
+                int var17 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
 
-                for(int var17 = var16; var17 < 2; ++var17) {
-                    if (var17 == 0) {
+                for(int var18 = var17; var18 < 2; ++var18) {
+                    if (var18 == 0) {
                         RenderSystem.colorMask(false, false, false, false);
                     } else {
                         RenderSystem.colorMask(true, true, true, true);
                     }
 
-                    ShaderInstance var18 = RenderSystem.getShader();
-                    this.cloudBuffer.drawWithShader(param0.last().pose(), param1, var18);
+                    ShaderInstance var19 = RenderSystem.getShader();
+                    this.cloudBuffer.drawWithShader(param0.last().pose(), param1, var19);
                 }
 
                 VertexBuffer.unbind();
@@ -2126,7 +2122,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
     }
 
-    private void buildClouds(BufferBuilder param0, double param1, double param2, double param3, Vec3 param4) {
+    private BufferBuilder.RenderedBuffer buildClouds(BufferBuilder param0, double param1, double param2, double param3, Vec3 param4) {
         float var0 = 4.0F;
         float var1 = 0.00390625F;
         int var2 = 8;
@@ -2331,6 +2327,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             }
         }
 
+        return param0.end();
     }
 
     private void compileChunks(Camera param0) {
@@ -2474,8 +2471,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 }
             }
 
-            var0.end();
-            BufferUploader.drawWithShader(var0);
+            BufferUploader.drawWithShader(var0.end());
             RenderSystem.enableCull();
             RenderSystem.polygonOffset(0.0F, 0.0F);
             RenderSystem.disablePolygonOffset();

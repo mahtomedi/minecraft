@@ -2,16 +2,16 @@ package net.minecraft.client.gui.chat;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.text2speech.Narrator;
-import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.NarratorStatus;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class NarratorChatListener implements ChatListener {
     private final Narrator narrator = Narrator.getNarrator();
 
     @Override
-    public void handle(ChatType param0, Component param1, UUID param2) {
+    public void handle(ChatType param0, Component param1, @Nullable ChatSender param2) {
         NarratorStatus var0 = getStatus();
         if (var0 != NarratorStatus.OFF) {
             if (!this.narrator.active()) {
@@ -33,7 +33,7 @@ public class NarratorChatListener implements ChatListener {
                 if (var0 == NarratorStatus.ALL
                     || var0 == NarratorStatus.CHAT && param0 == ChatType.CHAT
                     || var0 == NarratorStatus.SYSTEM && param0 == ChatType.SYSTEM) {
-                    Component var1 = ComponentUtils.replaceTranslatableKey(param1, "chat.type.text", "chat.type.text.narrate");
+                    Component var1 = this.decorateMessage(param0, param1, param2);
                     String var2 = var1.getString();
                     this.logNarratedMessage(var2);
                     this.narrator.say(var2, param0.shouldInterrupt());
@@ -41,6 +41,10 @@ public class NarratorChatListener implements ChatListener {
 
             }
         }
+    }
+
+    private Component decorateMessage(ChatType param0, Component param1, @Nullable ChatSender param2) {
+        return (Component)(param2 != null && param0 == ChatType.CHAT ? Component.translatable("chat.type.text.narrate", param2.name(), param1) : param1);
     }
 
     public void sayNow(Component param0) {

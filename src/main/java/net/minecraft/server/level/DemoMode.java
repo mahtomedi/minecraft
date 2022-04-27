@@ -1,6 +1,5 @@
 package net.minecraft.server.level;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -45,7 +44,7 @@ public class DemoMode extends ServerPlayerGameMode {
                 if (var1 == 6L) {
                     this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 104.0F));
                 } else {
-                    this.player.sendMessage(Component.translatable("demo.day." + var1), Util.NIL_UUID);
+                    this.player.sendSystemMessage(Component.translatable("demo.day." + var1));
                 }
             }
         } else if (var1 == 1L) {
@@ -57,14 +56,14 @@ public class DemoMode extends ServerPlayerGameMode {
                 this.player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT, 103.0F));
             }
         } else if (var1 == 5L && var0 % 24000L == 22000L) {
-            this.player.sendMessage(Component.translatable("demo.day.warning"), Util.NIL_UUID);
+            this.player.sendSystemMessage(Component.translatable("demo.day.warning"));
         }
 
     }
 
     private void outputDemoReminder() {
         if (this.demoEndedReminder > 100) {
-            this.player.sendMessage(Component.translatable("demo.reminder"), Util.NIL_UUID);
+            this.player.sendSystemMessage(Component.translatable("demo.reminder"));
             this.demoEndedReminder = 0;
         }
 

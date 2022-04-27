@@ -15,7 +15,6 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -364,7 +363,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
 
     public void sendSuccess(Component param0, boolean param1) {
         if (this.source.acceptsSuccess() && !this.silent) {
-            this.source.sendMessage(param0, Util.NIL_UUID);
+            this.source.sendSystemMessage(param0);
         }
 
         if (param1 && this.source.shouldInformAdmins() && !this.silent) {
@@ -378,20 +377,20 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         if (this.server.getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
             for(ServerPlayer var1 : this.server.getPlayerList().getPlayers()) {
                 if (var1 != this.source && this.server.getPlayerList().isOp(var1.getGameProfile())) {
-                    var1.sendMessage(var0, Util.NIL_UUID);
+                    var1.sendSystemMessage(var0);
                 }
             }
         }
 
         if (this.source != this.server && this.server.getGameRules().getBoolean(GameRules.RULE_LOGADMINCOMMANDS)) {
-            this.server.sendMessage(var0, Util.NIL_UUID);
+            this.server.sendSystemMessage(var0);
         }
 
     }
 
     public void sendFailure(Component param0) {
         if (this.source.acceptsFailure() && !this.silent) {
-            this.source.sendMessage(Component.empty().append(param0).withStyle(ChatFormatting.RED), Util.NIL_UUID);
+            this.source.sendSystemMessage(Component.empty().append(param0).withStyle(ChatFormatting.RED));
         }
 
     }

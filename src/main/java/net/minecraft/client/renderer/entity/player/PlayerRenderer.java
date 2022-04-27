@@ -128,6 +128,10 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
                 if (var1 == UseAnim.SPYGLASS) {
                     return HumanoidModel.ArmPose.SPYGLASS;
                 }
+
+                if (var1 == UseAnim.TOOT_HORN) {
+                    return HumanoidModel.ArmPose.TOOT_HORN;
+                }
             } else if (!param0.swinging && var0.is(Items.CROSSBOW) && CrossbowItem.isCharged(var0)) {
                 return HumanoidModel.ArmPose.CROSSBOW_HOLD;
             }

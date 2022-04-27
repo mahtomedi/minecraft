@@ -80,9 +80,9 @@ public class RedStoneOreBlock extends Block {
     }
 
     @Override
-    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3) {
-        super.spawnAfterBreak(param0, param1, param2, param3);
-        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param3) == 0) {
+    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3, boolean param4) {
+        super.spawnAfterBreak(param0, param1, param2, param3, param4);
+        if (param4 && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param3) == 0) {
             int var0 = 1 + param1.random.nextInt(5);
             this.popExperience(param1, param2, var0);
         }

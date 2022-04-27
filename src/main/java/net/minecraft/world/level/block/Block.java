@@ -285,13 +285,13 @@ public class Block extends BlockBehaviour implements ItemLike {
         ServerLevel var0 = param1.getLevel();
         BlockPos var1 = new BlockPos(param1.getParameter(LootContextParams.ORIGIN));
         param0.getDrops(param1).forEach(param2 -> popResource(var0, var1, param2));
-        param0.spawnAfterBreak(var0, var1, ItemStack.EMPTY);
+        param0.spawnAfterBreak(var0, var1, ItemStack.EMPTY, true);
     }
 
     public static void dropResources(BlockState param0, Level param1, BlockPos param2) {
         if (param1 instanceof ServerLevel) {
             getDrops(param0, (ServerLevel)param1, param2, null).forEach(param2x -> popResource(param1, param2, param2x));
-            param0.spawnAfterBreak((ServerLevel)param1, param2, ItemStack.EMPTY);
+            param0.spawnAfterBreak((ServerLevel)param1, param2, ItemStack.EMPTY, true);
         }
 
     }
@@ -299,7 +299,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     public static void dropResources(BlockState param0, LevelAccessor param1, BlockPos param2, @Nullable BlockEntity param3) {
         if (param1 instanceof ServerLevel) {
             getDrops(param0, (ServerLevel)param1, param2, param3).forEach(param2x -> popResource((ServerLevel)param1, param2, param2x));
-            param0.spawnAfterBreak((ServerLevel)param1, param2, ItemStack.EMPTY);
+            param0.spawnAfterBreak((ServerLevel)param1, param2, ItemStack.EMPTY, true);
         }
 
     }
@@ -307,7 +307,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     public static void dropResources(BlockState param0, Level param1, BlockPos param2, @Nullable BlockEntity param3, Entity param4, ItemStack param5) {
         if (param1 instanceof ServerLevel) {
             getDrops(param0, (ServerLevel)param1, param2, param3, param4, param5).forEach(param2x -> popResource(param1, param2, param2x));
-            param0.spawnAfterBreak((ServerLevel)param1, param2, param5);
+            param0.spawnAfterBreak((ServerLevel)param1, param2, param5, true);
         }
 
     }

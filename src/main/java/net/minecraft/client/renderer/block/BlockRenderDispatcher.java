@@ -53,17 +53,18 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
         }
     }
 
-    public boolean renderBatched(
+    public void renderBatched(
         BlockState param0, BlockPos param1, BlockAndTintGetter param2, PoseStack param3, VertexConsumer param4, boolean param5, RandomSource param6
     ) {
         try {
             RenderShape var0 = param0.getRenderShape();
-            return var0 != RenderShape.MODEL
-                ? false
-                : this.modelRenderer
+            if (var0 == RenderShape.MODEL) {
+                this.modelRenderer
                     .tesselateBlock(
                         param2, this.getBlockModel(param0), param0, param1, param3, param4, param5, param6, param0.getSeed(param1), OverlayTexture.NO_OVERLAY
                     );
+            }
+
         } catch (Throwable var11) {
             CrashReport var2 = CrashReport.forThrowable(var11, "Tesselating block in world");
             CrashReportCategory var3 = var2.addCategory("Block being tesselated");
@@ -72,9 +73,9 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
         }
     }
 
-    public boolean renderLiquid(BlockPos param0, BlockAndTintGetter param1, VertexConsumer param2, BlockState param3, FluidState param4) {
+    public void renderLiquid(BlockPos param0, BlockAndTintGetter param1, VertexConsumer param2, BlockState param3, FluidState param4) {
         try {
-            return this.liquidBlockRenderer.tesselate(param1, param0, param2, param3, param4);
+            this.liquidBlockRenderer.tesselate(param1, param0, param2, param3, param4);
         } catch (Throwable var9) {
             CrashReport var1 = CrashReport.forThrowable(var9, "Tesselating liquid in world");
             CrashReportCategory var2 = var1.addCategory("Block being tesselated");

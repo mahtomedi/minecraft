@@ -242,8 +242,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            var14.end();
-            BufferUploader.drawWithShader(var14);
+            BufferUploader.drawWithShader(var14.end());
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
             MultiBufferSource.BufferSource var16 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());

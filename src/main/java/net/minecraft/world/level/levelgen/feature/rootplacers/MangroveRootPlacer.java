@@ -12,7 +12,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
@@ -36,28 +35,34 @@ public class MangroveRootPlacer extends RootPlacer {
         LevelSimulatedReader param0, BiConsumer<BlockPos, BlockState> param1, RandomSource param2, BlockPos param3, BlockPos param4, TreeConfiguration param5
     ) {
         List<BlockPos> var0 = Lists.newArrayList();
-        if (!this.canPlaceRoot(param0, param4)) {
-            return false;
-        } else {
-            var0.add(param4.below());
+        BlockPos.MutableBlockPos var1 = param3.mutable();
 
-            for(Direction var1 : Direction.Plane.HORIZONTAL) {
-                BlockPos var2 = param4.relative(var1);
-                List<BlockPos> var3 = Lists.newArrayList();
-                if (!this.simulateRoots(param0, param2, var2, var1, param4, var3, 0)) {
-                    return false;
-                }
-
-                var0.addAll(var3);
-                var0.add(param4.relative(var1));
+        while(var1.getY() < param4.getY()) {
+            if (!this.canPlaceRoot(param0, var1)) {
+                return false;
             }
 
-            for(BlockPos var4 : var0) {
-                this.placeRoot(param0, param1, param2, var4, param5);
-            }
-
-            return true;
+            var1.move(Direction.UP);
         }
+
+        var0.add(param4.below());
+
+        for(Direction var2 : Direction.Plane.HORIZONTAL) {
+            BlockPos var3 = param4.relative(var2);
+            List<BlockPos> var4 = Lists.newArrayList();
+            if (!this.simulateRoots(param0, param2, var3, var2, param4, var4, 0)) {
+                return false;
+            }
+
+            var0.addAll(var4);
+            var0.add(param4.relative(var2));
+        }
+
+        for(BlockPos var5 : var0) {
+            this.placeRoot(param0, param1, param2, var5, param5);
+        }
+
+        return true;
     }
 
     private boolean simulateRoots(
@@ -97,8 +102,9 @@ public class MangroveRootPlacer extends RootPlacer {
         }
     }
 
+    @Override
     protected boolean canPlaceRoot(LevelSimulatedReader param0, BlockPos param1) {
-        return TreeFeature.validTreePos(param0, param1) || param0.isStateAtPosition(param1, param0x -> param0x.is(this.mangroveRootPlacement.canGrowThrough()));
+        return super.canPlaceRoot(param0, param1) || param0.isStateAtPosition(param1, param0x -> param0x.is(this.mangroveRootPlacement.canGrowThrough()));
     }
 
     @Override

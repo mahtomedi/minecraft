@@ -3,6 +3,7 @@ package net.minecraft.realms;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.dto.RealmsServer;
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
@@ -15,6 +16,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -68,7 +70,9 @@ public class RealmsConnect {
                             return;
                         }
     
-                        RealmsConnect.this.connection.send(new ServerboundHelloPacket(var0.getUser().getGameProfile()));
+                        String var1 = var0.getUser().getName();
+                        ProfilePublicKey var2 = var0.getProfileKeyPairManager().profilePublicKey();
+                        RealmsConnect.this.connection.send(new ServerboundHelloPacket(var1, Optional.ofNullable(var2)));
                         var0.setCurrentServer(param0.toServerData(var1));
                     } catch (Exception var5) {
                         var0.getClientPackSource().clearServerPack();
@@ -77,16 +81,16 @@ public class RealmsConnect {
                         }
     
                         RealmsConnect.LOGGER.error("Couldn't connect to world", (Throwable)var5);
-                        String var2 = var5.toString();
+                        String var4 = var5.toString();
                         if (var0 != null) {
-                            String var3 = var0 + ":" + var2;
-                            var2 = var2.replaceAll(var3, "");
+                            String var5 = var0 + ":" + var2;
+                            var4 = var4.replaceAll(var5, "");
                         }
     
-                        DisconnectedRealmsScreen var4 = new DisconnectedRealmsScreen(
-                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var2)
+                        DisconnectedRealmsScreen var6 = new DisconnectedRealmsScreen(
+                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var4)
                         );
-                        var0.execute(() -> var0.setScreen(var4));
+                        var0.execute(() -> var0.setScreen(var6));
                     }
     
                 }

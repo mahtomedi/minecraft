@@ -3,13 +3,15 @@ package net.minecraft.server.network;
 import com.google.common.primitives.Ints;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.minecraft.InsecurePublicKeyException.MissingException;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.PrivateKey;
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
@@ -19,6 +21,7 @@ import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ThrowingComponent;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
 import net.minecraft.network.protocol.login.ClientboundHelloPacket;
@@ -33,6 +36,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
@@ -41,6 +45,9 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     static final Logger LOGGER = LogUtils.getLogger();
     private static final int MAX_TICKS_BEFORE_LOGIN = 600;
     private static final RandomSource RANDOM = RandomSource.create();
+    private static final Component MISSING_PROFILE_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.missing_public_key");
+    private static final Component INVALID_SIGNATURE = Component.translatable("multiplayer.disconnect.invalid_public_key_signature");
+    private static final Component INVALID_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.invalid_public_key");
     private final byte[] nonce;
     final MinecraftServer server;
     public final Connection connection;
@@ -51,6 +58,8 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     private final String serverId = "";
     @Nullable
     private ServerPlayer delayedAcceptPlayer;
+    @Nullable
+    private ProfilePublicKey.Trusted playerProfilePublicKey;
 
     public ServerLoginPacketListenerImpl(MinecraftServer param0, Connection param1) {
         this.server = param0;
@@ -110,6 +119,11 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                     );
             }
 
+            this.gameProfile = this.server.getSessionService().fillProfileProperties(this.gameProfile, true);
+            if (this.playerProfilePublicKey != null) {
+                this.playerProfilePublicKey.data().fillGameProfile(this.gameProfile);
+            }
+
             this.connection.send(new ClientboundGameProfilePacket(this.gameProfile));
             ServerPlayer var1 = this.server.getPlayerList().getPlayer(this.gameProfile.getId());
 
@@ -146,12 +160,47 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
             : String.valueOf(this.connection.getRemoteAddress());
     }
 
+    @Nullable
+    private static ProfilePublicKey.Trusted validatePublicKey(ServerboundHelloPacket param0, MinecraftSessionService param1, boolean param2) throws ServerLoginPacketListenerImpl.PublicKeyParseException {
+        try {
+            Optional<ProfilePublicKey> var0 = param0.publicKey();
+            if (var0.isEmpty()) {
+                if (param2) {
+                    throw new ServerLoginPacketListenerImpl.PublicKeyParseException(MISSING_PROFILE_PUBLIC_KEY);
+                } else {
+                    return null;
+                }
+            } else {
+                return var0.get().verify(param1);
+            }
+        } catch (MissingException var4) {
+            if (param2) {
+                throw new ServerLoginPacketListenerImpl.PublicKeyParseException(INVALID_SIGNATURE, var4);
+            } else {
+                return null;
+            }
+        } catch (CryptException var5) {
+            throw new ServerLoginPacketListenerImpl.PublicKeyParseException(INVALID_PUBLIC_KEY, var5);
+        } catch (Exception var6) {
+            throw new ServerLoginPacketListenerImpl.PublicKeyParseException(INVALID_SIGNATURE, var6);
+        }
+    }
+
     @Override
     public void handleHello(ServerboundHelloPacket param0) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
-        this.gameProfile = param0.getGameProfile();
-        Validate.validState(isValidUsername(this.gameProfile.getName()), "Invalid characters in username");
-        if (this.server.usesAuthentication() && !this.connection.isMemoryConnection()) {
+        Validate.validState(isValidUsername(param0.name()), "Invalid characters in username");
+        this.gameProfile = new GameProfile(null, param0.name());
+
+        try {
+            this.playerProfilePublicKey = validatePublicKey(param0, this.server.getSessionService(), this.server.enforceSecureProfile());
+        } catch (ServerLoginPacketListenerImpl.PublicKeyParseException var3) {
+            LOGGER.error(var3.getMessage(), var3.getCause());
+            this.disconnect(var3.getComponent());
+            return;
+        }
+
+        if (!this.server.isSingleplayer() && this.server.usesAuthentication() && !this.connection.isMemoryConnection()) {
             this.state = ServerLoginPacketListenerImpl.State.KEY;
             this.connection.send(new ClientboundHelloPacket("", this.server.getKeyPair().getPublic().getEncoded(), this.nonce));
         } else {
@@ -167,11 +216,16 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     @Override
     public void handleKey(ServerboundKeyPacket param0) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet");
-        PrivateKey var0 = this.server.getKeyPair().getPrivate();
 
         final String var4;
         try {
-            if (!Arrays.equals(this.nonce, param0.getNonce(var0))) {
+            this.gameProfile = this.server.getSessionService().fillProfileProperties(this.gameProfile, true);
+            PrivateKey var0 = this.server.getKeyPair().getPrivate();
+            if (this.playerProfilePublicKey != null) {
+                if (!param0.isChallengeSignatureValid(this.nonce, this.playerProfilePublicKey)) {
+                    throw new IllegalStateException("Protocol error");
+                }
+            } else if (!param0.isNonceValid(this.nonce, var0)) {
                 throw new IllegalStateException("Protocol error");
             }
 
@@ -243,6 +297,16 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     protected GameProfile createFakeProfile(GameProfile param0) {
         UUID var0 = UUIDUtil.createOfflinePlayerUUID(param0.getName());
         return new GameProfile(var0, param0.getName());
+    }
+
+    static class PublicKeyParseException extends ThrowingComponent {
+        public PublicKeyParseException(Component param0) {
+            super(param0);
+        }
+
+        public PublicKeyParseException(Component param0, Throwable param1) {
+            super(param0, param1);
+        }
     }
 
     static enum State {

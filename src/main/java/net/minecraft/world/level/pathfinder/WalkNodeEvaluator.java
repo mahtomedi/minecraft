@@ -49,6 +49,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         super.done();
     }
 
+    @Nullable
     @Override
     public Node getStart() {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
@@ -101,10 +102,14 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         return this.getStartNode(new BlockPos(var4.getX(), var1, var4.getZ()));
     }
 
+    @Nullable
     protected Node getStartNode(BlockPos param0) {
         Node var0 = this.getNode(param0);
-        var0.type = this.getBlockPathType(this.mob, var0.asBlockPos());
-        var0.costMalus = this.mob.getPathfindingMalus(var0.type);
+        if (var0 != null) {
+            var0.type = this.getBlockPathType(this.mob, var0.asBlockPos());
+            var0.costMalus = this.mob.getPathfindingMalus(var0.type);
+        }
+
         return var0;
     }
 
@@ -113,9 +118,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         return this.mob.getPathfindingMalus(var0) >= 0.0F;
     }
 
+    @Nullable
     @Override
     public Target getGoal(double param0, double param1, double param2) {
-        return new Target(this.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
+        return this.getTargetFromNode(this.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
     }
 
     @Override
@@ -243,9 +249,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             float var4 = this.mob.getPathfindingMalus(var3);
             double var5 = (double)this.mob.getBbWidth() / 2.0;
             if (var4 >= 0.0F) {
-                var0 = this.getNode(param0, param1, param2);
-                var0.type = var3;
-                var0.costMalus = Math.max(var0.costMalus, var4);
+                var0 = this.getNodeAndUpdateCostToMax(param0, param1, param2, var3, var4);
             }
 
             if (doesBlockHavePartialCollision(param6) && var0 != null && var0.costMalus >= 0.0F && !this.canReachWithoutCollision(var0)) {
@@ -288,9 +292,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                             return var0;
                         }
 
-                        var0 = this.getNode(param0, param1, param2);
-                        var0.type = var3;
-                        var0.costMalus = Math.max(var0.costMalus, this.mob.getPathfindingMalus(var3));
+                        var0 = this.getNodeAndUpdateCostToMax(param0, param1, param2, var3, this.mob.getPathfindingMalus(var3));
                     }
                 }
 
@@ -300,42 +302,33 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
                     while(var3 == BlockPathTypes.OPEN) {
                         if (--param1 < this.mob.level.getMinBuildHeight()) {
-                            Node var11 = this.getNode(param0, var10, param2);
-                            var11.type = BlockPathTypes.BLOCKED;
-                            var11.costMalus = -1.0F;
-                            return var11;
+                            return this.getBlockedNode(param0, var10, param2);
                         }
 
                         if (var9++ >= this.mob.getMaxFallDistance()) {
-                            Node var12 = this.getNode(param0, param1, param2);
-                            var12.type = BlockPathTypes.BLOCKED;
-                            var12.costMalus = -1.0F;
-                            return var12;
+                            return this.getBlockedNode(param0, param1, param2);
                         }
 
                         var3 = this.getCachedBlockType(this.mob, param0, param1, param2);
                         var4 = this.mob.getPathfindingMalus(var3);
                         if (var3 != BlockPathTypes.OPEN && var4 >= 0.0F) {
-                            var0 = this.getNode(param0, param1, param2);
-                            var0.type = var3;
-                            var0.costMalus = Math.max(var0.costMalus, var4);
+                            var0 = this.getNodeAndUpdateCostToMax(param0, param1, param2, var3, var4);
                             break;
                         }
 
                         if (var4 < 0.0F) {
-                            Node var13 = this.getNode(param0, param1, param2);
-                            var13.type = BlockPathTypes.BLOCKED;
-                            var13.costMalus = -1.0F;
-                            return var13;
+                            return this.getBlockedNode(param0, param1, param2);
                         }
                     }
                 }
 
                 if (doesBlockHavePartialCollision(var3)) {
                     var0 = this.getNode(param0, param1, param2);
-                    var0.closed = true;
-                    var0.type = var3;
-                    var0.costMalus = var3.getMalus();
+                    if (var0 != null) {
+                        var0.closed = true;
+                        var0.type = var3;
+                        var0.costMalus = var3.getMalus();
+                    }
                 }
 
                 return var0;
@@ -343,6 +336,28 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 return var0;
             }
         }
+    }
+
+    @Nullable
+    private Node getNodeAndUpdateCostToMax(int param0, int param1, int param2, BlockPathTypes param3, float param4) {
+        Node var0 = this.getNode(param0, param1, param2);
+        if (var0 != null) {
+            var0.type = param3;
+            var0.costMalus = Math.max(var0.costMalus, param4);
+        }
+
+        return var0;
+    }
+
+    @Nullable
+    private Node getBlockedNode(int param0, int param1, int param2) {
+        Node var0 = this.getNode(param0, param1, param2);
+        if (var0 != null) {
+            var0.type = BlockPathTypes.BLOCKED;
+            var0.costMalus = -1.0F;
+        }
+
+        return var0;
     }
 
     private boolean hasCollisions(AABB param0) {

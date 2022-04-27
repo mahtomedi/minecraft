@@ -27,7 +27,9 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleBlockUpdate(ClientboundBlockUpdatePacket var1);
 
-    void handleChat(ClientboundChatPacket var1);
+    void handleSystemChat(ClientboundSystemChatPacket var1);
+
+    void handlePlayerChat(ClientboundPlayerChatPacket var1);
 
     void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket var1);
 

@@ -3,7 +3,10 @@ package net.minecraft.client.multiplayer;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.InsecurePublicKeyException;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.mojang.logging.LogUtils;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -11,13 +14,17 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.CryptException;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerInfo {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private final GameProfile profile;
     private final Map<Type, ResourceLocation> textureLocations = Maps.newEnumMap(Type.class);
     private GameType gameMode;
@@ -32,16 +39,35 @@ public class PlayerInfo {
     private long lastHealthTime;
     private long healthBlinkTime;
     private long renderVisibilityId;
+    @Nullable
+    private final ProfilePublicKey.Trusted profilePublicKey;
 
-    public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate param0) {
+    public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate param0, MinecraftSessionService param1) {
         this.profile = param0.getProfile();
         this.gameMode = param0.getGameMode();
         this.latency = param0.getLatency();
         this.tabListDisplayName = param0.getDisplayName();
+        ProfilePublicKey.Trusted var0 = null;
+
+        try {
+            ProfilePublicKey var1 = ProfilePublicKey.parseFromGameProfile(this.profile).orElse(null);
+            if (var1 != null) {
+                var0 = var1.verify(param1);
+            }
+        } catch (InsecurePublicKeyException | CryptException var5) {
+            LOGGER.error("Failed to retrieve publicKey property for profile {}", this.profile.getId(), var5);
+        }
+
+        this.profilePublicKey = var0;
     }
 
     public GameProfile getProfile() {
         return this.profile;
+    }
+
+    @Nullable
+    public ProfilePublicKey.Trusted getProfilePublicKey() {
+        return this.profilePublicKey;
     }
 
     @Nullable

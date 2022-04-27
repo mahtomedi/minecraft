@@ -1,7 +1,8 @@
 package net.minecraft.client.gui.chat;
 
-import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,7 +17,7 @@ public class OverlayChatListener implements ChatListener {
     }
 
     @Override
-    public void handle(ChatType param0, Component param1, UUID param2) {
+    public void handle(ChatType param0, Component param1, @Nullable ChatSender param2) {
         this.minecraft.gui.setOverlayMessage(param1, false);
     }
 }

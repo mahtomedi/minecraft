@@ -905,9 +905,9 @@ public abstract class RenderType extends RenderStateShard {
                 param0.setQuadSortOrigin((float)param1, (float)param2, (float)param3);
             }
 
-            param0.end();
+            BufferBuilder.RenderedBuffer var0 = param0.end();
             this.setupRenderState();
-            BufferUploader.drawWithShader(param0);
+            BufferUploader.drawWithShader(var0);
             this.clearRenderState();
         }
     }

@@ -30,6 +30,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         super.done();
     }
 
+    @Nullable
     @Override
     public Node getStart() {
         int var0;
@@ -65,7 +66,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public Target getGoal(double param0, double param1, double param2) {
-        return new Target(super.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
+        return this.getTargetFromNode(super.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
     }
 
     @Override
@@ -268,10 +269,12 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         float var2 = this.mob.getPathfindingMalus(var1);
         if (var2 >= 0.0F) {
             var0 = super.getNode(param0, param1, param2);
-            var0.type = var1;
-            var0.costMalus = Math.max(var0.costMalus, var2);
-            if (var1 == BlockPathTypes.WALKABLE) {
-                ++var0.costMalus;
+            if (var0 != null) {
+                var0.type = var1;
+                var0.costMalus = Math.max(var0.costMalus, var2);
+                if (var1 == BlockPathTypes.WALKABLE) {
+                    ++var0.costMalus;
+                }
             }
         }
 

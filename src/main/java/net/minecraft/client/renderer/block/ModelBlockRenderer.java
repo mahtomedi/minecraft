@@ -40,7 +40,7 @@ public class ModelBlockRenderer {
         this.blockColors = param0;
     }
 
-    public boolean tesselateBlock(
+    public void tesselateBlock(
         BlockAndTintGetter param0,
         BakedModel param1,
         BlockState param2,
@@ -57,9 +57,12 @@ public class ModelBlockRenderer {
         param4.translate(var1.x, var1.y, var1.z);
 
         try {
-            return var0
-                ? this.tesselateWithAO(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9)
-                : this.tesselateWithoutAO(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+            if (var0) {
+                this.tesselateWithAO(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+            } else {
+                this.tesselateWithoutAO(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+            }
+
         } catch (Throwable var17) {
             CrashReport var3 = CrashReport.forThrowable(var17, "Tesselating block model");
             CrashReportCategory var4 = var3.addCategory("Block model being tesselated");
@@ -69,7 +72,7 @@ public class ModelBlockRenderer {
         }
     }
 
-    public boolean tesselateWithAO(
+    public void tesselateWithAO(
         BlockAndTintGetter param0,
         BakedModel param1,
         BlockState param2,
@@ -81,59 +84,18 @@ public class ModelBlockRenderer {
         long param8,
         int param9
     ) {
-        boolean var0 = false;
-        float[] var1 = new float[DIRECTIONS.length * 2];
-        BitSet var2 = new BitSet(3);
-        ModelBlockRenderer.AmbientOcclusionFace var3 = new ModelBlockRenderer.AmbientOcclusionFace();
-        BlockPos.MutableBlockPos var4 = param3.mutable();
-
-        for(Direction var5 : DIRECTIONS) {
-            param7.setSeed(param8);
-            List<BakedQuad> var6 = param1.getQuads(param2, var5, param7);
-            if (!var6.isEmpty()) {
-                var4.setWithOffset(param3, var5);
-                if (!param6 || Block.shouldRenderFace(param2, param0, param3, var5, var4)) {
-                    this.renderModelFaceAO(param0, param2, param3, param4, param5, var6, var1, var2, var3, param9);
-                    var0 = true;
-                }
-            }
-        }
-
-        param7.setSeed(param8);
-        List<BakedQuad> var7 = param1.getQuads(param2, null, param7);
-        if (!var7.isEmpty()) {
-            this.renderModelFaceAO(param0, param2, param3, param4, param5, var7, var1, var2, var3, param9);
-            var0 = true;
-        }
-
-        return var0;
-    }
-
-    public boolean tesselateWithoutAO(
-        BlockAndTintGetter param0,
-        BakedModel param1,
-        BlockState param2,
-        BlockPos param3,
-        PoseStack param4,
-        VertexConsumer param5,
-        boolean param6,
-        RandomSource param7,
-        long param8,
-        int param9
-    ) {
-        boolean var0 = false;
+        float[] var0 = new float[DIRECTIONS.length * 2];
         BitSet var1 = new BitSet(3);
-        BlockPos.MutableBlockPos var2 = param3.mutable();
+        ModelBlockRenderer.AmbientOcclusionFace var2 = new ModelBlockRenderer.AmbientOcclusionFace();
+        BlockPos.MutableBlockPos var3 = param3.mutable();
 
-        for(Direction var3 : DIRECTIONS) {
+        for(Direction var4 : DIRECTIONS) {
             param7.setSeed(param8);
-            List<BakedQuad> var4 = param1.getQuads(param2, var3, param7);
-            if (!var4.isEmpty()) {
-                var2.setWithOffset(param3, var3);
-                if (!param6 || Block.shouldRenderFace(param2, param0, param3, var3, var2)) {
-                    int var5 = LevelRenderer.getLightColor(param0, param2, var2);
-                    this.renderModelFaceFlat(param0, param2, param3, var5, param9, false, param4, param5, var4, var1);
-                    var0 = true;
+            List<BakedQuad> var5 = param1.getQuads(param2, var4, param7);
+            if (!var5.isEmpty()) {
+                var3.setWithOffset(param3, var4);
+                if (!param6 || Block.shouldRenderFace(param2, param0, param3, var4, var3)) {
+                    this.renderModelFaceAO(param0, param2, param3, param4, param5, var5, var0, var1, var2, param9);
                 }
             }
         }
@@ -141,11 +103,44 @@ public class ModelBlockRenderer {
         param7.setSeed(param8);
         List<BakedQuad> var6 = param1.getQuads(param2, null, param7);
         if (!var6.isEmpty()) {
-            this.renderModelFaceFlat(param0, param2, param3, -1, param9, true, param4, param5, var6, var1);
-            var0 = true;
+            this.renderModelFaceAO(param0, param2, param3, param4, param5, var6, var0, var1, var2, param9);
         }
 
-        return var0;
+    }
+
+    public void tesselateWithoutAO(
+        BlockAndTintGetter param0,
+        BakedModel param1,
+        BlockState param2,
+        BlockPos param3,
+        PoseStack param4,
+        VertexConsumer param5,
+        boolean param6,
+        RandomSource param7,
+        long param8,
+        int param9
+    ) {
+        BitSet var0 = new BitSet(3);
+        BlockPos.MutableBlockPos var1 = param3.mutable();
+
+        for(Direction var2 : DIRECTIONS) {
+            param7.setSeed(param8);
+            List<BakedQuad> var3 = param1.getQuads(param2, var2, param7);
+            if (!var3.isEmpty()) {
+                var1.setWithOffset(param3, var2);
+                if (!param6 || Block.shouldRenderFace(param2, param0, param3, var2, var1)) {
+                    int var4 = LevelRenderer.getLightColor(param0, param2, var1);
+                    this.renderModelFaceFlat(param0, param2, param3, var4, param9, false, param4, param5, var3, var0);
+                }
+            }
+        }
+
+        param7.setSeed(param8);
+        List<BakedQuad> var5 = param1.getQuads(param2, null, param7);
+        if (!var5.isEmpty()) {
+            this.renderModelFaceFlat(param0, param2, param3, -1, param9, true, param4, param5, var5, var0);
+        }
+
     }
 
     private void renderModelFaceAO(
@@ -681,7 +676,7 @@ public class ModelBlockRenderer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class AmbientOcclusionFace {
+    static class AmbientOcclusionFace {
         final float[] brightness = new float[4];
         final int[] lightmap = new int[4];
 

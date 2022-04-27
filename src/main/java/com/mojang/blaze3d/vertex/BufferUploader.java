@@ -1,8 +1,6 @@
 package com.mojang.blaze3d.vertex;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
-import java.nio.ByteBuffer;
 import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,7 +22,7 @@ public class BufferUploader {
         lastImmediateBuffer = null;
     }
 
-    public static void drawWithShader(BufferBuilder param0) {
+    public static void drawWithShader(BufferBuilder.RenderedBuffer param0) {
         if (!RenderSystem.isOnRenderThreadOrInit()) {
             RenderSystem.recordRenderCall(() -> _drawWithShader(param0));
         } else {
@@ -33,7 +31,7 @@ public class BufferUploader {
 
     }
 
-    private static void _drawWithShader(BufferBuilder param0) {
+    private static void _drawWithShader(BufferBuilder.RenderedBuffer param0) {
         VertexBuffer var0 = upload(param0);
         if (var0 != null) {
             var0.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
@@ -41,7 +39,7 @@ public class BufferUploader {
 
     }
 
-    public static void draw(BufferBuilder param0) {
+    public static void draw(BufferBuilder.RenderedBuffer param0) {
         VertexBuffer var0 = upload(param0);
         if (var0 != null) {
             var0.draw();
@@ -50,18 +48,15 @@ public class BufferUploader {
     }
 
     @Nullable
-    private static VertexBuffer upload(BufferBuilder param0) {
+    private static VertexBuffer upload(BufferBuilder.RenderedBuffer param0) {
         RenderSystem.assertOnRenderThread();
-        Pair<BufferBuilder.DrawState, ByteBuffer> var0 = param0.popNextBuffer();
-        BufferBuilder.DrawState var1 = var0.getFirst();
-        ByteBuffer var2 = var0.getSecond();
-        var2.clear();
-        if (var1.vertexCount() <= 0) {
+        if (param0.isEmpty()) {
+            param0.release();
             return null;
         } else {
-            VertexBuffer var3 = bindImmediateBuffer(var1.format());
-            var3.upload(var1, var2);
-            return var3;
+            VertexBuffer var0 = bindImmediateBuffer(param0.drawState().format());
+            var0.upload(param0);
+            return var0;
         }
     }
 

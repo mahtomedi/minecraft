@@ -22,6 +22,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -80,6 +81,8 @@ public class ConnectScreen extends Screen {
                     }
 
                     var0 = var1.get();
+                    String var2 = param0.getUser().getName();
+                    ProfilePublicKey var3 = param0.getProfileKeyPairManager().profilePublicKey();
                     ConnectScreen.this.connection = Connection.connectToServer(var0, param0.options.useNativeTransport());
                     ConnectScreen.this.connection
                         .setListener(
@@ -88,28 +91,28 @@ public class ConnectScreen extends Screen {
                             )
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
-                    ConnectScreen.this.connection.send(new ServerboundHelloPacket(param0.getUser().getGameProfile()));
-                } catch (Exception var61) {
+                    ConnectScreen.this.connection.send(new ServerboundHelloPacket(var2, Optional.ofNullable(var3)));
+                } catch (Exception var6) {
                     if (ConnectScreen.this.aborted) {
                         return;
                     }
 
-                    Throwable var51 = var61.getCause();
-                    Exception var4;
-                    if (var51 instanceof Exception var3) {
-                        var4 = var3;
+                    Throwable var5x = var6.getCause();
+                    Exception var6;
+                    if (var5x instanceof Exception var5) {
+                        var6 = var5;
                     } else {
-                        var4 = var61;
+                        var6 = var6;
                     }
 
-                    ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var61);
-                    String var6 = var0 == null
-                        ? var4.getMessage()
-                        : var4.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
+                    ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var6);
+                    String var8 = var0 == null
+                        ? var6.getMessage()
+                        : var6.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
                     param0.execute(
                         () -> param0.setScreen(
                                 new DisconnectedScreen(
-                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var6)
+                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var8)
                                 )
                             )
                     );

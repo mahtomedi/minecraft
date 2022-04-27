@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,7 +99,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
-import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
@@ -134,6 +134,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPingPacket;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
@@ -178,6 +179,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
 import net.minecraft.network.protocol.game.ClientboundTagQueryPacket;
 import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
@@ -227,6 +229,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -756,9 +759,33 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleChat(ClientboundChatPacket param0) {
+    public void handleSystemChat(ClientboundSystemChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.gui.handleChat(param0.getType(), param0.getMessage(), param0.getSender());
+        this.minecraft.gui.handleSystemChat(param0.type(), param0.content());
+    }
+
+    @Override
+    public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        if (param0.hasExpired(Instant.now())) {
+            LOGGER.warn("Received expired player chat packet from {}", param0.sender().name().getString());
+        }
+
+        if (!this.hasValidSignature(param0)) {
+            LOGGER.warn("Received unsigned player chat packet from {}", param0.sender().name().getString());
+        }
+
+        this.minecraft.gui.handlePlayerChat(param0.type(), param0.content(), param0.sender());
+    }
+
+    private boolean hasValidSignature(ClientboundPlayerChatPacket param0) {
+        PlayerInfo var0 = this.getPlayerInfo(param0.sender().uuid());
+        if (var0 == null) {
+            return false;
+        } else {
+            ProfilePublicKey.Trusted var1 = var0.getProfilePublicKey();
+            return var1 != null && param0.isSignatureValid(var1);
+        }
     }
 
     @Override
@@ -1518,7 +1545,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else {
                 PlayerInfo var1 = this.playerInfoMap.get(var0.getProfile().getId());
                 if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER) {
-                    var1 = new PlayerInfo(var0);
+                    var1 = new PlayerInfo(var0, this.minecraft.getMinecraftSessionService());
                     this.playerInfoMap.put(var1.getProfile().getId(), var1);
                     this.minecraft.getPlayerSocialManager().addPlayer(var1);
                 }

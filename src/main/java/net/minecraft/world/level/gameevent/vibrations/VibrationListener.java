@@ -221,10 +221,6 @@ public class VibrationListener implements GameEventListener {
                     if (var0.dampensVibrations()) {
                         return false;
                     }
-
-                    if (param0.is(GameEventTags.DAMPENABLE_VIBRATIONS)) {
-                        return !var0.getBlockStateOn().is(BlockTags.DAMPENS_VIBRATIONS);
-                    }
                 }
 
                 if (param1.affectedState() != null) {

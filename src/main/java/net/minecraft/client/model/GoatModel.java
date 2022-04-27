@@ -67,8 +67,8 @@ public class GoatModel<T extends Goat> extends QuadrupedModel<T> {
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
-        this.head.getChild("left_horn").visible = !param0.isBaby();
-        this.head.getChild("right_horn").visible = !param0.isBaby();
+        this.head.getChild("left_horn").visible = param0.hasLeftHorn();
+        this.head.getChild("right_horn").visible = param0.hasRightHorn();
         super.setupAnim(param0, param1, param2, param3, param4, param5);
         float var0 = param0.getRammingXHeadRot();
         if (var0 != 0.0F) {

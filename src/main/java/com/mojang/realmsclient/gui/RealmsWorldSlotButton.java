@@ -14,7 +14,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class RealmsWorldSlotButton extends Button {
     public static final ResourceLocation SLOT_FRAME_LOCATION = new ResourceLocation("realms", "textures/gui/realms/slot_frame.png");
     public static final ResourceLocation EMPTY_SLOT_LOCATION = new ResourceLocation("realms", "textures/gui/realms/empty_frame.png");
+    public static final ResourceLocation CHECK_MARK_LOCATION = new ResourceLocation("realms", "textures/gui/realms/checkmark.png");
     public static final ResourceLocation DEFAULT_WORLD_SLOT_1 = new ResourceLocation("minecraft", "textures/gui/title/background/panorama_0.png");
     public static final ResourceLocation DEFAULT_WORLD_SLOT_2 = new ResourceLocation("minecraft", "textures/gui/title/background/panorama_2.png");
     public static final ResourceLocation DEFAULT_WORLD_SLOT_3 = new ResourceLocation("minecraft", "textures/gui/title/background/panorama_3.png");
@@ -31,7 +31,6 @@ public class RealmsWorldSlotButton extends Button {
     private final Supplier<RealmsServer> serverDataProvider;
     private final Consumer<Component> toolTipSetter;
     private final int slotIndex;
-    private int animTick;
     @Nullable
     private RealmsWorldSlotButton.State state;
 
@@ -50,7 +49,6 @@ public class RealmsWorldSlotButton extends Button {
     }
 
     public void tick() {
-        ++this.animTick;
         RealmsServer var0 = this.serverDataProvider.get();
         if (var0 != null) {
             RealmsWorldOptions var1 = var0.slots.get(this.slotIndex);
@@ -187,16 +185,15 @@ public class RealmsWorldSlotButton extends Button {
         }
 
         if (param5) {
-            float var2 = 0.85F + 0.15F * Mth.cos((float)this.animTick * 0.2F);
-            RenderSystem.setShaderColor(var2, var2, var2, 1.0F);
-        } else {
             RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
+        } else {
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         blit(param0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
         RenderSystem.setShaderTexture(0, SLOT_FRAME_LOCATION);
-        boolean var3 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
-        if (var3) {
+        boolean var2 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
+        if (var2) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else if (param5) {
             RenderSystem.setShaderColor(0.8F, 0.8F, 0.8F, 1.0F);
@@ -205,7 +202,20 @@ public class RealmsWorldSlotButton extends Button {
         }
 
         blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
+        if (param5) {
+            this.renderCheckMark(param0, param1, param2);
+        }
+
         drawCenteredString(param0, var1.font, param6, param1 + 40, param2 + 66, 16777215);
+    }
+
+    private void renderCheckMark(PoseStack param0, int param1, int param2) {
+        RenderSystem.setShaderTexture(0, CHECK_MARK_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        blit(param0, param1 + 67, param2 + 4, 0.0F, 0.0F, 9, 8, 9, 8);
+        RenderSystem.disableBlend();
     }
 
     @OnlyIn(Dist.CLIENT)

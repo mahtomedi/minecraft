@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -218,12 +217,11 @@ public class PlayerAdvancements {
                     && param0.getDisplay().shouldAnnounceChat()
                     && this.player.level.getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
                     this.playerList
-                        .broadcastMessage(
+                        .broadcastSystemMessage(
                             Component.translatable(
                                 "chat.type.advancement." + param0.getDisplay().getFrame().getName(), this.player.getDisplayName(), param0.getChatComponent()
                             ),
-                            ChatType.SYSTEM,
-                            Util.NIL_UUID
+                            ChatType.SYSTEM
                         );
                 }
             }

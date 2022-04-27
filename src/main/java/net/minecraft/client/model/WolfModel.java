@@ -55,10 +55,9 @@ public class WolfModel<T extends Wolf> extends ColorableAgeableListModel<T> {
                 .texOffs(16, 14)
                 .addBox(-2.0F, -5.0F, 0.0F, 2.0F, 2.0F, 1.0F)
                 .texOffs(16, 14)
-                .mirror()
                 .addBox(2.0F, -5.0F, 0.0F, 2.0F, 2.0F, 1.0F)
                 .texOffs(0, 10)
-                .addBox(-0.5F, 0.0F, -5.0F, 3.0F, 3.0F, 4.0F),
+                .addBox(-0.5F, -0.001F, -5.0F, 3.0F, 3.0F, 4.0F),
             PartPose.ZERO
         );
         var1.addOrReplaceChild(
@@ -72,15 +71,14 @@ public class WolfModel<T extends Wolf> extends ColorableAgeableListModel<T> {
             PartPose.offsetAndRotation(-1.0F, 14.0F, -3.0F, (float) (Math.PI / 2), 0.0F, 0.0F)
         );
         CubeListBuilder var4 = CubeListBuilder.create().texOffs(0, 18).addBox(0.0F, 0.0F, -1.0F, 2.0F, 8.0F, 2.0F);
-        CubeListBuilder var5 = CubeListBuilder.create().texOffs(0, 18).mirror().addBox(0.0F, 0.0F, -1.0F, 2.0F, 8.0F, 2.0F);
         var1.addOrReplaceChild("right_hind_leg", var4, PartPose.offset(-2.5F, 16.0F, 7.0F));
-        var1.addOrReplaceChild("left_hind_leg", var5, PartPose.offset(0.5F, 16.0F, 7.0F));
+        var1.addOrReplaceChild("left_hind_leg", var4, PartPose.offset(0.5F, 16.0F, 7.0F));
         var1.addOrReplaceChild("right_front_leg", var4, PartPose.offset(-2.5F, 16.0F, -4.0F));
-        var1.addOrReplaceChild("left_front_leg", var5, PartPose.offset(0.5F, 16.0F, -4.0F));
-        PartDefinition var6 = var1.addOrReplaceChild(
+        var1.addOrReplaceChild("left_front_leg", var4, PartPose.offset(0.5F, 16.0F, -4.0F));
+        PartDefinition var5 = var1.addOrReplaceChild(
             "tail", CubeListBuilder.create(), PartPose.offsetAndRotation(-1.0F, 12.0F, 8.0F, (float) (Math.PI / 5), 0.0F, 0.0F)
         );
-        var6.addOrReplaceChild("real_tail", CubeListBuilder.create().texOffs(9, 18).addBox(0.0F, 0.0F, -1.0F, 2.0F, 8.0F, 2.0F), PartPose.ZERO);
+        var5.addOrReplaceChild("real_tail", CubeListBuilder.create().texOffs(9, 18).addBox(0.0F, 0.0F, -1.0F, 2.0F, 8.0F, 2.0F), PartPose.ZERO);
         return LayerDefinition.create(var0, 64, 32);
     }
 

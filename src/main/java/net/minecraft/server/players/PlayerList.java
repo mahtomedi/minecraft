@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +21,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.FileUtil;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
@@ -28,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -70,6 +71,7 @@ import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagNetworkSerialization;
+import net.minecraft.util.Crypt;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -208,7 +210,7 @@ public abstract class PlayerList {
             var15 = Component.translatable("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
         }
 
-        this.broadcastMessage(var15.withStyle(ChatFormatting.YELLOW), ChatType.SYSTEM, Util.NIL_UUID);
+        this.broadcastSystemMessage(var15.withStyle(ChatFormatting.YELLOW), ChatType.SYSTEM);
         var11.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
@@ -561,7 +563,7 @@ public abstract class PlayerList {
             for(String var2 : var0.getPlayers()) {
                 ServerPlayer var3 = this.getPlayerByName(var2);
                 if (var3 != null && var3 != param0) {
-                    var3.sendMessage(param1, param0.getUUID());
+                    var3.sendUnsignedMessageFrom(param1, param0.getUUID());
                 }
             }
 
@@ -571,12 +573,12 @@ public abstract class PlayerList {
     public void broadcastToAllExceptTeam(Player param0, Component param1) {
         Team var0 = param0.getTeam();
         if (var0 == null) {
-            this.broadcastMessage(param1, ChatType.SYSTEM, param0.getUUID());
+            this.broadcastUnsignedMessage(param1, ChatType.SYSTEM, param0.getUUID());
         } else {
             for(int var1 = 0; var1 < this.players.size(); ++var1) {
                 ServerPlayer var2 = this.players.get(var1);
                 if (var2.getTeam() != var0) {
-                    var2.sendMessage(param1, param0.getUUID());
+                    var2.sendUnsignedMessageFrom(param1, param0.getUUID());
                 }
             }
 
@@ -774,22 +776,41 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastMessage(Component param0, ChatType param1, UUID param2) {
-        this.server.sendMessage(param0, param2);
+    @Deprecated
+    public void broadcastUnsignedMessage(Component param0, ChatType param1, UUID param2) {
+        this.server.sendSystemMessage(param0);
 
         for(ServerPlayer var0 : this.players) {
-            var0.sendMessage(param0, param1, param2);
+            var0.sendUnsignedMessageFrom(param0, param1, param2);
         }
 
     }
 
-    public void broadcastMessage(Component param0, Function<ServerPlayer, Component> param1, ChatType param2, UUID param3) {
-        this.server.sendMessage(param0, param3);
+    public void broadcastSystemMessage(Component param0, ChatType param1) {
+        this.broadcastSystemMessage(param0, param1x -> param0, param1);
+    }
+
+    public void broadcastSystemMessage(Component param0, Function<ServerPlayer, Component> param1, ChatType param2) {
+        this.server.sendSystemMessage(param0);
 
         for(ServerPlayer var0 : this.players) {
             Component var1 = param1.apply(var0);
             if (var1 != null) {
-                var0.sendMessage(var1, param2, param3);
+                var0.sendSystemMessage(var1, param2);
+            }
+        }
+
+    }
+
+    public void broadcastPlayerMessage(
+        Component param0, Function<ServerPlayer, Component> param1, ChatType param2, ChatSender param3, Instant param4, Crypt.SaltSignaturePair param5
+    ) {
+        this.server.logMessageFrom(param3, param0);
+
+        for(ServerPlayer var0 : this.players) {
+            Component var1 = param1.apply(var0);
+            if (var1 != null) {
+                var0.sendPlayerMessage(var1, param2, param3, param4, param5);
             }
         }
 

@@ -149,28 +149,28 @@ public class Main {
                 WorldLoader.InitConfig var34 = new WorldLoader.InitConfig(
                     var33, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel
                 );
-                var35 = WorldStem.load(var34, (param5, param6) -> {
-                    RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
-                    DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5);
-                    WorldData var2x = var28.getDataTag(var1x, param6, var0x.allElementsLifecycle());
-                    if (var2x != null) {
-                        return Pair.of(var2x, var0x.freeze());
-                    } else {
-                        LevelSettings var3x;
-                        WorldGenSettings var4x;
-                        if (var16.has(var3)) {
-                            var3x = MinecraftServer.DEMO_SETTINGS;
-                            var4x = WorldPresets.demoSettings(var0x);
+                var35 = Util.<WorldStem>blockUntilDone(param6 -> WorldStem.load(var34, (param5x, param6x) -> {
+                        RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
+                        DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5x);
+                        WorldData var2x = var28.getDataTag(var1x, param6x, var0x.allElementsLifecycle());
+                        if (var2x != null) {
+                            return Pair.of(var2x, var0x.freeze());
                         } else {
-                            DedicatedServerProperties var5x = var18.getProperties();
-                            var3x = new LevelSettings(var5x.levelName, var5x.gamemode, var5x.hardcore, var5x.difficulty, false, new GameRules(), param6);
-                            var4x = var16.has(var4) ? var5x.getWorldGenSettings(var0x).withBonusChest() : var5x.getWorldGenSettings(var0x);
-                        }
+                            LevelSettings var3x;
+                            WorldGenSettings var4x;
+                            if (var16.has(var3)) {
+                                var3x = MinecraftServer.DEMO_SETTINGS;
+                                var4x = WorldPresets.demoSettings(var0x);
+                            } else {
+                                DedicatedServerProperties var5x = var18.getProperties();
+                                var3x = new LevelSettings(var5x.levelName, var5x.gamemode, var5x.hardcore, var5x.difficulty, false, new GameRules(), param6x);
+                                var4x = var16.has(var4) ? var5x.getWorldGenSettings(var0x).withBonusChest() : var5x.getWorldGenSettings(var0x);
+                            }
 
-                        PrimaryLevelData var13x = new PrimaryLevelData(var3x, var4x, Lifecycle.stable());
-                        return Pair.of(var13x, var0x.freeze());
-                    }
-                }, Util.backgroundExecutor(), Runnable::run).get();
+                            PrimaryLevelData var13x = new PrimaryLevelData(var3x, var4x, Lifecycle.stable());
+                            return Pair.of(var13x, var0x.freeze());
+                        }
+                    }, Util.backgroundExecutor(), param6)).get();
             } catch (Exception var381) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",

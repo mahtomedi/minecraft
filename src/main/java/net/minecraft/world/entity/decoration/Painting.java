@@ -49,7 +49,7 @@ public class Painting extends HangingEntity {
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
-        if (param0 == DATA_PAINTING_VARIANT_ID) {
+        if (DATA_PAINTING_VARIANT_ID.equals(param0)) {
             this.recalculateBoundingBox();
         }
 

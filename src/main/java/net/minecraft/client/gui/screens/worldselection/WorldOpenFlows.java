@@ -169,7 +169,7 @@ public class WorldOpenFlows {
                     }
 
                 }, this.minecraft).exceptionally(param0x -> {
-                    this.minecraft.delayCrash(() -> CrashReport.forThrowable(param0x, "Load world"));
+                    this.minecraft.delayCrash(CrashReport.forThrowable(param0x, "Load world"));
                     return null;
                 });
             } else {

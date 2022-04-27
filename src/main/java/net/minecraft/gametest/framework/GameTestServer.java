@@ -1,5 +1,6 @@
 package net.minecraft.gametest.framework;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
@@ -8,6 +9,7 @@ import com.mojang.serialization.Lifecycle;
 import java.net.Proxy;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -64,24 +66,30 @@ public class GameTestServer extends MinecraftServer {
             WorldLoader.InitConfig var1 = new WorldLoader.InitConfig(var0, Commands.CommandSelection.DEDICATED, 4);
 
             try {
-                WorldStem var2 = WorldStem.load(
-                        var1,
-                        (param0x, param1x) -> {
-                            RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
-                            WorldGenSettings var1x = var0x.<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
-                                .getHolderOrThrow(WorldPresets.FLAT)
-                                .value()
-                                .createWorldGenSettings(0L, false, false);
-                            WorldData var2x = new PrimaryLevelData(TEST_SETTINGS, var1x, Lifecycle.stable());
-                            return Pair.of(var2x, var0x);
-                        },
-                        Util.backgroundExecutor(),
-                        Runnable::run
+                LOGGER.debug("Starting resource loading");
+                Stopwatch var2 = Stopwatch.createStarted();
+                WorldStem var3 = Util.<WorldStem>blockUntilDone(
+                        param1x -> WorldStem.load(
+                                var1,
+                                (param0x, param1xx) -> {
+                                    RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
+                                    WorldGenSettings var1x = var0x.<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
+                                        .getHolderOrThrow(WorldPresets.FLAT)
+                                        .value()
+                                        .createWorldGenSettings(0L, false, false);
+                                    WorldData var2x = new PrimaryLevelData(TEST_SETTINGS, var1x, Lifecycle.stable());
+                                    return Pair.of(var2x, var0x);
+                                },
+                                Util.backgroundExecutor(),
+                                param1x
+                            )
                     )
                     .get();
-                return new GameTestServer(param0, param1, param2, var2, param3, param4);
-            } catch (Exception var8) {
-                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var8);
+                var2.stop();
+                LOGGER.debug("Finished resource loading after {} ms", var2.elapsed(TimeUnit.MILLISECONDS));
+                return new GameTestServer(param0, param1, param2, var3, param3, param4);
+            } catch (Exception var9) {
+                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var9);
                 System.exit(-1);
                 throw new IllegalStateException();
             }
@@ -105,6 +113,7 @@ public class GameTestServer extends MinecraftServer {
         var0.setDefaultSpawnPos(this.spawnPos, 0.0F);
         int var1 = 20000000;
         var0.setWeatherParameters(20000000, 20000000, false, false);
+        LOGGER.info("Started game test server");
         return true;
     }
 

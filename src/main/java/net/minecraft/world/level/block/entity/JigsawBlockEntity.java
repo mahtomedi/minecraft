@@ -1,29 +1,30 @@
 package net.minecraft.world.level.block.entity;
 
-import com.google.common.collect.Lists;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.JigsawBlock;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
-import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
-import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class JigsawBlockEntity extends BlockEntity {
@@ -121,18 +122,31 @@ public class JigsawBlockEntity extends BlockEntity {
         StructureTemplateManager var1 = param0.getStructureManager();
         StructureManager var2 = param0.structureManager();
         RandomSource var3 = param0.getRandom();
-        BlockPos var4 = this.getBlockPos();
-        List<PoolElementStructurePiece> var5 = Lists.newArrayList();
-        StructureTemplate var6 = new StructureTemplate();
-        var6.fillFromWorld(param0, var4, new Vec3i(1, 1, 1), false, null);
-        StructurePoolElement var7 = new SinglePoolElement(var6);
-        PoolElementStructurePiece var8 = new PoolElementStructurePiece(var1, var7, var4, 1, Rotation.NONE, new BoundingBox(var4));
-        JigsawPlacement.addPieces(
-            param0.registryAccess(), var8, param1, PoolElementStructurePiece::new, var0, var1, var5, var3, param0, param0.getChunkSource().randomState()
+        Registry<StructureTemplatePool> var4 = param0.registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        ResourceKey<StructureTemplatePool> var5 = ResourceKey.create(Registry.TEMPLATE_POOL_REGISTRY, this.pool);
+        Holder<StructureTemplatePool> var6 = var4.getHolderOrThrow(var5);
+        BlockPos var7 = this.getBlockPos().relative(this.getBlockState().getValue(JigsawBlock.ORIENTATION).front());
+        Structure.GenerationContext var8 = new Structure.GenerationContext(
+            param0.registryAccess(),
+            var0,
+            var0.getBiomeSource(),
+            param0.getChunkSource().randomState(),
+            var1,
+            param0.getSeed(),
+            new ChunkPos(var7),
+            param0,
+            param0x -> true
         );
+        Optional<Structure.GenerationStub> var9 = JigsawPlacement.addPieces(var8, var6, Optional.of(this.target), param1, var7, false, Optional.empty(), 128);
+        if (var9.isPresent()) {
+            StructurePiecesBuilder var10 = new StructurePiecesBuilder();
+            var9.get().generator().accept(var10);
 
-        for(PoolElementStructurePiece var9 : var5) {
-            var9.place(param0, var2, var0, var3, BoundingBox.infinite(), var4, param2);
+            for(StructurePiece var11 : var10.build().pieces()) {
+                if (var11 instanceof PoolElementStructurePiece var12) {
+                    var12.place(param0, var2, var0, var3, BoundingBox.infinite(), var7, param2);
+                }
+            }
         }
 
     }

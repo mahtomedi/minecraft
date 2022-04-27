@@ -659,7 +659,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                             }
 
                             if (var9.emitsEvents() && (this.onGround || param1.y == 0.0 || this.isInPowderSnow || var13)) {
-                                this.gameEvent(GameEvent.STEP);
+                                this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
                             }
                         }
                     } else if (var6.isAir()) {
@@ -1010,7 +1010,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (param1) {
             if (this.fallDistance > 0.0F) {
                 param2.getBlock().fallOn(this.level, param2, param3, this, this.fallDistance);
-                this.gameEvent(GameEvent.HIT_GROUND);
+                this.level.gameEvent(GameEvent.HIT_GROUND, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
             }
 
             this.resetFallDistance();
@@ -2613,7 +2613,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     @Override
-    public void sendMessage(Component param0, UUID param1) {
+    public void sendSystemMessage(Component param0) {
     }
 
     public Level getCommandSenderWorld() {

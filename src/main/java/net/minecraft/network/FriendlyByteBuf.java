@@ -3,6 +3,10 @@ package net.minecraft.network;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
@@ -214,6 +218,20 @@ public class FriendlyByteBuf extends ByteBuf {
 
     public <T> Optional<T> readOptional(Function<FriendlyByteBuf, T> param0) {
         return this.readBoolean() ? Optional.of(param0.apply(this)) : Optional.empty();
+    }
+
+    public <L, R> void writeEither(Either<L, R> param0, BiConsumer<FriendlyByteBuf, L> param1, BiConsumer<FriendlyByteBuf, R> param2) {
+        param0.ifLeft(param1x -> {
+            this.writeBoolean(true);
+            param1.accept(this, param1x);
+        }).ifRight(param1x -> {
+            this.writeBoolean(false);
+            param2.accept(this, param1x);
+        });
+    }
+
+    public <L, R> Either<L, R> readEither(Function<FriendlyByteBuf, L> param0, Function<FriendlyByteBuf, R> param1) {
+        return this.readBoolean() ? Either.left(param0.apply(this)) : Either.right(param1.apply(this));
     }
 
     public byte[] readByteArray() {
@@ -574,6 +592,47 @@ public class FriendlyByteBuf extends ByteBuf {
 
     public void writeBitSet(BitSet param0) {
         this.writeLongArray(param0.toLongArray());
+    }
+
+    public GameProfile readGameProfile() {
+        UUID var0 = this.readUUID();
+        String var1 = this.readUtf(16);
+        GameProfile var2 = new GameProfile(var0, var1);
+        PropertyMap var3 = var2.getProperties();
+        this.readWithCount(param1 -> {
+            Property var0x = this.readProperty();
+            var3.put(var0x.getName(), var0x);
+        });
+        return var2;
+    }
+
+    public void writeGameProfile(GameProfile param0) {
+        this.writeUUID(param0.getId());
+        this.writeUtf(param0.getName());
+        this.writeCollection(param0.getProperties().values(), FriendlyByteBuf::writeProperty);
+    }
+
+    public Property readProperty() {
+        String var0 = this.readUtf();
+        String var1 = this.readUtf();
+        if (this.readBoolean()) {
+            String var2 = this.readUtf();
+            return new Property(var0, var1, var2);
+        } else {
+            return new Property(var0, var1);
+        }
+    }
+
+    public void writeProperty(Property param0x) {
+        this.writeUtf(param0x.getName());
+        this.writeUtf(param0x.getValue());
+        if (param0x.hasSignature()) {
+            this.writeBoolean(true);
+            this.writeUtf(param0x.getSignature());
+        } else {
+            this.writeBoolean(false);
+        }
+
     }
 
     @Override

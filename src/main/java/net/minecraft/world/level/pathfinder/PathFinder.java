@@ -35,15 +35,19 @@ public class PathFinder {
         this.openSet.clear();
         this.nodeEvaluator.prepare(param0, param1);
         Node var0 = this.nodeEvaluator.getStart();
-        Map<Target, BlockPos> var1 = param2.stream()
-            .collect(
-                Collectors.toMap(
-                    param0x -> this.nodeEvaluator.getGoal((double)param0x.getX(), (double)param0x.getY(), (double)param0x.getZ()), Function.identity()
-                )
-            );
-        Path var2 = this.findPath(param0.getProfiler(), var0, var1, param3, param4, param5);
-        this.nodeEvaluator.done();
-        return var2;
+        if (var0 == null) {
+            return null;
+        } else {
+            Map<Target, BlockPos> var1 = param2.stream()
+                .collect(
+                    Collectors.toMap(
+                        param0x -> this.nodeEvaluator.getGoal((double)param0x.getX(), (double)param0x.getY(), (double)param0x.getZ()), Function.identity()
+                    )
+                );
+            Path var2 = this.findPath(param0.getProfiler(), var0, var1, param3, param4, param5);
+            this.nodeEvaluator.done();
+            return var2;
+        }
     }
 
     @Nullable

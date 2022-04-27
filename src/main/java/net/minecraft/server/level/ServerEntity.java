@@ -45,6 +45,7 @@ public class ServerEntity {
     private final int updateInterval;
     private final boolean trackDelta;
     private final Consumer<Packet<?>> broadcast;
+    private final VecDeltaCodec positionCodec = new VecDeltaCodec();
     private int yRotp;
     private int xRotp;
     private int yHeadRotp;
@@ -61,7 +62,7 @@ public class ServerEntity {
         this.entity = param1;
         this.updateInterval = param2;
         this.trackDelta = param3;
-        param1.getPositionCodec().setBase(param1.trackingPosition());
+        this.positionCodec.setBase(param1.trackingPosition());
         this.yRotp = Mth.floor(param1.getYRot() * 256.0F / 360.0F);
         this.xRotp = Mth.floor(param1.getXRot() * 256.0F / 360.0F);
         this.yHeadRotp = Mth.floor(param1.getYHeadRot() * 256.0F / 360.0F);
@@ -75,8 +76,8 @@ public class ServerEntity {
             this.broadcast.accept(new ClientboundSetPassengersPacket(this.entity));
         }
 
-        Entity var24 = this.entity;
-        if (var24 instanceof ItemFrame var1 && this.tickCount % 10 == 0) {
+        Entity var11 = this.entity;
+        if (var11 instanceof ItemFrame var1 && this.tickCount % 10 == 0) {
             ItemStack var2 = var1.getItem();
             if (var2.getItem() instanceof MapItem) {
                 Integer var3x = MapItem.getMapId(var2);
@@ -96,54 +97,53 @@ public class ServerEntity {
         }
 
         if (this.tickCount % this.updateInterval == 0 || this.entity.hasImpulse || this.entity.getEntityData().isDirty()) {
-            VecDeltaCodec var7 = this.entity.getPositionCodec();
             if (this.entity.isPassenger()) {
-                int var8 = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
-                int var9 = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
-                boolean var10 = Math.abs(var8 - this.yRotp) >= 1 || Math.abs(var9 - this.xRotp) >= 1;
-                if (var10) {
-                    this.broadcast.accept(new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var8, (byte)var9, this.entity.isOnGround()));
-                    this.yRotp = var8;
-                    this.xRotp = var9;
+                int var7 = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
+                int var8 = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
+                boolean var9 = Math.abs(var7 - this.yRotp) >= 1 || Math.abs(var8 - this.xRotp) >= 1;
+                if (var9) {
+                    this.broadcast.accept(new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var7, (byte)var8, this.entity.isOnGround()));
+                    this.yRotp = var7;
+                    this.xRotp = var8;
                 }
 
-                var7.setBase(this.entity.trackingPosition());
+                this.positionCodec.setBase(this.entity.trackingPosition());
                 this.sendDirtyEntityData();
                 this.wasRiding = true;
             } else {
                 ++this.teleportDelay;
-                int var11 = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
-                int var12 = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
-                Vec3 var13 = this.entity.trackingPosition();
-                boolean var14 = var7.delta(var13).lengthSqr() >= 7.6293945E-6F;
-                Packet<?> var15 = null;
-                boolean var16 = var14 || this.tickCount % 60 == 0;
-                boolean var17 = Math.abs(var11 - this.yRotp) >= 1 || Math.abs(var12 - this.xRotp) >= 1;
+                int var10 = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
+                int var11 = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
+                Vec3 var12 = this.entity.trackingPosition();
+                boolean var13 = this.positionCodec.delta(var12).lengthSqr() >= 7.6293945E-6F;
+                Packet<?> var14 = null;
+                boolean var15 = var13 || this.tickCount % 60 == 0;
+                boolean var16 = Math.abs(var10 - this.yRotp) >= 1 || Math.abs(var11 - this.xRotp) >= 1;
                 if (this.tickCount > 0 || this.entity instanceof AbstractArrow) {
-                    long var18 = var7.encodeX(var13);
-                    long var19 = var7.encodeY(var13);
-                    long var20 = var7.encodeZ(var13);
-                    boolean var21 = var18 < -32768L || var18 > 32767L || var19 < -32768L || var19 > 32767L || var20 < -32768L || var20 > 32767L;
-                    if (var21 || this.teleportDelay > 400 || this.wasRiding || this.wasOnGround != this.entity.isOnGround()) {
+                    long var17 = this.positionCodec.encodeX(var12);
+                    long var18 = this.positionCodec.encodeY(var12);
+                    long var19 = this.positionCodec.encodeZ(var12);
+                    boolean var20 = var17 < -32768L || var17 > 32767L || var18 < -32768L || var18 > 32767L || var19 < -32768L || var19 > 32767L;
+                    if (var20 || this.teleportDelay > 400 || this.wasRiding || this.wasOnGround != this.entity.isOnGround()) {
                         this.wasOnGround = this.entity.isOnGround();
                         this.teleportDelay = 0;
-                        var15 = new ClientboundTeleportEntityPacket(this.entity);
-                    } else if ((!var16 || !var17) && !(this.entity instanceof AbstractArrow)) {
-                        if (var16) {
-                            var15 = new ClientboundMoveEntityPacket.Pos(
-                                this.entity.getId(), (short)((int)var18), (short)((int)var19), (short)((int)var20), this.entity.isOnGround()
+                        var14 = new ClientboundTeleportEntityPacket(this.entity);
+                    } else if ((!var15 || !var16) && !(this.entity instanceof AbstractArrow)) {
+                        if (var15) {
+                            var14 = new ClientboundMoveEntityPacket.Pos(
+                                this.entity.getId(), (short)((int)var17), (short)((int)var18), (short)((int)var19), this.entity.isOnGround()
                             );
-                        } else if (var17) {
-                            var15 = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var11, (byte)var12, this.entity.isOnGround());
+                        } else if (var16) {
+                            var14 = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var10, (byte)var11, this.entity.isOnGround());
                         }
                     } else {
-                        var15 = new ClientboundMoveEntityPacket.PosRot(
+                        var14 = new ClientboundMoveEntityPacket.PosRot(
                             this.entity.getId(),
+                            (short)((int)var17),
                             (short)((int)var18),
                             (short)((int)var19),
-                            (short)((int)var20),
+                            (byte)var10,
                             (byte)var11,
-                            (byte)var12,
                             this.entity.isOnGround()
                         );
                     }
@@ -151,35 +151,35 @@ public class ServerEntity {
 
                 if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity)this.entity).isFallFlying())
                     && this.tickCount > 0) {
-                    Vec3 var22 = this.entity.getDeltaMovement();
-                    double var23 = var22.distanceToSqr(this.ap);
-                    if (var23 > 1.0E-7 || var23 > 0.0 && var22.lengthSqr() == 0.0) {
-                        this.ap = var22;
+                    Vec3 var21 = this.entity.getDeltaMovement();
+                    double var22 = var21.distanceToSqr(this.ap);
+                    if (var22 > 1.0E-7 || var22 > 0.0 && var21.lengthSqr() == 0.0) {
+                        this.ap = var21;
                         this.broadcast.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
                     }
                 }
 
-                if (var15 != null) {
-                    this.broadcast.accept(var15);
+                if (var14 != null) {
+                    this.broadcast.accept(var14);
                 }
 
                 this.sendDirtyEntityData();
-                if (var16) {
-                    var7.setBase(var13);
+                if (var15) {
+                    this.positionCodec.setBase(var12);
                 }
 
-                if (var17) {
-                    this.yRotp = var11;
-                    this.xRotp = var12;
+                if (var16) {
+                    this.yRotp = var10;
+                    this.xRotp = var11;
                 }
 
                 this.wasRiding = false;
             }
 
-            int var24 = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
-            if (Math.abs(var24 - this.yHeadRotp) >= 1) {
-                this.broadcast.accept(new ClientboundRotateHeadPacket(this.entity, (byte)var24));
-                this.yHeadRotp = var24;
+            int var23 = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
+            if (Math.abs(var23 - this.yHeadRotp) >= 1) {
+                this.broadcast.accept(new ClientboundRotateHeadPacket(this.entity, (byte)var23));
+                this.yHeadRotp = var23;
             }
 
             this.entity.hasImpulse = false;

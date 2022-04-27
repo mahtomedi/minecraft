@@ -141,15 +141,4 @@ public class ComponentUtils {
             return true;
         }
     }
-
-    @Deprecated(
-        forRemoval = true
-    )
-    public static Component replaceTranslatableKey(Component param0, String param1, String param2) {
-        if (param0 instanceof TranslatableContents var0 && param1.equals(var0.getKey())) {
-            return Component.translatable(param2, var0.getArgs());
-        }
-
-        return param0;
-    }
 }

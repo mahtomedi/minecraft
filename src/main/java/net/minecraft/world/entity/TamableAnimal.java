@@ -3,7 +3,6 @@ package net.minecraft.world.entity;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -210,7 +209,7 @@ public abstract class TamableAnimal extends Animal implements OwnableEntity {
     @Override
     public void die(DamageSource param0) {
         if (!this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof ServerPlayer) {
-            this.getOwner().sendMessage(this.getCombatTracker().getDeathMessage(), Util.NIL_UUID);
+            this.getOwner().sendSystemMessage(this.getCombatTracker().getDeathMessage());
         }
 
         super.die(param0);

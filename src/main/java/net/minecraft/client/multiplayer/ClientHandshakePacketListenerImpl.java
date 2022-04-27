@@ -1,5 +1,6 @@
 package net.minecraft.client.multiplayer;
 
+import com.google.common.primitives.Longs;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
@@ -8,7 +9,9 @@ import com.mojang.authlib.exceptions.InvalidCredentialsException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
@@ -59,16 +62,25 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
         Cipher var3;
         Cipher var4;
         String var2;
-        ServerboundKeyPacket var5;
+        ServerboundKeyPacket var7;
         try {
             SecretKey var0 = Crypt.generateSecretKey();
             PublicKey var1 = param0.getPublicKey();
             var2 = new BigInteger(Crypt.digestData(param0.getServerId(), var1, var0)).toString(16);
             var3 = Crypt.getCipher(2, var0);
             var4 = Crypt.getCipher(1, var0);
-            var5 = new ServerboundKeyPacket(var0, var1, param0.getNonce());
-        } catch (CryptException var81) {
-            throw new IllegalStateException("Protocol error", var81);
+            byte[] var5 = param0.getNonce();
+            Signature var6 = this.minecraft.getProfileKeyPairManager().createSignature();
+            if (var6 == null) {
+                var7 = new ServerboundKeyPacket(var0, var1, var5);
+            } else {
+                long var8 = Crypt.SaltSupplier.getLong();
+                var6.update(var5);
+                var6.update(Longs.toByteArray(var8));
+                var7 = new ServerboundKeyPacket(var0, var1, var8, var6.sign());
+            }
+        } catch (GeneralSecurityException | CryptException var121) {
+            throw new IllegalStateException("Protocol error", var121);
         }
 
         this.updateStatus.accept(Component.translatable("connect.authorizing"));
@@ -84,7 +96,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             }
 
             this.updateStatus.accept(Component.translatable("connect.encrypting"));
-            this.connection.send(var5, param2x -> this.connection.setEncryptionKey(var3, var4));
+            this.connection.send(var7, param2x -> this.connection.setEncryptionKey(var3, var4));
         });
     }
 

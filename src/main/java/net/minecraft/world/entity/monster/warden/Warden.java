@@ -207,7 +207,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public boolean doHurtTarget(Entity param0) {
         this.level.broadcastEntityEvent(this, (byte)4);
         this.playSound(SoundEvents.WARDEN_ATTACK_IMPACT, 10.0F, this.getVoicePitch());
-        SonicBoom.setCooldown(this, 100);
+        SonicBoom.setCooldown(this, 40);
         return super.doHurtTarget(param0);
     }
 

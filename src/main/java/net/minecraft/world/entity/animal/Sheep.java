@@ -376,6 +376,11 @@ public class Sheep extends Animal implements Shearable {
     private static CraftingContainer makeContainer(DyeColor param0, DyeColor param1) {
         CraftingContainer var0 = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
+            public ItemStack quickMoveStack(Player param0, int param1) {
+                return ItemStack.EMPTY;
+            }
+
+            @Override
             public boolean stillValid(Player param0) {
                 return false;
             }

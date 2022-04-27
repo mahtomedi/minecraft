@@ -15,8 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -188,15 +186,10 @@ public class DebugCommand {
         }
 
         @Override
-        public void sendMessage(Component param0, UUID param1) {
+        public void sendSystemMessage(Component param0) {
             this.newLine();
             this.printIndent(this.lastIndent + 1);
             this.output.print("[M] ");
-            if (param1 != Util.NIL_UUID) {
-                this.output.print(param1);
-                this.output.print(": ");
-            }
-
             this.output.println(param0.getString());
         }
 

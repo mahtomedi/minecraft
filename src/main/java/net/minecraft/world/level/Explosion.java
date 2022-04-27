@@ -265,46 +265,51 @@ public class Explosion {
 
         if (var0) {
             ObjectArrayList<Pair<ItemStack, BlockPos>> var1 = new ObjectArrayList<>();
+            boolean var2 = this.getSourceMob() instanceof Player;
             Util.shuffle(this.toBlow, this.level.random);
 
-            for(BlockPos var2 : this.toBlow) {
-                BlockState var3 = this.level.getBlockState(var2);
-                Block var4 = var3.getBlock();
-                if (!var3.isAir()) {
-                    BlockPos var5 = var2.immutable();
+            for(BlockPos var3 : this.toBlow) {
+                BlockState var4 = this.level.getBlockState(var3);
+                Block var5 = var4.getBlock();
+                if (!var4.isAir()) {
+                    BlockPos var6 = var3.immutable();
                     this.level.getProfiler().push("explosion_blocks");
-                    if (var4.dropFromExplosion(this) && this.level instanceof ServerLevel) {
-                        BlockEntity var6 = var3.hasBlockEntity() ? this.level.getBlockEntity(var2) : null;
-                        LootContext.Builder var7 = new LootContext.Builder((ServerLevel)this.level)
-                            .withRandom(this.level.random)
-                            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(var2))
-                            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-                            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var6)
-                            .withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);
-                        if (this.blockInteraction == Explosion.BlockInteraction.DESTROY) {
-                            var7.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
-                        }
+                    if (var5.dropFromExplosion(this)) {
+                        Level var8 = this.level;
+                        if (var8 instanceof ServerLevel var7) {
+                            BlockEntity var8x = var4.hasBlockEntity() ? this.level.getBlockEntity(var3) : null;
+                            LootContext.Builder var9 = new LootContext.Builder(var7)
+                                .withRandom(this.level.random)
+                                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(var3))
+                                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+                                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var8x)
+                                .withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);
+                            if (this.blockInteraction == Explosion.BlockInteraction.DESTROY) {
+                                var9.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
+                            }
 
-                        var3.getDrops(var7).forEach(param2 -> addBlockDrops(var1, param2, var5));
+                            var4.spawnAfterBreak(var7, var3, ItemStack.EMPTY, var2);
+                            var4.getDrops(var9).forEach(param2 -> addBlockDrops(var1, param2, var6));
+                        }
                     }
 
-                    this.level.setBlock(var2, Blocks.AIR.defaultBlockState(), 3);
-                    var4.wasExploded(this.level, var2, this);
+                    this.level.setBlock(var3, Blocks.AIR.defaultBlockState(), 3);
+                    var5.wasExploded(this.level, var3, this);
                     this.level.getProfiler().pop();
                 }
             }
 
-            for(Pair<ItemStack, BlockPos> var8 : var1) {
-                Block.popResource(this.level, var8.getSecond(), var8.getFirst());
+            for(Pair<ItemStack, BlockPos> var10 : var1) {
+                Block.popResource(this.level, var10.getSecond(), var10.getFirst());
             }
         }
 
         if (this.fire) {
-            for(BlockPos var9 : this.toBlow) {
+            for(BlockPos var11 : this.toBlow) {
                 if (this.random.nextInt(3) == 0
-                    && this.level.getBlockState(var9).isAir()
-                    && this.level.getBlockState(var9.below()).isSolidRender(this.level, var9.below())) {
-                    this.level.setBlockAndUpdate(var9, BaseFireBlock.getState(this.level, var9));
+                    && this.level.getBlockState(var11).isAir()
+                    && this.level.getBlockState(var11.below()).isSolidRender(this.level, var11.below())) {
+                    this.level.setBlockAndUpdate(var11, BaseFireBlock.getState(this.level, var11));
                 }
             }
         }

@@ -95,7 +95,7 @@ public abstract class ChunkGenerator {
     private final Map<ConcentricRingsStructurePlacement, CompletableFuture<List<ChunkPos>>> ringPositions = new Object2ObjectArrayMap<>();
     private boolean hasGeneratedPositions;
 
-    protected static final <T extends ChunkGenerator> P1<Mu<T>, Registry<StructureSet>> commonCodec(Instance<T> param0) {
+    protected static <T extends ChunkGenerator> P1<Mu<T>, Registry<StructureSet>> commonCodec(Instance<T> param0) {
         return param0.group(RegistryOps.retrieveRegistry(Registry.STRUCTURE_SET_REGISTRY).forGetter(param0x -> param0x.structureSets));
     }
 
@@ -118,14 +118,21 @@ public abstract class ChunkGenerator {
         Set<Holder<Biome>> var0 = this.runtimeBiomeSource.possibleBiomes();
         this.possibleStructureSets().forEach(param2 -> {
             StructureSet var0x = param2.value();
+            boolean var1x = false;
 
-            for(StructureSet.StructureSelectionEntry var2x : var0x.structures()) {
-                this.placementsForStructure.computeIfAbsent(var2x.structure().value(), param0x -> new ArrayList()).add(var0x.placement());
+            for(StructureSet.StructureSelectionEntry var2 : var0x.structures()) {
+                Structure var3 = var2.structure().value();
+                if (var3.biomes().stream().anyMatch(var0::contains)) {
+                    this.placementsForStructure.computeIfAbsent(var3, param0x -> new ArrayList()).add(var0x.placement());
+                    var1x = true;
+                }
             }
 
-            StructurePlacement var2 = var0x.placement();
-            if (var2 instanceof ConcentricRingsStructurePlacement var3 && var0.stream().anyMatch(var3.preferredBiomes()::contains)) {
-                this.ringPositions.put(var3, this.generateRingPositions(param2, param0, var3));
+            if (var1x) {
+                StructurePlacement var4 = var0x.placement();
+                if (var4 instanceof ConcentricRingsStructurePlacement var5) {
+                    this.ringPositions.put(var5, this.generateRingPositions(param2, param0, var5));
+                }
             }
 
         });
@@ -213,74 +220,66 @@ public abstract class ChunkGenerator {
     public Pair<BlockPos, Holder<Structure>> findNearestMapStructure(
         ServerLevel param0, HolderSet<Structure> param1, BlockPos param2, int param3, boolean param4
     ) {
-        Set<Holder<Biome>> var0 = param1.stream().flatMap(param0x -> param0x.value().biomes().stream()).collect(Collectors.toSet());
+        Map<StructurePlacement, Set<Holder<Structure>>> var0 = new Object2ObjectArrayMap<>();
+
+        for(Holder<Structure> var1 : param1) {
+            for(StructurePlacement var2 : this.getPlacementsForStructure(var1, param0.getChunkSource().randomState())) {
+                var0.computeIfAbsent(var2, param0x -> new ObjectArraySet()).add(var1);
+            }
+        }
+
         if (var0.isEmpty()) {
             return null;
         } else {
-            Set<Holder<Biome>> var1 = this.runtimeBiomeSource.possibleBiomes();
-            if (Collections.disjoint(var1, var0)) {
-                return null;
-            } else {
-                Pair<BlockPos, Holder<Structure>> var2 = null;
-                double var3 = Double.MAX_VALUE;
-                Map<StructurePlacement, Set<Holder<Structure>>> var4 = new Object2ObjectArrayMap<>();
+            Pair<BlockPos, Holder<Structure>> var3 = null;
+            double var4 = Double.MAX_VALUE;
+            StructureManager var5 = param0.structureManager();
+            List<Entry<StructurePlacement, Set<Holder<Structure>>>> var6 = new ArrayList<>(var0.size());
 
-                for(Holder<Structure> var5 : param1) {
-                    if (!var1.stream().noneMatch(var5.value().biomes()::contains)) {
-                        for(StructurePlacement var6 : this.getPlacementsForStructure(var5, param0.getChunkSource().randomState())) {
-                            var4.computeIfAbsent(var6, param0x -> new ObjectArraySet()).add(var5);
-                        }
+            for(Entry<StructurePlacement, Set<Holder<Structure>>> var7 : var0.entrySet()) {
+                StructurePlacement var8 = var7.getKey();
+                if (var8 instanceof ConcentricRingsStructurePlacement var9) {
+                    Pair<BlockPos, Holder<Structure>> var10 = this.getNearestGeneratedStructure(var7.getValue(), param0, var5, param2, param4, var9);
+                    BlockPos var11 = var10.getFirst();
+                    double var12 = param2.distSqr(var11);
+                    if (var12 < var4) {
+                        var4 = var12;
+                        var3 = var10;
                     }
+                } else if (var8 instanceof RandomSpreadStructurePlacement) {
+                    var6.add(var7);
                 }
+            }
 
-                StructureManager var7 = param0.structureManager();
-                List<Entry<StructurePlacement, Set<Holder<Structure>>>> var8 = new ArrayList<>(var4.size());
+            if (!var6.isEmpty()) {
+                int var13 = SectionPos.blockToSectionCoord(param2.getX());
+                int var14 = SectionPos.blockToSectionCoord(param2.getZ());
 
-                for(Entry<StructurePlacement, Set<Holder<Structure>>> var9 : var4.entrySet()) {
-                    StructurePlacement var10 = var9.getKey();
-                    if (var10 instanceof ConcentricRingsStructurePlacement var11) {
-                        Pair<BlockPos, Holder<Structure>> var12 = this.getNearestGeneratedStructure(var9.getValue(), param0, var7, param2, param4, var11);
-                        BlockPos var13 = var12.getFirst();
-                        double var14 = param2.distSqr(var13);
-                        if (var14 < var3) {
-                            var3 = var14;
-                            var2 = var12;
-                        }
-                    } else if (var10 instanceof RandomSpreadStructurePlacement) {
-                        var8.add(var9);
-                    }
-                }
+                for(int var15 = 0; var15 <= param3; ++var15) {
+                    boolean var16 = false;
 
-                if (!var8.isEmpty()) {
-                    int var15 = SectionPos.blockToSectionCoord(param2.getX());
-                    int var16 = SectionPos.blockToSectionCoord(param2.getZ());
-
-                    for(int var17 = 0; var17 <= param3; ++var17) {
-                        boolean var18 = false;
-
-                        for(Entry<StructurePlacement, Set<Holder<Structure>>> var19 : var8) {
-                            RandomSpreadStructurePlacement var20 = (RandomSpreadStructurePlacement)var19.getKey();
-                            Pair<BlockPos, Holder<Structure>> var21 = getNearestGeneratedStructure(
-                                var19.getValue(), param0, var7, var15, var16, var17, param4, param0.getSeed(), var20
-                            );
-                            if (var21 != null) {
-                                var18 = true;
-                                double var22 = param2.distSqr(var21.getFirst());
-                                if (var22 < var3) {
-                                    var3 = var22;
-                                    var2 = var21;
-                                }
+                    for(Entry<StructurePlacement, Set<Holder<Structure>>> var17 : var6) {
+                        RandomSpreadStructurePlacement var18 = (RandomSpreadStructurePlacement)var17.getKey();
+                        Pair<BlockPos, Holder<Structure>> var19 = getNearestGeneratedStructure(
+                            var17.getValue(), param0, var5, var13, var14, var15, param4, param0.getSeed(), var18
+                        );
+                        if (var19 != null) {
+                            var16 = true;
+                            double var20 = param2.distSqr(var19.getFirst());
+                            if (var20 < var4) {
+                                var4 = var20;
+                                var3 = var19;
                             }
                         }
+                    }
 
-                        if (var18) {
-                            return var2;
-                        }
+                    if (var16) {
+                        return var3;
                     }
                 }
-
-                return var2;
             }
+
+            return var3;
         }
     }
 

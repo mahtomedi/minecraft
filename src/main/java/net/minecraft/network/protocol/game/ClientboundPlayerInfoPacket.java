@@ -3,8 +3,6 @@ package net.minecraft.network.protocol.game;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -95,40 +93,16 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
         ADD_PLAYER {
             @Override
             protected ClientboundPlayerInfoPacket.PlayerUpdate read(FriendlyByteBuf param0) {
-                GameProfile var0 = new GameProfile(param0.readUUID(), param0.readUtf(16));
-                PropertyMap var1 = var0.getProperties();
-                param0.readWithCount(param1 -> {
-                    String var0x = param1.readUtf();
-                    String var1x = param1.readUtf();
-                    if (param1.readBoolean()) {
-                        String var2x = param1.readUtf();
-                        var1.put(var0x, new Property(var0x, var1x, var2x));
-                    } else {
-                        var1.put(var0x, new Property(var0x, var1x));
-                    }
-
-                });
-                GameType var2 = GameType.byId(param0.readVarInt());
-                int var3 = param0.readVarInt();
-                Component var4 = ClientboundPlayerInfoPacket.readDisplayName(param0);
-                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var3, var2, var4);
+                GameProfile var0 = param0.readGameProfile();
+                GameType var1 = GameType.byId(param0.readVarInt());
+                int var2 = param0.readVarInt();
+                Component var3 = ClientboundPlayerInfoPacket.readDisplayName(param0);
+                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var2, var1, var3);
             }
 
             @Override
             protected void write(FriendlyByteBuf param0, ClientboundPlayerInfoPacket.PlayerUpdate param1) {
-                param0.writeUUID(param1.getProfile().getId());
-                param0.writeUtf(param1.getProfile().getName());
-                param0.writeCollection(param1.getProfile().getProperties().values(), (param0x, param1x) -> {
-                    param0x.writeUtf(param1x.getName());
-                    param0x.writeUtf(param1x.getValue());
-                    if (param1x.hasSignature()) {
-                        param0x.writeBoolean(true);
-                        param0x.writeUtf(param1x.getSignature());
-                    } else {
-                        param0x.writeBoolean(false);
-                    }
-
-                });
+                param0.writeGameProfile(param1.getProfile());
                 param0.writeVarInt(param1.getGameMode().getId());
                 param0.writeVarInt(param1.getLatency());
                 ClientboundPlayerInfoPacket.writeDisplayName(param0, param1.getDisplayName());

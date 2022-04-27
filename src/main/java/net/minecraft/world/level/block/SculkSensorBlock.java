@@ -311,8 +311,11 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     }
 
     @Override
-    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3) {
-        super.spawnAfterBreak(param0, param1, param2, param3);
-        this.tryDropExperience(param1, param2, param3, ConstantInt.of(5));
+    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3, boolean param4) {
+        super.spawnAfterBreak(param0, param1, param2, param3, param4);
+        if (param4) {
+            this.tryDropExperience(param1, param2, param3, ConstantInt.of(5));
+        }
+
     }
 }

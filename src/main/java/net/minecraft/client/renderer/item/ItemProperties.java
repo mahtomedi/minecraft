@@ -222,5 +222,10 @@ public class ItemProperties {
 
             return 1.0F;
         });
+        register(
+            Items.GOAT_HORN,
+            new ResourceLocation("tooting"),
+            (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F
+        );
     }
 }

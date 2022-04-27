@@ -1,7 +1,6 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.MessageArgument;
@@ -19,9 +18,9 @@ public class SayCommand {
                     Component var1 = Component.translatable("chat.type.announcement", param0x.getSource().getDisplayName(), var0x);
                     Entity var2 = param0x.getSource().getEntity();
                     if (var2 != null) {
-                        param0x.getSource().getServer().getPlayerList().broadcastMessage(var1, ChatType.CHAT, var2.getUUID());
+                        param0x.getSource().getServer().getPlayerList().broadcastUnsignedMessage(var1, ChatType.SYSTEM, var2.getUUID());
                     } else {
-                        param0x.getSource().getServer().getPlayerList().broadcastMessage(var1, ChatType.SYSTEM, Util.NIL_UUID);
+                        param0x.getSource().getServer().getPlayerList().broadcastSystemMessage(var1, param1 -> var1, ChatType.SYSTEM);
                     }
         
                     return 1;

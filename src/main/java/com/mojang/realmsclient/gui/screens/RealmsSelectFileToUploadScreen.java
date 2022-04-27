@@ -55,13 +55,6 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
             .join()
             .stream()
             .filter(param0 -> !param0.requiresManualConversion() && !param0.isLocked())
-            .sorted((param0, param1) -> {
-                if (param0.getLastPlayed() < param1.getLastPlayed()) {
-                    return 1;
-                } else {
-                    return param0.getLastPlayed() > param1.getLastPlayed() ? -1 : param0.getLevelId().compareTo(param1.getLevelId());
-                }
-            })
             .collect(Collectors.toList());
 
         for(LevelSummary var1 : this.levelList) {

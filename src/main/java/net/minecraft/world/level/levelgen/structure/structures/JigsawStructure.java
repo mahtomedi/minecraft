@@ -8,11 +8,11 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.Pools;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
-import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
@@ -24,6 +24,7 @@ public final class JigsawStructure extends Structure {
             param0 -> param0.group(
                         settingsCodec(param0),
                         StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(param0x -> param0x.startPool),
+                        ResourceLocation.CODEC.optionalFieldOf("start_jigsaw_name").forGetter(param0x -> param0x.startJigsawName),
                         Codec.intRange(0, 7).fieldOf("size").forGetter(param0x -> param0x.maxDepth),
                         HeightProvider.CODEC.fieldOf("start_height").forGetter(param0x -> param0x.startHeight),
                         Codec.BOOL.fieldOf("use_expansion_hack").forGetter(param0x -> param0x.useExpansionHack),
@@ -35,6 +36,7 @@ public final class JigsawStructure extends Structure {
         .flatXmap(verifyRange(), verifyRange())
         .codec();
     private final Holder<StructureTemplatePool> startPool;
+    private final Optional<ResourceLocation> startJigsawName;
     private final int maxDepth;
     private final HeightProvider startHeight;
     private final boolean useExpansionHack;
@@ -56,29 +58,31 @@ public final class JigsawStructure extends Structure {
     public JigsawStructure(
         Structure.StructureSettings param0,
         Holder<StructureTemplatePool> param1,
-        int param2,
-        HeightProvider param3,
-        boolean param4,
-        Optional<Heightmap.Types> param5,
-        int param6
+        Optional<ResourceLocation> param2,
+        int param3,
+        HeightProvider param4,
+        boolean param5,
+        Optional<Heightmap.Types> param6,
+        int param7
     ) {
         super(param0);
         this.startPool = param1;
-        this.maxDepth = param2;
-        this.startHeight = param3;
-        this.useExpansionHack = param4;
-        this.projectStartToHeightmap = param5;
-        this.maxDistanceFromCenter = param6;
+        this.startJigsawName = param2;
+        this.maxDepth = param3;
+        this.startHeight = param4;
+        this.useExpansionHack = param5;
+        this.projectStartToHeightmap = param6;
+        this.maxDistanceFromCenter = param7;
     }
 
     public JigsawStructure(
         Structure.StructureSettings param0, Holder<StructureTemplatePool> param1, int param2, HeightProvider param3, boolean param4, Heightmap.Types param5
     ) {
-        this(param0, param1, param2, param3, param4, Optional.of(param5), 80);
+        this(param0, param1, Optional.empty(), param2, param3, param4, Optional.of(param5), 80);
     }
 
     public JigsawStructure(Structure.StructureSettings param0, Holder<StructureTemplatePool> param1, int param2, HeightProvider param3, boolean param4) {
-        this(param0, param1, param2, param3, param4, Optional.empty(), 80);
+        this(param0, param1, Optional.empty(), param2, param3, param4, Optional.empty(), 80);
     }
 
     @Override
@@ -88,14 +92,7 @@ public final class JigsawStructure extends Structure {
         BlockPos var2 = new BlockPos(var0.getMinBlockX(), var1, var0.getMinBlockZ());
         Pools.bootstrap();
         return JigsawPlacement.addPieces(
-            param0,
-            this.startPool,
-            this.maxDepth,
-            PoolElementStructurePiece::new,
-            var2,
-            this.useExpansionHack,
-            this.projectStartToHeightmap,
-            this.maxDistanceFromCenter
+            param0, this.startPool, this.startJigsawName, this.maxDepth, var2, this.useExpansionHack, this.projectStartToHeightmap, this.maxDistanceFromCenter
         );
     }
 

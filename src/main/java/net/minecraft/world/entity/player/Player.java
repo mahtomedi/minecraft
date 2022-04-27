@@ -27,6 +27,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -1368,6 +1369,10 @@ public abstract class Player extends LivingEntity {
     }
 
     public void updateTutorialInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {
+    }
+
+    public ChatSender asChatSender() {
+        return new ChatSender(this.getUUID(), this.getDisplayName());
     }
 
     public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {

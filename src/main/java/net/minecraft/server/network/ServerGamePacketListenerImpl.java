@@ -9,6 +9,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,13 +36,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundChatPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
@@ -49,6 +50,7 @@ import net.minecraft.network.protocol.game.ClientboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.network.protocol.game.ClientboundTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
@@ -147,7 +149,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
@@ -494,9 +495,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleSetCommandBlock(ServerboundSetCommandBlockPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         if (!this.server.isCommandBlockEnabled()) {
-            this.player.sendMessage(Component.translatable("advMode.notEnabled"), Util.NIL_UUID);
+            this.player.sendSystemMessage(Component.translatable("advMode.notEnabled"));
         } else if (!this.player.canUseGameMasterBlocks()) {
-            this.player.sendMessage(Component.translatable("advMode.notAllowed"), Util.NIL_UUID);
+            this.player.sendSystemMessage(Component.translatable("advMode.notAllowed"));
         } else {
             BaseCommandBlock var0 = null;
             CommandBlockEntity var1 = null;
@@ -538,7 +539,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
                 var0.onUpdated();
                 if (!StringUtil.isNullOrEmpty(var4)) {
-                    this.player.sendMessage(Component.translatable("advMode.setCommand.success", var4), Util.NIL_UUID);
+                    this.player.sendSystemMessage(Component.translatable("advMode.setCommand.success", var4));
                 }
             }
 
@@ -549,9 +550,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleSetCommandMinecart(ServerboundSetCommandMinecartPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         if (!this.server.isCommandBlockEnabled()) {
-            this.player.sendMessage(Component.translatable("advMode.notEnabled"), Util.NIL_UUID);
+            this.player.sendSystemMessage(Component.translatable("advMode.notEnabled"));
         } else if (!this.player.canUseGameMasterBlocks()) {
-            this.player.sendMessage(Component.translatable("advMode.notAllowed"), Util.NIL_UUID);
+            this.player.sendSystemMessage(Component.translatable("advMode.notAllowed"));
         } else {
             BaseCommandBlock var0 = param0.getCommandBlock(this.player.level);
             if (var0 != null) {
@@ -562,7 +563,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 }
 
                 var0.onUpdated();
-                this.player.sendMessage(Component.translatable("advMode.setCommand.success", param0.getCommand()), Util.NIL_UUID);
+                this.player.sendSystemMessage(Component.translatable("advMode.setCommand.success", param0.getCommand()));
             }
 
         }
@@ -1056,14 +1057,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                         InteractionResult var11 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
                         if (var9 == Direction.UP && !var11.consumesAction() && var5.getY() >= var10 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
                             Component var12 = Component.translatable("build.tooHigh", var10 - 1).withStyle(ChatFormatting.RED);
-                            this.player.sendMessage(var12, ChatType.GAME_INFO, Util.NIL_UUID);
+                            this.player.sendSystemMessage(var12, ChatType.GAME_INFO);
                         } else if (var11.shouldSwing()) {
                             this.player.swing(var1, true);
                         }
                     }
                 } else {
                     Component var13 = Component.translatable("build.tooHigh", var10 - 1).withStyle(ChatFormatting.RED);
-                    this.player.sendMessage(var13, ChatType.GAME_INFO, Util.NIL_UUID);
+                    this.player.sendSystemMessage(var13, ChatType.GAME_INFO);
                 }
 
                 this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5));
@@ -1138,10 +1139,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.server.invalidateStatus();
         this.server
             .getPlayerList()
-            .broadcastMessage(
-                Component.translatable("multiplayer.player.left", this.player.getDisplayName()).withStyle(ChatFormatting.YELLOW),
-                ChatType.SYSTEM,
-                Util.NIL_UUID
+            .broadcastSystemMessage(
+                Component.translatable("multiplayer.player.left", this.player.getDisplayName()).withStyle(ChatFormatting.YELLOW), ChatType.SYSTEM
             );
         this.player.disconnect();
         this.server.getPlayerList().remove(this.player);
@@ -1194,39 +1193,55 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
     @Override
     public void handleChat(ServerboundChatPacket param0) {
-        String var0 = StringUtils.normalizeSpace(param0.getMessage());
+        if (param0.hasExpired(Instant.now())) {
+            LOGGER.warn("{} tried to send expired message", this.player.getName().getString());
+        } else if (isChatMessageIllegal(param0.getMessage())) {
+            this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
+        } else {
+            String var0 = param0.getMessageNormalized();
+            if (var0.startsWith("/")) {
+                PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+                this.handleChat(param0, TextFilter.FilteredText.passThrough(var0));
+            } else {
+                this.filterTextPacket(param0.getMessage(), param1 -> this.handleChat(param0, param1));
+            }
 
-        for(int var1 = 0; var1 < var0.length(); ++var1) {
-            if (!SharedConstants.isAllowedChatCharacter(var0.charAt(var1))) {
-                this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
-                return;
+        }
+    }
+
+    private static boolean isChatMessageIllegal(String param0) {
+        for(int var0 = 0; var0 < param0.length(); ++var0) {
+            if (!SharedConstants.isAllowedChatCharacter(param0.charAt(var0))) {
+                return true;
             }
         }
 
-        if (var0.startsWith("/")) {
-            PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-            this.handleChat(TextFilter.FilteredText.passThrough(var0));
-        } else {
-            this.filterTextPacket(var0, this::handleChat);
-        }
-
+        return false;
     }
 
-    private void handleChat(TextFilter.FilteredText param0x) {
+    private void handleChat(ServerboundChatPacket param0, TextFilter.FilteredText param1) {
         if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
-            this.send(new ClientboundChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), ChatType.SYSTEM, Util.NIL_UUID));
+            this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), ChatType.SYSTEM));
         } else {
             this.player.resetLastActionTime();
-            String var0x = param0x.getRaw();
-            if (var0x.startsWith("/")) {
-                this.handleCommand(var0x);
+            String var0 = param0.getMessageNormalized();
+            if (var0.startsWith("/")) {
+                this.handleCommand(var0);
             } else {
-                String var1x = param0x.getFiltered();
-                Component var2 = var1x.isEmpty() ? null : Component.translatable("chat.type.text", this.player.getDisplayName(), var1x);
-                Component var3 = Component.translatable("chat.type.text", this.player.getDisplayName(), var0x);
+                String var1 = param1.getFiltered();
+                Component var2 = var1.isEmpty() ? null : Component.literal(var1);
+                Component var3 = Component.literal(param0.getMessage());
+                ChatSender var4 = this.player.asChatSender();
                 this.server
                     .getPlayerList()
-                    .broadcastMessage(var3, param2 -> this.player.shouldFilterMessageTo(param2) ? var2 : var3, ChatType.CHAT, this.player.getUUID());
+                    .broadcastPlayerMessage(
+                        var3,
+                        param2 -> this.player.shouldFilterMessageTo(param2) ? var2 : var3,
+                        ChatType.CHAT,
+                        var4,
+                        param0.getTimeStamp(),
+                        param0.getSaltSignature()
+                    );
             }
 
             this.chatSpamTickCount += 20;

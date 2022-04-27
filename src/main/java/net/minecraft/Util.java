@@ -38,12 +38,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -51,6 +54,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongSupplier;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -745,6 +749,34 @@ public class Util {
             param0.set(var1 - 1, param0.set(var2, param0.get(var1 - 1)));
         }
 
+    }
+
+    public static <T> CompletableFuture<T> blockUntilDone(Function<Executor, CompletableFuture<T>> param0) {
+        return blockUntilDone(param0, CompletableFuture::isDone);
+    }
+
+    public static <T> T blockUntilDone(Function<Executor, T> param0, Predicate<T> param1) {
+        BlockingQueue<Runnable> var0 = new LinkedBlockingQueue<>();
+        T var1 = param0.apply(var0::add);
+
+        while(!param1.test(var1)) {
+            try {
+                Runnable var2 = var0.poll(100L, TimeUnit.MILLISECONDS);
+                if (var2 != null) {
+                    var2.run();
+                }
+            } catch (InterruptedException var5) {
+                LOGGER.warn("Interrupted wait");
+                break;
+            }
+        }
+
+        int var4 = var0.size();
+        if (var4 > 0) {
+            LOGGER.warn("Tasks left in queue: {}", var4);
+        }
+
+        return var1;
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

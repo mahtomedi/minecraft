@@ -70,6 +70,11 @@ public class LecternMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public ItemStack quickMoveStack(Player param0, int param1) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
     public void setData(int param0, int param1) {
         super.setData(param0, param1);
         this.broadcastChanges();

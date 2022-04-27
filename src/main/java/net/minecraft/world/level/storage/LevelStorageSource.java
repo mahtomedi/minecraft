@@ -180,7 +180,7 @@ public class LevelStorageSource {
             );
         }
 
-        return Util.sequenceFailFastAndCancel(var0).thenApply(param0x -> param0x.stream().filter(Objects::nonNull).toList());
+        return Util.sequenceFailFastAndCancel(var0).thenApply(param0x -> param0x.stream().filter(Objects::nonNull).sorted().toList());
     }
 
     private int getStorageVersion() {

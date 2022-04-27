@@ -1,6 +1,5 @@
 package net.minecraft.server.rcon;
 
-import java.util.UUID;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -33,7 +32,7 @@ public class RconConsoleSource implements CommandSource {
     }
 
     @Override
-    public void sendMessage(Component param0, UUID param1) {
+    public void sendSystemMessage(Component param0) {
         this.buffer.append(param0.getString());
     }
 

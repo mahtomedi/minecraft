@@ -97,7 +97,7 @@ public class DebugStickItem extends Item {
     }
 
     private static void message(Player param0, Component param1) {
-        ((ServerPlayer)param0).sendMessage(param1, ChatType.GAME_INFO, Util.NIL_UUID);
+        ((ServerPlayer)param0).sendSystemMessage(param1, ChatType.GAME_INFO);
     }
 
     private static <T extends Comparable<T>> String getNameHelper(BlockState param0, Property<T> param1) {

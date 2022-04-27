@@ -207,8 +207,7 @@ public class SignEditScreen extends Screen {
                     var30.vertex(var13, (float)var28, (float)(var12 + 9), 0.0F).color(0, 0, 255, 255).endVertex();
                     var30.vertex(var13, (float)var28, (float)var12, 0.0F).color(0, 0, 255, 255).endVertex();
                     var30.vertex(var13, (float)var27, (float)var12, 0.0F).color(0, 0, 255, 255).endVertex();
-                    var30.end();
-                    BufferUploader.drawWithShader(var30);
+                    BufferUploader.drawWithShader(var30.end());
                     RenderSystem.disableColorLogicOp();
                     RenderSystem.enableTexture();
                 }

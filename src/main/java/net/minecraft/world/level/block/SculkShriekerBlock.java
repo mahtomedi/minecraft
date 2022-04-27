@@ -55,8 +55,17 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        if (param0 instanceof ServerLevel var0 && (param3 instanceof Player || param3.getControllingPassenger() instanceof Player)) {
-            var0.getBlockEntity(param1, BlockEntityType.SCULK_SHRIEKER).ifPresent(param1x -> param1x.shriek(var0));
+        Entity var0;
+        if (param3 instanceof Player) {
+            var0 = param3;
+        } else if (param3.getControllingPassenger() instanceof Player) {
+            var0 = param3.getControllingPassenger();
+        } else {
+            var0 = null;
+        }
+
+        if (param0 instanceof ServerLevel var3 && var0 != null) {
+            var3.getBlockEntity(param1, BlockEntityType.SCULK_SHRIEKER).ifPresent(param2x -> param2x.shriek(var3, var0));
         }
 
         super.stepOn(param0, param1, param2, param3);
@@ -128,9 +137,12 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
     }
 
     @Override
-    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3) {
-        super.spawnAfterBreak(param0, param1, param2, param3);
-        this.tryDropExperience(param1, param2, param3, ConstantInt.of(5));
+    public void spawnAfterBreak(BlockState param0, ServerLevel param1, BlockPos param2, ItemStack param3, boolean param4) {
+        super.spawnAfterBreak(param0, param1, param2, param3, param4);
+        if (param4) {
+            this.tryDropExperience(param1, param2, param3, ConstantInt.of(5));
+        }
+
     }
 
     @Nullable

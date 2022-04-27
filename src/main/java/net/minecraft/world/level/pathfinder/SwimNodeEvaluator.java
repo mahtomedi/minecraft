@@ -35,6 +35,7 @@ public class SwimNodeEvaluator extends NodeEvaluator {
         this.pathTypesByPosCache.clear();
     }
 
+    @Nullable
     @Override
     public Node getStart() {
         return super.getNode(
@@ -42,9 +43,10 @@ public class SwimNodeEvaluator extends NodeEvaluator {
         );
     }
 
+    @Nullable
     @Override
     public Target getGoal(double param0, double param1, double param2) {
-        return new Target(super.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
+        return this.getTargetFromNode(super.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
     }
 
     @Override
@@ -88,10 +90,12 @@ public class SwimNodeEvaluator extends NodeEvaluator {
             float var2 = this.mob.getPathfindingMalus(var1);
             if (var2 >= 0.0F) {
                 var0 = super.getNode(param0, param1, param2);
-                var0.type = var1;
-                var0.costMalus = Math.max(var0.costMalus, var2);
-                if (this.level.getFluidState(new BlockPos(param0, param1, param2)).isEmpty()) {
-                    var0.costMalus += 8.0F;
+                if (var0 != null) {
+                    var0.type = var1;
+                    var0.costMalus = Math.max(var0.costMalus, var2);
+                    if (this.level.getFluidState(new BlockPos(param0, param1, param2)).isEmpty()) {
+                        var0.costMalus += 8.0F;
+                    }
                 }
             }
         }
