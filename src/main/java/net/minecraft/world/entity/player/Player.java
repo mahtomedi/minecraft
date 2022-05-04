@@ -27,7 +27,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -172,16 +171,19 @@ public abstract class Player extends LivingEntity {
     protected final float defaultFlySpeed = 0.02F;
     private int lastLevelUpTime;
     private final GameProfile gameProfile;
+    @Nullable
+    private final ProfilePublicKey profilePublicKey;
     private boolean reducedDebugInfo;
     private ItemStack lastItemInMainHand = ItemStack.EMPTY;
     private final ItemCooldowns cooldowns = this.createItemCooldowns();
     @Nullable
     public FishingHook fishing;
 
-    public Player(Level param0, BlockPos param1, float param2, GameProfile param3) {
+    public Player(Level param0, BlockPos param1, float param2, GameProfile param3, @Nullable ProfilePublicKey param4) {
         super(EntityType.PLAYER, param0);
         this.setUUID(UUIDUtil.getOrCreatePlayerUUID(param3));
         this.gameProfile = param3;
+        this.profilePublicKey = param4;
         this.inventoryMenu = new InventoryMenu(this.inventory, !param0.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
         this.moveTo((double)param1.getX() + 0.5, (double)(param1.getY() + 1), (double)param1.getZ() + 0.5, param2, 0.0F);
@@ -1360,6 +1362,11 @@ public abstract class Player extends LivingEntity {
         return this.gameProfile;
     }
 
+    @Nullable
+    public ProfilePublicKey getProfilePublicKey() {
+        return this.profilePublicKey;
+    }
+
     public Inventory getInventory() {
         return this.inventory;
     }
@@ -1369,10 +1376,6 @@ public abstract class Player extends LivingEntity {
     }
 
     public void updateTutorialInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {
-    }
-
-    public ChatSender asChatSender() {
-        return new ChatSender(this.getUUID(), this.getDisplayName());
     }
 
     public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {

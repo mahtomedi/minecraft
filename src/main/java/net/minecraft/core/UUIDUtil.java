@@ -11,6 +11,7 @@ import net.minecraft.Util;
 public final class UUIDUtil {
     public static final Codec<UUID> CODEC = Codec.INT_STREAM
         .comapFlatMap(param0 -> Util.fixedSize(param0, 4).map(UUIDUtil::uuidFromIntArray), param0 -> Arrays.stream(uuidToIntArray(param0)));
+    public static final int UUID_BYTES = 16;
     private static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
 
     private UUIDUtil() {

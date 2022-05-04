@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -147,7 +148,7 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
                     .wrap(ItemRenderer.getFoilBufferDirect(param3, this.shieldModel.renderType(var19.atlasLocation()), true, param0.hasFoil()));
                 this.shieldModel.handle().render(param2, var20, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
                 if (var18) {
-                    List<Pair<BannerPattern, DyeColor>> var21 = BannerBlockEntity.createPatterns(
+                    List<Pair<Holder<BannerPattern>, DyeColor>> var21 = BannerBlockEntity.createPatterns(
                         ShieldItem.getColor(param0), BannerBlockEntity.getItemPatterns(param0)
                     );
                     BannerRenderer.renderPatterns(param2, param3, param4, param5, this.shieldModel.plate(), var19, false, var21, param0.hasFoil());

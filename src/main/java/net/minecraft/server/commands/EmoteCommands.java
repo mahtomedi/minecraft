@@ -1,38 +1,30 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.chat.SignedMessage;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.server.players.PlayerList;
 
 public class EmoteCommands {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
-        param0.register(Commands.literal("me").then(Commands.argument("action", StringArgumentType.greedyString()).executes(param0x -> {
-            String var0x = StringArgumentType.getString(param0x, "action");
-            Entity var1 = param0x.getSource().getEntity();
-            MinecraftServer var2 = param0x.getSource().getServer();
-            if (var1 instanceof ServerPlayer var3) {
-                var3.getTextFilter().processStreamMessage(var0x).thenAcceptAsync(param3 -> {
-                    String var0xx = param3.getFiltered();
-                    Component var1x = var0xx.isEmpty() ? null : createMessage(param0x, var0xx);
-                    Component var2x = createMessage(param0x, param3.getRaw());
-                    var2.getPlayerList().broadcastSystemMessage(var2x, param3x -> var3.shouldFilterMessageTo(param3x) ? var1x : var2x, ChatType.SYSTEM);
-                }, var2);
-                return 1;
+        param0.register(Commands.literal("me").then(Commands.argument("action", MessageArgument.message()).executes(param0x -> {
+            SignedMessage var0x = MessageArgument.getSignedMessage(param0x, "action");
+            CommandSourceStack var1 = param0x.getSource();
+            if (var1.isPlayer()) {
+                ServerPlayer var2 = var1.getPlayerOrException();
+                var2.getTextFilter().processStreamMessage(var0x.content().getString()).thenAcceptAsync(param3 -> {
+                    PlayerList var0xx = var1.getServer().getPlayerList();
+                    var0xx.broadcastChatMessage(var0x, param3, var2, ChatType.EMOTE_COMMAND);
+                }, var1.getServer());
             } else {
-                var2.getPlayerList().broadcastSystemMessage(createMessage(param0x, var0x), ChatType.SYSTEM);
-                return 1;
+                var1.getServer().getPlayerList().broadcastChatMessage(var0x, var1.asChatSender(), ChatType.EMOTE_COMMAND);
             }
-        })));
-    }
 
-    private static Component createMessage(CommandContext<CommandSourceStack> param0, String param1) {
-        return Component.translatable("chat.type.emote", param0.getSource().getDisplayName(), param1);
+            return 1;
+        })));
     }
 }

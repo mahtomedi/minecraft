@@ -93,7 +93,7 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
 
     @Override
     public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable GameEvent.Context param4) {
-        return this.canShriek(param0);
+        return !this.isRemoved() && this.canShriek(param0);
     }
 
     @Override

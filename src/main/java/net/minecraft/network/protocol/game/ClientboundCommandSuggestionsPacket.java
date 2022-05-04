@@ -25,7 +25,7 @@ public class ClientboundCommandSuggestionsPacket implements Packet<ClientGamePac
         StringRange var2 = StringRange.between(var0, var0 + var1);
         List<Suggestion> var3 = param0.readList(param1 -> {
             String var0x = param1.readUtf();
-            Component var1x = param1.readBoolean() ? param1.readComponent() : null;
+            Component var1x = param1.readNullable(FriendlyByteBuf::readComponent);
             return new Suggestion(var2, var0x, var1x);
         });
         this.suggestions = new Suggestions(var2, var3);
@@ -38,11 +38,7 @@ public class ClientboundCommandSuggestionsPacket implements Packet<ClientGamePac
         param0.writeVarInt(this.suggestions.getRange().getLength());
         param0.writeCollection(this.suggestions.getList(), (param0x, param1) -> {
             param0x.writeUtf(param1.getText());
-            param0x.writeBoolean(param1.getTooltip() != null);
-            if (param1.getTooltip() != null) {
-                param0x.writeComponent(ComponentUtils.fromMessage(param1.getTooltip()));
-            }
-
+            param0x.writeNullable(param1.getTooltip(), (param0xx, param1x) -> param0xx.writeComponent(ComponentUtils.fromMessage(param1x)));
         });
     }
 

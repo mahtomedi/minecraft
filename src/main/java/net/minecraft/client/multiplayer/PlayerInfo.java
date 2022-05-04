@@ -40,19 +40,19 @@ public class PlayerInfo {
     private long healthBlinkTime;
     private long renderVisibilityId;
     @Nullable
-    private final ProfilePublicKey.Trusted profilePublicKey;
+    private final ProfilePublicKey profilePublicKey;
 
     public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate param0, MinecraftSessionService param1) {
         this.profile = param0.getProfile();
         this.gameMode = param0.getGameMode();
         this.latency = param0.getLatency();
         this.tabListDisplayName = param0.getDisplayName();
-        ProfilePublicKey.Trusted var0 = null;
+        ProfilePublicKey var0 = null;
 
         try {
-            ProfilePublicKey var1 = ProfilePublicKey.parseFromGameProfile(this.profile).orElse(null);
+            ProfilePublicKey.Data var1 = param0.getProfilePublicKey();
             if (var1 != null) {
-                var0 = var1.verify(param1);
+                var0 = ProfilePublicKey.parseAndValidate(param1, var1);
             }
         } catch (InsecurePublicKeyException | CryptException var5) {
             LOGGER.error("Failed to retrieve publicKey property for profile {}", this.profile.getId(), var5);
@@ -66,7 +66,7 @@ public class PlayerInfo {
     }
 
     @Nullable
-    public ProfilePublicKey.Trusted getProfilePublicKey() {
+    public ProfilePublicKey getProfilePublicKey() {
         return this.profilePublicKey;
     }
 

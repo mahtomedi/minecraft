@@ -47,7 +47,7 @@ public class ServerboundKeyPacket implements Packet<ServerLoginPacketListener> {
         return Crypt.decryptByteToSecretKey(param0, this.keybytes);
     }
 
-    public boolean isChallengeSignatureValid(byte[] param0, ProfilePublicKey.Trusted param1) {
+    public boolean isChallengeSignatureValid(byte[] param0, ProfilePublicKey param1) {
         return this.nonceOrSaltSignature.map(param0x -> false, param2 -> {
             try {
                 Signature var1x = param1.verifySignature();

@@ -1,7 +1,5 @@
 package net.minecraft.data.info;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DynamicOps;
@@ -23,7 +21,6 @@ import org.slf4j.Logger;
 
 public class WorldgenRegistryDumpReport implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final DataGenerator generator;
 
     public WorldgenRegistryDumpReport(DataGenerator param0) {
@@ -59,7 +56,7 @@ public class WorldgenRegistryDumpReport implements DataProvider {
             Optional<JsonElement> var0 = param3.encodeStart(param2, param4)
                 .resultOrPartial(param1x -> LOGGER.error("Couldn't serialize element {}: {}", param0, param1x));
             if (var0.isPresent()) {
-                DataProvider.save(GSON, param1, var0.get(), param0);
+                DataProvider.saveStable(param1, var0.get(), param0);
             }
         } catch (IOException var6) {
             LOGGER.error("Couldn't save element {}", param0, var6);

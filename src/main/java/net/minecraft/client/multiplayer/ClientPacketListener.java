@@ -49,7 +49,6 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
-import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.client.particle.ItemPickupParticle;
 import net.minecraft.client.player.KeyboardInput;
@@ -67,12 +66,12 @@ import net.minecraft.client.resources.sounds.GuardianAttackSoundInstance;
 import net.minecraft.client.resources.sounds.MinecartSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.client.searchtree.MutableSearchTree;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.Position;
 import net.minecraft.core.PositionImpl;
 import net.minecraft.core.Registry;
@@ -82,6 +81,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -237,6 +237,7 @@ import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
@@ -460,12 +461,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
         float var3 = (float)(param0.getyRot() * 360) / 256.0F;
         float var4 = (float)(param0.getxRot() * 360) / 256.0F;
         int var5 = param0.getEntityId();
-        RemotePlayer var6 = new RemotePlayer(this.minecraft.level, this.getPlayerInfo(param0.getPlayerId()).getProfile());
-        var6.setId(var5);
-        var6.syncPacketPositionCodec(var0, var1, var2);
-        var6.absMoveTo(var0, var1, var2, var3, var4);
-        var6.setOldPosAndRot();
-        this.level.addPlayer(var5, var6);
+        PlayerInfo var6 = this.getPlayerInfo(param0.getPlayerId());
+        RemotePlayer var7 = new RemotePlayer(this.minecraft.level, var6.getProfile(), var6.getProfilePublicKey());
+        var7.setId(var5);
+        var7.syncPacketPositionCodec(var0, var1, var2);
+        var7.absMoveTo(var0, var1, var2, var3, var4);
+        var7.setOldPosAndRot();
+        this.level.addPlayer(var5, var7);
     }
 
     @Override
@@ -761,21 +763,25 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleSystemChat(ClientboundSystemChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.gui.handleSystemChat(param0.type(), param0.content());
+        Registry<ChatType> var0 = this.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+        ChatType var1 = param0.resolveType(var0);
+        this.minecraft.gui.handleSystemChat(var1, param0.content());
     }
 
     @Override
     public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         if (param0.hasExpired(Instant.now())) {
-            LOGGER.warn("Received expired player chat packet from {}", param0.sender().name().getString());
+            LOGGER.warn("Received expired chat packet from {}", param0.sender().name().getString());
         }
 
         if (!this.hasValidSignature(param0)) {
-            LOGGER.warn("Received unsigned player chat packet from {}", param0.sender().name().getString());
+            LOGGER.warn("Received unsigned chat packet from {}", param0.sender().name().getString());
         }
 
-        this.minecraft.gui.handlePlayerChat(param0.type(), param0.content(), param0.sender());
+        Registry<ChatType> var0 = this.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+        ChatType var1 = param0.resolveType(var0);
+        this.minecraft.gui.handlePlayerChat(var1, param0.content(), param0.sender());
     }
 
     private boolean hasValidSignature(ClientboundPlayerChatPacket param0) {
@@ -783,8 +789,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
         if (var0 == null) {
             return false;
         } else {
-            ProfilePublicKey.Trusted var1 = var0.getProfilePublicKey();
-            return var1 != null && param0.isSignatureValid(var1);
+            ProfilePublicKey var1 = var0.getProfilePublicKey();
+            return var1 != null && param0.getSignedMessage().verify(var1);
         }
     }
 
@@ -1273,12 +1279,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleUpdateRecipes(ClientboundUpdateRecipesPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.recipeManager.replaceRecipes(param0.getRecipes());
-        MutableSearchTree<RecipeCollection> var0 = this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS);
-        var0.clear();
-        ClientRecipeBook var1 = this.minecraft.player.getRecipeBook();
-        var1.setupCollections(this.recipeManager.getRecipes());
-        var1.getCollections().forEach(var0::add);
-        var0.refresh();
+        ClientRecipeBook var0 = this.minecraft.player.getRecipeBook();
+        var0.setupCollections(this.recipeManager.getRecipes());
+        this.minecraft.populateSearchTree(SearchRegistry.RECIPE_COLLECTIONS, var0.getCollections());
     }
 
     @Override
@@ -1385,15 +1388,22 @@ public class ClientPacketListener implements ClientGamePacketListener {
             Blocks.rebuildCache();
         }
 
-        this.minecraft.getSearchTree(SearchRegistry.CREATIVE_TAGS).refresh();
+        NonNullList<ItemStack> var0 = NonNullList.create();
+
+        for(Item var1 : Registry.ITEM) {
+            var1.fillItemCategory(CreativeModeTab.TAB_SEARCH, var0);
+        }
+
+        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_NAMES, var0);
+        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_TAGS, var0);
     }
 
     private <T> void updateTagsForRegistry(ResourceKey<? extends Registry<? extends T>> param0x, TagNetworkSerialization.NetworkPayload param1) {
         if (!param1.isEmpty()) {
-            Registry<T> var0 = this.registryAccess.<T>registry(param0x).orElseThrow(() -> new IllegalStateException("Unknown registry " + param0x));
+            Registry<T> var0x = this.registryAccess.<T>registry(param0x).orElseThrow(() -> new IllegalStateException("Unknown registry " + param0x));
             Map<TagKey<T>, List<Holder<T>>> var2 = new HashMap<>();
-            TagNetworkSerialization.deserializeTagsFromNetwork(param0x, var0, param1, var2::put);
-            var0.bindTags(var2);
+            TagNetworkSerialization.deserializeTagsFromNetwork(param0x, var0x, param1, var2::put);
+            var0x.bindTags(var2);
         }
     }
 
@@ -1872,132 +1882,110 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 float var45 = var1.readFloat();
                 float var46 = var1.readFloat();
                 String var47 = var1.readUtf();
-                boolean var48 = var1.readBoolean();
-                Path var49;
-                if (var48) {
-                    var49 = Path.createFromStream(var1);
-                } else {
-                    var49 = null;
-                }
-
-                boolean var51 = var1.readBoolean();
-                int var52 = var1.readInt();
-                BrainDebugRenderer.BrainDump var53 = new BrainDebugRenderer.BrainDump(
-                    var40, var41, var42, var43, var44, var45, var46, var39, var47, var49, var51, var52
+                Path var48 = var1.readNullable(Path::createFromStream);
+                boolean var49 = var1.readBoolean();
+                int var50 = var1.readInt();
+                BrainDebugRenderer.BrainDump var51 = new BrainDebugRenderer.BrainDump(
+                    var40, var41, var42, var43, var44, var45, var46, var39, var47, var48, var49, var50
                 );
-                int var54 = var1.readVarInt();
+                int var52 = var1.readVarInt();
 
-                for(int var55 = 0; var55 < var54; ++var55) {
-                    String var56 = var1.readUtf();
-                    var53.activities.add(var56);
+                for(int var53 = 0; var53 < var52; ++var53) {
+                    String var54 = var1.readUtf();
+                    var51.activities.add(var54);
                 }
 
-                int var57 = var1.readVarInt();
+                int var55 = var1.readVarInt();
 
-                for(int var58 = 0; var58 < var57; ++var58) {
-                    String var59 = var1.readUtf();
-                    var53.behaviors.add(var59);
+                for(int var56 = 0; var56 < var55; ++var56) {
+                    String var57 = var1.readUtf();
+                    var51.behaviors.add(var57);
                 }
 
-                int var60 = var1.readVarInt();
+                int var58 = var1.readVarInt();
 
-                for(int var61 = 0; var61 < var60; ++var61) {
-                    String var62 = var1.readUtf();
-                    var53.memories.add(var62);
+                for(int var59 = 0; var59 < var58; ++var59) {
+                    String var60 = var1.readUtf();
+                    var51.memories.add(var60);
                 }
 
-                int var63 = var1.readVarInt();
+                int var61 = var1.readVarInt();
 
-                for(int var64 = 0; var64 < var63; ++var64) {
-                    BlockPos var65 = var1.readBlockPos();
-                    var53.pois.add(var65);
+                for(int var62 = 0; var62 < var61; ++var62) {
+                    BlockPos var63 = var1.readBlockPos();
+                    var51.pois.add(var63);
                 }
 
-                int var66 = var1.readVarInt();
+                int var64 = var1.readVarInt();
 
-                for(int var67 = 0; var67 < var66; ++var67) {
-                    BlockPos var68 = var1.readBlockPos();
-                    var53.potentialPois.add(var68);
+                for(int var65 = 0; var65 < var64; ++var65) {
+                    BlockPos var66 = var1.readBlockPos();
+                    var51.potentialPois.add(var66);
                 }
 
-                int var69 = var1.readVarInt();
+                int var67 = var1.readVarInt();
 
-                for(int var70 = 0; var70 < var69; ++var70) {
-                    String var71 = var1.readUtf();
-                    var53.gossips.add(var71);
+                for(int var68 = 0; var68 < var67; ++var68) {
+                    String var69 = var1.readUtf();
+                    var51.gossips.add(var69);
                 }
 
-                this.minecraft.debugRenderer.brainDebugRenderer.addOrUpdateBrainDump(var53);
+                this.minecraft.debugRenderer.brainDebugRenderer.addOrUpdateBrainDump(var51);
             } else if (ClientboundCustomPayloadPacket.DEBUG_BEE.equals(var0)) {
+                double var70 = var1.readDouble();
+                double var71 = var1.readDouble();
                 double var72 = var1.readDouble();
-                double var73 = var1.readDouble();
-                double var74 = var1.readDouble();
-                Position var75 = new PositionImpl(var72, var73, var74);
-                UUID var76 = var1.readUUID();
-                int var77 = var1.readInt();
-                boolean var78 = var1.readBoolean();
-                BlockPos var79 = null;
-                if (var78) {
-                    var79 = var1.readBlockPos();
+                Position var73 = new PositionImpl(var70, var71, var72);
+                UUID var74 = var1.readUUID();
+                int var75 = var1.readInt();
+                BlockPos var76 = var1.readNullable(FriendlyByteBuf::readBlockPos);
+                BlockPos var77 = var1.readNullable(FriendlyByteBuf::readBlockPos);
+                int var78 = var1.readInt();
+                Path var79 = var1.readNullable(Path::createFromStream);
+                BeeDebugRenderer.BeeInfo var80 = new BeeDebugRenderer.BeeInfo(var74, var75, var73, var79, var76, var77, var78);
+                int var81 = var1.readVarInt();
+
+                for(int var82 = 0; var82 < var81; ++var82) {
+                    String var83 = var1.readUtf();
+                    var80.goals.add(var83);
                 }
 
-                boolean var80 = var1.readBoolean();
-                BlockPos var81 = null;
-                if (var80) {
-                    var81 = var1.readBlockPos();
+                int var84 = var1.readVarInt();
+
+                for(int var85 = 0; var85 < var84; ++var85) {
+                    BlockPos var86 = var1.readBlockPos();
+                    var80.blacklistedHives.add(var86);
                 }
 
-                int var82 = var1.readInt();
-                boolean var83 = var1.readBoolean();
-                Path var84 = null;
-                if (var83) {
-                    var84 = Path.createFromStream(var1);
-                }
-
-                BeeDebugRenderer.BeeInfo var85 = new BeeDebugRenderer.BeeInfo(var76, var77, var75, var84, var79, var81, var82);
-                int var86 = var1.readVarInt();
-
-                for(int var87 = 0; var87 < var86; ++var87) {
-                    String var88 = var1.readUtf();
-                    var85.goals.add(var88);
-                }
-
-                int var89 = var1.readVarInt();
-
-                for(int var90 = 0; var90 < var89; ++var90) {
-                    BlockPos var91 = var1.readBlockPos();
-                    var85.blacklistedHives.add(var91);
-                }
-
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var85);
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var80);
             } else if (ClientboundCustomPayloadPacket.DEBUG_HIVE.equals(var0)) {
-                BlockPos var92 = var1.readBlockPos();
-                String var93 = var1.readUtf();
-                int var94 = var1.readInt();
-                int var95 = var1.readInt();
-                boolean var96 = var1.readBoolean();
-                BeeDebugRenderer.HiveInfo var97 = new BeeDebugRenderer.HiveInfo(var92, var93, var94, var95, var96, this.level.getGameTime());
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var97);
+                BlockPos var87 = var1.readBlockPos();
+                String var88 = var1.readUtf();
+                int var89 = var1.readInt();
+                int var90 = var1.readInt();
+                boolean var91 = var1.readBoolean();
+                BeeDebugRenderer.HiveInfo var92 = new BeeDebugRenderer.HiveInfo(var87, var88, var89, var90, var91, this.level.getGameTime());
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var92);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR.equals(var0)) {
                 this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER.equals(var0)) {
-                BlockPos var98 = var1.readBlockPos();
-                int var99 = var1.readInt();
-                String var100 = var1.readUtf();
-                int var101 = var1.readInt();
-                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var98, var99, var100, var101);
+                BlockPos var93 = var1.readBlockPos();
+                int var94 = var1.readInt();
+                String var95 = var1.readUtf();
+                int var96 = var1.readInt();
+                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var93, var94, var95, var96);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT.equals(var0)) {
-                GameEvent var102 = Registry.GAME_EVENT.get(new ResourceLocation(var1.readUtf()));
-                Vec3 var103 = new Vec3(var1.readDouble(), var1.readDouble(), var1.readDouble());
-                this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(var102, var103);
+                GameEvent var97 = Registry.GAME_EVENT.get(new ResourceLocation(var1.readUtf()));
+                Vec3 var98 = new Vec3(var1.readDouble(), var1.readDouble(), var1.readDouble());
+                this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(var97, var98);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT_LISTENER.equals(var0)) {
-                ResourceLocation var104 = var1.readResourceLocation();
-                PositionSource var105 = Registry.POSITION_SOURCE_TYPE
-                    .getOptional(var104)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown position source type " + var104))
+                ResourceLocation var99 = var1.readResourceLocation();
+                PositionSource var100 = Registry.POSITION_SOURCE_TYPE
+                    .getOptional(var99)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown position source type " + var99))
                     .read(var1);
-                int var106 = var1.readVarInt();
-                this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(var105, var106);
+                int var101 = var1.readVarInt();
+                this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(var100, var101);
             } else {
                 LOGGER.warn("Unknown custom packed identifier: {}", var0);
             }

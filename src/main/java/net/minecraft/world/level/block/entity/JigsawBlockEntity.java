@@ -11,21 +11,11 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class JigsawBlockEntity extends BlockEntity {
     public static final String TARGET = "target";
@@ -35,7 +25,7 @@ public class JigsawBlockEntity extends BlockEntity {
     public static final String FINAL_STATE = "final_state";
     private ResourceLocation name = new ResourceLocation("empty");
     private ResourceLocation target = new ResourceLocation("empty");
-    private ResourceLocation pool = new ResourceLocation("empty");
+    private ResourceKey<StructureTemplatePool> pool = ResourceKey.create(Registry.TEMPLATE_POOL_REGISTRY, new ResourceLocation("empty"));
     private JigsawBlockEntity.JointType joint = JigsawBlockEntity.JointType.ROLLABLE;
     private String finalState = "minecraft:air";
 
@@ -51,7 +41,7 @@ public class JigsawBlockEntity extends BlockEntity {
         return this.target;
     }
 
-    public ResourceLocation getPool() {
+    public ResourceKey<StructureTemplatePool> getPool() {
         return this.pool;
     }
 
@@ -71,7 +61,7 @@ public class JigsawBlockEntity extends BlockEntity {
         this.target = param0;
     }
 
-    public void setPool(ResourceLocation param0) {
+    public void setPool(ResourceKey<StructureTemplatePool> param0) {
         this.pool = param0;
     }
 
@@ -98,7 +88,7 @@ public class JigsawBlockEntity extends BlockEntity {
         super.load(param0);
         this.name = new ResourceLocation(param0.getString("name"));
         this.target = new ResourceLocation(param0.getString("target"));
-        this.pool = new ResourceLocation(param0.getString("pool"));
+        this.pool = ResourceKey.create(Registry.TEMPLATE_POOL_REGISTRY, new ResourceLocation(param0.getString("pool")));
         this.finalState = param0.getString("final_state");
         this.joint = JigsawBlockEntity.JointType.byName(param0.getString("joint"))
             .orElseGet(
@@ -118,37 +108,10 @@ public class JigsawBlockEntity extends BlockEntity {
     }
 
     public void generate(ServerLevel param0, int param1, boolean param2) {
-        ChunkGenerator var0 = param0.getChunkSource().getGenerator();
-        StructureTemplateManager var1 = param0.getStructureManager();
-        StructureManager var2 = param0.structureManager();
-        RandomSource var3 = param0.getRandom();
-        Registry<StructureTemplatePool> var4 = param0.registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
-        ResourceKey<StructureTemplatePool> var5 = ResourceKey.create(Registry.TEMPLATE_POOL_REGISTRY, this.pool);
-        Holder<StructureTemplatePool> var6 = var4.getHolderOrThrow(var5);
-        BlockPos var7 = this.getBlockPos().relative(this.getBlockState().getValue(JigsawBlock.ORIENTATION).front());
-        Structure.GenerationContext var8 = new Structure.GenerationContext(
-            param0.registryAccess(),
-            var0,
-            var0.getBiomeSource(),
-            param0.getChunkSource().randomState(),
-            var1,
-            param0.getSeed(),
-            new ChunkPos(var7),
-            param0,
-            param0x -> true
-        );
-        Optional<Structure.GenerationStub> var9 = JigsawPlacement.addPieces(var8, var6, Optional.of(this.target), param1, var7, false, Optional.empty(), 128);
-        if (var9.isPresent()) {
-            StructurePiecesBuilder var10 = new StructurePiecesBuilder();
-            var9.get().generator().accept(var10);
-
-            for(StructurePiece var11 : var10.build().pieces()) {
-                if (var11 instanceof PoolElementStructurePiece var12) {
-                    var12.place(param0, var2, var0, var3, BoundingBox.infinite(), var7, param2);
-                }
-            }
-        }
-
+        BlockPos var0 = this.getBlockPos().relative(this.getBlockState().getValue(JigsawBlock.ORIENTATION).front());
+        Registry<StructureTemplatePool> var1 = param0.registryAccess().registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        Holder<StructureTemplatePool> var2 = var1.getHolderOrThrow(this.pool);
+        JigsawPlacement.generateJigsaw(param0, var2, this.target, param1, var0, param2);
     }
 
     public static enum JointType implements StringRepresentable {

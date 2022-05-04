@@ -2,8 +2,6 @@ package net.minecraft.data.advancements;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,7 +17,6 @@ import org.slf4j.Logger;
 
 public class AdvancementProvider implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final DataGenerator generator;
     private final List<Consumer<Consumer<Advancement>>> tabs = ImmutableList.of(
         new TheEndAdvancements(), new HusbandryAdvancements(), new AdventureAdvancements(), new NetherAdvancements(), new StoryAdvancements()
@@ -40,7 +37,7 @@ public class AdvancementProvider implements DataProvider {
                 Path var0x = createPath(var0, param3);
 
                 try {
-                    DataProvider.save(GSON, param0, param3.deconstruct().serializeToJson(), var0x);
+                    DataProvider.saveStable(param0, param3.deconstruct().serializeToJson(), var0x);
                 } catch (IOException var6x) {
                     LOGGER.error("Couldn't save advancement {}", var0x, var6x);
                 }

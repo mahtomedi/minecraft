@@ -100,24 +100,29 @@ public class VibrationListener implements GameEventListener {
     }
 
     @Override
-    public boolean handleGameEvent(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3) {
+    public boolean handleGameEvent(ServerLevel param0, GameEvent.Message param1) {
         if (this.receivingEvent != null) {
             return false;
-        } else if (!this.config.isValidVibration(param1, param2)) {
-            return false;
         } else {
-            Optional<Vec3> var0 = this.listenerSource.getPosition(param0);
-            if (var0.isEmpty()) {
+            GameEvent var0 = param1.gameEvent();
+            GameEvent.Context var1 = param1.context();
+            if (!this.config.isValidVibration(var0, var1)) {
                 return false;
             } else {
-                Vec3 var1 = var0.get();
-                if (!this.config.shouldListen(param0, this, new BlockPos(param3), param1, param2)) {
-                    return false;
-                } else if (isOccluded(param0, param3, var1)) {
+                Optional<Vec3> var2 = this.listenerSource.getPosition(param0);
+                if (var2.isEmpty()) {
                     return false;
                 } else {
-                    this.scheduleSignal(param0, param1, param2, param3, var1);
-                    return true;
+                    Vec3 var3 = param1.source();
+                    Vec3 var4 = var2.get();
+                    if (!this.config.shouldListen(param0, this, new BlockPos(var3), var0, var1)) {
+                        return false;
+                    } else if (isOccluded(param0, var3, var4)) {
+                        return false;
+                    } else {
+                        this.scheduleSignal(param0, var0, var1, var3, var4);
+                        return true;
+                    }
                 }
             }
         }
@@ -200,6 +205,10 @@ public class VibrationListener implements GameEventListener {
             return GameEventTags.VIBRATIONS;
         }
 
+        default boolean canTriggerAvoidVibration() {
+            return false;
+        }
+
         default boolean isValidVibration(GameEvent param0, GameEvent.Context param1) {
             if (!param0.is(this.getListenableEvents())) {
                 return false;
@@ -211,7 +220,7 @@ public class VibrationListener implements GameEventListener {
                     }
 
                     if (var0.isSteppingCarefully() && param0.is(GameEventTags.IGNORE_VIBRATIONS_SNEAKING)) {
-                        if (var0 instanceof ServerPlayer var1) {
+                        if (this.canTriggerAvoidVibration() && var0 instanceof ServerPlayer var1) {
                             CriteriaTriggers.AVOID_VIBRATION.trigger(var1);
                         }
 

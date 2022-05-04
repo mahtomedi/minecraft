@@ -167,10 +167,16 @@ public class VanillaPackResources implements PackResources {
         Path var0 = param2.resolve(param1);
 
         try (Stream<Path> var1 = Files.walk(var0.resolve(param3))) {
-            var1.filter(param0x -> !param0x.endsWith(".mcmeta") && Files.isRegularFile(param0x))
-                .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
-                .filter(param4)
-                .forEach(param0::add);
+            var1.filter(param0x -> !param0x.endsWith(".mcmeta") && Files.isRegularFile(param0x)).mapMulti((param2x, param3x) -> {
+                String var0x = var0.relativize(param2x).toString().replaceAll("\\\\", "/");
+                ResourceLocation var1x = ResourceLocation.tryBuild(param1, var0x);
+                if (var1x == null) {
+                    Util.logAndPauseIfInIde("Invalid path in datapack: %s:%s, ignoring".formatted(param1, var0x));
+                } else {
+                    param3x.accept(var1x);
+                }
+
+            }).filter(param4).forEach(param0::add);
         }
 
     }

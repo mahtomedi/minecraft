@@ -29,7 +29,7 @@ public class StayCloseToTarget<E extends LivingEntity> extends Behavior<E> {
             return false;
         } else {
             PositionTracker var1 = var0.get();
-            return var1.isVisibleBy(param1) && !param1.position().closerThan(var1.currentPosition(), (double)this.tooFar);
+            return !param1.position().closerThan(var1.currentPosition(), (double)this.tooFar);
         }
     }
 

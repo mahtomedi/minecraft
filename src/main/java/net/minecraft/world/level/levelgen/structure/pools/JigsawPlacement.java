@@ -15,8 +15,11 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -26,6 +29,8 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
@@ -155,6 +160,41 @@ public class JigsawPlacement {
             var0.tryPlacingChildren(var1.piece, var1.free, var1.depth, param2, param5, param0);
         }
 
+    }
+
+    public static boolean generateJigsaw(
+        ServerLevel param0, Holder<StructureTemplatePool> param1, ResourceLocation param2, int param3, BlockPos param4, boolean param5
+    ) {
+        ChunkGenerator var0 = param0.getChunkSource().getGenerator();
+        StructureTemplateManager var1 = param0.getStructureManager();
+        StructureManager var2 = param0.structureManager();
+        RandomSource var3 = param0.getRandom();
+        Structure.GenerationContext var4 = new Structure.GenerationContext(
+            param0.registryAccess(),
+            var0,
+            var0.getBiomeSource(),
+            param0.getChunkSource().randomState(),
+            var1,
+            param0.getSeed(),
+            new ChunkPos(param4),
+            param0,
+            param0x -> true
+        );
+        Optional<Structure.GenerationStub> var5 = addPieces(var4, param1, Optional.of(param2), param3, param4, false, Optional.empty(), 128);
+        if (var5.isPresent()) {
+            StructurePiecesBuilder var6 = new StructurePiecesBuilder();
+            var5.get().generator().accept(var6);
+
+            for(StructurePiece var7 : var6.build().pieces()) {
+                if (var7 instanceof PoolElementStructurePiece var8) {
+                    var8.place(param0, var2, var0, var3, BoundingBox.infinite(), param4, param5);
+                }
+            }
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static final class PieceState {

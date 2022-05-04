@@ -11,7 +11,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Vector3f;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -199,7 +198,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
         }
 
         @Override
-        public boolean handleGameEvent(ServerLevel param0, GameEvent param1, @Nullable GameEvent.Context param2, Vec3 param3) {
+        public boolean handleGameEvent(ServerLevel param0, GameEvent.Message param1) {
             return false;
         }
     }

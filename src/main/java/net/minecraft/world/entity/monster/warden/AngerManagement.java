@@ -7,14 +7,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -29,31 +28,42 @@ import net.minecraft.world.entity.player.Player;
 
 public class AngerManagement {
     @VisibleForTesting
-    protected static final int CONVERSION_DELAY = 40;
+    protected static final int CONVERSION_DELAY = 2;
     @VisibleForTesting
     protected static final int MAX_ANGER = 150;
     private static final int DEFAULT_ANGER_DECREASE = 1;
-    private int conversionDelay = Mth.randomBetweenInclusive(RandomSource.create(), 0, 40);
+    private int conversionDelay = Mth.randomBetweenInclusive(RandomSource.create(), 0, 2);
     private static final Codec<Pair<UUID, Integer>> SUSPECT_ANGER_PAIR = RecordCodecBuilder.create(
         param0 -> param0.group(
                     ExtraCodecs.UUID.fieldOf("uuid").forGetter(Pair::getFirst), ExtraCodecs.NON_NEGATIVE_INT.fieldOf("anger").forGetter(Pair::getSecond)
                 )
                 .apply(param0, Pair::of)
     );
-    public static final Codec<AngerManagement> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(SUSPECT_ANGER_PAIR.listOf().fieldOf("suspects").orElse(Collections.emptyList()).forGetter(AngerManagement::createUuidAngerPairs))
-                .apply(param0, AngerManagement::new)
-    );
+    private final Predicate<Entity> filter;
     @VisibleForTesting
-    protected final SortedSet<Entity> suspects = new ObjectAVLTreeSet<>(new AngerManagement.Sorter(this));
+    protected final ArrayList<Entity> suspects;
+    private final AngerManagement.Sorter suspectSorter;
     @VisibleForTesting
-    protected final Object2IntMap<Entity> angerBySuspect = new Object2IntOpenHashMap<>();
+    protected final Object2IntMap<Entity> angerBySuspect;
     @VisibleForTesting
     protected final Object2IntMap<UUID> angerByUuid;
 
-    public AngerManagement(List<Pair<UUID, Integer>> param0) {
-        this.angerByUuid = new Object2IntOpenHashMap<>(param0.size());
-        param0.forEach(param0x -> this.angerByUuid.put(param0x.getFirst(), param0x.getSecond()));
+    public static Codec<AngerManagement> codec(Predicate<Entity> param0) {
+        return RecordCodecBuilder.create(
+            param1 -> param1.group(
+                        SUSPECT_ANGER_PAIR.listOf().fieldOf("suspects").orElse(Collections.emptyList()).forGetter(AngerManagement::createUuidAngerPairs)
+                    )
+                    .apply(param1, param1x -> new AngerManagement(param0, param1x))
+        );
+    }
+
+    public AngerManagement(Predicate<Entity> param0, List<Pair<UUID, Integer>> param1) {
+        this.filter = param0;
+        this.suspects = new ArrayList<>();
+        this.suspectSorter = new AngerManagement.Sorter(this);
+        this.angerBySuspect = new Object2IntOpenHashMap<>();
+        this.angerByUuid = new Object2IntOpenHashMap<>(param1.size());
+        param1.forEach(param0x -> this.angerByUuid.put(param0x.getFirst(), param0x.getSecond()));
     }
 
     private List<Pair<UUID, Integer>> createUuidAngerPairs() {
@@ -68,7 +78,7 @@ public class AngerManagement {
         --this.conversionDelay;
         if (this.conversionDelay <= 0) {
             this.convertFromUuids(param0);
-            this.conversionDelay = 40;
+            this.conversionDelay = 2;
         }
 
         ObjectIterator<Entry<UUID>> var0 = this.angerByUuid.object2IntEntrySet().iterator();
@@ -89,14 +99,24 @@ public class AngerManagement {
             Entry<Entity> var4 = var3.next();
             int var5 = var4.getIntValue();
             Entity var6 = var4.getKey();
-            if (var5 > 1 && param1.test(var6)) {
+            Entity.RemovalReason var7 = var6.getRemovalReason();
+            if (var5 > 1 && param1.test(var6) && var7 == null) {
                 var4.setValue(var5 - 1);
             } else {
                 this.suspects.remove(var6);
                 var3.remove();
+                if (var5 > 1 && var7 != null) {
+                    switch(var7) {
+                        case CHANGED_DIMENSION:
+                        case UNLOADED_TO_CHUNK:
+                        case UNLOADED_WITH_PLAYER:
+                            this.angerByUuid.put(var6.getUUID(), var5 - 1);
+                    }
+                }
             }
         }
 
+        this.suspects.sort(this.suspectSorter);
     }
 
     private void convertFromUuids(ServerLevel param0) {
@@ -113,18 +133,20 @@ public class AngerManagement {
             }
         }
 
+        this.suspects.sort(this.suspectSorter);
     }
 
     public int increaseAnger(Entity param0, int param1) {
-        boolean var0 = !this.suspects.remove(param0);
+        boolean var0 = !this.angerBySuspect.containsKey(param0);
         int var1 = this.angerBySuspect.computeInt(param0, (param1x, param2) -> Math.min(150, (param2 == null ? 0 : param2) + param1));
         if (var0) {
             int var2 = this.angerByUuid.removeInt(param0.getUUID());
             var1 += var2;
             this.angerBySuspect.put(param0, var1);
+            this.suspects.add(param0);
         }
 
-        this.suspects.add(param0);
+        this.suspects.sort(this.suspectSorter);
         return var1;
     }
 
@@ -135,7 +157,7 @@ public class AngerManagement {
 
     @Nullable
     private Entity getTopSuspect() {
-        return this.suspects.isEmpty() ? null : this.suspects.first();
+        return this.suspects.stream().filter(this.filter).findFirst().orElse(null);
     }
 
     public int getActiveAnger() {
@@ -154,8 +176,8 @@ public class AngerManagement {
             } else {
                 int var0 = this.angerManagement.angerBySuspect.getOrDefault(param0, 0);
                 int var1 = this.angerManagement.angerBySuspect.getOrDefault(param1, 0);
-                boolean var2 = var0 >= AngerLevel.ANGRY.getMinimumAnger();
-                boolean var3 = var1 >= AngerLevel.ANGRY.getMinimumAnger();
+                boolean var2 = AngerLevel.byAnger(var0).isAngry();
+                boolean var3 = AngerLevel.byAnger(var1).isAngry();
                 if (var2 != var3) {
                     return var2 ? -1 : 1;
                 } else {

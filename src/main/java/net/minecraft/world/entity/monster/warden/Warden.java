@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -82,6 +81,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     private static final int ANGERMANAGEMENT_TICK_DELAY = 20;
     private static final int DEFAULT_ANGER = 35;
     private static final int PROJECTILE_ANGER = 10;
+    private static final int ON_HURT_ANGER_BOOST = 20;
     private static final int RECENT_PROJECTILE_TICK_THRESHOLD = 100;
     private static final int TOUCH_COOLDOWN_TICKS = 20;
     private static final int DIGGING_PARTICLES_AMOUNT = 30;
@@ -98,7 +98,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public AnimationState attackAnimationState = new AnimationState();
     public AnimationState sonicBoomAnimationState = new AnimationState();
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
-    private AngerManagement angerManagement = new AngerManagement(Collections.emptyList());
+    private AngerManagement angerManagement = new AngerManagement(this::canTargetEntity, Collections.emptyList());
 
     public Warden(EntityType<? extends Monster> param0, Level param1) {
         super(param0, param1);
@@ -315,7 +315,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     private void clientDiggingParticles(AnimationState param0) {
-        if ((float)(Util.getMillis() - param0.startTime()) < 4500.0F) {
+        if ((float)param0.getAccumulatedTime() < 4500.0F) {
             RandomSource var0 = this.getRandom();
             BlockState var1 = this.level.getBlockState(this.blockPosition().below());
             if (var1.getRenderShape() != RenderShape.INVISIBLE) {
@@ -381,15 +381,21 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
         return GameEventTags.WARDEN_CAN_LISTEN;
     }
 
-    public boolean canTargetEntity(@Nullable Entity param0) {
-        if (param0 instanceof LivingEntity var0x
-            && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(param0)
-            && !this.isAlliedTo(param0)
-            && var0x.getType() != EntityType.ARMOR_STAND
-            && var0x.getType() != EntityType.WARDEN
-            && !var0x.isInvulnerable()
-            && !var0x.isDeadOrDying()
-            && this.level.getWorldBorder().isWithinBounds(var0x.getBoundingBox())) {
+    @Override
+    public boolean canTriggerAvoidVibration() {
+        return true;
+    }
+
+    public boolean canTargetEntity(@Nullable Entity param0x) {
+        if (param0x instanceof LivingEntity var0
+            && this.level == param0x.level
+            && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(param0x)
+            && !this.isAlliedTo(param0x)
+            && var0.getType() != EntityType.ARMOR_STAND
+            && var0.getType() != EntityType.WARDEN
+            && !var0.isInvulnerable()
+            && !var0.isDeadOrDying()
+            && this.level.getWorldBorder().isWithinBounds(var0.getBoundingBox())) {
             return true;
         }
 
@@ -404,7 +410,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        AngerManagement.CODEC
+        AngerManagement.codec(this::canTargetEntity)
             .encodeStart(NbtOps.INSTANCE, this.angerManagement)
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("anger", param1));
@@ -418,7 +424,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         if (param0.contains("anger")) {
-            AngerManagement.CODEC
+            AngerManagement.codec(this::canTargetEntity)
                 .parse(new Dynamic<>(NbtOps.INSTANCE, param0.get("anger")))
                 .resultOrPartial(LOGGER::error)
                 .ifPresent(param0x -> this.angerManagement = param0x);
@@ -457,9 +463,9 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public void increaseAngerAt(@Nullable Entity param0, int param1, boolean param2) {
         if (!this.isNoAi() && this.canTargetEntity(param0)) {
             WardenAi.setDigCooldown(this);
-            boolean var0 = this.getEntityAngryAt().filter(param0x -> !(param0x instanceof Player)).isPresent();
+            boolean var0 = !(this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null) instanceof Player);
             int var1 = this.angerManagement.increaseAnger(param0, param1);
-            if (param0 instanceof Player && var0 && AngerLevel.byAnger(var1) == AngerLevel.ANGRY) {
+            if (param0 instanceof Player && var0 && AngerLevel.byAnger(var1).isAngry()) {
                 this.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
             }
 
@@ -471,7 +477,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     public Optional<LivingEntity> getEntityAngryAt() {
-        return this.getAngerLevel() == AngerLevel.ANGRY ? this.angerManagement.getActiveEntity() : Optional.empty();
+        return this.getAngerLevel().isAngry() ? this.angerManagement.getActiveEntity() : Optional.empty();
     }
 
     @Nullable
@@ -550,9 +556,12 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     @Override
     public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, GameEvent.Context param4) {
         if (!this.isNoAi()
+            && !this.isDeadOrDying()
             && !this.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN)
             && !this.isDiggingOrEmerging()
-            && param0.getWorldBorder().isWithinBounds(param2)) {
+            && param0.getWorldBorder().isWithinBounds(param2)
+            && !this.isRemoved()
+            && this.level == param0) {
             Entity var7 = param4.sourceEntity();
             if (var7 instanceof LivingEntity var0 && !this.canTargetEntity(var0)) {
                 return false;
@@ -590,9 +599,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
             this.increaseAngerAt(param4);
         }
 
-        if (this.getAngerLevel() != AngerLevel.ANGRY
-            && (param5 != null || this.angerManagement.getActiveEntity().map(param1x -> param1x == param4).orElse(true))) {
-            WardenAi.setDisturbanceLocation(this, var0);
+        if (!this.getAngerLevel().isAngry()) {
+            Optional<LivingEntity> var1 = this.angerManagement.getActiveEntity();
+            if (param5 != null || var1.isEmpty() || var1.get() == param4) {
+                WardenAi.setDisturbanceLocation(this, var0);
+            }
         }
 
     }

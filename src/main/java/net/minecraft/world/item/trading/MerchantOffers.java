@@ -11,6 +11,10 @@ public class MerchantOffers extends ArrayList<MerchantOffer> {
     public MerchantOffers() {
     }
 
+    private MerchantOffers(int param0) {
+        super(param0);
+    }
+
     public MerchantOffers(CompoundTag param0) {
         ListTag var0 = param0.getList("Recipes", 10);
 
@@ -38,58 +42,40 @@ public class MerchantOffers extends ArrayList<MerchantOffer> {
     }
 
     public void writeToStream(FriendlyByteBuf param0) {
-        param0.writeByte((byte)(this.size() & 0xFF));
-
-        for(int var0 = 0; var0 < this.size(); ++var0) {
-            MerchantOffer var1 = this.get(var0);
-            param0.writeItem(var1.getBaseCostA());
-            param0.writeItem(var1.getResult());
-            ItemStack var2 = var1.getCostB();
-            param0.writeBoolean(!var2.isEmpty());
-            if (!var2.isEmpty()) {
-                param0.writeItem(var2);
-            }
-
-            param0.writeBoolean(var1.isOutOfStock());
-            param0.writeInt(var1.getUses());
-            param0.writeInt(var1.getMaxUses());
-            param0.writeInt(var1.getXp());
-            param0.writeInt(var1.getSpecialPriceDiff());
-            param0.writeFloat(var1.getPriceMultiplier());
-            param0.writeInt(var1.getDemand());
-        }
-
+        param0.writeCollection(this, (param0x, param1) -> {
+            param0x.writeItem(param1.getBaseCostA());
+            param0x.writeItem(param1.getResult());
+            param0x.writeItem(param1.getCostB());
+            param0x.writeBoolean(param1.isOutOfStock());
+            param0x.writeInt(param1.getUses());
+            param0x.writeInt(param1.getMaxUses());
+            param0x.writeInt(param1.getXp());
+            param0x.writeInt(param1.getSpecialPriceDiff());
+            param0x.writeFloat(param1.getPriceMultiplier());
+            param0x.writeInt(param1.getDemand());
+        });
     }
 
     public static MerchantOffers createFromStream(FriendlyByteBuf param0) {
-        MerchantOffers var0 = new MerchantOffers();
-        int var1 = param0.readByte() & 255;
-
-        for(int var2 = 0; var2 < var1; ++var2) {
-            ItemStack var3 = param0.readItem();
-            ItemStack var4 = param0.readItem();
-            ItemStack var5 = ItemStack.EMPTY;
-            if (param0.readBoolean()) {
-                var5 = param0.readItem();
+        return param0.readCollection(MerchantOffers::new, param0x -> {
+            ItemStack var0x = param0x.readItem();
+            ItemStack var1 = param0x.readItem();
+            ItemStack var2 = param0x.readItem();
+            boolean var3 = param0x.readBoolean();
+            int var4 = param0x.readInt();
+            int var5 = param0x.readInt();
+            int var6 = param0x.readInt();
+            int var7 = param0x.readInt();
+            float var8 = param0x.readFloat();
+            int var9 = param0x.readInt();
+            MerchantOffer var10 = new MerchantOffer(var0x, var2, var1, var4, var5, var6, var8, var9);
+            if (var3) {
+                var10.setToOutOfStock();
             }
 
-            boolean var6 = param0.readBoolean();
-            int var7 = param0.readInt();
-            int var8 = param0.readInt();
-            int var9 = param0.readInt();
-            int var10 = param0.readInt();
-            float var11 = param0.readFloat();
-            int var12 = param0.readInt();
-            MerchantOffer var13 = new MerchantOffer(var3, var5, var4, var7, var8, var9, var11, var12);
-            if (var6) {
-                var13.setToOutOfStock();
-            }
-
-            var13.setSpecialPriceDiff(var10);
-            var0.add(var13);
-        }
-
-        return var0;
+            var10.setSpecialPriceDiff(var7);
+            return var10;
+        });
     }
 
     public CompoundTag createTag() {

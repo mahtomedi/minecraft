@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.BannerBlock;
@@ -57,7 +58,7 @@ public class BannerRenderer implements BlockEntityRenderer<BannerBlockEntity> {
     }
 
     public void render(BannerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
-        List<Pair<BannerPattern, DyeColor>> var0 = param0.getPatterns();
+        List<Pair<Holder<BannerPattern>, DyeColor>> var0 = param0.getPatterns();
         float var1 = 0.6666667F;
         boolean var2 = param0.getLevel() == null;
         param2.pushPose();
@@ -105,7 +106,7 @@ public class BannerRenderer implements BlockEntityRenderer<BannerBlockEntity> {
         ModelPart param4,
         Material param5,
         boolean param6,
-        List<Pair<BannerPattern, DyeColor>> param7
+        List<Pair<Holder<BannerPattern>, DyeColor>> param7
     ) {
         renderPatterns(param0, param1, param2, param3, param4, param5, param6, param7, false);
     }
@@ -118,17 +119,20 @@ public class BannerRenderer implements BlockEntityRenderer<BannerBlockEntity> {
         ModelPart param4,
         Material param5,
         boolean param6,
-        List<Pair<BannerPattern, DyeColor>> param7,
+        List<Pair<Holder<BannerPattern>, DyeColor>> param7,
         boolean param8
     ) {
         param4.render(param0, param5.buffer(param1, RenderType::entitySolid, param8), param2, param3);
 
         for(int var0 = 0; var0 < 17 && var0 < param7.size(); ++var0) {
-            Pair<BannerPattern, DyeColor> var1 = param7.get(var0);
+            Pair<Holder<BannerPattern>, DyeColor> var1 = param7.get(var0);
             float[] var2 = var1.getSecond().getTextureDiffuseColors();
-            BannerPattern var3 = var1.getFirst();
-            Material var4 = param6 ? Sheets.getBannerMaterial(var3) : Sheets.getShieldMaterial(var3);
-            param4.render(param0, var4.buffer(param1, RenderType::entityNoOutline), param2, param3, var2[0], var2[1], var2[2], 1.0F);
+            var1.getFirst()
+                .unwrapKey()
+                .map(param1x -> param6 ? Sheets.getBannerMaterial(param1x) : Sheets.getShieldMaterial(param1x))
+                .ifPresent(
+                    param6x -> param4.render(param0, param6x.buffer(param1, RenderType::entityNoOutline), param2, param3, var2[0], var2[1], var2[2], 1.0F)
+                );
         }
 
     }

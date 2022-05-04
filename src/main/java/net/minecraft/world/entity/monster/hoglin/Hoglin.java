@@ -254,7 +254,7 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
     }
 
     @Override
-    protected boolean shouldDropExperience() {
+    public boolean shouldDropExperience() {
         return true;
     }
 

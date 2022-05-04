@@ -22,7 +22,7 @@ public class TippedArrowItem extends ArrowItem {
 
     @Override
     public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowdedIn(param0)) {
+        if (this.allowedIn(param0)) {
             for(Potion var0 : Registry.POTION) {
                 if (!var0.getEffects().isEmpty()) {
                     param1.add(PotionUtils.setPotion(new ItemStack(this), var0));

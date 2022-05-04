@@ -1,5 +1,6 @@
 package net.minecraft.server;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
@@ -192,7 +193,7 @@ public class Main {
                     DedicatedServer var0x = new DedicatedServer(
                         param14, var28, var31, var35, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
                     );
-                    var0x.setSingleplayerName(var16.valueOf(var9));
+                    var0x.setSingleplayerProfile(var16.has(var9) ? new GameProfile(null, var16.valueOf(var9)) : null);
                     var0x.setPort(var16.valueOf(var12));
                     var0x.setDemo(var16.has(var3));
                     var0x.setId(var16.valueOf(var13));

@@ -2,8 +2,6 @@ package net.minecraft.data.models;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
 import java.nio.file.Path;
@@ -29,7 +27,6 @@ import org.slf4j.Logger;
 
 public class ModelProvider implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final DataGenerator generator;
 
     public ModelProvider(DataGenerator param0) {
@@ -86,7 +83,7 @@ public class ModelProvider implements DataProvider {
             Path var0 = param3.apply(param1, param3x);
 
             try {
-                DataProvider.save(GSON, param0, param4.get(), var0);
+                DataProvider.saveStable(param0, param4.get(), var0);
             } catch (Exception var7) {
                 LOGGER.error("Couldn't save {}", var0, var7);
             }

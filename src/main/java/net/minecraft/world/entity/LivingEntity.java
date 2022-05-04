@@ -575,7 +575,7 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    protected boolean shouldDropExperience() {
+    public boolean shouldDropExperience() {
         return !this.isBaby();
     }
 

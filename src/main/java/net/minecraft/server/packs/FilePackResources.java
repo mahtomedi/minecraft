@@ -3,6 +3,7 @@ package net.minecraft.server.packs;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.logging.LogUtils;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +20,10 @@ import java.util.zip.ZipFile;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
 
 public class FilePackResources extends AbstractPackResources {
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final Splitter SPLITTER = Splitter.on('/').omitEmptyStrings().limit(3);
     @Nullable
     private ZipFile zipFile;
@@ -123,8 +126,10 @@ public class FilePackResources extends AbstractPackResources {
                 String var8 = var7.getName();
                 if (!var8.endsWith(".mcmeta") && var8.startsWith(var6)) {
                     String var9 = var8.substring(var5.length());
-                    ResourceLocation var10 = new ResourceLocation(param1, var9);
-                    if (param3.test(var10)) {
+                    ResourceLocation var10 = ResourceLocation.tryBuild(param1, var9);
+                    if (var10 == null) {
+                        LOGGER.warn("Invalid path in datapack: {}:{}, ignoring", param1, var9);
+                    } else if (param3.test(var10)) {
                         var4.add(var10);
                     }
                 }

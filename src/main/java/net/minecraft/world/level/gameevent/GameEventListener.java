@@ -1,12 +1,15 @@
 package net.minecraft.world.level.gameevent;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
 
 public interface GameEventListener {
+    default boolean handleEventsImmediately() {
+        return false;
+    }
+
     PositionSource getListenerSource();
 
     int getListenerRadius();
 
-    boolean handleGameEvent(ServerLevel var1, GameEvent var2, GameEvent.Context var3, Vec3 var4);
+    boolean handleGameEvent(ServerLevel var1, GameEvent.Message var2);
 }

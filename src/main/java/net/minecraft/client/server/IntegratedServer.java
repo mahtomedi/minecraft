@@ -57,7 +57,7 @@ public class IntegratedServer extends MinecraftServer {
         ChunkProgressListenerFactory param8
     ) {
         super(param0, param2, param3, param4, param1.getProxy(), param1.getFixerUpper(), param5, param6, param7, param8);
-        this.setSingleplayerName(param1.getUser().getName());
+        this.setSingleplayerProfile(param1.getUser().getGameProfile());
         this.setDemo(param1.isDemo());
         this.setPlayerList(new IntegratedPlayerList(this, this.registryAccess(), this.playerDataStorage));
         this.minecraft = param1;
@@ -71,7 +71,9 @@ public class IntegratedServer extends MinecraftServer {
         this.setFlightAllowed(true);
         this.initializeKeyPair();
         this.loadLevel();
-        this.setMotd(this.getSingleplayerName() + " - " + this.getWorldData().getLevelName());
+        GameProfile var0 = this.getSingleplayerProfile();
+        String var1 = this.getWorldData().getLevelName();
+        this.setMotd(var0 != null ? var0.getName() + " - " + var1 : var1);
         return true;
     }
 
@@ -251,7 +253,7 @@ public class IntegratedServer extends MinecraftServer {
 
     @Override
     public boolean isSingleplayerOwner(GameProfile param0) {
-        return param0.getName().equalsIgnoreCase(this.getSingleplayerName());
+        return this.getSingleplayerProfile() != null && param0.getName().equalsIgnoreCase(this.getSingleplayerProfile().getName());
     }
 
     @Override

@@ -106,12 +106,15 @@ public class FolderPackResources extends AbstractPackResources {
                     this.listResources(var1, param1, param2, param3 + var1.getName() + "/", param4);
                 } else if (!var1.getName().endsWith(".mcmeta")) {
                     try {
-                        ResourceLocation var2 = new ResourceLocation(param1, param3 + var1.getName());
-                        if (param4.test(var2)) {
-                            param2.add(var2);
+                        String var2 = param3 + var1.getName();
+                        ResourceLocation var3 = ResourceLocation.tryBuild(param1, var2);
+                        if (var3 == null) {
+                            LOGGER.warn("Invalid path in datapack: {}:{}, ignoring", param1, var2);
+                        } else if (param4.test(var3)) {
+                            param2.add(var3);
                         }
-                    } catch (ResourceLocationException var12) {
-                        LOGGER.error(var12.getMessage());
+                    } catch (ResourceLocationException var13) {
+                        LOGGER.error(var13.getMessage());
                     }
                 }
             }

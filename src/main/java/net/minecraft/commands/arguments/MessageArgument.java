@@ -2,7 +2,6 @@ package net.minecraft.commands.arguments;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Arrays;
@@ -14,8 +13,9 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.SignedMessage;
 
-public class MessageArgument implements ArgumentType<MessageArgument.Message> {
+public class MessageArgument implements SignedArgument<MessageArgument.Message> {
     private static final Collection<String> EXAMPLES = Arrays.asList("Hello world!", "foo", "@e", "Hello @p :)");
 
     public static MessageArgument message() {
@@ -23,7 +23,18 @@ public class MessageArgument implements ArgumentType<MessageArgument.Message> {
     }
 
     public static Component getMessage(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return param0.getArgument(param1, MessageArgument.Message.class).toComponent(param0.getSource(), param0.getSource().hasPermission(2));
+        MessageArgument.Message var0 = param0.getArgument(param1, MessageArgument.Message.class);
+        return resolveComponent(param0.getSource(), var0);
+    }
+
+    public static SignedMessage getSignedMessage(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        MessageArgument.Message var0 = param0.getArgument(param1, MessageArgument.Message.class);
+        Component var1 = Component.literal(var0.getText());
+        return param0.getSource().getSigningContext().signArgument(param0, param1, var1);
+    }
+
+    private static Component resolveComponent(CommandSourceStack param0, MessageArgument.Message param1) throws CommandSyntaxException {
+        return param1.toComponent(param0, param0.hasPermission(2));
     }
 
     public MessageArgument.Message parse(StringReader param0) throws CommandSyntaxException {
@@ -33,6 +44,10 @@ public class MessageArgument implements ArgumentType<MessageArgument.Message> {
     @Override
     public Collection<String> getExamples() {
         return EXAMPLES;
+    }
+
+    public Component getPlainSignableComponent(MessageArgument.Message param0) {
+        return Component.literal(param0.getText());
     }
 
     public static class Message {

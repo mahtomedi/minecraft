@@ -8,8 +8,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
@@ -18,6 +21,19 @@ import net.minecraft.util.GsonHelper;
 
 public class Style {
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null);
+    public static final Codec<Style> FORMATTING_CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    TextColor.CODEC.optionalFieldOf("color").forGetter(param0x -> Optional.ofNullable(param0x.color)),
+                    Codec.BOOL.optionalFieldOf("bold").forGetter(param0x -> Optional.ofNullable(param0x.bold)),
+                    Codec.BOOL.optionalFieldOf("italic").forGetter(param0x -> Optional.ofNullable(param0x.italic)),
+                    Codec.BOOL.optionalFieldOf("underlined").forGetter(param0x -> Optional.ofNullable(param0x.underlined)),
+                    Codec.BOOL.optionalFieldOf("strikethrough").forGetter(param0x -> Optional.ofNullable(param0x.strikethrough)),
+                    Codec.BOOL.optionalFieldOf("obfuscated").forGetter(param0x -> Optional.ofNullable(param0x.obfuscated)),
+                    Codec.STRING.optionalFieldOf("insertion").forGetter(param0x -> Optional.ofNullable(param0x.insertion)),
+                    ResourceLocation.CODEC.optionalFieldOf("font").forGetter(param0x -> Optional.ofNullable(param0x.font))
+                )
+                .apply(param0, Style::create)
+    );
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     @Nullable
     final TextColor color;
@@ -39,6 +55,30 @@ public class Style {
     final String insertion;
     @Nullable
     final ResourceLocation font;
+
+    private static Style create(
+        Optional<TextColor> param0,
+        Optional<Boolean> param1,
+        Optional<Boolean> param2,
+        Optional<Boolean> param3,
+        Optional<Boolean> param4,
+        Optional<Boolean> param5,
+        Optional<String> param6,
+        Optional<ResourceLocation> param7
+    ) {
+        return new Style(
+            param0.orElse(null),
+            param1.orElse(null),
+            param2.orElse(null),
+            param3.orElse(null),
+            param4.orElse(null),
+            param5.orElse(null),
+            null,
+            null,
+            param6.orElse(null),
+            param7.orElse(null)
+        );
+    }
 
     Style(
         @Nullable TextColor param0,

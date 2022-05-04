@@ -1,36 +1,30 @@
 package net.minecraft.network.protocol.game;
 
-import java.security.GeneralSecurityException;
-import java.security.Signature;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
+import net.minecraft.network.chat.SignedMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Crypt;
-import net.minecraft.util.CryptException;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 
-public record ClientboundPlayerChatPacket(Component content, ChatType type, ChatSender sender, Instant timeStamp, Crypt.SaltSignaturePair saltSignature)
+public record ClientboundPlayerChatPacket(Component content, int typeId, ChatSender sender, Instant timeStamp, Crypt.SaltSignaturePair saltSignature)
     implements Packet<ClientGamePacketListener> {
     private static final Duration MESSAGE_EXPIRES_AFTER = ServerboundChatPacket.MESSAGE_EXPIRES_AFTER.plus(Duration.ofMinutes(2L));
 
     public ClientboundPlayerChatPacket(FriendlyByteBuf param0) {
-        this(
-            param0.readComponent(),
-            ChatType.getForIndex(param0.readByte()),
-            new ChatSender(param0),
-            Instant.ofEpochSecond(param0.readLong()),
-            new Crypt.SaltSignaturePair(param0)
-        );
+        this(param0.readComponent(), param0.readVarInt(), new ChatSender(param0), Instant.ofEpochSecond(param0.readLong()), new Crypt.SaltSignaturePair(param0));
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeComponent(this.content);
-        param0.writeByte(this.type.getIndex());
+        param0.writeVarInt(this.typeId);
         this.sender.write(param0);
         param0.writeLong(this.timeStamp.getEpochSecond());
         this.saltSignature.write(param0);
@@ -45,14 +39,9 @@ public record ClientboundPlayerChatPacket(Component content, ChatType type, Chat
         return true;
     }
 
-    public boolean isSignatureValid(ProfilePublicKey.Trusted param0) {
-        try {
-            Signature var0 = param0.verifySignature();
-            Crypt.updateChatSignature(var0, this.saltSignature.salt(), this.sender.uuid(), this.timeStamp, this.content.getString());
-            return var0.verify(this.saltSignature.signature());
-        } catch (CryptException | GeneralSecurityException var3) {
-            return false;
-        }
+    public SignedMessage getSignedMessage() {
+        MessageSignature var0 = new MessageSignature(this.sender.uuid(), this.timeStamp, this.saltSignature);
+        return new SignedMessage(this.content, var0);
     }
 
     private Instant getExpiresAt() {
@@ -61,5 +50,9 @@ public record ClientboundPlayerChatPacket(Component content, ChatType type, Chat
 
     public boolean hasExpired(Instant param0) {
         return param0.isAfter(this.getExpiresAt());
+    }
+
+    public ChatType resolveType(Registry<ChatType> param0) {
+        return Objects.requireNonNull(param0.byId(this.typeId), "Invalid chat type");
     }
 }

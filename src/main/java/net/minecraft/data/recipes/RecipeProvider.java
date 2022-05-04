@@ -3,9 +3,6 @@ package net.minecraft.data.recipes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
@@ -46,7 +43,6 @@ import org.slf4j.Logger;
 
 public class RecipeProvider implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final ImmutableList<ItemLike> COAL_SMELTABLES = ImmutableList.of(Items.COAL_ORE, Items.DEEPSLATE_COAL_ORE);
     private static final ImmutableList<ItemLike> IRON_SMELTABLES = ImmutableList.of(Items.IRON_ORE, Items.DEEPSLATE_IRON_ORE, Items.RAW_IRON);
     private static final ImmutableList<ItemLike> COPPER_SMELTABLES = ImmutableList.of(Items.COPPER_ORE, Items.DEEPSLATE_COPPER_ORE, Items.RAW_COPPER);
@@ -115,8 +111,7 @@ public class RecipeProvider implements DataProvider {
 
     private static void saveRecipe(CachedOutput param0, JsonObject param1, Path param2) {
         try {
-            String var0 = GSON.toJson((JsonElement)param1);
-            param0.writeIfNeeded(param2, var0);
+            DataProvider.saveStable(param0, param1, param2);
         } catch (IOException var4) {
             LOGGER.error("Couldn't save recipe {}", param2, var4);
         }
@@ -125,8 +120,7 @@ public class RecipeProvider implements DataProvider {
 
     private static void saveAdvancement(CachedOutput param0, JsonObject param1, Path param2) {
         try {
-            String var0 = GSON.toJson((JsonElement)param1);
-            param0.writeIfNeeded(param2, var0);
+            DataProvider.saveStable(param0, param1, param2);
         } catch (IOException var4) {
             LOGGER.error("Couldn't save recipe advancement {}", param2, var4);
         }

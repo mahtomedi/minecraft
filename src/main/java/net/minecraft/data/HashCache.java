@@ -1,5 +1,6 @@
 package net.minecraft.data;
 
+import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
@@ -134,27 +135,12 @@ public class HashCache {
             this.newCache = new HashCache.ProviderCache(param0);
         }
 
-        private boolean shouldWrite(Path param0, String param1) {
+        private boolean shouldWrite(Path param0, HashCode param1) {
             return !Objects.equals(this.oldCache.get(param0), param1) || !Files.exists(param0);
         }
 
         @Override
-        public void writeIfNeeded(Path param0, String param1) throws IOException {
-            String var0 = Hashing.sha1().hashUnencodedChars(param1).toString();
-            if (this.shouldWrite(param0, var0)) {
-                ++this.writes;
-                Files.createDirectories(param0.getParent());
-
-                try (BufferedWriter var1 = Files.newBufferedWriter(param0, StandardCharsets.UTF_8)) {
-                    var1.write(param1);
-                }
-            }
-
-            this.newCache.put(param0, var0);
-        }
-
-        @Override
-        public void writeIfNeeded(Path param0, byte[] param1, String param2) throws IOException {
+        public void writeIfNeeded(Path param0, byte[] param1, HashCode param2) throws IOException {
             if (this.shouldWrite(param0, param2)) {
                 ++this.writes;
                 Files.createDirectories(param0.getParent());
@@ -168,17 +154,17 @@ public class HashCache {
         }
     }
 
-    static record ProviderCache(String version, Map<Path, String> data) {
+    static record ProviderCache(String version, Map<Path, HashCode> data) {
         ProviderCache(String param0) {
             this(param0, new HashMap<>());
         }
 
         @Nullable
-        public String get(Path param0) {
+        public HashCode get(Path param0) {
             return this.data.get(param0);
         }
 
-        public void put(Path param0, String param1) {
+        public void put(Path param0, HashCode param1) {
             this.data.put(param0, param1);
         }
 
@@ -196,10 +182,10 @@ public class HashCache {
 
                 String[] var2 = var1.substring("// ".length()).split("\t", 2);
                 String var3 = var2[0];
-                Map<Path, String> var4 = new HashMap<>();
+                Map<Path, HashCode> var4 = new HashMap<>();
                 var0.lines().forEach(param2 -> {
                     int var0x = param2.indexOf(32);
-                    var4.put(param0.resolve(param2.substring(var0x + 1)), param2.substring(0, var0x));
+                    var4.put(param0.resolve(param2.substring(var0x + 1)), HashCode.fromString(param2.substring(0, var0x)));
                 });
                 var7 = new HashCache.ProviderCache(var3, Map.copyOf(var4));
             }
@@ -215,8 +201,8 @@ public class HashCache {
                 var0.write(param2);
                 var0.newLine();
 
-                for(Entry<Path, String> var1 : this.data.entrySet()) {
-                    var0.write(var1.getValue());
+                for(Entry<Path, HashCode> var1 : this.data.entrySet()) {
+                    var0.write(var1.getValue().toString());
                     var0.write(32);
                     var0.write(param0.relativize(var1.getKey()).toString());
                     var0.newLine();

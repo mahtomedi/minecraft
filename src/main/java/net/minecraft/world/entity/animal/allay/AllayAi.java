@@ -13,6 +13,7 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.AnimalPanic;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
 import net.minecraft.world.entity.ai.behavior.DoNothing;
@@ -38,6 +39,7 @@ public class AllayAi {
     private static final float SPEED_MULTIPLIER_WHEN_IDLING = 1.0F;
     private static final float SPEED_MULTIPLIER_WHEN_FOLLOWING_DEPOSIT_TARGET = 2.25F;
     private static final float SPEED_MULTIPLIER_WHEN_RETRIEVING_ITEM = 1.75F;
+    private static final float SPEED_MULTIPLIER_WHEN_PANICKING = 2.5F;
     private static final int CLOSE_ENOUGH_TO_TARGET = 4;
     private static final int TOO_FAR_FROM_TARGET = 16;
     private static final int MAX_LOOK_DISTANCE = 6;
@@ -61,6 +63,7 @@ public class AllayAi {
             0,
             ImmutableList.of(
                 new Swim(0.8F),
+                new AnimalPanic(2.5F),
                 new LookAtTargetSink(45, 90),
                 new MoveToTargetSink(),
                 new CountDownCooldownTicks(MemoryModuleType.LIKED_NOTEBLOCK_COOLDOWN_TICKS),
@@ -138,7 +141,11 @@ public class AllayAi {
             Optional<UUID> var2 = param0.getBrain().getMemory(MemoryModuleType.LIKED_PLAYER);
             if (var2.isPresent()) {
                 Entity var3 = var1.getEntity(var2.get());
-                return var3 instanceof ServerPlayer var4 ? Optional.of(var4) : Optional.empty();
+                if (var3 instanceof ServerPlayer var4 && (var4.gameMode.isSurvival() || var4.gameMode.isCreative()) && var4.closerThan(param0, 64.0)) {
+                    return Optional.of(var4);
+                }
+
+                return Optional.empty();
             }
         }
 

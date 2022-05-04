@@ -10,6 +10,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.GameType;
 
 public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListener> {
@@ -21,12 +22,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
         this.entries = Lists.newArrayListWithCapacity(param1.length);
 
         for(ServerPlayer var0 : param1) {
-            this.entries
-                .add(
-                    new ClientboundPlayerInfoPacket.PlayerUpdate(
-                        var0.getGameProfile(), var0.latency, var0.gameMode.getGameModeForPlayer(), var0.getTabListDisplayName()
-                    )
-                );
+            this.entries.add(createPlayerUpdate(var0));
         }
 
     }
@@ -36,12 +32,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
         this.entries = Lists.newArrayListWithCapacity(param1.size());
 
         for(ServerPlayer var0 : param1) {
-            this.entries
-                .add(
-                    new ClientboundPlayerInfoPacket.PlayerUpdate(
-                        var0.getGameProfile(), var0.latency, var0.gameMode.getGameModeForPlayer(), var0.getTabListDisplayName()
-                    )
-                );
+            this.entries.add(createPlayerUpdate(var0));
         }
 
     }
@@ -49,6 +40,14 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
     public ClientboundPlayerInfoPacket(FriendlyByteBuf param0) {
         this.action = param0.readEnum(ClientboundPlayerInfoPacket.Action.class);
         this.entries = param0.readList(this.action::read);
+    }
+
+    private static ClientboundPlayerInfoPacket.PlayerUpdate createPlayerUpdate(ServerPlayer param0) {
+        ProfilePublicKey var0 = param0.getProfilePublicKey();
+        ProfilePublicKey.Data var1 = var0 != null ? var0.data() : null;
+        return new ClientboundPlayerInfoPacket.PlayerUpdate(
+            param0.getGameProfile(), param0.latency, param0.gameMode.getGameModeForPlayer(), param0.getTabListDisplayName(), var1
+        );
     }
 
     @Override
@@ -69,21 +68,6 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
         return this.action;
     }
 
-    @Nullable
-    static Component readDisplayName(FriendlyByteBuf param0) {
-        return param0.readBoolean() ? param0.readComponent() : null;
-    }
-
-    static void writeDisplayName(FriendlyByteBuf param0, @Nullable Component param1) {
-        if (param1 == null) {
-            param0.writeBoolean(false);
-        } else {
-            param0.writeBoolean(true);
-            param0.writeComponent(param1);
-        }
-
-    }
-
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("action", this.action).add("entries", this.entries).toString();
@@ -96,8 +80,9 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
                 GameProfile var0 = param0.readGameProfile();
                 GameType var1 = GameType.byId(param0.readVarInt());
                 int var2 = param0.readVarInt();
-                Component var3 = ClientboundPlayerInfoPacket.readDisplayName(param0);
-                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var2, var1, var3);
+                Component var3 = param0.readNullable(FriendlyByteBuf::readComponent);
+                ProfilePublicKey.Data var4 = param0.readNullable(param0x -> param0x.readWithCodec(ProfilePublicKey.Data.CODEC));
+                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var2, var1, var3, var4);
             }
 
             @Override
@@ -105,7 +90,8 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
                 param0.writeGameProfile(param1.getProfile());
                 param0.writeVarInt(param1.getGameMode().getId());
                 param0.writeVarInt(param1.getLatency());
-                ClientboundPlayerInfoPacket.writeDisplayName(param0, param1.getDisplayName());
+                param0.writeNullable(param1.getDisplayName(), FriendlyByteBuf::writeComponent);
+                param0.writeNullable(param1.getProfilePublicKey(), (param0x, param1x) -> param0x.writeWithCodec(ProfilePublicKey.Data.CODEC, param1x));
             }
         },
         UPDATE_GAME_MODE {
@@ -113,7 +99,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
             protected ClientboundPlayerInfoPacket.PlayerUpdate read(FriendlyByteBuf param0) {
                 GameProfile var0 = new GameProfile(param0.readUUID(), null);
                 GameType var1 = GameType.byId(param0.readVarInt());
-                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, 0, var1, null);
+                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, 0, var1, null, null);
             }
 
             @Override
@@ -127,7 +113,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
             protected ClientboundPlayerInfoPacket.PlayerUpdate read(FriendlyByteBuf param0) {
                 GameProfile var0 = new GameProfile(param0.readUUID(), null);
                 int var1 = param0.readVarInt();
-                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var1, null, null);
+                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var1, null, null, null);
             }
 
             @Override
@@ -140,21 +126,21 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
             @Override
             protected ClientboundPlayerInfoPacket.PlayerUpdate read(FriendlyByteBuf param0) {
                 GameProfile var0 = new GameProfile(param0.readUUID(), null);
-                Component var1 = ClientboundPlayerInfoPacket.readDisplayName(param0);
-                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, 0, null, var1);
+                Component var1 = param0.readNullable(FriendlyByteBuf::readComponent);
+                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, 0, null, var1, null);
             }
 
             @Override
             protected void write(FriendlyByteBuf param0, ClientboundPlayerInfoPacket.PlayerUpdate param1) {
                 param0.writeUUID(param1.getProfile().getId());
-                ClientboundPlayerInfoPacket.writeDisplayName(param0, param1.getDisplayName());
+                param0.writeNullable(param1.getDisplayName(), FriendlyByteBuf::writeComponent);
             }
         },
         REMOVE_PLAYER {
             @Override
             protected ClientboundPlayerInfoPacket.PlayerUpdate read(FriendlyByteBuf param0) {
                 GameProfile var0 = new GameProfile(param0.readUUID(), null);
-                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, 0, null, null);
+                return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, 0, null, null, null);
             }
 
             @Override
@@ -174,12 +160,15 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
         private final GameProfile profile;
         @Nullable
         private final Component displayName;
+        @Nullable
+        private final ProfilePublicKey.Data profilePublicKey;
 
-        public PlayerUpdate(GameProfile param0, int param1, @Nullable GameType param2, @Nullable Component param3) {
+        public PlayerUpdate(GameProfile param0, int param1, @Nullable GameType param2, @Nullable Component param3, @Nullable ProfilePublicKey.Data param4) {
             this.profile = param0;
             this.latency = param1;
             this.gameMode = param2;
             this.displayName = param3;
+            this.profilePublicKey = param4;
         }
 
         public GameProfile getProfile() {
@@ -199,6 +188,11 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
             return this.displayName;
         }
 
+        @Nullable
+        public ProfilePublicKey.Data getProfilePublicKey() {
+            return this.profilePublicKey;
+        }
+
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
@@ -206,6 +200,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
                 .add("gameMode", this.gameMode)
                 .add("profile", this.profile)
                 .add("displayName", this.displayName == null ? null : Component.Serializer.toJson(this.displayName))
+                .add("profilePublicKey", this.profilePublicKey)
                 .toString();
         }
     }

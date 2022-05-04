@@ -26,6 +26,8 @@ public final class OverworldBiomeBuilder {
     public static final float FAR_INLAND_START = 0.3F;
     public static final float EROSION_INDEX_1_START = -0.78F;
     public static final float EROSION_INDEX_2_START = -0.375F;
+    private static final float EROSION_DEEP_DARK_DRYNESS_THRESHOLD = -0.225F;
+    private static final float DEPTH_DEEP_DARK_DRYNESS_THRESHOLD = 0.9F;
     private final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0F, 1.0F);
     private final Climate.Parameter[] temperatures = new Climate.Parameter[]{
         Climate.Parameter.span(-1.0F, -0.45F),
@@ -884,6 +886,10 @@ public final class OverworldBiomeBuilder {
         ResourceKey<Biome> param7
     ) {
         param0.accept(Pair.of(Climate.parameters(param1, param2, param3, param4, Climate.Parameter.point(1.1F), param5, param6), param7));
+    }
+
+    public static boolean isDeepDarkRegion(double param0, double param1) {
+        return param0 < -0.225F && param1 > 0.9F;
     }
 
     public static String getDebugStringForPeaksAndValleys(double param0) {

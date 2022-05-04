@@ -135,37 +135,44 @@ public class DebugPackets {
             param1.writeUtf("");
         }
 
-        if (var0.hasMemoryValue(MemoryModuleType.PATH)) {
-            param1.writeBoolean(true);
-            Path var3 = var0.getMemory(MemoryModuleType.PATH).get();
-            var3.writeToStream(param1);
-        } else {
-            param1.writeBoolean(false);
-        }
-
-        if (param0 instanceof Villager var4) {
-            boolean var5 = var4.wantsToSpawnGolem(var1);
-            param1.writeBoolean(var5);
+        param1.writeOptional(
+            var0.hasMemoryValue(MemoryModuleType.PATH) ? var0.getMemory(MemoryModuleType.PATH) : Optional.empty(),
+            (param0x, param1x) -> param1x.writeToStream(param0x)
+        );
+        if (param0 instanceof Villager var3) {
+            boolean var4 = var3.wantsToSpawnGolem(var1);
+            param1.writeBoolean(var4);
         } else {
             param1.writeBoolean(false);
         }
 
         if (param0.getType() == EntityType.WARDEN) {
-            Warden var6 = (Warden)param0;
-            param1.writeInt(var6.getClientAngerLevel());
+            Warden var5 = (Warden)param0;
+            param1.writeInt(var5.getClientAngerLevel());
         } else {
             param1.writeInt(-1);
         }
 
         param1.writeCollection(var0.getActiveActivities(), (param0x, param1x) -> param0x.writeUtf(param1x.getName()));
-        Set<String> var7 = var0.getRunningBehaviors().stream().map(Behavior::toString).collect(Collectors.toSet());
-        param1.writeCollection(var7, FriendlyByteBuf::writeUtf);
+        Set<String> var6 = var0.getRunningBehaviors().stream().map(Behavior::toString).collect(Collectors.toSet());
+        param1.writeCollection(var6, FriendlyByteBuf::writeUtf);
         param1.writeCollection(getMemoryDescriptions(param0, var1), (param0x, param1x) -> {
             String var0x = StringUtil.truncateStringIfNecessary(param1x, 255, true);
             param0x.writeUtf(var0x);
         });
         if (param0 instanceof Villager) {
-            Set<BlockPos> var8 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
+            Set<BlockPos> var7 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
+                .map(var0::getMemory)
+                .flatMap(Optional::stream)
+                .map(GlobalPos::pos)
+                .collect(Collectors.toSet());
+            param1.writeCollection(var7, FriendlyByteBuf::writeBlockPos);
+        } else {
+            param1.writeVarInt(0);
+        }
+
+        if (param0 instanceof Villager) {
+            Set<BlockPos> var8 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
                 .map(var0::getMemory)
                 .flatMap(Optional::stream)
                 .map(GlobalPos::pos)
@@ -176,24 +183,13 @@ public class DebugPackets {
         }
 
         if (param0 instanceof Villager) {
-            Set<BlockPos> var9 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
-                .map(var0::getMemory)
-                .flatMap(Optional::stream)
-                .map(GlobalPos::pos)
-                .collect(Collectors.toSet());
-            param1.writeCollection(var9, FriendlyByteBuf::writeBlockPos);
-        } else {
-            param1.writeVarInt(0);
-        }
-
-        if (param0 instanceof Villager) {
-            Map<UUID, Object2IntMap<GossipType>> var10 = ((Villager)param0).getGossips().getGossipEntries();
-            List<String> var11 = Lists.newArrayList();
-            var10.forEach((param1x, param2) -> {
+            Map<UUID, Object2IntMap<GossipType>> var9 = ((Villager)param0).getGossips().getGossipEntries();
+            List<String> var10 = Lists.newArrayList();
+            var9.forEach((param1x, param2) -> {
                 String var0x = DebugEntityNameGenerator.getEntityName(param1x);
-                param2.forEach((param2x, param3) -> var11.add(var0x + ": " + param2x + ": " + param3));
+                param2.forEach((param2x, param3) -> var10.add(var0x + ": " + param2x + ": " + param3));
             });
-            param1.writeCollection(var11, FriendlyByteBuf::writeUtf);
+            param1.writeCollection(var10, FriendlyByteBuf::writeUtf);
         } else {
             param1.writeVarInt(0);
         }

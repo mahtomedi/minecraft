@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -88,12 +89,12 @@ public class SnowLayerBlock extends Block {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
-        if (var0.is(Blocks.ICE) || var0.is(Blocks.PACKED_ICE) || var0.is(Blocks.BARRIER)) {
+        if (var0.is(BlockTags.SNOW_LAYER_CANNOT_SURVIVE_ON)) {
             return false;
-        } else if (!var0.is(Blocks.HONEY_BLOCK) && !var0.is(Blocks.SOUL_SAND)) {
-            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var0.is(this) && var0.getValue(LAYERS) == 8;
-        } else {
+        } else if (var0.is(BlockTags.SNOW_LAYER_CAN_SURVIVE_ON)) {
             return true;
+        } else {
+            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var0.is(this) && var0.getValue(LAYERS) == 8;
         }
     }
 

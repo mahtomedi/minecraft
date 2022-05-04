@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -32,19 +33,14 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
         this.mapId = param0.readVarInt();
         this.scale = param0.readByte();
         this.locked = param0.readBoolean();
-        if (param0.readBoolean()) {
-            this.decorations = param0.readList(
-                param0x -> {
-                    MapDecoration.Type var0x = param0x.readEnum(MapDecoration.Type.class);
-                    return new MapDecoration(
-                        var0x, param0x.readByte(), param0x.readByte(), (byte)(param0x.readByte() & 15), param0x.readBoolean() ? param0x.readComponent() : null
-                    );
-                }
-            );
-        } else {
-            this.decorations = null;
-        }
-
+        this.decorations = param0.readNullable(param0x -> param0x.readList(param0xx -> {
+                MapDecoration.Type var0x = param0xx.readEnum(MapDecoration.Type.class);
+                byte var1x = param0xx.readByte();
+                byte var2x = param0xx.readByte();
+                byte var3x = (byte)(param0xx.readByte() & 15);
+                Component var4x = param0xx.readNullable(FriendlyByteBuf::readComponent);
+                return new MapDecoration(var0x, var1x, var2x, var3x, var4x);
+            }));
         int var0 = param0.readUnsignedByte();
         if (var0 > 0) {
             int var1 = param0.readUnsignedByte();
@@ -63,25 +59,13 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
         param0.writeVarInt(this.mapId);
         param0.writeByte(this.scale);
         param0.writeBoolean(this.locked);
-        if (this.decorations != null) {
-            param0.writeBoolean(true);
-            param0.writeCollection(this.decorations, (param0x, param1) -> {
-                param0x.writeEnum(param1.getType());
-                param0x.writeByte(param1.getX());
-                param0x.writeByte(param1.getY());
-                param0x.writeByte(param1.getRot() & 15);
-                if (param1.getName() != null) {
-                    param0x.writeBoolean(true);
-                    param0x.writeComponent(param1.getName());
-                } else {
-                    param0x.writeBoolean(false);
-                }
-
-            });
-        } else {
-            param0.writeBoolean(false);
-        }
-
+        param0.writeNullable(this.decorations, (param0x, param1) -> param0x.writeCollection(param1, (param0xx, param1x) -> {
+                param0xx.writeEnum(param1x.getType());
+                param0xx.writeByte(param1x.getX());
+                param0xx.writeByte(param1x.getY());
+                param0xx.writeByte(param1x.getRot() & 15);
+                param0xx.writeNullable(param1x.getName(), FriendlyByteBuf::writeComponent);
+            }));
         if (this.colorPatch != null) {
             param0.writeByte(this.colorPatch.width);
             param0.writeByte(this.colorPatch.height);

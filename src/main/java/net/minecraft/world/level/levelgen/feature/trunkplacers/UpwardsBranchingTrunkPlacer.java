@@ -89,7 +89,7 @@ public class UpwardsBranchingTrunkPlacer extends TrunkPlacer {
         int param9,
         int param10
     ) {
-        int var0 = 0;
+        int var0 = param7 + param9;
         int var1 = param6.getX();
         int var2 = param6.getZ();
 
@@ -98,6 +98,7 @@ public class UpwardsBranchingTrunkPlacer extends TrunkPlacer {
                 int var4 = param7 + var3;
                 var1 += param8.getStepX();
                 var2 += param8.getStepZ();
+                var0 = var4;
                 if (this.placeLog(param0, param1, param2, param6.set(var1, var4, var2), param4)) {
                     var0 = var4 + 1;
                 }

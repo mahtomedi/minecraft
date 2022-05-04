@@ -132,27 +132,27 @@ public class FriendlyByteBuf extends ByteBuf {
         };
     }
 
-    public <T, C extends Collection<T>> C readCollection(IntFunction<C> param0, Function<FriendlyByteBuf, T> param1) {
+    public <T, C extends Collection<T>> C readCollection(IntFunction<C> param0, FriendlyByteBuf.Reader<T> param1) {
         int var0 = this.readVarInt();
         C var1 = param0.apply(var0);
 
         for(int var2 = 0; var2 < var0; ++var2) {
-            var1.add(param1.apply(this));
+            var1.add(param1.apply((T)this));
         }
 
         return var1;
     }
 
-    public <T> void writeCollection(Collection<T> param0, BiConsumer<FriendlyByteBuf, T> param1) {
+    public <T> void writeCollection(Collection<T> param0, FriendlyByteBuf.Writer<T> param1) {
         this.writeVarInt(param0.size());
 
         for(T var0 : param0) {
-            param1.accept(this, var0);
+            param1.accept((T)this, var0);
         }
 
     }
 
-    public <T> List<T> readList(Function<FriendlyByteBuf, T> param0) {
+    public <T> List<T> readList(FriendlyByteBuf.Reader<T> param0) {
         return this.readCollection(Lists::newArrayListWithCapacity, param0);
     }
 
@@ -172,28 +172,28 @@ public class FriendlyByteBuf extends ByteBuf {
         param0.forEach(this::writeVarInt);
     }
 
-    public <K, V, M extends Map<K, V>> M readMap(IntFunction<M> param0, Function<FriendlyByteBuf, K> param1, Function<FriendlyByteBuf, V> param2) {
+    public <K, V, M extends Map<K, V>> M readMap(IntFunction<M> param0, FriendlyByteBuf.Reader<K> param1, FriendlyByteBuf.Reader<V> param2) {
         int var0 = this.readVarInt();
         M var1 = param0.apply(var0);
 
         for(int var2 = 0; var2 < var0; ++var2) {
-            K var3 = param1.apply(this);
-            V var4 = param2.apply(this);
+            K var3 = param1.apply((K)this);
+            V var4 = param2.apply((V)this);
             var1.put(var3, var4);
         }
 
         return var1;
     }
 
-    public <K, V> Map<K, V> readMap(Function<FriendlyByteBuf, K> param0, Function<FriendlyByteBuf, V> param1) {
+    public <K, V> Map<K, V> readMap(FriendlyByteBuf.Reader<K> param0, FriendlyByteBuf.Reader<V> param1) {
         return this.readMap(Maps::newHashMapWithExpectedSize, param0, param1);
     }
 
-    public <K, V> void writeMap(Map<K, V> param0, BiConsumer<FriendlyByteBuf, K> param1, BiConsumer<FriendlyByteBuf, V> param2) {
+    public <K, V> void writeMap(Map<K, V> param0, FriendlyByteBuf.Writer<K> param1, FriendlyByteBuf.Writer<V> param2) {
         this.writeVarInt(param0.size());
         param0.forEach((param2x, param3) -> {
-            param1.accept(this, param2x);
-            param2.accept(this, param3);
+            param1.accept((K)this, param2x);
+            param2.accept((V)this, param3);
         });
     }
 
@@ -206,32 +206,47 @@ public class FriendlyByteBuf extends ByteBuf {
 
     }
 
-    public <T> void writeOptional(Optional<T> param0, BiConsumer<FriendlyByteBuf, T> param1) {
+    public <T> void writeOptional(Optional<T> param0, FriendlyByteBuf.Writer<T> param1) {
         if (param0.isPresent()) {
             this.writeBoolean(true);
-            param1.accept(this, param0.get());
+            param1.accept((T)this, param0.get());
         } else {
             this.writeBoolean(false);
         }
 
     }
 
-    public <T> Optional<T> readOptional(Function<FriendlyByteBuf, T> param0) {
-        return this.readBoolean() ? Optional.of(param0.apply(this)) : Optional.empty();
+    public <T> Optional<T> readOptional(FriendlyByteBuf.Reader<T> param0) {
+        return this.readBoolean() ? Optional.of(param0.apply((T)this)) : Optional.empty();
     }
 
-    public <L, R> void writeEither(Either<L, R> param0, BiConsumer<FriendlyByteBuf, L> param1, BiConsumer<FriendlyByteBuf, R> param2) {
+    @Nullable
+    public <T> T readNullable(FriendlyByteBuf.Reader<T> param0) {
+        return this.readBoolean() ? param0.apply((T)this) : null;
+    }
+
+    public <T> void writeNullable(@Nullable T param0, FriendlyByteBuf.Writer<T> param1) {
+        if (param0 != null) {
+            this.writeBoolean(true);
+            param1.accept((T)this, param0);
+        } else {
+            this.writeBoolean(false);
+        }
+
+    }
+
+    public <L, R> void writeEither(Either<L, R> param0, FriendlyByteBuf.Writer<L> param1, FriendlyByteBuf.Writer<R> param2) {
         param0.ifLeft(param1x -> {
             this.writeBoolean(true);
-            param1.accept(this, param1x);
+            param1.accept((L)this, param1x);
         }).ifRight(param1x -> {
             this.writeBoolean(false);
-            param2.accept(this, param1x);
+            param2.accept((R)this, param1x);
         });
     }
 
-    public <L, R> Either<L, R> readEither(Function<FriendlyByteBuf, L> param0, Function<FriendlyByteBuf, R> param1) {
-        return this.readBoolean() ? Either.left(param0.apply(this)) : Either.right(param1.apply(this));
+    public <L, R> Either<L, R> readEither(FriendlyByteBuf.Reader<L> param0, FriendlyByteBuf.Reader<R> param1) {
+        return this.readBoolean() ? Either.left(param0.apply((L)this)) : Either.right(param1.apply((R)this));
     }
 
     public byte[] readByteArray() {
@@ -1548,5 +1563,19 @@ public class FriendlyByteBuf extends ByteBuf {
     @Override
     public boolean release(int param0) {
         return this.source.release(param0);
+    }
+
+    @FunctionalInterface
+    public interface Reader<T> extends Function<FriendlyByteBuf, T> {
+        default FriendlyByteBuf.Reader<Optional<T>> asOptional() {
+            return param0 -> param0.readOptional(this);
+        }
+    }
+
+    @FunctionalInterface
+    public interface Writer<T> extends BiConsumer<FriendlyByteBuf, T> {
+        default FriendlyByteBuf.Writer<Optional<T>> asOptional() {
+            return (param0, param1) -> param0.writeOptional(param1, this);
+        }
     }
 }

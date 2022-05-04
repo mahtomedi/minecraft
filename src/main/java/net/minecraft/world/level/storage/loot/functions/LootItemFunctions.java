@@ -34,7 +34,7 @@ public class LootItemFunctions {
     public static final LootItemFunctionType COPY_STATE = register("copy_state", new CopyBlockState.Serializer());
     public static final LootItemFunctionType SET_BANNER_PATTERN = register("set_banner_pattern", new SetBannerPatternFunction.Serializer());
     public static final LootItemFunctionType SET_POTION = register("set_potion", new SetPotionFunction.Serializer());
-    public static final LootItemFunctionType SET_GOAT_HORN_SOUND = register("set_goat_horn_sound", new SetGoatHornSoundFunction.Serializer());
+    public static final LootItemFunctionType SET_INSTRUMENT = register("set_instrument", new SetInstrumentFunction.Serializer());
 
     private static LootItemFunctionType register(String param0, Serializer<? extends LootItemFunction> param1) {
         return Registry.register(Registry.LOOT_FUNCTION_TYPE, new ResourceLocation(param0), new LootItemFunctionType(param1));

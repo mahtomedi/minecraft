@@ -11,11 +11,18 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -477,7 +484,71 @@ public class GsonHelper {
         return parse(param0, false);
     }
 
+    public static JsonArray parseArray(String param0) {
+        return parseArray(new StringReader(param0));
+    }
+
     public static JsonArray parseArray(Reader param0) {
         return fromJson(GSON, param0, JsonArray.class, false);
+    }
+
+    public static String toStableString(JsonElement param0) {
+        StringWriter var0 = new StringWriter();
+        JsonWriter var1 = new JsonWriter(var0);
+
+        try {
+            writeValue(var1, param0, Comparator.naturalOrder());
+        } catch (IOException var4) {
+            throw new AssertionError(var4);
+        }
+
+        return var0.toString();
+    }
+
+    public static void writeValue(JsonWriter param0, @Nullable JsonElement param1, @Nullable Comparator<String> param2) throws IOException {
+        if (param1 == null || param1.isJsonNull()) {
+            param0.nullValue();
+        } else if (param1.isJsonPrimitive()) {
+            JsonPrimitive var0 = param1.getAsJsonPrimitive();
+            if (var0.isNumber()) {
+                param0.value(var0.getAsNumber());
+            } else if (var0.isBoolean()) {
+                param0.value(var0.getAsBoolean());
+            } else {
+                param0.value(var0.getAsString());
+            }
+        } else if (param1.isJsonArray()) {
+            param0.beginArray();
+
+            for(JsonElement var1 : param1.getAsJsonArray()) {
+                writeValue(param0, var1, param2);
+            }
+
+            param0.endArray();
+        } else {
+            if (!param1.isJsonObject()) {
+                throw new IllegalArgumentException("Couldn't write " + param1.getClass());
+            }
+
+            param0.beginObject();
+
+            for(Entry<String, JsonElement> var2 : sortByKeyIfNeeded(param1.getAsJsonObject().entrySet(), param2)) {
+                param0.name(var2.getKey());
+                writeValue(param0, var2.getValue(), param2);
+            }
+
+            param0.endObject();
+        }
+
+    }
+
+    private static Collection<Entry<String, JsonElement>> sortByKeyIfNeeded(Collection<Entry<String, JsonElement>> param0, @Nullable Comparator<String> param1) {
+        if (param1 == null) {
+            return param0;
+        } else {
+            List<Entry<String, JsonElement>> var0 = new ArrayList<>(param0);
+            var0.sort(Entry.comparingByKey(param1));
+            return var0;
+        }
     }
 }

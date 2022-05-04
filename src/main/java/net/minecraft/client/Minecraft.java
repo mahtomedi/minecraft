@@ -49,7 +49,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -94,7 +93,6 @@ import net.minecraft.client.gui.screens.WinScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.client.gui.screens.social.PlayerSocialManager;
 import net.minecraft.client.gui.screens.social.SocialInteractionsScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldOpenFlows;
@@ -140,10 +138,10 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.searchtree.MutableSearchTree;
-import net.minecraft.client.searchtree.ReloadableIdSearchTree;
-import net.minecraft.client.searchtree.ReloadableSearchTree;
+import net.minecraft.client.searchtree.FullTextSearchTree;
+import net.minecraft.client.searchtree.IdSearchTree;
 import net.minecraft.client.searchtree.SearchRegistry;
+import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.client.sounds.MusicManager;
 import net.minecraft.client.sounds.SoundManager;
@@ -701,35 +699,32 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     private void createSearchTrees() {
-        ReloadableSearchTree<ItemStack> var0 = new ReloadableSearchTree<>(
-            param0 -> param0.getTooltipLines(null, TooltipFlag.Default.NORMAL)
-                    .stream()
-                    .map(param0x -> ChatFormatting.stripFormatting(param0x.getString()).trim())
-                    .filter(param0x -> !param0x.isEmpty()),
-            param0 -> Stream.of(Registry.ITEM.getKey(param0.getItem()))
-        );
-        ReloadableIdSearchTree<ItemStack> var1 = new ReloadableIdSearchTree<>(param0 -> param0.getTags().map(TagKey::location));
-        NonNullList<ItemStack> var2 = NonNullList.create();
-
-        for(Item var3 : Registry.ITEM) {
-            var3.fillItemCategory(CreativeModeTab.TAB_SEARCH, var2);
-        }
-
-        var2.forEach(param2 -> {
-            var0.add(param2);
-            var1.add(param2);
-        });
-        ReloadableSearchTree<RecipeCollection> var4 = new ReloadableSearchTree<>(
-            param0 -> param0.getRecipes()
-                    .stream()
-                    .flatMap(param0x -> param0x.getResultItem().getTooltipLines(null, TooltipFlag.Default.NORMAL).stream())
-                    .map(param0x -> ChatFormatting.stripFormatting(param0x.getString()).trim())
-                    .filter(param0x -> !param0x.isEmpty()),
-            param0 -> param0.getRecipes().stream().map(param0x -> Registry.ITEM.getKey(param0x.getResultItem().getItem()))
-        );
-        this.searchRegistry.register(SearchRegistry.CREATIVE_NAMES, var0);
-        this.searchRegistry.register(SearchRegistry.CREATIVE_TAGS, var1);
-        this.searchRegistry.register(SearchRegistry.RECIPE_COLLECTIONS, var4);
+        this.searchRegistry
+            .register(
+                SearchRegistry.CREATIVE_NAMES,
+                param0 -> new FullTextSearchTree<>(
+                        param0x -> param0x.getTooltipLines(null, TooltipFlag.Default.NORMAL)
+                                .stream()
+                                .map(param0xx -> ChatFormatting.stripFormatting(param0xx.getString()).trim())
+                                .filter(param0xx -> !param0xx.isEmpty()),
+                        param0x -> Stream.of(Registry.ITEM.getKey(param0x.getItem())),
+                        param0
+                    )
+            );
+        this.searchRegistry.register(SearchRegistry.CREATIVE_TAGS, param0 -> new IdSearchTree<>(param0x -> param0x.getTags().map(TagKey::location), param0));
+        this.searchRegistry
+            .register(
+                SearchRegistry.RECIPE_COLLECTIONS,
+                param0 -> new FullTextSearchTree<>(
+                        param0x -> param0x.getRecipes()
+                                .stream()
+                                .flatMap(param0xx -> param0xx.getResultItem().getTooltipLines(null, TooltipFlag.Default.NORMAL).stream())
+                                .map(param0xx -> ChatFormatting.stripFormatting(param0xx.getString()).trim())
+                                .filter(param0xx -> !param0xx.isEmpty()),
+                        param0x -> param0x.getRecipes().stream().map(param0xx -> Registry.ITEM.getKey(param0xx.getResultItem().getItem())),
+                        param0
+                    )
+            );
     }
 
     private void onFullscreenError(int param0x, long param1) {
@@ -1946,7 +1941,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         var9.setListener(new ClientHandshakePacketListenerImpl(var9, this, null, param0x -> {
         }));
         var9.send(new ClientIntentionPacket(var8.toString(), 0, ConnectionProtocol.LOGIN));
-        var9.send(new ServerboundHelloPacket(this.getUser().getName(), Optional.ofNullable(this.profileKeyPairManager.profilePublicKey())));
+        var9.send(new ServerboundHelloPacket(this.getUser().getName(), this.profileKeyPairManager.profilePublicKeyData()));
         this.pendingConnection = var9;
     }
 
@@ -2404,8 +2399,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.itemRenderer;
     }
 
-    public <T> MutableSearchTree<T> getSearchTree(SearchRegistry.Key<T> param0) {
+    public <T> SearchTree<T> getSearchTree(SearchRegistry.Key<T> param0) {
         return this.searchRegistry.getTree(param0);
+    }
+
+    public <T> void populateSearchTree(SearchRegistry.Key<T> param0, List<T> param1) {
+        this.searchRegistry.populate(param0, param1);
     }
 
     public FrameTimer getFrameTimer() {

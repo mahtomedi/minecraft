@@ -189,7 +189,7 @@ public class BlockItem extends Item {
 
     @Override
     public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowdedIn(param0)) {
+        if (this.allowedIn(param0)) {
             this.getBlock().fillItemCategory(param0, param1);
         }
 

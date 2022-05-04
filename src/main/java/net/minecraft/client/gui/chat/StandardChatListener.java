@@ -18,16 +18,14 @@ public class StandardChatListener implements ChatListener {
 
     @Override
     public void handle(ChatType param0, Component param1, @Nullable ChatSender param2) {
-        if (param0 != ChatType.CHAT) {
-            this.minecraft.gui.getChat().addMessage(param1);
-        } else {
-            Component var0 = param2 != null ? decorateMessage(param1, param2) : param1;
-            this.minecraft.gui.getChat().enqueueMessage(var0);
-        }
+        param0.chat().ifPresent(param2x -> {
+            Component var0 = param2x.decorate(param1, param2);
+            if (param2 == null) {
+                this.minecraft.gui.getChat().addMessage(var0);
+            } else {
+                this.minecraft.gui.getChat().enqueueMessage(var0);
+            }
 
-    }
-
-    private static Component decorateMessage(Component param0, ChatSender param1) {
-        return Component.translatable("chat.type.text", param1.name(), param0);
+        });
     }
 }

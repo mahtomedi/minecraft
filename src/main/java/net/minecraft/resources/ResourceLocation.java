@@ -61,6 +61,15 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         }
     }
 
+    @Nullable
+    public static ResourceLocation tryBuild(String param0, String param1) {
+        try {
+            return new ResourceLocation(param0, param1);
+        } catch (ResourceLocationException var3) {
+            return null;
+        }
+    }
+
     protected static String[] decompose(String param0, char param1) {
         String[] var0 = new String[]{"minecraft", param0};
         int var1 = param0.indexOf(param1);
@@ -127,6 +136,10 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
 
     public String toLanguageKey() {
         return this.namespace + "." + this.path;
+    }
+
+    public String toShortLanguageKey() {
+        return this.namespace.equals("minecraft") ? this.path : this.toLanguageKey();
     }
 
     public String toLanguageKey(String param0) {

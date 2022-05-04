@@ -209,10 +209,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     @Nullable
     private KeyPair keyPair;
     @Nullable
-    private String singleplayerName;
+    private GameProfile singleplayerProfile;
     private boolean isDemo;
-    private String resourcePack = "";
-    private String resourcePackHash = "";
     private volatile boolean isReady;
     private long lastOverloadWarning;
     private final MinecraftSessionService sessionService;
@@ -1005,16 +1003,17 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.port = param0;
     }
 
-    public String getSingleplayerName() {
-        return this.singleplayerName;
+    @Nullable
+    public GameProfile getSingleplayerProfile() {
+        return this.singleplayerProfile;
     }
 
-    public void setSingleplayerName(String param0) {
-        this.singleplayerName = param0;
+    public void setSingleplayerProfile(@Nullable GameProfile param0) {
+        this.singleplayerProfile = param0;
     }
 
     public boolean isSingleplayer() {
-        return this.singleplayerName != null;
+        return this.singleplayerProfile != null;
     }
 
     protected void initializeKeyPair() {
@@ -1068,17 +1067,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.isDemo = param0;
     }
 
-    public String getResourcePack() {
-        return this.resourcePack;
+    public Optional<MinecraftServer.ServerResourcePackInfo> getServerResourcePack() {
+        return Optional.empty();
     }
 
-    public String getResourcePackHash() {
-        return this.resourcePackHash;
-    }
-
-    public void setResourcePack(String param0, String param1) {
-        this.resourcePack = param0;
-        this.resourcePackHash = param1;
+    public boolean isResourcePackRequired() {
+        return this.getServerResourcePack().filter(MinecraftServer.ServerResourcePackInfo::isRequired).isPresent();
     }
 
     public abstract boolean isDedicatedServer();
@@ -1661,10 +1655,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return TextFilter.DUMMY;
     }
 
-    public boolean isResourcePackRequired() {
-        return false;
-    }
-
     public ServerPlayerGameMode createGameModeForPlayer(ServerPlayer param0) {
         return (ServerPlayerGameMode)(this.isDemo() ? new DemoMode(param0) : new ServerPlayerGameMode(param0));
     }
@@ -1676,11 +1666,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public ResourceManager getResourceManager() {
         return this.resources.resourceManager;
-    }
-
-    @Nullable
-    public Component getResourcePackPrompt() {
-        return null;
     }
 
     public boolean isCurrentlySaving() {
@@ -1718,6 +1703,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         public void close() {
             this.resourceManager.close();
         }
+    }
+
+    public static record ServerResourcePackInfo(String url, String hash, boolean isRequired, @Nullable Component prompt) {
     }
 
     static class TimeProfiler {

@@ -69,7 +69,7 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<SetStewEffectFunction.Builder> {
-        private final Map<MobEffect, NumberProvider> effectDurationMap = Maps.newHashMap();
+        private final Map<MobEffect, NumberProvider> effectDurationMap = Maps.newLinkedHashMap();
 
         protected SetStewEffectFunction.Builder getThis() {
             return this;
@@ -110,7 +110,7 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
         }
 
         public SetStewEffectFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            Map<MobEffect, NumberProvider> var0 = Maps.newHashMap();
+            Map<MobEffect, NumberProvider> var0 = Maps.newLinkedHashMap();
             if (param0.has("effects")) {
                 for(JsonElement var2 : GsonHelper.getAsJsonArray(param0, "effects")) {
                     String var3 = GsonHelper.getAsString(var2.getAsJsonObject(), "type");

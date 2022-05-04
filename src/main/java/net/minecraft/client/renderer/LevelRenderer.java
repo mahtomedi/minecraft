@@ -1909,56 +1909,51 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         param5.run();
         if (!param4) {
             FogType var0 = param3.getFluidInCamera();
-            if (var0 != FogType.POWDER_SNOW && var0 != FogType.LAVA) {
-                Entity var3 = param3.getEntity();
-                if (var3 instanceof LivingEntity var1 && var1.hasEffect(MobEffects.BLINDNESS)) {
-                    return;
-                }
-
+            if (var0 != FogType.POWDER_SNOW && var0 != FogType.LAVA && !this.doesMobEffectBlockSky(param3)) {
                 if (this.minecraft.level.effects().skyType() == DimensionSpecialEffects.SkyType.END) {
                     this.renderEndSky(param0);
                 } else if (this.minecraft.level.effects().skyType() == DimensionSpecialEffects.SkyType.NORMAL) {
                     RenderSystem.disableTexture();
-                    Vec3 var2 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getPosition(), param2);
-                    float var3 = (float)var2.x;
-                    float var4 = (float)var2.y;
-                    float var5 = (float)var2.z;
+                    Vec3 var1 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getPosition(), param2);
+                    float var2 = (float)var1.x;
+                    float var3 = (float)var1.y;
+                    float var4 = (float)var1.z;
                     FogRenderer.levelFogColor();
-                    BufferBuilder var6 = Tesselator.getInstance().getBuilder();
+                    BufferBuilder var5 = Tesselator.getInstance().getBuilder();
                     RenderSystem.depthMask(false);
-                    RenderSystem.setShaderColor(var3, var4, var5, 1.0F);
-                    ShaderInstance var7 = RenderSystem.getShader();
+                    RenderSystem.setShaderColor(var2, var3, var4, 1.0F);
+                    ShaderInstance var6 = RenderSystem.getShader();
                     this.skyBuffer.bind();
-                    this.skyBuffer.drawWithShader(param0.last().pose(), param1, var7);
+                    this.skyBuffer.drawWithShader(param0.last().pose(), param1, var6);
                     VertexBuffer.unbind();
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
-                    float[] var8 = this.level.effects().getSunriseColor(this.level.getTimeOfDay(param2), param2);
-                    if (var8 != null) {
+                    float[] var7 = this.level.effects().getSunriseColor(this.level.getTimeOfDay(param2), param2);
+                    if (var7 != null) {
                         RenderSystem.setShader(GameRenderer::getPositionColorShader);
                         RenderSystem.disableTexture();
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                         param0.pushPose();
                         param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-                        float var9 = Mth.sin(this.level.getSunAngle(param2)) < 0.0F ? 180.0F : 0.0F;
-                        param0.mulPose(Vector3f.ZP.rotationDegrees(var9));
+                        float var8 = Mth.sin(this.level.getSunAngle(param2)) < 0.0F ? 180.0F : 0.0F;
+                        param0.mulPose(Vector3f.ZP.rotationDegrees(var8));
                         param0.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
-                        float var10 = var8[0];
-                        float var11 = var8[1];
-                        float var12 = var8[2];
-                        Matrix4f var13 = param0.last().pose();
-                        var6.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-                        var6.vertex(var13, 0.0F, 100.0F, 0.0F).color(var10, var11, var12, var8[3]).endVertex();
-                        int var14 = 16;
+                        float var9 = var7[0];
+                        float var10 = var7[1];
+                        float var11 = var7[2];
+                        Matrix4f var12 = param0.last().pose();
+                        var5.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+                        var5.vertex(var12, 0.0F, 100.0F, 0.0F).color(var9, var10, var11, var7[3]).endVertex();
+                        int var13 = 16;
 
-                        for(int var15 = 0; var15 <= 16; ++var15) {
-                            float var16 = (float)var15 * (float) (Math.PI * 2) / 16.0F;
-                            float var17 = Mth.sin(var16);
-                            float var18 = Mth.cos(var16);
-                            var6.vertex(var13, var17 * 120.0F, var18 * 120.0F, -var18 * 40.0F * var8[3]).color(var8[0], var8[1], var8[2], 0.0F).endVertex();
+                        for(int var14 = 0; var14 <= 16; ++var14) {
+                            float var15 = (float)var14 * (float) (Math.PI * 2) / 16.0F;
+                            float var16 = Mth.sin(var15);
+                            float var17 = Mth.cos(var15);
+                            var5.vertex(var12, var16 * 120.0F, var17 * 120.0F, -var17 * 40.0F * var7[3]).color(var7[0], var7[1], var7[2], 0.0F).endVertex();
                         }
 
-                        BufferUploader.drawWithShader(var6.end());
+                        BufferUploader.drawWithShader(var5.end());
                         param0.popPose();
                     }
 
@@ -1967,39 +1962,39 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
                     );
                     param0.pushPose();
-                    float var19 = 1.0F - this.level.getRainLevel(param2);
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var19);
+                    float var18 = 1.0F - this.level.getRainLevel(param2);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var18);
                     param0.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
                     param0.mulPose(Vector3f.XP.rotationDegrees(this.level.getTimeOfDay(param2) * 360.0F));
-                    Matrix4f var20 = param0.last().pose();
-                    float var21 = 30.0F;
+                    Matrix4f var19 = param0.last().pose();
+                    float var20 = 30.0F;
                     RenderSystem.setShader(GameRenderer::getPositionTexShader);
                     RenderSystem.setShaderTexture(0, SUN_LOCATION);
-                    var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                    var6.vertex(var20, -var21, 100.0F, -var21).uv(0.0F, 0.0F).endVertex();
-                    var6.vertex(var20, var21, 100.0F, -var21).uv(1.0F, 0.0F).endVertex();
-                    var6.vertex(var20, var21, 100.0F, var21).uv(1.0F, 1.0F).endVertex();
-                    var6.vertex(var20, -var21, 100.0F, var21).uv(0.0F, 1.0F).endVertex();
-                    BufferUploader.drawWithShader(var6.end());
-                    var21 = 20.0F;
+                    var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+                    var5.vertex(var19, -var20, 100.0F, -var20).uv(0.0F, 0.0F).endVertex();
+                    var5.vertex(var19, var20, 100.0F, -var20).uv(1.0F, 0.0F).endVertex();
+                    var5.vertex(var19, var20, 100.0F, var20).uv(1.0F, 1.0F).endVertex();
+                    var5.vertex(var19, -var20, 100.0F, var20).uv(0.0F, 1.0F).endVertex();
+                    BufferUploader.drawWithShader(var5.end());
+                    var20 = 20.0F;
                     RenderSystem.setShaderTexture(0, MOON_LOCATION);
-                    int var22 = this.level.getMoonPhase();
-                    int var23 = var22 % 4;
-                    int var24 = var22 / 4 % 2;
-                    float var25 = (float)(var23 + 0) / 4.0F;
-                    float var26 = (float)(var24 + 0) / 2.0F;
-                    float var27 = (float)(var23 + 1) / 4.0F;
-                    float var28 = (float)(var24 + 1) / 2.0F;
-                    var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                    var6.vertex(var20, -var21, -100.0F, var21).uv(var27, var28).endVertex();
-                    var6.vertex(var20, var21, -100.0F, var21).uv(var25, var28).endVertex();
-                    var6.vertex(var20, var21, -100.0F, -var21).uv(var25, var26).endVertex();
-                    var6.vertex(var20, -var21, -100.0F, -var21).uv(var27, var26).endVertex();
-                    BufferUploader.drawWithShader(var6.end());
+                    int var21 = this.level.getMoonPhase();
+                    int var22 = var21 % 4;
+                    int var23 = var21 / 4 % 2;
+                    float var24 = (float)(var22 + 0) / 4.0F;
+                    float var25 = (float)(var23 + 0) / 2.0F;
+                    float var26 = (float)(var22 + 1) / 4.0F;
+                    float var27 = (float)(var23 + 1) / 2.0F;
+                    var5.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+                    var5.vertex(var19, -var20, -100.0F, var20).uv(var26, var27).endVertex();
+                    var5.vertex(var19, var20, -100.0F, var20).uv(var24, var27).endVertex();
+                    var5.vertex(var19, var20, -100.0F, -var20).uv(var24, var25).endVertex();
+                    var5.vertex(var19, -var20, -100.0F, -var20).uv(var26, var25).endVertex();
+                    BufferUploader.drawWithShader(var5.end());
                     RenderSystem.disableTexture();
-                    float var29 = this.level.getStarBrightness(param2) * var19;
-                    if (var29 > 0.0F) {
-                        RenderSystem.setShaderColor(var29, var29, var29, var29);
+                    float var28 = this.level.getStarBrightness(param2) * var18;
+                    if (var28 > 0.0F) {
+                        RenderSystem.setShaderColor(var28, var28, var28, var28);
                         FogRenderer.setupNoFog();
                         this.starBuffer.bind();
                         this.starBuffer.drawWithShader(param0.last().pose(), param1, GameRenderer.getPositionShader());
@@ -2012,26 +2007,36 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     param0.popPose();
                     RenderSystem.disableTexture();
                     RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-                    double var30 = this.minecraft.player.getEyePosition(param2).y - this.level.getLevelData().getHorizonHeight(this.level);
-                    if (var30 < 0.0) {
+                    double var29 = this.minecraft.player.getEyePosition(param2).y - this.level.getLevelData().getHorizonHeight(this.level);
+                    if (var29 < 0.0) {
                         param0.pushPose();
                         param0.translate(0.0, 12.0, 0.0);
                         this.darkBuffer.bind();
-                        this.darkBuffer.drawWithShader(param0.last().pose(), param1, var7);
+                        this.darkBuffer.drawWithShader(param0.last().pose(), param1, var6);
                         VertexBuffer.unbind();
                         param0.popPose();
                     }
 
                     if (this.level.effects().hasGround()) {
-                        RenderSystem.setShaderColor(var3 * 0.2F + 0.04F, var4 * 0.2F + 0.04F, var5 * 0.6F + 0.1F, 1.0F);
+                        RenderSystem.setShaderColor(var2 * 0.2F + 0.04F, var3 * 0.2F + 0.04F, var4 * 0.6F + 0.1F, 1.0F);
                     } else {
-                        RenderSystem.setShaderColor(var3, var4, var5, 1.0F);
+                        RenderSystem.setShaderColor(var2, var3, var4, 1.0F);
                     }
 
                     RenderSystem.enableTexture();
                     RenderSystem.depthMask(true);
                 }
             }
+        }
+    }
+
+    private boolean doesMobEffectBlockSky(Camera param0) {
+        Entity var3 = param0.getEntity();
+        if (!(var3 instanceof LivingEntity)) {
+            return false;
+        } else {
+            LivingEntity var0 = (LivingEntity)var3;
+            return var0.hasEffect(MobEffects.BLINDNESS) || var0.hasEffect(MobEffects.DARKNESS);
         }
     }
 

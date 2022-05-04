@@ -135,7 +135,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public static Ingredient fromNetwork(FriendlyByteBuf param0) {
-        return fromValues(param0.readList(FriendlyByteBuf::readItem).stream().map(Ingredient.ItemValue::new));
+        return fromValues(param0.<ItemStack>readList(FriendlyByteBuf::readItem).stream().map(Ingredient.ItemValue::new));
     }
 
     public static Ingredient fromJson(@Nullable JsonElement param0) {

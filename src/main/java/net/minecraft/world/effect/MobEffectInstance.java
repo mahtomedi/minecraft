@@ -328,6 +328,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         public static final Codec<MobEffectInstance.FactorData> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         ExtraCodecs.NON_NEGATIVE_INT.fieldOf("padding_duration").forGetter(param0x -> param0x.paddingDuration),
+                        Codec.FLOAT.fieldOf("factor_start").orElse(0.0F).forGetter(param0x -> param0x.factorStart),
                         Codec.FLOAT.fieldOf("factor_target").orElse(1.0F).forGetter(param0x -> param0x.factorTarget),
                         Codec.FLOAT.fieldOf("factor_current").orElse(0.0F).forGetter(param0x -> param0x.factorCurrent),
                         ExtraCodecs.NON_NEGATIVE_INT.fieldOf("effect_changed_timestamp").orElse(0).forGetter(param0x -> param0x.effectChangedTimestamp),
@@ -336,43 +337,40 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
                     )
                     .apply(param0, MobEffectInstance.FactorData::new)
         );
-        private int paddingDuration;
+        private final int paddingDuration;
+        private float factorStart;
         private float factorTarget;
         private float factorCurrent;
         int effectChangedTimestamp;
         private float factorPreviousFrame;
         private boolean hadEffectLastTick;
 
-        public FactorData(int param0, float param1, float param2, int param3, float param4, boolean param5) {
+        public FactorData(int param0, float param1, float param2, float param3, int param4, float param5, boolean param6) {
             this.paddingDuration = param0;
-            this.factorTarget = param1;
-            this.factorCurrent = param2;
-            this.effectChangedTimestamp = param3;
-            this.factorPreviousFrame = param4;
-            this.hadEffectLastTick = param5;
+            this.factorStart = param1;
+            this.factorTarget = param2;
+            this.factorCurrent = param3;
+            this.effectChangedTimestamp = param4;
+            this.factorPreviousFrame = param5;
+            this.hadEffectLastTick = param6;
         }
 
         public FactorData(int param0) {
-            this(param0, 1.0F, 0.0F, 0, 0.0F, false);
+            this(param0, 0.0F, 1.0F, 0.0F, 0, 0.0F, false);
         }
 
         public void update(MobEffectInstance param0) {
             this.factorPreviousFrame = this.factorCurrent;
             boolean var0 = param0.duration > this.paddingDuration;
-            if (this.hadEffectLastTick) {
-                if (!var0) {
-                    this.effectChangedTimestamp = param0.duration;
-                    this.hadEffectLastTick = false;
-                    this.factorTarget = 0.0F;
-                }
-            } else if (var0) {
+            if (this.hadEffectLastTick != var0) {
+                this.hadEffectLastTick = var0;
                 this.effectChangedTimestamp = param0.duration;
-                this.hadEffectLastTick = true;
-                this.factorTarget = 1.0F;
+                this.factorStart = this.factorCurrent;
+                this.factorTarget = var0 ? 1.0F : 0.0F;
             }
 
             float var1 = Mth.clamp(((float)this.effectChangedTimestamp - (float)param0.duration) / (float)this.paddingDuration, 0.0F, 1.0F);
-            this.factorCurrent = Mth.lerp(var1, this.factorCurrent, this.factorTarget);
+            this.factorCurrent = Mth.lerp(var1, this.factorStart, this.factorTarget);
         }
 
         public float getFactor(float param0) {

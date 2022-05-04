@@ -51,4 +51,8 @@ public class StringUtil {
     public static boolean endsWithNewLine(String param0) {
         return LINE_END_PATTERN.matcher(param0).find();
     }
+
+    public static String trimChatMessage(String param0) {
+        return truncateStringIfNecessary(param0, 256, false);
+    }
 }

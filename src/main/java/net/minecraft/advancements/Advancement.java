@@ -324,20 +324,8 @@ public class Advancement {
                 this.requirements = this.requirementsStrategy.createRequirements(this.criteria.keySet());
             }
 
-            if (this.parentId == null) {
-                param0.writeBoolean(false);
-            } else {
-                param0.writeBoolean(true);
-                param0.writeResourceLocation(this.parentId);
-            }
-
-            if (this.display == null) {
-                param0.writeBoolean(false);
-            } else {
-                param0.writeBoolean(true);
-                this.display.serializeToNetwork(param0);
-            }
-
+            param0.writeNullable(this.parentId, FriendlyByteBuf::writeResourceLocation);
+            param0.writeNullable(this.display, (param0x, param1) -> param1.serializeToNetwork(param0x));
             Criterion.serializeToNetwork(this.criteria, param0);
             param0.writeVarInt(this.requirements.length);
 
@@ -431,8 +419,8 @@ public class Advancement {
         }
 
         public static Advancement.Builder fromNetwork(FriendlyByteBuf param0) {
-            ResourceLocation var0 = param0.readBoolean() ? param0.readResourceLocation() : null;
-            DisplayInfo var1 = param0.readBoolean() ? DisplayInfo.fromNetwork(param0) : null;
+            ResourceLocation var0 = param0.readNullable(FriendlyByteBuf::readResourceLocation);
+            DisplayInfo var1 = param0.readNullable(DisplayInfo::fromNetwork);
             Map<String, Criterion> var2 = Criterion.criteriaFromNetwork(param0);
             String[][] var3 = new String[param0.readVarInt()][];
 

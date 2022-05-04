@@ -1,11 +1,9 @@
 package net.minecraft.world.entity.ai.behavior.warden;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Optional;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Unit;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -43,18 +41,7 @@ public class Roar extends Behavior<Warden> {
     }
 
     protected boolean canStillUse(ServerLevel param0, Warden param1, long param2) {
-        Brain<Warden> var0 = param1.getBrain();
-        Optional<LivingEntity> var1 = var0.getMemory(MemoryModuleType.ROAR_TARGET);
-        if (var1.isPresent()) {
-            LivingEntity var2 = var1.get();
-            if (param1.canTargetEntity(var2)) {
-                return true;
-            }
-
-            var0.eraseMemory(MemoryModuleType.ROAR_TARGET);
-        }
-
-        return false;
+        return true;
     }
 
     protected void tick(ServerLevel param0, Warden param1, long param2) {

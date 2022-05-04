@@ -4,9 +4,6 @@ import com.google.common.primitives.Longs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.bytes.ByteArrays;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -15,14 +12,10 @@ import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -37,6 +30,7 @@ public class Crypt {
     private static final int ASYMMETRIC_BITS = 1024;
     private static final String BYTE_ENCODING = "ISO_8859_1";
     private static final String HASH_ALGORITHM = "SHA-1";
+    public static final String SIGNING_ALGORITHM = "SHA256withRSA";
     private static final String PEM_RSA_PRIVATE_KEY_HEADER = "-----BEGIN RSA PRIVATE KEY-----";
     private static final String PEM_RSA_PRIVATE_KEY_FOOTER = "-----END RSA PRIVATE KEY-----";
     public static final String RSA_PUBLIC_KEY_HEADER = "-----BEGIN RSA PUBLIC KEY-----";
@@ -192,19 +186,6 @@ public class Crypt {
         } catch (Exception var3) {
             throw new CryptException(var3);
         }
-    }
-
-    public static void updateChatSignature(Signature param0, long param1, UUID param2, Instant param3, String param4) throws SignatureException {
-        param0.update(Longs.toByteArray(param1));
-        param0.update(longLongToByteArray(param2.getMostSignificantBits(), param2.getLeastSignificantBits()));
-        param0.update(Longs.toByteArray(param3.getEpochSecond()));
-        param0.update(param4.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static byte[] longLongToByteArray(long param0, long param1) {
-        ByteBuffer var0 = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN);
-        var0.putLong(param0).putLong(param1);
-        return var0.array();
     }
 
     interface ByteArrayToKeyFunction<T extends Key> {

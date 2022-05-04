@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Arrays;
@@ -129,46 +130,43 @@ public class BlockModelGenerators {
         .put(BlockFamily.Variant.TRAPDOOR, BlockModelGenerators.BlockFamilyProvider::trapdoor)
         .put(BlockFamily.Variant.WALL, BlockModelGenerators.BlockFamilyProvider::wall)
         .build();
-    public static final Map<BooleanProperty, Function<ResourceLocation, Variant>> MULTIFACE_GENERATOR = Util.make(
-        Maps.newHashMap(),
-        param0 -> {
-            param0.put(BlockStateProperties.NORTH, param0x -> Variant.variant().with(VariantProperties.MODEL, param0x));
-            param0.put(
-                BlockStateProperties.EAST,
-                param0x -> Variant.variant()
-                        .with(VariantProperties.MODEL, param0x)
-                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
-                        .with(VariantProperties.UV_LOCK, true)
-            );
-            param0.put(
-                BlockStateProperties.SOUTH,
-                param0x -> Variant.variant()
-                        .with(VariantProperties.MODEL, param0x)
-                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
-                        .with(VariantProperties.UV_LOCK, true)
-            );
-            param0.put(
-                BlockStateProperties.WEST,
-                param0x -> Variant.variant()
-                        .with(VariantProperties.MODEL, param0x)
-                        .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
-                        .with(VariantProperties.UV_LOCK, true)
-            );
-            param0.put(
-                BlockStateProperties.UP,
-                param0x -> Variant.variant()
-                        .with(VariantProperties.MODEL, param0x)
-                        .with(VariantProperties.X_ROT, VariantProperties.Rotation.R270)
-                        .with(VariantProperties.UV_LOCK, true)
-            );
-            param0.put(
-                BlockStateProperties.DOWN,
-                param0x -> Variant.variant()
-                        .with(VariantProperties.MODEL, param0x)
-                        .with(VariantProperties.X_ROT, VariantProperties.Rotation.R90)
-                        .with(VariantProperties.UV_LOCK, true)
-            );
-        }
+    public static final List<Pair<BooleanProperty, Function<ResourceLocation, Variant>>> MULTIFACE_GENERATOR = List.of(
+        Pair.of(BlockStateProperties.NORTH, param0 -> Variant.variant().with(VariantProperties.MODEL, param0)),
+        Pair.of(
+            BlockStateProperties.EAST,
+            param0 -> Variant.variant()
+                    .with(VariantProperties.MODEL, param0)
+                    .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+                    .with(VariantProperties.UV_LOCK, true)
+        ),
+        Pair.of(
+            BlockStateProperties.SOUTH,
+            param0 -> Variant.variant()
+                    .with(VariantProperties.MODEL, param0)
+                    .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
+                    .with(VariantProperties.UV_LOCK, true)
+        ),
+        Pair.of(
+            BlockStateProperties.WEST,
+            param0 -> Variant.variant()
+                    .with(VariantProperties.MODEL, param0)
+                    .with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
+                    .with(VariantProperties.UV_LOCK, true)
+        ),
+        Pair.of(
+            BlockStateProperties.UP,
+            param0 -> Variant.variant()
+                    .with(VariantProperties.MODEL, param0)
+                    .with(VariantProperties.X_ROT, VariantProperties.Rotation.R270)
+                    .with(VariantProperties.UV_LOCK, true)
+        ),
+        Pair.of(
+            BlockStateProperties.DOWN,
+            param0 -> Variant.variant()
+                    .with(VariantProperties.MODEL, param0)
+                    .with(VariantProperties.X_ROT, VariantProperties.Rotation.R90)
+                    .with(VariantProperties.UV_LOCK, true)
+        )
     );
 
     private static BlockStateGenerator createMirroredCubeGenerator(
@@ -3753,19 +3751,22 @@ public class BlockModelGenerators {
         this.createSimpleFlatItemModel(param0);
         ResourceLocation var0 = ModelLocationUtils.getModelLocation(param0);
         MultiPartGenerator var1 = MultiPartGenerator.multiPart(param0);
-        Condition.TerminalCondition var2 = Util.make(Condition.condition(), param1 -> MULTIFACE_GENERATOR.forEach((param2, param3) -> {
+        Condition.TerminalCondition var2 = Util.make(Condition.condition(), param1 -> MULTIFACE_GENERATOR.stream().map(Pair::getFirst).forEach(param2 -> {
                 if (param0.defaultBlockState().hasProperty(param2)) {
                     param1.term(param2, false);
                 }
 
             }));
-        MULTIFACE_GENERATOR.forEach((param4, param5) -> {
-            if (param0.defaultBlockState().hasProperty(param4)) {
-                var1.with(Condition.condition().term(param4, true), param5.apply(var0));
-                var1.with(var2, param5.apply(var0));
-            }
 
-        });
+        for(Pair<BooleanProperty, Function<ResourceLocation, Variant>> var3 : MULTIFACE_GENERATOR) {
+            BooleanProperty var4 = var3.getFirst();
+            Function<ResourceLocation, Variant> var5 = var3.getSecond();
+            if (param0.defaultBlockState().hasProperty(var4)) {
+                var1.with(Condition.condition().term(var4, true), var5.apply(var0));
+                var1.with(var2, var5.apply(var0));
+            }
+        }
+
         this.blockStateOutput.accept(var1);
     }
 

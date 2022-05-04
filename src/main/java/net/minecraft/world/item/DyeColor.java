@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.material.MaterialColor;
+import org.jetbrains.annotations.Contract;
 
 public enum DyeColor implements StringRepresentable {
     WHITE(0, "white", 16383998, MaterialColor.SNOW, 15790320, 16777215),
@@ -81,7 +82,9 @@ public enum DyeColor implements StringRepresentable {
         return BY_ID[param0];
     }
 
-    public static DyeColor byName(String param0, DyeColor param1) {
+    @Nullable
+    @Contract("_,!null->!null;_,null->_")
+    public static DyeColor byName(String param0, @Nullable DyeColor param1) {
         for(DyeColor var0 : values()) {
             if (var0.name.equals(param0)) {
                 return var0;

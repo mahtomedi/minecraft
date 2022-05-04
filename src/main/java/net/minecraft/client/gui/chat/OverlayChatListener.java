@@ -18,6 +18,9 @@ public class OverlayChatListener implements ChatListener {
 
     @Override
     public void handle(ChatType param0, Component param1, @Nullable ChatSender param2) {
-        this.minecraft.gui.setOverlayMessage(param1, false);
+        param0.overlay().ifPresent(param2x -> {
+            Component var0 = param2x.decorate(param1, param2);
+            this.minecraft.gui.setOverlayMessage(var0, false);
+        });
     }
 }

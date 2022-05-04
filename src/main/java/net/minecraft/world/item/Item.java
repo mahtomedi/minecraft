@@ -315,13 +315,13 @@ public class Item implements ItemLike {
     }
 
     public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowdedIn(param0)) {
+        if (this.allowedIn(param0)) {
             param1.add(new ItemStack(this));
         }
 
     }
 
-    protected boolean allowdedIn(CreativeModeTab param0) {
+    protected boolean allowedIn(CreativeModeTab param0) {
         CreativeModeTab var0 = this.getItemCategory();
         return var0 != null && (param0 == CreativeModeTab.TAB_SEARCH || param0 == var0);
     }

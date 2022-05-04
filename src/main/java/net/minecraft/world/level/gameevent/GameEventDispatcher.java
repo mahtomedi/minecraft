@@ -1,5 +1,6 @@
 package net.minecraft.world.level.gameevent;
 
+import java.util.function.BiConsumer;
 import net.minecraft.world.phys.Vec3;
 
 public interface GameEventDispatcher {
@@ -18,7 +19,8 @@ public interface GameEventDispatcher {
         }
 
         @Override
-        public void post(GameEvent param0, Vec3 param1, GameEvent.Context param2) {
+        public boolean walkListeners(GameEvent param0, Vec3 param1, GameEvent.Context param2, BiConsumer<GameEventListener, Vec3> param3) {
+            return false;
         }
     };
 
@@ -28,5 +30,5 @@ public interface GameEventDispatcher {
 
     void unregister(GameEventListener var1);
 
-    void post(GameEvent var1, Vec3 var2, GameEvent.Context var3);
+    boolean walkListeners(GameEvent var1, Vec3 var2, GameEvent.Context var3, BiConsumer<GameEventListener, Vec3> var4);
 }

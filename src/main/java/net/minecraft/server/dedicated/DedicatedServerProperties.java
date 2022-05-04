@@ -1,5 +1,6 @@
 package net.minecraft.server.dedicated;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -11,13 +12,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -33,6 +37,7 @@ import org.slf4j.Logger;
 
 public class DedicatedServerProperties extends Settings<DedicatedServerProperties> {
     static final Logger LOGGER = LogUtils.getLogger();
+    private static final Pattern SHA1 = Pattern.compile("^[a-fA-F0-9]{40}$");
     public final boolean onlineMode = this.get("online-mode", true);
     public final boolean preventProxyConnections = this.get("prevent-proxy-connections", false);
     public final String serverIp = this.get("server-ip", "");
@@ -40,9 +45,6 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final boolean spawnNpcs = this.get("spawn-npcs", true);
     public final boolean pvp = this.get("pvp", true);
     public final boolean allowFlight = this.get("allow-flight", false);
-    public final String resourcePack = this.get("resource-pack", "");
-    public final boolean requireResourcePack = this.get("require-resource-pack", false);
-    public final String resourcePackPrompt = this.get("resource-pack-prompt", "");
     public final String motd = this.get("motd", "A Minecraft Server");
     public final boolean forceGameMode = this.get("force-gamemode", false);
     public final boolean enforceWhitelist = this.get("enforce-whitelist", false);
@@ -59,9 +61,6 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final boolean enableRcon = this.get("enable-rcon", false);
     public final int rconPort = this.get("rcon.port", 25575);
     public final String rconPassword = this.get("rcon.password", "");
-    @Nullable
-    public final String resourcePackHash = this.getLegacyString("resource-pack-hash");
-    public final String resourcePackSha1 = this.get("resource-pack-sha1", "");
     public final boolean hardcore = this.get("hardcore", false);
     public final boolean allowNether = this.get("allow-nether", true);
     public final boolean spawnMonsters = this.get("spawn-monsters", true);
@@ -86,6 +85,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final boolean hideOnlinePlayers = this.get("hide-online-players", false);
     public final int entityBroadcastRangePercentage = this.get("entity-broadcast-range-percentage", param0x -> Mth.clamp(param0x, 10, 1000), 100);
     public final String textFilteringConfig = this.get("text-filtering-config", "");
+    public Optional<MinecraftServer.ServerResourcePackInfo> serverResourcePackInfo;
     public final Settings<DedicatedServerProperties>.MutableValue<Integer> playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
     public final Settings<DedicatedServerProperties>.MutableValue<Boolean> whiteList = this.getMutable("white-list", false);
     public final boolean enforceSecureProfile = this.get("enforce-secure-profile", false);
@@ -100,6 +100,13 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
 
     public DedicatedServerProperties(Properties param0) {
         super(param0);
+        this.serverResourcePackInfo = getServerPackInfo(
+            this.get("resource-pack", ""),
+            this.get("resource-pack-sha1", ""),
+            this.getLegacyString("resource-pack-hash"),
+            this.get("require-resource-pack", false),
+            this.get("resource-pack-prompt", "")
+        );
     }
 
     public static DedicatedServerProperties fromFile(Path param0) {
@@ -110,6 +117,51 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         DedicatedServerProperties var0 = new DedicatedServerProperties(param1);
         var0.getWorldGenSettings(param0);
         return var0;
+    }
+
+    @Nullable
+    private static Component parseResourcePackPrompt(String param0) {
+        if (!Strings.isNullOrEmpty(param0)) {
+            try {
+                return Component.Serializer.fromJson(param0);
+            } catch (Exception var2) {
+                LOGGER.warn("Failed to parse resource pack prompt '{}'", param0, var2);
+            }
+        }
+
+        return null;
+    }
+
+    private static Optional<MinecraftServer.ServerResourcePackInfo> getServerPackInfo(
+        String param0, String param1, @Nullable String param2, boolean param3, String param4
+    ) {
+        if (param0.isEmpty()) {
+            return Optional.empty();
+        } else {
+            String var0;
+            if (!param1.isEmpty()) {
+                var0 = param1;
+                if (!Strings.isNullOrEmpty(param2)) {
+                    LOGGER.warn("resource-pack-hash is deprecated and found along side resource-pack-sha1. resource-pack-hash will be ignored.");
+                }
+            } else if (!Strings.isNullOrEmpty(param2)) {
+                LOGGER.warn("resource-pack-hash is deprecated. Please use resource-pack-sha1 instead.");
+                var0 = param2;
+            } else {
+                var0 = "";
+            }
+
+            if (var0.isEmpty()) {
+                LOGGER.warn(
+                    "You specified a resource pack without providing a sha1 hash. Pack will be updated on the client only if you change the name of the pack."
+                );
+            } else if (!SHA1.matcher(var0).matches()) {
+                LOGGER.warn("Invalid sha1 for resource-pack-sha1");
+            }
+
+            Component var3 = parseResourcePackPrompt(param4);
+            return Optional.of(new MinecraftServer.ServerResourcePackInfo(param0, var0, param3, var3));
+        }
     }
 
     public WorldGenSettings getWorldGenSettings(RegistryAccess param0) {

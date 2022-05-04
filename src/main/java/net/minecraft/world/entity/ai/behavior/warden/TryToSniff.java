@@ -3,6 +3,8 @@ package net.minecraft.world.entity.ai.behavior.warden;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Unit;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -11,7 +13,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.monster.warden.Warden;
 
 public class TryToSniff extends Behavior<Warden> {
-    private static final int SNIFF_COOLDOWN = 120;
+    private static final IntProvider SNIFF_COOLDOWN = UniformInt.of(100, 200);
 
     public TryToSniff() {
         super(
@@ -29,7 +31,7 @@ public class TryToSniff extends Behavior<Warden> {
     protected void start(ServerLevel param0, Warden param1, long param2) {
         Brain<Warden> var0 = param1.getBrain();
         var0.setMemory(MemoryModuleType.IS_SNIFFING, Unit.INSTANCE);
-        var0.setMemoryWithExpiry(MemoryModuleType.SNIFF_COOLDOWN, Unit.INSTANCE, 120L);
+        var0.setMemoryWithExpiry(MemoryModuleType.SNIFF_COOLDOWN, Unit.INSTANCE, (long)SNIFF_COOLDOWN.sample(param0.getRandom()));
         var0.eraseMemory(MemoryModuleType.WALK_TARGET);
         param1.setPose(Pose.SNIFFING);
     }

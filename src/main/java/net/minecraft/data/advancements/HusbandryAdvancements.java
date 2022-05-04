@@ -1,5 +1,7 @@
 package net.minecraft.data.advancements;
 
+import java.util.Comparator;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -27,6 +29,7 @@ import net.minecraft.advancements.critereon.StartRidingTrigger;
 import net.minecraft.advancements.critereon.TameAnimalTrigger;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
@@ -570,6 +573,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
     private Advancement.Builder addCatVariants(Advancement.Builder param0) {
         Registry.CAT_VARIANT
             .entrySet()
+            .stream()
+            .sorted(Entry.comparingByKey(Comparator.comparing(ResourceKey::location)))
             .forEach(
                 param1 -> param0.addCriterion(
                         param1.getKey().location().toString(),

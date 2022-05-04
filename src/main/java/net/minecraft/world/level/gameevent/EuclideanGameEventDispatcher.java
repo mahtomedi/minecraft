@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
@@ -49,9 +49,9 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
     }
 
     @Override
-    public void post(GameEvent param0, Vec3 param1, @Nullable GameEvent.Context param2) {
-        boolean var0 = false;
+    public boolean walkListeners(GameEvent param0, Vec3 param1, GameEvent.Context param2, BiConsumer<GameEventListener, Vec3> param3) {
         this.processing = true;
+        boolean var0 = false;
 
         try {
             Iterator<GameEventListener> var1 = this.listeners.iterator();
@@ -60,8 +60,12 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
                 GameEventListener var2 = var1.next();
                 if (this.listenersToRemove.remove(var2)) {
                     var1.remove();
-                } else if (postToListener(this.level, param0, param2, param1, var2)) {
-                    var0 = true;
+                } else {
+                    Optional<Vec3> var3 = getPostableListenerPosition(this.level, param1, var2);
+                    if (var3.isPresent()) {
+                        param3.accept(var2, var3.get());
+                        var0 = true;
+                    }
                 }
             }
         } finally {
@@ -78,20 +82,17 @@ public class EuclideanGameEventDispatcher implements GameEventDispatcher {
             this.listenersToRemove.clear();
         }
 
-        if (var0) {
-            DebugPackets.sendGameEventInfo(this.level, param0, param1);
-        }
-
+        return var0;
     }
 
-    private static boolean postToListener(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3, GameEventListener param4) {
-        Optional<Vec3> var0 = param4.getListenerSource().getPosition(param0);
+    private static Optional<Vec3> getPostableListenerPosition(ServerLevel param0, Vec3 param1, GameEventListener param2) {
+        Optional<Vec3> var0 = param2.getListenerSource().getPosition(param0);
         if (var0.isEmpty()) {
-            return false;
+            return Optional.empty();
         } else {
-            double var1 = var0.get().distanceToSqr(param3);
-            int var2 = param4.getListenerRadius() * param4.getListenerRadius();
-            return var1 <= (double)var2 && param4.handleGameEvent(param0, param1, param2, param3);
+            double var1 = var0.get().distanceToSqr(param1);
+            int var2 = param2.getListenerRadius() * param2.getListenerRadius();
+            return var1 > (double)var2 ? Optional.empty() : var0;
         }
     }
 }

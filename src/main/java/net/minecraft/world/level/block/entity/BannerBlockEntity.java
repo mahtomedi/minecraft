@@ -5,6 +5,8 @@ import com.mojang.datafixers.util.Pair;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -28,7 +30,7 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
     @Nullable
     private ListTag itemPatterns;
     @Nullable
-    private List<Pair<BannerPattern, DyeColor>> patterns;
+    private List<Pair<Holder<BannerPattern>, DyeColor>> patterns;
 
     public BannerBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.BANNER, param0, param1);
@@ -115,7 +117,7 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         return var0 != null && var0.contains("Patterns") ? var0.getList("Patterns", 10).size() : 0;
     }
 
-    public List<Pair<BannerPattern, DyeColor>> getPatterns() {
+    public List<Pair<Holder<BannerPattern>, DyeColor>> getPatterns() {
         if (this.patterns == null) {
             this.patterns = createPatterns(this.baseColor, this.itemPatterns);
         }
@@ -123,13 +125,13 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
         return this.patterns;
     }
 
-    public static List<Pair<BannerPattern, DyeColor>> createPatterns(DyeColor param0, @Nullable ListTag param1) {
-        List<Pair<BannerPattern, DyeColor>> var0 = Lists.newArrayList();
-        var0.add(Pair.of(BannerPattern.BASE, param0));
+    public static List<Pair<Holder<BannerPattern>, DyeColor>> createPatterns(DyeColor param0, @Nullable ListTag param1) {
+        List<Pair<Holder<BannerPattern>, DyeColor>> var0 = Lists.newArrayList();
+        var0.add(Pair.of(Registry.BANNER_PATTERN.getHolderOrThrow(BannerPatterns.BASE), param0));
         if (param1 != null) {
             for(int var1 = 0; var1 < param1.size(); ++var1) {
                 CompoundTag var2 = param1.getCompound(var1);
-                BannerPattern var3 = BannerPattern.byHash(var2.getString("Pattern"));
+                Holder<BannerPattern> var3 = BannerPattern.byHash(var2.getString("Pattern"));
                 if (var3 != null) {
                     int var4 = var2.getInt("Color");
                     var0.add(Pair.of(var3, DyeColor.byId(var4)));

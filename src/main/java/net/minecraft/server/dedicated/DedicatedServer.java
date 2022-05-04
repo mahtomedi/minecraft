@@ -1,6 +1,5 @@
 package net.minecraft.server.dedicated;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
@@ -19,8 +18,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
@@ -30,7 +29,6 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.ConsoleInput;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInterface;
@@ -63,7 +61,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     static final Logger LOGGER = LogUtils.getLogger();
     private static final int CONVERSION_RETRY_DELAY_MS = 5000;
     private static final int CONVERSION_RETRIES = 2;
-    private static final Pattern SHA1 = Pattern.compile("^[a-fA-F0-9]{40}$");
     private final List<ConsoleInput> consoleInput = Collections.synchronizedList(Lists.newArrayList());
     @Nullable
     private QueryThreadGs4 queryThreadGs4;
@@ -75,8 +72,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     private MinecraftServerGui gui;
     @Nullable
     private final TextFilterClient textFilterClient;
-    @Nullable
-    private final Component resourcePackPrompt;
 
     public DedicatedServer(
         Thread param0,
@@ -94,7 +89,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         this.settings = param4;
         this.rconConsoleSource = new RconConsoleSource(this);
         this.textFilterClient = TextFilterClient.createFromConfig(param4.getProperties().textFilteringConfig);
-        this.resourcePackPrompt = parseResourcePackPrompt(param4);
     }
 
     @Override
@@ -135,7 +129,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
 
         this.setPvpAllowed(var1.pvp);
         this.setFlightAllowed(var1.allowFlight);
-        this.setResourcePack(var1.resourcePack, this.getPackHash());
         this.setMotd(var1.motd);
         super.setPlayerIdleTimeout(var1.playerIdleTimeout.get());
         this.setEnforceWhitelist(var1.enforceWhitelist);
@@ -232,34 +225,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public boolean areNpcsEnabled() {
         return this.settings.getProperties().spawnNpcs && super.areNpcsEnabled();
-    }
-
-    public String getPackHash() {
-        DedicatedServerProperties var0 = this.settings.getProperties();
-        String var1;
-        if (!var0.resourcePackSha1.isEmpty()) {
-            var1 = var0.resourcePackSha1;
-            if (!Strings.isNullOrEmpty(var0.resourcePackHash)) {
-                LOGGER.warn("resource-pack-hash is deprecated and found along side resource-pack-sha1. resource-pack-hash will be ignored.");
-            }
-        } else if (!Strings.isNullOrEmpty(var0.resourcePackHash)) {
-            LOGGER.warn("resource-pack-hash is deprecated. Please use resource-pack-sha1 instead.");
-            var1 = var0.resourcePackHash;
-        } else {
-            var1 = "";
-        }
-
-        if (!var1.isEmpty() && !SHA1.matcher(var1).matches()) {
-            LOGGER.warn("Invalid sha1 for ressource-pack-sha1");
-        }
-
-        if (!var0.resourcePack.isEmpty() && var1.isEmpty()) {
-            LOGGER.warn(
-                "You specified a resource pack without providing a sha1 hash. Pack will be updated on the client only if you change the name of the pack."
-            );
-        }
-
-        return var1;
     }
 
     @Override
@@ -602,34 +567,14 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         return this.textFilterClient != null ? this.textFilterClient.createContext(param0.getGameProfile()) : TextFilter.DUMMY;
     }
 
-    @Override
-    public boolean isResourcePackRequired() {
-        return this.settings.getProperties().requireResourcePack;
-    }
-
     @Nullable
     @Override
     public GameType getForcedGameType() {
         return this.settings.getProperties().forceGameMode ? this.worldData.getGameType() : null;
     }
 
-    @Nullable
-    private static Component parseResourcePackPrompt(DedicatedServerSettings param0) {
-        String var0 = param0.getProperties().resourcePackPrompt;
-        if (!Strings.isNullOrEmpty(var0)) {
-            try {
-                return Component.Serializer.fromJson(var0);
-            } catch (Exception var3) {
-                LOGGER.warn("Failed to parse resource pack prompt '{}'", var0, var3);
-            }
-        }
-
-        return null;
-    }
-
-    @Nullable
     @Override
-    public Component getResourcePackPrompt() {
-        return this.resourcePackPrompt;
+    public Optional<MinecraftServer.ServerResourcePackInfo> getServerResourcePack() {
+        return this.settings.getProperties().serverResourcePackInfo;
     }
 }

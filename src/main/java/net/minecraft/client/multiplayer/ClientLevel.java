@@ -826,7 +826,7 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void gameEvent(GameEvent param0, Vec3 param1, @Nullable GameEvent.Context param2) {
+    public void gameEvent(GameEvent param0, Vec3 param1, GameEvent.Context param2) {
     }
 
     protected Map<String, MapItemSavedData> getAllMapData() {

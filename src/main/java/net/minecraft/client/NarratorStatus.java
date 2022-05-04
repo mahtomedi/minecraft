@@ -2,6 +2,7 @@ package net.minecraft.client;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,5 +36,14 @@ public enum NarratorStatus {
 
     public static NarratorStatus byId(int param0) {
         return BY_ID[Mth.positiveModulo(param0, BY_ID.length)];
+    }
+
+    public boolean shouldNarrate(ChatType.Narration.Priority param0) {
+        return switch(this) {
+            case OFF -> false;
+            case ALL -> true;
+            case CHAT -> param0 == ChatType.Narration.Priority.CHAT;
+            case SYSTEM -> param0 == ChatType.Narration.Priority.SYSTEM;
+        };
     }
 }

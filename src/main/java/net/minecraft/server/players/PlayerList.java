@@ -11,7 +11,6 @@ import java.io.File;
 import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +30,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.SignedMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
@@ -65,18 +66,19 @@ import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.network.TextFilter;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagNetworkSerialization;
-import net.minecraft.util.Crypt;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -223,11 +225,7 @@ public abstract class PlayerList {
         var7.addNewPlayer(param1);
         this.server.getCustomBossEvents().onPlayerConnect(param1);
         this.sendLevelInfo(param1, var7);
-        if (!this.server.getResourcePack().isEmpty()) {
-            param1.sendTexturePack(
-                this.server.getResourcePack(), this.server.getResourcePackHash(), this.server.isResourcePackRequired(), this.server.getResourcePackPrompt()
-            );
-        }
+        this.server.getServerResourcePack().ifPresent(param1x -> param1.sendTexturePack(param1x.url(), param1x.hash(), param1x.isRequired(), param1x.prompt()));
 
         for(MobEffectInstance var18 : param1.getActiveEffects()) {
             var11.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var18));
@@ -330,7 +328,7 @@ public abstract class PlayerList {
     public CompoundTag load(ServerPlayer param0) {
         CompoundTag var0 = this.server.getWorldData().getLoadedPlayerTag();
         CompoundTag var1;
-        if (param0.getName().getString().equals(this.server.getSingleplayerName()) && var0 != null) {
+        if (this.server.isSingleplayerOwner(param0.getGameProfile()) && var0 != null) {
             var1 = var0;
             param0.load(var0);
             LOGGER.debug("loading single player");
@@ -411,7 +409,7 @@ public abstract class PlayerList {
         }
     }
 
-    public ServerPlayer getPlayerForLogin(GameProfile param0) {
+    public ServerPlayer getPlayerForLogin(GameProfile param0, @Nullable ProfilePublicKey param1) {
         UUID var0 = UUIDUtil.getOrCreatePlayerUUID(param0);
         List<ServerPlayer> var1 = Lists.newArrayList();
 
@@ -431,7 +429,7 @@ public abstract class PlayerList {
             var5.connection.disconnect(Component.translatable("multiplayer.disconnect.duplicate_login"));
         }
 
-        return new ServerPlayer(this.server, this.server.overworld(), param0);
+        return new ServerPlayer(this.server, this.server.overworld(), param0, param1);
     }
 
     public ServerPlayer respawn(ServerPlayer param0, boolean param1) {
@@ -449,7 +447,7 @@ public abstract class PlayerList {
         }
 
         ServerLevel var6 = var3 != null && var4.isPresent() ? var3 : this.server.overworld();
-        ServerPlayer var7 = new ServerPlayer(this.server, var6, param0.getGameProfile());
+        ServerPlayer var7 = new ServerPlayer(this.server, var6, param0.getGameProfile(), param0.getProfilePublicKey());
         var7.connection = param0.connection;
         var7.restoreFrom(param0, param1);
         var7.setId(param0.getId());
@@ -557,28 +555,28 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastToTeam(Player param0, Component param1) {
+    public void broadcastSystemToTeam(Player param0, Component param1) {
         Team var0 = param0.getTeam();
         if (var0 != null) {
             for(String var2 : var0.getPlayers()) {
                 ServerPlayer var3 = this.getPlayerByName(var2);
                 if (var3 != null && var3 != param0) {
-                    var3.sendUnsignedMessageFrom(param1, param0.getUUID());
+                    var3.sendSystemMessage(param1);
                 }
             }
 
         }
     }
 
-    public void broadcastToAllExceptTeam(Player param0, Component param1) {
+    public void broadcastSystemToAllExceptTeam(Player param0, Component param1) {
         Team var0 = param0.getTeam();
         if (var0 == null) {
-            this.broadcastUnsignedMessage(param1, ChatType.SYSTEM, param0.getUUID());
+            this.broadcastSystemMessage(param1, ChatType.SYSTEM);
         } else {
             for(int var1 = 0; var1 < this.players.size(); ++var1) {
                 ServerPlayer var2 = this.players.get(var1);
                 if (var2.getTeam() != var0) {
-                    var2.sendUnsignedMessageFrom(param1, param0.getUUID());
+                    var2.sendSystemMessage(param1);
                 }
             }
 
@@ -776,21 +774,11 @@ public abstract class PlayerList {
 
     }
 
-    @Deprecated
-    public void broadcastUnsignedMessage(Component param0, ChatType param1, UUID param2) {
-        this.server.sendSystemMessage(param0);
-
-        for(ServerPlayer var0 : this.players) {
-            var0.sendUnsignedMessageFrom(param0, param1, param2);
-        }
-
-    }
-
-    public void broadcastSystemMessage(Component param0, ChatType param1) {
+    public void broadcastSystemMessage(Component param0, ResourceKey<ChatType> param1) {
         this.broadcastSystemMessage(param0, param1x -> param0, param1);
     }
 
-    public void broadcastSystemMessage(Component param0, Function<ServerPlayer, Component> param1, ChatType param2) {
+    public void broadcastSystemMessage(Component param0, Function<ServerPlayer, Component> param1, ResourceKey<ChatType> param2) {
         this.server.sendSystemMessage(param0);
 
         for(ServerPlayer var0 : this.players) {
@@ -802,15 +790,29 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastPlayerMessage(
-        Component param0, Function<ServerPlayer, Component> param1, ChatType param2, ChatSender param3, Instant param4, Crypt.SaltSignaturePair param5
-    ) {
-        this.server.logMessageFrom(param3, param0);
+    public void broadcastChatMessage(SignedMessage param0, TextFilter.FilteredText param1, ServerPlayer param2, ResourceKey<ChatType> param3) {
+        SignedMessage var1;
+        if (!param1.getFiltered().isEmpty()) {
+            Component var0 = Component.literal(param1.getFiltered());
+            var1 = new SignedMessage(var0, MessageSignature.unsigned());
+        } else {
+            var1 = null;
+        }
+
+        this.broadcastChatMessage(param0, param3x -> param2.shouldFilterMessageTo(param3x) ? var1 : param0, param2.asChatSender(), param3);
+    }
+
+    public void broadcastChatMessage(SignedMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
+        this.broadcastChatMessage(param0, param1x -> param0, param1, param2);
+    }
+
+    public void broadcastChatMessage(SignedMessage param0, Function<ServerPlayer, SignedMessage> param1, ChatSender param2, ResourceKey<ChatType> param3) {
+        this.server.logMessageFrom(param2, param0.content());
 
         for(ServerPlayer var0 : this.players) {
-            Component var1 = param1.apply(var0);
+            SignedMessage var1 = param1.apply(var0);
             if (var1 != null) {
-                var0.sendPlayerMessage(var1, param2, param3, param4, param5);
+                var0.sendChatMessage(var1, param2, param3);
             }
         }
 

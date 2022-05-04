@@ -228,6 +228,9 @@ public class RealmsMainScreen extends RealmsScreen {
             this.realmsSelectionListAdded = true;
             this.magicalSpecialHackyFocus(this.realmSelectionList);
             this.formattedPopup = MultiLineLabel.create(this.font, POPUP_TEXT, 100);
+            this.hasUnreadNews = REALMS_DATA_FETCHER.hasUnreadNews();
+            this.newsLink = REALMS_DATA_FETCHER.newsLink();
+            this.numberOfPendingInvites = REALMS_DATA_FETCHER.getPendingInvitesCount();
         }
     }
 
@@ -328,7 +331,9 @@ public class RealmsMainScreen extends RealmsScreen {
             this.configureButton.active = !this.shouldShowPopup();
             this.leaveButton.active = !this.shouldShowPopup();
             this.newsButton.active = true;
+            this.newsButton.visible = this.newsLink != null;
             this.pendingInvitesButton.active = true;
+            this.pendingInvitesButton.visible = true;
             this.showPopupButton.active = !this.shouldShowPopup();
         } else {
             hideWidgets(
@@ -379,48 +384,49 @@ public class RealmsMainScreen extends RealmsScreen {
         ++this.animTick;
         if (hasParentalConsent()) {
             REALMS_DATA_FETCHER.init();
+            boolean var0 = false;
             if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.SERVER_LIST)) {
-                List<RealmsServer> var0 = REALMS_DATA_FETCHER.getServers();
-                RealmsServer var1 = this.getSelectedServer();
-                RealmsMainScreen.Entry var2 = null;
+                List<RealmsServer> var1x = REALMS_DATA_FETCHER.getServers();
+                RealmsServer var2 = this.getSelectedServer();
+                RealmsMainScreen.Entry var3 = null;
                 this.realmSelectionList.clear();
-                boolean var3 = !this.hasFetchedServers;
-                if (var3) {
+                boolean var4 = !this.hasFetchedServers;
+                if (var4) {
                     this.hasFetchedServers = true;
                 }
 
-                if (var0 != null) {
-                    boolean var4 = false;
+                if (var1x != null) {
+                    boolean var5 = false;
 
-                    for(RealmsServer var5 : var0) {
-                        if (this.isSelfOwnedNonExpiredServer(var5)) {
-                            var4 = true;
+                    for(RealmsServer var6 : var1x) {
+                        if (this.isSelfOwnedNonExpiredServer(var6)) {
+                            var5 = true;
                         }
                     }
 
-                    this.realmsServers = var0;
+                    this.realmsServers = var1x;
                     if (this.shouldShowMessageInList()) {
                         this.realmSelectionList.addEntry(new RealmsMainScreen.TrialEntry());
                     }
 
-                    for(RealmsServer var6 : this.realmsServers) {
-                        RealmsMainScreen.ServerEntry var7 = new RealmsMainScreen.ServerEntry(var6);
-                        this.realmSelectionList.addEntry(var7);
-                        if (var1 != null && var1.id == var6.id) {
-                            var2 = var7;
+                    for(RealmsServer var7 : this.realmsServers) {
+                        RealmsMainScreen.ServerEntry var8 = new RealmsMainScreen.ServerEntry(var7);
+                        this.realmSelectionList.addEntry(var8);
+                        if (var2 != null && var2.id == var7.id) {
+                            var3 = var8;
                         }
                     }
 
-                    if (!regionsPinged && var4) {
+                    if (!regionsPinged && var5) {
                         regionsPinged = true;
                         this.pingRegions();
                     }
                 }
 
-                if (var3) {
-                    this.updateButtonStates(null);
+                if (var4) {
+                    var0 = true;
                 } else {
-                    this.realmSelectionList.setSelected(var2);
+                    this.realmSelectionList.setSelected(var3);
                 }
             }
 
@@ -432,22 +438,22 @@ public class RealmsMainScreen extends RealmsScreen {
             }
 
             if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.TRIAL_AVAILABLE) && !this.createdTrial) {
-                boolean var8 = REALMS_DATA_FETCHER.isTrialAvailable();
-                if (var8 != this.trialsAvailable && this.shouldShowPopup()) {
-                    this.trialsAvailable = var8;
+                boolean var9 = REALMS_DATA_FETCHER.isTrialAvailable();
+                if (var9 != this.trialsAvailable && this.shouldShowPopup()) {
+                    this.trialsAvailable = var9;
                     this.showingPopup = false;
                 } else {
-                    this.trialsAvailable = var8;
+                    this.trialsAvailable = var9;
                 }
             }
 
             if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.LIVE_STATS)) {
-                RealmsServerPlayerLists var9 = REALMS_DATA_FETCHER.getLivestats();
+                RealmsServerPlayerLists var10 = REALMS_DATA_FETCHER.getLivestats();
 
-                for(RealmsServerPlayerList var10 : var9.servers) {
-                    for(RealmsServer var11 : this.realmsServers) {
-                        if (var11.id == var10.serverId) {
-                            var11.updateServerPing(var10);
+                for(RealmsServerPlayerList var11 : var10.servers) {
+                    for(RealmsServer var12 : this.realmsServers) {
+                        if (var12.id == var11.serverId) {
+                            var12.updateServerPing(var11);
                             break;
                         }
                     }
@@ -457,11 +463,16 @@ public class RealmsMainScreen extends RealmsScreen {
             if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.UNREAD_NEWS)) {
                 this.hasUnreadNews = REALMS_DATA_FETCHER.hasUnreadNews();
                 this.newsLink = REALMS_DATA_FETCHER.newsLink();
+                var0 = true;
             }
 
             REALMS_DATA_FETCHER.markClean();
             if (this.shouldShowPopup()) {
                 ++this.carouselTick;
+            }
+
+            if (var0) {
+                this.updateButtonStates(null);
             }
 
             if (this.showPopupButton != null) {

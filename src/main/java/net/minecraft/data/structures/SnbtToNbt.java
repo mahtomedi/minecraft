@@ -1,6 +1,9 @@
 package net.minecraft.data.structures;
 
 import com.google.common.collect.Lists;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.HashingOutputStream;
 import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -88,27 +91,28 @@ public class SnbtToNbt implements DataProvider {
 
     private SnbtToNbt.TaskResult readStructure(Path param0, String param1) {
         try {
-            SnbtToNbt.TaskResult var10;
+            SnbtToNbt.TaskResult var11;
             try (BufferedReader var0 = Files.newBufferedReader(param0)) {
                 String var1 = IOUtils.toString((Reader)var0);
                 CompoundTag var2 = this.applyFilters(param1, NbtUtils.snbtToStructure(var1));
                 ByteArrayOutputStream var3 = new ByteArrayOutputStream();
-                NbtIo.writeCompressed(var2, var3);
-                byte[] var4 = var3.toByteArray();
-                String var5 = SHA1.hashBytes(var4).toString();
-                String var6;
+                HashingOutputStream var4 = new HashingOutputStream(Hashing.sha1(), var3);
+                NbtIo.writeCompressed(var2, var4);
+                byte[] var5 = var3.toByteArray();
+                HashCode var6 = var4.hash();
+                String var7;
                 if (DUMP_SNBT_TO != null) {
-                    var6 = NbtUtils.structureToSnbt(var2);
+                    var7 = NbtUtils.structureToSnbt(var2);
                 } else {
-                    var6 = null;
+                    var7 = null;
                 }
 
-                var10 = new SnbtToNbt.TaskResult(param1, var4, var6, var5);
+                var11 = new SnbtToNbt.TaskResult(param1, var5, var7, var6);
             }
 
-            return var10;
-        } catch (Throwable var13) {
-            throw new SnbtToNbt.StructureConversionException(param0, var13);
+            return var11;
+        } catch (Throwable var14) {
+            throw new SnbtToNbt.StructureConversionException(param0, var14);
         }
     }
 
@@ -144,18 +148,6 @@ public class SnbtToNbt implements DataProvider {
         }
     }
 
-    static class TaskResult {
-        final String name;
-        final byte[] payload;
-        @Nullable
-        final String snbtPayload;
-        final String hash;
-
-        public TaskResult(String param0, byte[] param1, @Nullable String param2, String param3) {
-            this.name = param0;
-            this.payload = param1;
-            this.snbtPayload = param2;
-            this.hash = param3;
-        }
+    static record TaskResult(String name, byte[] payload, @Nullable String snbtPayload, HashCode hash) {
     }
 }
