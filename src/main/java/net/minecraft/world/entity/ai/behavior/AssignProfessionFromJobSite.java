@@ -31,7 +31,7 @@ public class AssignProfessionFromJobSite extends Behavior<Villager> {
             MinecraftServer var1 = param0.getServer();
             Optional.ofNullable(var1.getLevel(var0.dimension()))
                 .flatMap(param1x -> param1x.getPoiManager().getType(var0.pos()))
-                .flatMap(param0x -> Registry.VILLAGER_PROFESSION.stream().filter(param1x -> param1x.getJobPoiType() == param0x).findFirst())
+                .flatMap(param0x -> Registry.VILLAGER_PROFESSION.stream().filter(param1x -> param1x.heldJobSite().test(param0x)).findFirst())
                 .ifPresent(param2x -> {
                     param1.setVillagerData(param1.getVillagerData().setProfession(param2x));
                     param1.refreshBrain(param0);

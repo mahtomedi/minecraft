@@ -1,12 +1,15 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.pathfinder.Path;
 
 public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
@@ -40,7 +44,7 @@ public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
         } else {
             PathfinderMob var0 = (PathfinderMob)param1;
             PoiManager var1 = param0.getPoiManager();
-            Optional<BlockPos> var2 = var1.findClosest(PoiType.HOME.getPredicate(), param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
+            Optional<BlockPos> var2 = var1.findClosest(param0x -> param0x.is(PoiTypes.HOME), param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
             return var2.isPresent() && !(var2.get().distSqr(var0.blockPosition()) <= 4.0);
         }
     }
@@ -62,11 +66,14 @@ public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
                 return true;
             }
         };
-        Stream<BlockPos> var3 = var1.findAll(PoiType.HOME.getPredicate(), var2, param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
-        Path var4 = var0.getNavigation().createPath(var3, PoiType.HOME.getValidRange());
+        Set<Pair<Holder<PoiType>, BlockPos>> var3 = var1.findAllWithType(
+                param0x -> param0x.is(PoiTypes.HOME), var2, param1.blockPosition(), 48, PoiManager.Occupancy.ANY
+            )
+            .collect(Collectors.toSet());
+        Path var4 = AcquirePoi.findPathToPois(var0, var3);
         if (var4 != null && var4.canReach()) {
             BlockPos var5 = var4.getTarget();
-            Optional<PoiType> var6 = var1.getType(var5);
+            Optional<Holder<PoiType>> var6 = var1.getType(var5);
             if (var6.isPresent()) {
                 param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var5, this.speedModifier, 1));
                 DebugPackets.sendPoiTicketCountPacket(param0, var5);

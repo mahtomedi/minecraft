@@ -55,7 +55,7 @@ public class OceanMonumentStructure extends Structure {
         if (param2.isEmpty()) {
             return param2;
         } else {
-            WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
+            WorldgenRandom var0 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.generateUniqueSeed()));
             var0.setLargeFeatureSeed(param1, param0.x, param0.z);
             StructurePiece var1 = param2.pieces().get(0);
             BoundingBox var2 = var1.getBoundingBox();

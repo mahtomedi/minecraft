@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import java.util.Optional;
 import java.util.function.Function;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.model.geom.ModelPart;
@@ -39,12 +38,12 @@ public abstract class HierarchicalModel<E extends Entity> extends EntityModel<E>
         return this.root().getAllParts().filter(param1 -> param1.hasChild(param0)).findFirst().map(param1 -> param1.getChild(param0));
     }
 
-    protected void animate(AnimationState param0, AnimationDefinition param1) {
-        this.animate(param0, param1, 1.0F);
+    protected void animate(AnimationState param0, AnimationDefinition param1, float param2) {
+        this.animate(param0, param1, param2, 1.0F);
     }
 
-    protected void animate(AnimationState param0, AnimationDefinition param1, float param2) {
-        param0.updateTime(Minecraft.getInstance().isPaused(), param2);
+    protected void animate(AnimationState param0, AnimationDefinition param1, float param2, float param3) {
+        param0.updateTime(param2, param3);
         param0.ifStarted(param1x -> KeyframeAnimations.animate(this, param1, param1x.getAccumulatedTime(), 1.0F, ANIMATION_VECTOR_CACHE));
     }
 }

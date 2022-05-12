@@ -128,10 +128,9 @@ public abstract class BaseFireBlock extends Block {
             if (param3.getRemainingFireTicks() == 0) {
                 param3.setSecondsOnFire(8);
             }
-
-            param3.hurt(DamageSource.IN_FIRE, this.fireDamage);
         }
 
+        param3.hurt(DamageSource.IN_FIRE, this.fireDamage);
         super.entityInside(param0, param1, param2, param3);
     }
 

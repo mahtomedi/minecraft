@@ -98,7 +98,7 @@ public class ReloadableServerResources {
         Map<TagKey<T>, List<Holder<T>>> var1 = param1.tags()
             .entrySet()
             .stream()
-            .collect(Collectors.toUnmodifiableMap(param1x -> TagKey.create(var0, param1x.getKey()), param0x -> param0x.getValue().getValues()));
+            .collect(Collectors.toUnmodifiableMap(param1x -> TagKey.create(var0, param1x.getKey()), param0x -> List.copyOf(param0x.getValue())));
         param0.registryOrThrow(var0).bindTags(var1);
     }
 }

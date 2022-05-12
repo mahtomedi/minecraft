@@ -21,21 +21,12 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.structure.Structure;
 
 public class ResourceOrTagLocationArgument<T> implements ArgumentType<ResourceOrTagLocationArgument.Result<T>> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012", "#skeletons", "#minecraft:skeletons");
-    private static final DynamicCommandExceptionType ERROR_INVALID_BIOME = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.locatebiome.invalid", param0)
-    );
-    private static final DynamicCommandExceptionType ERROR_INVALID_STRUCTURE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.locate.invalid", param0)
-    );
     final ResourceKey<? extends Registry<T>> registryKey;
 
     public ResourceOrTagLocationArgument(ResourceKey<? extends Registry<T>> param0) {
@@ -46,20 +37,12 @@ public class ResourceOrTagLocationArgument<T> implements ArgumentType<ResourceOr
         return new ResourceOrTagLocationArgument<>(param0);
     }
 
-    private static <T> ResourceOrTagLocationArgument.Result<T> getRegistryType(
+    public static <T> ResourceOrTagLocationArgument.Result<T> getRegistryType(
         CommandContext<CommandSourceStack> param0, String param1, ResourceKey<Registry<T>> param2, DynamicCommandExceptionType param3
     ) throws CommandSyntaxException {
         ResourceOrTagLocationArgument.Result<?> var0 = param0.getArgument(param1, ResourceOrTagLocationArgument.Result.class);
         Optional<ResourceOrTagLocationArgument.Result<T>> var1 = var0.cast(param2);
         return var1.orElseThrow(() -> param3.create(var0));
-    }
-
-    public static ResourceOrTagLocationArgument.Result<Biome> getBiome(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return getRegistryType(param0, param1, Registry.BIOME_REGISTRY, ERROR_INVALID_BIOME);
-    }
-
-    public static ResourceOrTagLocationArgument.Result<Structure> getStructure(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return getRegistryType(param0, param1, Registry.STRUCTURE_REGISTRY, ERROR_INVALID_STRUCTURE);
     }
 
     public ResourceOrTagLocationArgument.Result<T> parse(StringReader param0) throws CommandSyntaxException {

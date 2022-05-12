@@ -9,6 +9,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
 public interface RecipeBuilder {
+    ResourceLocation ROOT_RECIPE_ADVANCEMENT = new ResourceLocation("recipes/root");
+
     RecipeBuilder unlockedBy(String var1, CriterionTriggerInstance var2);
 
     RecipeBuilder group(@Nullable String var1);

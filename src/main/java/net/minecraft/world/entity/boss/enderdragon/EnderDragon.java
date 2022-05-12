@@ -18,7 +18,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -521,11 +520,7 @@ public class EnderDragon extends Mob implements Enemy {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (param0 instanceof EntityDamageSource && ((EntityDamageSource)param0).isThorns() && !this.level.isClientSide) {
-            this.hurt(this.body, param0, param1);
-        }
-
-        return false;
+        return !this.level.isClientSide ? this.hurt(this.body, param0, param1) : false;
     }
 
     protected boolean reallyHurt(DamageSource param0, float param1) {

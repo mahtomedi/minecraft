@@ -2,17 +2,22 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -24,14 +29,16 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
     private static final int BATCH_SIZE = 5;
     private static final int RATE = 20;
     public static final int SCAN_RANGE = 48;
-    private final PoiType poiType;
+    private final Predicate<Holder<PoiType>> poiType;
     private final MemoryModuleType<GlobalPos> memoryToAcquire;
     private final boolean onlyIfAdult;
     private final Optional<Byte> onPoiAcquisitionEvent;
     private long nextScheduledStart;
     private final Long2ObjectMap<AcquirePoi.JitteredLinearRetry> batchCache = new Long2ObjectOpenHashMap<>();
 
-    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, MemoryModuleType<GlobalPos> param2, boolean param3, Optional<Byte> param4) {
+    public AcquirePoi(
+        Predicate<Holder<PoiType>> param0, MemoryModuleType<GlobalPos> param1, MemoryModuleType<GlobalPos> param2, boolean param3, Optional<Byte> param4
+    ) {
         super(constructEntryConditionMap(param1, param2));
         this.poiType = param0;
         this.memoryToAcquire = param2;
@@ -39,7 +46,7 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
         this.onPoiAcquisitionEvent = param4;
     }
 
-    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, boolean param2, Optional<Byte> param3) {
+    public AcquirePoi(Predicate<Holder<PoiType>> param0, MemoryModuleType<GlobalPos> param1, boolean param2, Optional<Byte> param3) {
         this(param0, param1, param1, param2, param3);
     }
 
@@ -81,25 +88,44 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
                 return true;
             }
         };
-        Set<BlockPos> var2 = var0.findAllClosestFirst(this.poiType.getPredicate(), var1, param1.blockPosition(), 48, PoiManager.Occupancy.HAS_SPACE)
+        Set<Pair<Holder<PoiType>, BlockPos>> var2 = var0.findAllClosestFirstWithType(
+                this.poiType, var1, param1.blockPosition(), 48, PoiManager.Occupancy.HAS_SPACE
+            )
             .limit(5L)
             .collect(Collectors.toSet());
-        Path var3 = param1.getNavigation().createPath(var2, this.poiType.getValidRange());
+        Path var3 = findPathToPois(param1, var2);
         if (var3 != null && var3.canReach()) {
             BlockPos var4 = var3.getTarget();
             var0.getType(var4).ifPresent(param4 -> {
-                var0.take(this.poiType.getPredicate(), param1x -> param1x.equals(var4), var4, 1);
+                var0.take(this.poiType, (param1x, param2x) -> param2x.equals(var4), var4, 1);
                 param1.getBrain().setMemory(this.memoryToAcquire, GlobalPos.of(param0.dimension(), var4));
                 this.onPoiAcquisitionEvent.ifPresent(param2x -> param0.broadcastEntityEvent(param1, param2x));
                 this.batchCache.clear();
                 DebugPackets.sendPoiTicketCountPacket(param0, var4);
             });
         } else {
-            for(BlockPos var5 : var2) {
-                this.batchCache.computeIfAbsent(var5.asLong(), param2x -> new AcquirePoi.JitteredLinearRetry(param1.level.random, param2));
+            for(Pair<Holder<PoiType>, BlockPos> var5 : var2) {
+                this.batchCache.computeIfAbsent(var5.getSecond().asLong(), param2x -> new AcquirePoi.JitteredLinearRetry(param1.level.random, param2));
             }
         }
 
+    }
+
+    @Nullable
+    public static Path findPathToPois(Mob param0, Set<Pair<Holder<PoiType>, BlockPos>> param1) {
+        if (param1.isEmpty()) {
+            return null;
+        } else {
+            Set<BlockPos> var0 = new HashSet<>();
+            int var1 = 1;
+
+            for(Pair<Holder<PoiType>, BlockPos> var2 : param1) {
+                var1 = Math.max(var1, var2.getFirst().value().validRange());
+                var0.add(var2.getSecond());
+            }
+
+            return param0.getNavigation().createPath(var0, var1);
+        }
     }
 
     static class JitteredLinearRetry {

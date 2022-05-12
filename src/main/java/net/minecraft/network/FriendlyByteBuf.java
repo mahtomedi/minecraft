@@ -28,6 +28,8 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
+import java.time.Instant;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Date;
@@ -42,6 +44,7 @@ import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -51,10 +54,14 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Crypt;
+import net.minecraft.util.CryptException;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -65,6 +72,9 @@ public class FriendlyByteBuf extends ByteBuf {
     private final ByteBuf source;
     public static final short MAX_STRING_LENGTH = 32767;
     public static final int MAX_COMPONENT_STRING_LENGTH = 262144;
+    private static final int PUBLIC_KEY_SIZE = 256;
+    private static final int MAX_PUBLIC_KEY_HEADER_SIZE = 256;
+    private static final int MAX_PUBLIC_KEY_LENGTH = 512;
 
     public FriendlyByteBuf(ByteBuf param0) {
         this.source = param0;
@@ -90,6 +100,7 @@ public class FriendlyByteBuf extends ByteBuf {
         return 10;
     }
 
+    /** @deprecated */
     public <T> T readWithCodec(Codec<T> param0) {
         CompoundTag var0 = this.readAnySizeNbt();
         DataResult<T> var1 = param0.parse(NbtOps.INSTANCE, var0);
@@ -99,6 +110,7 @@ public class FriendlyByteBuf extends ByteBuf {
         return var1.result().get();
     }
 
+    /** @deprecated */
     public <T> void writeWithCodec(Codec<T> param0, T param1) {
         DataResult<Tag> var0 = param0.encodeStart(NbtOps.INSTANCE, param1);
         var0.error().ifPresent(param1x -> {
@@ -369,6 +381,17 @@ public class FriendlyByteBuf extends ByteBuf {
         return this;
     }
 
+    public GlobalPos readGlobalPos() {
+        ResourceKey<Level> var0 = this.readResourceKey(Registry.DIMENSION_REGISTRY);
+        BlockPos var1 = this.readBlockPos();
+        return GlobalPos.of(var0, var1);
+    }
+
+    public void writeGlobalPos(GlobalPos param0) {
+        this.writeResourceKey(param0.dimension());
+        this.writeBlockPos(param0.pos());
+    }
+
     public Component readComponent() {
         Component var0 = Component.Serializer.fromJson(this.readUtf(262144));
         if (var0 == null) {
@@ -569,12 +592,42 @@ public class FriendlyByteBuf extends ByteBuf {
         return this;
     }
 
+    public <T> ResourceKey<T> readResourceKey(ResourceKey<? extends Registry<T>> param0) {
+        ResourceLocation var0 = this.readResourceLocation();
+        return ResourceKey.create(param0, var0);
+    }
+
+    public void writeResourceKey(ResourceKey<?> param0) {
+        this.writeResourceLocation(param0.location());
+    }
+
     public Date readDate() {
         return new Date(this.readLong());
     }
 
     public FriendlyByteBuf writeDate(Date param0) {
         this.writeLong(param0.getTime());
+        return this;
+    }
+
+    public Instant readInstant() {
+        return Instant.ofEpochMilli(this.readLong());
+    }
+
+    public void writeInstant(Instant param0) {
+        this.writeLong(param0.toEpochMilli());
+    }
+
+    public PublicKey readPublicKey() {
+        try {
+            return Crypt.byteToPublicKey(this.readByteArray(512));
+        } catch (CryptException var2) {
+            throw new DecoderException("Malformed public key bytes", var2);
+        }
+    }
+
+    public FriendlyByteBuf writePublicKey(PublicKey param0) {
+        this.writeByteArray(param0.getEncoded());
         return this;
     }
 

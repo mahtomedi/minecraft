@@ -21,21 +21,20 @@ import org.slf4j.Logger;
 
 public class BiomeParametersDumpReport implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final DataGenerator generator;
+    private final Path topPath;
 
     public BiomeParametersDumpReport(DataGenerator param0) {
-        this.generator = param0;
+        this.topPath = param0.getOutputFolder(DataGenerator.Target.REPORTS).resolve("biome_parameters");
     }
 
     @Override
     public void run(CachedOutput param0) {
-        Path var0 = this.generator.getOutputFolder();
-        RegistryAccess.Frozen var1 = RegistryAccess.BUILTIN.get();
-        DynamicOps<JsonElement> var2 = RegistryOps.create(JsonOps.INSTANCE, var1);
-        Registry<Biome> var3 = var1.registryOrThrow(Registry.BIOME_REGISTRY);
-        MultiNoiseBiomeSource.Preset.getPresets().forEach(param4 -> {
-            MultiNoiseBiomeSource var0x = param4.getSecond().biomeSource(var3, false);
-            dumpValue(createPath(var0, param4.getFirst()), param0, var2, MultiNoiseBiomeSource.CODEC, var0x);
+        RegistryAccess.Frozen var0 = RegistryAccess.BUILTIN.get();
+        DynamicOps<JsonElement> var1 = RegistryOps.create(JsonOps.INSTANCE, var0);
+        Registry<Biome> var2 = var0.registryOrThrow(Registry.BIOME_REGISTRY);
+        MultiNoiseBiomeSource.Preset.getPresets().forEach(param3 -> {
+            MultiNoiseBiomeSource var0x = param3.getSecond().biomeSource(var2, false);
+            dumpValue(this.createPath(param3.getFirst()), param0, var1, MultiNoiseBiomeSource.CODEC, var0x);
         });
     }
 
@@ -52,12 +51,8 @@ public class BiomeParametersDumpReport implements DataProvider {
 
     }
 
-    private static Path createPath(Path param0, ResourceLocation param1) {
-        return resolveTopPath(param0).resolve(param1.getNamespace()).resolve(param1.getPath() + ".json");
-    }
-
-    private static Path resolveTopPath(Path param0) {
-        return param0.resolve("reports").resolve("biome_parameters");
+    private Path createPath(ResourceLocation param0) {
+        return this.topPath.resolve(param0.getNamespace()).resolve(param0.getPath() + ".json");
     }
 
     @Override

@@ -26,7 +26,7 @@ public class MagmaBlock extends Block {
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        if (!param3.isSteppingCarefully() && !param3.fireImmune() && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
+        if (!param3.isSteppingCarefully() && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
             param3.hurt(DamageSource.HOT_FLOOR, 1.0F);
         }
 

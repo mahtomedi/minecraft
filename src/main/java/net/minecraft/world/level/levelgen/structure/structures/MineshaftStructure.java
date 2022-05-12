@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.structure.structures;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
@@ -34,27 +35,29 @@ public class MineshaftStructure extends Structure {
         param0.random().nextDouble();
         ChunkPos var0 = param0.chunkPos();
         BlockPos var1 = new BlockPos(var0.getMiddleBlockX(), 50, var0.getMinBlockZ());
-        return Optional.of(new Structure.GenerationStub(var1, param2 -> this.generatePieces(param2, var1, param0)));
+        StructurePiecesBuilder var2 = new StructurePiecesBuilder();
+        int var3 = this.generatePiecesAndAdjust(var2, param0);
+        return Optional.of(new Structure.GenerationStub(var1.offset(0, var3, 0), Either.right(var2)));
     }
 
-    private void generatePieces(StructurePiecesBuilder param0, BlockPos param1, Structure.GenerationContext param2) {
-        ChunkPos var0 = param2.chunkPos();
-        WorldgenRandom var1 = param2.random();
-        ChunkGenerator var2 = param2.chunkGenerator();
+    private int generatePiecesAndAdjust(StructurePiecesBuilder param0, Structure.GenerationContext param1) {
+        ChunkPos var0 = param1.chunkPos();
+        WorldgenRandom var1 = param1.random();
+        ChunkGenerator var2 = param1.chunkGenerator();
         MineshaftPieces.MineShaftRoom var3 = new MineshaftPieces.MineShaftRoom(0, var1, var0.getBlockX(2), var0.getBlockZ(2), this.type);
         param0.addPiece(var3);
         var3.addChildren(var3, param0, var1);
         int var4 = var2.getSeaLevel();
         if (this.type == MineshaftStructure.Type.MESA) {
             BlockPos var5 = param0.getBoundingBox().getCenter();
-            int var6 = var2.getBaseHeight(var5.getX(), var5.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param2.heightAccessor(), param2.randomState());
+            int var6 = var2.getBaseHeight(var5.getX(), var5.getZ(), Heightmap.Types.WORLD_SURFACE_WG, param1.heightAccessor(), param1.randomState());
             int var7 = var6 <= var4 ? var4 : Mth.randomBetweenInclusive(var1, var4, var6);
             int var8 = var7 - var5.getY();
             param0.offsetPiecesVertically(var8);
+            return var8;
         } else {
-            param0.moveBelowSeaLevel(var4, var2.getMinY(), var1, 10);
+            return param0.moveBelowSeaLevel(var4, var2.getMinY(), var1, 10);
         }
-
     }
 
     @Override

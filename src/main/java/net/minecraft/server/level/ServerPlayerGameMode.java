@@ -270,7 +270,10 @@ public class ServerPlayerGameMode {
             } else if (var2.getResult() == InteractionResult.FAIL && var3.getUseDuration() > 0 && !param0.isUsingItem()) {
                 return var2.getResult();
             } else {
-                param0.setItemInHand(param3, var3);
+                if (param2 != var3) {
+                    param0.setItemInHand(param3, var3);
+                }
+
                 if (this.isCreative()) {
                     var3.setCount(var0);
                     if (var3.isDamageableItem() && var3.getDamageValue() != var1) {

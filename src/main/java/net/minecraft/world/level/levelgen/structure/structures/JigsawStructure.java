@@ -90,7 +90,7 @@ public final class JigsawStructure extends Structure {
         ChunkPos var0 = param0.chunkPos();
         int var1 = this.startHeight.sample(param0.random(), new WorldGenerationContext(param0.chunkGenerator(), param0.heightAccessor()));
         BlockPos var2 = new BlockPos(var0.getMinBlockX(), var1, var0.getMinBlockZ());
-        Pools.bootstrap();
+        Pools.forceBootstrap();
         return JigsawPlacement.addPieces(
             param0, this.startPool, this.startJigsawName, this.maxDepth, var2, this.useExpansionHack, this.projectStartToHeightmap, this.maxDistanceFromCenter
         );

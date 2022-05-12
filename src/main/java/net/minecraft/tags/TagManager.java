@@ -1,5 +1,6 @@
 package net.minecraft.tags;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -68,6 +69,6 @@ public class TagManager implements PreparableReloadListener {
         return CompletableFuture.supplyAsync(() -> new TagManager.LoadResult<>(var0, var2.loadAndBuild(param0)), param1);
     }
 
-    public static record LoadResult<T>(ResourceKey<? extends Registry<T>> key, Map<ResourceLocation, Tag<Holder<T>>> tags) {
+    public static record LoadResult<T>(ResourceKey<? extends Registry<T>> key, Map<ResourceLocation, Collection<Holder<T>>> tags) {
     }
 }

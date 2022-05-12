@@ -21,7 +21,7 @@ public final class RandomSupport {
         return new RandomSupport.Seed128bit(mixStafford13(var0), mixStafford13(var1));
     }
 
-    public static long seedUniquifier() {
+    public static long generateUniqueSeed() {
         return SEED_UNIQUIFIER.updateAndGet(param0 -> param0 * 1181783497276652981L) ^ System.nanoTime();
     }
 

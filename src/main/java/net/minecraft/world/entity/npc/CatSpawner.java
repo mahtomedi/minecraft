@@ -9,7 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
@@ -62,7 +62,7 @@ public class CatSpawner implements CustomSpawner {
 
     private int spawnInVillage(ServerLevel param0, BlockPos param1) {
         int var0 = 48;
-        if (param0.getPoiManager().getCountInRange(PoiType.HOME.getPredicate(), param1, 48, PoiManager.Occupancy.IS_OCCUPIED) > 4L) {
+        if (param0.getPoiManager().getCountInRange(param0x -> param0x.is(PoiTypes.HOME), param1, 48, PoiManager.Occupancy.IS_OCCUPIED) > 4L) {
             List<Cat> var1 = param0.getEntitiesOfClass(Cat.class, new AABB(param1).inflate(48.0, 8.0, 48.0));
             if (var1.size() < 5) {
                 return this.spawnCat(param1, param0);

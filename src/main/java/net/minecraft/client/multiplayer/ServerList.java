@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ServerList {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final ProcessorMailbox<Runnable> IO_MAILBOX = ProcessorMailbox.create(Util.backgroundExecutor(), "server-list-io");
     private final Minecraft minecraft;
     private final List<ServerData> serverList = Lists.newArrayList();
 
@@ -92,17 +94,19 @@ public class ServerList {
     }
 
     public static void saveSingleServer(ServerData param0) {
-        ServerList var0 = new ServerList(Minecraft.getInstance());
-        var0.load();
+        IO_MAILBOX.tell(() -> {
+            ServerList var0x = new ServerList(Minecraft.getInstance());
+            var0x.load();
 
-        for(int var1 = 0; var1 < var0.size(); ++var1) {
-            ServerData var2 = var0.get(var1);
-            if (var2.name.equals(param0.name) && var2.ip.equals(param0.ip)) {
-                var0.replace(var1, param0);
-                break;
+            for(int var1 = 0; var1 < var0x.size(); ++var1) {
+                ServerData var2 = var0x.get(var1);
+                if (var2.name.equals(param0.name) && var2.ip.equals(param0.ip)) {
+                    var0x.replace(var1, param0);
+                    break;
+                }
             }
-        }
 
-        var0.save();
+            var0x.save();
+        });
     }
 }

@@ -2283,7 +2283,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean isInvulnerableTo(DamageSource param0) {
-        return this.isRemoved() || this.invulnerable && param0 != DamageSource.OUT_OF_WORLD && !param0.isCreativePlayer();
+        return this.isRemoved()
+            || this.invulnerable && param0 != DamageSource.OUT_OF_WORLD && !param0.isCreativePlayer()
+            || param0.isFire() && this.fireImmune();
     }
 
     public boolean isInvulnerable() {

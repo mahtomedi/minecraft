@@ -16,7 +16,6 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
 public class WorldgenRegistryDumpReport implements DataProvider {
@@ -29,24 +28,18 @@ public class WorldgenRegistryDumpReport implements DataProvider {
 
     @Override
     public void run(CachedOutput param0) {
-        Path var0 = this.generator.getOutputFolder();
-        RegistryAccess var1 = RegistryAccess.BUILTIN.get();
-        DynamicOps<JsonElement> var2 = RegistryOps.create(JsonOps.INSTANCE, var1);
-        RegistryAccess.knownRegistries().forEach(param4 -> dumpRegistryCap(param0, var0, var1, var2, param4));
+        RegistryAccess var0 = RegistryAccess.BUILTIN.get();
+        DynamicOps<JsonElement> var1 = RegistryOps.create(JsonOps.INSTANCE, var0);
+        RegistryAccess.knownRegistries().forEach(param3 -> this.dumpRegistryCap(param0, var0, var1, param3));
     }
 
-    private static <T> void dumpRegistryCap(
-        CachedOutput param0, Path param1, RegistryAccess param2, DynamicOps<JsonElement> param3, RegistryAccess.RegistryData<T> param4
-    ) {
-        dumpRegistry(param1, param0, param3, param4.key(), param2.ownedRegistryOrThrow(param4.key()), param4.codec());
-    }
+    private <T> void dumpRegistryCap(CachedOutput param0, RegistryAccess param1, DynamicOps<JsonElement> param2, RegistryAccess.RegistryData<T> param3) {
+        ResourceKey<? extends Registry<T>> var0 = param3.key();
+        Registry<T> var1 = param1.ownedRegistryOrThrow(var0);
+        DataGenerator.PathProvider var2 = this.generator.createPathProvider(DataGenerator.Target.REPORTS, var0.location().getPath());
 
-    private static <E, T extends Registry<E>> void dumpRegistry(
-        Path param0, CachedOutput param1, DynamicOps<JsonElement> param2, ResourceKey<? extends T> param3, T param4, Encoder<E> param5
-    ) {
-        for(Entry<ResourceKey<E>, E> var0 : param4.entrySet()) {
-            Path var1 = createPath(param0, param3.location(), var0.getKey().location());
-            dumpValue(var1, param1, param2, param5, var0.getValue());
+        for(Entry<ResourceKey<T>, T> var3 : var1.entrySet()) {
+            dumpValue(var2.json(var3.getKey().location()), param0, param2, param3.codec(), var3.getValue());
         }
 
     }
@@ -62,14 +55,6 @@ public class WorldgenRegistryDumpReport implements DataProvider {
             LOGGER.error("Couldn't save element {}", param0, var6);
         }
 
-    }
-
-    private static Path createPath(Path param0, ResourceLocation param1, ResourceLocation param2) {
-        return resolveTopPath(param0).resolve(param2.getNamespace()).resolve(param1.getPath()).resolve(param2.getPath() + ".json");
-    }
-
-    private static Path resolveTopPath(Path param0) {
-        return param0.resolve("reports").resolve("worldgen");
     }
 
     @Override

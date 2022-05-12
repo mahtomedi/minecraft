@@ -26,6 +26,10 @@ public class Sniffing<E extends Warden> extends Behavior<E> {
                 MemoryModuleType.LOOK_TARGET,
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.NEAREST_ATTACKABLE,
+                MemoryStatus.REGISTERED,
+                MemoryModuleType.DISTURBANCE_LOCATION,
+                MemoryStatus.REGISTERED,
+                MemoryModuleType.SNIFF_COOLDOWN,
                 MemoryStatus.REGISTERED
             ),
             param0
@@ -51,7 +55,10 @@ public class Sniffing<E extends Warden> extends Behavior<E> {
                 param1.increaseAngerAt(param1x);
             }
 
-            WardenAi.setDisturbanceLocation(param1, param1x.blockPosition());
+            if (!param1.getBrain().hasMemoryValue(MemoryModuleType.DISTURBANCE_LOCATION)) {
+                WardenAi.setDisturbanceLocation(param1, param1x.blockPosition());
+            }
+
         });
     }
 }

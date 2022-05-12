@@ -9,14 +9,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
@@ -359,7 +363,7 @@ public class MineshaftPieces {
         public void postProcess(
             WorldGenLevel param0, StructureManager param1, ChunkGenerator param2, RandomSource param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (!this.edgesLiquid(param0, param4)) {
+            if (!this.isInInvalidLocation(param0, param4)) {
                 int var0 = 0;
                 int var1 = 2;
                 int var2 = 0;
@@ -725,7 +729,7 @@ public class MineshaftPieces {
         public void postProcess(
             WorldGenLevel param0, StructureManager param1, ChunkGenerator param2, RandomSource param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (!this.edgesLiquid(param0, param4)) {
+            if (!this.isInInvalidLocation(param0, param4)) {
                 BlockState var0 = this.type.getPlanksState();
                 if (this.isTwoFloored) {
                     this.generateBox(
@@ -855,15 +859,18 @@ public class MineshaftPieces {
 
     abstract static class MineShaftPiece extends StructurePiece {
         protected MineshaftStructure.Type type;
+        private final TagKey<Biome> biomeTag;
 
         public MineShaftPiece(StructurePieceType param0, int param1, MineshaftStructure.Type param2, BoundingBox param3) {
             super(param0, param1, param3);
             this.type = param2;
+            this.biomeTag = param2 == MineshaftStructure.Type.MESA ? BiomeTags.HAS_MINESHAFT_MESA : BiomeTags.HAS_MINESHAFT;
         }
 
         public MineShaftPiece(StructurePieceType param0, CompoundTag param1) {
             super(param0, param1);
             this.type = MineshaftStructure.Type.byId(param1.getInt("MST"));
+            this.biomeTag = this.type == MineshaftStructure.Type.MESA ? BiomeTags.HAS_MINESHAFT_MESA : BiomeTags.HAS_MINESHAFT;
         }
 
         @Override
@@ -890,52 +897,55 @@ public class MineshaftPieces {
             return true;
         }
 
-        protected boolean edgesLiquid(BlockGetter param0, BoundingBox param1) {
+        protected boolean isInInvalidLocation(LevelAccessor param0, BoundingBox param1) {
             int var0 = Math.max(this.boundingBox.minX() - 1, param1.minX());
             int var1 = Math.max(this.boundingBox.minY() - 1, param1.minY());
             int var2 = Math.max(this.boundingBox.minZ() - 1, param1.minZ());
             int var3 = Math.min(this.boundingBox.maxX() + 1, param1.maxX());
             int var4 = Math.min(this.boundingBox.maxY() + 1, param1.maxY());
             int var5 = Math.min(this.boundingBox.maxZ() + 1, param1.maxZ());
-            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
+            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos((var0 + var3) / 2, (var1 + var4) / 2, (var2 + var5) / 2);
+            if (!param0.getBiome(var6).is(this.biomeTag)) {
+                return true;
+            } else {
+                for(int var7 = var0; var7 <= var3; ++var7) {
+                    for(int var8 = var2; var8 <= var5; ++var8) {
+                        if (param0.getBlockState(var6.set(var7, var1, var8)).getMaterial().isLiquid()) {
+                            return true;
+                        }
 
-            for(int var7 = var0; var7 <= var3; ++var7) {
-                for(int var8 = var2; var8 <= var5; ++var8) {
-                    if (param0.getBlockState(var6.set(var7, var1, var8)).getMaterial().isLiquid()) {
-                        return true;
-                    }
-
-                    if (param0.getBlockState(var6.set(var7, var4, var8)).getMaterial().isLiquid()) {
-                        return true;
-                    }
-                }
-            }
-
-            for(int var9 = var0; var9 <= var3; ++var9) {
-                for(int var10 = var1; var10 <= var4; ++var10) {
-                    if (param0.getBlockState(var6.set(var9, var10, var2)).getMaterial().isLiquid()) {
-                        return true;
-                    }
-
-                    if (param0.getBlockState(var6.set(var9, var10, var5)).getMaterial().isLiquid()) {
-                        return true;
+                        if (param0.getBlockState(var6.set(var7, var4, var8)).getMaterial().isLiquid()) {
+                            return true;
+                        }
                     }
                 }
-            }
 
-            for(int var11 = var2; var11 <= var5; ++var11) {
-                for(int var12 = var1; var12 <= var4; ++var12) {
-                    if (param0.getBlockState(var6.set(var0, var12, var11)).getMaterial().isLiquid()) {
-                        return true;
-                    }
+                for(int var9 = var0; var9 <= var3; ++var9) {
+                    for(int var10 = var1; var10 <= var4; ++var10) {
+                        if (param0.getBlockState(var6.set(var9, var10, var2)).getMaterial().isLiquid()) {
+                            return true;
+                        }
 
-                    if (param0.getBlockState(var6.set(var3, var12, var11)).getMaterial().isLiquid()) {
-                        return true;
+                        if (param0.getBlockState(var6.set(var9, var10, var5)).getMaterial().isLiquid()) {
+                            return true;
+                        }
                     }
                 }
-            }
 
-            return false;
+                for(int var11 = var2; var11 <= var5; ++var11) {
+                    for(int var12 = var1; var12 <= var4; ++var12) {
+                        if (param0.getBlockState(var6.set(var0, var12, var11)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+
+                        if (param0.getBlockState(var6.set(var3, var12, var11)).getMaterial().isLiquid()) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
         }
 
         protected void setPlanksBlock(WorldGenLevel param0, BoundingBox param1, BlockState param2, int param3, int param4, int param5) {
@@ -1079,7 +1089,7 @@ public class MineshaftPieces {
         public void postProcess(
             WorldGenLevel param0, StructureManager param1, ChunkGenerator param2, RandomSource param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (!this.edgesLiquid(param0, param4)) {
+            if (!this.isInInvalidLocation(param0, param4)) {
                 this.generateBox(
                     param0,
                     param4,
@@ -1193,7 +1203,7 @@ public class MineshaftPieces {
         public void postProcess(
             WorldGenLevel param0, StructureManager param1, ChunkGenerator param2, RandomSource param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
-            if (!this.edgesLiquid(param0, param4)) {
+            if (!this.isInInvalidLocation(param0, param4)) {
                 this.generateBox(param0, param4, 0, 5, 0, 2, 7, 1, CAVE_AIR, CAVE_AIR, false);
                 this.generateBox(param0, param4, 0, 0, 7, 2, 2, 8, CAVE_AIR, CAVE_AIR, false);
 

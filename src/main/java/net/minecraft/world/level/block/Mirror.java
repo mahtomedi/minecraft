@@ -1,19 +1,24 @@
 package net.minecraft.world.level.block;
 
 import com.mojang.math.OctahedralGroup;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
 
-public enum Mirror {
-    NONE(Component.translatable("mirror.none"), OctahedralGroup.IDENTITY),
-    LEFT_RIGHT(Component.translatable("mirror.left_right"), OctahedralGroup.INVERT_Z),
-    FRONT_BACK(Component.translatable("mirror.front_back"), OctahedralGroup.INVERT_X);
+public enum Mirror implements StringRepresentable {
+    NONE("none", OctahedralGroup.IDENTITY),
+    LEFT_RIGHT("left_right", OctahedralGroup.INVERT_Z),
+    FRONT_BACK("front_back", OctahedralGroup.INVERT_X);
 
+    public static final Codec<Mirror> CODEC = StringRepresentable.fromEnum(Mirror::values);
+    private final String id;
     private final Component symbol;
     private final OctahedralGroup rotation;
 
-    private Mirror(Component param0, OctahedralGroup param1) {
-        this.symbol = param0;
+    private Mirror(String param0, OctahedralGroup param1) {
+        this.id = param0;
+        this.symbol = Component.translatable("mirror." + param0);
         this.rotation = param1;
     }
 
@@ -49,5 +54,10 @@ public enum Mirror {
 
     public Component symbol() {
         return this.symbol;
+    }
+
+    @Override
+    public String getSerializedName() {
+        return this.id;
     }
 }

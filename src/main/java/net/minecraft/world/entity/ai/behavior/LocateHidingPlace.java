@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 
 public class LocateHidingPlace extends Behavior<LivingEntity> {
     private final float speedModifier;
@@ -38,7 +38,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
         Optional<BlockPos> var0 = param0.getPoiManager()
-            .find(param0x -> param0x == PoiType.HOME, param0x -> true, param1.blockPosition(), this.closeEnoughDist + 1, PoiManager.Occupancy.ANY);
+            .find(param0x -> param0x.is(PoiTypes.HOME), param0x -> true, param1.blockPosition(), this.closeEnoughDist + 1, PoiManager.Occupancy.ANY);
         if (var0.isPresent() && var0.get().closerToCenterThan(param1.position(), (double)this.closeEnoughDist)) {
             this.currentPos = var0;
         } else {
@@ -52,12 +52,12 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
         Brain<?> var0 = param1.getBrain();
         Optional<BlockPos> var1 = this.currentPos;
-        if (!var1.isPresent()) {
+        if (var1.isEmpty()) {
             var1 = param0.getPoiManager()
                 .getRandom(
-                    param0x -> param0x == PoiType.HOME, param0x -> true, PoiManager.Occupancy.ANY, param1.blockPosition(), this.radius, param1.getRandom()
+                    param0x -> param0x.is(PoiTypes.HOME), param0x -> true, PoiManager.Occupancy.ANY, param1.blockPosition(), this.radius, param1.getRandom()
                 );
-            if (!var1.isPresent()) {
+            if (var1.isEmpty()) {
                 Optional<GlobalPos> var2 = var0.getMemory(MemoryModuleType.HOME);
                 if (var2.isPresent()) {
                     var1 = Optional.of(var2.get().pos());

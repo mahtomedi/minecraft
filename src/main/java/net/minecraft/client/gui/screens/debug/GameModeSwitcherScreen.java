@@ -116,7 +116,7 @@ public class GameModeSwitcherScreen extends Screen {
             Optional<GameModeSwitcherScreen.GameModeIcon> var0 = GameModeSwitcherScreen.GameModeIcon.getFromGameType(param0.gameMode.getPlayerMode());
             GameModeSwitcherScreen.GameModeIcon var1 = param1.get();
             if (var0.isPresent() && param0.player.hasPermissions(2) && var1 != var0.get()) {
-                param0.player.chat(var1.getCommand());
+                param0.player.command(var1.getCommand());
             }
 
         }
@@ -150,10 +150,10 @@ public class GameModeSwitcherScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     static enum GameModeIcon {
-        CREATIVE(Component.translatable("gameMode.creative"), "/gamemode creative", new ItemStack(Blocks.GRASS_BLOCK)),
-        SURVIVAL(Component.translatable("gameMode.survival"), "/gamemode survival", new ItemStack(Items.IRON_SWORD)),
-        ADVENTURE(Component.translatable("gameMode.adventure"), "/gamemode adventure", new ItemStack(Items.MAP)),
-        SPECTATOR(Component.translatable("gameMode.spectator"), "/gamemode spectator", new ItemStack(Items.ENDER_EYE));
+        CREATIVE(Component.translatable("gameMode.creative"), "gamemode creative", new ItemStack(Blocks.GRASS_BLOCK)),
+        SURVIVAL(Component.translatable("gameMode.survival"), "gamemode survival", new ItemStack(Items.IRON_SWORD)),
+        ADVENTURE(Component.translatable("gameMode.adventure"), "gamemode adventure", new ItemStack(Items.MAP)),
+        SPECTATOR(Component.translatable("gameMode.spectator"), "gamemode spectator", new ItemStack(Items.ENDER_EYE));
 
         protected static final GameModeSwitcherScreen.GameModeIcon[] VALUES = values();
         private static final int ICON_AREA = 16;

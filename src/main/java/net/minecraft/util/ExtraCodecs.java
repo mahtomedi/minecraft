@@ -16,6 +16,7 @@ import com.mojang.serialization.Codec.ResultFunction;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 public class ExtraCodecs {
@@ -48,6 +50,20 @@ public class ExtraCodecs {
         }
     }, Pattern::pattern);
     public static final Codec<Instant> INSTANT_ISO8601 = instantCodec(DateTimeFormatter.ISO_INSTANT);
+    public static final Codec<byte[]> BASE64_STRING = Codec.STRING.comapFlatMap(param0 -> {
+        try {
+            return DataResult.success(Base64.getDecoder().decode(param0));
+        } catch (IllegalArgumentException var2) {
+            return DataResult.error("Malformed base64 string");
+        }
+    }, param0 -> Base64.getEncoder().encodeToString(param0));
+    public static final Codec<ExtraCodecs.TagOrElementLocation> TAG_OR_ELEMENT_ID = Codec.STRING
+        .comapFlatMap(
+            param0 -> param0.startsWith("#")
+                    ? ResourceLocation.read(param0.substring(1)).map(param0x -> new ExtraCodecs.TagOrElementLocation(param0x, true))
+                    : ResourceLocation.read(param0).map(param0x -> new ExtraCodecs.TagOrElementLocation(param0x, false)),
+            ExtraCodecs.TagOrElementLocation::decoratedId
+        );
 
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
         return new ExtraCodecs.XorCodec<>(param0, param1);
@@ -329,6 +345,17 @@ public class ExtraCodecs {
         @Override
         public <T> DataResult<T> encode(A param0, DynamicOps<T> param1, T param2) {
             return this.delegate.get().encode(param0, param1, param2);
+        }
+    }
+
+    public static record TagOrElementLocation(ResourceLocation id, boolean tag) {
+        @Override
+        public String toString() {
+            return this.decoratedId();
+        }
+
+        private String decoratedId() {
+            return this.tag ? "#" + this.id : this.id.toString();
         }
     }
 

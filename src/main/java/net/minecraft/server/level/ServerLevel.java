@@ -83,6 +83,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
@@ -359,7 +360,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         var0.push("entityManagement");
         this.entityManager.tick();
-        var0.push("gameEvents");
+        var0.popPush("gameEvents");
         this.sendGameEvents();
         var0.pop();
     }
@@ -489,7 +490,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private Optional<BlockPos> findLightningRod(BlockPos param0) {
         Optional<BlockPos> var0 = this.getPoiManager()
             .findClosest(
-                param0x -> param0x == PoiType.LIGHTNING_ROD,
+                param0x -> param0x.is(PoiTypes.LIGHTNING_ROD),
                 param0x -> param0x.getY() == this.getHeight(Heightmap.Types.WORLD_SURFACE, param0x.getX(), param0x.getZ()) - 1,
                 param0,
                 128,
@@ -1289,8 +1290,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     @Override
     public void onBlockStateChange(BlockPos param0, BlockState param1, BlockState param2) {
-        Optional<PoiType> var0 = PoiType.forState(param1);
-        Optional<PoiType> var1 = PoiType.forState(param2);
+        Optional<Holder<PoiType>> var0 = PoiTypes.forState(param1);
+        Optional<Holder<PoiType>> var1 = PoiTypes.forState(param2);
         if (!Objects.equals(var0, var1)) {
             BlockPos var2 = param0.immutable();
             var0.ifPresent(param1x -> this.getServer().execute(() -> {

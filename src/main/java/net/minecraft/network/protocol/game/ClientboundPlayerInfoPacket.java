@@ -81,7 +81,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
                 GameType var1 = GameType.byId(param0.readVarInt());
                 int var2 = param0.readVarInt();
                 Component var3 = param0.readNullable(FriendlyByteBuf::readComponent);
-                ProfilePublicKey.Data var4 = param0.readNullable(param0x -> param0x.readWithCodec(ProfilePublicKey.Data.CODEC));
+                ProfilePublicKey.Data var4 = param0.readNullable(ProfilePublicKey.Data::new);
                 return new ClientboundPlayerInfoPacket.PlayerUpdate(var0, var2, var1, var3, var4);
             }
 
@@ -91,7 +91,7 @@ public class ClientboundPlayerInfoPacket implements Packet<ClientGamePacketListe
                 param0.writeVarInt(param1.getGameMode().getId());
                 param0.writeVarInt(param1.getLatency());
                 param0.writeNullable(param1.getDisplayName(), FriendlyByteBuf::writeComponent);
-                param0.writeNullable(param1.getProfilePublicKey(), (param0x, param1x) -> param0x.writeWithCodec(ProfilePublicKey.Data.CODEC, param1x));
+                param0.writeNullable(param1.getProfilePublicKey(), (param0x, param1x) -> param1x.write(param0x));
             }
         },
         UPDATE_GAME_MODE {

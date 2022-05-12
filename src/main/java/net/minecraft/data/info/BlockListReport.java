@@ -72,7 +72,7 @@ public class BlockListReport implements DataProvider {
             var0.add(var2.toString(), var3);
         }
 
-        Path var14 = this.generator.getOutputFolder().resolve("reports/blocks.json");
+        Path var14 = this.generator.getOutputFolder(DataGenerator.Target.REPORTS).resolve("blocks.json");
         DataProvider.saveStable(param0, var0, var14);
     }
 

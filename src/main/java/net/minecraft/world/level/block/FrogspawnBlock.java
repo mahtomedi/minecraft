@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -96,16 +97,19 @@ public class FrogspawnBlock extends Block {
 
         for(int var1 = 1; var1 <= var0; ++var1) {
             Tadpole var2 = EntityType.TADPOLE.create(param0);
-            double var3 = param2.nextDouble();
-            double var4 = param2.nextDouble();
-            double var5 = (double)param1.getX() + var3;
-            double var6 = (double)param1.getZ() + var4;
-            int var7 = param2.nextInt(1, 361);
-            var2.moveTo(var5, (double)param1.getY() - 0.5, var6, (float)var7, 0.0F);
+            double var3 = (double)param1.getX() + this.getRandomTadpolePositionOffset(param2);
+            double var4 = (double)param1.getZ() + this.getRandomTadpolePositionOffset(param2);
+            int var5 = param2.nextInt(1, 361);
+            var2.moveTo(var3, (double)param1.getY() - 0.5, var4, (float)var5, 0.0F);
             var2.setPersistenceRequired();
             param0.addFreshEntity(var2);
         }
 
+    }
+
+    private double getRandomTadpolePositionOffset(RandomSource param0) {
+        double var0 = (double)(Tadpole.HITBOX_WIDTH / 2.0F);
+        return Mth.clamp(param0.nextDouble(), var0, 1.0 - var0);
     }
 
     @VisibleForTesting

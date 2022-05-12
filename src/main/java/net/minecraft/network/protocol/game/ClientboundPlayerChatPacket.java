@@ -3,31 +3,41 @@ package net.minecraft.network.protocol.game;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.chat.SignedMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Crypt;
 
-public record ClientboundPlayerChatPacket(Component content, int typeId, ChatSender sender, Instant timeStamp, Crypt.SaltSignaturePair saltSignature)
-    implements Packet<ClientGamePacketListener> {
+public record ClientboundPlayerChatPacket(
+    Component signedContent, Optional<Component> unsignedContent, int typeId, ChatSender sender, Instant timeStamp, Crypt.SaltSignaturePair saltSignature
+) implements Packet<ClientGamePacketListener> {
     private static final Duration MESSAGE_EXPIRES_AFTER = ServerboundChatPacket.MESSAGE_EXPIRES_AFTER.plus(Duration.ofMinutes(2L));
 
     public ClientboundPlayerChatPacket(FriendlyByteBuf param0) {
-        this(param0.readComponent(), param0.readVarInt(), new ChatSender(param0), Instant.ofEpochSecond(param0.readLong()), new Crypt.SaltSignaturePair(param0));
+        this(
+            param0.readComponent(),
+            param0.readOptional(FriendlyByteBuf::readComponent),
+            param0.readVarInt(),
+            new ChatSender(param0),
+            param0.readInstant(),
+            new Crypt.SaltSignaturePair(param0)
+        );
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeComponent(this.content);
+        param0.writeComponent(this.signedContent);
+        param0.writeOptional(this.unsignedContent, FriendlyByteBuf::writeComponent);
         param0.writeVarInt(this.typeId);
         this.sender.write(param0);
-        param0.writeLong(this.timeStamp.getEpochSecond());
-        this.saltSignature.write(param0);
+        param0.writeInstant(this.timeStamp);
+        Crypt.SaltSignaturePair.write(param0, this.saltSignature);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -39,9 +49,9 @@ public record ClientboundPlayerChatPacket(Component content, int typeId, ChatSen
         return true;
     }
 
-    public SignedMessage getSignedMessage() {
+    public PlayerChatMessage getMessage() {
         MessageSignature var0 = new MessageSignature(this.sender.uuid(), this.timeStamp, this.saltSignature);
-        return new SignedMessage(this.content, var0);
+        return new PlayerChatMessage(this.signedContent, var0, this.unsignedContent);
     }
 
     private Instant getExpiresAt() {

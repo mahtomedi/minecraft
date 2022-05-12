@@ -59,6 +59,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.gametest.framework.GameTestTicker;
+import net.minecraft.network.chat.ChatDecorator;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
@@ -635,6 +636,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.status.setDescription(Component.literal(this.motd));
             this.status
                 .setVersion(new ServerStatus.Version(SharedConstants.getCurrentVersion().getName(), SharedConstants.getCurrentVersion().getProtocolVersion()));
+            this.status.setPreviewsChat(this.previewsChat());
             this.updateStatusIcon(this.status);
 
             while(this.running) {
@@ -1129,6 +1131,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public void setMotd(String param0) {
         this.motd = param0;
+    }
+
+    public boolean previewsChat() {
+        return false;
     }
 
     public boolean isStopped() {
@@ -1696,6 +1702,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public void logMessageFrom(ChatSender param0, Component param1) {
         LOGGER.info(Component.translatable("chat.type.text", param0.name(), param1).getString());
+    }
+
+    public ChatDecorator getChatDecorator() {
+        return ChatDecorator.PLAIN;
     }
 
     static record ReloadableResources(CloseableResourceManager resourceManager, ReloadableServerResources managers) implements AutoCloseable {

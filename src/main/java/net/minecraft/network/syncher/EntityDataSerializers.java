@@ -98,7 +98,7 @@ public class EntityDataSerializers {
         FriendlyByteBuf::writeUUID, FriendlyByteBuf::readUUID
     );
     public static final EntityDataSerializer<Optional<GlobalPos>> OPTIONAL_GLOBAL_POS = EntityDataSerializer.optional(
-        (param0, param1) -> param0.writeWithCodec(GlobalPos.CODEC, param1), param0 -> param0.readWithCodec(GlobalPos.CODEC)
+        FriendlyByteBuf::writeGlobalPos, FriendlyByteBuf::readGlobalPos
     );
     public static final EntityDataSerializer<CompoundTag> COMPOUND_TAG = new EntityDataSerializer<CompoundTag>() {
         public void write(FriendlyByteBuf param0, CompoundTag param1) {

@@ -5,14 +5,14 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
 public class ItemTagsProvider extends TagsProvider<Item> {
-    private final Function<TagKey<Block>, Tag.Builder> blockTags;
+    private final Function<TagKey<Block>, TagBuilder> blockTags;
 
     public ItemTagsProvider(DataGenerator param0, BlockTagsProvider param1) {
         super(param0, Registry.ITEM);
@@ -205,8 +205,8 @@ public class ItemTagsProvider extends TagsProvider<Item> {
     }
 
     protected void copy(TagKey<Block> param0, TagKey<Item> param1) {
-        Tag.Builder var0 = this.getOrCreateRawBuilder(param1);
-        Tag.Builder var1 = this.blockTags.apply(param0);
-        var1.getEntries().forEach(var0::add);
+        TagBuilder var0 = this.getOrCreateRawBuilder(param1);
+        TagBuilder var1 = this.blockTags.apply(param0);
+        var1.build().forEach(var0::add);
     }
 }

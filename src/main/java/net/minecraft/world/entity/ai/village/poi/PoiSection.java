@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.VisibleForDebug;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ import org.slf4j.Logger;
 public class PoiSection {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Short2ObjectMap<PoiRecord> records = new Short2ObjectOpenHashMap<>();
-    private final Map<PoiType, Set<PoiRecord>> byType = Maps.newHashMap();
+    private final Map<Holder<PoiType>, Set<PoiRecord>> byType = Maps.newHashMap();
     private final Runnable setDirty;
     private boolean isValid;
 
@@ -51,7 +52,7 @@ public class PoiSection {
         param2.forEach(this::add);
     }
 
-    public Stream<PoiRecord> getRecords(Predicate<PoiType> param0, PoiManager.Occupancy param1) {
+    public Stream<PoiRecord> getRecords(Predicate<Holder<PoiType>> param0, PoiManager.Occupancy param1) {
         return this.byType
             .entrySet()
             .stream()
@@ -60,9 +61,9 @@ public class PoiSection {
             .filter(param1.getTest());
     }
 
-    public void add(BlockPos param0, PoiType param1) {
+    public void add(BlockPos param0, Holder<PoiType> param1) {
         if (this.add(new PoiRecord(param0, param1, this.setDirty))) {
-            LOGGER.debug("Added POI of type {} @ {}", param1, param0);
+            LOGGER.debug("Added POI of type {} @ {}", param1.unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]"), param0);
             this.setDirty.run();
         }
 
@@ -70,7 +71,7 @@ public class PoiSection {
 
     private boolean add(PoiRecord param0x) {
         BlockPos var0 = param0x.getPos();
-        PoiType var1 = param0x.getPoiType();
+        Holder<PoiType> var1 = param0x.getPoiType();
         short var2 = SectionPos.sectionRelativePos(var0);
         PoiRecord var3 = this.records.get(var2);
         if (var3 != null) {
@@ -114,11 +115,11 @@ public class PoiSection {
         }
     }
 
-    public boolean exists(BlockPos param0, Predicate<PoiType> param1) {
+    public boolean exists(BlockPos param0, Predicate<Holder<PoiType>> param1) {
         return this.getType(param0).filter(param1).isPresent();
     }
 
-    public Optional<PoiType> getType(BlockPos param0) {
+    public Optional<Holder<PoiType>> getType(BlockPos param0) {
         return this.getPoiRecord(param0).map(PoiRecord::getPoiType);
     }
 
@@ -126,7 +127,7 @@ public class PoiSection {
         return Optional.ofNullable(this.records.get(SectionPos.sectionRelativePos(param0)));
     }
 
-    public void refresh(Consumer<BiConsumer<BlockPos, PoiType>> param0) {
+    public void refresh(Consumer<BiConsumer<BlockPos, Holder<PoiType>>> param0) {
         if (!this.isValid) {
             Short2ObjectMap<PoiRecord> var0 = new Short2ObjectOpenHashMap<>(this.records);
             this.clear();

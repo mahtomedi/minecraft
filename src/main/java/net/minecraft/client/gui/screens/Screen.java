@@ -217,6 +217,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 var5 = this.height - var1 - 6;
             }
 
+            if (param3 - var1 - 8 < 0) {
+                var5 = param3 + 8;
+            }
+
             param0.pushPose();
             int var8 = -267386864;
             int var9 = 1347420415;
@@ -336,7 +340,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 } else if (var0.getAction() == ClickEvent.Action.SUGGEST_COMMAND) {
                     this.insertText(var0.getValue(), true);
                 } else if (var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                    this.sendMessage(var0.getValue(), false);
+                    this.minecraft.player.command(var0.getValue());
                 } else if (var0.getAction() == ClickEvent.Action.COPY_TO_CLIPBOARD) {
                     this.minecraft.keyboardHandler.setClipboard(var0.getValue());
                 } else {
@@ -348,18 +352,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
             return false;
         }
-    }
-
-    public void sendMessage(String param0) {
-        this.sendMessage(param0, true);
-    }
-
-    public void sendMessage(String param0, boolean param1) {
-        if (param1) {
-            this.minecraft.gui.getChat().addRecentChat(param0);
-        }
-
-        this.minecraft.player.chat(param0);
     }
 
     public final void init(Minecraft param0, int param1, int param2) {

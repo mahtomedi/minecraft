@@ -31,6 +31,8 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handlePlayerChat(ClientboundPlayerChatPacket var1);
 
+    void handleChatPreview(ClientboundChatPreviewPacket var1);
+
     void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket var1);
 
     void handleMapItemData(ClientboundMapItemDataPacket var1);
@@ -202,4 +204,6 @@ public interface ClientGamePacketListener extends PacketListener {
     void setTitlesAnimation(ClientboundSetTitlesAnimationPacket var1);
 
     void handleTitlesClear(ClientboundClearTitlesPacket var1);
+
+    void handleServerData(ClientboundServerDataPacket var1);
 }

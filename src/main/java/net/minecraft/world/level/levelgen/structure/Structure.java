@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.structure;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -90,8 +91,7 @@ public abstract class Structure {
             new Structure.GenerationContext(param0, param1, param2, param3, param4, param5, param6, param8, param9)
         );
         if (var0.isPresent() && isValidBiome(var0.get(), param1, param3, param9)) {
-            StructurePiecesBuilder var1 = new StructurePiecesBuilder();
-            var0.get().generator().accept(var1);
+            StructurePiecesBuilder var1 = var0.get().getPiecesBuilder();
             StructureStart var2 = new StructureStart(this, param6, param7, var1.build());
             if (var2.isValid()) {
                 return var2;
@@ -204,7 +204,18 @@ public abstract class Structure {
         }
     }
 
-    public static record GenerationStub(BlockPos position, Consumer<StructurePiecesBuilder> generator) {
+    public static record GenerationStub(BlockPos position, Either<Consumer<StructurePiecesBuilder>, StructurePiecesBuilder> generator) {
+        public GenerationStub(BlockPos param0, Consumer<StructurePiecesBuilder> param1) {
+            this(param0, Either.left(param1));
+        }
+
+        public StructurePiecesBuilder getPiecesBuilder() {
+            return this.generator.map(param0 -> {
+                StructurePiecesBuilder var0 = new StructurePiecesBuilder();
+                param0.accept(var0);
+                return var0;
+            }, param0 -> param0);
+        }
     }
 
     public static record StructureSettings(

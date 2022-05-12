@@ -17,42 +17,37 @@ import org.slf4j.Logger;
 
 public class AdvancementProvider implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final DataGenerator generator;
+    private final DataGenerator.PathProvider pathProvider;
     private final List<Consumer<Consumer<Advancement>>> tabs = ImmutableList.of(
         new TheEndAdvancements(), new HusbandryAdvancements(), new AdventureAdvancements(), new NetherAdvancements(), new StoryAdvancements()
     );
 
     public AdvancementProvider(DataGenerator param0) {
-        this.generator = param0;
+        this.pathProvider = param0.createPathProvider(DataGenerator.Target.DATA_PACK, "advancements");
     }
 
     @Override
     public void run(CachedOutput param0) {
-        Path var0 = this.generator.getOutputFolder();
-        Set<ResourceLocation> var1 = Sets.newHashSet();
-        Consumer<Advancement> var2 = param3 -> {
-            if (!var1.add(param3.getId())) {
-                throw new IllegalStateException("Duplicate advancement " + param3.getId());
+        Set<ResourceLocation> var0 = Sets.newHashSet();
+        Consumer<Advancement> var1 = param2 -> {
+            if (!var0.add(param2.getId())) {
+                throw new IllegalStateException("Duplicate advancement " + param2.getId());
             } else {
-                Path var0x = createPath(var0, param3);
+                Path var0x = this.pathProvider.json(param2.getId());
 
                 try {
-                    DataProvider.saveStable(param0, param3.deconstruct().serializeToJson(), var0x);
-                } catch (IOException var6x) {
-                    LOGGER.error("Couldn't save advancement {}", var0x, var6x);
+                    DataProvider.saveStable(param0, param2.deconstruct().serializeToJson(), var0x);
+                } catch (IOException var6) {
+                    LOGGER.error("Couldn't save advancement {}", var0x, var6);
                 }
 
             }
         };
 
-        for(Consumer<Consumer<Advancement>> var3 : this.tabs) {
-            var3.accept(var2);
+        for(Consumer<Consumer<Advancement>> var2 : this.tabs) {
+            var2.accept(var1);
         }
 
-    }
-
-    private static Path createPath(Path param0, Advancement param1) {
-        return param0.resolve("data/" + param1.getId().getNamespace() + "/advancements/" + param1.getId().getPath() + ".json");
     }
 
     @Override

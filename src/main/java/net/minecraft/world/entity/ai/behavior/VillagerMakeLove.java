@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.pathfinder.Path;
 
@@ -95,11 +97,12 @@ public class VillagerMakeLove extends Behavior<Villager> {
     }
 
     private Optional<BlockPos> takeVacantBed(ServerLevel param0, Villager param1) {
-        return param0.getPoiManager().take(PoiType.HOME.getPredicate(), param1x -> this.canReach(param1, param1x), param1.blockPosition(), 48);
+        return param0.getPoiManager()
+            .take(param0x -> param0x.is(PoiTypes.HOME), (param1x, param2) -> this.canReach(param1, param2, param1x), param1.blockPosition(), 48);
     }
 
-    private boolean canReach(Villager param0, BlockPos param1) {
-        Path var0 = param0.getNavigation().createPath(param1, PoiType.HOME.getValidRange());
+    private boolean canReach(Villager param0, BlockPos param1, Holder<PoiType> param2) {
+        Path var0 = param0.getNavigation().createPath(param1, param2.value().validRange());
         return var0 != null && var0.canReach();
     }
 

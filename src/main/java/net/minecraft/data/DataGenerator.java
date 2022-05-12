@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.WorldVersion;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import org.slf4j.Logger;
 
@@ -34,6 +35,10 @@ public class DataGenerator {
 
     public Path getOutputFolder() {
         return this.outputFolder;
+    }
+
+    public Path getOutputFolder(DataGenerator.Target param0) {
+        return this.getOutputFolder().resolve(param0.directory);
     }
 
     public void run() throws IOException {
@@ -66,7 +71,41 @@ public class DataGenerator {
         this.allProviders.add(param1);
     }
 
+    public DataGenerator.PathProvider createPathProvider(DataGenerator.Target param0, String param1) {
+        return new DataGenerator.PathProvider(this, param0, param1);
+    }
+
     static {
         Bootstrap.bootStrap();
+    }
+
+    public static class PathProvider {
+        private final Path root;
+        private final String kind;
+
+        PathProvider(DataGenerator param0, DataGenerator.Target param1, String param2) {
+            this.root = param0.getOutputFolder(param1);
+            this.kind = param2;
+        }
+
+        public Path file(ResourceLocation param0, String param1) {
+            return this.root.resolve(param0.getNamespace()).resolve(this.kind).resolve(param0.getPath() + "." + param1);
+        }
+
+        public Path json(ResourceLocation param0) {
+            return this.root.resolve(param0.getNamespace()).resolve(this.kind).resolve(param0.getPath() + ".json");
+        }
+    }
+
+    public static enum Target {
+        DATA_PACK("data"),
+        RESOURCE_PACK("assets"),
+        REPORTS("reports");
+
+        final String directory;
+
+        private Target(String param0) {
+            this.directory = param0;
+        }
     }
 }

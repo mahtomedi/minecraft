@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -18,11 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ValidateNearbyPoi extends Behavior<LivingEntity> {
     private static final int MAX_DISTANCE = 16;
     private final MemoryModuleType<GlobalPos> memoryType;
-    private final Predicate<PoiType> poiPredicate;
+    private final Predicate<Holder<PoiType>> poiPredicate;
 
-    public ValidateNearbyPoi(PoiType param0, MemoryModuleType<GlobalPos> param1) {
+    public ValidateNearbyPoi(Predicate<Holder<PoiType>> param0, MemoryModuleType<GlobalPos> param1) {
         super(ImmutableMap.of(param1, MemoryStatus.VALUE_PRESENT));
-        this.poiPredicate = param0.getPredicate();
+        this.poiPredicate = param0;
         this.memoryType = param1;
     }
 

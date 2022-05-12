@@ -1,5 +1,6 @@
 package net.minecraft.world.item;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -11,6 +12,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -33,8 +35,12 @@ public class InstrumentItem extends Item {
     @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);
-        MutableComponent var0 = Component.translatable(Util.makeDescriptionId("instrument", getInstrumentLocation(param0)));
-        param2.add(var0.withStyle(ChatFormatting.GRAY));
+        Optional<ResourceKey<Instrument>> var0 = this.getInstrument(param0).flatMap(Holder::unwrapKey);
+        if (var0.isPresent()) {
+            MutableComponent var1 = Component.translatable(Util.makeDescriptionId("instrument", var0.get().location()));
+            param2.add(var1.withStyle(ChatFormatting.GRAY));
+        }
+
     }
 
     public static ItemStack create(Item param0, Holder<Instrument> param1) {
@@ -69,11 +75,12 @@ public class InstrumentItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        Instrument var1 = getInstrument(var0);
-        if (var1 != null) {
+        Optional<Holder<Instrument>> var1 = this.getInstrument(var0);
+        if (var1.isPresent()) {
+            Instrument var2 = var1.get().value();
             param1.startUsingItem(param2);
-            play(param0, param1, var1);
-            param1.getCooldowns().addCooldown(this, var1.useDuration());
+            play(param0, param1, var2);
+            param1.getCooldowns().addCooldown(this, var2.useDuration());
             return InteractionResultHolder.consume(var0);
         } else {
             return InteractionResultHolder.fail(var0);
@@ -82,19 +89,21 @@ public class InstrumentItem extends Item {
 
     @Override
     public int getUseDuration(ItemStack param0) {
-        Instrument var0 = getInstrument(param0);
-        return var0 != null ? var0.useDuration() : 0;
+        Optional<Holder<Instrument>> var0 = this.getInstrument(param0);
+        return var0.isPresent() ? var0.get().value().useDuration() : 0;
     }
 
-    @Nullable
-    private static Instrument getInstrument(ItemStack param0) {
-        return Registry.INSTRUMENT.get(getInstrumentLocation(param0));
-    }
-
-    @Nullable
-    private static ResourceLocation getInstrumentLocation(ItemStack param0) {
+    private Optional<Holder<Instrument>> getInstrument(ItemStack param0) {
         CompoundTag var0 = param0.getTag();
-        return var0 != null ? ResourceLocation.tryParse(var0.getString("instrument")) : null;
+        if (var0 != null) {
+            ResourceLocation var1 = ResourceLocation.tryParse(var0.getString("instrument"));
+            if (var1 != null) {
+                return Registry.INSTRUMENT.getHolder(ResourceKey.create(Registry.INSTRUMENT_REGISTRY, var1));
+            }
+        }
+
+        Iterator<Holder<Instrument>> var2 = Registry.INSTRUMENT.getTagOrEmpty(this.instruments).iterator();
+        return var2.hasNext() ? Optional.of(var2.next()) : Optional.empty();
     }
 
     @Override

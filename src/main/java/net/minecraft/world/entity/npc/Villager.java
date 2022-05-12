@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -70,6 +71,7 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.player.Player;
@@ -160,15 +162,15 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         SensorType.SECONDARY_POIS,
         SensorType.GOLEM_DETECTED
     );
-    public static final Map<MemoryModuleType<GlobalPos>, BiPredicate<Villager, PoiType>> POI_MEMORIES = ImmutableMap.of(
+    public static final Map<MemoryModuleType<GlobalPos>, BiPredicate<Villager, Holder<PoiType>>> POI_MEMORIES = ImmutableMap.of(
         MemoryModuleType.HOME,
-        (param0, param1) -> param1 == PoiType.HOME,
+        (param0, param1) -> param1.is(PoiTypes.HOME),
         MemoryModuleType.JOB_SITE,
-        (param0, param1) -> param0.getVillagerData().getProfession().getJobPoiType() == param1,
+        (param0, param1) -> param0.getVillagerData().getProfession().heldJobSite().test(param1),
         MemoryModuleType.POTENTIAL_JOB_SITE,
-        (param0, param1) -> PoiType.ALL_JOBS.test(param1),
+        (param0, param1) -> VillagerProfession.ALL_ACQUIRABLE_JOBS.test(param1),
         MemoryModuleType.MEETING_POINT,
-        (param0, param1) -> param1 == PoiType.MEETING
+        (param0, param1) -> param1.is(PoiTypes.MEETING)
     );
 
     public Villager(EntityType<? extends Villager> param0, Level param1) {
@@ -556,7 +558,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     public void playWorkSound() {
-        SoundEvent var0 = this.getVillagerData().getProfession().getWorkSound();
+        SoundEvent var0 = this.getVillagerData().getProfession().workSound();
         if (var0 != null) {
             this.playSound(var0, this.getSoundVolume(), this.getVoicePitch());
         }
@@ -653,9 +655,9 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                 ServerLevel var0x = var0.getLevel(param2.dimension());
                 if (var0x != null) {
                     PoiManager var1x = var0x.getPoiManager();
-                    Optional<PoiType> var2x = var1x.getType(param2.pos());
-                    BiPredicate<Villager, PoiType> var3 = POI_MEMORIES.get(param0);
-                    if (var2x.isPresent() && var3.test(this, (PoiType)var2x.get())) {
+                    Optional<Holder<PoiType>> var2x = var1x.getType(param2.pos());
+                    BiPredicate<Villager, Holder<PoiType>> var3 = POI_MEMORIES.get(param0);
+                    if (var2x.isPresent() && var3.test(this, (Holder<PoiType>)var2x.get())) {
                         var1x.release(param2.pos());
                         DebugPackets.sendPoiTicketCountPacket(var0x, param2.pos());
                     }
@@ -814,7 +816,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     public boolean wantsToPickUp(ItemStack param0) {
         Item var0 = param0.getItem();
-        return (WANTED_ITEMS.contains(var0) || this.getVillagerData().getProfession().getRequestedItems().contains(var0))
+        return (WANTED_ITEMS.contains(var0) || this.getVillagerData().getProfession().requestedItems().contains(var0))
             && this.getInventory().canAddItem(param0);
     }
 

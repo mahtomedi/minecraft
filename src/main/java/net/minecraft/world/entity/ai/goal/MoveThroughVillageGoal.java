@@ -9,13 +9,13 @@ import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.PoiTypeTags;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
@@ -67,8 +67,8 @@ public class MoveThroughVillageGoal extends Goal {
                                 return Double.NEGATIVE_INFINITY;
                             } else {
                                 Optional<BlockPos> var0x = var0.getPoiManager()
-                                    .find(PoiType.ALL, this::hasNotVisited, param2, 10, PoiManager.Occupancy.IS_OCCUPIED);
-                                return !var0x.isPresent() ? Double.NEGATIVE_INFINITY : -var0x.get().distSqr(var1);
+                                    .find(param0x -> param0x.is(PoiTypeTags.VILLAGE), this::hasNotVisited, param2, 10, PoiManager.Occupancy.IS_OCCUPIED);
+                                return var0x.<Double>map(param1x -> -param1x.distSqr(var1)).orElse(Double.NEGATIVE_INFINITY);
                             }
                         }
                     );
@@ -76,8 +76,8 @@ public class MoveThroughVillageGoal extends Goal {
                         return false;
                     } else {
                         Optional<BlockPos> var3 = var0.getPoiManager()
-                            .find(PoiType.ALL, this::hasNotVisited, new BlockPos(var2), 10, PoiManager.Occupancy.IS_OCCUPIED);
-                        if (!var3.isPresent()) {
+                            .find(param0 -> param0.is(PoiTypeTags.VILLAGE), this::hasNotVisited, new BlockPos(var2), 10, PoiManager.Occupancy.IS_OCCUPIED);
+                        if (var3.isEmpty()) {
                             return false;
                         } else {
                             this.poiPos = var3.get().immutable();

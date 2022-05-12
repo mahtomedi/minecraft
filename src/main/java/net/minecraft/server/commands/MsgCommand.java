@@ -10,7 +10,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.SignedMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 
 public class MsgCommand {
@@ -35,14 +35,16 @@ public class MsgCommand {
         param0.register(Commands.literal("w").redirect(var0));
     }
 
-    private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, SignedMessage param2) {
-        for(ServerPlayer var0 : param1) {
+    private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, PlayerChatMessage param2) {
+        PlayerChatMessage var0 = param0.getServer().getChatDecorator().decorate(param0.getPlayer(), param2);
+
+        for(ServerPlayer var1 : param1) {
             param0.sendSuccess(
-                Component.translatable("commands.message.display.outgoing", var0.getDisplayName(), param2.content())
+                Component.translatable("commands.message.display.outgoing", var1.getDisplayName(), var0.serverContent())
                     .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
                 false
             );
-            var0.sendChatMessage(param2, param0.asChatSender(), ChatType.MSG_COMMAND);
+            var1.sendChatMessage(var0, param0.asChatSender(), ChatType.MSG_COMMAND);
         }
 
         return param1.size();

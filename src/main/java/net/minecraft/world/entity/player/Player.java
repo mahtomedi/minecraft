@@ -1071,7 +1071,11 @@ public abstract class Player extends LivingEntity {
 
     @Override
     protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
-        if (!this.abilities.flying && (param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.isStayingOnGroundSurface() && this.isAboveGround()) {
+        if (!this.abilities.flying
+            && param0.y <= 0.0
+            && (param1 == MoverType.SELF || param1 == MoverType.PLAYER)
+            && this.isStayingOnGroundSurface()
+            && this.isAboveGround()) {
             double var0 = param0.x;
             double var1 = param0.z;
             double var2 = 0.05;

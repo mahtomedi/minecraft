@@ -37,7 +37,6 @@ public class DamageSource {
     public static final DamageSource FREEZE = new DamageSource("freeze").bypassArmor();
     public static final DamageSource FALLING_STALACTITE = new DamageSource("fallingStalactite").damageHelmet();
     public static final DamageSource STALAGMITE = new DamageSource("stalagmite").bypassArmor().setIsFall();
-    public static final DamageSource SONIC_BOOM = new DamageSource("sonic_boom").bypassArmor().setMagic();
     private boolean damageHelmet;
     private boolean bypassArmor;
     private boolean bypassInvul;
@@ -110,6 +109,10 @@ public class DamageSource {
         return param0 != null
             ? new EntityDamageSource("explosion.player", param0).setScalesWithDifficulty().setExplosion()
             : new DamageSource("explosion").setScalesWithDifficulty().setExplosion();
+    }
+
+    public static DamageSource sonicBoom(Entity param0) {
+        return new EntityDamageSource("sonic_boom", param0).bypassArmor().setMagic();
     }
 
     public static DamageSource badRespawnPointExplosion() {

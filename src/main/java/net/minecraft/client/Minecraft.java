@@ -366,6 +366,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private double gpuUtilization;
     @Nullable
     private TimerQuery.FrameProfile currentFrameProfile;
+    private final Realms32BitWarningStatus realms32BitWarningStatus;
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
@@ -546,6 +547,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.resizeDisplay();
         this.gameRenderer.preloadUiShader(this.getClientPackSource().getVanillaPack().asProvider());
         this.profileKeyPairManager = new ProfileKeyPairManager(this.userApiService, this.user.getGameProfile().getId(), this.gameDirectory.toPath());
+        this.realms32BitWarningStatus = new Realms32BitWarningStatus(this);
         LoadingOverlay.registerTextures(this);
         List<PackResources> var14 = this.resourcePackRepository.openAllSelected();
         this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var14);
@@ -2669,6 +2671,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public void prepareForMultiplayer() {
         this.playerSocialManager.startOnlineMode();
+    }
+
+    public Realms32BitWarningStatus getRealms32BitWarningStatus() {
+        return this.realms32BitWarningStatus;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 
 public class LootTableProvider implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final DataGenerator generator;
+    private final DataGenerator.PathProvider pathProvider;
     private final List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> subProviders = ImmutableList.of(
         Pair.of(FishingLoot::new, LootContextParamSets.FISHING),
         Pair.of(ChestLoot::new, LootContextParamSets.CHEST),
@@ -38,45 +38,40 @@ public class LootTableProvider implements DataProvider {
     );
 
     public LootTableProvider(DataGenerator param0) {
-        this.generator = param0;
+        this.pathProvider = param0.createPathProvider(DataGenerator.Target.DATA_PACK, "loot_tables");
     }
 
     @Override
     public void run(CachedOutput param0) {
-        Path var0 = this.generator.getOutputFolder();
-        Map<ResourceLocation, LootTable> var1 = Maps.newHashMap();
+        Map<ResourceLocation, LootTable> var0 = Maps.newHashMap();
         this.subProviders.forEach(param1 -> param1.getFirst().get().accept((param2, param3) -> {
-                if (var1.put(param2, param3.setParamSet(param1.getSecond()).build()) != null) {
+                if (var0.put(param2, param3.setParamSet(param1.getSecond()).build()) != null) {
                     throw new IllegalStateException("Duplicate loot table " + param2);
                 }
             }));
-        ValidationContext var2 = new ValidationContext(LootContextParamSets.ALL_PARAMS, param0x -> null, var1::get);
+        ValidationContext var1 = new ValidationContext(LootContextParamSets.ALL_PARAMS, param0x -> null, var0::get);
 
-        for(ResourceLocation var4 : Sets.difference(BuiltInLootTables.all(), var1.keySet())) {
-            var2.reportProblem("Missing built-in table: " + var4);
+        for(ResourceLocation var3 : Sets.difference(BuiltInLootTables.all(), var0.keySet())) {
+            var1.reportProblem("Missing built-in table: " + var3);
         }
 
-        var1.forEach((param1, param2) -> LootTables.validate(var2, param1, param2));
-        Multimap<String, String> var5 = var2.getProblems();
-        if (!var5.isEmpty()) {
-            var5.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
+        var0.forEach((param1, param2) -> LootTables.validate(var1, param1, param2));
+        Multimap<String, String> var4 = var1.getProblems();
+        if (!var4.isEmpty()) {
+            var4.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
             throw new IllegalStateException("Failed to validate loot tables, see logs");
         } else {
-            var1.forEach((param2, param3) -> {
-                Path var0x = createPath(var0, param2);
+            var0.forEach((param1, param2) -> {
+                Path var0x = this.pathProvider.json(param1);
 
                 try {
-                    DataProvider.saveStable(param0, LootTables.serialize(param3), var0x);
-                } catch (IOException var6) {
-                    LOGGER.error("Couldn't save loot table {}", var0x, var6);
+                    DataProvider.saveStable(param0, LootTables.serialize(param2), var0x);
+                } catch (IOException var6x) {
+                    LOGGER.error("Couldn't save loot table {}", var0x, var6x);
                 }
 
             });
         }
-    }
-
-    private static Path createPath(Path param0, ResourceLocation param1) {
-        return param0.resolve("data/" + param1.getNamespace() + "/loot_tables/" + param1.getPath() + ".json");
     }
 
     @Override

@@ -9,10 +9,9 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 
 public class DimensionTypes {
-    public static Holder<DimensionType> bootstrap() {
-        Registry<DimensionType> var0 = BuiltinRegistries.DIMENSION_TYPE;
+    public static Holder<DimensionType> bootstrap(Registry<DimensionType> param0) {
         BuiltinRegistries.register(
-            var0,
+            param0,
             BuiltinDimensionTypes.OVERWORLD,
             new DimensionType(
                 OptionalLong.empty(),
@@ -34,7 +33,7 @@ public class DimensionTypes {
             )
         );
         BuiltinRegistries.register(
-            var0,
+            param0,
             BuiltinDimensionTypes.NETHER,
             new DimensionType(
                 OptionalLong.of(18000L),
@@ -56,7 +55,7 @@ public class DimensionTypes {
             )
         );
         BuiltinRegistries.register(
-            var0,
+            param0,
             BuiltinDimensionTypes.END,
             new DimensionType(
                 OptionalLong.of(6000L),
@@ -78,7 +77,7 @@ public class DimensionTypes {
             )
         );
         return BuiltinRegistries.register(
-            var0,
+            param0,
             BuiltinDimensionTypes.OVERWORLD_CAVES,
             new DimensionType(
                 OptionalLong.empty(),

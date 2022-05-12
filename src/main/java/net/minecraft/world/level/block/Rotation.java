@@ -1,21 +1,26 @@
 package net.minecraft.world.level.block;
 
 import com.mojang.math.OctahedralGroup;
+import com.mojang.serialization.Codec;
 import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 
-public enum Rotation {
-    NONE(OctahedralGroup.IDENTITY),
-    CLOCKWISE_90(OctahedralGroup.ROT_90_Y_NEG),
-    CLOCKWISE_180(OctahedralGroup.ROT_180_FACE_XZ),
-    COUNTERCLOCKWISE_90(OctahedralGroup.ROT_90_Y_POS);
+public enum Rotation implements StringRepresentable {
+    NONE("none", OctahedralGroup.IDENTITY),
+    CLOCKWISE_90("clockwise_90", OctahedralGroup.ROT_90_Y_NEG),
+    CLOCKWISE_180("180", OctahedralGroup.ROT_180_FACE_XZ),
+    COUNTERCLOCKWISE_90("counterclockwise_90", OctahedralGroup.ROT_90_Y_POS);
 
+    public static final Codec<Rotation> CODEC = StringRepresentable.fromEnum(Rotation::values);
+    private final String id;
     private final OctahedralGroup rotation;
 
-    private Rotation(OctahedralGroup param0) {
-        this.rotation = param0;
+    private Rotation(String param0, OctahedralGroup param1) {
+        this.id = param0;
+        this.rotation = param1;
     }
 
     public Rotation getRotated(Rotation param0) {
@@ -98,5 +103,10 @@ public enum Rotation {
 
     public static List<Rotation> getShuffled(RandomSource param0) {
         return Util.shuffledCopy(values(), param0);
+    }
+
+    @Override
+    public String getSerializedName() {
+        return this.id;
     }
 }

@@ -10,7 +10,7 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
@@ -43,7 +43,7 @@ public class PortalForcer {
         PoiManager var0 = this.level.getPoiManager();
         int var1 = param1 ? 16 : 128;
         var0.ensureLoadedAndValid(this.level, param0, var1);
-        Optional<PoiRecord> var2 = var0.getInSquare(param0x -> param0x == PoiType.NETHER_PORTAL, param0, var1, PoiManager.Occupancy.ANY)
+        Optional<PoiRecord> var2 = var0.getInSquare(param0x -> param0x.is(PoiTypes.NETHER_PORTAL), param0, var1, PoiManager.Occupancy.ANY)
             .filter(param1x -> param2.isWithinBounds(param1x.getPos()))
             .sorted(Comparator.<PoiRecord>comparingDouble(param1x -> param1x.getPos().distSqr(param0)).thenComparingInt(param0x -> param0x.getPos().getY()))
             .filter(param0x -> this.level.getBlockState(param0x.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS))

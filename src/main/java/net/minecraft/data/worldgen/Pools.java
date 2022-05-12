@@ -18,15 +18,16 @@ public class Pools {
         return BuiltinRegistries.register(BuiltinRegistries.TEMPLATE_POOL, param0.getName(), param0);
     }
 
-    public static Holder<StructureTemplatePool> bootstrap() {
+    @Deprecated
+    public static void forceBootstrap() {
+        bootstrap(BuiltinRegistries.TEMPLATE_POOL);
+    }
+
+    public static Holder<StructureTemplatePool> bootstrap(Registry<StructureTemplatePool> param0) {
         BastionPieces.bootstrap();
         PillagerOutpostPools.bootstrap();
         VillagePools.bootstrap();
         AncientCityStructurePieces.bootstrap();
         return BUILTIN_EMPTY;
-    }
-
-    static {
-        bootstrap();
     }
 }

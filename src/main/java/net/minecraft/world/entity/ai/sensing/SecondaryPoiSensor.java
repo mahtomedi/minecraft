@@ -30,7 +30,7 @@ public class SecondaryPoiSensor extends Sensor<Villager> {
             for(int var5 = -2; var5 <= 2; ++var5) {
                 for(int var6 = -4; var6 <= 4; ++var6) {
                     BlockPos var7 = var1.offset(var4, var5, var6);
-                    if (param1.getVillagerData().getProfession().getSecondaryPoi().contains(param0.getBlockState(var7).getBlock())) {
+                    if (param1.getVillagerData().getProfession().secondaryPoi().contains(param0.getBlockState(var7).getBlock())) {
                         var2.add(GlobalPos.of(var0, var7));
                     }
                 }

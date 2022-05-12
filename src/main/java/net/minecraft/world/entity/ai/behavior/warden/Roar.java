@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Unit;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.monster.warden.WardenAi;
 
 public class Roar extends Behavior<Warden> {
     private static final int TICKS_BEFORE_PLAYING_ROAR_SOUND = 25;
+    private static final int ROAR_ANGER_INCREASE = 20;
 
     public Roar() {
         super(
@@ -36,8 +38,10 @@ public class Roar extends Behavior<Warden> {
         Brain<Warden> var0 = param1.getBrain();
         var0.setMemoryWithExpiry(MemoryModuleType.ROAR_SOUND_DELAY, Unit.INSTANCE, 25L);
         var0.eraseMemory(MemoryModuleType.WALK_TARGET);
-        BehaviorUtils.lookAtEntity(param1, param1.getBrain().getMemory(MemoryModuleType.ROAR_TARGET).get());
+        LivingEntity var1 = param1.getBrain().getMemory(MemoryModuleType.ROAR_TARGET).get();
+        BehaviorUtils.lookAtEntity(param1, var1);
         param1.setPose(Pose.ROARING);
+        param1.increaseAngerAt(var1, 20, false);
     }
 
     protected boolean canStillUse(ServerLevel param0, Warden param1, long param2) {

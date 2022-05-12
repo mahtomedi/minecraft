@@ -31,16 +31,13 @@ public class SmallFireball extends Fireball {
         super.onHitEntity(param0);
         if (!this.level.isClientSide) {
             Entity var0 = param0.getEntity();
-            if (!var0.fireImmune()) {
-                Entity var1 = this.getOwner();
-                int var2 = var0.getRemainingFireTicks();
-                var0.setSecondsOnFire(5);
-                boolean var3 = var0.hurt(DamageSource.fireball(this, var1), 5.0F);
-                if (!var3) {
-                    var0.setRemainingFireTicks(var2);
-                } else if (var1 instanceof LivingEntity) {
-                    this.doEnchantDamageEffects((LivingEntity)var1, var0);
-                }
+            Entity var1 = this.getOwner();
+            int var2 = var0.getRemainingFireTicks();
+            var0.setSecondsOnFire(5);
+            if (!var0.hurt(DamageSource.fireball(this, var1), 5.0F)) {
+                var0.setRemainingFireTicks(var2);
+            } else if (var1 instanceof LivingEntity) {
+                this.doEnchantDamageEffects((LivingEntity)var1, var0);
             }
 
         }

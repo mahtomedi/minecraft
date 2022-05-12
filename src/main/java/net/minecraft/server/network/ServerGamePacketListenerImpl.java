@@ -37,14 +37,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.ChatPreviewThrottler;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.chat.SignedMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundChatPreviewPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
@@ -60,6 +62,7 @@ import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQuery;
 import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
+import net.minecraft.network.protocol.game.ServerboundChatPreviewPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
@@ -121,6 +124,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -194,6 +198,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     private int aboveGroundVehicleTickCount;
     private int receivedMovePacketCount;
     private int knownMovePacketCount;
+    private final ChatPreviewThrottler chatPreviewThrottler = new ChatPreviewThrottler();
 
     public ServerGamePacketListenerImpl(MinecraftServer param0, Connection param1, ServerPlayer param2) {
         this.server = param0;
@@ -282,6 +287,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             this.disconnect(Component.translatable("multiplayer.disconnect.idling"));
         }
 
+        this.chatPreviewThrottler.tick();
     }
 
     public void resetPosition() {
@@ -1247,9 +1253,16 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
     private void handleChat(ServerboundChatPacket param0, TextFilter.FilteredText param1) {
         if (this.resetLastActionTime()) {
-            MessageSignature var0 = param0.getSignature(this.player.getUUID());
-            SignedMessage var1 = new SignedMessage(Component.literal(param0.getMessage()), var0);
-            this.server.getPlayerList().broadcastChatMessage(var1, param1, this.player, ChatType.CHAT);
+            Component var0 = Component.literal(param0.getMessage());
+            MessageSignature var1 = param0.getSignature(this.player.getUUID());
+            PlayerChatMessage var2 = this.server.getChatDecorator().decorate(this.player, var0, var1, param0.signedPreview());
+            ProfilePublicKey var3 = this.player.getProfilePublicKey();
+            if (var3 != null && !var2.verify(var3)) {
+                LOGGER.warn("{} sent message with invalid signature: '{}'", this.player.getName().getString(), var2.signedContent().getString());
+                return;
+            }
+
+            this.server.getPlayerList().broadcastChatMessage(var2, param1, this.player, ChatType.CHAT);
             this.detectRateSpam();
         }
 
@@ -1259,6 +1272,24 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.chatSpamTickCount += 20;
         if (this.chatSpamTickCount > 200 && !this.server.getPlayerList().isOp(this.player.getGameProfile())) {
             this.disconnect(Component.translatable("disconnect.spam"));
+        }
+
+    }
+
+    @Override
+    public void handleChatPreview(ServerboundChatPreviewPacket param0) {
+        if (this.server.previewsChat()) {
+            this.chatPreviewThrottler.execute(() -> {
+                String var0 = param0.query();
+                Component var1x = Component.literal(var0);
+                Component var2 = this.server.getChatDecorator().decorate(this.player, var1x);
+                if (!var1x.equals(var2)) {
+                    this.send(new ClientboundChatPreviewPacket(param0.queryId(), var2));
+                } else {
+                    this.send(new ClientboundChatPreviewPacket(param0.queryId(), null));
+                }
+
+            });
         }
 
     }

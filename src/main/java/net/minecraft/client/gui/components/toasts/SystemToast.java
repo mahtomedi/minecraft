@@ -14,7 +14,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SystemToast implements Toast {
-    private static final long DISPLAY_TIME = 5000L;
     private static final int MAX_LINE_SIZE = 200;
     private final SystemToast.SystemToastIds id;
     private Component title;
@@ -91,7 +90,7 @@ public class SystemToast implements Toast {
             }
         }
 
-        return param2 - this.lastChanged < 5000L ? Toast.Visibility.SHOW : Toast.Visibility.HIDE;
+        return param2 - this.lastChanged < this.id.displayTime ? Toast.Visibility.SHOW : Toast.Visibility.HIDE;
     }
 
     private void renderBackgroundRow(PoseStack param0, ToastComponent param1, int param2, int param3, int param4, int param5) {
@@ -161,6 +160,17 @@ public class SystemToast implements Toast {
         PACK_LOAD_FAILURE,
         WORLD_ACCESS_FAILURE,
         PACK_COPY_FAILURE,
-        PERIODIC_NOTIFICATION;
+        PERIODIC_NOTIFICATION,
+        CHAT_PREVIEW_WARNING(10000L);
+
+        final long displayTime;
+
+        private SystemToastIds(long param0) {
+            this.displayTime = param0;
+        }
+
+        private SystemToastIds() {
+            this(5000L);
+        }
     }
 }

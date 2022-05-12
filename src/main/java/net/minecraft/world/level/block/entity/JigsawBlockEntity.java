@@ -78,7 +78,7 @@ public class JigsawBlockEntity extends BlockEntity {
         super.saveAdditional(param0);
         param0.putString("name", this.name.toString());
         param0.putString("target", this.target.toString());
-        param0.putString("pool", this.pool.toString());
+        param0.putString("pool", this.pool.location().toString());
         param0.putString("final_state", this.finalState);
         param0.putString("joint", this.joint.getSerializedName());
     }

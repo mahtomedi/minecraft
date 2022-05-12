@@ -31,7 +31,7 @@ public class StructurePiecesBuilder implements StructurePieceAccessor {
     }
 
     @Deprecated
-    public void moveBelowSeaLevel(int param0, int param1, RandomSource param2, int param3) {
+    public int moveBelowSeaLevel(int param0, int param1, RandomSource param2, int param3) {
         int var0 = param0 - param3;
         BoundingBox var1 = this.getBoundingBox();
         int var2 = var1.getYSpan() + param1 + 1;
@@ -41,6 +41,7 @@ public class StructurePiecesBuilder implements StructurePieceAccessor {
 
         int var3 = var2 - var1.maxY();
         this.offsetPiecesVertically(var3);
+        return var3;
     }
 
     /** @deprecated */

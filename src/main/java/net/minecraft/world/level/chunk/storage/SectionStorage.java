@@ -23,10 +23,12 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -42,6 +44,7 @@ public class SectionStorage<R> implements AutoCloseable {
     private final Function<Runnable, R> factory;
     private final DataFixer fixerUpper;
     private final DataFixTypes type;
+    private final RegistryAccess registryAccess;
     protected final LevelHeightAccessor levelHeightAccessor;
 
     public SectionStorage(
@@ -51,13 +54,15 @@ public class SectionStorage<R> implements AutoCloseable {
         DataFixer param3,
         DataFixTypes param4,
         boolean param5,
-        LevelHeightAccessor param6
+        RegistryAccess param6,
+        LevelHeightAccessor param7
     ) {
         this.codec = param1;
         this.factory = param2;
         this.fixerUpper = param3;
         this.type = param4;
-        this.levelHeightAccessor = param6;
+        this.registryAccess = param6;
+        this.levelHeightAccessor = param7;
         this.worker = new IOWorker(param0, param5, param0.getFileName().toString());
     }
 
@@ -119,7 +124,8 @@ public class SectionStorage<R> implements AutoCloseable {
 
     private void readColumn(ChunkPos param0) {
         Optional<CompoundTag> var0 = this.tryRead(param0).join();
-        this.readColumn(param0, NbtOps.INSTANCE, var0.orElse(null));
+        RegistryOps<Tag> var1 = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess);
+        this.readColumn(param0, var1, var0.orElse(null));
     }
 
     private CompletableFuture<Optional<CompoundTag>> tryRead(ChunkPos param0) {
@@ -165,12 +171,13 @@ public class SectionStorage<R> implements AutoCloseable {
     }
 
     private void writeColumn(ChunkPos param0) {
-        Dynamic<Tag> var0 = this.writeColumn(param0, NbtOps.INSTANCE);
-        Tag var1 = var0.getValue();
-        if (var1 instanceof CompoundTag) {
-            this.worker.store(param0, (CompoundTag)var1);
+        RegistryOps<Tag> var0 = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess);
+        Dynamic<Tag> var1 = this.writeColumn(param0, var0);
+        Tag var2 = var1.getValue();
+        if (var2 instanceof CompoundTag) {
+            this.worker.store(param0, (CompoundTag)var2);
         } else {
-            LOGGER.error("Expected compound tag, got {}", var1);
+            LOGGER.error("Expected compound tag, got {}", var2);
         }
 
     }

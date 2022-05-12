@@ -1,18 +1,22 @@
 package net.minecraft.world.entity.ai.sensing;
 
 import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.behavior.AcquirePoi;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.pathfinder.Path;
 
 public class NearestBedSensor extends Sensor<Mob> {
@@ -48,11 +52,14 @@ public class NearestBedSensor extends Sensor<Mob> {
                     return true;
                 }
             };
-            Stream<BlockPos> var2 = var0.findAll(PoiType.HOME.getPredicate(), var1, param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
-            Path var3 = param1.getNavigation().createPath(var2, PoiType.HOME.getValidRange());
+            Set<Pair<Holder<PoiType>, BlockPos>> var2 = var0.findAllWithType(
+                    param0x -> param0x.is(PoiTypes.HOME), var1, param1.blockPosition(), 48, PoiManager.Occupancy.ANY
+                )
+                .collect(Collectors.toSet());
+            Path var3 = AcquirePoi.findPathToPois(param1, var2);
             if (var3 != null && var3.canReach()) {
                 BlockPos var4 = var3.getTarget();
-                Optional<PoiType> var5 = var0.getType(var4);
+                Optional<Holder<PoiType>> var5 = var0.getType(var4);
                 if (var5.isPresent()) {
                     param1.getBrain().setMemory(MemoryModuleType.NEAREST_BED, var4);
                 }

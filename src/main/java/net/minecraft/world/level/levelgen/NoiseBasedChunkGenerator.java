@@ -265,7 +265,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         BiomeManager var0 = param3.withDifferentSource(
             (param1x, param2x, param3x) -> this.biomeSource.getNoiseBiome(param1x, param2x, param3x, param2.sampler())
         );
-        WorldgenRandom var1 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
+        WorldgenRandom var1 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.generateUniqueSeed()));
         int var2 = 8;
         ChunkPos var3 = param5.getPos();
         NoiseChunk var4 = param5.getOrCreateNoiseChunk(param3x -> this.createNoiseChunk(param3x, param4, Blender.of(param0), param2));
@@ -436,7 +436,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         if (!this.settings.value().disableMobGeneration()) {
             ChunkPos var0 = param0.getCenter();
             Holder<Biome> var1 = param0.getBiome(var0.getWorldPosition().atY(param0.getMaxBuildHeight() - 1));
-            WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.seedUniquifier()));
+            WorldgenRandom var2 = new WorldgenRandom(new LegacyRandomSource(RandomSupport.generateUniqueSeed()));
             var2.setDecorationSeed(param0.getSeed(), var0.getMinBlockX(), var0.getMinBlockZ());
             NaturalSpawner.spawnMobsForChunkGeneration(param0, var1, var0, var2);
         }

@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.animal.horse.TraderLlama;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -93,7 +93,7 @@ public class WanderingTraderSpawner implements CustomSpawner {
             BlockPos var1 = var0.blockPosition();
             int var2 = 48;
             PoiManager var3 = param0.getPoiManager();
-            Optional<BlockPos> var4 = var3.find(PoiType.MEETING.getPredicate(), param0x -> true, var1, 48, PoiManager.Occupancy.ANY);
+            Optional<BlockPos> var4 = var3.find(param0x -> param0x.is(PoiTypes.MEETING), param0x -> true, var1, 48, PoiManager.Occupancy.ANY);
             BlockPos var5 = var4.orElse(var1);
             BlockPos var6 = this.findSpawnPositionNear(param0, var5, 48);
             if (var6 != null && this.hasEnoughSpace(param0, var6)) {

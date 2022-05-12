@@ -167,7 +167,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                     return null;
                 }
             } else {
-                return ProfilePublicKey.parseAndValidate(param1, var0.get());
+                return ProfilePublicKey.createValidated(param1, var0.get());
             }
         } catch (MissingException var4) {
             if (param2) {
@@ -191,8 +191,10 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
             this.playerProfilePublicKey = validatePublicKey(param0, this.server.getSessionService(), this.server.enforceSecureProfile());
         } catch (ServerLoginPacketListenerImpl.PublicKeyParseException var3) {
             LOGGER.error(var3.getMessage(), var3.getCause());
-            this.disconnect(var3.getComponent());
-            return;
+            if (!this.connection.isMemoryConnection()) {
+                this.disconnect(var3.getComponent());
+                return;
+            }
         }
 
         GameProfile var1 = this.server.getSingleplayerProfile();

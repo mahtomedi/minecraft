@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -40,7 +41,7 @@ public class YieldJobSite extends Behavior<Villager> {
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
         BlockPos var0 = param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE).get().pos();
-        Optional<PoiType> var1 = param0.getPoiManager().getType(var0);
+        Optional<Holder<PoiType>> var1 = param0.getPoiManager().getType(var0);
         if (var1.isPresent()) {
             BehaviorUtils.getNearbyVillagersWithCondition(param1, param2x -> this.nearbyWantsJobsite(var1.get(), param2x, var0))
                 .findFirst()
@@ -48,17 +49,17 @@ public class YieldJobSite extends Behavior<Villager> {
         }
     }
 
-    private boolean nearbyWantsJobsite(PoiType param0, Villager param1, BlockPos param2) {
+    private boolean nearbyWantsJobsite(Holder<PoiType> param0, Villager param1, BlockPos param2) {
         boolean var0 = param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE).isPresent();
         if (var0) {
             return false;
         } else {
             Optional<GlobalPos> var1 = param1.getBrain().getMemory(MemoryModuleType.JOB_SITE);
             VillagerProfession var2 = param1.getVillagerData().getProfession();
-            if (param1.getVillagerData().getProfession() == VillagerProfession.NONE || !var2.getJobPoiType().getPredicate().test(param0)) {
-                return false;
+            if (var2.heldJobSite().test(param0)) {
+                return !var1.isPresent() ? this.canReachPos(param1, param2, param0.value()) : var1.get().pos().equals(param2);
             } else {
-                return !var1.isPresent() ? this.canReachPos(param1, param2, param0) : var1.get().pos().equals(param2);
+                return false;
             }
         }
     }
@@ -74,7 +75,7 @@ public class YieldJobSite extends Behavior<Villager> {
     }
 
     private boolean canReachPos(Villager param0, BlockPos param1, PoiType param2) {
-        Path var0 = param0.getNavigation().createPath(param1, param2.getValidRange());
+        Path var0 = param0.getNavigation().createPath(param1, param2.validRange());
         return var0 != null && var0.canReach();
     }
 

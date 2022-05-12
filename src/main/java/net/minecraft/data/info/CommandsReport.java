@@ -21,7 +21,7 @@ public class CommandsReport implements DataProvider {
 
     @Override
     public void run(CachedOutput param0) throws IOException {
-        Path var0 = this.generator.getOutputFolder().resolve("reports/commands.json");
+        Path var0 = this.generator.getOutputFolder(DataGenerator.Target.REPORTS).resolve("commands.json");
         CommandDispatcher<CommandSourceStack> var1 = new Commands(Commands.CommandSelection.ALL, new CommandBuildContext(RegistryAccess.BUILTIN.get()))
             .getDispatcher();
         DataProvider.saveStable(param0, ArgumentUtils.serializeNodeToJson(var1, var1.getRoot()), var0);

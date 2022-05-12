@@ -30,9 +30,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.SignedMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
@@ -178,7 +177,7 @@ public abstract class PlayerList {
                 param1.gameMode.getPreviousGameModeForPlayer(),
                 this.server.levelKeys(),
                 this.registryHolder,
-                var7.dimensionTypeRegistration(),
+                var7.dimensionTypeId(),
                 var7.dimension(),
                 BiomeManager.obfuscateSeed(var7.getSeed()),
                 this.getMaxPlayers(),
@@ -226,6 +225,7 @@ public abstract class PlayerList {
         this.server.getCustomBossEvents().onPlayerConnect(param1);
         this.sendLevelInfo(param1, var7);
         this.server.getServerResourcePack().ifPresent(param1x -> param1.sendTexturePack(param1x.url(), param1x.hash(), param1x.isRequired(), param1x.prompt()));
+        param1.sendServerStatus(this.server.getStatus());
 
         for(MobEffectInstance var18 : param1.getActiveEffects()) {
             var11.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var18));
@@ -485,7 +485,7 @@ public abstract class PlayerList {
         var7.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var7.level.dimensionTypeRegistration(),
+                    var7.level.dimensionTypeId(),
                     var7.level.dimension(),
                     BiomeManager.obfuscateSeed(var7.getLevel().getSeed()),
                     var7.gameMode.getGameModeForPlayer(),
@@ -790,27 +790,34 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastChatMessage(SignedMessage param0, TextFilter.FilteredText param1, ServerPlayer param2, ResourceKey<ChatType> param3) {
-        SignedMessage var1;
-        if (!param1.getFiltered().isEmpty()) {
-            Component var0 = Component.literal(param1.getFiltered());
-            var1 = new SignedMessage(var0, MessageSignature.unsigned());
-        } else {
-            var1 = null;
-        }
-
-        this.broadcastChatMessage(param0, param3x -> param2.shouldFilterMessageTo(param3x) ? var1 : param0, param2.asChatSender(), param3);
+    public void broadcastChatMessage(PlayerChatMessage param0, TextFilter.FilteredText param1, ServerPlayer param2, ResourceKey<ChatType> param3) {
+        PlayerChatMessage var0 = this.getFilteredMessage(param2, param0, param1);
+        this.broadcastChatMessage(param0, param3x -> param2.shouldFilterMessageTo(param3x) ? var0 : param0, param2.asChatSender(), param3);
     }
 
-    public void broadcastChatMessage(SignedMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
+    @Nullable
+    private PlayerChatMessage getFilteredMessage(ServerPlayer param0, PlayerChatMessage param1, TextFilter.FilteredText param2) {
+        if (!param2.isFiltered()) {
+            return param1;
+        } else if (param2.getFiltered().isEmpty()) {
+            return null;
+        } else {
+            Component var0 = Component.literal(param2.getFiltered());
+            return PlayerChatMessage.unsigned(this.server.getChatDecorator().decorate(param0, var0));
+        }
+    }
+
+    public void broadcastChatMessage(PlayerChatMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
         this.broadcastChatMessage(param0, param1x -> param0, param1, param2);
     }
 
-    public void broadcastChatMessage(SignedMessage param0, Function<ServerPlayer, SignedMessage> param1, ChatSender param2, ResourceKey<ChatType> param3) {
-        this.server.logMessageFrom(param2, param0.content());
+    public void broadcastChatMessage(
+        PlayerChatMessage param0, Function<ServerPlayer, PlayerChatMessage> param1, ChatSender param2, ResourceKey<ChatType> param3
+    ) {
+        this.server.logMessageFrom(param2, param0.serverContent());
 
         for(ServerPlayer var0 : this.players) {
-            SignedMessage var1 = param1.apply(var0);
+            PlayerChatMessage var1 = param1.apply(var0);
             if (var1 != null) {
                 var0.sendChatMessage(var1, param2, param3);
             }

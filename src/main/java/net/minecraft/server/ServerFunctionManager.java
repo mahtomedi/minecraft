@@ -14,7 +14,6 @@ import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
 import net.minecraft.world.level.GameRules;
 
 public class ServerFunctionManager {
@@ -46,7 +45,7 @@ public class ServerFunctionManager {
         this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
         if (this.postReload) {
             this.postReload = false;
-            Collection<CommandFunction> var0 = this.library.getTag(LOAD_FUNCTION_TAG).getValues();
+            Collection<CommandFunction> var0 = this.library.getTag(LOAD_FUNCTION_TAG);
             this.executeTagFunctions(var0, LOAD_FUNCTION_TAG);
         }
 
@@ -94,7 +93,7 @@ public class ServerFunctionManager {
     }
 
     private void postReload(ServerFunctionLibrary param0) {
-        this.ticking = ImmutableList.copyOf(param0.getTag(TICK_FUNCTION_TAG).getValues());
+        this.ticking = ImmutableList.copyOf(param0.getTag(TICK_FUNCTION_TAG));
         this.postReload = true;
     }
 
@@ -106,7 +105,7 @@ public class ServerFunctionManager {
         return this.library.getFunction(param0);
     }
 
-    public Tag<CommandFunction> getTag(ResourceLocation param0) {
+    public Collection<CommandFunction> getTag(ResourceLocation param0) {
         return this.library.getTag(param0);
     }
 

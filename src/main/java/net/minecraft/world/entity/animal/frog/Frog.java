@@ -8,7 +8,6 @@ import java.util.OptionalInt;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +24,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.DifficultyInstance;
@@ -65,6 +65,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.phys.Vec3;
 
@@ -110,6 +111,7 @@ public class Frog extends Animal {
         super(param0, param1);
         this.lookControl = new Frog.FrogLookControl(this);
         this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
+        this.setPathfindingMalus(BlockPathTypes.TRAPDOOR, -1.0F);
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 0.02F, 0.1F, true);
         this.maxUpStep = 1.0F;
     }
@@ -372,6 +374,11 @@ public class Frog extends Animal {
 
     }
 
+    @Override
+    public boolean canCutCorner(BlockPathTypes param0) {
+        return super.canCutCorner(param0) && param0 != BlockPathTypes.WATER_BORDER;
+    }
+
     public static boolean canEat(LivingEntity param0) {
         if (param0 instanceof Slime var0 && var0.getSize() != 1) {
             return false;
@@ -414,11 +421,19 @@ public class Frog extends Animal {
             super(param0);
         }
 
+        @Nullable
+        @Override
+        public Node getStart() {
+            return this.getStartNode(
+                new BlockPos(Mth.floor(this.mob.getBoundingBox().minX), Mth.floor(this.mob.getBoundingBox().minY), Mth.floor(this.mob.getBoundingBox().minZ))
+            );
+        }
+
         @Override
         public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
             this.belowPos.set(param1, param2 - 1, param3);
             BlockState var0 = param0.getBlockState(this.belowPos);
-            return var0.is(BlockTags.FROG_PREFER_JUMP_TO) ? BlockPathTypes.OPEN : getBlockPathTypeStatic(param0, this.belowPos.move(Direction.UP));
+            return var0.is(BlockTags.FROG_PREFER_JUMP_TO) ? BlockPathTypes.OPEN : super.getBlockPathType(param0, param1, param2, param3);
         }
     }
 

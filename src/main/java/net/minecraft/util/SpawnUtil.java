@@ -38,17 +38,18 @@ public class SpawnUtil {
         if (!param0.getWorldBorder().isWithinBounds(param2)) {
             return false;
         } else {
-            BlockState var0 = param0.getBlockState(param2);
+            boolean var0 = param0.getBlockState(param2).getCollisionShape(param0, param2).isEmpty();
 
             for(int var1 = param1; var1 >= -param1; --var1) {
                 param2.move(Direction.DOWN);
                 BlockState var2 = param0.getBlockState(param2);
-                if ((var0.isAir() || var0.getMaterial().isLiquid()) && var2.getMaterial().isSolidBlocking()) {
+                boolean var3 = var2.getCollisionShape(param0, param2).isEmpty();
+                if (var0 && !var3) {
                     param2.move(Direction.UP);
                     return true;
                 }
 
-                var0 = var2;
+                var0 = var3;
             }
 
             return false;

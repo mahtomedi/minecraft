@@ -4,10 +4,10 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -55,17 +55,11 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
 
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
-        Entity var0;
-        if (param3 instanceof Player) {
-            var0 = param3;
-        } else if (param3.getControllingPassenger() instanceof Player) {
-            var0 = param3.getControllingPassenger();
-        } else {
-            var0 = null;
-        }
-
-        if (param0 instanceof ServerLevel var3 && var0 != null) {
-            var3.getBlockEntity(param1, BlockEntityType.SCULK_SHRIEKER).ifPresent(param2x -> param2x.shriek(var3, var0));
+        if (param0 instanceof ServerLevel var0) {
+            ServerPlayer var1 = SculkShriekerBlockEntity.tryGetPlayer(param3);
+            if (var1 != null) {
+                var0.getBlockEntity(param1, BlockEntityType.SCULK_SHRIEKER).ifPresent(param2x -> param2x.tryShriek(var0, var1));
+            }
         }
 
         super.stepOn(param0, param1, param2, param3);
@@ -74,7 +68,7 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param1 instanceof ServerLevel var0 && param0.getValue(SHRIEKING) && !param0.is(param3.getBlock())) {
-            var0.getBlockEntity(param2, BlockEntityType.SCULK_SHRIEKER).ifPresent(param1x -> param1x.replyOrSummon(var0));
+            var0.getBlockEntity(param2, BlockEntityType.SCULK_SHRIEKER).ifPresent(param1x -> param1x.tryRespond(var0));
         }
 
         super.onRemove(param0, param1, param2, param3, param4);
@@ -84,7 +78,7 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         if (param0.getValue(SHRIEKING)) {
             param1.setBlock(param2, param0.setValue(SHRIEKING, Boolean.valueOf(false)), 3);
-            param1.getBlockEntity(param2, BlockEntityType.SCULK_SHRIEKER).ifPresent(param1x -> param1x.replyOrSummon(param1));
+            param1.getBlockEntity(param2, BlockEntityType.SCULK_SHRIEKER).ifPresent(param1x -> param1x.tryRespond(param1));
         }
 
     }

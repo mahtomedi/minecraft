@@ -360,6 +360,15 @@ public class Util {
         return param0;
     }
 
+    @Nullable
+    public static <T, R> R mapNullable(@Nullable T param0, Function<T, R> param1) {
+        return param0 == null ? null : param1.apply(param0);
+    }
+
+    public static <T, R> R mapNullable(@Nullable T param0, Function<T, R> param1, R param2) {
+        return (R)(param0 == null ? param2 : param1.apply(param0));
+    }
+
     public static <K> Strategy<K> identityStrategy() {
         return Util.IdentityStrategy.INSTANCE;
     }

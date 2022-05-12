@@ -94,7 +94,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final RandomSource random = RandomSource.create();
     @Deprecated
     private final RandomSource threadSafeRandom = RandomSource.createThreadSafe();
-    final DimensionType dimensionType;
+    private final ResourceKey<DimensionType> dimensionTypeId;
     private final Holder<DimensionType> dimensionTypeRegistration;
     protected final WritableLevelData levelData;
     private final Supplier<ProfilerFiller> profiler;
@@ -117,19 +117,20 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.profiler = param3;
         this.levelData = param0;
         this.dimensionTypeRegistration = param2;
-        this.dimensionType = param2.value();
+        this.dimensionTypeId = param2.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimensions must be registered"));
+        final DimensionType var0 = param2.value();
         this.dimension = param1;
         this.isClientSide = param4;
-        if (this.dimensionType.coordinateScale() != 1.0) {
+        if (var0.coordinateScale() != 1.0) {
             this.worldBorder = new WorldBorder() {
                 @Override
                 public double getCenterX() {
-                    return super.getCenterX() / Level.this.dimensionType.coordinateScale();
+                    return super.getCenterX() / var0.coordinateScale();
                 }
 
                 @Override
                 public double getCenterZ() {
-                    return super.getCenterZ() / Level.this.dimensionType.coordinateScale();
+                    return super.getCenterZ() / var0.coordinateScale();
                 }
             };
         } else {
@@ -879,7 +880,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public DimensionType dimensionType() {
-        return this.dimensionType;
+        return this.dimensionTypeRegistration.value();
+    }
+
+    public ResourceKey<DimensionType> dimensionTypeId() {
+        return this.dimensionTypeId;
     }
 
     public Holder<DimensionType> dimensionTypeRegistration() {

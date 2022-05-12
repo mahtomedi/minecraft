@@ -44,7 +44,7 @@ public class UpgradeRecipeBuilder {
     public void save(Consumer<FinishedRecipe> param0, ResourceLocation param1) {
         this.ensureValid(param1);
         this.advancement
-            .parent(new ResourceLocation("recipes/root"))
+            .parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT)
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(param1))
             .rewards(AdvancementRewards.Builder.recipe(param1))
             .requirements(RequirementsStrategy.OR);

@@ -92,7 +92,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
-        if (!param3.fireImmune() && param0.getValue(LIT) && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
+        if (param0.getValue(LIT) && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
             param3.hurt(DamageSource.IN_FIRE, (float)this.fireDamage);
         }
 

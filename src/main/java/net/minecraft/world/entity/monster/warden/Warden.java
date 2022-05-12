@@ -47,6 +47,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.warden.SonicBoom;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -60,7 +62,11 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 
 public class Warden extends Monster implements VibrationListener.VibrationListenerConfig {
@@ -87,6 +93,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     private static final int DIGGING_PARTICLES_AMOUNT = 30;
     private static final float DIGGING_PARTICLES_DURATION = 4.5F;
     private static final float DIGGING_PARTICLES_OFFSET = 0.7F;
+    private static final int PROJECTILE_ANGER_DISTANCE = 30;
     private int tendrilAnimation;
     private int tendrilAnimationO;
     private int heartAnimation;
@@ -222,7 +229,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     private void syncClientAngerLevel() {
-        this.entityData.set(CLIENT_ANGER_LEVEL, this.angerManagement.getActiveAnger());
+        this.entityData.set(CLIENT_ANGER_LEVEL, this.getActiveAnger());
     }
 
     @Override
@@ -281,15 +288,16 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
 
         if (this.tickCount % 20 == 0) {
             this.angerManagement.tick(var0, this::canTargetEntity);
+            this.syncClientAngerLevel();
         }
 
-        this.syncClientAngerLevel();
         WardenAi.updateActivity(this);
     }
 
     @Override
     public void handleEntityEvent(byte param0) {
         if (param0 == 4) {
+            this.roarAnimationState.stop();
             this.attackAnimationState.start();
         } else if (param0 == 61) {
             this.tendrilAnimation = 10;
@@ -352,6 +360,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     @Override
+    public boolean ignoreExplosion() {
+        return this.isDiggingOrEmerging();
+    }
+
+    @Override
     protected Brain<?> makeBrain(Dynamic<?> param0) {
         return WardenAi.makeBrain(this, param0);
     }
@@ -386,6 +399,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
         return true;
     }
 
+    @Contract("null->false")
     public boolean canTargetEntity(@Nullable Entity param0x) {
         if (param0x instanceof LivingEntity var0
             && this.level == param0x.level
@@ -448,7 +462,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     public AngerLevel getAngerLevel() {
-        return AngerLevel.byAnger(this.angerManagement.getActiveAnger());
+        return AngerLevel.byAnger(this.getActiveAnger());
+    }
+
+    private int getActiveAnger() {
+        return this.angerManagement.getActiveAnger(this.getTarget());
     }
 
     public void clearAnger(Entity param0) {
@@ -500,33 +518,31 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
         if (param2 == MobSpawnType.TRIGGERED) {
             this.setPose(Pose.EMERGING);
             this.getBrain().setMemoryWithExpiry(MemoryModuleType.IS_EMERGING, Unit.INSTANCE, (long)WardenAi.EMERGE_DURATION);
-            this.setPersistenceRequired();
+            this.playSound(SoundEvents.WARDEN_AGITATED, 5.0F, 1.0F);
         }
 
+        this.setPersistenceRequired();
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         boolean var0 = super.hurt(param0, param1);
-        if (this.level.isClientSide) {
-            return false;
-        } else {
-            if (var0 && !this.isNoAi()) {
-                Entity var1 = param0.getEntity();
-                this.increaseAngerAt(var1, AngerLevel.ANGRY.getMinimumAnger() + 20, false);
-                if (this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty()
-                    && var1 instanceof LivingEntity var2
-                    && (!(param0 instanceof IndirectEntityDamageSource) || this.closerThan(var2, 5.0))) {
-                    this.setAttackTarget(var2);
-                }
+        if (!this.level.isClientSide && !this.isNoAi() && param1 > 0.0F) {
+            Entity var1 = param0.getEntity();
+            this.increaseAngerAt(var1, AngerLevel.ANGRY.getMinimumAnger() + 20, false);
+            if (this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty()
+                && var1 instanceof LivingEntity var2
+                && (!(param0 instanceof IndirectEntityDamageSource) || this.closerThan(var2, 5.0))) {
+                this.setAttackTarget(var2);
             }
-
-            return var0;
         }
+
+        return var0;
     }
 
     public void setAttackTarget(LivingEntity param0) {
+        this.getBrain().eraseMemory(MemoryModuleType.ROAR_TARGET);
         StartAttacking.setAttackTarget(this, param0);
         SonicBoom.setCooldown(this, 200);
     }
@@ -611,5 +627,22 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     @VisibleForTesting
     public AngerManagement getAngerManagement() {
         return this.angerManagement;
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level param0) {
+        return new GroundPathNavigation(this, param0) {
+            @Override
+            protected PathFinder createPathFinder(int param0) {
+                this.nodeEvaluator = new WalkNodeEvaluator();
+                this.nodeEvaluator.setCanPassDoors(true);
+                return new PathFinder(this.nodeEvaluator, param0) {
+                    @Override
+                    protected float distance(Node param0, Node param1) {
+                        return param0.distanceToXZ(param1);
+                    }
+                };
+            }
+        };
     }
 }

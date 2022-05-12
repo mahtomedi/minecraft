@@ -5,7 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerFunctionManager;
-import net.minecraft.tags.Tag;
 
 public class FunctionTagCallback implements TimerCallback<MinecraftServer> {
     final ResourceLocation tagId;
@@ -16,9 +15,8 @@ public class FunctionTagCallback implements TimerCallback<MinecraftServer> {
 
     public void handle(MinecraftServer param0, TimerQueue<MinecraftServer> param1, long param2) {
         ServerFunctionManager var0 = param0.getFunctions();
-        Tag<CommandFunction> var1 = var0.getTag(this.tagId);
 
-        for(CommandFunction var2 : var1.getValues()) {
+        for(CommandFunction var2 : var0.getTag(this.tagId)) {
             var0.execute(var2, var0.getGameLoopSender());
         }
 

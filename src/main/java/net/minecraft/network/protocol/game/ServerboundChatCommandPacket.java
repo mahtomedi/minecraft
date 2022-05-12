@@ -18,13 +18,13 @@ public record ServerboundChatCommandPacket(String command, Instant timeStamp, Ar
     }
 
     public ServerboundChatCommandPacket(FriendlyByteBuf param0) {
-        this(param0.readUtf(256), Instant.ofEpochSecond(param0.readLong()), new ArgumentSignatures(param0));
+        this(param0.readUtf(256), param0.readInstant(), new ArgumentSignatures(param0));
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeUtf(this.command);
-        param0.writeLong(this.timeStamp.getEpochSecond());
+        param0.writeInstant(this.timeStamp);
         this.argumentSignatures.write(param0);
     }
 

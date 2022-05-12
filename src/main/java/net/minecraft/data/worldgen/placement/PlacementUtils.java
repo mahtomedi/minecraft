@@ -4,6 +4,7 @@ import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
@@ -38,7 +39,7 @@ public class PlacementUtils {
         VerticalAnchor.bottom(), VerticalAnchor.absolute(256)
     );
 
-    public static Holder<PlacedFeature> bootstrap() {
+    public static Holder<PlacedFeature> bootstrap(Registry<PlacedFeature> param0) {
         List<Holder<PlacedFeature>> var0 = List.of(
             AquaticPlacements.KELP_COLD,
             CavePlacements.CAVE_VINES,

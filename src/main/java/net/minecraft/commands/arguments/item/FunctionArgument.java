@@ -14,7 +14,6 @@ import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
 
 public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "#foo");
@@ -36,12 +35,11 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
             return new FunctionArgument.Result() {
                 @Override
                 public Collection<CommandFunction> create(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
-                    Tag<CommandFunction> var0 = FunctionArgument.getFunctionTag(param0, var0);
-                    return var0.getValues();
+                    return FunctionArgument.getFunctionTag(param0, var0);
                 }
 
                 @Override
-                public Pair<ResourceLocation, Either<CommandFunction, Tag<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
+                public Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
                     return Pair.of(var0, Either.right(FunctionArgument.getFunctionTag(param0, var0)));
                 }
             };
@@ -54,7 +52,7 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
                 }
 
                 @Override
-                public Pair<ResourceLocation, Either<CommandFunction, Tag<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
+                public Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
                     return Pair.of(var1, Either.left(FunctionArgument.getFunction(param0, var1)));
                 }
             };
@@ -65,8 +63,8 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
         return param0.getSource().getServer().getFunctions().get(param1).orElseThrow(() -> ERROR_UNKNOWN_FUNCTION.create(param1.toString()));
     }
 
-    static Tag<CommandFunction> getFunctionTag(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
-        Tag<CommandFunction> var0 = param0.getSource().getServer().getFunctions().getTag(param1);
+    static Collection<CommandFunction> getFunctionTag(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
+        Collection<CommandFunction> var0 = param0.getSource().getServer().getFunctions().getTag(param1);
         if (var0 == null) {
             throw ERROR_UNKNOWN_TAG.create(param1.toString());
         } else {
@@ -78,7 +76,7 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
         return param0.getArgument(param1, FunctionArgument.Result.class).create(param0);
     }
 
-    public static Pair<ResourceLocation, Either<CommandFunction, Tag<CommandFunction>>> getFunctionOrTag(
+    public static Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> getFunctionOrTag(
         CommandContext<CommandSourceStack> param0, String param1
     ) throws CommandSyntaxException {
         return param0.getArgument(param1, FunctionArgument.Result.class).unwrap(param0);
@@ -92,6 +90,6 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
     public interface Result {
         Collection<CommandFunction> create(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
 
-        Pair<ResourceLocation, Either<CommandFunction, Tag<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
+        Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
     }
 }

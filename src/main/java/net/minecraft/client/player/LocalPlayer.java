@@ -94,7 +94,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -304,18 +303,35 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     public void chat(String param0) {
+        this.chat(param0, null);
+    }
+
+    public void chat(String param0, @Nullable Component param1) {
         MessageSigner var0 = MessageSigner.create(this.getUUID());
-        param0 = StringUtils.normalizeSpace(param0);
-        if (param0.startsWith("/")) {
-            this.sendCommand(var0, param0.substring(1));
+        this.sendChat(var0, param0, param1);
+    }
+
+    public void command(String param0) {
+        this.command(param0, null);
+    }
+
+    public void command(String param0, @Nullable Component param1) {
+        MessageSigner var0 = MessageSigner.create(this.getUUID());
+        this.sendCommand(var0, param0, param1);
+    }
+
+    private void sendChat(MessageSigner param0, String param1, @Nullable Component param2) {
+        if (param2 != null) {
+            MessageSignature var0 = this.signMessage(param0, param2);
+            this.connection.send(new ServerboundChatPacket(param1, var0, true));
         } else {
-            MessageSignature var1 = this.signChatMessage(var0, Component.literal(param0));
-            this.connection.send(new ServerboundChatPacket(param0, var1));
+            MessageSignature var1 = this.signMessage(param0, Component.literal(param1));
+            this.connection.send(new ServerboundChatPacket(param1, var1, false));
         }
 
     }
 
-    private MessageSignature signChatMessage(MessageSigner param0, Component param1) {
+    private MessageSignature signMessage(MessageSigner param0, Component param1) {
         try {
             Signature var0 = this.minecraft.getProfileKeyPairManager().createSignature();
             if (var0 != null) {
@@ -328,7 +344,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         return MessageSignature.unsigned();
     }
 
-    private void sendCommand(MessageSigner param0, String param1) {
+    private void sendCommand(MessageSigner param0, String param1, @Nullable Component param2) {
         ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param1, this.connection.getSuggestionsProvider());
         ArgumentSignatures var1 = this.signCommandArguments(param0, var0);
         this.connection.send(new ServerboundChatCommandPacket(param1, param0.timeStamp(), var1));

@@ -2,6 +2,7 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -42,14 +43,14 @@ public class PoiCompetitorScan extends Behavior<Villager> {
         return var0;
     }
 
-    private boolean competesForSameJobsite(GlobalPos param0, PoiType param1, Villager param2) {
+    private boolean competesForSameJobsite(GlobalPos param0, Holder<PoiType> param1, Villager param2) {
         return this.hasJobSite(param2)
             && param0.equals(param2.getBrain().getMemory(MemoryModuleType.JOB_SITE).get())
             && this.hasMatchingProfession(param1, param2.getVillagerData().getProfession());
     }
 
-    private boolean hasMatchingProfession(PoiType param0, VillagerProfession param1) {
-        return param1.getJobPoiType().getPredicate().test(param0);
+    private boolean hasMatchingProfession(Holder<PoiType> param0, VillagerProfession param1) {
+        return param1.heldJobSite().test(param0);
     }
 
     private boolean hasJobSite(Villager param0) {

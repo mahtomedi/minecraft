@@ -1,7 +1,6 @@
 package net.minecraft.network.protocol.game;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 
 public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener> {
-    private final Holder<DimensionType> dimensionType;
+    private final ResourceKey<DimensionType> dimensionType;
     private final ResourceKey<Level> dimension;
     private final long seed;
     private final GameType playerGameType;
@@ -22,7 +21,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     private final boolean keepAllPlayerData;
 
     public ClientboundRespawnPacket(
-        Holder<DimensionType> param0,
+        ResourceKey<DimensionType> param0,
         ResourceKey<Level> param1,
         long param2,
         GameType param3,
@@ -42,8 +41,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     }
 
     public ClientboundRespawnPacket(FriendlyByteBuf param0) {
-        this.dimensionType = param0.readWithCodec(DimensionType.CODEC);
-        this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
+        this.dimensionType = param0.readResourceKey(Registry.DIMENSION_TYPE_REGISTRY);
+        this.dimension = param0.readResourceKey(Registry.DIMENSION_REGISTRY);
         this.seed = param0.readLong();
         this.playerGameType = GameType.byId(param0.readUnsignedByte());
         this.previousPlayerGameType = GameType.byNullableId(param0.readByte());
@@ -54,8 +53,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeWithCodec(DimensionType.CODEC, this.dimensionType);
-        param0.writeResourceLocation(this.dimension.location());
+        param0.writeResourceKey(this.dimensionType);
+        param0.writeResourceKey(this.dimension);
         param0.writeLong(this.seed);
         param0.writeByte(this.playerGameType.getId());
         param0.writeByte(GameType.getNullableId(this.previousPlayerGameType));
@@ -68,7 +67,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.handleRespawn(this);
     }
 
-    public Holder<DimensionType> getDimensionType() {
+    public ResourceKey<DimensionType> getDimensionType() {
         return this.dimensionType;
     }
 

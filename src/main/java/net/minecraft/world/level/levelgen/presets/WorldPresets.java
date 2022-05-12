@@ -36,8 +36,8 @@ public class WorldPresets {
     public static final ResourceKey<WorldPreset> SINGLE_BIOME_SURFACE = register("single_biome_surface");
     public static final ResourceKey<WorldPreset> DEBUG = register("debug_all_block_states");
 
-    public static Holder<WorldPreset> bootstrap() {
-        return new WorldPresets.Bootstrap().run();
+    public static Holder<WorldPreset> bootstrap(Registry<WorldPreset> param0) {
+        return new WorldPresets.Bootstrap(param0).run();
     }
 
     private static ResourceKey<WorldPreset> register(String param0) {
@@ -74,7 +74,7 @@ public class WorldPresets {
     }
 
     static class Bootstrap {
-        private final Registry<WorldPreset> presets = BuiltinRegistries.WORLD_PRESET;
+        private final Registry<WorldPreset> presets;
         private final Registry<DimensionType> dimensionTypes = BuiltinRegistries.DIMENSION_TYPE;
         private final Registry<Biome> biomes = BuiltinRegistries.BIOME;
         private final Registry<StructureSet> structureSets = BuiltinRegistries.STRUCTURE_SETS;
@@ -94,6 +94,10 @@ public class WorldPresets {
         private final LevelStem endStem = new LevelStem(
             this.endDimensionType, new NoiseBasedChunkGenerator(this.structureSets, this.noises, new TheEndBiomeSource(this.biomes), this.endNoiseSettings)
         );
+
+        Bootstrap(Registry<WorldPreset> param0) {
+            this.presets = param0;
+        }
 
         private LevelStem makeOverworld(ChunkGenerator param0) {
             return new LevelStem(this.overworldDimensionType, param0);
