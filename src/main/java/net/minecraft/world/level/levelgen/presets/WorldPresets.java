@@ -80,17 +80,17 @@ public class WorldPresets {
         private final Registry<StructureSet> structureSets = BuiltinRegistries.STRUCTURE_SETS;
         private final Registry<NoiseGeneratorSettings> noiseSettings = BuiltinRegistries.NOISE_GENERATOR_SETTINGS;
         private final Registry<NormalNoise.NoiseParameters> noises = BuiltinRegistries.NOISE;
-        private final Holder<DimensionType> overworldDimensionType = this.dimensionTypes.getOrCreateHolder(BuiltinDimensionTypes.OVERWORLD);
-        private final Holder<DimensionType> netherDimensionType = this.dimensionTypes.getOrCreateHolder(BuiltinDimensionTypes.NETHER);
-        private final Holder<NoiseGeneratorSettings> netherNoiseSettings = this.noiseSettings.getOrCreateHolder(NoiseGeneratorSettings.NETHER);
+        private final Holder<DimensionType> overworldDimensionType = this.dimensionTypes.getOrCreateHolderOrThrow(BuiltinDimensionTypes.OVERWORLD);
+        private final Holder<DimensionType> netherDimensionType = this.dimensionTypes.getOrCreateHolderOrThrow(BuiltinDimensionTypes.NETHER);
+        private final Holder<NoiseGeneratorSettings> netherNoiseSettings = this.noiseSettings.getOrCreateHolderOrThrow(NoiseGeneratorSettings.NETHER);
         private final LevelStem netherStem = new LevelStem(
             this.netherDimensionType,
             new NoiseBasedChunkGenerator(
                 this.structureSets, this.noises, MultiNoiseBiomeSource.Preset.NETHER.biomeSource(this.biomes), this.netherNoiseSettings
             )
         );
-        private final Holder<DimensionType> endDimensionType = this.dimensionTypes.getOrCreateHolder(BuiltinDimensionTypes.END);
-        private final Holder<NoiseGeneratorSettings> endNoiseSettings = this.noiseSettings.getOrCreateHolder(NoiseGeneratorSettings.END);
+        private final Holder<DimensionType> endDimensionType = this.dimensionTypes.getOrCreateHolderOrThrow(BuiltinDimensionTypes.END);
+        private final Holder<NoiseGeneratorSettings> endNoiseSettings = this.noiseSettings.getOrCreateHolderOrThrow(NoiseGeneratorSettings.END);
         private final LevelStem endStem = new LevelStem(
             this.endDimensionType, new NoiseBasedChunkGenerator(this.structureSets, this.noises, new TheEndBiomeSource(this.biomes), this.endNoiseSettings)
         );
@@ -117,14 +117,15 @@ public class WorldPresets {
 
         public Holder<WorldPreset> run() {
             MultiNoiseBiomeSource var0 = MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(this.biomes);
-            Holder<NoiseGeneratorSettings> var1 = this.noiseSettings.getOrCreateHolder(NoiseGeneratorSettings.OVERWORLD);
+            Holder<NoiseGeneratorSettings> var1 = this.noiseSettings.getOrCreateHolderOrThrow(NoiseGeneratorSettings.OVERWORLD);
             this.registerCustomOverworldPreset(WorldPresets.NORMAL, this.makeNoiseBasedOverworld(var0, var1));
-            Holder<NoiseGeneratorSettings> var2 = this.noiseSettings.getOrCreateHolder(NoiseGeneratorSettings.LARGE_BIOMES);
+            Holder<NoiseGeneratorSettings> var2 = this.noiseSettings.getOrCreateHolderOrThrow(NoiseGeneratorSettings.LARGE_BIOMES);
             this.registerCustomOverworldPreset(WorldPresets.LARGE_BIOMES, this.makeNoiseBasedOverworld(var0, var2));
-            Holder<NoiseGeneratorSettings> var3 = this.noiseSettings.getOrCreateHolder(NoiseGeneratorSettings.AMPLIFIED);
+            Holder<NoiseGeneratorSettings> var3 = this.noiseSettings.getOrCreateHolderOrThrow(NoiseGeneratorSettings.AMPLIFIED);
             this.registerCustomOverworldPreset(WorldPresets.AMPLIFIED, this.makeNoiseBasedOverworld(var0, var3));
             this.registerCustomOverworldPreset(
-                WorldPresets.SINGLE_BIOME_SURFACE, this.makeNoiseBasedOverworld(new FixedBiomeSource(this.biomes.getOrCreateHolder(Biomes.PLAINS)), var1)
+                WorldPresets.SINGLE_BIOME_SURFACE,
+                this.makeNoiseBasedOverworld(new FixedBiomeSource(this.biomes.getOrCreateHolderOrThrow(Biomes.PLAINS)), var1)
             );
             this.registerCustomOverworldPreset(
                 WorldPresets.FLAT,

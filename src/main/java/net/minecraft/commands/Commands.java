@@ -203,13 +203,13 @@ public class Commands {
         this.dispatcher.setConsumer((param0x, param1x, param2) -> param0x.getSource().onCommandComplete(param0x, param1x, param2));
     }
 
+    public int performPrefixedCommand(CommandSourceStack param0, String param1) {
+        return this.performCommand(param0, param1.startsWith("/") ? param1.substring(1) : param1);
+    }
+
     public int performCommand(CommandSourceStack param0, String param1) {
         StringReader var0 = new StringReader(param1);
-        if (var0.canRead() && var0.peek() == '/') {
-            var0.skip();
-        }
-
-        param0.getServer().getProfiler().push(param1);
+        param0.getServer().getProfiler().push(() -> "/" + param1);
 
         try {
             try {
@@ -223,7 +223,7 @@ public class Commands {
                     int var3 = Math.min(var14.getInput().length(), var14.getCursor());
                     MutableComponent var4 = Component.empty()
                         .withStyle(ChatFormatting.GRAY)
-                        .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, param1)));
+                        .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + param1)));
                     if (var3 > 10) {
                         var4.append("...");
                     }
@@ -240,7 +240,7 @@ public class Commands {
             } catch (Exception var15) {
                 MutableComponent var7 = Component.literal(var15.getMessage() == null ? var15.getClass().getName() : var15.getMessage());
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.error("Command exception: {}", param1, var15);
+                    LOGGER.error("Command exception: /{}", param1, var15);
                     StackTraceElement[] var8 = var15.getStackTrace();
 
                     for(int var9 = 0; var9 < Math.min(var8.length, 3); ++var9) {
@@ -258,7 +258,7 @@ public class Commands {
                 );
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     param0.sendFailure(Component.literal(Util.describeError(var15)));
-                    LOGGER.error("'{}' threw an exception", param1, var15);
+                    LOGGER.error("'/{}' threw an exception", param1, var15);
                 }
 
                 return 0;

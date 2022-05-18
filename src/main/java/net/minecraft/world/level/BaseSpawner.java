@@ -19,6 +19,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 
@@ -159,6 +160,7 @@ public abstract class BaseSpawner {
                         }
 
                         param0.levelEvent(2004, param1, 0);
+                        param0.gameEvent(var12, GameEvent.ENTITY_PLACE, var10);
                         if (var12 instanceof Mob) {
                             ((Mob)var12).spawnAnim();
                         }

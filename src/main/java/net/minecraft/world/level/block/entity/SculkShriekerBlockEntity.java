@@ -52,7 +52,7 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
     });
     private static final int SHRIEKING_TICKS = 90;
     private int warningLevel;
-    private VibrationListener listener = new VibrationListener(new BlockPositionSource(this.worldPosition), 8, this, null, 0, 0);
+    private VibrationListener listener = new VibrationListener(new BlockPositionSource(this.worldPosition), 8, this, null, 0.0F, 0);
 
     public SculkShriekerBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.SCULK_SHRIEKER, param0, param1);
@@ -123,7 +123,7 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
 
     @Override
     public void onSignalReceive(
-        ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, int param6
+        ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, float param6
     ) {
         this.tryShriek(param0, tryGetPlayer(param5 != null ? param5 : param4));
     }
@@ -187,7 +187,8 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
     private boolean trySummonWarden(ServerLevel param0) {
         return this.warningLevel < 4
             ? false
-            : SpawnUtil.trySpawnMob(EntityType.WARDEN, MobSpawnType.TRIGGERED, param0, this.getBlockPos(), 20, 5, 6).isPresent();
+            : SpawnUtil.trySpawnMob(EntityType.WARDEN, MobSpawnType.TRIGGERED, param0, this.getBlockPos(), 20, 5, 6, SpawnUtil.Strategy.ON_TOP_OF_COLLIDER)
+                .isPresent();
     }
 
     @Override

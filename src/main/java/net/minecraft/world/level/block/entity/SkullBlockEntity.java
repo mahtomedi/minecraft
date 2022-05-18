@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.Services;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.Level;
@@ -34,10 +35,10 @@ public class SkullBlockEntity extends BlockEntity {
         super(BlockEntityType.SKULL, param0, param1);
     }
 
-    public static void setup(GameProfileCache param0, MinecraftSessionService param1, Executor param2) {
-        profileCache = param0;
-        sessionService = param1;
-        mainThreadExecutor = param2;
+    public static void setup(Services param0, Executor param1) {
+        profileCache = param0.profileCache();
+        sessionService = param0.sessionService();
+        mainThreadExecutor = param1;
     }
 
     public static void clear() {

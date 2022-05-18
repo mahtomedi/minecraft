@@ -58,7 +58,7 @@ public class RegistryLoader {
         if (var1 != null) {
             return var1;
         } else {
-            Holder<E> var2 = param0.getOrCreateHolder(param3);
+            Holder<E> var2 = param0.getOrCreateHolderOrThrow(param3);
             var0.values.put(param3, DataResult.success(var2));
             DataResult<Holder<E>> var3;
             if (param4.isEmpty()) {

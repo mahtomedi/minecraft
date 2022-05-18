@@ -552,18 +552,19 @@ public class FriendlyByteBuf extends ByteBuf {
     }
 
     public String readUtf(int param0) {
-        int var0 = this.readVarInt();
-        if (var0 > param0 * 4) {
-            throw new DecoderException("The received encoded string buffer length is longer than maximum allowed (" + var0 + " > " + param0 * 4 + ")");
-        } else if (var0 < 0) {
+        int var0 = getMaxEncodedUtfLength(param0);
+        int var1 = this.readVarInt();
+        if (var1 > var0) {
+            throw new DecoderException("The received encoded string buffer length is longer than maximum allowed (" + var1 + " > " + var0 + ")");
+        } else if (var1 < 0) {
             throw new DecoderException("The received encoded string buffer length is less than zero! Weird string!");
         } else {
-            String var1 = this.toString(this.readerIndex(), var0, StandardCharsets.UTF_8);
-            this.readerIndex(this.readerIndex() + var0);
-            if (var1.length() > param0) {
-                throw new DecoderException("The received string length is longer than maximum allowed (" + var0 + " > " + param0 + ")");
+            String var2 = this.toString(this.readerIndex(), var1, StandardCharsets.UTF_8);
+            this.readerIndex(this.readerIndex() + var1);
+            if (var2.length() > param0) {
+                throw new DecoderException("The received string length is longer than maximum allowed (" + var2.length() + " > " + param0 + ")");
             } else {
-                return var1;
+                return var2;
             }
         }
     }
@@ -573,14 +574,23 @@ public class FriendlyByteBuf extends ByteBuf {
     }
 
     public FriendlyByteBuf writeUtf(String param0, int param1) {
-        byte[] var0 = param0.getBytes(StandardCharsets.UTF_8);
-        if (var0.length > param1) {
-            throw new EncoderException("String too big (was " + var0.length + " bytes encoded, max " + param1 + ")");
+        if (param0.length() > param1) {
+            throw new EncoderException("String too big (was " + param0.length() + " characters, max " + param1 + ")");
         } else {
-            this.writeVarInt(var0.length);
-            this.writeBytes(var0);
-            return this;
+            byte[] var0 = param0.getBytes(StandardCharsets.UTF_8);
+            int var1 = getMaxEncodedUtfLength(param1);
+            if (var0.length > var1) {
+                throw new EncoderException("String too big (was " + var0.length + " bytes encoded, max " + var1 + ")");
+            } else {
+                this.writeVarInt(var0.length);
+                this.writeBytes(var0);
+                return this;
+            }
         }
+    }
+
+    private static int getMaxEncodedUtfLength(int param0) {
+        return param0 * 3;
     }
 
     public ResourceLocation readResourceLocation() {

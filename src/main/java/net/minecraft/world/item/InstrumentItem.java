@@ -22,6 +22,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class InstrumentItem extends Item {
     private static final String TAG_INSTRUMENT = "instrument";
@@ -115,5 +116,6 @@ public class InstrumentItem extends Item {
         SoundEvent var0 = param2.soundEvent();
         float var1 = param2.range() / 16.0F;
         param0.playSound(param1, param1, var0, SoundSource.RECORDS, var1, 1.0F);
+        param0.gameEvent(GameEvent.INSTRUMENT_PLAY, param1.position(), GameEvent.Context.of(param1));
     }
 }

@@ -4,6 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Floats;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.context.CommandContextBuilder;
+import com.mojang.brigadier.context.ParsedCommandNode;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.logging.LogUtils;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -15,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -30,6 +36,7 @@ import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.PreviewedArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -37,8 +44,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.ChatDecorator;
 import net.minecraft.network.chat.ChatPreviewThrottler;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -124,7 +133,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -157,6 +165,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 public class ServerGamePacketListenerImpl implements ServerGamePacketListener, ServerPlayerConnection {
@@ -199,6 +208,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     private int receivedMovePacketCount;
     private int knownMovePacketCount;
     private final ChatPreviewThrottler chatPreviewThrottler = new ChatPreviewThrottler();
+    private final AtomicReference<Instant> lastChatTimeStamp = new AtomicReference<>(Instant.EPOCH);
 
     public ServerGamePacketListenerImpl(MinecraftServer param0, Connection param1, ServerPlayer param2) {
         this.server = param0;
@@ -331,11 +341,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         param2.apply(this.player.getTextFilter(), param0).thenAcceptAsync(var1, var0);
     }
 
-    private void filterTextPacket(String param0, Consumer<TextFilter.FilteredText> param1) {
+    private void filterTextPacket(String param0, Consumer<FilteredText<String>> param1) {
         this.filterTextPacket(param0, param1, TextFilter::processStreamMessage);
     }
 
-    private void filterTextPacket(List<String> param0, Consumer<List<TextFilter.FilteredText>> param1) {
+    private void filterTextPacket(List<String> param0, Consumer<List<FilteredText<String>>> param1) {
         this.filterTextPacket(param0, param1, TextFilter::processMessageBundle);
     }
 
@@ -731,14 +741,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         }
     }
 
-    private void updateBookContents(List<TextFilter.FilteredText> param0, int param1) {
+    private void updateBookContents(List<FilteredText<String>> param0, int param1) {
         ItemStack var0 = this.player.getInventory().getItem(param1);
         if (var0.is(Items.WRITABLE_BOOK)) {
             this.updateBookPages(param0, UnaryOperator.identity(), var0);
         }
     }
 
-    private void signBook(TextFilter.FilteredText param0, List<TextFilter.FilteredText> param1, int param2) {
+    private void signBook(FilteredText<String> param0, List<FilteredText<String>> param1, int param2) {
         ItemStack var0 = this.player.getInventory().getItem(param2);
         if (var0.is(Items.WRITABLE_BOOK)) {
             ItemStack var1 = new ItemStack(Items.WRITTEN_BOOK);
@@ -749,10 +759,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
 
             var1.addTagElement("author", StringTag.valueOf(this.player.getName().getString()));
             if (this.player.isTextFilteringEnabled()) {
-                var1.addTagElement("title", StringTag.valueOf(param0.getFiltered()));
+                var1.addTagElement("title", StringTag.valueOf(param0.filteredOrElse("")));
             } else {
-                var1.addTagElement("filtered_title", StringTag.valueOf(param0.getFiltered()));
-                var1.addTagElement("title", StringTag.valueOf(param0.getRaw()));
+                var1.addTagElement("filtered_title", StringTag.valueOf(param0.filteredOrElse("")));
+                var1.addTagElement("title", StringTag.valueOf(param0.raw()));
             }
 
             this.updateBookPages(param1, param0x -> Component.Serializer.toJson(Component.literal(param0x)), var1);
@@ -760,21 +770,20 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         }
     }
 
-    private void updateBookPages(List<TextFilter.FilteredText> param0, UnaryOperator<String> param1, ItemStack param2) {
+    private void updateBookPages(List<FilteredText<String>> param0, UnaryOperator<String> param1, ItemStack param2) {
         ListTag var0 = new ListTag();
         if (this.player.isTextFilteringEnabled()) {
-            param0.stream().map(param1x -> StringTag.valueOf(param1.apply(param1x.getFiltered()))).forEach(var0::add);
+            param0.stream().map(param1x -> StringTag.valueOf(param1.apply(param1x.filteredOrElse("")))).forEach(var0::add);
         } else {
             CompoundTag var1 = new CompoundTag();
             int var2 = 0;
 
             for(int var3 = param0.size(); var2 < var3; ++var2) {
-                TextFilter.FilteredText var4 = param0.get(var2);
-                String var5 = var4.getRaw();
+                FilteredText<String> var4 = param0.get(var2);
+                String var5 = var4.raw();
                 var0.add(StringTag.valueOf(param1.apply(var5)));
-                String var6 = var4.getFiltered();
-                if (!var5.equals(var6)) {
-                    var1.putString(String.valueOf(var2), param1.apply(var6));
+                if (var4.isFiltered()) {
+                    var1.putString(String.valueOf(var2), param1.apply(var4.filteredOrElse("")));
                 }
             }
 
@@ -1205,10 +1214,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleChat(ServerboundChatPacket param0) {
         if (isChatMessageIllegal(param0.getMessage())) {
             this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
-        } else if (param0.hasExpired(Instant.now())) {
-            LOGGER.warn("{} tried to send expired message: '{}'", this.player.getName().getString(), param0.getMessage());
         } else {
-            this.filterTextPacket(param0.getMessage(), param1 -> this.handleChat(param0, param1));
+            Instant var0 = param0.getTimeStamp();
+            if (!this.isChatExpired(var0) && !this.isChatOutOfOrder(var0)) {
+                this.filterTextPacket(param0.getMessage(), param1 -> this.handleChat(param0, param1));
+            } else {
+                LOGGER.warn("{} tried to send expired or out-of-order message: '{}'", this.player.getName().getString(), param0.getMessage());
+            }
         }
     }
 
@@ -1216,17 +1228,37 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleChatCommand(ServerboundChatCommandPacket param0) {
         if (isChatMessageIllegal(param0.command())) {
             this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
-        } else if (param0.hasExpired(Instant.now())) {
-            LOGGER.warn("{} tried to send expired command: '{}'", this.player.getName().getString(), param0.command());
         } else {
-            PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-            if (this.resetLastActionTime()) {
-                CommandSourceStack var0 = this.player.createCommandSourceStack().withSigningContext(param0.signingContext(this.player.getUUID()));
-                this.server.getCommands().performCommand(var0, param0.command());
-                this.detectRateSpam();
-            }
+            Instant var0 = param0.timeStamp();
+            if (!this.isChatExpired(var0) && !this.isChatOutOfOrder(var0)) {
+                PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+                if (this.resetLastActionTime()) {
+                    CommandSourceStack var1 = this.player.createCommandSourceStack().withSigningContext(param0.signingContext(this.player.getUUID()));
+                    this.server.getCommands().performCommand(var1, param0.command());
+                    this.detectRateSpam();
+                }
 
+            } else {
+                LOGGER.warn("{} tried to send expired or out-of-order command: '{}'", this.player.getName().getString(), param0.command());
+            }
         }
+    }
+
+    private boolean isChatExpired(Instant param0) {
+        Instant var0 = param0.plus(ServerboundChatPacket.MESSAGE_EXPIRES_AFTER);
+        return Instant.now().isAfter(var0);
+    }
+
+    private boolean isChatOutOfOrder(Instant param0) {
+        Instant var0;
+        do {
+            var0 = this.lastChatTimeStamp.get();
+            if (param0.isBefore(var0)) {
+                return true;
+            }
+        } while(!this.lastChatTimeStamp.compareAndSet(var0, param0));
+
+        return false;
     }
 
     private static boolean isChatMessageIllegal(String param0) {
@@ -1251,21 +1283,23 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         }
     }
 
-    private void handleChat(ServerboundChatPacket param0, TextFilter.FilteredText param1) {
+    private void handleChat(ServerboundChatPacket param0, FilteredText<String> param1) {
         if (this.resetLastActionTime()) {
-            Component var0 = Component.literal(param0.getMessage());
-            MessageSignature var1 = param0.getSignature(this.player.getUUID());
-            PlayerChatMessage var2 = this.server.getChatDecorator().decorate(this.player, var0, var1, param0.signedPreview());
-            ProfilePublicKey var3 = this.player.getProfilePublicKey();
-            if (var3 != null && !var2.verify(var3)) {
-                LOGGER.warn("{} sent message with invalid signature: '{}'", this.player.getName().getString(), var2.signedContent().getString());
-                return;
-            }
-
-            this.server.getPlayerList().broadcastChatMessage(var2, param1, this.player, ChatType.CHAT);
-            this.detectRateSpam();
+            MessageSignature var0 = param0.getSignature(this.player.getUUID());
+            boolean var1 = param0.signedPreview();
+            ChatDecorator var2 = this.server.getChatDecorator();
+            var2.decorateChat(this.player, param1.map(Component::literal), var0, var1).thenAcceptAsync(this::broadcastChatMessage, this.server);
         }
 
+    }
+
+    private void broadcastChatMessage(FilteredText<PlayerChatMessage> param0x) {
+        if (!param0x.raw().verify(this.player)) {
+            LOGGER.warn("{} sent message with invalid signature: '{}'", this.player.getName().getString(), param0x.raw().signedContent().getString());
+        } else {
+            this.server.getPlayerList().broadcastChatMessage(param0x, this.player, ChatType.CHAT);
+            this.detectRateSpam();
+        }
     }
 
     private void detectRateSpam() {
@@ -1279,19 +1313,54 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public void handleChatPreview(ServerboundChatPreviewPacket param0) {
         if (this.server.previewsChat()) {
-            this.chatPreviewThrottler.execute(() -> {
-                String var0 = param0.query();
-                Component var1x = Component.literal(var0);
-                Component var2 = this.server.getChatDecorator().decorate(this.player, var1x);
-                if (!var1x.equals(var2)) {
-                    this.send(new ClientboundChatPreviewPacket(param0.queryId(), var2));
-                } else {
-                    this.send(new ClientboundChatPreviewPacket(param0.queryId(), null));
-                }
-
+            this.chatPreviewThrottler.schedule(() -> {
+                int var0 = param0.queryId();
+                String var1x = param0.query();
+                return this.queryPreview(var1x).thenAccept(param1 -> this.send(new ClientboundChatPreviewPacket(var0, param1)));
             });
         }
 
+    }
+
+    private CompletableFuture<Component> queryPreview(String param0) {
+        String var0 = StringUtils.normalizeSpace(param0);
+        return var0.startsWith("/") ? this.queryCommandPreview(var0.substring(1)) : this.queryChatPreview(param0);
+    }
+
+    private CompletableFuture<Component> queryChatPreview(String param0) {
+        Component var0 = Component.literal(param0);
+        return this.server.getChatDecorator().decorate(this.player, var0).thenApply(param1 -> !var0.equals(param1) ? param1 : null);
+    }
+
+    private CompletableFuture<Component> queryCommandPreview(String param0) {
+        CommandSourceStack var0 = this.player.createCommandSourceStack();
+        ParseResults<CommandSourceStack> var1 = this.server.getCommands().getDispatcher().parse(param0, var0);
+        return this.getPreviewedArgument(var1.getContext());
+    }
+
+    private CompletableFuture<Component> getPreviewedArgument(CommandContextBuilder<CommandSourceStack> param0) {
+        CommandContextBuilder<CommandSourceStack> var0 = param0.getLastChild();
+        if (var0.getArguments().isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        } else {
+            List<? extends ParsedCommandNode<?>> var1 = var0.getNodes();
+
+            for(int var2 = var1.size() - 1; var2 >= 0; --var2) {
+                CommandNode<?> var3 = var1.get(var2).getNode();
+                if (var3 instanceof ArgumentCommandNode var4) {
+                    try {
+                        CompletableFuture<Component> var5 = PreviewedArgument.resolvePreviewed(var4, var0);
+                        if (var5 != null) {
+                            return var5;
+                        }
+                    } catch (CommandSyntaxException var8) {
+                        return CompletableFuture.completedFuture(null);
+                    }
+                }
+            }
+
+            return CompletableFuture.completedFuture(null);
+        }
     }
 
     @Override
@@ -1543,7 +1612,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.filterTextPacket(var0, param1 -> this.updateSignText(param0, param1));
     }
 
-    private void updateSignText(ServerboundSignUpdatePacket param0, List<TextFilter.FilteredText> param1) {
+    private void updateSignText(ServerboundSignUpdatePacket param0, List<FilteredText<String>> param1) {
         this.player.resetLastActionTime();
         ServerLevel var0 = this.player.getLevel();
         BlockPos var1 = param0.getPos();
@@ -1561,11 +1630,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             }
 
             for(int var5 = 0; var5 < param1.size(); ++var5) {
-                TextFilter.FilteredText var6 = param1.get(var5);
+                FilteredText<Component> var6 = param1.get(var5).map(Component::literal);
                 if (this.player.isTextFilteringEnabled()) {
-                    var4.setMessage(var5, Component.literal(var6.getFiltered()));
+                    var4.setMessage(var5, var6.filteredOrElse(CommonComponents.EMPTY));
                 } else {
-                    var4.setMessage(var5, Component.literal(var6.getRaw()), Component.literal(var6.getFiltered()));
+                    var4.setMessage(var5, var6.raw(), var6.filteredOrElse(CommonComponents.EMPTY));
                 }
             }
 

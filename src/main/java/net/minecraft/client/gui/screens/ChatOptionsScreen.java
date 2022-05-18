@@ -31,7 +31,7 @@ public class ChatOptionsScreen extends SimpleOptionsSubScreen {
                 param1.hideMatchedNames(),
                 param1.reducedDebugInfo(),
                 param1.chatPreview(),
-                param1.onlyShowSignedChat()
+                param1.onlyShowSecureChat()
             }
         );
     }

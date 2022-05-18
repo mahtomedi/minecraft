@@ -181,8 +181,7 @@ public class TranslatableContents implements ComponentContents {
 
     @Override
     public int hashCode() {
-        int var0 = super.hashCode();
-        var0 = 31 * var0 + this.key.hashCode();
+        int var0 = this.key.hashCode();
         return 31 * var0 + Arrays.hashCode(this.args);
     }
 

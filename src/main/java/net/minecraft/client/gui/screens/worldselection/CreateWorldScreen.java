@@ -113,7 +113,7 @@ public class CreateWorldScreen extends Screen {
         PackRepository var0 = new PackRepository(PackType.SERVER_DATA, new ServerPacksSource());
         WorldLoader.InitConfig var1 = createDefaultLoadConfig(var0, DataPackConfig.DEFAULT);
         CompletableFuture<WorldCreationContext> var2 = WorldLoader.load(var1, (param0x, param1x) -> {
-            RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
+            RegistryAccess.Frozen var0x = RegistryAccess.builtinCopy().freeze();
             WorldGenSettings var1x = WorldPresets.createNormalWorldFromPreset(var0x);
             return Pair.of(var1x, var0x);
         }, (param0x, param1x, param2, param3) -> {

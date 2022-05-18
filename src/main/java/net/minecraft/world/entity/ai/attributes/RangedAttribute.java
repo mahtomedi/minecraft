@@ -29,6 +29,6 @@ public class RangedAttribute extends Attribute {
 
     @Override
     public double sanitizeValue(double param0) {
-        return Mth.clamp(param0, this.minValue, this.maxValue);
+        return Double.isNaN(param0) ? this.minValue : Mth.clamp(param0, this.minValue, this.maxValue);
     }
 }

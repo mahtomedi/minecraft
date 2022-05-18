@@ -70,12 +70,14 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.BiomeSources;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatterns;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGenerators;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -305,11 +307,9 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
     public static final Registry<FeatureSizeType<?>> FEATURE_SIZE_TYPES = registerSimple(
         FEATURE_SIZE_TYPE_REGISTRY, param0 -> FeatureSizeType.TWO_LAYERS_FEATURE_SIZE
     );
-    public static final Registry<Codec<? extends BiomeSource>> BIOME_SOURCE = registerSimple(
-        BIOME_SOURCE_REGISTRY, Lifecycle.stable(), param0 -> BiomeSource.CODEC
-    );
+    public static final Registry<Codec<? extends BiomeSource>> BIOME_SOURCE = registerSimple(BIOME_SOURCE_REGISTRY, Lifecycle.stable(), BiomeSources::bootstrap);
     public static final Registry<Codec<? extends ChunkGenerator>> CHUNK_GENERATOR = registerSimple(
-        CHUNK_GENERATOR_REGISTRY, Lifecycle.stable(), param0 -> ChunkGenerator.CODEC
+        CHUNK_GENERATOR_REGISTRY, Lifecycle.stable(), ChunkGenerators::bootstrap
     );
     public static final Registry<Codec<? extends SurfaceRules.ConditionSource>> CONDITION = registerSimple(
         CONDITION_REGISTRY, SurfaceRules.ConditionSource::bootstrap
@@ -534,7 +534,9 @@ public abstract class Registry<T> implements Keyable, IdMap<T> {
 
     public abstract Registry<T> freeze();
 
-    public abstract Holder<T> getOrCreateHolder(ResourceKey<T> var1);
+    public abstract Holder<T> getOrCreateHolderOrThrow(ResourceKey<T> var1);
+
+    public abstract DataResult<Holder<T>> getOrCreateHolder(ResourceKey<T> var1);
 
     public abstract Holder.Reference<T> createIntrusiveHolder(T var1);
 

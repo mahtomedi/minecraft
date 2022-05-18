@@ -136,7 +136,7 @@ public class PresetFlatWorldScreen extends Screen {
                     }
                 }
 
-                var2.setBiome(param0.getOrCreateHolder(var3));
+                var2.setBiome(param0.getOrCreateHolderOrThrow(var3));
                 return var2;
             }
         }

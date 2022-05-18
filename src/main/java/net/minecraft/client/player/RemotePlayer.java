@@ -1,6 +1,7 @@
 package net.minecraft.client.player;
 
 import com.mojang.authlib.GameProfile;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -12,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RemotePlayer extends AbstractClientPlayer {
-    public RemotePlayer(ClientLevel param0, GameProfile param1, ProfilePublicKey param2) {
+    public RemotePlayer(ClientLevel param0, GameProfile param1, @Nullable ProfilePublicKey param2) {
         super(param0, param1, param2);
         this.maxUpStep = 1.0F;
         this.noPhysics = true;

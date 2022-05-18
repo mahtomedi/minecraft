@@ -82,7 +82,7 @@ public class FlatLevelGeneratorSettings {
         this.updateLayers();
         if (param5.isEmpty()) {
             LOGGER.error("Unknown biome, defaulting to plains");
-            this.biome = param0.getOrCreateHolder(Biomes.PLAINS);
+            this.biome = param0.getOrCreateHolderOrThrow(Biomes.PLAINS);
         } else {
             this.biome = param5.get();
         }
@@ -92,7 +92,7 @@ public class FlatLevelGeneratorSettings {
     public FlatLevelGeneratorSettings(Optional<HolderSet<StructureSet>> param0, Registry<Biome> param1) {
         this.biomes = param1;
         this.structureOverrides = param0;
-        this.biome = param1.getOrCreateHolder(Biomes.PLAINS);
+        this.biome = param1.getOrCreateHolderOrThrow(Biomes.PLAINS);
         this.layers = Lists.newArrayList();
     }
 
@@ -124,41 +124,44 @@ public class FlatLevelGeneratorSettings {
         this.addLakes = true;
     }
 
-    public Holder<Biome> getBiomeFromSettings() {
-        Biome var0 = this.getBiome().value();
-        BiomeGenerationSettings var1 = var0.getGenerationSettings();
-        BiomeGenerationSettings.Builder var2 = new BiomeGenerationSettings.Builder();
-        if (this.addLakes) {
-            var2.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_UNDERGROUND);
-            var2.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_SURFACE);
-        }
+    public BiomeGenerationSettings adjustGenerationSettings(Holder<Biome> param0) {
+        if (!param0.equals(this.biome)) {
+            return param0.value().getGenerationSettings();
+        } else {
+            BiomeGenerationSettings var0 = this.getBiome().value().getGenerationSettings();
+            BiomeGenerationSettings.Builder var1 = new BiomeGenerationSettings.Builder();
+            if (this.addLakes) {
+                var1.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_UNDERGROUND);
+                var1.addFeature(GenerationStep.Decoration.LAKES, MiscOverworldPlacements.LAKE_LAVA_SURFACE);
+            }
 
-        boolean var3 = (!this.voidGen || this.biome.is(Biomes.THE_VOID)) && this.decoration;
-        if (var3) {
-            List<HolderSet<PlacedFeature>> var4 = var1.features();
+            boolean var2 = (!this.voidGen || param0.is(Biomes.THE_VOID)) && this.decoration;
+            if (var2) {
+                List<HolderSet<PlacedFeature>> var3 = var0.features();
 
-            for(int var5 = 0; var5 < var4.size(); ++var5) {
-                if (var5 != GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal() && var5 != GenerationStep.Decoration.SURFACE_STRUCTURES.ordinal()) {
-                    for(Holder<PlacedFeature> var7 : var4.get(var5)) {
-                        var2.addFeature(var5, var7);
+                for(int var4 = 0; var4 < var3.size(); ++var4) {
+                    if (var4 != GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal() && var4 != GenerationStep.Decoration.SURFACE_STRUCTURES.ordinal()) {
+                        for(Holder<PlacedFeature> var6 : var3.get(var4)) {
+                            var1.addFeature(var4, var6);
+                        }
                     }
                 }
             }
-        }
 
-        List<BlockState> var8 = this.getLayers();
+            List<BlockState> var7 = this.getLayers();
 
-        for(int var9 = 0; var9 < var8.size(); ++var9) {
-            BlockState var10 = var8.get(var9);
-            if (!Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var10)) {
-                var8.set(var9, null);
-                var2.addFeature(
-                    GenerationStep.Decoration.TOP_LAYER_MODIFICATION, PlacementUtils.inlinePlaced(Feature.FILL_LAYER, new LayerConfiguration(var9, var10))
-                );
+            for(int var8 = 0; var8 < var7.size(); ++var8) {
+                BlockState var9 = var7.get(var8);
+                if (!Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var9)) {
+                    var7.set(var8, null);
+                    var1.addFeature(
+                        GenerationStep.Decoration.TOP_LAYER_MODIFICATION, PlacementUtils.inlinePlaced(Feature.FILL_LAYER, new LayerConfiguration(var8, var9))
+                    );
+                }
             }
-        }
 
-        return Holder.direct(Biome.BiomeBuilder.from(var0).generationSettings(var2.build()).build());
+            return var1.build();
+        }
     }
 
     public Optional<HolderSet<StructureSet>> structureOverrides() {
@@ -198,7 +201,7 @@ public class FlatLevelGeneratorSettings {
             param1.getHolderOrThrow(BuiltinStructureSets.STRONGHOLDS), param1.getHolderOrThrow(BuiltinStructureSets.VILLAGES)
         );
         FlatLevelGeneratorSettings var1 = new FlatLevelGeneratorSettings(Optional.of(var0), param0);
-        var1.biome = param0.getOrCreateHolder(Biomes.PLAINS);
+        var1.biome = param0.getOrCreateHolderOrThrow(Biomes.PLAINS);
         var1.getLayersInfo().add(new FlatLayerInfo(1, Blocks.BEDROCK));
         var1.getLayersInfo().add(new FlatLayerInfo(2, Blocks.DIRT));
         var1.getLayersInfo().add(new FlatLayerInfo(1, Blocks.GRASS_BLOCK));

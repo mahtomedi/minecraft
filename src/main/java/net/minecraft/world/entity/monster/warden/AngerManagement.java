@@ -197,7 +197,7 @@ public class AngerManagement {
                     if (var4 != var5) {
                         return var4 ? -1 : 1;
                     } else {
-                        return var0 > var1 ? -1 : 1;
+                        return Integer.compare(var1, var0);
                     }
                 }
             }

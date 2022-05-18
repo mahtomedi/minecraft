@@ -405,27 +405,30 @@ public class Zombie extends Monster {
     }
 
     @Override
-    public void killed(ServerLevel param0, LivingEntity param1) {
-        super.killed(param0, param1);
+    public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
+        boolean var0 = super.wasKilled(param0, param1);
         if ((param0.getDifficulty() == Difficulty.NORMAL || param0.getDifficulty() == Difficulty.HARD) && param1 instanceof Villager) {
             if (param0.getDifficulty() != Difficulty.HARD && this.random.nextBoolean()) {
-                return;
+                return var0;
             }
 
-            Villager var0 = (Villager)param1;
-            ZombieVillager var1 = var0.convertTo(EntityType.ZOMBIE_VILLAGER, false);
-            var1.finalizeSpawn(
-                param0, param0.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
+            Villager var1 = (Villager)param1;
+            ZombieVillager var2 = var1.convertTo(EntityType.ZOMBIE_VILLAGER, false);
+            var2.finalizeSpawn(
+                param0, param0.getCurrentDifficultyAt(var2.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
             );
-            var1.setVillagerData(var0.getVillagerData());
-            var1.setGossips(var0.getGossips().store(NbtOps.INSTANCE).getValue());
-            var1.setTradeOffers(var0.getOffers().createTag());
-            var1.setVillagerXp(var0.getVillagerXp());
+            var2.setVillagerData(var1.getVillagerData());
+            var2.setGossips(var1.getGossips().store(NbtOps.INSTANCE).getValue());
+            var2.setTradeOffers(var1.getOffers().createTag());
+            var2.setVillagerXp(var1.getVillagerXp());
             if (!this.isSilent()) {
                 param0.levelEvent(null, 1026, this.blockPosition(), 0);
             }
+
+            var0 = false;
         }
 
+        return var0;
     }
 
     @Override

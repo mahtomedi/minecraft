@@ -80,7 +80,7 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 param0.pushPose();
                 param0.translate(
                     (double)((float)this.minecraft.getWindow().getGuiScaledWidth() - (float)var15 * 1.0F - 2.0F),
-                    (double)((float)(this.minecraft.getWindow().getGuiScaledHeight() - 30) - (float)(var4 * (var16 + 1)) * 1.0F),
+                    (double)((float)(this.minecraft.getWindow().getGuiScaledHeight() - 40) - (float)(var4 * (var16 + 1)) * 1.0F),
                     0.0
                 );
                 param0.scale(1.0F, 1.0F, 1.0F);

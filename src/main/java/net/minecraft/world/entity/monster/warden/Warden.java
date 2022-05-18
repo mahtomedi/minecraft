@@ -110,7 +110,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public Warden(EntityType<? extends Monster> param0, Level param1) {
         super(param0, param1);
         this.dynamicGameEventListener = new DynamicGameEventListener<>(
-            new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 16, this, null, 0, 0)
+            new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 16, this, null, 0.0F, 0)
         );
         this.xpReward = 5;
         this.getNavigation().setCanFloat(true);
@@ -298,11 +298,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public void handleEntityEvent(byte param0) {
         if (param0 == 4) {
             this.roarAnimationState.stop();
-            this.attackAnimationState.start();
+            this.attackAnimationState.start(this.tickCount);
         } else if (param0 == 61) {
             this.tendrilAnimation = 10;
         } else if (param0 == 62) {
-            this.sonicBoomAnimationState.start();
+            this.sonicBoomAnimationState.start(this.tickCount);
         } else {
             super.handleEntityEvent(param0);
         }
@@ -343,16 +343,16 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
         if (DATA_POSE.equals(param0)) {
             switch(this.getPose()) {
                 case EMERGING:
-                    this.emergeAnimationState.start();
+                    this.emergeAnimationState.start(this.tickCount);
                     break;
                 case DIGGING:
-                    this.diggingAnimationState.start();
+                    this.diggingAnimationState.start(this.tickCount);
                     break;
                 case ROARING:
-                    this.roarAnimationState.start();
+                    this.roarAnimationState.start(this.tickCount);
                     break;
                 case SNIFFING:
-                    this.sniffAnimationState.start();
+                    this.sniffAnimationState.start(this.tickCount);
             }
         }
 
@@ -591,7 +591,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
 
     @Override
     public void onSignalReceive(
-        ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, int param6
+        ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, float param6
     ) {
         this.brain.setMemoryWithExpiry(MemoryModuleType.VIBRATION_COOLDOWN, Unit.INSTANCE, 40L);
         param0.broadcastEntityEvent(this, (byte)61);

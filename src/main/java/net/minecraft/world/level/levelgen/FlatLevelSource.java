@@ -5,14 +5,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
@@ -32,7 +31,7 @@ public class FlatLevelSource extends ChunkGenerator {
     private final FlatLevelGeneratorSettings settings;
 
     public FlatLevelSource(Registry<StructureSet> param0, FlatLevelGeneratorSettings param1) {
-        super(param0, param1.structureOverrides(), new FixedBiomeSource(param1.getBiomeFromSettings()), new FixedBiomeSource(param1.getBiome()));
+        super(param0, param1.structureOverrides(), new FixedBiomeSource(param1.getBiome()), Util.memoize(param1::adjustGenerationSettings));
         this.settings = param1;
     }
 
@@ -52,11 +51,6 @@ public class FlatLevelSource extends ChunkGenerator {
     @Override
     public int getSpawnHeight(LevelHeightAccessor param0) {
         return param0.getMinBuildHeight() + Math.min(param0.getHeight(), this.settings.getLayers().size());
-    }
-
-    @Override
-    protected Holder<Biome> adjustBiome(Holder<Biome> param0) {
-        return this.settings.getBiome();
     }
 
     @Override

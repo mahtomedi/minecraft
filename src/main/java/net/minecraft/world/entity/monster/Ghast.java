@@ -70,13 +70,11 @@ public class Ghast extends FlyingMob implements Enemy {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (this.isInvulnerableTo(param0)) {
-            return false;
-        } else if (param0.getDirectEntity() instanceof LargeFireball && param0.getEntity() instanceof Player) {
+        if (param0.getDirectEntity() instanceof LargeFireball && param0.getEntity() instanceof Player) {
             super.hurt(param0, 1000.0F);
             return true;
         } else {
-            return super.hurt(param0, param1);
+            return this.isInvulnerableTo(param0) ? false : super.hurt(param0, param1);
         }
     }
 

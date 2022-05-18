@@ -46,7 +46,7 @@ public class AllayAi {
     private static final int MIN_WAIT_DURATION = 30;
     private static final int MAX_WAIT_DURATION = 60;
     private static final int TIME_TO_FORGET_NOTEBLOCK = 600;
-    private static final int DISTANCE_TO_WANDER_ITEM = 32;
+    private static final int DISTANCE_TO_WANTED_ITEM = 32;
 
     protected static Brain<?> makeBrain(Brain<Allay> param0) {
         initCoreActivity(param0);

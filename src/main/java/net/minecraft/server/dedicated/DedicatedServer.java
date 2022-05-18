@@ -2,8 +2,6 @@ package net.minecraft.server.dedicated;
 
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
@@ -29,10 +27,10 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.ChatDecorator;
 import net.minecraft.server.ConsoleInput;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInterface;
+import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.gui.MinecraftServerGui;
 import net.minecraft.server.level.ServerLevel;
@@ -73,7 +71,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     private MinecraftServerGui gui;
     @Nullable
     private final TextFilterClient textFilterClient;
-    private final ChatDecorator chatDecorator;
 
     public DedicatedServer(
         Thread param0,
@@ -82,16 +79,13 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         WorldStem param3,
         DedicatedServerSettings param4,
         DataFixer param5,
-        MinecraftSessionService param6,
-        GameProfileRepository param7,
-        GameProfileCache param8,
-        ChunkProgressListenerFactory param9
+        Services param6,
+        ChunkProgressListenerFactory param7
     ) {
-        super(param0, param1, param2, param3, Proxy.NO_PROXY, param5, param6, param7, param8, param9);
+        super(param0, param1, param2, param3, Proxy.NO_PROXY, param5, param6, param7);
         this.settings = param4;
         this.rconConsoleSource = new RconConsoleSource(this);
         this.textFilterClient = TextFilterClient.createFromConfig(param4.getProperties().textFilteringConfig);
-        this.chatDecorator = this.getProperties().testRainbowChat ? ChatDecorator.testRainbowChat() : ChatDecorator.PLAIN;
     }
 
     @Override
@@ -176,7 +170,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         } else {
             this.setPlayerList(new DedicatedPlayerList(this, this.registryAccess(), this.playerDataStorage));
             long var4 = Util.getNanos();
-            SkullBlockEntity.setup(this.getProfileCache(), this.getSessionService(), this);
+            SkullBlockEntity.setup(this.services, this);
             GameProfileCache.setUsesAuthentication(this.usesAuthentication());
             LOGGER.info("Preparing level \"{}\"", this.getLevelIdName());
             this.loadLevel();
@@ -311,7 +305,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     public void handleConsoleInputs() {
         while(!this.consoleInput.isEmpty()) {
             ConsoleInput var0 = this.consoleInput.remove(0);
-            this.getCommands().performCommand(var0.source, var0.msg);
+            this.getCommands().performPrefixedCommand(var0.source, var0.msg);
         }
 
     }
@@ -334,11 +328,6 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public boolean previewsChat() {
         return this.getProperties().previewsChat;
-    }
-
-    @Override
-    public ChatDecorator getChatDecorator() {
-        return this.chatDecorator;
     }
 
     public DedicatedPlayerList getPlayerList() {
@@ -540,7 +529,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public String runCommand(String param0) {
         this.rconConsoleSource.prepareForCommand();
-        this.executeBlocking(() -> this.getCommands().performCommand(this.rconConsoleSource.createCommandSourceStack(), param0));
+        this.executeBlocking(() -> this.getCommands().performPrefixedCommand(this.rconConsoleSource.createCommandSourceStack(), param0));
         return this.rconConsoleSource.getCommandResponse();
     }
 

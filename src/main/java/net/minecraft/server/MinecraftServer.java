@@ -97,6 +97,7 @@ import net.minecraft.util.ModCheck;
 import net.minecraft.util.Mth;
 import net.minecraft.util.NativeModuleLister;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.SignatureValidator;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.EmptyProfileResults;
 import net.minecraft.util.profiling.ProfileResults;
@@ -162,7 +163,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private static final int OVERLOADED_WARNING_INTERVAL = 15000;
     private static final long STATUS_EXPIRE_TIME_NS = 5000000000L;
     private static final int MAX_STATUS_PLAYER_SAMPLE = 12;
-    public static final File USERID_CACHE_FILE = new File("usercache.json");
     public static final int START_CHUNK_RADIUS = 11;
     private static final int START_TICKING_CHUNK_COUNT = 441;
     private static final int AUTOSAVE_INTERVAL = 6000;
@@ -214,11 +214,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private boolean isDemo;
     private volatile boolean isReady;
     private long lastOverloadWarning;
-    private final MinecraftSessionService sessionService;
-    @Nullable
-    private final GameProfileRepository profileRepository;
-    @Nullable
-    private final GameProfileCache profileCache;
+    protected final Services services;
     private long lastServerStatus;
     private final Thread serverThread;
     private long nextTickTime = Util.getMillis();
@@ -262,10 +258,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         WorldStem param3,
         Proxy param4,
         DataFixer param5,
-        @Nullable MinecraftSessionService param6,
-        @Nullable GameProfileRepository param7,
-        @Nullable GameProfileCache param8,
-        ChunkProgressListenerFactory param9
+        Services param6,
+        ChunkProgressListenerFactory param7
     ) {
         super("Server");
         this.registryHolder = param3.registryAccess();
@@ -276,15 +270,13 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.proxy = param4;
             this.packRepository = param2;
             this.resources = new MinecraftServer.ReloadableResources(param3.resourceManager(), param3.dataPackResources());
-            this.sessionService = param6;
-            this.profileRepository = param7;
-            this.profileCache = param8;
-            if (param8 != null) {
-                param8.setExecutor(this);
+            this.services = param6;
+            if (param6.profileCache() != null) {
+                param6.profileCache().setExecutor(this);
             }
 
             this.connection = new ServerConnectionListener(this);
-            this.progressListenerFactory = param9;
+            this.progressListenerFactory = param7;
             this.storageSource = param1;
             this.playerDataStorage = param1.createPlayerStorage();
             this.fixerUpper = param5;
@@ -687,8 +679,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             } catch (Throwable var42) {
                 LOGGER.error("Exception stopping the server", var42);
             } finally {
-                if (this.profileCache != null) {
-                    this.profileCache.clearExecutor();
+                if (this.services.profileCache() != null) {
+                    this.services.profileCache().clearExecutor();
                 }
 
                 this.onServerExit();
@@ -795,12 +787,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return new File(".");
     }
 
-    protected void onServerCrash(CrashReport param0) {
-        LOGGER.error("Game test server crashed\n{}", param0.getFriendlyReport());
+    public void onServerCrash(CrashReport param0) {
     }
 
     public void onServerExit() {
-        LOGGER.info("Game test server shutting down");
     }
 
     public void tickServer(BooleanSupplier param0) {
@@ -1205,15 +1195,19 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public MinecraftSessionService getSessionService() {
-        return this.sessionService;
+        return this.services.sessionService();
+    }
+
+    public SignatureValidator getServiceSignatureValidator() {
+        return this.services.serviceSignatureValidator();
     }
 
     public GameProfileRepository getProfileRepository() {
-        return this.profileRepository;
+        return this.services.profileRepository();
     }
 
     public GameProfileCache getProfileCache() {
-        return this.profileCache;
+        return this.services.profileCache();
     }
 
     public ServerStatus getStatus() {

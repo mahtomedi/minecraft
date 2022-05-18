@@ -95,11 +95,18 @@ public class IOWorker implements AutoCloseable, ChunkScanAccess {
             BitSet var2x = new BitSet();
             ChunkPos.rangeClosed(var0, var1x).forEach(param1x -> {
                 CollectFields var0x = new CollectFields(new FieldSelector(IntTag.TYPE, "DataVersion"), new FieldSelector(CompoundTag.TYPE, "blending_data"));
-                this.scanChunk(param1x, var0x).join();
-                Tag var1xx = var0x.getResult();
-                if (var1xx instanceof CompoundTag var2xx) {
-                    int var3x = param1x.getRegionLocalZ() * 32 + param1x.getRegionLocalX();
-                    var2x.set(var3x, this.isOldChunk(var2xx));
+
+                try {
+                    this.scanChunk(param1x, var0x).join();
+                } catch (Exception var7) {
+                    LOGGER.warn("Failed to scan chunk {}", param1x, var7);
+                    return;
+                }
+
+                Tag var2xx = var0x.getResult();
+                if (var2xx instanceof CompoundTag var3x && this.isOldChunk(var3x)) {
+                    int var4x = param1x.getRegionLocalZ() * 32 + param1x.getRegionLocalX();
+                    var2x.set(var4x);
                 }
 
             });

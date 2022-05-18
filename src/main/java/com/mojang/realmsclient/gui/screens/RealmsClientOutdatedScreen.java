@@ -11,23 +11,20 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsClientOutdatedScreen extends RealmsScreen {
-    private static final Component OUTDATED_TITLE = Component.translatable("mco.client.outdated.title");
-    private static final Component[] OUTDATED_MESSAGES = new Component[]{
-        Component.translatable("mco.client.outdated.msg.line1"), Component.translatable("mco.client.outdated.msg.line2")
-    };
     private static final Component INCOMPATIBLE_TITLE = Component.translatable("mco.client.incompatible.title");
-    private static final Component[] INCOMPATIBLE_MESSAGES = new Component[]{
+    private static final Component[] INCOMPATIBLE_MESSAGES_SNAPSHOT = new Component[]{
         Component.translatable("mco.client.incompatible.msg.line1"),
         Component.translatable("mco.client.incompatible.msg.line2"),
         Component.translatable("mco.client.incompatible.msg.line3")
     };
+    private static final Component[] INCOMPATIBLE_MESSAGES = new Component[]{
+        Component.translatable("mco.client.incompatible.msg.line1"), Component.translatable("mco.client.incompatible.msg.line2")
+    };
     private final Screen lastScreen;
-    private final boolean outdated;
 
-    public RealmsClientOutdatedScreen(Screen param0, boolean param1) {
-        super(param1 ? OUTDATED_TITLE : INCOMPATIBLE_TITLE);
+    public RealmsClientOutdatedScreen(Screen param0) {
+        super(INCOMPATIBLE_TITLE);
         this.lastScreen = param0;
-        this.outdated = param1;
     }
 
     @Override
@@ -41,13 +38,17 @@ public class RealmsClientOutdatedScreen extends RealmsScreen {
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         drawCenteredString(param0, this.font, this.title, this.width / 2, row(3), 16711680);
-        Component[] var0 = this.outdated ? INCOMPATIBLE_MESSAGES : OUTDATED_MESSAGES;
+        Component[] var0 = this.getMessages();
 
         for(int var1 = 0; var1 < var0.length; ++var1) {
             drawCenteredString(param0, this.font, var0[var1], this.width / 2, row(5) + var1 * 12, 16777215);
         }
 
         super.render(param0, param1, param2, param3);
+    }
+
+    private Component[] getMessages() {
+        return this.minecraft.getGame().getVersion().isStable() ? INCOMPATIBLE_MESSAGES : INCOMPATIBLE_MESSAGES_SNAPSHOT;
     }
 
     @Override

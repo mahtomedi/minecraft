@@ -32,6 +32,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.Climate;
@@ -60,7 +61,7 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     private long inhabitedTime;
     @Nullable
     @Deprecated
-    private Holder<Biome> carverBiome;
+    private BiomeGenerationSettings carverBiomeSettings;
     @Nullable
     protected NoiseChunk noiseChunk;
     protected final UpgradeData upgradeData;
@@ -360,12 +361,12 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
     }
 
     @Deprecated
-    public Holder<Biome> carverBiome(Supplier<Holder<Biome>> param0) {
-        if (this.carverBiome == null) {
-            this.carverBiome = param0.get();
+    public BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> param0) {
+        if (this.carverBiomeSettings == null) {
+            this.carverBiomeSettings = param0.get();
         }
 
-        return this.carverBiome;
+        return this.carverBiomeSettings;
     }
 
     @Override

@@ -23,11 +23,11 @@ public class TheEndBiomeSource extends BiomeSource {
 
     public TheEndBiomeSource(Registry<Biome> param0) {
         this(
-            param0.getOrCreateHolder(Biomes.THE_END),
-            param0.getOrCreateHolder(Biomes.END_HIGHLANDS),
-            param0.getOrCreateHolder(Biomes.END_MIDLANDS),
-            param0.getOrCreateHolder(Biomes.SMALL_END_ISLANDS),
-            param0.getOrCreateHolder(Biomes.END_BARRENS)
+            param0.getOrCreateHolderOrThrow(Biomes.THE_END),
+            param0.getOrCreateHolderOrThrow(Biomes.END_HIGHLANDS),
+            param0.getOrCreateHolderOrThrow(Biomes.END_MIDLANDS),
+            param0.getOrCreateHolderOrThrow(Biomes.SMALL_END_ISLANDS),
+            param0.getOrCreateHolderOrThrow(Biomes.END_BARRENS)
         );
     }
 

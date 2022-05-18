@@ -39,7 +39,7 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
     public final boolean active;
     private final Player owner;
 
-    public InventoryMenu(Inventory param0, boolean param1, Player param2) {
+    public InventoryMenu(Inventory param0, boolean param1, final Player param2) {
         super(null, 0);
         this.active = param1;
         this.owner = param2;
@@ -54,6 +54,12 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
         for(int var2 = 0; var2 < 4; ++var2) {
             final EquipmentSlot var3 = SLOT_IDS[var2];
             this.addSlot(new Slot(param0, 39 - var2, 8, 8 + var2 * 18) {
+                @Override
+                public void set(ItemStack param0) {
+                    super.set(param0);
+                    param2.onEquipItem(var3, param0);
+                }
+
                 @Override
                 public int getMaxStackSize() {
                     return 1;

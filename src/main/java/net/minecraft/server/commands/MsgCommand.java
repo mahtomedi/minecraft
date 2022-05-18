@@ -25,7 +25,7 @@ public class MsgCommand {
                                     param0x -> sendMessage(
                                             param0x.getSource(),
                                             EntityArgument.getPlayers(param0x, "targets"),
-                                            MessageArgument.getSignedMessage(param0x, "message")
+                                            MessageArgument.getChatMessage(param0x, "message")
                                         )
                                 )
                         )
@@ -35,18 +35,31 @@ public class MsgCommand {
         param0.register(Commands.literal("w").redirect(var0));
     }
 
-    private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, PlayerChatMessage param2) {
-        PlayerChatMessage var0 = param0.getServer().getChatDecorator().decorate(param0.getPlayer(), param2);
-
-        for(ServerPlayer var1 : param1) {
-            param0.sendSuccess(
-                Component.translatable("commands.message.display.outgoing", var1.getDisplayName(), var0.serverContent())
-                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
-                false
-            );
-            var1.sendChatMessage(var0, param0.asChatSender(), ChatType.MSG_COMMAND);
+    private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, MessageArgument.ChatMessage param2) {
+        if (param1.isEmpty()) {
+            return 0;
+        } else {
+            param2.resolve(param0)
+                .thenAcceptAsync(
+                    param2x -> {
+                        Component var0x = param2x.raw().serverContent();
+        
+                        for(ServerPlayer var1x : param1) {
+                            param0.sendSuccess(
+                                Component.translatable("commands.message.display.outgoing", var1x.getDisplayName(), var0x)
+                                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
+                                false
+                            );
+                            PlayerChatMessage var2x = param2x.filter(param0, var1x);
+                            if (var2x != null) {
+                                var1x.sendChatMessage(var2x, param0.asChatSender(), ChatType.MSG_COMMAND);
+                            }
+                        }
+        
+                    },
+                    param0.getServer()
+                );
+            return param1.size();
         }
-
-        return param1.size();
     }
 }

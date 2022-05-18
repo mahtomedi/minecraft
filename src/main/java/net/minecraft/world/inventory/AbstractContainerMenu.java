@@ -579,7 +579,7 @@ public abstract class AbstractContainerMenu {
 
     public void initializeContents(int param0, List<ItemStack> param1, ItemStack param2) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
-            this.getSlot(var0).set(param1.get(var0));
+            this.getSlot(var0).initialize(param1.get(var0));
         }
 
         this.carried = param2;

@@ -33,7 +33,7 @@ public class VibrationListener implements GameEventListener {
     protected final VibrationListener.VibrationListenerConfig config;
     @Nullable
     protected VibrationListener.ReceivingEvent receivingEvent;
-    protected int receivingDistance;
+    protected float receivingDistance;
     protected int travelTimeInTicks;
 
     public static Codec<VibrationListener> codec(VibrationListener.VibrationListenerConfig param0) {
@@ -42,7 +42,7 @@ public class VibrationListener implements GameEventListener {
                         PositionSource.CODEC.fieldOf("source").forGetter(param0x -> param0x.listenerSource),
                         ExtraCodecs.NON_NEGATIVE_INT.fieldOf("range").forGetter(param0x -> param0x.listenerRange),
                         VibrationListener.ReceivingEvent.CODEC.optionalFieldOf("event").forGetter(param0x -> Optional.ofNullable(param0x.receivingEvent)),
-                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_distance").orElse(0).forGetter(param0x -> param0x.receivingDistance),
+                        Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("event_distance").orElse(0.0F).forGetter(param0x -> param0x.receivingDistance),
                         ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_delay").orElse(0).forGetter(param0x -> param0x.travelTimeInTicks)
                     )
                     .apply(
@@ -57,7 +57,7 @@ public class VibrationListener implements GameEventListener {
         int param1,
         VibrationListener.VibrationListenerConfig param2,
         @Nullable VibrationListener.ReceivingEvent param3,
-        int param4,
+        float param4,
         int param5
     ) {
         this.listenerSource = param0;
@@ -129,9 +129,9 @@ public class VibrationListener implements GameEventListener {
     }
 
     private void scheduleSignal(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3, Vec3 param4) {
-        this.receivingDistance = Mth.floor(param3.distanceTo(param4));
+        this.receivingDistance = (float)param3.distanceTo(param4);
         this.receivingEvent = new VibrationListener.ReceivingEvent(param1, this.receivingDistance, param3, param2.sourceEntity());
-        this.travelTimeInTicks = this.receivingDistance;
+        this.travelTimeInTicks = Mth.floor(this.receivingDistance);
         param0.sendParticles(new VibrationParticleOption(this.listenerSource, this.travelTimeInTicks), param3.x, param3.y, param3.z, 1, 0.0, 0.0, 0.0, 0.0);
         this.config.onSignalSchedule();
     }
@@ -152,12 +152,12 @@ public class VibrationListener implements GameEventListener {
     }
 
     public static record ReceivingEvent(
-        GameEvent gameEvent, int distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid, @Nullable Entity entity
+        GameEvent gameEvent, float distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid, @Nullable Entity entity
     ) {
         public static final Codec<VibrationListener.ReceivingEvent> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         Registry.GAME_EVENT.byNameCodec().fieldOf("game_event").forGetter(VibrationListener.ReceivingEvent::gameEvent),
-                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("distance").forGetter(VibrationListener.ReceivingEvent::distance),
+                        Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("distance").forGetter(VibrationListener.ReceivingEvent::distance),
                         Vec3.CODEC.fieldOf("pos").forGetter(VibrationListener.ReceivingEvent::pos),
                         ExtraCodecs.UUID.optionalFieldOf("source").forGetter(param0x -> Optional.ofNullable(param0x.uuid())),
                         ExtraCodecs.UUID.optionalFieldOf("projectile_owner").forGetter(param0x -> Optional.ofNullable(param0x.projectileOwnerUuid()))
@@ -170,11 +170,11 @@ public class VibrationListener implements GameEventListener {
                     )
         );
 
-        public ReceivingEvent(GameEvent param0, int param1, Vec3 param2, @Nullable UUID param3, @Nullable UUID param4) {
+        public ReceivingEvent(GameEvent param0, float param1, Vec3 param2, @Nullable UUID param3, @Nullable UUID param4) {
             this(param0, param1, param2, param3, param4, null);
         }
 
-        public ReceivingEvent(GameEvent param0, int param1, Vec3 param2, @Nullable Entity param3) {
+        public ReceivingEvent(GameEvent param0, float param1, Vec3 param2, @Nullable Entity param3) {
             this(param0, param1, param2, param3 == null ? null : param3.getUUID(), getProjectileOwner(param3), param3);
         }
 
@@ -242,7 +242,7 @@ public class VibrationListener implements GameEventListener {
 
         boolean shouldListen(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, GameEvent.Context var5);
 
-        void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5, @Nullable Entity var6, int var7);
+        void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, @Nullable Entity var5, @Nullable Entity var6, float var7);
 
         default void onSignalSchedule() {
         }

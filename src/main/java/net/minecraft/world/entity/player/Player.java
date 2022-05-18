@@ -1649,8 +1649,9 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public void killed(ServerLevel param0, LivingEntity param1) {
+    public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
         this.awardStat(Stats.ENTITY_KILLED.get(param1.getType()));
+        return true;
     }
 
     @Override
@@ -1812,19 +1813,22 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
+    protected boolean doesEmitEquipEvent(EquipmentSlot param0) {
+        return param0.getType() == EquipmentSlot.Type.ARMOR;
+    }
+
+    @Override
     public void setItemSlot(EquipmentSlot param0, ItemStack param1) {
         this.verifyEquippedItem(param1);
         if (param0 == EquipmentSlot.MAINHAND) {
-            this.equipEventAndSound(param1, false);
             this.inventory.items.set(this.inventory.selected, param1);
         } else if (param0 == EquipmentSlot.OFFHAND) {
-            this.equipEventAndSound(param1, true);
             this.inventory.offhand.set(0, param1);
         } else if (param0.getType() == EquipmentSlot.Type.ARMOR) {
-            this.equipEventAndSound(param1, true);
             this.inventory.armor.set(param0.getIndex(), param1);
         }
 
+        this.onEquipItem(param0, param1);
     }
 
     public boolean addItem(ItemStack param0) {

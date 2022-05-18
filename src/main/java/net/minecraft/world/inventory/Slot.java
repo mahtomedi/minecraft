@@ -60,6 +60,11 @@ public class Slot {
         this.setChanged();
     }
 
+    public void initialize(ItemStack param0) {
+        this.container.setItem(this.slot, param0);
+        this.setChanged();
+    }
+
     public void setChanged() {
         this.container.setChanged();
     }

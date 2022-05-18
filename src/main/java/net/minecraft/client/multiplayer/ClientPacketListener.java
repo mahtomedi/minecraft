@@ -167,6 +167,7 @@ import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
+import net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
@@ -627,6 +628,15 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
+    public void handleSetDisplayChatPreview(ClientboundSetDisplayChatPreviewPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        ServerData var0 = this.minecraft.getCurrentServer();
+        if (var0 != null) {
+            var0.setChatPreviewEnabled(param0.enabled());
+        }
+    }
+
+    @Override
     public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         int var0 = 19 | (param0.shouldSuppressLightUpdates() ? 128 : 0);
@@ -806,7 +816,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             LOGGER.warn("Received chat packet without valid signature from {}", param2.name().getString());
         }
 
-        boolean var0 = this.minecraft.options.onlyShowSignedChat().get();
+        boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
         Component var1 = var0 ? param1.signedContent() : param1.serverContent();
         this.minecraft.gui.handlePlayerChat(param0, var1, param2);
     }
@@ -1548,9 +1558,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
             });
             var0.setPreviewsChat(param0.previewsChat());
             ServerList.saveSingleServer(var0);
-            ServerData.ChatPreview var1 = var0.getChatPreview();
-            if (var1 != null && !var1.isAcknowledged()) {
-                this.minecraft.execute(() -> this.minecraft.setScreen(new ChatPreviewWarningScreen(var0)));
+            if (this.minecraft.options.chatPreview().get()) {
+                ServerData.ChatPreview var1 = var0.getChatPreview();
+                if (var1 != null && !var1.isAcknowledged()) {
+                    this.minecraft.execute(() -> this.minecraft.setScreen(new ChatPreviewWarningScreen(this.minecraft.screen, var0)));
+                }
             }
 
         }
@@ -1608,7 +1620,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else {
                 PlayerInfo var1 = this.playerInfoMap.get(var0.getProfile().getId());
                 if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER) {
-                    var1 = new PlayerInfo(var0, this.minecraft.getMinecraftSessionService());
+                    var1 = new PlayerInfo(var0, this.minecraft.getServiceSignatureValidator());
                     this.playerInfoMap.put(var1.getProfile().getId(), var1);
                     this.minecraft.getPlayerSocialManager().addPlayer(var1);
                 }

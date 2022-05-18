@@ -569,7 +569,7 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .save(param0, "adventure/fall_from_world_height");
         Advancement.Builder.advancement()
-            .parent(var0)
+            .parent(var3)
             .display(
                 Blocks.SCULK_CATALYST,
                 Component.translatable("advancements.adventure.kill_mob_near_sculk_catalyst.title"),

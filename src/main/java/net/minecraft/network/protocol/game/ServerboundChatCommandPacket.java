@@ -8,39 +8,33 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.StringUtil;
 
-public record ServerboundChatCommandPacket(String command, Instant timeStamp, ArgumentSignatures argumentSignatures) implements Packet<ServerGamePacketListener> {
-    private static final int MAX_MESSAGE_LENGTH = 256;
-
-    public ServerboundChatCommandPacket(String param0, Instant param1, ArgumentSignatures param2) {
-        this.command = StringUtil.trimChatMessage(param0);
+public record ServerboundChatCommandPacket(String command, Instant timeStamp, ArgumentSignatures argumentSignatures, boolean signedPreview)
+    implements Packet<ServerGamePacketListener> {
+    public ServerboundChatCommandPacket(String param0, Instant param1, ArgumentSignatures param2, boolean param3) {
+        param0 = StringUtil.trimChatMessage(param0);
+        this.command = param0;
         this.timeStamp = param1;
         this.argumentSignatures = param2;
+        this.signedPreview = param3;
     }
 
     public ServerboundChatCommandPacket(FriendlyByteBuf param0) {
-        this(param0.readUtf(256), param0.readInstant(), new ArgumentSignatures(param0));
+        this(param0.readUtf(256), param0.readInstant(), new ArgumentSignatures(param0), param0.readBoolean());
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeUtf(this.command);
+        param0.writeUtf(this.command, 256);
         param0.writeInstant(this.timeStamp);
         this.argumentSignatures.write(param0);
+        param0.writeBoolean(this.signedPreview);
     }
 
     public void handle(ServerGamePacketListener param0) {
         param0.handleChatCommand(this);
     }
 
-    private Instant getExpiresAt() {
-        return this.timeStamp.plus(ServerboundChatPacket.MESSAGE_EXPIRES_AFTER);
-    }
-
-    public boolean hasExpired(Instant param0) {
-        return param0.isAfter(this.getExpiresAt());
-    }
-
     public CommandSigningContext signingContext(UUID param0) {
-        return new CommandSigningContext.PlainArguments(param0, this.timeStamp, this.argumentSignatures);
+        return new CommandSigningContext.SignedArguments(param0, this.timeStamp, this.argumentSignatures, this.signedPreview);
     }
 }

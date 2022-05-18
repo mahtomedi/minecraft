@@ -69,8 +69,8 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
                             .overrideElementFromResources(this.registryKey, this.elementCodec, var5, var0.getAsJson())
                             .map(param1x -> Pair.of(param1x, var4.getSecond()));
                     } else {
-                        Holder<E> var7 = var2.getOrCreateHolder(var5);
-                        return DataResult.success(Pair.of(var7, var4.getSecond()), Lifecycle.stable());
+                        DataResult<Holder<E>> var7 = var2.getOrCreateHolder(var5);
+                        return var7.<Pair<Holder<E>, T>>map(param1x -> Pair.of(param1x, var4.getSecond())).setLifecycle(Lifecycle.stable());
                     }
                 }
             }

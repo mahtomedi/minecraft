@@ -20,6 +20,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.FileUtil;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
@@ -64,8 +65,8 @@ import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.server.network.TextFilter;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.ServerStatsCounter;
@@ -790,21 +791,18 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastChatMessage(PlayerChatMessage param0, TextFilter.FilteredText param1, ServerPlayer param2, ResourceKey<ChatType> param3) {
-        PlayerChatMessage var0 = this.getFilteredMessage(param2, param0, param1);
-        this.broadcastChatMessage(param0, param3x -> param2.shouldFilterMessageTo(param3x) ? var0 : param0, param2.asChatSender(), param3);
+    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, CommandSourceStack param1, ResourceKey<ChatType> param2) {
+        ServerPlayer var0 = param1.getPlayer();
+        if (var0 != null) {
+            this.broadcastChatMessage(param0, var0, param2);
+        } else {
+            this.broadcastChatMessage(param0.raw(), param1.asChatSender(), param2);
+        }
+
     }
 
-    @Nullable
-    private PlayerChatMessage getFilteredMessage(ServerPlayer param0, PlayerChatMessage param1, TextFilter.FilteredText param2) {
-        if (!param2.isFiltered()) {
-            return param1;
-        } else if (param2.getFiltered().isEmpty()) {
-            return null;
-        } else {
-            Component var0 = Component.literal(param2.getFiltered());
-            return PlayerChatMessage.unsigned(this.server.getChatDecorator().decorate(param0, var0));
-        }
+    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, ServerPlayer param1, ResourceKey<ChatType> param2) {
+        this.broadcastChatMessage(param0.raw(), param2x -> param0.filter(param1, param2x), param1.asChatSender(), param2);
     }
 
     public void broadcastChatMessage(PlayerChatMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {

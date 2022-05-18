@@ -24,6 +24,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.dimension.DimensionType;
 
 public abstract class Monster extends PathfinderMob implements Enemy {
     protected Monster(EntityType<? extends Monster> param0, Level param1) {
@@ -89,11 +90,15 @@ public abstract class Monster extends PathfinderMob implements Enemy {
     public static boolean isDarkEnoughToSpawn(ServerLevelAccessor param0, BlockPos param1, RandomSource param2) {
         if (param0.getBrightness(LightLayer.SKY, param1) > param2.nextInt(32)) {
             return false;
-        } else if (param0.getBrightness(LightLayer.BLOCK, param1) > 0) {
-            return false;
         } else {
-            int var0 = param0.getLevel().isThundering() ? param0.getMaxLocalRawBrightness(param1, 10) : param0.getMaxLocalRawBrightness(param1);
-            return var0 <= param2.nextInt(8);
+            DimensionType var0 = param0.dimensionType();
+            int var1 = var0.monsterSpawnBlockLightLimit();
+            if (var1 < 15 && param0.getBrightness(LightLayer.BLOCK, param1) > var1) {
+                return false;
+            } else {
+                int var2 = param0.getLevel().isThundering() ? param0.getMaxLocalRawBrightness(param1, 10) : param0.getMaxLocalRawBrightness(param1);
+                return var2 <= var0.monsterSpawnLightTest().sample(param2);
+            }
         }
     }
 

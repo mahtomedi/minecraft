@@ -1,27 +1,31 @@
 package net.minecraft.commands;
 
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.time.Instant;
 import java.util.UUID;
 import net.minecraft.commands.arguments.ArgumentSignatures;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.util.Crypt;
 
 public interface CommandSigningContext {
-    CommandSigningContext NONE = (param0, param1, param2) -> PlayerChatMessage.unsigned(param2);
+    CommandSigningContext NONE = param0 -> MessageSignature.unsigned();
 
-    PlayerChatMessage signArgument(CommandContext<CommandSourceStack> var1, String var2, Component var3) throws CommandSyntaxException;
+    MessageSignature getArgumentSignature(String var1);
 
-    public static record PlainArguments(UUID sender, Instant timeStamp, ArgumentSignatures argumentSignatures) implements CommandSigningContext {
+    default boolean signedArgumentPreview(String param0) {
+        return false;
+    }
+
+    public static record SignedArguments(UUID sender, Instant timeStamp, ArgumentSignatures argumentSignatures, boolean signedPreview)
+        implements CommandSigningContext {
         @Override
-        public PlayerChatMessage signArgument(CommandContext<CommandSourceStack> param0, String param1, Component param2) {
-            Crypt.SaltSignaturePair var0 = this.argumentSignatures.get(param1);
-            return var0 != null
-                ? PlayerChatMessage.signed(param2, new MessageSignature(this.sender, this.timeStamp, var0))
-                : PlayerChatMessage.unsigned(param2);
+        public MessageSignature getArgumentSignature(String param0) {
+            Crypt.SaltSignaturePair var0 = this.argumentSignatures.get(param0);
+            return var0 != null ? new MessageSignature(this.sender, this.timeStamp, var0) : MessageSignature.unsigned();
+        }
+
+        @Override
+        public boolean signedArgumentPreview(String param0) {
+            return this.signedPreview;
         }
     }
 }

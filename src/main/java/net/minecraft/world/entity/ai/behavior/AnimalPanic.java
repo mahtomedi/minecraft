@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
@@ -23,7 +24,7 @@ public class AnimalPanic extends Behavior<PathfinderMob> {
     private final float speedMultiplier;
 
     public AnimalPanic(float param0) {
-        super(ImmutableMap.of(MemoryModuleType.HURT_BY, MemoryStatus.VALUE_PRESENT), 100, 120);
+        super(ImmutableMap.of(MemoryModuleType.IS_PANICKING, MemoryStatus.REGISTERED, MemoryModuleType.HURT_BY, MemoryStatus.VALUE_PRESENT), 100, 120);
         this.speedMultiplier = param0;
     }
 
@@ -32,7 +33,13 @@ public class AnimalPanic extends Behavior<PathfinderMob> {
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
+        param1.getBrain().setMemory(MemoryModuleType.IS_PANICKING, true);
         param1.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+    }
+
+    protected void stop(ServerLevel param0, PathfinderMob param1, long param2) {
+        Brain<?> var0 = param1.getBrain();
+        var0.eraseMemory(MemoryModuleType.IS_PANICKING);
     }
 
     protected void tick(ServerLevel param0, PathfinderMob param1, long param2) {

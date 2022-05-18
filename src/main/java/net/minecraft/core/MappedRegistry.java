@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
@@ -190,7 +191,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public Holder<T> getOrCreateHolder(ResourceKey<T> param0) {
+    public Holder<T> getOrCreateHolderOrThrow(ResourceKey<T> param0) {
         return this.byKey.computeIfAbsent(param0, param0x -> {
             if (this.customHolderProvider != null) {
                 throw new IllegalStateException("This registry can't create new holders without value");
@@ -199,6 +200,25 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
                 return Holder.Reference.createStandAlone(this, param0x);
             }
         });
+    }
+
+    @Override
+    public DataResult<Holder<T>> getOrCreateHolder(ResourceKey<T> param0) {
+        Holder.Reference<T> var0 = this.byKey.get(param0);
+        if (var0 == null) {
+            if (this.customHolderProvider != null) {
+                return DataResult.error("This registry can't create new holders without value (requested key: " + param0 + ")");
+            }
+
+            if (this.frozen) {
+                return DataResult.error("Registry is already frozen (requested key: " + param0 + ")");
+            }
+
+            var0 = Holder.Reference.createStandAlone(this, param0);
+            this.byKey.put(param0, var0);
+        }
+
+        return DataResult.success(var0);
     }
 
     @Override

@@ -83,8 +83,7 @@ public class NbtContents implements ComponentContents {
 
     @Override
     public int hashCode() {
-        int var0 = super.hashCode();
-        var0 = 31 * var0 + (this.interpreting ? 1 : 0);
+        int var0 = this.interpreting ? 1 : 0;
         var0 = 31 * var0 + this.separator.hashCode();
         var0 = 31 * var0 + this.nbtPathPattern.hashCode();
         return 31 * var0 + this.dataSource.hashCode();

@@ -120,7 +120,7 @@ public class ChaseClient {
                 param0x -> this.executeCommand(
                         String.format(
                             Locale.ROOT,
-                            "/execute in %s run tp @s %.3f %.3f %.3f %.3f %.3f",
+                            "execute in %s run tp @s %.3f %.3f %.3f %.3f %.3f",
                             param0x.level.location(),
                             param0x.pos.x,
                             param0x.pos.y,

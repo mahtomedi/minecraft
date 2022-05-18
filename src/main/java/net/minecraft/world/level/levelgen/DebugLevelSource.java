@@ -49,7 +49,7 @@ public class DebugLevelSource extends ChunkGenerator {
     private final Registry<Biome> biomes;
 
     public DebugLevelSource(Registry<StructureSet> param0, Registry<Biome> param1) {
-        super(param0, Optional.empty(), new FixedBiomeSource(param1.getOrCreateHolder(Biomes.PLAINS)));
+        super(param0, Optional.empty(), new FixedBiomeSource(param1.getOrCreateHolderOrThrow(Biomes.PLAINS)));
         this.biomes = param1;
     }
 

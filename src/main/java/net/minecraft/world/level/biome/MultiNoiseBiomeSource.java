@@ -121,17 +121,17 @@ public class MultiNoiseBiomeSource extends BiomeSource {
             new ResourceLocation("nether"),
             param0 -> new Climate.ParameterList<>(
                     ImmutableList.of(
-                        Pair.of(Climate.parameters(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F), param0.getOrCreateHolder(Biomes.NETHER_WASTES)),
-                        Pair.of(Climate.parameters(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F), param0.getOrCreateHolder(Biomes.SOUL_SAND_VALLEY)),
-                        Pair.of(Climate.parameters(0.4F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F), param0.getOrCreateHolder(Biomes.CRIMSON_FOREST)),
-                        Pair.of(Climate.parameters(0.0F, 0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.375F), param0.getOrCreateHolder(Biomes.WARPED_FOREST)),
-                        Pair.of(Climate.parameters(-0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.175F), param0.getOrCreateHolder(Biomes.BASALT_DELTAS))
+                        Pair.of(Climate.parameters(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F), param0.getOrCreateHolderOrThrow(Biomes.NETHER_WASTES)),
+                        Pair.of(Climate.parameters(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F), param0.getOrCreateHolderOrThrow(Biomes.SOUL_SAND_VALLEY)),
+                        Pair.of(Climate.parameters(0.4F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F), param0.getOrCreateHolderOrThrow(Biomes.CRIMSON_FOREST)),
+                        Pair.of(Climate.parameters(0.0F, 0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.375F), param0.getOrCreateHolderOrThrow(Biomes.WARPED_FOREST)),
+                        Pair.of(Climate.parameters(-0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.175F), param0.getOrCreateHolderOrThrow(Biomes.BASALT_DELTAS))
                     )
                 )
         );
         public static final MultiNoiseBiomeSource.Preset OVERWORLD = new MultiNoiseBiomeSource.Preset(new ResourceLocation("overworld"), param0 -> {
             Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> var0 = ImmutableList.builder();
-            new OverworldBiomeBuilder().addBiomes(param2 -> var0.add(param2.mapSecond(param0::getOrCreateHolder)));
+            new OverworldBiomeBuilder().addBiomes(param2 -> var0.add(param2.mapSecond(param0::getOrCreateHolderOrThrow)));
             return new Climate.ParameterList<>(var0.build());
         });
         final ResourceLocation name;

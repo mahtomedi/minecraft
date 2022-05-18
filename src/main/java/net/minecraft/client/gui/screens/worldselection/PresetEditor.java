@@ -61,7 +61,7 @@ public interface PresetEditor {
             Registry<StructureSet> var0x = param1.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
             Registry<NoiseGeneratorSettings> var1 = param1.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
             Registry<NormalNoise.NoiseParameters> var2 = param1.registryOrThrow(Registry.NOISE_REGISTRY);
-            Holder<NoiseGeneratorSettings> var3 = var1.getOrCreateHolder(NoiseGeneratorSettings.OVERWORLD);
+            Holder<NoiseGeneratorSettings> var3 = var1.getOrCreateHolderOrThrow(NoiseGeneratorSettings.OVERWORLD);
             BiomeSource var4 = new FixedBiomeSource(param0);
             ChunkGenerator var5 = new NoiseBasedChunkGenerator(var0x, var2, var4, var3);
             return WorldGenSettings.replaceOverworldGenerator(param1, param2, var5);

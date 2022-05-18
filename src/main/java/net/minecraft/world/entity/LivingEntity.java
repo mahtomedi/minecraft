@@ -658,12 +658,20 @@ public abstract class LivingEntity extends Entity {
         this.discardFriction = param0;
     }
 
-    protected void equipEventAndSound(ItemStack param0, boolean param1) {
-        if (!param0.isEmpty() && !this.isSpectator()) {
-            if (param1) {
-                this.gameEvent(GameEvent.EQUIP);
-            }
+    protected boolean doesEmitEquipEvent(EquipmentSlot param0) {
+        return true;
+    }
 
+    public void onEquipItem(EquipmentSlot param0, ItemStack param1) {
+        this.playEquipSound(param1);
+        if (this.doesEmitEquipEvent(param0)) {
+            this.gameEvent(GameEvent.EQUIP);
+        }
+
+    }
+
+    protected void playEquipSound(ItemStack param0) {
+        if (!param0.isEmpty() && !this.isSpectator()) {
             SoundEvent var0 = param0.getEquipSound();
             if (var0 != null) {
                 this.playSound(var0, 1.0F, 1.0F);
@@ -1303,7 +1311,6 @@ public abstract class LivingEntity extends Entity {
                 this.stopSleeping();
             }
 
-            this.gameEvent(GameEvent.ENTITY_DIE);
             if (!this.level.isClientSide && this.hasCustomName()) {
                 LOGGER.info("Named entity {} died: {}", this, this.getCombatTracker().getDeathMessage().getString());
             }
@@ -1311,15 +1318,15 @@ public abstract class LivingEntity extends Entity {
             this.dead = true;
             this.getCombatTracker().recheckStatus();
             if (this.level instanceof ServerLevel) {
-                if (var0 != null) {
-                    var0.killed((ServerLevel)this.level, this);
+                if (var0 == null || var0.wasKilled((ServerLevel)this.level, this)) {
+                    this.gameEvent(GameEvent.ENTITY_DIE);
+                    this.dropAllDeathLoot(param0);
+                    this.createWitherRose(var1);
                 }
 
-                this.dropAllDeathLoot(param0);
-                this.createWitherRose(var1);
+                this.level.broadcastEntityEvent(this, (byte)3);
             }
 
-            this.level.broadcastEntityEvent(this, (byte)3);
             this.setPose(Pose.DYING);
         }
     }
@@ -2940,6 +2947,7 @@ public abstract class LivingEntity extends Entity {
             if (!this.level.isClientSide) {
                 this.setLivingEntityFlag(1, true);
                 this.setLivingEntityFlag(2, param0 == InteractionHand.OFF_HAND);
+                this.gameEvent(GameEvent.ITEM_INTERACT_START);
             }
 
         }
@@ -3050,7 +3058,11 @@ public abstract class LivingEntity extends Entity {
 
     public void stopUsingItem() {
         if (!this.level.isClientSide) {
+            boolean var0 = this.isUsingItem();
             this.setLivingEntityFlag(1, false);
+            if (var0) {
+                this.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
+            }
         }
 
         this.useItem = ItemStack.EMPTY;

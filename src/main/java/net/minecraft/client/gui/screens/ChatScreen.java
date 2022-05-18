@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.brigadier.tree.CommandNode;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -15,6 +16,8 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.PreviewedArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -37,7 +40,7 @@ public class ChatScreen extends Screen {
     private String historyBuffer = "";
     private int historyPos = -1;
     protected EditBox input;
-    private final String initial;
+    private String initial;
     CommandSuggestions commandSuggestions;
     private ClientChatPreview chatPreview;
 
@@ -67,9 +70,9 @@ public class ChatScreen extends Screen {
         this.chatPreview = new ClientChatPreview(this.minecraft);
         this.updateChatPreview(this.input.getValue());
         ServerData var0 = this.minecraft.getCurrentServer();
-        if (var0 != null) {
+        if (var0 != null && this.minecraft.options.chatPreview().get()) {
             ServerData.ChatPreview var1 = var0.getChatPreview();
-            if (var1 != null && var1.showToast()) {
+            if (var1 != null && var0.previewsChat() && var1.showToast()) {
                 ServerList.saveSingleServer(var0);
                 SystemToast var2 = SystemToast.multiline(
                     this.minecraft, SystemToast.SystemToastIds.CHAT_PREVIEW_WARNING, PREVIEW_WARNING_TITLE, PREVIEW_WARNING_TOAST
@@ -109,10 +112,33 @@ public class ChatScreen extends Screen {
 
     private void updateChatPreview(String param0) {
         String var0 = this.normalizeChatMessage(param0);
-        if (this.sendsChatPreviewRequests() && !var0.startsWith("/")) {
-            this.chatPreview.request(var0);
+        if (this.sendsChatPreviewRequests()) {
+            this.requestPreview(var0);
         } else {
-            this.chatPreview.clear();
+            this.chatPreview.disable();
+        }
+
+    }
+
+    private void requestPreview(String param0) {
+        if (param0.startsWith("/")) {
+            this.requestCommandArgumentPreview(param0);
+        } else {
+            this.requestChatMessagePreview(param0);
+        }
+
+    }
+
+    private void requestChatMessagePreview(String param0) {
+        this.chatPreview.update(param0);
+    }
+
+    private void requestCommandArgumentPreview(String param0) {
+        CommandNode<SharedSuggestionProvider> var0 = this.commandSuggestions.getNodeAt(this.input.getCursorPosition());
+        if (var0 != null && PreviewedArgument.isPreviewed(var0)) {
+            this.chatPreview.update(param0);
+        } else {
+            this.chatPreview.disable();
         }
 
     }
@@ -129,25 +155,16 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    public boolean keyReleased(int param0, int param1, int param2) {
-        if (super.keyReleased(param0, param1, param2)) {
-            return true;
-        } else if (param0 != 257 && param0 != 335) {
-            return false;
-        } else {
-            this.handleChatInput(this.input.getValue(), true);
-            this.minecraft.setScreen(null);
-            return true;
-        }
-    }
-
-    @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (this.commandSuggestions.keyPressed(param0, param1, param2)) {
             return true;
         } else if (super.keyPressed(param0, param1, param2)) {
             return true;
         } else if (param0 == 256) {
+            this.minecraft.setScreen(null);
+            return true;
+        } else if (param0 == 257 || param0 == 335) {
+            this.handleChatInput(this.input.getValue(), true);
             this.minecraft.setScreen(null);
             return true;
         } else if (param0 == 265) {
@@ -195,6 +212,7 @@ public class ChatScreen extends Screen {
 
                 Style var1 = this.getComponentStyleAt(param0, param1);
                 if (var1 != null && this.handleComponentClicked(var1)) {
+                    this.initial = this.input.getValue();
                     return true;
                 }
             }
@@ -239,11 +257,12 @@ public class ChatScreen extends Screen {
         this.input.setFocus(true);
         fill(param0, 2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
         this.input.render(param0, param1, param2, param3);
-        if (this.chatPreview.isActive()) {
+        if (this.chatPreview.isEnabled()) {
             this.renderChatPreview(param0);
+        } else {
+            this.commandSuggestions.render(param0, param1, param2);
         }
 
-        this.commandSuggestions.render(param0, param1, param2);
         Style var0 = this.getComponentStyleAt((double)param1, (double)param2);
         if (var0 != null && var0.getHoverEvent() != null) {
             this.renderComponentHoverEffect(param0, var0, param1, param2);

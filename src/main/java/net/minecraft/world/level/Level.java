@@ -117,7 +117,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.profiler = param3;
         this.levelData = param0;
         this.dimensionTypeRegistration = param2;
-        this.dimensionTypeId = param2.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimensions must be registered"));
+        this.dimensionTypeId = param2.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param2));
         final DimensionType var0 = param2.value();
         this.dimension = param1;
         this.isClientSide = param4;

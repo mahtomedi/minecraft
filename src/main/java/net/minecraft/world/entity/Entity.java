@@ -2167,7 +2167,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.resetFallDistance();
     }
 
-    public void killed(ServerLevel param0, LivingEntity param1) {
+    public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
+        return true;
     }
 
     public void resetFallDistance() {

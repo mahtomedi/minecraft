@@ -3,7 +3,6 @@ package net.minecraft.server.network;
 import com.google.common.primitives.Ints;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.InsecurePublicKeyException.MissingException;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
@@ -36,6 +35,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.SignatureValidator;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -119,7 +119,6 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                     );
             }
 
-            this.gameProfile = this.server.getSessionService().fillProfileProperties(this.gameProfile, true);
             this.connection.send(new ClientboundGameProfilePacket(this.gameProfile));
             ServerPlayer var1 = this.server.getPlayerList().getPlayer(this.gameProfile.getId());
 
@@ -157,7 +156,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     @Nullable
-    private static ProfilePublicKey validatePublicKey(ServerboundHelloPacket param0, MinecraftSessionService param1, boolean param2) throws ServerLoginPacketListenerImpl.PublicKeyParseException {
+    private static ProfilePublicKey validatePublicKey(ServerboundHelloPacket param0, SignatureValidator param1, boolean param2) throws ServerLoginPacketListenerImpl.PublicKeyParseException {
         try {
             Optional<ProfilePublicKey.Data> var0 = param0.publicKey();
             if (var0.isEmpty()) {
@@ -188,7 +187,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
         Validate.validState(isValidUsername(param0.name()), "Invalid characters in username");
 
         try {
-            this.playerProfilePublicKey = validatePublicKey(param0, this.server.getSessionService(), this.server.enforceSecureProfile());
+            this.playerProfilePublicKey = validatePublicKey(param0, this.server.getServiceSignatureValidator(), this.server.enforceSecureProfile());
         } catch (ServerLoginPacketListenerImpl.PublicKeyParseException var3) {
             LOGGER.error(var3.getMessage(), var3.getCause());
             if (!this.connection.isMemoryConnection()) {
@@ -223,7 +222,6 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
 
         final String var4;
         try {
-            this.gameProfile = this.server.getSessionService().fillProfileProperties(this.gameProfile, true);
             PrivateKey var0 = this.server.getKeyPair().getPrivate();
             if (this.playerProfilePublicKey != null) {
                 if (!param0.isChallengeSignatureValid(this.nonce, this.playerProfilePublicKey)) {

@@ -49,7 +49,7 @@ public class ItemPickupParticle extends Particle {
         float var0 = ((float)this.life + param2) / 3.0F;
         var0 *= var0;
         double var1 = Mth.lerp((double)param2, this.target.xOld, this.target.getX());
-        double var2 = Mth.lerp((double)param2, this.target.yOld, this.target.getY()) + 0.5;
+        double var2 = Mth.lerp((double)param2, this.target.yOld, (this.target.getY() + this.target.getEyeY()) / 2.0);
         double var3 = Mth.lerp((double)param2, this.target.zOld, this.target.getZ());
         double var4 = Mth.lerp((double)var0, this.itemEntity.getX(), var1);
         double var5 = Mth.lerp((double)var0, this.itemEntity.getY(), var2);

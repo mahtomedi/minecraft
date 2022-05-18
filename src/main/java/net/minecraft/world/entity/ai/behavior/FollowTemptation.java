@@ -28,6 +28,7 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
             var0.put(MemoryModuleType.IS_TEMPTED, MemoryStatus.REGISTERED);
             var0.put(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_PRESENT);
             var0.put(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_ABSENT);
+            var0.put(MemoryModuleType.IS_PANICKING, MemoryStatus.VALUE_ABSENT);
             return var0.build();
         }));
         this.speedModifier = param0;
@@ -47,7 +48,9 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
     }
 
     protected boolean canStillUse(ServerLevel param0, PathfinderMob param1, long param2) {
-        return this.getTemptingPlayer(param1).isPresent() && !param1.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
+        return this.getTemptingPlayer(param1).isPresent()
+            && !param1.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET)
+            && !param1.getBrain().hasMemoryValue(MemoryModuleType.IS_PANICKING);
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {

@@ -178,7 +178,7 @@ public class SignBlockEntity extends BlockEntity {
             Style var1 = var0.getStyle();
             ClickEvent var2 = var1.getClickEvent();
             if (var2 != null && var2.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                param0.getServer().getCommands().performCommand(this.createCommandSourceStack(param0), var2.getValue());
+                param0.getServer().getCommands().performPrefixedCommand(this.createCommandSourceStack(param0), var2.getValue());
             }
         }
 

@@ -32,7 +32,7 @@ public class ServerboundChatPacket implements Packet<ServerGamePacketListener> {
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeUtf(this.message);
+        param0.writeUtf(this.message, 256);
         param0.writeInstant(this.timeStamp);
         Crypt.SaltSignaturePair.write(param0, this.saltSignature);
         param0.writeBoolean(this.signedPreview);
@@ -50,12 +50,8 @@ public class ServerboundChatPacket implements Packet<ServerGamePacketListener> {
         return new MessageSignature(param0, this.timeStamp, this.saltSignature);
     }
 
-    private Instant getExpiresAt() {
-        return this.timeStamp.plus(MESSAGE_EXPIRES_AFTER);
-    }
-
-    public boolean hasExpired(Instant param0) {
-        return param0.isAfter(this.getExpiresAt());
+    public Instant getTimeStamp() {
+        return this.timeStamp;
     }
 
     public boolean signedPreview() {

@@ -6,7 +6,6 @@ import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +19,7 @@ import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.data.structures.StructureUpdater;
 import net.minecraft.nbt.CompoundTag;
@@ -86,10 +86,10 @@ public class StructureUtils {
         Bootstrap.bootStrap();
         Files.walk(Paths.get(testStructuresDir)).filter(param0x -> param0x.toString().endsWith(".snbt")).forEach(param0x -> {
             try {
-                String var0 = new String(Files.readAllBytes(param0x), StandardCharsets.UTF_8);
+                String var0 = Files.readString(param0x);
                 CompoundTag var1 = NbtUtils.snbtToStructure(var0);
                 CompoundTag var2 = StructureUpdater.update(param0x.toString(), var1);
-                NbtToSnbt.writeSnbt(param0x, NbtUtils.structureToSnbt(var2));
+                NbtToSnbt.writeSnbt(CachedOutput.NO_CACHE, param0x, NbtUtils.structureToSnbt(var2));
             } catch (IOException | CommandSyntaxException var4) {
                 LOGGER.error("Something went wrong upgrading: {}", param0x, var4);
             }

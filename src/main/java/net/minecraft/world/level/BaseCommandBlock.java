@@ -120,7 +120,7 @@ public abstract class BaseCommandBlock implements CommandSource {
                         }
 
                     });
-                    var0.getCommands().performCommand(var1, this.command);
+                    var0.getCommands().performPrefixedCommand(var1, this.command);
                 } catch (Throwable var6) {
                     CrashReport var3 = CrashReport.forThrowable(var6, "Executing command block");
                     CrashReportCategory var4 = var3.addCategory("Command to be executed");

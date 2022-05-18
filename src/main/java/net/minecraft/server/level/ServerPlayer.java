@@ -1142,7 +1142,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void displayClientMessage(Component param0, boolean param1) {
-        this.sendSystemMessage(param0, param1 ? ChatType.GAME_INFO : ChatType.CHAT);
+        this.sendSystemMessage(param0, param1 ? ChatType.GAME_INFO : ChatType.SYSTEM);
     }
 
     @Override

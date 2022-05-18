@@ -188,6 +188,7 @@ public class FrogAi {
                 )
             ),
             ImmutableSet.of(
+                Pair.of(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_ABSENT),
                 Pair.of(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_ABSENT),
                 Pair.of(MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT),
                 Pair.of(MemoryModuleType.IS_IN_WATER, MemoryStatus.VALUE_ABSENT)
@@ -199,7 +200,7 @@ public class FrogAi {
         param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.TONGUE,
             0,
-            ImmutableList.of(new StopAttackingIfTargetInvalid<>(), new ShootTongue(SoundEvents.FROG_TOUNGE, SoundEvents.FROG_EAT)),
+            ImmutableList.of(new StopAttackingIfTargetInvalid<>(), new ShootTongue(SoundEvents.FROG_TONGUE, SoundEvents.FROG_EAT)),
             MemoryModuleType.ATTACK_TARGET
         );
     }

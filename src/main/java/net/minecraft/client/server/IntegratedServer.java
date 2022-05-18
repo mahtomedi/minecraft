@@ -3,8 +3,6 @@ package net.minecraft.client.server;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +14,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.SystemReport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ModCheck;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -51,12 +49,10 @@ public class IntegratedServer extends MinecraftServer {
         LevelStorageSource.LevelStorageAccess param2,
         PackRepository param3,
         WorldStem param4,
-        MinecraftSessionService param5,
-        GameProfileRepository param6,
-        GameProfileCache param7,
-        ChunkProgressListenerFactory param8
+        Services param5,
+        ChunkProgressListenerFactory param6
     ) {
-        super(param0, param2, param3, param4, param1.getProxy(), param1.getFixerUpper(), param5, param6, param7, param8);
+        super(param0, param2, param3, param4, param1.getProxy(), param1.getFixerUpper(), param5, param6);
         this.setSingleplayerProfile(param1.getUser().getGameProfile());
         this.setDemo(param1.isDemo());
         this.setPlayerList(new IntegratedPlayerList(this, this.registryAccess(), this.playerDataStorage));

@@ -12,10 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.Base64;
@@ -26,6 +23,7 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
+import net.minecraft.util.Signer;
 import net.minecraft.world.entity.player.ProfileKeyPair;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,27 +35,30 @@ public class ProfileKeyPairManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Path PROFILE_KEY_PAIR_DIR = Path.of("profilekeys");
     private final Path profileKeyPairPath;
-    private final CompletableFuture<ProfileKeyPair> profileKeyPair;
+    private final CompletableFuture<Optional<ProfilePublicKey>> publicKey;
+    private final CompletableFuture<Optional<Signer>> signer;
 
     public ProfileKeyPairManager(UserApiService param0, UUID param1, Path param2) {
         this.profileKeyPairPath = param2.resolve(PROFILE_KEY_PAIR_DIR).resolve(param1 + ".json");
-        this.profileKeyPair = this.readOrFetchProfileKeyPair(param0);
+        CompletableFuture<Optional<ProfileKeyPair>> var0 = this.readOrFetchProfileKeyPair(param0);
+        this.publicKey = var0.thenApply(param0x -> param0x.map(ProfileKeyPair::publicKey));
+        this.signer = var0.thenApply(param0x -> param0x.map(param0xx -> Signer.from(param0xx.privateKey(), "SHA256withRSA")));
     }
 
-    private CompletableFuture<ProfileKeyPair> readOrFetchProfileKeyPair(UserApiService param0) {
+    private CompletableFuture<Optional<ProfileKeyPair>> readOrFetchProfileKeyPair(UserApiService param0) {
         return CompletableFuture.supplyAsync(() -> {
             Optional<ProfileKeyPair> var0 = this.readProfileKeyPair().filter(param0x -> !param0x.publicKey().data().hasExpired());
             if (var0.isPresent() && !var0.get().dueRefresh()) {
-                return var0.get();
+                return var0;
             } else {
                 try {
                     ProfileKeyPair var1 = this.fetchProfileKeyPair(param0);
                     this.writeProfileKeyPair(var1);
-                    return var1;
+                    return Optional.of(var1);
                 } catch (CryptException | MinecraftClientException | IOException var4) {
                     LOGGER.error("Failed to retrieve profile key pair", (Throwable)var4);
                     this.writeProfileKeyPair(null);
-                    return var0.orElse(null);
+                    return var0;
                 }
             }
         }, Util.backgroundExecutor());
@@ -129,31 +130,15 @@ public class ProfileKeyPairManager {
     }
 
     @Nullable
-    public Signature createSignature() throws GeneralSecurityException {
-        PrivateKey var0 = this.profilePrivateKey();
-        if (var0 == null) {
-            return null;
-        } else {
-            Signature var1 = Signature.getInstance("SHA256withRSA");
-            var1.initSign(var0);
-            return var1;
-        }
+    public Signer signer() {
+        return this.signer.join().orElse(null);
+    }
+
+    public Optional<ProfilePublicKey> profilePublicKey() {
+        return this.publicKey.join();
     }
 
     public Optional<ProfilePublicKey.Data> profilePublicKeyData() {
-        ProfilePublicKey var0 = this.profilePublicKey();
-        return Optional.ofNullable(var0).map(ProfilePublicKey::data);
-    }
-
-    @Nullable
-    public ProfilePublicKey profilePublicKey() {
-        ProfileKeyPair var0 = this.profileKeyPair.join();
-        return var0 != null ? var0.publicKey() : null;
-    }
-
-    @Nullable
-    private PrivateKey profilePrivateKey() {
-        ProfileKeyPair var0 = this.profileKeyPair.join();
-        return var0 != null ? var0.privateKey() : null;
+        return this.profilePublicKey().map(ProfilePublicKey::data);
     }
 }

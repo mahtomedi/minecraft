@@ -6,7 +6,6 @@ import com.mojang.logging.LogUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -144,10 +143,7 @@ public class HashCache {
             if (this.shouldWrite(param0, param2)) {
                 ++this.writes;
                 Files.createDirectories(param0.getParent());
-
-                try (OutputStream var0 = Files.newOutputStream(param0)) {
-                    var0.write(param1);
-                }
+                Files.write(param0, param1);
             }
 
             this.newCache.put(param0, param2);

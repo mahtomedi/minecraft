@@ -1,15 +1,15 @@
 {
-    "id": "22w19a",
-    "name": "22w19a",
+    "id": "1.19-pre1",
+    "name": "1.19 Pre-release 1",
     "release_target": "1.19",
-    "world_version": 3096,
+    "world_version": 3098,
     "series_id": "main",
-    "protocol_version": 1073741908,
+    "protocol_version": 1073741909,
     "pack_version": {
         "resource": 9,
         "data": 10
     },
-    "build_time": "2022-05-12T15:34:23+00:00",
+    "build_time": "2022-05-18T13:50:03+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
     "stable": false

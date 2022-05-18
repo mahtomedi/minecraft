@@ -9,9 +9,7 @@ import com.mojang.authlib.exceptions.InvalidCredentialsException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
-import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.security.Signature;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
@@ -34,8 +32,9 @@ import net.minecraft.network.protocol.login.ServerboundKeyPacket;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Crypt;
-import net.minecraft.util.CryptException;
 import net.minecraft.util.HttpUtil;
+import net.minecraft.util.SignatureUpdater;
+import net.minecraft.util.Signer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -70,17 +69,19 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             var3 = Crypt.getCipher(2, var0);
             var4 = Crypt.getCipher(1, var0);
             byte[] var5 = param0.getNonce();
-            Signature var6 = this.minecraft.getProfileKeyPairManager().createSignature();
+            Signer var6 = this.minecraft.getProfileKeyPairManager().signer();
             if (var6 == null) {
                 var7 = new ServerboundKeyPacket(var0, var1, var5);
             } else {
                 long var8 = Crypt.SaltSupplier.getLong();
-                var6.update(var5);
-                var6.update(Longs.toByteArray(var8));
-                var7 = new ServerboundKeyPacket(var0, var1, var8, var6.sign());
+                byte[] var9 = var6.sign((SignatureUpdater)(param2 -> {
+                    param2.update(var5);
+                    param2.update(Longs.toByteArray(var8));
+                }));
+                var7 = new ServerboundKeyPacket(var0, var1, var8, var9);
             }
-        } catch (GeneralSecurityException | CryptException var121) {
-            throw new IllegalStateException("Protocol error", var121);
+        } catch (Exception var131) {
+            throw new IllegalStateException("Protocol error", var131);
         }
 
         this.updateStatus.accept(Component.translatable("connect.authorizing"));

@@ -546,21 +546,8 @@ public class RealmsMainScreen extends RealmsScreen {
     
                         try {
                             RealmsClient.CompatibleVersionResponse var1 = var0.clientCompatible();
-                            if (var1 == RealmsClient.CompatibleVersionResponse.OUTDATED) {
-                                RealmsMainScreen.realmsGenericErrorScreen = new RealmsClientOutdatedScreen(RealmsMainScreen.this.lastScreen, true);
-                                RealmsMainScreen.this.minecraft
-                                    .execute(() -> RealmsMainScreen.this.minecraft.setScreen(RealmsMainScreen.realmsGenericErrorScreen));
-                                return;
-                            }
-    
-                            if (var1 == RealmsClient.CompatibleVersionResponse.OTHER) {
-                                RealmsMainScreen.realmsGenericErrorScreen = new RealmsClientOutdatedScreen(RealmsMainScreen.this.lastScreen, false);
-                                RealmsMainScreen.this.minecraft
-                                    .execute(() -> RealmsMainScreen.this.minecraft.setScreen(RealmsMainScreen.realmsGenericErrorScreen));
-                                return;
-                            }
-    
-                            RealmsMainScreen.this.checkParentalConsent();
+                            RealmsMainScreen.realmsGenericErrorScreen = new RealmsClientOutdatedScreen(RealmsMainScreen.this.lastScreen);
+                            RealmsMainScreen.this.minecraft.execute(() -> RealmsMainScreen.this.minecraft.setScreen(RealmsMainScreen.realmsGenericErrorScreen));
                         } catch (RealmsServiceException var3) {
                             RealmsMainScreen.checkedClientCompatability = false;
                             RealmsMainScreen.LOGGER.error("Couldn't connect to realms", (Throwable)var3);
@@ -578,8 +565,8 @@ public class RealmsMainScreen extends RealmsScreen {
                                         () -> RealmsMainScreen.this.minecraft.setScreen(new RealmsGenericErrorScreen(var3, RealmsMainScreen.this.lastScreen))
                                     );
                             }
-                        }
     
+                        }
                     }
                 })
                 .start();
@@ -587,7 +574,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    void checkParentalConsent() {
+    private void checkParentalConsent() {
         (new Thread("MCO Compatability Checker #1") {
                 @Override
                 public void run() {

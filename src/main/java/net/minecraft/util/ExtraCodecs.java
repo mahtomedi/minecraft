@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -64,6 +65,10 @@ public class ExtraCodecs {
                     : ResourceLocation.read(param0).map(param0x -> new ExtraCodecs.TagOrElementLocation(param0x, false)),
             ExtraCodecs.TagOrElementLocation::decoratedId
         );
+    public static final Function<Optional<Long>, OptionalLong> toOptionalLong = param0 -> param0.map(OptionalLong::of).orElseGet(OptionalLong::empty);
+    public static final Function<OptionalLong, Optional<Long>> fromOptionalLong = param0 -> param0.isPresent()
+            ? Optional.of(param0.getAsLong())
+            : Optional.empty();
 
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
         return new ExtraCodecs.XorCodec<>(param0, param1);
@@ -282,6 +287,10 @@ public class ExtraCodecs {
                 return DataResult.error(var3.getMessage());
             }
         }, param0::format);
+    }
+
+    public static MapCodec<OptionalLong> asOptionalLong(MapCodec<Optional<Long>> param0) {
+        return param0.xmap(toOptionalLong, fromOptionalLong);
     }
 
     static final class EitherCodec<F, S> implements Codec<Either<F, S>> {

@@ -1,8 +1,6 @@
 package net.minecraft.server;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Pair;
@@ -40,7 +38,6 @@ import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.ServerPacksSource;
-import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.profiling.jfr.Environment;
@@ -112,48 +109,45 @@ public class Main {
             }
 
             File var21 = new File(var16.valueOf(var10));
-            YggdrasilAuthenticationService var22 = new YggdrasilAuthenticationService(Proxy.NO_PROXY);
-            MinecraftSessionService var23 = var22.createMinecraftSessionService();
-            GameProfileRepository var24 = var22.createProfileRepository();
-            GameProfileCache var25 = new GameProfileCache(var24, new File(var21, MinecraftServer.USERID_CACHE_FILE.getName()));
-            String var26 = Optional.ofNullable(var16.valueOf(var11)).orElse(var18.getProperties().levelName);
-            LevelStorageSource var27 = LevelStorageSource.createDefault(var21.toPath());
-            LevelStorageSource.LevelStorageAccess var28 = var27.createAccess(var26);
-            LevelSummary var29 = var28.getSummary();
-            if (var29 != null) {
-                if (var29.requiresManualConversion()) {
+            Services var22 = Services.create(new YggdrasilAuthenticationService(Proxy.NO_PROXY), var21);
+            String var23 = Optional.ofNullable(var16.valueOf(var11)).orElse(var18.getProperties().levelName);
+            LevelStorageSource var24 = LevelStorageSource.createDefault(var21.toPath());
+            LevelStorageSource.LevelStorageAccess var25 = var24.createAccess(var23);
+            LevelSummary var26 = var25.getSummary();
+            if (var26 != null) {
+                if (var26.requiresManualConversion()) {
                     LOGGER.info("This world must be opened in an older version (like 1.6.4) to be safely converted");
                     return;
                 }
 
-                if (!var29.isCompatible()) {
+                if (!var26.isCompatible()) {
                     LOGGER.info("This world was created by an incompatible version.");
                     return;
                 }
             }
 
-            boolean var30 = var16.has(var7);
-            if (var30) {
+            boolean var27 = var16.has(var7);
+            if (var27) {
                 LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
             }
 
-            PackRepository var31 = new PackRepository(
+            PackRepository var28 = new PackRepository(
                 PackType.SERVER_DATA,
                 new ServerPacksSource(),
-                new FolderRepositorySource(var28.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
+                new FolderRepositorySource(var25.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
             );
 
-            WorldStem var35;
+            WorldStem var32;
             try {
-                DataPackConfig var32 = Objects.requireNonNullElse(var28.getDataPacks(), DataPackConfig.DEFAULT);
-                WorldLoader.PackConfig var33 = new WorldLoader.PackConfig(var31, var32, var30);
-                WorldLoader.InitConfig var34 = new WorldLoader.InitConfig(
-                    var33, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel
+                DataPackConfig var29 = Objects.requireNonNullElse(var25.getDataPacks(), DataPackConfig.DEFAULT);
+                WorldLoader.PackConfig var30 = new WorldLoader.PackConfig(var28, var29, var27);
+                WorldLoader.InitConfig var31 = new WorldLoader.InitConfig(
+                    var30, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel
                 );
-                var35 = Util.<WorldStem>blockUntilDone(param6 -> WorldStem.load(var34, (param5x, param6x) -> {
+                var32 = Util.<WorldStem>blockUntilDone(param6 -> WorldStem.load(var31, (param5x, param6x) -> {
                         RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
                         DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5x);
-                        WorldData var2x = var28.getDataTag(var1x, param6x, var0x.allElementsLifecycle());
+                        WorldData var2x = var25.getDataTag(var1x, param6x, var0x.allElementsLifecycle());
                         if (var2x != null) {
                             return Pair.of(var2x, var0x.freeze());
                         } else {
@@ -172,26 +166,26 @@ public class Main {
                             return Pair.of(var13x, var0x.freeze());
                         }
                     }, Util.backgroundExecutor(), param6)).get();
-            } catch (Exception var381) {
+            } catch (Exception var351) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
-                    (Throwable)var381
+                    (Throwable)var351
                 );
                 return;
             }
 
-            RegistryAccess.Frozen var38 = var35.registryAccess();
-            var18.getProperties().getWorldGenSettings(var38);
-            WorldData var39 = var35.worldData();
+            RegistryAccess.Frozen var35 = var32.registryAccess();
+            var18.getProperties().getWorldGenSettings(var35);
+            WorldData var36 = var32.worldData();
             if (var16.has(var5)) {
-                forceUpgrade(var28, DataFixers.getDataFixer(), var16.has(var6), () -> true, var39.worldGenSettings());
+                forceUpgrade(var25, DataFixers.getDataFixer(), var16.has(var6), () -> true, var36.worldGenSettings());
             }
 
-            var28.saveDataTag(var38, var39);
-            final DedicatedServer var40 = MinecraftServer.spin(
-                param14 -> {
+            var25.saveDataTag(var35, var36);
+            final DedicatedServer var37 = MinecraftServer.spin(
+                param12 -> {
                     DedicatedServer var0x = new DedicatedServer(
-                        param14, var28, var31, var35, var18, DataFixers.getDataFixer(), var23, var24, var25, LoggerChunkProgressListener::new
+                        param12, var25, var28, var32, var18, DataFixers.getDataFixer(), var22, LoggerChunkProgressListener::new
                     );
                     var0x.setSingleplayerProfile(var16.has(var9) ? new GameProfile(null, var16.valueOf(var9)) : null);
                     var0x.setPort(var16.valueOf(var12));
@@ -205,16 +199,16 @@ public class Main {
                     return var0x;
                 }
             );
-            Thread var41 = new Thread("Server Shutdown Thread") {
+            Thread var38 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var40.halt(true);
+                    var37.halt(true);
                 }
             };
-            var41.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var41);
-        } catch (Exception var391) {
-            LOGGER.error(LogUtils.FATAL_MARKER, "Failed to start the minecraft server", (Throwable)var391);
+            var38.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var38);
+        } catch (Exception var361) {
+            LOGGER.error(LogUtils.FATAL_MARKER, "Failed to start the minecraft server", (Throwable)var361);
         }
 
     }

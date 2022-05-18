@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Lifecycle;
 import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -43,9 +44,11 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
         if (param0 instanceof RegistryOps var0) {
             Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
             if (var1.isPresent()) {
-                return ResourceLocation.CODEC
-                    .decode(param0, param1)
-                    .map(param1x -> param1x.mapFirst(param1xx -> var1.get().getOrCreateHolder(ResourceKey.create(this.registryKey, param1xx))));
+                return ResourceLocation.CODEC.decode(param0, param1).flatMap(param1x -> {
+                    ResourceLocation var0x = param1x.getFirst();
+                    DataResult<Holder<E>> var1x = var1.get().getOrCreateHolder(ResourceKey.create(this.registryKey, var0x));
+                    return var1x.<Pair<Holder<E>, T>>map(param1xx -> Pair.of(param1xx, (T)param1x.getSecond())).setLifecycle(Lifecycle.stable());
+                });
             }
         }
 

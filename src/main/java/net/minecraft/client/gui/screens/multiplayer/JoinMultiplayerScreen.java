@@ -173,8 +173,15 @@ public class JoinMultiplayerScreen extends Screen {
 
     private void addServerCallback(boolean param0) {
         if (param0) {
-            this.servers.add(this.editingServer);
-            this.servers.save();
+            ServerData var0 = this.servers.unhide(this.editingServer.ip);
+            if (var0 != null) {
+                var0.copyNameIconFrom(this.editingServer);
+                this.servers.save();
+            } else {
+                this.servers.add(this.editingServer, false);
+                this.servers.save();
+            }
+
             this.serverSelectionList.setSelected(null);
             this.serverSelectionList.updateOnlineServers(this.servers);
         }
@@ -184,7 +191,14 @@ public class JoinMultiplayerScreen extends Screen {
 
     private void directJoinCallback(boolean param0) {
         if (param0) {
-            this.join(this.editingServer);
+            ServerData var0 = this.servers.get(this.editingServer.ip);
+            if (var0 == null) {
+                this.servers.add(this.editingServer, true);
+                this.servers.save();
+                this.join(this.editingServer);
+            } else {
+                this.join(var0);
+            }
         } else {
             this.minecraft.setScreen(this);
         }

@@ -71,7 +71,7 @@ public class FlatLevelGeneratorPresets {
                 var1.getLayersInfo().add(param6[var2]);
             }
 
-            var1.setBiome(this.biomes.getOrCreateHolder(param2));
+            var1.setBiome(this.biomes.getOrCreateHolderOrThrow(param2));
             return BuiltinRegistries.register(this.presets, param0, new FlatLevelGeneratorPreset(param1.asItem().builtInRegistryHolder(), var1));
         }
 

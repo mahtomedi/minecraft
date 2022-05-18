@@ -163,29 +163,27 @@ public class TextFilterClient implements AutoCloseable {
         });
     }
 
-    CompletableFuture<TextFilter.FilteredText> requestMessageProcessing(
-        GameProfile param0, String param1, TextFilterClient.IgnoreStrategy param2, Executor param3
-    ) {
-        return param1.isEmpty() ? CompletableFuture.completedFuture(TextFilter.FilteredText.EMPTY) : CompletableFuture.supplyAsync(() -> {
+    CompletableFuture<FilteredText<String>> requestMessageProcessing(GameProfile param0, String param1, TextFilterClient.IgnoreStrategy param2, Executor param3) {
+        return param1.isEmpty() ? CompletableFuture.completedFuture(FilteredText.EMPTY_STRING) : CompletableFuture.supplyAsync(() -> {
             JsonObject var0 = this.chatEncoder.encode(param0, param1);
 
             try {
                 JsonObject var1 = this.processRequestResponse(var0, this.chatEndpoint);
                 boolean var2x = GsonHelper.getAsBoolean(var1, "response", false);
                 if (var2x) {
-                    return TextFilter.FilteredText.passThrough(param1);
+                    return FilteredText.passThrough(param1);
                 } else {
                     String var3x = GsonHelper.getAsString(var1, "hashed", null);
                     if (var3x == null) {
-                        return TextFilter.FilteredText.fullyFiltered(param1);
+                        return FilteredText.fullyFiltered(param1);
                     } else {
                         int var4x = GsonHelper.getAsJsonArray(var1, "hashes").size();
-                        return param2.shouldIgnore(var3x, var4x) ? TextFilter.FilteredText.fullyFiltered(param1) : new TextFilter.FilteredText(param1, var3x);
+                        return param2.shouldIgnore(var3x, var4x) ? FilteredText.fullyFiltered(param1) : new FilteredText<>(param1, var3x);
                     }
                 }
             } catch (Exception var9) {
                 LOGGER.warn("Failed to validate message '{}'", param1, var9);
-                return TextFilter.FilteredText.fullyFiltered(param1);
+                return FilteredText.fullyFiltered(param1);
             }
         }, param3);
     }
@@ -321,8 +319,8 @@ public class TextFilterClient implements AutoCloseable {
         }
 
         @Override
-        public CompletableFuture<List<TextFilter.FilteredText>> processMessageBundle(List<String> param0) {
-            List<CompletableFuture<TextFilter.FilteredText>> var0 = param0.stream()
+        public CompletableFuture<List<FilteredText<String>>> processMessageBundle(List<String> param0) {
+            List<CompletableFuture<FilteredText<String>>> var0 = param0.stream()
                 .map(
                     param0x -> TextFilterClient.this.requestMessageProcessing(
                             this.profile, param0x, TextFilterClient.this.chatIgnoreStrategy, this.streamExecutor
@@ -333,7 +331,7 @@ public class TextFilterClient implements AutoCloseable {
         }
 
         @Override
-        public CompletableFuture<TextFilter.FilteredText> processStreamMessage(String param0) {
+        public CompletableFuture<FilteredText<String>> processStreamMessage(String param0) {
             return TextFilterClient.this.requestMessageProcessing(this.profile, param0, TextFilterClient.this.chatIgnoreStrategy, this.streamExecutor);
         }
     }
