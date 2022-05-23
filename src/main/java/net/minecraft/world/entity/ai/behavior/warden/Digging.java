@@ -16,19 +16,28 @@ public class Digging<E extends Warden> extends Behavior<E> {
     }
 
     protected boolean canStillUse(ServerLevel param0, E param1, long param2) {
-        return true;
+        return param1.getRemovalReason() == null;
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        return param1.isOnGround();
+        return param1.isOnGround() || param1.isInWater() || param1.isInLava();
     }
 
     protected void start(ServerLevel param0, E param1, long param2) {
-        param1.setPose(Pose.DIGGING);
-        param1.playSound(SoundEvents.WARDEN_DIG, 5.0F, 1.0F);
+        if (param1.isOnGround()) {
+            param1.setPose(Pose.DIGGING);
+            param1.playSound(SoundEvents.WARDEN_DIG, 5.0F, 1.0F);
+        } else {
+            param1.playSound(SoundEvents.WARDEN_AGITATED, 5.0F, 1.0F);
+            this.stop(param0, param1, param2);
+        }
+
     }
 
     protected void stop(ServerLevel param0, E param1, long param2) {
-        param1.remove(Entity.RemovalReason.DISCARDED);
+        if (param1.getRemovalReason() == null) {
+            param1.remove(Entity.RemovalReason.DISCARDED);
+        }
+
     }
 }

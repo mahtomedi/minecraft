@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block.entity;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -14,6 +15,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class CampfireBlockEntity extends BlockEntity implements Clearable {
     private static final int BURN_COOL_SPEED = 2;
@@ -48,6 +51,7 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
                     Containers.dropItemStack(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var4);
                     param3.items.set(var1, ItemStack.EMPTY);
                     param0.sendBlockUpdated(param1, param2, param2, 3);
+                    param0.gameEvent(GameEvent.BLOCK_CHANGE, param1, GameEvent.Context.of(param2));
                 }
             }
         }
@@ -150,13 +154,14 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
         return this.items.stream().noneMatch(ItemStack::isEmpty) ? Optional.empty() : this.quickCheck.getRecipeFor(new SimpleContainer(param0), this.level);
     }
 
-    public boolean placeFood(ItemStack param0, int param1) {
+    public boolean placeFood(@Nullable Entity param0, ItemStack param1, int param2) {
         for(int var0 = 0; var0 < this.items.size(); ++var0) {
             ItemStack var1 = this.items.get(var0);
             if (var1.isEmpty()) {
-                this.cookingTime[var0] = param1;
+                this.cookingTime[var0] = param2;
                 this.cookingProgress[var0] = 0;
-                this.items.set(var0, param0.split(1));
+                this.items.set(var0, param1.split(1));
+                this.level.gameEvent(GameEvent.BLOCK_CHANGE, this.getBlockPos(), GameEvent.Context.of(param0, this.getBlockState()));
                 this.markUpdated();
                 return true;
             }

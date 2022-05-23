@@ -746,7 +746,8 @@ public class ServerPlayer extends Player {
                         this.gameMode.getPreviousGameModeForPlayer(),
                         param0.isDebug(),
                         param0.isFlat(),
-                        true
+                        true,
+                        this.getLastDeathLocation()
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var2.getDifficulty(), var2.isDifficultyLocked()));
@@ -1493,7 +1494,8 @@ public class ServerPlayer extends Player {
                         this.gameMode.getPreviousGameModeForPlayer(),
                         param0.isDebug(),
                         param0.isFlat(),
-                        true
+                        true,
+                        this.getLastDeathLocation()
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var1.getDifficulty(), var1.isDifficultyLocked()));

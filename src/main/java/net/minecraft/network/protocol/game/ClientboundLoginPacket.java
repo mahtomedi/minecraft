@@ -1,8 +1,10 @@
 package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Sets;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -28,7 +30,8 @@ public record ClientboundLoginPacket(
     boolean reducedDebugInfo,
     boolean showDeathScreen,
     boolean isDebug,
-    boolean isFlat
+    boolean isFlat,
+    Optional<GlobalPos> lastDeathLocation
 ) implements Packet<ClientGamePacketListener> {
     public ClientboundLoginPacket(FriendlyByteBuf param0) {
         this(
@@ -47,7 +50,8 @@ public record ClientboundLoginPacket(
             param0.readBoolean(),
             param0.readBoolean(),
             param0.readBoolean(),
-            param0.readBoolean()
+            param0.readBoolean(),
+            param0.readOptional(FriendlyByteBuf::readGlobalPos)
         );
     }
 
@@ -69,6 +73,7 @@ public record ClientboundLoginPacket(
         param0.writeBoolean(this.showDeathScreen);
         param0.writeBoolean(this.isDebug);
         param0.writeBoolean(this.isFlat);
+        param0.writeOptional(this.lastDeathLocation, FriendlyByteBuf::writeGlobalPos);
     }
 
     public void handle(ClientGamePacketListener param0) {

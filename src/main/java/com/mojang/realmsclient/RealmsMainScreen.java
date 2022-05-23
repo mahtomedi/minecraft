@@ -546,8 +546,14 @@ public class RealmsMainScreen extends RealmsScreen {
     
                         try {
                             RealmsClient.CompatibleVersionResponse var1 = var0.clientCompatible();
-                            RealmsMainScreen.realmsGenericErrorScreen = new RealmsClientOutdatedScreen(RealmsMainScreen.this.lastScreen);
-                            RealmsMainScreen.this.minecraft.execute(() -> RealmsMainScreen.this.minecraft.setScreen(RealmsMainScreen.realmsGenericErrorScreen));
+                            if (var1 != RealmsClient.CompatibleVersionResponse.COMPATIBLE) {
+                                RealmsMainScreen.realmsGenericErrorScreen = new RealmsClientOutdatedScreen(RealmsMainScreen.this.lastScreen);
+                                RealmsMainScreen.this.minecraft
+                                    .execute(() -> RealmsMainScreen.this.minecraft.setScreen(RealmsMainScreen.realmsGenericErrorScreen));
+                                return;
+                            }
+    
+                            RealmsMainScreen.this.checkParentalConsent();
                         } catch (RealmsServiceException var3) {
                             RealmsMainScreen.checkedClientCompatability = false;
                             RealmsMainScreen.LOGGER.error("Couldn't connect to realms", (Throwable)var3);
@@ -565,8 +571,8 @@ public class RealmsMainScreen extends RealmsScreen {
                                         () -> RealmsMainScreen.this.minecraft.setScreen(new RealmsGenericErrorScreen(var3, RealmsMainScreen.this.lastScreen))
                                     );
                             }
-    
                         }
+    
                     }
                 })
                 .start();
@@ -574,7 +580,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    private void checkParentalConsent() {
+    void checkParentalConsent() {
         (new Thread("MCO Compatability Checker #1") {
                 @Override
                 public void run() {

@@ -163,7 +163,9 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 var1.generatorSettings().value(), param0.registryAccess().registryOrThrow(Registry.NOISE_REGISTRY), param0.getSeed()
             );
         } else {
-            this.randomState = RandomState.create(param0.registryAccess(), NoiseGeneratorSettings.OVERWORLD, param0.getSeed());
+            this.randomState = RandomState.create(
+                NoiseGeneratorSettings.dummy(), param0.registryAccess().registryOrThrow(Registry.NOISE_REGISTRY), param0.getSeed()
+            );
         }
 
         this.mainThreadExecutor = param5;

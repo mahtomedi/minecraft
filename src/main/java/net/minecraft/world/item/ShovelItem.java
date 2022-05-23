@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class ShovelItem extends DiggerItem {
     protected static final Map<Block, BlockState> FLATTENABLES = Maps.newHashMap(
@@ -59,6 +60,7 @@ public class ShovelItem extends DiggerItem {
             if (var5 != null) {
                 if (!var0.isClientSide) {
                     var0.setBlock(var1, var5, 11);
+                    var0.gameEvent(GameEvent.BLOCK_CHANGE, var1, GameEvent.Context.of(var3, var5));
                     if (var3 != null) {
                         param0.getItemInHand().hurtAndBreak(1, var3, param1 -> param1.broadcastBreakEvent(param0.getHand()));
                     }

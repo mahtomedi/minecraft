@@ -331,8 +331,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                         } else {
                             this.openLink(var1);
                         }
-                    } catch (URISyntaxException var5) {
-                        LOGGER.error("Can't open url for {}", var0, var5);
+                    } catch (URISyntaxException var51) {
+                        LOGGER.error("Can't open url for {}", var0, var51);
                     }
                 } else if (var0.getAction() == ClickEvent.Action.OPEN_FILE) {
                     URI var4 = new File(var0.getValue()).toURI();
@@ -340,7 +340,12 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 } else if (var0.getAction() == ClickEvent.Action.SUGGEST_COMMAND) {
                     this.insertText(var0.getValue(), true);
                 } else if (var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                    this.minecraft.player.command(var0.getValue());
+                    String var5 = var0.getValue();
+                    if (var5.startsWith("/")) {
+                        this.minecraft.player.command(var5.substring(1));
+                    } else {
+                        this.minecraft.player.chat(var5);
+                    }
                 } else if (var0.getAction() == ClickEvent.Action.COPY_TO_CLIPBOARD) {
                     this.minecraft.keyboardHandler.setClipboard(var0.getValue());
                 } else {

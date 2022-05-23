@@ -237,7 +237,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
         Level var2 = this.level;
         if (var2 instanceof ServerLevel var0) {
             this.dynamicGameEventListener.getListener().tick(var0);
-            if (this.hasCustomName()) {
+            if (this.isPersistenceRequired() || this.requiresCustomPersistence()) {
                 WardenAi.setDigCooldown(this);
             }
         }
@@ -325,7 +325,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     private void clientDiggingParticles(AnimationState param0) {
         if ((float)param0.getAccumulatedTime() < 4500.0F) {
             RandomSource var0 = this.getRandom();
-            BlockState var1 = this.level.getBlockState(this.blockPosition().below());
+            BlockState var1 = this.getBlockStateOn();
             if (var1.getRenderShape() != RenderShape.INVISIBLE) {
                 for(int var2 = 0; var2 < 30; ++var2) {
                     double var3 = this.getX() + (double)Mth.randomBetween(var0, -0.7F, 0.7F);
@@ -505,8 +505,13 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     @Override
+    public boolean requiresCustomPersistence() {
+        return super.requiresCustomPersistence() || this.hasCustomName();
+    }
+
+    @Override
     public boolean removeWhenFarAway(double param0) {
-        return !this.isPersistenceRequired();
+        return false;
     }
 
     @Nullable
@@ -521,14 +526,13 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
             this.playSound(SoundEvents.WARDEN_AGITATED, 5.0F, 1.0F);
         }
 
-        this.setPersistenceRequired();
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         boolean var0 = super.hurt(param0, param1);
-        if (!this.level.isClientSide && !this.isNoAi() && param1 > 0.0F) {
+        if (!this.level.isClientSide && !this.isNoAi()) {
             Entity var1 = param0.getEntity();
             this.increaseAngerAt(var1, AngerLevel.ANGRY.getMinimumAnger() + 20, false);
             if (this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty()

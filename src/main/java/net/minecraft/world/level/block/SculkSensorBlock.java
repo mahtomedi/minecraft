@@ -50,6 +50,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
             param0.put(GameEvent.SWIM, 3);
             param0.put(GameEvent.ELYTRA_GLIDE, 4);
             param0.put(GameEvent.HIT_GROUND, 5);
+            param0.put(GameEvent.TELEPORT, 5);
             param0.put(GameEvent.SPLASH, 6);
             param0.put(GameEvent.ENTITY_SHAKE, 6);
             param0.put(GameEvent.BLOCK_CHANGE, 6);

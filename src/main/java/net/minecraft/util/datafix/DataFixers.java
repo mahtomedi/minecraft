@@ -63,6 +63,7 @@ import net.minecraft.util.datafix.fixes.EntityCodSalmonFix;
 import net.minecraft.util.datafix.fixes.EntityCustomNameToComponentFix;
 import net.minecraft.util.datafix.fixes.EntityElderGuardianSplitFix;
 import net.minecraft.util.datafix.fixes.EntityEquipmentToArmorAndHandFix;
+import net.minecraft.util.datafix.fixes.EntityGoatMissingStateFix;
 import net.minecraft.util.datafix.fixes.EntityHealthFix;
 import net.minecraft.util.datafix.fixes.EntityHorseSaddleFix;
 import net.minecraft.util.datafix.fixes.EntityHorseSplitFix;
@@ -979,22 +980,24 @@ public class DataFixers {
         param0.addFixer(new BlendingDataFix(var169));
         Schema var170 = param0.addSchema(3090, SAME_NAMESPACED);
         param0.addFixer(new EntityPaintingFieldsRenameFix(var170));
-        Schema var171 = param0.addSchema(3094, SAME_NAMESPACED);
-        param0.addFixer(new GoatHornIdFix(var171));
-        Schema var172 = param0.addSchema(3097, SAME_NAMESPACED);
-        param0.addFixer(new FilteredBooksFix(var172));
-        param0.addFixer(new FilteredSignsFix(var172));
-        Map<String, String> var173 = Map.of("minecraft:british", "minecraft:british_shorthair");
-        param0.addFixer(new VariantRenameFix(var172, "Rename british shorthair", References.ENTITY, "minecraft:cat", var173));
+        Schema var171 = param0.addSchema(3093, SAME_NAMESPACED);
+        param0.addFixer(new EntityGoatMissingStateFix(var171));
+        Schema var172 = param0.addSchema(3094, SAME_NAMESPACED);
+        param0.addFixer(new GoatHornIdFix(var172));
+        Schema var173 = param0.addSchema(3097, SAME_NAMESPACED);
+        param0.addFixer(new FilteredBooksFix(var173));
+        param0.addFixer(new FilteredSignsFix(var173));
+        Map<String, String> var174 = Map.of("minecraft:british", "minecraft:british_shorthair");
+        param0.addFixer(new VariantRenameFix(var173, "Rename british shorthair", References.ENTITY, "minecraft:cat", var174));
         param0.addFixer(
             new CriteriaRenameFix(
-                var172,
+                var173,
                 "Migrate cat variant advancement for british shorthair",
                 "minecraft:husbandry/complete_catalogue",
-                param1 -> var173.getOrDefault(param1, param1)
+                param1 -> var174.getOrDefault(param1, param1)
             )
         );
-        param0.addFixer(new PoiTypeRemoveFix(var172, "Remove unpopulated villager PoI types", Set.of("minecraft:unemployed", "minecraft:nitwit")::contains));
+        param0.addFixer(new PoiTypeRemoveFix(var173, "Remove unpopulated villager PoI types", Set.of("minecraft:unemployed", "minecraft:nitwit")::contains));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

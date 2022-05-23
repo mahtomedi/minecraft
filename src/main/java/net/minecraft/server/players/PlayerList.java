@@ -187,7 +187,8 @@ public abstract class PlayerList {
                 var14,
                 !var13,
                 var7.isDebug(),
-                var7.isFlat()
+                var7.isFlat(),
+                param1.getLastDeathLocation()
             )
         );
         var11.send(
@@ -493,7 +494,8 @@ public abstract class PlayerList {
                     var7.gameMode.getPreviousGameModeForPlayer(),
                     var7.getLevel().isDebug(),
                     var7.getLevel().isFlat(),
-                    param1
+                    param1,
+                    var7.getLastDeathLocation()
                 )
             );
         var7.connection.teleport(var7.getX(), var7.getY(), var7.getZ(), var7.getYRot(), var7.getXRot());

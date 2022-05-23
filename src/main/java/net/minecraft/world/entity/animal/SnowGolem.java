@@ -114,6 +114,7 @@ public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackM
                 BlockPos var7 = new BlockPos(var0, var1, var2);
                 if (this.level.getBlockState(var7).isAir() && var5.canSurvive(this.level, var7)) {
                     this.level.setBlockAndUpdate(var7, var5);
+                    this.level.gameEvent(GameEvent.BLOCK_PLACE, var7, GameEvent.Context.of(this, var5));
                 }
             }
         }

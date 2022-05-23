@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class HarvestFarmland extends Behavior<Villager> {
     private static final int HARVEST_DURATION = 200;
@@ -117,16 +118,24 @@ public class HarvestFarmland extends Behavior<Villager> {
                         boolean var6 = false;
                         if (!var5.isEmpty()) {
                             if (var5.is(Items.WHEAT_SEEDS)) {
-                                param0.setBlock(this.aboveFarmlandPos, Blocks.WHEAT.defaultBlockState(), 3);
+                                BlockState var7 = Blocks.WHEAT.defaultBlockState();
+                                param0.setBlockAndUpdate(this.aboveFarmlandPos, var7);
+                                param0.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(param1, var7));
                                 var6 = true;
                             } else if (var5.is(Items.POTATO)) {
-                                param0.setBlock(this.aboveFarmlandPos, Blocks.POTATOES.defaultBlockState(), 3);
+                                BlockState var8 = Blocks.POTATOES.defaultBlockState();
+                                param0.setBlockAndUpdate(this.aboveFarmlandPos, var8);
+                                param0.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(param1, var8));
                                 var6 = true;
                             } else if (var5.is(Items.CARROT)) {
-                                param0.setBlock(this.aboveFarmlandPos, Blocks.CARROTS.defaultBlockState(), 3);
+                                BlockState var9 = Blocks.CARROTS.defaultBlockState();
+                                param0.setBlockAndUpdate(this.aboveFarmlandPos, var9);
+                                param0.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(param1, var9));
                                 var6 = true;
                             } else if (var5.is(Items.BEETROOT_SEEDS)) {
-                                param0.setBlock(this.aboveFarmlandPos, Blocks.BEETROOTS.defaultBlockState(), 3);
+                                BlockState var10 = Blocks.BEETROOTS.defaultBlockState();
+                                param0.setBlockAndUpdate(this.aboveFarmlandPos, var10);
+                                param0.gameEvent(GameEvent.BLOCK_PLACE, this.aboveFarmlandPos, GameEvent.Context.of(param1, var10));
                                 var6 = true;
                             }
                         }

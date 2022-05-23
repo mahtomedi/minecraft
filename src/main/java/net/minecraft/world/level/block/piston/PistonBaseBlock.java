@@ -298,6 +298,7 @@ public class PistonBaseBlock extends DirectionalBlock {
                 BlockEntity var15 = var14.hasBlockEntity() ? param0.getBlockEntity(var13) : null;
                 dropResources(var14, param0, var13, var15);
                 param0.setBlock(var13, Blocks.AIR.defaultBlockState(), 18);
+                param0.gameEvent(GameEvent.BLOCK_DESTROY, var13, GameEvent.Context.of(var14));
                 if (!var14.is(BlockTags.FIRE)) {
                     param0.addDestroyBlockEffect(var13, var14);
                 }

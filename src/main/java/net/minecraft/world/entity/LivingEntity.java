@@ -662,12 +662,18 @@ public abstract class LivingEntity extends Entity {
         return true;
     }
 
-    public void onEquipItem(EquipmentSlot param0, ItemStack param1) {
-        this.playEquipSound(param1);
-        if (this.doesEmitEquipEvent(param0)) {
-            this.gameEvent(GameEvent.EQUIP);
-        }
+    public void onEquipItem(EquipmentSlot param0, ItemStack param1, ItemStack param2) {
+        boolean var0 = param2.isEmpty() && param1.isEmpty();
+        if (!var0 && !ItemStack.isSameItemSameTags(param1, param2)) {
+            if (param0.getType() == EquipmentSlot.Type.ARMOR) {
+                this.playEquipSound(param2);
+            }
 
+            if (this.doesEmitEquipEvent(param0)) {
+                this.gameEvent(GameEvent.EQUIP);
+            }
+
+        }
     }
 
     protected void playEquipSound(ItemStack param0) {

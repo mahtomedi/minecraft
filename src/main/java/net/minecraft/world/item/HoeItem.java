@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class HoeItem extends DiggerItem {
     protected static final Map<Block, Pair<Predicate<UseOnContext>, Consumer<UseOnContext>>> TILLABLES = Maps.newHashMap(
@@ -68,12 +69,16 @@ public class HoeItem extends DiggerItem {
     }
 
     public static Consumer<UseOnContext> changeIntoState(BlockState param0) {
-        return param1 -> param1.getLevel().setBlock(param1.getClickedPos(), param0, 11);
+        return param1 -> {
+            param1.getLevel().setBlock(param1.getClickedPos(), param0, 11);
+            param1.getLevel().gameEvent(GameEvent.BLOCK_CHANGE, param1.getClickedPos(), GameEvent.Context.of(param1.getPlayer(), param0));
+        };
     }
 
     public static Consumer<UseOnContext> changeIntoStateAndDropItem(BlockState param0, ItemLike param1) {
         return param2 -> {
             param2.getLevel().setBlock(param2.getClickedPos(), param0, 11);
+            param2.getLevel().gameEvent(GameEvent.BLOCK_CHANGE, param2.getClickedPos(), GameEvent.Context.of(param2.getPlayer(), param0));
             Block.popResourceFromFace(param2.getLevel(), param2.getClickedPos(), param2.getClickedFace(), new ItemStack(param1));
         };
     }

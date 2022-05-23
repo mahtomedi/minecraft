@@ -54,7 +54,7 @@ public record VillagerProfession(
     }
 
     private static VillagerProfession register(String param0, ResourceKey<PoiType> param1, @Nullable SoundEvent param2) {
-        return register(param0, param1x -> param1x.is(param1), PoiType.NONE, param2);
+        return register(param0, param1x -> param1x.is(param1), param1x -> param1x.is(param1), param2);
     }
 
     private static VillagerProfession register(String param0, Predicate<Holder<PoiType>> param1, Predicate<Holder<PoiType>> param2, @Nullable SoundEvent param3) {
@@ -64,7 +64,7 @@ public record VillagerProfession(
     private static VillagerProfession register(
         String param0, ResourceKey<PoiType> param1, ImmutableSet<Item> param2, ImmutableSet<Block> param3, @Nullable SoundEvent param4
     ) {
-        return register(param0, param1x -> param1x.is(param1), PoiType.NONE, param2, param3, param4);
+        return register(param0, param1x -> param1x.is(param1), param1x -> param1x.is(param1), param2, param3, param4);
     }
 
     private static VillagerProfession register(

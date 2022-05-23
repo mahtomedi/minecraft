@@ -60,7 +60,7 @@ public class HangingEntityItem extends Item {
             if (var7.survives()) {
                 if (!var5.isClientSide) {
                     var7.playPlacementSound();
-                    var5.gameEvent(var3, GameEvent.ENTITY_PLACE, var0);
+                    var5.gameEvent(var3, GameEvent.ENTITY_PLACE, var7.position());
                     var5.addFreshEntity(var7);
                 }
 

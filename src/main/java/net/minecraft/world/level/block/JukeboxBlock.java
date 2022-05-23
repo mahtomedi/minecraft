@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class JukeboxBlock extends BaseEntityBlock {
@@ -47,17 +49,19 @@ public class JukeboxBlock extends BaseEntityBlock {
             this.dropRecording(param1, param2);
             param0 = param0.setValue(HAS_RECORD, Boolean.valueOf(false));
             param1.setBlock(param2, param0, 2);
+            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param3, param0));
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.PASS;
         }
     }
 
-    public void setRecord(LevelAccessor param0, BlockPos param1, BlockState param2, ItemStack param3) {
-        BlockEntity var0 = param0.getBlockEntity(param1);
+    public void setRecord(@Nullable Entity param0, LevelAccessor param1, BlockPos param2, BlockState param3, ItemStack param4) {
+        BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof JukeboxBlockEntity) {
-            ((JukeboxBlockEntity)var0).setRecord(param3.copy());
-            param0.setBlock(param1, param2.setValue(HAS_RECORD, Boolean.valueOf(true)), 2);
+            ((JukeboxBlockEntity)var0).setRecord(param4.copy());
+            param1.setBlock(param2, param3.setValue(HAS_RECORD, Boolean.valueOf(true)), 2);
+            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param0, param3));
         }
     }
 

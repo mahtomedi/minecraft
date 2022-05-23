@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -195,16 +196,18 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
                         BlockPos var5 = findTip(param0, param1, param2, 11, false);
                         if (var5 != null) {
                             if (var0.get().sourceState.is(Blocks.MUD) && var1 == Fluids.WATER) {
-                                param1.setBlockAndUpdate(var0.get().pos, Blocks.CLAY.defaultBlockState());
+                                BlockState var6 = Blocks.CLAY.defaultBlockState();
+                                param1.setBlockAndUpdate(var0.get().pos, var6);
+                                param1.gameEvent(GameEvent.BLOCK_CHANGE, var0.get().pos, GameEvent.Context.of(var6));
                                 param1.levelEvent(1504, var5, 0);
                             } else {
-                                BlockPos var6 = findFillableCauldronBelowStalactiteTip(param1, var5, var1);
-                                if (var6 != null) {
+                                BlockPos var7 = findFillableCauldronBelowStalactiteTip(param1, var5, var1);
+                                if (var7 != null) {
                                     param1.levelEvent(1504, var5, 0);
-                                    int var7 = var5.getY() - var6.getY();
-                                    int var8 = 50 + var7;
-                                    BlockState var9 = param1.getBlockState(var6);
-                                    param1.scheduleTick(var6, var9.getBlock(), var8);
+                                    int var8 = var5.getY() - var7.getY();
+                                    int var9 = 50 + var8;
+                                    BlockState var10 = param1.getBlockState(var7);
+                                    param1.scheduleTick(var7, var10.getBlock(), var9);
                                 }
                             }
                         }

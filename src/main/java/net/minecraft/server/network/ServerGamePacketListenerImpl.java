@@ -1316,10 +1316,19 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             this.chatPreviewThrottler.schedule(() -> {
                 int var0 = param0.queryId();
                 String var1x = param0.query();
-                return this.queryPreview(var1x).thenAccept(param1 -> this.send(new ClientboundChatPreviewPacket(var0, param1)));
+                return this.queryPreview(var1x).thenAccept(param1 -> this.sendPreviewResponse(var0, param1));
             });
         }
 
+    }
+
+    private void sendPreviewResponse(int param0, Component param1) {
+        this.send(new ClientboundChatPreviewPacket(param0, param1), param1x -> {
+            if (!param1x.isSuccess()) {
+                this.send(new ClientboundChatPreviewPacket(param0, null));
+            }
+
+        });
     }
 
     private CompletableFuture<Component> queryPreview(String param0) {

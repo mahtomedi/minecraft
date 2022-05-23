@@ -16,6 +16,11 @@ public record ClientboundChatPreviewPacket(int queryId, @Nullable Component prev
         param0.writeNullable(this.preview, FriendlyByteBuf::writeComponent);
     }
 
+    @Override
+    public boolean isSkippable() {
+        return true;
+    }
+
     public void handle(ClientGamePacketListener param0) {
         param0.handleChatPreview(this);
     }

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 
 public class LeadItem extends Item {
@@ -27,6 +28,7 @@ public class LeadItem extends Item {
                 bindPlayerMobs(var3, var0, var1);
             }
 
+            var0.gameEvent(GameEvent.BLOCK_ATTACH, var1, GameEvent.Context.of(var3));
             return InteractionResult.sidedSuccess(var0.isClientSide);
         } else {
             return InteractionResult.PASS;

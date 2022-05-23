@@ -68,9 +68,18 @@ public class Ghast extends FlyingMob implements Enemy {
         return true;
     }
 
+    private static boolean isReflectedFireball(DamageSource param0) {
+        return param0.getDirectEntity() instanceof LargeFireball && param0.getEntity() instanceof Player;
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource param0) {
+        return !isReflectedFireball(param0) && super.isInvulnerableTo(param0);
+    }
+
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (param0.getDirectEntity() instanceof LargeFireball && param0.getEntity() instanceof Player) {
+        if (isReflectedFireball(param0)) {
             super.hurt(param0, 1000.0F);
             return true;
         } else {

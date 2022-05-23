@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -61,7 +62,9 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
         int var0 = param0.getValue(AGE);
         if (var0 < 3 && param3.nextInt(5) == 0 && param1.getRawBrightness(param2.above(), 0) >= 9) {
-            param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(var0 + 1)), 2);
+            BlockState var1 = param0.setValue(AGE, Integer.valueOf(var0 + 1));
+            param1.setBlock(param2, var1, 2);
+            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(var1));
         }
 
     }
@@ -91,7 +94,9 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
             int var2 = 1 + param1.random.nextInt(2);
             popResource(param1, param2, new ItemStack(Items.SWEET_BERRIES, var2 + (var1 ? 1 : 0)));
             param1.playSound(null, param2, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + param1.random.nextFloat() * 0.4F);
-            param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(1)), 2);
+            BlockState var3 = param0.setValue(AGE, Integer.valueOf(1));
+            param1.setBlock(param2, var3, 2);
+            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param3, var3));
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);

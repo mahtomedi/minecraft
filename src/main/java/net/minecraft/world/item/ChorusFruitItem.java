@@ -9,6 +9,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 
 public class ChorusFruitItem extends Item {
     public ChorusFruitItem(Item.Properties param0) {
@@ -35,10 +37,12 @@ public class ChorusFruitItem extends Item {
                     param2.stopRiding();
                 }
 
+                Vec3 var8 = param2.position();
                 if (param2.randomTeleport(var5, var6, var7, true)) {
-                    SoundEvent var8 = param2 instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
-                    param1.playSound(null, var1, var2, var3, var8, SoundSource.PLAYERS, 1.0F, 1.0F);
-                    param2.playSound(var8, 1.0F, 1.0F);
+                    param1.gameEvent(GameEvent.TELEPORT, var8, GameEvent.Context.of(param2));
+                    SoundEvent var9 = param2 instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
+                    param1.playSound(null, var1, var2, var3, var9, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    param2.playSound(var9, 1.0F, 1.0F);
                     break;
                 }
             }

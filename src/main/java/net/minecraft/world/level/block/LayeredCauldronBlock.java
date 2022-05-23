@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -64,13 +65,17 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
 
     public static void lowerFillLevel(BlockState param0, Level param1, BlockPos param2) {
         int var0 = param0.getValue(LEVEL) - 1;
-        param1.setBlockAndUpdate(param2, var0 == 0 ? Blocks.CAULDRON.defaultBlockState() : param0.setValue(LEVEL, Integer.valueOf(var0)));
+        BlockState var1 = var0 == 0 ? Blocks.CAULDRON.defaultBlockState() : param0.setValue(LEVEL, Integer.valueOf(var0));
+        param1.setBlockAndUpdate(param2, var1);
+        param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(var1));
     }
 
     @Override
     public void handlePrecipitation(BlockState param0, Level param1, BlockPos param2, Biome.Precipitation param3) {
         if (CauldronBlock.shouldHandlePrecipitation(param1, param3) && param0.getValue(LEVEL) != 3 && this.fillPredicate.test(param3)) {
-            param1.setBlockAndUpdate(param2, param0.cycle(LEVEL));
+            BlockState var0 = param0.cycle(LEVEL);
+            param1.setBlockAndUpdate(param2, var0);
+            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(var0));
         }
     }
 
@@ -87,7 +92,9 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
     @Override
     protected void receiveStalactiteDrip(BlockState param0, Level param1, BlockPos param2, Fluid param3) {
         if (!this.isFull(param0)) {
-            param1.setBlockAndUpdate(param2, param0.setValue(LEVEL, Integer.valueOf(param0.getValue(LEVEL) + 1)));
+            BlockState var0 = param0.setValue(LEVEL, Integer.valueOf(param0.getValue(LEVEL) + 1));
+            param1.setBlockAndUpdate(param2, var0);
+            param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(var0));
             param1.levelEvent(1047, param2, 0);
         }
     }

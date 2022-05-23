@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.MinecartChest;
@@ -20,7 +19,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
@@ -859,18 +857,15 @@ public class MineshaftPieces {
 
     abstract static class MineShaftPiece extends StructurePiece {
         protected MineshaftStructure.Type type;
-        private final TagKey<Biome> biomeTag;
 
         public MineShaftPiece(StructurePieceType param0, int param1, MineshaftStructure.Type param2, BoundingBox param3) {
             super(param0, param1, param3);
             this.type = param2;
-            this.biomeTag = param2 == MineshaftStructure.Type.MESA ? BiomeTags.HAS_MINESHAFT_MESA : BiomeTags.HAS_MINESHAFT;
         }
 
         public MineShaftPiece(StructurePieceType param0, CompoundTag param1) {
             super(param0, param1);
             this.type = MineshaftStructure.Type.byId(param1.getInt("MST"));
-            this.biomeTag = this.type == MineshaftStructure.Type.MESA ? BiomeTags.HAS_MINESHAFT_MESA : BiomeTags.HAS_MINESHAFT;
         }
 
         @Override
@@ -905,7 +900,7 @@ public class MineshaftPieces {
             int var4 = Math.min(this.boundingBox.maxY() + 1, param1.maxY());
             int var5 = Math.min(this.boundingBox.maxZ() + 1, param1.maxZ());
             BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos((var0 + var3) / 2, (var1 + var4) / 2, (var2 + var5) / 2);
-            if (!param0.getBiome(var6).is(this.biomeTag)) {
+            if (param0.getBiome(var6).is(BiomeTags.MINESHAFT_BLOCKING)) {
                 return true;
             } else {
                 for(int var7 = var0; var7 <= var3; ++var7) {

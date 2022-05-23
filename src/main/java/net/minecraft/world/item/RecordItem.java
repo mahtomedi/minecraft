@@ -38,7 +38,7 @@ public class RecordItem extends Item {
         if (var2.is(Blocks.JUKEBOX) && !var2.getValue(JukeboxBlock.HAS_RECORD)) {
             ItemStack var3 = param0.getItemInHand();
             if (!var0.isClientSide) {
-                ((JukeboxBlock)Blocks.JUKEBOX).setRecord(var0, var1, var2, var3);
+                ((JukeboxBlock)Blocks.JUKEBOX).setRecord(param0.getPlayer(), var0, var1, var2, var3);
                 var0.levelEvent(null, 1010, var1, Item.getId(this));
                 var3.shrink(1);
                 Player var4 = param0.getPlayer();

@@ -88,7 +88,7 @@ public abstract class AgeableMob extends PathfinderMob {
     }
 
     public void setAge(int param0) {
-        int var0 = this.age;
+        int var0 = this.getAge();
         this.age = param0;
         if (var0 < 0 && param0 >= 0 || var0 >= 0 && param0 < 0) {
             this.entityData.set(DATA_BABY_ID, param0 < 0);

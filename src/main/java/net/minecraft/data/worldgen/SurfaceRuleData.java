@@ -360,6 +360,10 @@ public class SurfaceRuleData {
         return ENDSTONE;
     }
 
+    public static SurfaceRules.RuleSource air() {
+        return AIR;
+    }
+
     private static SurfaceRules.ConditionSource surfaceNoiseAbove(double param0) {
         return SurfaceRules.noiseCondition(Noises.SURFACE, param0 / 8.25, Double.MAX_VALUE);
     }

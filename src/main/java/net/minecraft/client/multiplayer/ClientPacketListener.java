@@ -383,6 +383,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.setScreen(new ReceivingLevelScreen());
         this.minecraft.player.setReducedDebugInfo(param0.reducedDebugInfo());
         this.minecraft.player.setShowDeathScreen(param0.showDeathScreen());
+        this.minecraft.player.setLastDeathLocation(param0.lastDeathLocation());
         this.minecraft.gameMode.setLocalMode(param0.gameType(), param0.previousGameType());
         this.minecraft.options.setServerRenderDistance(param0.chunkRadius());
         this.minecraft.options.broadcastOptions();
@@ -465,19 +466,23 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleAddPlayer(ClientboundAddPlayerPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        double var0 = param0.getX();
-        double var1 = param0.getY();
-        double var2 = param0.getZ();
-        float var3 = (float)(param0.getyRot() * 360) / 256.0F;
-        float var4 = (float)(param0.getxRot() * 360) / 256.0F;
-        int var5 = param0.getEntityId();
-        PlayerInfo var6 = this.getPlayerInfo(param0.getPlayerId());
-        RemotePlayer var7 = new RemotePlayer(this.minecraft.level, var6.getProfile(), var6.getProfilePublicKey());
-        var7.setId(var5);
-        var7.syncPacketPositionCodec(var0, var1, var2);
-        var7.absMoveTo(var0, var1, var2, var3, var4);
-        var7.setOldPosAndRot();
-        this.level.addPlayer(var5, var7);
+        PlayerInfo var0 = this.getPlayerInfo(param0.getPlayerId());
+        if (var0 == null) {
+            LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", param0.getPlayerId());
+        } else {
+            double var1 = param0.getX();
+            double var2 = param0.getY();
+            double var3 = param0.getZ();
+            float var4 = (float)(param0.getyRot() * 360) / 256.0F;
+            float var5 = (float)(param0.getxRot() * 360) / 256.0F;
+            int var6 = param0.getEntityId();
+            RemotePlayer var7 = new RemotePlayer(this.minecraft.level, var0.getProfile(), var0.getProfilePublicKey());
+            var7.setId(var6);
+            var7.syncPacketPositionCodec(var1, var2, var3);
+            var7.absMoveTo(var1, var2, var3, var4, var5);
+            var7.setOldPosAndRot();
+            this.level.addPlayer(var6, var7);
+        }
     }
 
     @Override
@@ -792,7 +797,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleSystemChat(ClientboundSystemChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Registry<ChatType> var0 = this.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+        Registry<ChatType> var0 = this.registryAccess.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
         ChatType var1 = param0.resolveType(var0);
         this.minecraft.gui.handleSystemChat(var1, param0.content());
     }
@@ -805,7 +810,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             LOGGER.warn("Received expired chat packet from {}", var0.name().getString());
         }
 
-        Registry<ChatType> var1 = this.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+        Registry<ChatType> var1 = this.registryAccess.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
         ChatType var2 = param0.resolveType(var1);
         PlayerChatMessage var3 = param0.getMessage();
         this.handlePlayerChat(var2, var3, var0);
@@ -1018,6 +1023,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.gameMode.adjustPlayer(var10);
         var10.setReducedDebugInfo(var2.isReducedDebugInfo());
         var10.setShowDeathScreen(var2.shouldShowDeathScreen());
+        var10.setLastDeathLocation(param0.getLastDeathLocation());
         if (this.minecraft.screen instanceof DeathScreen) {
             this.minecraft.setScreen(null);
         }

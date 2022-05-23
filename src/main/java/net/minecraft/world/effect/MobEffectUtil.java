@@ -47,12 +47,13 @@ public final class MobEffectUtil {
     ) {
         MobEffect var0 = param4.getEffect();
         List<ServerPlayer> var1 = param0.getPlayers(
-            param5x -> param5x.gameMode.isSurvival()
-                    && param2.closerThan(param5x.position(), param3)
+            param6 -> param6.gameMode.isSurvival()
+                    && (param1 == null || !param1.isAlliedTo(param6))
+                    && param2.closerThan(param6.position(), param3)
                     && (
-                        !param5x.hasEffect(var0)
-                            || param5x.getEffect(var0).getAmplifier() < param4.getAmplifier()
-                            || param5x.getEffect(var0).getDuration() < param5
+                        !param6.hasEffect(var0)
+                            || param6.getEffect(var0).getAmplifier() < param4.getAmplifier()
+                            || param6.getEffect(var0).getDuration() < param5
                     )
         );
         var1.forEach(param2x -> param2x.addEffect(new MobEffectInstance(param4), param1));

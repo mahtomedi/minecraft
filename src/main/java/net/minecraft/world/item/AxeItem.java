@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class AxeItem extends DiggerItem {
     protected static final Map<Block, Block> STRIPPABLES = new Builder<Block, Block>()
@@ -75,6 +76,7 @@ public class AxeItem extends DiggerItem {
             }
 
             var0.setBlock(var1, var8.get(), 11);
+            var0.gameEvent(GameEvent.BLOCK_CHANGE, var1, GameEvent.Context.of(var2, var8.get()));
             if (var2 != null) {
                 var7.hurtAndBreak(1, var2, param1 -> param1.broadcastBreakEvent(param0.getHand()));
             }

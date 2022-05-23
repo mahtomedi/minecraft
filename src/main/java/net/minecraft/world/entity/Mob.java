@@ -845,13 +845,12 @@ public abstract class Mob extends LivingEntity {
         this.verifyEquippedItem(param1);
         switch(param0.getType()) {
             case HAND:
-                this.handItems.set(param0.getIndex(), param1);
+                this.onEquipItem(param0, this.handItems.set(param0.getIndex(), param1), param1);
                 break;
             case ARMOR:
-                this.armorItems.set(param0.getIndex(), param1);
+                this.onEquipItem(param0, this.armorItems.set(param0.getIndex(), param1), param1);
         }
 
-        this.onEquipItem(param0, param1);
     }
 
     @Override
