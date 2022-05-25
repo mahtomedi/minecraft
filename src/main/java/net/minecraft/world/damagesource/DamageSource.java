@@ -41,6 +41,7 @@ public class DamageSource {
     private boolean bypassArmor;
     private boolean bypassInvul;
     private boolean bypassMagic;
+    private boolean bypassEnchantments;
     private float exhaustion = 0.1F;
     private boolean isFireSource;
     private boolean isProjectile;
@@ -112,7 +113,7 @@ public class DamageSource {
     }
 
     public static DamageSource sonicBoom(Entity param0) {
-        return new EntityDamageSource("sonic_boom", param0).bypassArmor().setMagic();
+        return new EntityDamageSource("sonic_boom", param0).bypassArmor().bypassEnchantments().setMagic();
     }
 
     public static DamageSource badRespawnPointExplosion() {
@@ -162,6 +163,10 @@ public class DamageSource {
         return this.bypassMagic;
     }
 
+    public boolean isBypassEnchantments() {
+        return this.bypassEnchantments;
+    }
+
     protected DamageSource(String param0) {
         this.msgId = param0;
     }
@@ -195,6 +200,11 @@ public class DamageSource {
     protected DamageSource bypassMagic() {
         this.bypassMagic = true;
         this.exhaustion = 0.0F;
+        return this;
+    }
+
+    protected DamageSource bypassEnchantments() {
+        this.bypassEnchantments = true;
         return this;
     }
 

@@ -817,23 +817,22 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     private void handlePlayerChat(ChatType param0, PlayerChatMessage param1, ChatSender param2) {
-        if (!this.hasValidSignature(param1)) {
-            LOGGER.warn("Received chat packet without valid signature from {}", param2.name().getString());
+        boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
+        PlayerInfo var1 = this.getPlayerInfo(param1.signature().sender());
+        if (var1 != null && !this.hasValidSignature(param1, var1)) {
+            LOGGER.warn("Received chat packet without valid signature from {}", var1.getProfile().getName());
+            if (var0) {
+                return;
+            }
         }
 
-        boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
-        Component var1 = var0 ? param1.signedContent() : param1.serverContent();
-        this.minecraft.gui.handlePlayerChat(param0, var1, param2);
+        Component var2 = var0 ? param1.signedContent() : param1.serverContent();
+        this.minecraft.gui.handlePlayerChat(param0, var2, param2);
     }
 
-    private boolean hasValidSignature(PlayerChatMessage param0) {
-        PlayerInfo var0 = this.getPlayerInfo(param0.signature().sender());
-        if (var0 == null) {
-            return false;
-        } else {
-            ProfilePublicKey var1 = var0.getProfilePublicKey();
-            return var1 != null && param0.verify(var1);
-        }
+    private boolean hasValidSignature(PlayerChatMessage param0, PlayerInfo param1) {
+        ProfilePublicKey var0 = param1.getProfilePublicKey();
+        return var0 != null && param0.verify(var0);
     }
 
     @Override

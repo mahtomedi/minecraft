@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class BeehiveBlockEntity extends BlockEntity {
     public static final String TAG_FLOWER_POS = "FlowerPos";
@@ -164,6 +165,7 @@ public class BeehiveBlockEntity extends BlockEntity {
                 BlockPos var2 = this.getBlockPos();
                 this.level
                     .playSound(null, (double)var2.getX(), (double)var2.getY(), (double)var2.getZ(), SoundEvents.BEEHIVE_ENTER, SoundSource.BLOCKS, 1.0F, 1.0F);
+                this.level.gameEvent(GameEvent.BLOCK_CHANGE, var2, GameEvent.Context.of(param0, this.getBlockState()));
             }
 
             param0.discard();
@@ -236,6 +238,7 @@ public class BeehiveBlockEntity extends BlockEntity {
                         }
 
                         param0.playSound(null, param1, SoundEvents.BEEHIVE_EXIT, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        param0.gameEvent(GameEvent.BLOCK_CHANGE, param1, GameEvent.Context.of(var4, param0.getBlockState(param1)));
                         return param0.addFreshEntity(var4);
                     }
                 } else {

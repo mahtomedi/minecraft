@@ -1,6 +1,5 @@
 package net.minecraft.world.level.pathfinder;
 
-import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.EnumSet;
@@ -48,15 +47,10 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         BlockPos var4 = this.mob.blockPosition();
         BlockPathTypes var5 = this.getCachedBlockPathType(var4.getX(), var0, var4.getZ());
         if (this.mob.getPathfindingMalus(var5) < 0.0F) {
-            for(BlockPos var7 : ImmutableSet.of(
-                new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().minZ),
-                new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().maxZ),
-                new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().minZ),
-                new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().maxZ)
-            )) {
-                BlockPathTypes var8 = this.getCachedBlockPathType(var4.getX(), var0, var4.getZ());
-                if (this.mob.getPathfindingMalus(var8) >= 0.0F) {
-                    return super.getStartNode(var7);
+            for(BlockPos var6 : this.mob.iteratePathfindingStartNodeCandidatePositions()) {
+                BlockPathTypes var7 = this.getCachedBlockPathType(var6.getX(), var6.getY(), var6.getZ());
+                if (this.mob.getPathfindingMalus(var7) >= 0.0F) {
+                    return super.getStartNode(var6);
                 }
             }
         }
@@ -342,7 +336,9 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             } else if (var2 == BlockPathTypes.COCOA) {
                 var1 = BlockPathTypes.COCOA;
             } else if (var2 == BlockPathTypes.FENCE) {
-                var1 = BlockPathTypes.FENCE;
+                if (!var0.equals(this.mob.blockPosition())) {
+                    var1 = BlockPathTypes.FENCE;
+                }
             } else {
                 var1 = var2 != BlockPathTypes.WALKABLE && var2 != BlockPathTypes.OPEN && var2 != BlockPathTypes.WATER
                     ? BlockPathTypes.WALKABLE

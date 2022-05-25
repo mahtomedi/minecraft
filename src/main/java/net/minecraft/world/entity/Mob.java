@@ -1,5 +1,6 @@
 package net.minecraft.world.entity;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.Map;
@@ -1432,5 +1433,14 @@ public abstract class Mob extends LivingEntity {
     public ItemStack getPickResult() {
         SpawnEggItem var0 = SpawnEggItem.byId(this.getType());
         return var0 == null ? null : new ItemStack(var0);
+    }
+
+    public Iterable<BlockPos> iteratePathfindingStartNodeCandidatePositions() {
+        return ImmutableSet.of(
+            new BlockPos(this.getBoundingBox().minX, (double)this.getBlockY(), this.getBoundingBox().minZ),
+            new BlockPos(this.getBoundingBox().minX, (double)this.getBlockY(), this.getBoundingBox().maxZ),
+            new BlockPos(this.getBoundingBox().maxX, (double)this.getBlockY(), this.getBoundingBox().minZ),
+            new BlockPos(this.getBoundingBox().maxX, (double)this.getBlockY(), this.getBoundingBox().maxZ)
+        );
     }
 }

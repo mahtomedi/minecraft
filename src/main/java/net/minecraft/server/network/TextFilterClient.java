@@ -123,6 +123,7 @@ public class TextFilterClient implements AutoCloseable {
                             var0x.addProperty("player", param3.getId().toString());
                             var0x.addProperty("player_display_name", param3.getName());
                             var0x.addProperty("text", param4);
+                            var0x.addProperty("language", "*");
                             return var0x;
                         };
                     } else {
@@ -135,6 +136,7 @@ public class TextFilterClient implements AutoCloseable {
                             var0x.addProperty("user_id", param3.getId().toString());
                             var0x.addProperty("user_display_name", param3.getName());
                             var0x.addProperty("text", param4);
+                            var0x.addProperty("language", "*");
                             return var0x;
                         };
                     }

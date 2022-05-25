@@ -47,4 +47,8 @@ public record MessageSignature(UUID sender, Instant timeStamp, Crypt.SaltSignatu
     public boolean isValid() {
         return this.sender != Util.NIL_UUID && this.saltSignature.isValid();
     }
+
+    public boolean isValid(UUID param0) {
+        return this.isValid() && param0.equals(this.sender);
+    }
 }

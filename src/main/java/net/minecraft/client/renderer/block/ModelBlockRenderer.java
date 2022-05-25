@@ -258,33 +258,29 @@ public class ModelBlockRenderer {
         switch(param4) {
             case DOWN:
                 param6.set(1, var0 >= 1.0E-4F || var2 >= 1.0E-4F || var3 <= 0.9999F || var5 <= 0.9999F);
-                param6.set(0, var1 == var4 && (var1 < 1.0E-4F || isInteriorOccluded(param0, param1, param2)));
+                param6.set(0, var1 == var4 && (var1 < 1.0E-4F || param1.isCollisionShapeFullBlock(param0, param2)));
                 break;
             case UP:
                 param6.set(1, var0 >= 1.0E-4F || var2 >= 1.0E-4F || var3 <= 0.9999F || var5 <= 0.9999F);
-                param6.set(0, var1 == var4 && (var4 > 0.9999F || isInteriorOccluded(param0, param1, param2)));
+                param6.set(0, var1 == var4 && (var4 > 0.9999F || param1.isCollisionShapeFullBlock(param0, param2)));
                 break;
             case NORTH:
                 param6.set(1, var0 >= 1.0E-4F || var1 >= 1.0E-4F || var3 <= 0.9999F || var4 <= 0.9999F);
-                param6.set(0, var2 == var5 && (var2 < 1.0E-4F || isInteriorOccluded(param0, param1, param2)));
+                param6.set(0, var2 == var5 && (var2 < 1.0E-4F || param1.isCollisionShapeFullBlock(param0, param2)));
                 break;
             case SOUTH:
                 param6.set(1, var0 >= 1.0E-4F || var1 >= 1.0E-4F || var3 <= 0.9999F || var4 <= 0.9999F);
-                param6.set(0, var2 == var5 && (var5 > 0.9999F || isInteriorOccluded(param0, param1, param2)));
+                param6.set(0, var2 == var5 && (var5 > 0.9999F || param1.isCollisionShapeFullBlock(param0, param2)));
                 break;
             case WEST:
                 param6.set(1, var1 >= 1.0E-4F || var2 >= 1.0E-4F || var4 <= 0.9999F || var5 <= 0.9999F);
-                param6.set(0, var0 == var3 && (var0 < 1.0E-4F || isInteriorOccluded(param0, param1, param2)));
+                param6.set(0, var0 == var3 && (var0 < 1.0E-4F || param1.isCollisionShapeFullBlock(param0, param2)));
                 break;
             case EAST:
                 param6.set(1, var1 >= 1.0E-4F || var2 >= 1.0E-4F || var4 <= 0.9999F || var5 <= 0.9999F);
-                param6.set(0, var0 == var3 && (var3 > 0.9999F || isInteriorOccluded(param0, param1, param2)));
+                param6.set(0, var0 == var3 && (var3 > 0.9999F || param1.isCollisionShapeFullBlock(param0, param2)));
         }
 
-    }
-
-    private static boolean isInteriorOccluded(BlockAndTintGetter param0, BlockState param1, BlockPos param2) {
-        return param1.canOcclude() && param1.isCollisionShapeFullBlock(param0, param2);
     }
 
     private void renderModelFaceFlat(

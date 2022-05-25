@@ -450,6 +450,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         if (param0.getId() == this.awaitingTeleport) {
+            if (this.awaitingPositionFromClient == null) {
+                this.disconnect(Component.translatable("multiplayer.disconnect.invalid_player_movement"));
+                return;
+            }
+
             this.player
                 .absMoveTo(
                     this.awaitingPositionFromClient.x,

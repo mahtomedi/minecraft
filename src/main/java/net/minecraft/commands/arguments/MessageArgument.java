@@ -9,12 +9,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSigningContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.chat.ChatDecorator;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MutableComponent;
@@ -33,16 +35,19 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
 
     public static Component getMessage(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         MessageArgument.Message var0 = param0.getArgument(param1, MessageArgument.Message.class);
-        return var0.resolvePlainChat(param0.getSource());
+        return var0.resolveComponent(param0.getSource());
     }
 
     public static MessageArgument.ChatMessage getChatMessage(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         MessageArgument.Message var0 = param0.getArgument(param1, MessageArgument.Message.class);
-        CommandSigningContext var1 = param0.getSource().getSigningContext();
-        MessageSignature var2 = var1.getArgumentSignature(param1);
-        boolean var3 = var1.signedArgumentPreview(param1);
-        Component var4 = var0.resolvePlainChat(param0.getSource());
-        return new MessageArgument.ChatMessage(var4, var2, var3);
+        Component var1 = var0.resolveComponent(param0.getSource());
+        CommandSigningContext var2 = param0.getSource().getSigningContext();
+        MessageSignature var3 = var2.getArgumentSignature(param1);
+        boolean var4 = var2.signedArgumentPreview(param1);
+        ChatSender var5 = param0.getSource().asChatSender();
+        return var3.isValid(var5.uuid())
+            ? new MessageArgument.ChatMessage(var0.text, var1, var3, var4)
+            : new MessageArgument.ChatMessage(var0.text, var1, MessageSignature.unsigned(), false);
     }
 
     public MessageArgument.Message parse(StringReader param0) throws CommandSyntaxException {
@@ -59,7 +64,7 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
     }
 
     public CompletableFuture<Component> resolvePreview(CommandSourceStack param0, MessageArgument.Message param1) throws CommandSyntaxException {
-        return param1.resolveComponent(param0);
+        return param1.resolveDecoratedComponent(param0);
     }
 
     @Override
@@ -74,23 +79,38 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
         });
     }
 
-    public static record ChatMessage(Component plain, MessageSignature signature, boolean signedPreview) {
+    public static record ChatMessage(String plain, Component formatted, MessageSignature signature, boolean signedPreview) {
         public CompletableFuture<FilteredText<PlayerChatMessage>> resolve(CommandSourceStack param0) {
-            CompletableFuture<FilteredText<PlayerChatMessage>> var0 = this.filterComponent(param0, this.plain).thenComposeAsync(param1 -> {
+            CompletableFuture<FilteredText<PlayerChatMessage>> var0 = this.filterComponent(param0, this.formatted).thenComposeAsync(param1 -> {
                 ChatDecorator var0x = param0.getServer().getChatDecorator();
                 return var0x.decorateChat(param0.getPlayer(), param1, this.signature, this.signedPreview);
-            }, param0.getServer()).thenApply(param1 -> this.verify(param0, param1));
+            }, param0.getServer()).thenApply((Function<? super FilteredText<PlayerChatMessage>, ? extends FilteredText<PlayerChatMessage>>)(param1 -> {
+                PlayerChatMessage var0x = this.getSignedMessage(param1);
+                if (var0x != null) {
+                    this.verify(param0, var0x);
+                }
+
+                return param1;
+            }));
             MessageArgument.logResolutionFailure(param0, var0);
             return var0;
         }
 
-        private FilteredText<PlayerChatMessage> verify(CommandSourceStack param0, FilteredText<PlayerChatMessage> param1) {
-            if (!param1.raw().verify(param0)) {
+        @Nullable
+        private PlayerChatMessage getSignedMessage(FilteredText<PlayerChatMessage> param0) {
+            if (this.signature.isValid()) {
+                return this.signedPreview ? param0.raw() : PlayerChatMessage.signed(this.plain, this.signature);
+            } else {
+                return null;
+            }
+        }
+
+        private void verify(CommandSourceStack param0, PlayerChatMessage param1) {
+            if (!param1.verify(param0)) {
                 MessageArgument.LOGGER
-                    .warn("{} sent message with invalid signature: '{}'", param0.getDisplayName().getString(), param1.raw().signedContent().getString());
+                    .warn("{} sent message with invalid signature: '{}'", param0.getDisplayName().getString(), param1.signedContent().getString());
             }
 
-            return param1;
         }
 
         private CompletableFuture<FilteredText<Component>> filterComponent(CommandSourceStack param0, Component param1) {
@@ -100,7 +120,7 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
     }
 
     public static class Message {
-        private final String text;
+        final String text;
         private final MessageArgument.Part[] parts;
 
         public Message(String param0, MessageArgument.Part[] param1) {
@@ -116,14 +136,14 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
             return this.parts;
         }
 
-        CompletableFuture<Component> resolveComponent(CommandSourceStack param0) throws CommandSyntaxException {
-            Component var0 = this.resolvePlainChat(param0);
+        CompletableFuture<Component> resolveDecoratedComponent(CommandSourceStack param0) throws CommandSyntaxException {
+            Component var0 = this.resolveComponent(param0);
             CompletableFuture<Component> var1 = param0.getServer().getChatDecorator().decorate(param0.getPlayer(), var0);
             MessageArgument.logResolutionFailure(param0, var1);
             return var1;
         }
 
-        Component resolvePlainChat(CommandSourceStack param0) throws CommandSyntaxException {
+        Component resolveComponent(CommandSourceStack param0) throws CommandSyntaxException {
             return this.toComponent(param0, param0.hasPermission(2));
         }
 

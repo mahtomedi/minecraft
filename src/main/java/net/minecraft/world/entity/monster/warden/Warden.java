@@ -597,35 +597,37 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     public void onSignalReceive(
         ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, float param6
     ) {
-        this.brain.setMemoryWithExpiry(MemoryModuleType.VIBRATION_COOLDOWN, Unit.INSTANCE, 40L);
-        param0.broadcastEntityEvent(this, (byte)61);
-        this.playSound(SoundEvents.WARDEN_TENDRIL_CLICKS, 5.0F, this.getVoicePitch());
-        BlockPos var0 = param2;
-        if (param5 != null) {
-            if (this.closerThan(param5, 30.0)) {
-                if (this.getBrain().hasMemoryValue(MemoryModuleType.RECENT_PROJECTILE)) {
-                    if (this.canTargetEntity(param5)) {
-                        var0 = param5.blockPosition();
-                    }
+        if (!this.isDeadOrDying()) {
+            this.brain.setMemoryWithExpiry(MemoryModuleType.VIBRATION_COOLDOWN, Unit.INSTANCE, 40L);
+            param0.broadcastEntityEvent(this, (byte)61);
+            this.playSound(SoundEvents.WARDEN_TENDRIL_CLICKS, 5.0F, this.getVoicePitch());
+            BlockPos var0 = param2;
+            if (param5 != null) {
+                if (this.closerThan(param5, 30.0)) {
+                    if (this.getBrain().hasMemoryValue(MemoryModuleType.RECENT_PROJECTILE)) {
+                        if (this.canTargetEntity(param5)) {
+                            var0 = param5.blockPosition();
+                        }
 
-                    this.increaseAngerAt(param5);
-                } else {
-                    this.increaseAngerAt(param5, 10, true);
+                        this.increaseAngerAt(param5);
+                    } else {
+                        this.increaseAngerAt(param5, 10, true);
+                    }
+                }
+
+                this.getBrain().setMemoryWithExpiry(MemoryModuleType.RECENT_PROJECTILE, Unit.INSTANCE, 100L);
+            } else {
+                this.increaseAngerAt(param4);
+            }
+
+            if (!this.getAngerLevel().isAngry()) {
+                Optional<LivingEntity> var1 = this.angerManagement.getActiveEntity();
+                if (param5 != null || var1.isEmpty() || var1.get() == param4) {
+                    WardenAi.setDisturbanceLocation(this, var0);
                 }
             }
 
-            this.getBrain().setMemoryWithExpiry(MemoryModuleType.RECENT_PROJECTILE, Unit.INSTANCE, 100L);
-        } else {
-            this.increaseAngerAt(param4);
         }
-
-        if (!this.getAngerLevel().isAngry()) {
-            Optional<LivingEntity> var1 = this.angerManagement.getActiveEntity();
-            if (param5 != null || var1.isEmpty() || var1.get() == param4) {
-                WardenAi.setDisturbanceLocation(this, var0);
-            }
-        }
-
     }
 
     @VisibleForTesting

@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -76,6 +77,7 @@ public class TurtleEggBlock extends Block {
             param0.destroyBlock(param1, false);
         } else {
             param0.setBlock(param1, param2.setValue(EGGS, Integer.valueOf(var0 - 1)), 2);
+            param0.gameEvent(GameEvent.BLOCK_DESTROY, param1, GameEvent.Context.of(param2));
             param0.levelEvent(2001, param1, Block.getId(param2));
         }
 

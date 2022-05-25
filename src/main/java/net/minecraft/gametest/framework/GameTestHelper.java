@@ -284,11 +284,16 @@ public class GameTestHelper {
     }
 
     public void assertEntityPresent(EntityType<?> param0, BlockPos param1, double param2) {
-        BlockPos var0 = this.absolutePos(param1);
-        List<? extends Entity> var1 = this.getLevel().getEntities(param0, new AABB(var0).inflate(param2), Entity::isAlive);
-        if (var1.isEmpty()) {
-            throw new GameTestAssertPosException("Expected " + param0.toShortString(), var0, param1, this.testInfo.getTick());
+        List<? extends Entity> var0 = this.getEntities(param0, param1, param2);
+        if (var0.isEmpty()) {
+            BlockPos var1 = this.absolutePos(param1);
+            throw new GameTestAssertPosException("Expected " + param0.toShortString(), var1, param1, this.testInfo.getTick());
         }
+    }
+
+    public <T extends Entity> List<T> getEntities(EntityType<T> param0, BlockPos param1, double param2) {
+        BlockPos var0 = this.absolutePos(param1);
+        return this.getLevel().getEntities(param0, new AABB(var0).inflate(param2), Entity::isAlive);
     }
 
     public void assertEntityInstancePresent(Entity param0, int param1, int param2, int param3) {

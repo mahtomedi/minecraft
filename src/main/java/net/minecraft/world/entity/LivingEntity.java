@@ -1598,6 +1598,8 @@ public abstract class LivingEntity extends Entity {
 
             if (param1 <= 0.0F) {
                 return 0.0F;
+            } else if (param0.isBypassEnchantments()) {
+                return param1;
             } else {
                 int var5 = EnchantmentHelper.getDamageProtection(this.getArmorSlots(), param0);
                 if (var5 > 0) {
