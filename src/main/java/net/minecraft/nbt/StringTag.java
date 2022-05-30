@@ -1,12 +1,17 @@
 package net.minecraft.nbt;
 
+import com.mojang.logging.LogUtils;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.UTFDataFormatException;
 import java.util.Objects;
+import net.minecraft.Util;
+import org.slf4j.Logger;
 
 public class StringTag implements Tag {
     private static final int SELF_SIZE_IN_BITS = 288;
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final TagType<StringTag> TYPE = new TagType.VariableSize<StringTag>() {
         public StringTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(288L);
@@ -62,7 +67,13 @@ public class StringTag implements Tag {
 
     @Override
     public void write(DataOutput param0) throws IOException {
-        param0.writeUTF(this.data);
+        try {
+            param0.writeUTF(this.data);
+        } catch (UTFDataFormatException var3) {
+            Util.logAndPauseIfInIde("Failed to write NBT String", var3);
+            param0.writeUTF("");
+        }
+
     }
 
     @Override

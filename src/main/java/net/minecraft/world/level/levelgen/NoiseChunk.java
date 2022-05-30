@@ -191,16 +191,18 @@ public class NoiseChunk implements DensityFunction.ContextProvider, DensityFunct
     }
 
     public int preliminarySurfaceLevel(int param0, int param1) {
-        return this.preliminarySurfaceLevel.computeIfAbsent(ColumnPos.asLong(param0, param1), this::computePreliminarySurfaceLevel);
+        int var0 = QuartPos.toBlock(QuartPos.fromBlock(param0));
+        int var1 = QuartPos.toBlock(QuartPos.fromBlock(param1));
+        return this.preliminarySurfaceLevel.computeIfAbsent(ColumnPos.asLong(var0, var1), this::computePreliminarySurfaceLevel);
     }
 
     private int computePreliminarySurfaceLevel(long param0x) {
-        int var0 = ColumnPos.getX(param0x);
-        int var1 = ColumnPos.getZ(param0x);
+        int var0x = ColumnPos.getX(param0x);
+        int var1x = ColumnPos.getZ(param0x);
         int var2 = this.noiseSettings.minY();
 
         for(int var3 = var2 + this.noiseSettings.height(); var3 >= var2; var3 -= this.cellHeight) {
-            if (this.initialDensityNoJaggedness.compute(new DensityFunction.SinglePointContext(var0, var3, var1)) > 0.390625) {
+            if (this.initialDensityNoJaggedness.compute(new DensityFunction.SinglePointContext(var0x, var3, var1x)) > 0.390625) {
                 return var3;
             }
         }

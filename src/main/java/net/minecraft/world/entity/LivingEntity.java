@@ -664,7 +664,7 @@ public abstract class LivingEntity extends Entity {
 
     public void onEquipItem(EquipmentSlot param0, ItemStack param1, ItemStack param2) {
         boolean var0 = param2.isEmpty() && param1.isEmpty();
-        if (!var0 && !ItemStack.isSameItemSameTags(param1, param2)) {
+        if (!var0 && !ItemStack.isSameIgnoreDurability(param1, param2)) {
             if (param0.getType() == EquipmentSlot.Type.ARMOR) {
                 this.playEquipSound(param2);
             }
