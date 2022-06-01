@@ -24,9 +24,9 @@ public class LevelChunkSection {
     private short tickingBlockCount;
     private short tickingFluidCount;
     private final PalettedContainer<BlockState> states;
-    private final PalettedContainer<Holder<Biome>> biomes;
+    private PalettedContainerRO<Holder<Biome>> biomes;
 
-    public LevelChunkSection(int param0, PalettedContainer<BlockState> param1, PalettedContainer<Holder<Biome>> param2) {
+    public LevelChunkSection(int param0, PalettedContainer<BlockState> param1, PalettedContainerRO<Holder<Biome>> param2) {
         this.bottomBlockY = getBottomBlockY(param0);
         this.states = param1;
         this.biomes = param2;
@@ -154,14 +154,16 @@ public class LevelChunkSection {
         return this.states;
     }
 
-    public PalettedContainer<Holder<Biome>> getBiomes() {
+    public PalettedContainerRO<Holder<Biome>> getBiomes() {
         return this.biomes;
     }
 
     public void read(FriendlyByteBuf param0) {
         this.nonEmptyBlockCount = param0.readShort();
         this.states.read(param0);
-        this.biomes.read(param0);
+        PalettedContainer<Holder<Biome>> var0 = this.biomes.recreate();
+        var0.read(param0);
+        this.biomes = var0;
     }
 
     public void write(FriendlyByteBuf param0) {
@@ -183,23 +185,18 @@ public class LevelChunkSection {
     }
 
     public void fillBiomesFromNoise(BiomeResolver param0, Climate.Sampler param1, int param2, int param3) {
-        PalettedContainer<Holder<Biome>> var0 = this.getBiomes();
-        var0.acquire();
+        PalettedContainer<Holder<Biome>> var0 = this.biomes.recreate();
+        int var1 = QuartPos.fromBlock(this.bottomBlockY());
+        int var2 = 4;
 
-        try {
-            int var1 = QuartPos.fromBlock(this.bottomBlockY());
-            int var2 = 4;
-
-            for(int var3 = 0; var3 < 4; ++var3) {
-                for(int var4 = 0; var4 < 4; ++var4) {
-                    for(int var5 = 0; var5 < 4; ++var5) {
-                        var0.getAndSetUnchecked(var3, var4, var5, param0.getNoiseBiome(param2 + var3, var1 + var4, param3 + var5, param1));
-                    }
+        for(int var3 = 0; var3 < 4; ++var3) {
+            for(int var4 = 0; var4 < 4; ++var4) {
+                for(int var5 = 0; var5 < 4; ++var5) {
+                    var0.getAndSetUnchecked(var3, var4, var5, param0.getNoiseBiome(param2 + var3, var1 + var4, param3 + var5, param1));
                 }
             }
-        } finally {
-            var0.release();
         }
 
+        this.biomes = var0;
     }
 }

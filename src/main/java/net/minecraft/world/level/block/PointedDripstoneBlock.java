@@ -198,6 +198,7 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
                             if (var0.get().sourceState.is(Blocks.MUD) && var1 == Fluids.WATER) {
                                 BlockState var6 = Blocks.CLAY.defaultBlockState();
                                 param1.setBlockAndUpdate(var0.get().pos, var6);
+                                Block.pushEntitiesUp(var0.get().sourceState, var6, param1, var0.get().pos);
                                 param1.gameEvent(GameEvent.BLOCK_CHANGE, var0.get().pos, GameEvent.Context.of(var6));
                                 param1.levelEvent(1504, var5, 0);
                             } else {

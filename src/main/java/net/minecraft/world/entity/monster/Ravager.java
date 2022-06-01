@@ -259,7 +259,7 @@ public class Ravager extends Raider {
                 this.level.addParticle(ParticleTypes.POOF, var2.x, var2.y, var2.z, var4, var5, var6);
             }
 
-            this.level.gameEvent(this, GameEvent.ENTITY_ROAR, this.getEyePosition());
+            this.gameEvent(GameEvent.ENTITY_ROAR);
         }
 
     }

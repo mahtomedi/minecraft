@@ -108,6 +108,7 @@ public class Gui extends GuiComponent {
     private Component overlayMessageString;
     private int overlayMessageTime;
     private boolean animateOverlayMessageColor;
+    private boolean chatDisabledByPlayerShown;
     public float vignetteBrightness = 1.0F;
     private int toolHighlightTimer;
     private ItemStack lastToolHighlight = ItemStack.EMPTY;
@@ -1174,9 +1175,18 @@ public class Gui extends GuiComponent {
     }
 
     public void setOverlayMessage(Component param0, boolean param1) {
+        this.setChatDisabledByPlayerShown(false);
         this.overlayMessageString = param0;
         this.overlayMessageTime = 60;
         this.animateOverlayMessageColor = param1;
+    }
+
+    public void setChatDisabledByPlayerShown(boolean param0) {
+        this.chatDisabledByPlayerShown = param0;
+    }
+
+    public boolean isShowingChatDisabledByPlayer() {
+        return this.chatDisabledByPlayerShown && this.overlayMessageTime > 0;
     }
 
     public void setTimes(int param0, int param1, int param2) {

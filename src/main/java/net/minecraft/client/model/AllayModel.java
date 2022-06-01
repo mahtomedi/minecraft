@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
     private final ModelPart root;
+    private final ModelPart head;
     private final ModelPart body;
     private final ModelPart right_arm;
     private final ModelPart left_arm;
@@ -30,6 +31,7 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
 
     public AllayModel(ModelPart param0) {
         this.root = param0.getChild("root");
+        this.head = this.root.getChild("head");
         this.body = this.root.getChild("body");
         this.right_arm = this.body.getChild("right_arm");
         this.left_arm = this.body.getChild("left_arm");
@@ -85,6 +87,8 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
 
     public void setupAnim(Allay param0, float param1, float param2, float param3, float param4, float param5) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
+        this.head.xRot = param5 * (float) (Math.PI / 180.0);
+        this.head.yRot = param4 * (float) (Math.PI / 180.0);
         float var0 = param3 * 20.0F * (float) (Math.PI / 180.0) + param2;
         float var1 = Mth.cos(var0) * (float) Math.PI * 0.15F;
         float var2 = param3 - (float)param0.tickCount;

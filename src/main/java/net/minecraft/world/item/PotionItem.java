@@ -76,7 +76,7 @@ public class PotionItem extends Item {
             }
         }
 
-        param1.gameEvent(param2, GameEvent.DRINK, param2.getEyePosition());
+        param2.gameEvent(GameEvent.DRINK);
         return param0;
     }
 

@@ -45,6 +45,7 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
@@ -61,7 +62,7 @@ import net.minecraft.world.ticks.ProtoChunkTicks;
 import org.slf4j.Logger;
 
 public class ChunkSerializer {
-    private static final Codec<PalettedContainer<BlockState>> BLOCK_STATE_CODEC = PalettedContainer.codec(
+    private static final Codec<PalettedContainer<BlockState>> BLOCK_STATE_CODEC = PalettedContainer.codecRW(
         Block.BLOCK_STATE_REGISTRY, BlockState.CODEC, PalettedContainer.Strategy.SECTION_STATES, Blocks.AIR.defaultBlockState()
     );
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -91,7 +92,7 @@ public class ChunkSerializer {
         ChunkSource var7 = param0.getChunkSource();
         LevelLightEngine var8 = var7.getLightEngine();
         Registry<Biome> var9 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        Codec<PalettedContainer<Holder<Biome>>> var10 = makeBiomeCodec(var9);
+        Codec<PalettedContainerRO<Holder<Biome>>> var10 = makeBiomeCodec(var9);
         boolean var11 = false;
 
         for(int var12 = 0; var12 < var3.size(); ++var12) {
@@ -108,7 +109,7 @@ public class ChunkSerializer {
                     var16 = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES);
                 }
 
-                PalettedContainer<Holder<Biome>> var18;
+                PalettedContainerRO<Holder<Biome>> var18;
                 if (var13.contains("biomes", 10)) {
                     var18 = var10.parse(NbtOps.INSTANCE, var13.getCompound("biomes"))
                         .promotePartial(param2x -> logErrors(param2, var14, param2x))
@@ -272,8 +273,8 @@ public class ChunkSerializer {
         LOGGER.error("Recoverable errors when loading section [" + param0.x + ", " + param1 + ", " + param0.z + "]: " + param2);
     }
 
-    private static Codec<PalettedContainer<Holder<Biome>>> makeBiomeCodec(Registry<Biome> param0) {
-        return PalettedContainer.codec(
+    private static Codec<PalettedContainerRO<Holder<Biome>>> makeBiomeCodec(Registry<Biome> param0) {
+        return PalettedContainer.codecRO(
             param0.asHolderIdMap(), param0.holderByNameCodec(), PalettedContainer.Strategy.SECTION_BIOMES, param0.getHolderOrThrow(Biomes.PLAINS)
         );
     }
@@ -310,7 +311,7 @@ public class ChunkSerializer {
         ListTag var6 = new ListTag();
         LevelLightEngine var7 = param0.getChunkSource().getLightEngine();
         Registry<Biome> var8 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
-        Codec<PalettedContainer<Holder<Biome>>> var9 = makeBiomeCodec(var8);
+        Codec<PalettedContainerRO<Holder<Biome>>> var9 = makeBiomeCodec(var8);
         boolean var10 = param1.isLightCorrect();
 
         for(int var11 = var7.getMinLightSection(); var11 < var7.getMaxLightSection(); ++var11) {

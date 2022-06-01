@@ -3294,7 +3294,7 @@ public abstract class LivingEntity extends Entity {
                 param1.shrink(1);
             }
 
-            param0.gameEvent(this, GameEvent.EAT, this.getEyePosition());
+            this.gameEvent(GameEvent.EAT);
         }
 
         return param1;

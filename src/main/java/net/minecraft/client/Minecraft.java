@@ -74,6 +74,7 @@ import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
@@ -235,7 +236,7 @@ import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements WindowEventHandler {
-    private static Minecraft instance;
+    static Minecraft instance;
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final boolean ON_OSX = Util.getPlatform() == Util.OS.OSX;
     private static final int MAX_TICKS_PER_UPDATE = 10;
@@ -885,7 +886,21 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private void openChatScreen(String param0) {
         Minecraft.ChatStatus var0 = this.getChatStatus();
         if (!var0.isChatAllowed(this.isLocalServer())) {
-            this.gui.setOverlayMessage(var0.getMessage(), false);
+            if (this.gui.isShowingChatDisabledByPlayer()) {
+                this.gui.setChatDisabledByPlayerShown(false);
+                this.setScreen(new ConfirmLinkScreen(param0x -> {
+                    if (param0x) {
+                        Util.getPlatform().openUri("https://aka.ms/JavaAccountSettings");
+                    }
+
+                    this.setScreen(null);
+                }, Minecraft.ChatStatus.INFO_DISABLED_BY_PROFILE, "https://aka.ms/JavaAccountSettings", true));
+            } else {
+                Component var1 = var0.getMessage();
+                this.gui.setOverlayMessage(var1, false);
+                NarratorChatListener.INSTANCE.sayNow(var1);
+                this.gui.setChatDisabledByPlayerShown(var0 == Minecraft.ChatStatus.DISABLED_BY_PROFILE);
+            }
         } else {
             this.setScreen(new ChatScreen(param0));
         }
@@ -2698,13 +2713,17 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 return param0;
             }
         },
-        DISABLED_BY_PROFILE(Component.translatable("chat.disabled.profile").withStyle(ChatFormatting.RED)) {
+        DISABLED_BY_PROFILE(
+            Component.translatable("chat.disabled.profile", Component.keybind(Minecraft.instance.options.keyChat.getName())).withStyle(ChatFormatting.RED)
+        ) {
             @Override
             public boolean isChatAllowed(boolean param0) {
                 return param0;
             }
         };
 
+        static final Component INFO_DISABLED_BY_PROFILE = Component.translatable("chat.disabled.profile.moreInfo");
+        private static final String URL_DISABLED_BY_PROFILE = "https://aka.ms/JavaAccountSettings";
         private final Component message;
 
         ChatStatus(Component param0) {

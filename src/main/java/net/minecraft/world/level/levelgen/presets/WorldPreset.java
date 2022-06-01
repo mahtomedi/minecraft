@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.presets;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Map;
@@ -15,14 +16,15 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 
 public class WorldPreset {
-    public static final Codec<WorldPreset> DIRECT_CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    Codec.unboundedMap(ResourceKey.codec(Registry.LEVEL_STEM_REGISTRY), LevelStem.CODEC)
-                        .fieldOf("dimensions")
-                        .forGetter(param0x -> param0x.dimensions)
-                )
-                .apply(param0, WorldPreset::new)
-    );
+    public static final Codec<WorldPreset> DIRECT_CODEC = RecordCodecBuilder.<WorldPreset>create(
+            param0 -> param0.group(
+                        Codec.unboundedMap(ResourceKey.codec(Registry.LEVEL_STEM_REGISTRY), LevelStem.CODEC)
+                            .fieldOf("dimensions")
+                            .forGetter(param0x -> param0x.dimensions)
+                    )
+                    .apply(param0, WorldPreset::new)
+        )
+        .flatXmap(WorldPreset::requireOverworld, WorldPreset::requireOverworld);
     public static final Codec<Holder<WorldPreset>> CODEC = RegistryFileCodec.create(Registry.WORLD_PRESET_REGISTRY, DIRECT_CODEC);
     private final Map<ResourceKey<LevelStem>, LevelStem> dimensions;
 
@@ -56,5 +58,9 @@ public class WorldPreset {
 
     public LevelStem overworldOrThrow() {
         return this.overworld().orElseThrow(() -> new IllegalStateException("Can't find overworld in this preset"));
+    }
+
+    private static DataResult<WorldPreset> requireOverworld(WorldPreset param0) {
+        return param0.overworld().isEmpty() ? DataResult.error("Missing overworld dimension") : DataResult.success(param0, Lifecycle.stable());
     }
 }

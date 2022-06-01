@@ -45,10 +45,7 @@ public class Eula {
             try (OutputStream var0 = Files.newOutputStream(this.file)) {
                 Properties var1 = new Properties();
                 var1.setProperty("eula", "false");
-                var1.store(
-                    var0,
-                    "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula)."
-                );
+                var1.store(var0, "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).");
             } catch (Exception var6) {
                 LOGGER.warn("Failed to save {}", this.file, var6);
             }

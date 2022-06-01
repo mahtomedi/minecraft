@@ -125,7 +125,7 @@ public class Block extends BlockBehaviour implements ItemLike {
         return param0 instanceof BlockItem ? ((BlockItem)param0).getBlock() : Blocks.AIR;
     }
 
-    public static BlockState pushEntitiesUp(BlockState param0, BlockState param1, Level param2, BlockPos param3) {
+    public static BlockState pushEntitiesUp(BlockState param0, BlockState param1, LevelAccessor param2, BlockPos param3) {
         VoxelShape var0 = Shapes.joinUnoptimized(param0.getCollisionShape(param2, param3), param1.getCollisionShape(param2, param3), BooleanOp.ONLY_SECOND)
             .move((double)param3.getX(), (double)param3.getY(), (double)param3.getZ());
         if (var0.isEmpty()) {

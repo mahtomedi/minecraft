@@ -422,4 +422,9 @@ public class Allay extends PathfinderMob implements InventoryCarrier, VibrationL
         int var6 = Mth.floor(var0.maxY + 0.5);
         return BlockPos.betweenClosed(var1, var5, var3, var2, var6, var4);
     }
+
+    @Override
+    public Vec3 getLeashOffset() {
+        return new Vec3(0.0, (double)this.getEyeHeight() * 0.6, (double)this.getBbWidth() * 0.1);
+    }
 }

@@ -106,19 +106,21 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
         for(Direction var2 : Direction.allShuffled(param3)) {
             if (hasFace(var0, var2)) {
                 BlockPos var3 = param2.relative(var2);
-                if (param1.getBlockState(var3).is(var1)) {
-                    BlockState var4 = Blocks.SCULK.defaultBlockState();
-                    param1.setBlock(var3, var4, 3);
+                BlockState var4 = param1.getBlockState(var3);
+                if (var4.is(var1)) {
+                    BlockState var5 = Blocks.SCULK.defaultBlockState();
+                    param1.setBlock(var3, var5, 3);
+                    Block.pushEntitiesUp(var4, var5, param1, var3);
                     param1.playSound(null, var3, SoundEvents.SCULK_BLOCK_SPREAD, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    this.veinSpreader.spreadAll(var4, param1, var3, param0.isWorldGeneration());
-                    Direction var5 = var2.getOpposite();
+                    this.veinSpreader.spreadAll(var5, param1, var3, param0.isWorldGeneration());
+                    Direction var6 = var2.getOpposite();
 
-                    for(Direction var6 : DIRECTIONS) {
-                        if (var6 != var5) {
-                            BlockPos var7 = var3.relative(var6);
-                            BlockState var8 = param1.getBlockState(var7);
-                            if (var8.is(this)) {
-                                this.onDischarged(param1, var8, var7, param3);
+                    for(Direction var7 : DIRECTIONS) {
+                        if (var7 != var6) {
+                            BlockPos var8 = var3.relative(var7);
+                            BlockState var9 = param1.getBlockState(var8);
+                            if (var9.is(this)) {
+                                this.onDischarged(param1, var9, var8, param3);
                             }
                         }
                     }

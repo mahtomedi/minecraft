@@ -15,6 +15,14 @@ public class ConfirmLinkScreen extends ConfirmScreen {
     private final String url;
     private final boolean showWarning;
 
+    public ConfirmLinkScreen(BooleanConsumer param0, Component param1, String param2, boolean param3) {
+        super(param0, param1, Component.translatable(param3 ? "chat.link.confirmTrusted" : "chat.link.confirm").append(" ").append(Component.literal(param2)));
+        this.yesButton = (Component)(param3 ? Component.translatable("chat.link.open") : CommonComponents.GUI_YES);
+        this.noButton = param3 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO;
+        this.showWarning = !param3;
+        this.url = param2;
+    }
+
     public ConfirmLinkScreen(BooleanConsumer param0, String param1, boolean param2) {
         super(param0, Component.translatable(param2 ? "chat.link.confirmTrusted" : "chat.link.confirm"), Component.literal(param1));
         this.yesButton = (Component)(param2 ? Component.translatable("chat.link.open") : CommonComponents.GUI_YES);
