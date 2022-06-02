@@ -373,8 +373,12 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             this.factorCurrent = Mth.lerp(var1, this.factorStart, this.factorTarget);
         }
 
-        public float getFactor(float param0) {
-            return Mth.lerp(param0, this.factorPreviousFrame, this.factorCurrent);
+        public float getFactor(LivingEntity param0, float param1) {
+            if (param0.isRemoved()) {
+                this.factorPreviousFrame = this.factorCurrent;
+            }
+
+            return Mth.lerp(param1, this.factorPreviousFrame, this.factorCurrent);
         }
     }
 }

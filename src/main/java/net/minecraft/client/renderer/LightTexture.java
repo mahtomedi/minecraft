@@ -71,7 +71,7 @@ public class LightTexture implements AutoCloseable {
         if (this.minecraft.player.hasEffect(MobEffects.DARKNESS)) {
             MobEffectInstance var0 = this.minecraft.player.getEffect(MobEffects.DARKNESS);
             if (var0 != null && var0.getFactorData().isPresent()) {
-                return var0.getFactorData().get().getFactor(param0);
+                return var0.getFactorData().get().getFactor(this.minecraft.player, param0);
             }
         }
 
