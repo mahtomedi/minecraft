@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "3d459711d39ba6b7867cc84f443e0bfdcfd4dde0",
-      "size": 21462888,
-      "url": "https://launcher.mojang.com/v1/objects/3d459711d39ba6b7867cc84f443e0bfdcfd4dde0/client.jar"
+      "sha1": "a984bc5036a9f0ace8da1040614996abcda5f2ad",
+      "size": 21462582,
+      "url": "https://launcher.mojang.com/v1/objects/a984bc5036a9f0ace8da1040614996abcda5f2ad/client.jar"
     },
     "client_mappings": {
-      "sha1": "36362e4f467b3b4209192eb7dcf990ee94245ad9",
+      "sha1": "a0d9727770b48ea5750e794667017d71af4e8e00",
       "size": 7123832,
-      "url": "https://launcher.mojang.com/v1/objects/36362e4f467b3b4209192eb7dcf990ee94245ad9/client.txt"
+      "url": "https://launcher.mojang.com/v1/objects/a0d9727770b48ea5750e794667017d71af4e8e00/client.txt"
     },
     "server": {
-      "sha1": "76ebdba03954e5a2185fb7a1d3a25096eb6bd195",
-      "size": 45539835,
-      "url": "https://launcher.mojang.com/v1/objects/76ebdba03954e5a2185fb7a1d3a25096eb6bd195/server.jar"
+      "sha1": "d3250b1e5e0e8762ec8ceae034d5f229965d00d3",
+      "size": 45539452,
+      "url": "https://launcher.mojang.com/v1/objects/d3250b1e5e0e8762ec8ceae034d5f229965d00d3/server.jar"
     },
     "server_mappings": {
-      "sha1": "84cf610e282cef1d158df2113902b403759260d8",
+      "sha1": "a6441621bc501f5337e54608a942cf4a2c262e6a",
       "size": 5552032,
-      "url": "https://launcher.mojang.com/v1/objects/84cf610e282cef1d158df2113902b403759260d8/server.txt"
+      "url": "https://launcher.mojang.com/v1/objects/a6441621bc501f5337e54608a942cf4a2c262e6a/server.txt"
     }
   },
-  "id": "1.19-rc1",
+  "id": "1.19-rc2",
   "javaVersion": {
     "component": "java-runtime-gamma",
     "majorVersion": 17
@@ -1394,7 +1394,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2022-06-02T12:12:52+00:00",
-  "time": "2022-06-02T12:12:52+00:00",
+  "releaseTime": "2022-06-03T11:47:25+00:00",
+  "time": "2022-06-03T11:47:25+00:00",
   "type": "snapshot"
 }

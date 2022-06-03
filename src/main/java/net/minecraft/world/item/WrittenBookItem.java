@@ -119,19 +119,34 @@ public class WrittenBookItem extends Item {
                 return false;
             } else {
                 ListTag var1 = var0.getList("pages", 8);
+                ListTag var2 = new ListTag();
 
-                for(int var2 = 0; var2 < var1.size(); ++var2) {
-                    var1.set(var2, (Tag)StringTag.valueOf(resolvePage(param1, param2, var1.getString(var2))));
+                for(int var3 = 0; var3 < var1.size(); ++var3) {
+                    String var4 = resolvePage(param1, param2, var1.getString(var3));
+                    if (var4.length() > 32767) {
+                        return false;
+                    }
+
+                    var2.add(var3, (Tag)StringTag.valueOf(var4));
                 }
 
                 if (var0.contains("filtered_pages", 10)) {
-                    CompoundTag var3 = var0.getCompound("filtered_pages");
+                    CompoundTag var5 = var0.getCompound("filtered_pages");
+                    CompoundTag var6 = new CompoundTag();
 
-                    for(String var4 : var3.getAllKeys()) {
-                        var3.putString(var4, resolvePage(param1, param2, var3.getString(var4)));
+                    for(String var7 : var5.getAllKeys()) {
+                        String var8 = resolvePage(param1, param2, var5.getString(var7));
+                        if (var8.length() > 32767) {
+                            return false;
+                        }
+
+                        var6.putString(var7, var8);
                     }
+
+                    var0.put("filtered_pages", var6);
                 }
 
+                var0.put("pages", var2);
                 return true;
             }
         } else {
