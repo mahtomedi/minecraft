@@ -137,7 +137,7 @@ public class ShootTongue extends Behavior<Frog> {
 
     private boolean canPathfindToTarget(Frog param0, LivingEntity param1) {
         Path var0 = param0.getNavigation().createPath(param1, 0);
-        return var0.getDistToTarget() < 1.75F;
+        return var0 != null && var0.getDistToTarget() < 1.75F;
     }
 
     private void addUnreachableTargetToMemory(Frog param0, LivingEntity param1) {

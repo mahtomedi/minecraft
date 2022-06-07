@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "a984bc5036a9f0ace8da1040614996abcda5f2ad",
-      "size": 21462582,
-      "url": "https://launcher.mojang.com/v1/objects/a984bc5036a9f0ace8da1040614996abcda5f2ad/client.jar"
+      "sha1": "c0898ec7c6a5a2eaa317770203a1554260699994",
+      "size": 21462385,
+      "url": "https://launcher.mojang.com/v1/objects/c0898ec7c6a5a2eaa317770203a1554260699994/client.jar"
     },
     "client_mappings": {
-      "sha1": "a0d9727770b48ea5750e794667017d71af4e8e00",
+      "sha1": "150346d1c0b4acec0b4eb7f58b86e3ea1aa730f3",
       "size": 7123832,
-      "url": "https://launcher.mojang.com/v1/objects/a0d9727770b48ea5750e794667017d71af4e8e00/client.txt"
+      "url": "https://launcher.mojang.com/v1/objects/150346d1c0b4acec0b4eb7f58b86e3ea1aa730f3/client.txt"
     },
     "server": {
-      "sha1": "d3250b1e5e0e8762ec8ceae034d5f229965d00d3",
-      "size": 45539452,
-      "url": "https://launcher.mojang.com/v1/objects/d3250b1e5e0e8762ec8ceae034d5f229965d00d3/server.jar"
+      "sha1": "e00c4052dac1d59a1188b2aa9d5a87113aaf1122",
+      "size": 45538778,
+      "url": "https://launcher.mojang.com/v1/objects/e00c4052dac1d59a1188b2aa9d5a87113aaf1122/server.jar"
     },
     "server_mappings": {
-      "sha1": "a6441621bc501f5337e54608a942cf4a2c262e6a",
+      "sha1": "1c1cea17d5cd63d68356df2ef31e724dd09f8c26",
       "size": 5552032,
-      "url": "https://launcher.mojang.com/v1/objects/a6441621bc501f5337e54608a942cf4a2c262e6a/server.txt"
+      "url": "https://launcher.mojang.com/v1/objects/1c1cea17d5cd63d68356df2ef31e724dd09f8c26/server.txt"
     }
   },
-  "id": "1.19-rc2",
+  "id": "1.19",
   "javaVersion": {
     "component": "java-runtime-gamma",
     "majorVersion": 17
@@ -1394,7 +1394,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2022-06-03T11:47:25+00:00",
-  "time": "2022-06-03T11:47:25+00:00",
-  "type": "snapshot"
+  "releaseTime": "2022-06-07T09:42:18+00:00",
+  "time": "2022-06-07T09:42:18+00:00",
+  "type": "release"
 }
