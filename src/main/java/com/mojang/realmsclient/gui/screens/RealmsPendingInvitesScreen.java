@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -220,8 +221,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             RowButton.drawButtonsInRow(param0, this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param2, param3, param4, param5);
             RealmsTextureManager.withBoundFace(param1.worldOwnerUuid, () -> {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                GuiComponent.blit(param0, param2, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
-                GuiComponent.blit(param0, param2, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
+                PlayerFaceRenderer.draw(param0, param2, param3, 32);
             });
         }
 

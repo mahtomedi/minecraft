@@ -14,7 +14,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -53,7 +52,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringDecomposer;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffect;
@@ -79,7 +77,6 @@ import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class Gui extends GuiComponent {
@@ -277,7 +274,7 @@ public class Gui extends GuiComponent {
                     int var11 = var9 << 24 & 0xFF000000;
                     int var12 = var0.width(this.overlayMessageString);
                     this.drawBackdrop(param0, var0, -4, var12, 16777215 | var11);
-                    var0.draw(param0, this.overlayMessageString, (float)(-var12 / 2), -4.0F, var10 | var11);
+                    var0.drawShadow(param0, this.overlayMessageString, (float)(-var12 / 2), -4.0F, var10 | var11);
                     RenderSystem.disableBlend();
                     param0.popPose();
                 }
@@ -1171,7 +1168,9 @@ public class Gui extends GuiComponent {
     }
 
     public void setNowPlaying(Component param0) {
-        this.setOverlayMessage(Component.translatable("record.nowPlaying", param0), true);
+        Component var0 = Component.translatable("record.nowPlaying", param0);
+        this.setOverlayMessage(var0, true);
+        NarratorChatListener.INSTANCE.sayNow(var0);
     }
 
     public void setOverlayMessage(Component param0, boolean param1) {
@@ -1223,30 +1222,18 @@ public class Gui extends GuiComponent {
         this.titleTime = 0;
     }
 
-    public UUID guessChatUUID(Component param0) {
-        String var0 = StringDecomposer.getPlainText(param0);
-        String var1 = StringUtils.substringBetween(var0, "<", ">");
-        return var1 == null ? Util.NIL_UUID : this.minecraft.getPlayerSocialManager().getDiscoveredUUID(var1);
-    }
-
     public void handlePlayerChat(ChatType param0, Component param1, ChatSender param2) {
-        if (!this.minecraft.isBlocked(param2.uuid())) {
-            if (!this.minecraft.options.hideMatchedNames().get() || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
-                for(ChatListener var0 : this.chatListeners) {
-                    var0.handle(param0, param1, param2);
-                }
-
-            }
+        for(ChatListener var0 : this.chatListeners) {
+            var0.handle(param0, param1, param2);
         }
+
     }
 
     public void handleSystemChat(ChatType param0, Component param1) {
-        if (!this.minecraft.options.hideMatchedNames().get() || !this.minecraft.isBlocked(this.guessChatUUID(param1))) {
-            for(ChatListener var0 : this.chatListeners) {
-                var0.handle(param0, param1, null);
-            }
-
+        for(ChatListener var0 : this.chatListeners) {
+            var0.handle(param0, param1, null);
         }
+
     }
 
     public ChatComponent getChat() {

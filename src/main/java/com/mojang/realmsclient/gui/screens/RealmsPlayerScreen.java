@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -349,8 +350,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
             );
             RealmsTextureManager.withBoundFace(param1.getUuid(), () -> {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                GuiComponent.blit(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8, 8, 8.0F, 8.0F, 8, 8, 64, 64);
-                GuiComponent.blit(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8, 8, 40.0F, 8.0F, 8, 8, 64, 64);
+                PlayerFaceRenderer.draw(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8);
             });
         }
 

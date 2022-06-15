@@ -26,6 +26,7 @@ import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
@@ -225,7 +226,7 @@ public class Commands {
                         .withStyle(ChatFormatting.GRAY)
                         .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + param1)));
                     if (var3 > 10) {
-                        var4.append("...");
+                        var4.append(CommonComponents.ELLIPSIS);
                     }
 
                     var4.append(var14.getInput().substring(Math.max(0, var3 - 10), var3));

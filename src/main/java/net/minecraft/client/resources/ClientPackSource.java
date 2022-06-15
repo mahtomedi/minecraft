@@ -118,65 +118,61 @@ public class ClientPackSource implements RepositorySource {
 
         CompletableFuture var14;
         try {
-            this.clearServerPack();
-            this.clearOldDownloads();
-            File var2 = new File(this.serverPackDir, var0);
-            CompletableFuture<?> var3;
-            if (var2.exists()) {
-                var3 = CompletableFuture.completedFuture("");
+            Minecraft var2 = Minecraft.getInstance();
+            File var3 = new File(this.serverPackDir, var0);
+            CompletableFuture<?> var4;
+            if (var3.exists()) {
+                var4 = CompletableFuture.completedFuture("");
             } else {
-                ProgressScreen var4 = new ProgressScreen(param2);
-                Map<String, String> var5 = getDownloadHeaders();
-                Minecraft var6 = Minecraft.getInstance();
-                var6.executeBlocking(() -> var6.setScreen(var4));
-                var3 = HttpUtil.downloadTo(var2, param0, var5, 262144000, var4, var6.getProxy());
+                ProgressScreen var5 = new ProgressScreen(param2);
+                Map<String, String> var6 = getDownloadHeaders();
+                var2.executeBlocking(() -> var2.setScreen(var5));
+                var4 = HttpUtil.downloadTo(var3, param0, var6, 262144000, var5, var2.getProxy());
             }
 
-            this.currentDownload = var3.<Void>thenCompose(param3 -> {
-                    if (!this.checkHash(var1, var2)) {
-                        return Util.failedFuture(new RuntimeException("Hash check failure for file " + var2 + ", see log"));
+            this.currentDownload = var4.<Void>thenCompose(param4 -> {
+                    if (!this.checkHash(var1, var3)) {
+                        return Util.failedFuture(new RuntimeException("Hash check failure for file " + var3 + ", see log"));
                     } else {
-                        Minecraft var0x = Minecraft.getInstance();
-                        var0x.execute(() -> {
+                        var2.execute(() -> {
                             if (!param2) {
-                                var0x.setScreen(new GenericDirtMessageScreen(APPLYING_PACK_TEXT));
+                                var2.setScreen(new GenericDirtMessageScreen(APPLYING_PACK_TEXT));
                             }
     
                         });
-                        return this.setServerPack(var2, PackSource.SERVER);
+                        return this.setServerPack(var3, PackSource.SERVER);
                     }
                 })
-                .whenComplete(
-                    (param1x, param2x) -> {
-                        if (param2x != null) {
-                            LOGGER.warn("Pack application failed: {}, deleting file {}", param2x.getMessage(), var2);
-                            deleteQuietly(var2);
-                            Minecraft var0x = Minecraft.getInstance();
-                            var0x.execute(
-                                () -> var0x.setScreen(
+                .exceptionallyCompose(
+                    param2x -> this.clearServerPack()
+                            .thenAcceptAsync(param2xx -> {
+                                LOGGER.warn("Pack application failed: {}, deleting file {}", param2x.getMessage(), var3);
+                                deleteQuietly(var3);
+                            }, Util.ioPool())
+                            .thenAcceptAsync(
+                                param1x -> var2.setScreen(
                                         new ConfirmScreen(
                                             param1xx -> {
                                                 if (param1xx) {
-                                                    var0x.setScreen(null);
+                                                    var2.setScreen(null);
                                                 } else {
-                                                    ClientPacketListener var0xx = var0x.getConnection();
-                                                    if (var0xx != null) {
-                                                        var0xx.getConnection().disconnect(Component.translatable("connect.aborted"));
+                                                    ClientPacketListener var0x = var2.getConnection();
+                                                    if (var0x != null) {
+                                                        var0x.getConnection().disconnect(Component.translatable("connect.aborted"));
                                                     }
                                                 }
-                    
+                        
                                             },
                                             Component.translatable("multiplayer.texturePrompt.failure.line1"),
                                             Component.translatable("multiplayer.texturePrompt.failure.line2"),
                                             CommonComponents.GUI_PROCEED,
                                             Component.translatable("menu.disconnect")
                                         )
-                                    )
-                            );
-                        }
-        
-                    }
-                );
+                                    ),
+                                var2
+                            )
+                )
+                .thenAcceptAsync(param0x -> this.clearOldDownloads(), Util.ioPool());
             var14 = this.currentDownload;
         } finally {
             this.downloadLock.unlock();
@@ -194,7 +190,7 @@ public class ClientPackSource implements RepositorySource {
 
     }
 
-    public CompletableFuture<?> clearServerPack() {
+    public CompletableFuture<Void> clearServerPack() {
         this.downloadLock.lock();
 
         CompletableFuture var1;

@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.social;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
@@ -14,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -70,6 +70,13 @@ public class SocialInteractionsScreen extends Screen {
     public SocialInteractionsScreen() {
         super(Component.translatable("gui.socialInteractions.title"));
         this.updateServerLabel(Minecraft.getInstance());
+    }
+
+    public static Screen createWithWarning() {
+        Minecraft var0 = Minecraft.getInstance();
+        Component var1 = Component.translatable("gui.abuseReport.under_construction.title").withStyle(ChatFormatting.BOLD);
+        Component var2 = Component.translatable("gui.abuseReport.under_construction");
+        return new AlertScreen(() -> var0.setScreen(new SocialInteractionsScreen()), var1, var2, CommonComponents.GUI_PROCEED, true);
     }
 
     private int windowHeight() {
@@ -159,7 +166,7 @@ public class SocialInteractionsScreen extends Screen {
         this.hiddenButton.setMessage(TAB_HIDDEN);
         this.blockedButton.setMessage(TAB_BLOCKED);
 
-        Collection var4 = switch(param0) {
+        Collection<UUID> var1 = (Collection<UUID>)(switch(param0) {
             case ALL -> {
                 this.allButton.setMessage(TAB_ALL_SELECTED);
                 yield this.minecraft.player.connection.getOnlinePlayerIds();
@@ -170,15 +177,14 @@ public class SocialInteractionsScreen extends Screen {
             }
             case BLOCKED -> {
                 this.blockedButton.setMessage(TAB_BLOCKED_SELECTED);
-                PlayerSocialManager var2 = this.minecraft.getPlayerSocialManager();
-                yield this.minecraft.player.connection.getOnlinePlayerIds().stream().filter(var2::isBlocked).collect(Collectors.toSet());
+                PlayerSocialManager var0 = this.minecraft.getPlayerSocialManager();
+                yield this.minecraft.player.connection.getOnlinePlayerIds().stream().filter(var0::isBlocked).collect(Collectors.toSet());
             }
-            default -> ImmutableList.of();
-        };
-        this.socialInteractionsPlayerList.updatePlayerList(var4, this.socialInteractionsPlayerList.getScrollAmount());
+        });
+        this.socialInteractionsPlayerList.updatePlayerList(var1, this.socialInteractionsPlayerList.getScrollAmount());
         if (!this.searchBox.getValue().isEmpty() && this.socialInteractionsPlayerList.isEmpty() && !this.searchBox.isFocused()) {
             NarratorChatListener.INSTANCE.sayNow(EMPTY_SEARCH);
-        } else if (var4.isEmpty()) {
+        } else if (var1.isEmpty()) {
             if (param0 == SocialInteractionsScreen.Page.HIDDEN) {
                 NarratorChatListener.INSTANCE.sayNow(EMPTY_HIDDEN);
             } else if (param0 == SocialInteractionsScreen.Page.BLOCKED) {

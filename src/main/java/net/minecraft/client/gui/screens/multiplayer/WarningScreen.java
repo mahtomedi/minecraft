@@ -14,13 +14,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class WarningScreen extends Screen {
     private final Component titleComponent;
     private final Component content;
+    @Nullable
     private final Component check;
     private final Component narration;
     @Nullable
     protected Checkbox stopShowing;
     private MultiLineLabel message = MultiLineLabel.EMPTY;
 
-    protected WarningScreen(Component param0, Component param1, Component param2, Component param3) {
+    protected WarningScreen(Component param0, Component param1, Component param2) {
+        this(param0, param1, null, param2);
+    }
+
+    protected WarningScreen(Component param0, Component param1, @Nullable Component param2, Component param3) {
         super(NarratorChatListener.NO_TITLE);
         this.titleComponent = param0;
         this.content = param1;
@@ -35,9 +40,12 @@ public abstract class WarningScreen extends Screen {
         super.init();
         this.message = MultiLineLabel.create(this.font, this.content, this.width - 100);
         int var0 = (this.message.getLineCount() + 1) * this.getLineHeight();
-        int var1 = this.font.width(this.check);
-        this.stopShowing = new Checkbox(this.width / 2 - var1 / 2 - 8, 76 + var0, var1 + 24, 20, this.check, false);
-        this.addRenderableWidget(this.stopShowing);
+        if (this.check != null) {
+            int var1 = this.font.width(this.check);
+            this.stopShowing = new Checkbox(this.width / 2 - var1 / 2 - 8, 76 + var0, var1 + 24, 20, this.check, false);
+            this.addRenderableWidget(this.stopShowing);
+        }
+
         this.initButtons(var0);
     }
 

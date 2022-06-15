@@ -173,17 +173,22 @@ public class FogRenderer {
             } else {
                 var35 = 1.0F;
             }
-        } else if (var1 instanceof LivingEntity && ((LivingEntity)var1).hasEffect(MobEffects.NIGHT_VISION)) {
-            var35 = GameRenderer.getNightVisionScale((LivingEntity)var1, param1);
         } else {
-            var35 = 0.0F;
+            label86: {
+                if (var1 instanceof LivingEntity var37 && var37.hasEffect(MobEffects.NIGHT_VISION) && !var37.hasEffect(MobEffects.DARKNESS)) {
+                    var35 = GameRenderer.getNightVisionScale(var37, param1);
+                    break label86;
+                }
+
+                var35 = 0.0F;
+            }
         }
 
         if (fogRed != 0.0F && fogGreen != 0.0F && fogBlue != 0.0F) {
-            float var39 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
-            fogRed = fogRed * (1.0F - var35) + fogRed * var39 * var35;
-            fogGreen = fogGreen * (1.0F - var35) + fogGreen * var39 * var35;
-            fogBlue = fogBlue * (1.0F - var35) + fogBlue * var39 * var35;
+            float var40 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
+            fogRed = fogRed * (1.0F - var35) + fogRed * var40 * var35;
+            fogGreen = fogGreen * (1.0F - var35) + fogGreen * var40 * var35;
+            fogBlue = fogBlue * (1.0F - var35) + fogBlue * var40 * var35;
         }
 
         RenderSystem.clearColor(fogRed, fogGreen, fogBlue, 0.0F);

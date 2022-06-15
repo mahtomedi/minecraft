@@ -814,7 +814,7 @@ public abstract class PlayerList {
     public void broadcastChatMessage(
         PlayerChatMessage param0, Function<ServerPlayer, PlayerChatMessage> param1, ChatSender param2, ResourceKey<ChatType> param3
     ) {
-        this.server.logMessageFrom(param2, param0.serverContent());
+        this.server.logChatMessage(param2, param0.serverContent(), param3);
 
         for(ServerPlayer var0 : this.players) {
             PlayerChatMessage var1 = param1.apply(var0);

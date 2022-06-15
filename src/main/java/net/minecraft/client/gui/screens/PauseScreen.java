@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.social.SocialInteractionsScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -103,19 +104,32 @@ public class PauseScreen extends Screen {
                 param0 -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))
             )
         );
-        Button var4 = this.addRenderableWidget(
-            new Button(
-                this.width / 2 + 4,
-                this.height / 4 + 96 + -16,
-                98,
-                20,
-                Component.translatable("menu.shareToLan"),
-                param0 -> this.minecraft.setScreen(new ShareToLanScreen(this))
-            )
-        );
-        var4.active = this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished();
-        Component var5 = this.minecraft.isLocalServer() ? Component.translatable("menu.returnToMenu") : Component.translatable("menu.disconnect");
-        this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, var5, param0 -> {
+        if (this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished()) {
+            this.addRenderableWidget(
+                new Button(
+                    this.width / 2 + 4,
+                    this.height / 4 + 96 + -16,
+                    98,
+                    20,
+                    Component.translatable("menu.shareToLan"),
+                    param0 -> this.minecraft.setScreen(new ShareToLanScreen(this))
+                )
+            );
+        } else {
+            this.addRenderableWidget(
+                new Button(
+                    this.width / 2 + 4,
+                    this.height / 4 + 96 + -16,
+                    98,
+                    20,
+                    Component.translatable("menu.playerReporting"),
+                    param0 -> this.minecraft.setScreen(SocialInteractionsScreen.createWithWarning())
+                )
+            );
+        }
+
+        Component var4 = this.minecraft.isLocalServer() ? Component.translatable("menu.returnToMenu") : Component.translatable("menu.disconnect");
+        this.addRenderableWidget(new Button(this.width / 2 - 102, this.height / 4 + 120 + -16, 204, 20, var4, param0 -> {
             boolean var0x = this.minecraft.isLocalServer();
             boolean var1x = this.minecraft.isConnectedToRealms();
             param0.active = false;

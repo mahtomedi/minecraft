@@ -46,6 +46,10 @@ public record PlayerChatMessage(Component signedContent, MessageSignature signat
         return new PlayerChatMessage(this.signedContent, this.signature, Optional.of(param0));
     }
 
+    public PlayerChatMessage removeUnsignedContent() {
+        return this.unsignedContent.isPresent() ? new PlayerChatMessage(this.signedContent, this.signature, Optional.empty()) : this;
+    }
+
     public boolean verify(ProfilePublicKey param0) {
         return this.signature.verify(param0.createSignatureValidator(), this.signedContent);
     }

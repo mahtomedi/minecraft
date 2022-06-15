@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.gui.spectator.SpectatorMenu;
 import net.minecraft.client.gui.spectator.SpectatorMenuCategory;
@@ -122,8 +123,7 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
 
             RenderSystem.setShaderTexture(0, this.location);
             RenderSystem.setShaderColor(param1, param1, param1, (float)param2 / 255.0F);
-            GuiComponent.blit(param0, 2, 2, 12, 12, 8.0F, 8.0F, 8, 8, 64, 64);
-            GuiComponent.blit(param0, 2, 2, 12, 12, 40.0F, 8.0F, 8, 8, 64, 64);
+            PlayerFaceRenderer.draw(param0, 2, 2, 12);
         }
 
         @Override

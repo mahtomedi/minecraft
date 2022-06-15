@@ -350,6 +350,10 @@ public class Font {
         return 9 * this.splitter.splitLines(param0, param1, Style.EMPTY).size();
     }
 
+    public int wordWrapHeight(FormattedText param0, int param1) {
+        return 9 * this.splitter.splitLines(param0, param1, Style.EMPTY).size();
+    }
+
     public List<FormattedCharSequence> split(FormattedText param0, int param1) {
         return Language.getInstance().getVisualOrder(this.splitter.splitLines(param0, param1, Style.EMPTY));
     }

@@ -16,6 +16,8 @@ import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,6 +50,7 @@ public class JukeboxBlock extends BaseEntityBlock {
         if (param0.getValue(HAS_RECORD)) {
             this.dropRecording(param1, param2);
             param0 = param0.setValue(HAS_RECORD, Boolean.valueOf(false));
+            param1.gameEvent(GameEvent.JUKEBOX_STOP_PLAY, param2, GameEvent.Context.of(param0));
             param1.setBlock(param2, param0, 2);
             param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param3, param0));
             return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -58,11 +61,13 @@ public class JukeboxBlock extends BaseEntityBlock {
 
     public void setRecord(@Nullable Entity param0, LevelAccessor param1, BlockPos param2, BlockState param3, ItemStack param4) {
         BlockEntity var0 = param1.getBlockEntity(param2);
-        if (var0 instanceof JukeboxBlockEntity) {
-            ((JukeboxBlockEntity)var0).setRecord(param4.copy());
+        if (var0 instanceof JukeboxBlockEntity var1) {
+            var1.setRecord(param4.copy());
+            var1.playRecord();
             param1.setBlock(param2, param3.setValue(HAS_RECORD, Boolean.valueOf(true)), 2);
             param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param0, param3));
         }
+
     }
 
     private void dropRecording(Level param0, BlockPos param1) {
@@ -126,5 +131,11 @@ public class JukeboxBlock extends BaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(HAS_RECORD);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
+        return param1.getValue(HAS_RECORD) ? createTickerHelper(param2, BlockEntityType.JUKEBOX, JukeboxBlockEntity::playRecordTick) : null;
     }
 }

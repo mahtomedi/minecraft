@@ -16,8 +16,11 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.screens.reporting.ChatReportScreen;
+import net.minecraft.client.multiplayer.chat.report.ReportingContext;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -41,10 +44,14 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private Button hideButton;
     @Nullable
     private Button showButton;
+    @Nullable
+    private Button reportButton;
     final Component hideText;
     final Component showText;
+    final Component reportText;
     final List<FormattedCharSequence> hideTooltip;
     final List<FormattedCharSequence> showTooltip;
+    final List<FormattedCharSequence> reportTooltip;
     float tooltipHoverTime;
     private static final Component HIDDEN = Component.translatable("gui.socialInteractions.status_hidden").withStyle(ChatFormatting.ITALIC);
     private static final Component BLOCKED = Component.translatable("gui.socialInteractions.status_blocked").withStyle(ChatFormatting.ITALIC);
@@ -69,10 +76,49 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         this.skinGetter = param4;
         this.hideText = Component.translatable("gui.socialInteractions.tooltip.hide", param3);
         this.showText = Component.translatable("gui.socialInteractions.tooltip.show", param3);
+        this.reportText = Component.translatable("gui.socialInteractions.tooltip.report", param3);
         this.hideTooltip = param0.font.split(this.hideText, 150);
         this.showTooltip = param0.font.split(this.showText, 150);
+        this.reportTooltip = param0.font.split(this.reportText, 150);
         PlayerSocialManager var0 = param0.getPlayerSocialManager();
-        if (!param0.player.getGameProfile().getId().equals(param2) && !var0.isBlocked(param2)) {
+        boolean var1 = param0.getChatStatus().isChatAllowed(param0.isLocalServer());
+        boolean var2 = !param0.player.getUUID().equals(param2);
+        if (var2 && var1 && !var0.isBlocked(param2)) {
+            ReportingContext var3 = param0.getReportingContext();
+            this.reportButton = new ImageButton(
+                0,
+                0,
+                20,
+                20,
+                40,
+                38,
+                20,
+                SocialInteractionsScreen.SOCIAL_INTERACTIONS_LOCATION,
+                256,
+                256,
+                param3x -> param0.setScreen(new ChatReportScreen(param0.screen, var3, param2)),
+                new Button.OnTooltip() {
+                    @Override
+                    public void onTooltip(Button param0x, PoseStack param1x, int param2, int param3) {
+                        PlayerEntry.this.tooltipHoverTime += param0.getDeltaFrameTime();
+                        if (PlayerEntry.this.tooltipHoverTime >= 10.0F) {
+                            param1.setPostRenderRunnable(() -> PlayerEntry.postRenderTooltip(param1, param1, PlayerEntry.this.reportTooltip, param2, param3));
+                        }
+    
+                    }
+    
+                    @Override
+                    public void narrateTooltip(Consumer<Component> param0x) {
+                        param0.accept(PlayerEntry.this.reportText);
+                    }
+                },
+                Component.translatable("gui.socialInteractions.report")
+            ) {
+                @Override
+                protected MutableComponent createNarrationMessage() {
+                    return PlayerEntry.this.getEntryNarationMessage(super.createNarrationMessage());
+                }
+            };
             this.hideButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, SocialInteractionsScreen.SOCIAL_INTERACTIONS_LOCATION, 256, 256, param3x -> {
                 var0.hidePlayer(param2);
                 this.onHiddenOrShown(true, Component.translatable("gui.socialInteractions.hidden_in_chat", param3));
@@ -121,7 +167,8 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
             };
             this.showButton.visible = var0.isHidden(param2);
             this.hideButton.visible = !this.showButton.visible;
-            this.children = ImmutableList.of(this.hideButton, this.showButton);
+            this.reportButton.active = var3.sender().isEnabled();
+            this.children = ImmutableList.of(this.hideButton, this.showButton, this.reportButton);
         } else {
             this.children = ImmutableList.of();
         }
@@ -145,23 +192,23 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         }
 
         RenderSystem.setShaderTexture(0, this.skinGetter.get());
-        GuiComponent.blit(param0, var0, var1, 24, 24, 8.0F, 8.0F, 8, 8, 64, 64);
-        RenderSystem.enableBlend();
-        GuiComponent.blit(param0, var0, var1, 24, 24, 40.0F, 8.0F, 8, 8, 64, 64);
-        RenderSystem.disableBlend();
+        PlayerFaceRenderer.draw(param0, var0, var1, 24);
         this.minecraft.font.draw(param0, this.playerName, (float)var2, (float)var4, PLAYERNAME_COLOR);
         if (this.isRemoved) {
             GuiComponent.fill(param0, var0, var1, var0 + 24, var1 + 24, SKIN_SHADE);
         }
 
-        if (this.hideButton != null && this.showButton != null) {
+        if (this.hideButton != null && this.showButton != null && this.reportButton != null) {
             float var6 = this.tooltipHoverTime;
-            this.hideButton.x = param3 + (param4 - this.hideButton.getWidth() - 4);
+            this.hideButton.x = param3 + (param4 - this.hideButton.getWidth() - 4) - 20 - 4;
             this.hideButton.y = param2 + (param5 - this.hideButton.getHeight()) / 2;
             this.hideButton.render(param0, param6, param7, param9);
-            this.showButton.x = param3 + (param4 - this.showButton.getWidth() - 4);
+            this.showButton.x = param3 + (param4 - this.showButton.getWidth() - 4) - 20 - 4;
             this.showButton.y = param2 + (param5 - this.showButton.getHeight()) / 2;
             this.showButton.render(param0, param6, param7, param9);
+            this.reportButton.x = param3 + (param4 - this.showButton.getWidth() - 4);
+            this.reportButton.y = param2 + (param5 - this.showButton.getHeight()) / 2;
+            this.reportButton.render(param0, param6, param7, param9);
             if (var6 == this.tooltipHoverTime) {
                 this.tooltipHoverTime = 0.0F;
             }

@@ -70,7 +70,7 @@ public class RealmsConnect {
     
                         String var1 = var0.getUser().getName();
                         RealmsConnect.this.connection.send(new ServerboundHelloPacket(var1, var0.getProfileKeyPairManager().profilePublicKeyData()));
-                        var0.setCurrentServer(param0.toServerData(var1));
+                        var0.setCurrentServer(param0, var1);
                     } catch (Exception var51) {
                         var0.getClientPackSource().clearServerPack();
                         if (RealmsConnect.this.aborted) {

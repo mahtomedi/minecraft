@@ -612,10 +612,16 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public void handleRenameItem(ServerboundRenameItemPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        if (this.player.containerMenu instanceof AnvilMenu var0) {
-            String var1 = SharedConstants.filterText(param0.getName());
-            if (var1.length() <= 50) {
-                var0.setItemName(var1);
+        AbstractContainerMenu var1 = this.player.containerMenu;
+        if (var1 instanceof AnvilMenu var0) {
+            if (!var0.stillValid(this.player)) {
+                LOGGER.debug("Player {} interacted with invalid menu {}", this.player, var0);
+                return;
+            }
+
+            String var1x = SharedConstants.filterText(param0.getName());
+            if (var1x.length() <= 50) {
+                var0.setItemName(var1x);
             }
         }
 
@@ -624,8 +630,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     @Override
     public void handleSetBeaconPacket(ServerboundSetBeaconPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        if (this.player.containerMenu instanceof BeaconMenu) {
-            ((BeaconMenu)this.player.containerMenu).updateEffects(param0.getPrimary(), param0.getSecondary());
+        AbstractContainerMenu var3 = this.player.containerMenu;
+        if (var3 instanceof BeaconMenu var0) {
+            if (!this.player.containerMenu.stillValid(this.player)) {
+                LOGGER.debug("Player {} interacted with invalid menu {}", this.player, this.player.containerMenu);
+                return;
+            }
+
+            var0.updateEffects(param0.getPrimary(), param0.getSecondary());
         }
 
     }
@@ -721,10 +733,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     public void handleSelectTrade(ServerboundSelectTradePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         int var0 = param0.getItem();
-        AbstractContainerMenu var1 = this.player.containerMenu;
-        if (var1 instanceof MerchantMenu var2) {
-            var2.setSelectionHint(var0);
-            var2.tryMoveItems(var0);
+        AbstractContainerMenu var4 = this.player.containerMenu;
+        if (var4 instanceof MerchantMenu var1) {
+            if (!var1.stillValid(this.player)) {
+                LOGGER.debug("Player {} interacted with invalid menu {}", this.player, var1);
+                return;
+            }
+
+            var1.setSelectionHint(var0);
+            var1.tryMoveItems(var0);
         }
 
     }
@@ -1232,11 +1249,12 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         if (isChatMessageIllegal(param0.command())) {
             this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
         } else {
-            PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
             if (this.tryHandleChat(param0.command(), param0.timeStamp())) {
-                CommandSourceStack var0 = this.player.createCommandSourceStack().withSigningContext(param0.signingContext(this.player.getUUID()));
-                this.server.getCommands().performCommand(var0, param0.command());
-                this.detectRateSpam();
+                this.server.submit(() -> {
+                    CommandSourceStack var0 = this.player.createCommandSourceStack().withSigningContext(param0.signingContext(this.player.getUUID()));
+                    this.server.getCommands().performCommand(var0, param0.command());
+                    this.detectRateSpam();
+                });
             }
 
         }
@@ -1252,7 +1270,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                 LOGGER.warn("{} sent expired chat: '{}'. Is the client/server system time unsynchronized?", this.player.getName().getString(), param0);
             }
 
-            return this.resetLastActionTime();
+            if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
+                Registry<ChatType> var0 = this.player.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+                int var1 = var0.getId(var0.get(ChatType.SYSTEM));
+                this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), var1));
+                return false;
+            } else {
+                this.player.resetLastActionTime();
+                return true;
+            }
         }
     }
 
@@ -1283,26 +1309,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         return false;
     }
 
-    private boolean resetLastActionTime() {
-        if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
-            Registry<ChatType> var0 = this.player.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-            int var1 = var0.getId(var0.get(ChatType.SYSTEM));
-            this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), var1));
-            return false;
-        } else {
-            this.player.resetLastActionTime();
-            return true;
-        }
-    }
-
     private void handleChat(ServerboundChatPacket param0, FilteredText<String> param1) {
-        if (this.resetLastActionTime()) {
-            MessageSignature var0 = param0.getSignature(this.player.getUUID());
-            boolean var1 = param0.signedPreview();
-            ChatDecorator var2 = this.server.getChatDecorator();
-            var2.decorateChat(this.player, param1.map(Component::literal), var0, var1).thenAcceptAsync(this::broadcastChatMessage, this.server);
-        }
-
+        MessageSignature var0 = param0.getSignature(this.player.getUUID());
+        boolean var1 = param0.signedPreview();
+        ChatDecorator var2 = this.server.getChatDecorator();
+        var2.decorateChat(this.player, param1.map(Component::literal), var0, var1).thenAcceptAsync(this::broadcastChatMessage, this.server);
     }
 
     private void broadcastChatMessage(FilteredText<PlayerChatMessage> param0x) {
@@ -1544,6 +1555,8 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         if (this.player.containerMenu.containerId == param0.getContainerId()) {
             if (this.player.isSpectator()) {
                 this.player.containerMenu.sendAllDataToRemote();
+            } else if (!this.player.containerMenu.stillValid(this.player)) {
+                LOGGER.debug("Player {} interacted with invalid menu {}", this.player, this.player.containerMenu);
             } else {
                 int var0 = param0.getSlotNum();
                 if (!this.player.containerMenu.isValidSlotIndex(var0)) {
@@ -1579,10 +1592,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         if (!this.player.isSpectator()
             && this.player.containerMenu.containerId == param0.getContainerId()
             && this.player.containerMenu instanceof RecipeBookMenu) {
-            this.server
-                .getRecipeManager()
-                .byKey(param0.getRecipe())
-                .ifPresent(param1 -> ((RecipeBookMenu)this.player.containerMenu).handlePlacement(param0.isShiftDown(), param1, this.player));
+            if (!this.player.containerMenu.stillValid(this.player)) {
+                LOGGER.debug("Player {} interacted with invalid menu {}", this.player, this.player.containerMenu);
+            } else {
+                this.server
+                    .getRecipeManager()
+                    .byKey(param0.getRecipe())
+                    .ifPresent(param1 -> ((RecipeBookMenu)this.player.containerMenu).handlePlacement(param0.isShiftDown(), param1, this.player));
+            }
         }
     }
 
@@ -1591,12 +1608,16 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         this.player.resetLastActionTime();
         if (this.player.containerMenu.containerId == param0.getContainerId() && !this.player.isSpectator()) {
-            boolean var0 = this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
-            if (var0) {
-                this.player.containerMenu.broadcastChanges();
+            if (!this.player.containerMenu.stillValid(this.player)) {
+                LOGGER.debug("Player {} interacted with invalid menu {}", this.player, this.player.containerMenu);
+            } else {
+                boolean var0 = this.player.containerMenu.clickMenuButton(this.player, param0.getButtonId());
+                if (var0) {
+                    this.player.containerMenu.broadcastChanges();
+                }
+
             }
         }
-
     }
 
     @Override
@@ -1608,9 +1629,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             CompoundTag var2 = BlockItem.getBlockEntityData(var1);
             if (!var1.isEmpty() && var2 != null && var2.contains("x") && var2.contains("y") && var2.contains("z")) {
                 BlockPos var3 = BlockEntity.getPosFromTag(var2);
-                BlockEntity var4 = this.player.level.getBlockEntity(var3);
-                if (var4 != null) {
-                    var4.saveToItem(var1);
+                if (this.player.level.isLoaded(var3)) {
+                    BlockEntity var4 = this.player.level.getBlockEntity(var3);
+                    if (var4 != null) {
+                        var4.saveToItem(var1);
+                    }
                 }
             }
 

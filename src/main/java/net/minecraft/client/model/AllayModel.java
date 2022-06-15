@@ -87,8 +87,6 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
 
     public void setupAnim(Allay param0, float param1, float param2, float param3, float param4, float param5) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
-        this.head.xRot = param5 * (float) (Math.PI / 180.0);
-        this.head.yRot = param4 * (float) (Math.PI / 180.0);
         float var0 = param3 * 20.0F * (float) (Math.PI / 180.0) + param2;
         float var1 = Mth.cos(var0) * (float) Math.PI * 0.15F;
         float var2 = param3 - (float)param0.tickCount;
@@ -96,20 +94,35 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
         float var4 = Math.min(param2 / 0.3F, 1.0F);
         float var5 = 1.0F - var4;
         float var6 = param0.getHoldingItemAnimationProgress(var2);
+        if (param0.isDancing()) {
+            float var7 = param3 * 8.0F * (float) (Math.PI / 180.0) + param2;
+            float var8 = Mth.cos(var7) * 16.0F * (float) (Math.PI / 180.0);
+            float var9 = param0.getSpinningProgress(var2);
+            float var10 = Mth.cos(var7) * 14.0F * (float) (Math.PI / 180.0);
+            float var11 = Mth.cos(var7) * 30.0F * (float) (Math.PI / 180.0);
+            this.root.yRot = param0.isSpinning() ? ((float) (Math.PI * 4)) * var9 : this.root.yRot;
+            this.root.zRot = var8 * (1.0F - var9);
+            this.head.yRot = var11 * (1.0F - var9);
+            this.head.zRot = var10 * (1.0F - var9);
+        } else {
+            this.head.xRot = param5 * (float) (Math.PI / 180.0);
+            this.head.yRot = param4 * (float) (Math.PI / 180.0);
+        }
+
         this.right_wing.xRot = 0.43633232F;
         this.right_wing.yRot = -0.61086524F + var1;
         this.left_wing.xRot = 0.43633232F;
         this.left_wing.yRot = 0.61086524F - var1;
-        float var7 = var4 * (float) (Math.PI * 2.0 / 9.0);
-        this.body.xRot = var7;
-        float var8 = Mth.lerp(var6, var7, Mth.lerp(var4, (float) (-Math.PI / 3), (float) (-Math.PI / 4)));
+        float var12 = var4 * (float) (Math.PI * 2.0 / 9.0);
+        this.body.xRot = var12;
+        float var13 = Mth.lerp(var6, var12, Mth.lerp(var4, (float) (-Math.PI / 3), (float) (-Math.PI / 4)));
         this.root.y += (float)Math.cos((double)var3) * 0.25F * var5;
-        this.right_arm.xRot = var8;
-        this.left_arm.xRot = var8;
-        float var9 = var5 * (1.0F - var6);
-        float var10 = 0.43633232F - Mth.cos(var3 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F * var9;
-        this.left_arm.zRot = -var10;
-        this.right_arm.zRot = var10;
+        this.right_arm.xRot = var13;
+        this.left_arm.xRot = var13;
+        float var14 = var5 * (1.0F - var6);
+        float var15 = 0.43633232F - Mth.cos(var3 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F * var14;
+        this.left_arm.zRot = -var15;
+        this.right_arm.zRot = var15;
         this.right_arm.yRot = 0.27925268F * var6;
         this.left_arm.yRot = -0.27925268F * var6;
     }

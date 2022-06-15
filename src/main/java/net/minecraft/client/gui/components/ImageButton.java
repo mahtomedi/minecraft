@@ -93,7 +93,9 @@ public class ImageButton extends Button {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, this.resourceLocation);
         int var0 = this.yTexStart;
-        if (this.isHoveredOrFocused()) {
+        if (!this.isActive()) {
+            var0 += this.yDiffTex * 2;
+        } else if (this.isHoveredOrFocused()) {
             var0 += this.yDiffTex;
         }
 

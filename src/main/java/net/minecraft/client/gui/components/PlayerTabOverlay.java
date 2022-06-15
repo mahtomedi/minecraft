@@ -162,16 +162,9 @@ public class PlayerTabOverlay extends GuiComponent {
                 if (var9) {
                     Player var31 = this.minecraft.level.getPlayerByUUID(var30.getId());
                     boolean var32 = var31 != null && LivingEntityRenderer.isEntityUpsideDown(var31);
+                    boolean var33 = var31 != null && var31.isModelPartShown(PlayerModelPart.HAT);
                     RenderSystem.setShaderTexture(0, var29.getSkinLocation());
-                    int var33 = 8 + (var32 ? 8 : 0);
-                    int var34 = 8 * (var32 ? -1 : 1);
-                    GuiComponent.blit(param0, var27, var28, 8, 8, 8.0F, (float)var33, 8, var34, 64, 64);
-                    if (var31 != null && var31.isModelPartShown(PlayerModelPart.HAT)) {
-                        int var35 = 8 + (var32 ? 8 : 0);
-                        int var36 = 8 * (var32 ? -1 : 1);
-                        GuiComponent.blit(param0, var27, var28, 8, 8, 40.0F, (float)var35, 8, var36, 64, 64);
-                    }
-
+                    PlayerFaceRenderer.draw(param0, var27, var28, 8, var33, var32);
                     var27 += 9;
                 }
 
@@ -179,10 +172,10 @@ public class PlayerTabOverlay extends GuiComponent {
                     .font
                     .drawShadow(param0, this.getNameForDisplay(var29), (float)var27, (float)var28, var29.getGameMode() == GameType.SPECTATOR ? -1862270977 : -1);
                 if (param3 != null && var29.getGameMode() != GameType.SPECTATOR) {
-                    int var37 = var27 + var2 + 1;
-                    int var38 = var37 + var10;
-                    if (var38 - var37 > 5) {
-                        this.renderTablistScore(param3, var28, var30.getName(), var37, var38, var29, param0);
+                    int var34 = var27 + var2 + 1;
+                    int var35 = var34 + var10;
+                    if (var35 - var34 > 5) {
+                        this.renderTablistScore(param3, var28, var30.getName(), var34, var35, var29, param0);
                     }
                 }
 
@@ -194,9 +187,9 @@ public class PlayerTabOverlay extends GuiComponent {
             var15 += var7 * 9 + 1;
             fill(param0, param1 / 2 - var16 / 2 - 1, var15 - 1, param1 / 2 + var16 / 2 + 1, var15 + var19.size() * 9, Integer.MIN_VALUE);
 
-            for(FormattedCharSequence var39 : var19) {
-                int var40 = this.minecraft.font.width(var39);
-                this.minecraft.font.drawShadow(param0, var39, (float)(param1 / 2 - var40 / 2), (float)var15, -1);
+            for(FormattedCharSequence var36 : var19) {
+                int var37 = this.minecraft.font.width(var36);
+                this.minecraft.font.drawShadow(param0, var36, (float)(param1 / 2 - var37 / 2), (float)var15, -1);
                 var15 += 9;
             }
         }

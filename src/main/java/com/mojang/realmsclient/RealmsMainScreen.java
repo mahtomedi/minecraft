@@ -43,6 +43,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
@@ -1517,8 +1518,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 RealmsMainScreen.this.font.draw(param1, param0.getName(), (float)(param2 + 2), (float)(param3 + 1), 16777215);
                 RealmsTextureManager.withBoundFace(param0.ownerUUID, () -> {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    GuiComponent.blit(param1, param2 - 36, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
-                    GuiComponent.blit(param1, param2 - 36, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
+                    PlayerFaceRenderer.draw(param1, param2 - 36, param3, 32);
                 });
             }
         }

@@ -30,6 +30,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import com.mojang.math.Matrix4f;
+import com.mojang.realmsclient.dto.RealmsServer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -103,6 +104,8 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.multiplayer.ProfileKeyPairManager;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
+import net.minecraft.client.multiplayer.chat.report.ReportingContext;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.player.LocalPlayer;
@@ -370,6 +373,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     private TimerQuery.FrameProfile currentFrameProfile;
     private final Realms32BitWarningStatus realms32BitWarningStatus;
+    private ReportingContext reportingContext;
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
@@ -552,6 +556,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.gameRenderer.preloadUiShader(this.getClientPackSource().getVanillaPack().asProvider());
         this.profileKeyPairManager = new ProfileKeyPairManager(this.userApiService, this.user.getGameProfile().getId(), this.gameDirectory.toPath());
         this.realms32BitWarningStatus = new Realms32BitWarningStatus(this);
+        this.reportingContext = ReportingContext.create(ReportEnvironment.local(), this.userApiService);
         LoadingOverlay.registerTextures(this);
         List<PackResources> var13 = this.resourcePackRepository.openAllSelected();
         this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var13);
@@ -1816,7 +1821,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     this.socialInteractionsToast = null;
                 }
 
-                this.setScreen(new SocialInteractionsScreen());
+                this.setScreen(SocialInteractionsScreen.createWithWarning());
             }
         }
 
@@ -1921,6 +1926,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     return ProcessorChunkProgressListener.createStarted(var0x, this.progressTasks::add);
                 }));
             this.isLocalServer = true;
+            this.updateReportEnvironment(ReportEnvironment.local());
         } catch (Throwable var9) {
             CrashReport var2 = CrashReport.forThrowable(var9, "Starting integrated server");
             CrashReportCategory var3 = var2.addCategory("Starting integrated server");
@@ -2257,6 +2263,20 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public void setCurrentServer(@Nullable ServerData param0) {
         this.currentServer = param0;
+        ReportEnvironment var0 = param0 != null ? ReportEnvironment.thirdParty(param0.ip) : ReportEnvironment.local();
+        this.updateReportEnvironment(var0);
+    }
+
+    public void setCurrentServer(RealmsServer param0, String param1) {
+        this.currentServer = param0.toServerData(param1);
+        this.updateReportEnvironment(ReportEnvironment.realm(param0));
+    }
+
+    private void updateReportEnvironment(ReportEnvironment param0) {
+        if (!this.reportingContext.matches(param0)) {
+            this.reportingContext = ReportingContext.create(param0, this.userApiService);
+        }
+
     }
 
     @Nullable
@@ -2691,6 +2711,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public SignatureValidator getServiceSignatureValidator() {
         return this.serviceSignatureValidator;
+    }
+
+    public ReportingContext getReportingContext() {
+        return this.reportingContext;
     }
 
     @OnlyIn(Dist.CLIENT)
