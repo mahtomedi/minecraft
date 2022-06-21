@@ -1,22 +1,25 @@
 package com.mojang.realmsclient.util;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public enum LevelType {
-    DEFAULT(0, Component.translatable("generator.default")),
-    FLAT(1, Component.translatable("generator.flat")),
-    LARGE_BIOMES(2, Component.translatable("generator.large_biomes")),
-    AMPLIFIED(3, Component.translatable("generator.amplified"));
+    DEFAULT(0, WorldPresets.NORMAL),
+    FLAT(1, WorldPresets.FLAT),
+    LARGE_BIOMES(2, WorldPresets.LARGE_BIOMES),
+    AMPLIFIED(3, WorldPresets.AMPLIFIED);
 
     private final int index;
     private final Component name;
 
-    private LevelType(int param0, Component param1) {
+    private LevelType(int param0, ResourceKey<WorldPreset> param1) {
         this.index = param0;
-        this.name = param1;
+        this.name = Component.translatable(param1.location().toLanguageKey("generator"));
     }
 
     public Component getName() {

@@ -14,9 +14,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ConfirmScreen extends Screen {
-    private static final int LABEL_Y = 90;
-    private final Component title2;
-    private MultiLineLabel message = MultiLineLabel.EMPTY;
+    private static final int MARGIN = 20;
+    private final Component message;
+    private MultiLineLabel multilineMessage = MultiLineLabel.EMPTY;
     protected Component yesButton;
     protected Component noButton;
     private int delayTicker;
@@ -30,24 +30,23 @@ public class ConfirmScreen extends Screen {
     public ConfirmScreen(BooleanConsumer param0, Component param1, Component param2, Component param3, Component param4) {
         super(param1);
         this.callback = param0;
-        this.title2 = param2;
+        this.message = param2;
         this.yesButton = param3;
         this.noButton = param4;
     }
 
     @Override
     public Component getNarrationMessage() {
-        return CommonComponents.joinForNarration(super.getNarrationMessage(), this.title2);
+        return CommonComponents.joinForNarration(super.getNarrationMessage(), this.message);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.message = MultiLineLabel.create(this.font, this.title2, this.width - 50);
-        int var0 = this.message.getLineCount() * 9;
-        int var1 = Mth.clamp(90 + var0 + 12, this.height / 6 + 96, this.height - 24);
+        this.multilineMessage = MultiLineLabel.create(this.font, this.message, this.width - 50);
+        int var0 = Mth.clamp(this.messageTop() + this.messageHeight() + 20, this.height / 6 + 96, this.height - 24);
         this.exitButtons.clear();
-        this.addButtons(var1);
+        this.addButtons(var0);
     }
 
     protected void addButtons(int param0) {
@@ -62,9 +61,22 @@ public class ConfirmScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 70, 16777215);
-        this.message.renderCentered(param0, this.width / 2, 90);
+        drawCenteredString(param0, this.font, this.title, this.width / 2, this.titleTop(), 16777215);
+        this.multilineMessage.renderCentered(param0, this.width / 2, this.messageTop());
         super.render(param0, param1, param2, param3);
+    }
+
+    private int titleTop() {
+        int var0 = (this.height - this.messageHeight()) / 2;
+        return Mth.clamp(var0 - 20 - 9, 10, 80);
+    }
+
+    private int messageTop() {
+        return this.titleTop() + 20;
+    }
+
+    private int messageHeight() {
+        return this.multilineMessage.getLineCount() * 9;
     }
 
     public void setDelay(int param0) {

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,30 +16,42 @@ public class ConfirmLinkScreen extends ConfirmScreen {
     private final String url;
     private final boolean showWarning;
 
-    public ConfirmLinkScreen(BooleanConsumer param0, Component param1, String param2, boolean param3) {
-        super(param0, param1, Component.translatable(param3 ? "chat.link.confirmTrusted" : "chat.link.confirm").append(" ").append(Component.literal(param2)));
-        this.yesButton = (Component)(param3 ? Component.translatable("chat.link.open") : CommonComponents.GUI_YES);
-        this.noButton = param3 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO;
-        this.showWarning = !param3;
-        this.url = param2;
+    public ConfirmLinkScreen(BooleanConsumer param0, String param1, boolean param2) {
+        this(param0, confirmMessage(param2), Component.literal(param1), param1, param2 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO, param2);
     }
 
-    public ConfirmLinkScreen(BooleanConsumer param0, String param1, boolean param2) {
-        super(param0, Component.translatable(param2 ? "chat.link.confirmTrusted" : "chat.link.confirm"), Component.literal(param1));
-        this.yesButton = (Component)(param2 ? Component.translatable("chat.link.open") : CommonComponents.GUI_YES);
-        this.noButton = param2 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO;
-        this.showWarning = !param2;
-        this.url = param1;
+    public ConfirmLinkScreen(BooleanConsumer param0, Component param1, String param2, boolean param3) {
+        this(param0, param1, param2, param3 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO, param3);
+    }
+
+    public ConfirmLinkScreen(BooleanConsumer param0, Component param1, String param2, Component param3, boolean param4) {
+        this(param0, param1, confirmMessage(param4, param2), param2, param3, param4);
+    }
+
+    public ConfirmLinkScreen(BooleanConsumer param0, Component param1, Component param2, String param3, Component param4, boolean param5) {
+        super(param0, param1, param2);
+        this.yesButton = (Component)(param5 ? Component.translatable("chat.link.open") : CommonComponents.GUI_YES);
+        this.noButton = param4;
+        this.showWarning = !param5;
+        this.url = param3;
+    }
+
+    protected static MutableComponent confirmMessage(boolean param0, String param1) {
+        return confirmMessage(param0).append(" ").append(Component.literal(param1));
+    }
+
+    protected static MutableComponent confirmMessage(boolean param0) {
+        return Component.translatable(param0 ? "chat.link.confirmTrusted" : "chat.link.confirm");
     }
 
     @Override
     protected void addButtons(int param0) {
-        this.addRenderableWidget(new Button(this.width / 2 - 50 - 105, this.height / 6 + 96, 100, 20, this.yesButton, param0x -> this.callback.accept(true)));
-        this.addRenderableWidget(new Button(this.width / 2 - 50, this.height / 6 + 96, 100, 20, COPY_BUTTON_TEXT, param0x -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 50 - 105, param0, 100, 20, this.yesButton, param0x -> this.callback.accept(true)));
+        this.addRenderableWidget(new Button(this.width / 2 - 50, param0, 100, 20, COPY_BUTTON_TEXT, param0x -> {
             this.copyToClipboard();
             this.callback.accept(false);
         }));
-        this.addRenderableWidget(new Button(this.width / 2 - 50 + 105, this.height / 6 + 96, 100, 20, this.noButton, param0x -> this.callback.accept(false)));
+        this.addRenderableWidget(new Button(this.width / 2 - 50 + 105, param0, 100, 20, this.noButton, param0x -> this.callback.accept(false)));
     }
 
     public void copyToClipboard() {

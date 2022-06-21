@@ -5,8 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
+import com.mojang.realmsclient.gui.task.DataFetcher;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -20,7 +21,8 @@ public class RealmsNotificationsScreen extends RealmsScreen {
     private static final ResourceLocation INVITE_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/invite_icon.png");
     private static final ResourceLocation TRIAL_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/trial_icon.png");
     private static final ResourceLocation NEWS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/news_notification_mainscreen.png");
-    private static final RealmsDataFetcher REALMS_DATA_FETCHER = new RealmsDataFetcher(Minecraft.getInstance(), RealmsClient.create());
+    @Nullable
+    private DataFetcher.Subscription realmsDataSubscription;
     private volatile int numberOfPendingInvites;
     static boolean checkedMcoAvailability;
     private static boolean trialAvailable;
@@ -35,28 +37,36 @@ public class RealmsNotificationsScreen extends RealmsScreen {
     public void init() {
         this.checkIfMcoEnabled();
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        if (this.realmsDataSubscription != null) {
+            this.realmsDataSubscription.forceUpdate();
+        }
+
     }
 
     @Override
     public void tick() {
-        if ((!this.getRealmsNotificationsEnabled() || !this.inTitleScreen() || !validClient) && !REALMS_DATA_FETCHER.isStopped()) {
-            REALMS_DATA_FETCHER.stop();
-        } else if (validClient && this.getRealmsNotificationsEnabled()) {
-            REALMS_DATA_FETCHER.initWithSpecificTaskList();
-            if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.PENDING_INVITE)) {
-                this.numberOfPendingInvites = REALMS_DATA_FETCHER.getPendingInvitesCount();
-            }
-
-            if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.TRIAL_AVAILABLE)) {
-                trialAvailable = REALMS_DATA_FETCHER.isTrialAvailable();
-            }
-
-            if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.UNREAD_NEWS)) {
-                hasUnreadNews = REALMS_DATA_FETCHER.hasUnreadNews();
-            }
-
-            REALMS_DATA_FETCHER.markClean();
+        boolean var0 = this.getRealmsNotificationsEnabled() && this.inTitleScreen() && validClient;
+        if (this.realmsDataSubscription == null && var0) {
+            this.realmsDataSubscription = this.initDataFetcher(this.minecraft.realmsDataFetcher());
+        } else if (this.realmsDataSubscription != null && !var0) {
+            this.realmsDataSubscription = null;
         }
+
+        if (this.realmsDataSubscription != null) {
+            this.realmsDataSubscription.tick();
+        }
+
+    }
+
+    private DataFetcher.Subscription initDataFetcher(RealmsDataFetcher param0) {
+        DataFetcher.Subscription var0 = param0.dataFetcher.createSubscription();
+        var0.subscribe(param0.pendingInvitesTask, param0x -> this.numberOfPendingInvites = param0x);
+        var0.subscribe(param0.trialAvailabilityTask, param0x -> trialAvailable = param0x);
+        var0.subscribe(param0.newsTask, param1 -> {
+            param0.newsManager.updateUnreadNews(param1);
+            hasUnreadNews = param0.newsManager.hasUnreadNews();
+        });
+        return var0;
     }
 
     private boolean getRealmsNotificationsEnabled() {
@@ -139,10 +149,5 @@ public class RealmsNotificationsScreen extends RealmsScreen {
             GuiComponent.blit(param0, var3 + 4 - var5, var4 + 4, 0.0F, (float)var6, 8, 8, 8, 16);
         }
 
-    }
-
-    @Override
-    public void removed() {
-        REALMS_DATA_FETCHER.stop();
     }
 }

@@ -182,8 +182,8 @@ public class MultilineTextField {
                     return true;
                 case 259:
                     if (Screen.hasControlDown()) {
-                        MultilineTextField.StringView var4 = this.getPreviousWord();
-                        this.deleteText(var4.beginIndex - this.cursor);
+                        MultilineTextField.StringView var2 = this.getPreviousWord();
+                        this.deleteText(var2.beginIndex - this.cursor);
                     } else {
                         this.deleteText(-1);
                     }
@@ -191,8 +191,8 @@ public class MultilineTextField {
                     return true;
                 case 261:
                     if (Screen.hasControlDown()) {
-                        MultilineTextField.StringView var5 = this.getNextWord();
-                        this.deleteText(var5.beginIndex - this.cursor);
+                        MultilineTextField.StringView var3 = this.getNextWord();
+                        this.deleteText(var3.beginIndex - this.cursor);
                     } else {
                         this.deleteText(1);
                     }
@@ -235,16 +235,18 @@ public class MultilineTextField {
                     this.seekCursor(Whence.END, 0);
                     return true;
                 case 268:
-                    int var2 = this.getCursorLineView().beginIndex;
-                    if (var2 != this.cursor) {
-                        this.seekCursor(Whence.ABSOLUTE, var2);
+                    if (Screen.hasControlDown()) {
+                        this.seekCursor(Whence.ABSOLUTE, 0);
+                    } else {
+                        this.seekCursor(Whence.ABSOLUTE, this.getCursorLineView().beginIndex);
                     }
 
                     return true;
                 case 269:
-                    int var3 = this.getCursorLineView().endIndex;
-                    if (var3 != this.cursor) {
-                        this.seekCursor(Whence.ABSOLUTE, var3);
+                    if (Screen.hasControlDown()) {
+                        this.seekCursor(Whence.END, 0);
+                    } else {
+                        this.seekCursor(Whence.ABSOLUTE, this.getCursorLineView().endIndex);
                     }
 
                     return true;

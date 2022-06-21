@@ -188,7 +188,7 @@ public class MultiLineEditBox extends AbstractScrollWidget {
         super.renderDecorations(param0);
         if (this.textField.hasCharacterLimit()) {
             int var0 = this.textField.characterLimit();
-            String var1 = this.textField.value().length() + "/" + var0;
+            Component var1 = Component.translatable("gui.multiLineEditBox.character_limit", this.textField.value().length(), var0);
             drawString(param0, this.font, var1, this.x + this.width - this.font.width(var1), this.y + this.height + 4, 10526880);
         }
 

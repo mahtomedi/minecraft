@@ -86,25 +86,29 @@ public class RealmsClient {
 
     public static RealmsClient create() {
         Minecraft var0 = Minecraft.getInstance();
-        String var1 = var0.getUser().getName();
-        String var2 = var0.getUser().getSessionId();
+        return create(var0);
+    }
+
+    public static RealmsClient create(Minecraft param0) {
+        String var0 = param0.getUser().getName();
+        String var1 = param0.getUser().getSessionId();
         if (!initialized) {
             initialized = true;
-            String var3 = System.getenv("realms.environment");
-            if (var3 == null) {
-                var3 = System.getProperty("realms.environment");
+            String var2 = System.getenv("realms.environment");
+            if (var2 == null) {
+                var2 = System.getProperty("realms.environment");
             }
 
-            if (var3 != null) {
-                if ("LOCAL".equals(var3)) {
+            if (var2 != null) {
+                if ("LOCAL".equals(var2)) {
                     switchToLocal();
-                } else if ("STAGE".equals(var3)) {
+                } else if ("STAGE".equals(var2)) {
                     switchToStage();
                 }
             }
         }
 
-        return new RealmsClient(var2, var1, var0);
+        return new RealmsClient(var1, var0, param0);
     }
 
     public static void switchToStage() {

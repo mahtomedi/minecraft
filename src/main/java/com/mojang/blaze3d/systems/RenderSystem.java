@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.GraphicsStatus;
@@ -31,6 +30,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.TimeSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
@@ -528,9 +528,9 @@ public class RenderSystem {
         return apiDescription;
     }
 
-    public static LongSupplier initBackendSystem() {
+    public static TimeSource.NanoTimeSource initBackendSystem() {
         assertInInitPhase();
-        return GLX._initGlfw();
+        return GLX._initGlfw()::getAsLong;
     }
 
     public static void initRenderer(int param0, boolean param1) {

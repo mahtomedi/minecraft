@@ -270,28 +270,20 @@ public class ChatReportScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     class DiscardReportWarningScreen extends WarningScreen {
+        private static final Component TITLE = Component.translatable("gui.chatReport.discard.title").withStyle(ChatFormatting.BOLD);
+        private static final Component MESSAGE = Component.translatable("gui.chatReport.discard.content");
+        private static final Component RETURN = Component.translatable("gui.chatReport.discard.return");
+        private static final Component DISCARD = Component.translatable("gui.chatReport.discard.discard");
+
         protected DiscardReportWarningScreen() {
-            super(
-                Component.translatable("gui.chatReport.discard.title"),
-                Component.translatable("gui.chatReport.discard.content"),
-                Component.translatable("gui.chatReport.discard.content")
-            );
+            super(TITLE, MESSAGE, MESSAGE);
         }
 
         @Override
         protected void initButtons(int param0) {
+            this.addRenderableWidget(new Button(this.width / 2 - 155, 100 + param0, 150, 20, RETURN, param0x -> this.onClose()));
             this.addRenderableWidget(
-                new Button(this.width / 2 - 155, 100 + param0, 150, 20, Component.translatable("gui.chatReport.discard.return"), param0x -> this.onClose())
-            );
-            this.addRenderableWidget(
-                new Button(
-                    this.width / 2 + 5,
-                    100 + param0,
-                    150,
-                    20,
-                    Component.translatable("gui.chatReport.discard.discard"),
-                    param0x -> this.minecraft.setScreen(ChatReportScreen.this.lastScreen)
-                )
+                new Button(this.width / 2 + 5, 100 + param0, 150, 20, DISCARD, param0x -> this.minecraft.setScreen(ChatReportScreen.this.lastScreen))
             );
         }
 
@@ -303,6 +295,11 @@ public class ChatReportScreen extends Screen {
         @Override
         public boolean shouldCloseOnEsc() {
             return false;
+        }
+
+        @Override
+        protected void renderTitle(PoseStack param0) {
+            drawString(param0, this.font, this.title, this.width / 2 - 155, 30, 16777215);
         }
     }
 

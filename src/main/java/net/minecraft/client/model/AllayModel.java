@@ -100,7 +100,7 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
             float var9 = param0.getSpinningProgress(var2);
             float var10 = Mth.cos(var7) * 14.0F * (float) (Math.PI / 180.0);
             float var11 = Mth.cos(var7) * 30.0F * (float) (Math.PI / 180.0);
-            this.root.yRot = param0.isSpinning() ? ((float) (Math.PI * 4)) * var9 : this.root.yRot;
+            this.root.yRot = param0.isSpinning() ? (float) (Math.PI * 4) * var9 : this.root.yRot;
             this.root.zRot = var8 * (1.0F - var9);
             this.head.yRot = var11 * (1.0F - var9);
             this.head.zRot = var10 * (1.0F - var9);

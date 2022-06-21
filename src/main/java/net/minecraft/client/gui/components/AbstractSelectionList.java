@@ -130,6 +130,13 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         this.setScrollAmount((double)this.getMaxScroll() - var0);
     }
 
+    protected boolean removeEntryFromTop(E param0) {
+        double var0 = (double)this.getMaxScroll() - this.getScrollAmount();
+        boolean var1 = this.removeEntry(param0);
+        this.setScrollAmount((double)this.getMaxScroll() - var0);
+        return var1;
+    }
+
     protected int getItemCount() {
         return this.children().size();
     }

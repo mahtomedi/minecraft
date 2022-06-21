@@ -32,6 +32,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry> {
+    private static final ResourceLocation REPORT_BUTTON_LOCATION = new ResourceLocation("textures/gui/report_button.png");
     private static final int TOOLTIP_DELAY = 10;
     private static final int TOOLTIP_MAX_WIDTH = 150;
     private final Minecraft minecraft;
@@ -58,6 +59,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private static final Component OFFLINE = Component.translatable("gui.socialInteractions.status_offline").withStyle(ChatFormatting.ITALIC);
     private static final Component HIDDEN_OFFLINE = Component.translatable("gui.socialInteractions.status_hidden_offline").withStyle(ChatFormatting.ITALIC);
     private static final Component BLOCKED_OFFLINE = Component.translatable("gui.socialInteractions.status_blocked_offline").withStyle(ChatFormatting.ITALIC);
+    private static final Component REPORT_DISABLED_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report.disabled");
     private static final int SKIN_SIZE = 24;
     private static final int PADDING = 4;
     private static final int CHAT_TOGGLE_ICON_SIZE = 20;
@@ -74,29 +76,35 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         this.id = param2;
         this.playerName = param3;
         this.skinGetter = param4;
+        ReportingContext var0 = param0.getReportingContext();
+        boolean var1 = var0.sender().isEnabled();
         this.hideText = Component.translatable("gui.socialInteractions.tooltip.hide", param3);
         this.showText = Component.translatable("gui.socialInteractions.tooltip.show", param3);
-        this.reportText = Component.translatable("gui.socialInteractions.tooltip.report", param3);
+        if (var1) {
+            this.reportText = Component.translatable("gui.socialInteractions.tooltip.report", param3);
+        } else {
+            this.reportText = REPORT_DISABLED_TOOLTIP;
+        }
+
         this.hideTooltip = param0.font.split(this.hideText, 150);
         this.showTooltip = param0.font.split(this.showText, 150);
         this.reportTooltip = param0.font.split(this.reportText, 150);
-        PlayerSocialManager var0 = param0.getPlayerSocialManager();
-        boolean var1 = param0.getChatStatus().isChatAllowed(param0.isLocalServer());
-        boolean var2 = !param0.player.getUUID().equals(param2);
-        if (var2 && var1 && !var0.isBlocked(param2)) {
-            ReportingContext var3 = param0.getReportingContext();
+        PlayerSocialManager var2 = param0.getPlayerSocialManager();
+        boolean var3 = param0.getChatStatus().isChatAllowed(param0.isLocalServer());
+        boolean var4 = !param0.player.getUUID().equals(param2);
+        if (var4 && var3 && !var2.isBlocked(param2)) {
             this.reportButton = new ImageButton(
                 0,
                 0,
                 20,
                 20,
-                40,
-                38,
+                0,
+                0,
                 20,
-                SocialInteractionsScreen.SOCIAL_INTERACTIONS_LOCATION,
-                256,
-                256,
-                param3x -> param0.setScreen(new ChatReportScreen(param0.screen, var3, param2)),
+                REPORT_BUTTON_LOCATION,
+                64,
+                64,
+                param3x -> param0.setScreen(new ChatReportScreen(param0.screen, var0, param2)),
                 new Button.OnTooltip() {
                     @Override
                     public void onTooltip(Button param0x, PoseStack param1x, int param2, int param3) {
@@ -120,7 +128,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
                 }
             };
             this.hideButton = new ImageButton(0, 0, 20, 20, 0, 38, 20, SocialInteractionsScreen.SOCIAL_INTERACTIONS_LOCATION, 256, 256, param3x -> {
-                var0.hidePlayer(param2);
+                var2.hidePlayer(param2);
                 this.onHiddenOrShown(true, Component.translatable("gui.socialInteractions.hidden_in_chat", param3));
             }, new Button.OnTooltip() {
                 @Override
@@ -143,7 +151,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
                 }
             };
             this.showButton = new ImageButton(0, 0, 20, 20, 20, 38, 20, SocialInteractionsScreen.SOCIAL_INTERACTIONS_LOCATION, 256, 256, param3x -> {
-                var0.showPlayer(param2);
+                var2.showPlayer(param2);
                 this.onHiddenOrShown(false, Component.translatable("gui.socialInteractions.shown_in_chat", param3));
             }, new Button.OnTooltip() {
                 @Override
@@ -165,9 +173,9 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
                     return PlayerEntry.this.getEntryNarationMessage(super.createNarrationMessage());
                 }
             };
-            this.showButton.visible = var0.isHidden(param2);
+            this.showButton.visible = var2.isHidden(param2);
             this.hideButton.visible = !this.showButton.visible;
-            this.reportButton.active = var3.sender().isEnabled();
+            this.reportButton.active = var1;
             this.children = ImmutableList.of(this.hideButton, this.showButton, this.reportButton);
         } else {
             this.children = ImmutableList.of();

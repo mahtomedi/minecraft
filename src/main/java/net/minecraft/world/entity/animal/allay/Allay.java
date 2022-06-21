@@ -76,7 +76,8 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     private static final float SPINNING_ANIMATION_DURATION = 15.0F;
     private static final float PATHFINDING_BOUNDING_BOX_PADDING = 0.5F;
     private static final Ingredient DUPLICATION_ITEM = Ingredient.of(Items.AMETHYST_SHARD);
-    private static final int DUPLICATION_COOLDOWN_TICKS = 2400;
+    private static final int DUPLICATION_COOLDOWN_TICKS = 6000;
+    private static final int NUM_OF_DUPLICATION_HEARTS = 3;
     private static final EntityDataAccessor<Boolean> DATA_DANCING = SynchedEntityData.defineId(Allay.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_CAN_DUPLICATE = SynchedEntityData.defineId(Allay.class, EntityDataSerializers.BOOLEAN);
     protected static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
@@ -111,7 +112,6 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     private float dancingAnimationTicks;
     private float spinningAnimationTicks;
     private float spinningAnimationTicks0;
-    private int numOfDuplicatingHearts;
 
     public Allay(EntityType<? extends Allay> param0, Level param1) {
         super(param0, param1);
@@ -258,14 +258,6 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
             this.jukeboxPos = null;
         }
 
-        if (this.numOfDuplicatingHearts > 0) {
-            --this.numOfDuplicatingHearts;
-            double var0 = this.random.nextGaussian() * 0.02;
-            double var1 = this.random.nextGaussian() * 0.02;
-            double var2 = this.random.nextGaussian() * 0.02;
-            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
-        }
-
         this.updateDuplicationCooldown();
     }
 
@@ -325,7 +317,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         ItemStack var1 = this.getItemInHand(InteractionHand.MAIN_HAND);
         if (this.isDancing() && this.isDuplicationItem(var0) && this.canDuplicate()) {
             this.duplicateAllay();
-            this.numOfDuplicatingHearts = 3;
+            this.level.broadcastEntityEvent(this, (byte)18);
             this.level.playSound(param0, this, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.NEUTRAL, 2.0F, 1.0F);
             this.removeInteractionItem(param0, var0);
             return InteractionResult.SUCCESS;
@@ -502,9 +494,10 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     private void updateDuplicationCooldown() {
         if (this.duplicationCooldown > 0L) {
             --this.duplicationCooldown;
-            if (this.duplicationCooldown == 0L) {
-                this.entityData.set(DATA_CAN_DUPLICATE, true);
-            }
+        }
+
+        if (!this.level.isClientSide() && this.duplicationCooldown == 0L && !this.canDuplicate()) {
+            this.entityData.set(DATA_CAN_DUPLICATE, true);
         }
 
     }
@@ -526,7 +519,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     }
 
     private void resetDuplicationCooldown() {
-        this.duplicationCooldown = 2400L;
+        this.duplicationCooldown = 6000L;
         this.entityData.set(DATA_CAN_DUPLICATE, false);
     }
 
@@ -544,6 +537,25 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)this.getEyeHeight() * 0.6, (double)this.getBbWidth() * 0.1);
+    }
+
+    @Override
+    public void handleEntityEvent(byte param0) {
+        if (param0 == 18) {
+            for(int var0 = 0; var0 < 3; ++var0) {
+                this.spawnHeartParticle();
+            }
+        } else {
+            super.handleEntityEvent(param0);
+        }
+
+    }
+
+    private void spawnHeartParticle() {
+        double var0 = this.random.nextGaussian() * 0.02;
+        double var1 = this.random.nextGaussian() * 0.02;
+        double var2 = this.random.nextGaussian() * 0.02;
+        this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
     }
 
     class AllayVibrationListenerConfig implements VibrationListener.VibrationListenerConfig {

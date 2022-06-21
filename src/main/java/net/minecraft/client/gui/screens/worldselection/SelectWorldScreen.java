@@ -3,7 +3,6 @@ package net.minecraft.client.gui.screens.worldselection;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.util.List;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -47,8 +46,8 @@ public class SelectWorldScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.searchBox = new EditBox(this.font, this.width / 2 - 100, 22, 200, 20, this.searchBox, Component.translatable("selectWorld.search"));
-        this.searchBox.setResponder(param0 -> this.list.refreshList(param0));
-        this.list = new WorldSelectionList(this, this.minecraft, this.width, this.height, 48, this.height - 64, 36, this.getFilterSupplier(), this.list);
+        this.searchBox.setResponder(param0 -> this.list.updateFilter(param0));
+        this.list = new WorldSelectionList(this, this.minecraft, this.width, this.height, 48, this.height - 64, 36, this.searchBox.getValue(), this.list);
         this.addWidget(this.searchBox);
         this.addWidget(this.list);
         this.selectButton = this.addRenderableWidget(
@@ -153,9 +152,5 @@ public class SelectWorldScreen extends Screen {
             this.list.children().forEach(WorldSelectionList.Entry::close);
         }
 
-    }
-
-    public Supplier<String> getFilterSupplier() {
-        return () -> this.searchBox.getValue();
     }
 }

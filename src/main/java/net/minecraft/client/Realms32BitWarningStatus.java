@@ -49,7 +49,7 @@ public class Realms32BitWarningStatus {
 
     private boolean hasRealmsSubscription() {
         try {
-            return RealmsClient.create()
+            return RealmsClient.create(this.minecraft)
                 .listWorlds()
                 .servers
                 .stream()

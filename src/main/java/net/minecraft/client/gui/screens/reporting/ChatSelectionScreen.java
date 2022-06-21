@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,10 +37,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChatSelectionScreen extends Screen {
+    private static final Component TITLE = Component.translatable("gui.chatSelection.title");
+    private static final Component CONTEXT_INFO = Component.translatable("gui.chatSelection.context").withStyle(ChatFormatting.GRAY);
     @Nullable
     private final Screen lastScreen;
     private final ReportingContext reportingContext;
     private Button confirmSelectedButton;
+    private MultiLineLabel contextInfoLabel;
     @Nullable
     private ChatSelectionScreen.ChatSelectionList chatSelectionList;
     final ChatReportBuilder report;
@@ -48,7 +53,7 @@ public class ChatSelectionScreen extends Screen {
     private List<FormattedCharSequence> tooltip;
 
     public ChatSelectionScreen(@Nullable Screen param0, ReportingContext param1, ChatReportBuilder param2, Consumer<ChatReportBuilder> param3) {
-        super(Component.translatable("gui.chatSelection.title"));
+        super(TITLE);
         this.lastScreen = param0;
         this.reportingContext = param1;
         this.report = param2.copy();
@@ -58,7 +63,8 @@ public class ChatSelectionScreen extends Screen {
     @Override
     protected void init() {
         this.chatLogFiller = new ChatSelectionLogFiller(this.reportingContext.chatLog(), this::canReport);
-        this.chatSelectionList = new ChatSelectionScreen.ChatSelectionList(this.minecraft);
+        this.contextInfoLabel = MultiLineLabel.create(this.font, CONTEXT_INFO, this.width - 16);
+        this.chatSelectionList = new ChatSelectionScreen.ChatSelectionList(this.minecraft, (this.contextInfoLabel.getLineCount() + 1) * 9);
         this.chatSelectionList.setRenderBackground(false);
         this.addWidget(this.chatSelectionList);
         this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 32, 150, 20, CommonComponents.GUI_BACK, param0 -> this.onClose()));
@@ -100,6 +106,7 @@ public class ChatSelectionScreen extends Screen {
         int var2 = var0.maxReportedMessageCount();
         Component var3 = Component.translatable("gui.chatSelection.selected", var1, var2);
         drawCenteredString(param0, this.font, var3, this.width / 2, 16 + 9 * 3 / 2, 10526880);
+        this.contextInfoLabel.renderCentered(param0, this.width / 2, this.chatSelectionList.getFooterTop());
         super.render(param0, param1, param2, param3);
         if (this.tooltip != null) {
             this.renderTooltip(param0, this.tooltip, param1, param2);
@@ -113,6 +120,11 @@ public class ChatSelectionScreen extends Screen {
         this.minecraft.setScreen(this.lastScreen);
     }
 
+    @Override
+    public Component getNarrationMessage() {
+        return CommonComponents.joinForNarration(super.getNarrationMessage(), CONTEXT_INFO);
+    }
+
     void setTooltip(@Nullable List<FormattedCharSequence> param0) {
         this.tooltip = param0;
     }
@@ -122,8 +134,8 @@ public class ChatSelectionScreen extends Screen {
         @Nullable
         private ChatSelectionScreen.ChatSelectionList.Heading previousHeading;
 
-        public ChatSelectionList(Minecraft param1) {
-            super(param1, ChatSelectionScreen.this.width, ChatSelectionScreen.this.height, 40, ChatSelectionScreen.this.height - 40, 16);
+        public ChatSelectionList(Minecraft param1, int param2) {
+            super(param1, ChatSelectionScreen.this.width, ChatSelectionScreen.this.height, 40, ChatSelectionScreen.this.height - 40 - param2, 16);
         }
 
         @Override
@@ -163,7 +175,7 @@ public class ChatSelectionScreen extends Screen {
             this.addEntryToTop(var0);
             ChatSelectionScreen.ChatSelectionList.Heading var1 = new ChatSelectionScreen.ChatSelectionList.Heading(param0.profileId(), var0);
             if (this.previousHeading != null && this.previousHeading.canCombine(var1)) {
-                this.removeEntry(this.previousHeading.entry());
+                this.removeEntryFromTop(this.previousHeading.entry());
             }
 
             this.previousHeading = var1;
@@ -222,6 +234,10 @@ public class ChatSelectionScreen extends Screen {
         public boolean keyPressed(int param0, int param1, int param2) {
             ChatSelectionScreen.ChatSelectionList.Entry var0 = this.getSelected();
             return var0 != null && var0.keyPressed(param0, param1, param2) ? true : super.keyPressed(param0, param1, param2);
+        }
+
+        public int getFooterTop() {
+            return this.y1 + 9;
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -288,7 +304,7 @@ public class ChatSelectionScreen extends Screen {
             public MessageEntry(int param1, Component param2, Component param3, boolean param4, boolean param5) {
                 this.chatId = param1;
                 FormattedText var0 = ChatSelectionScreen.this.font
-                    .substrByWidth(param2, ChatSelectionList.this.getRowWidth() - ChatSelectionScreen.this.font.width(CommonComponents.ELLIPSIS));
+                    .substrByWidth(param2, this.getMaximumTextWidth() - ChatSelectionScreen.this.font.width(CommonComponents.ELLIPSIS));
                 if (param2 != var0) {
                     this.text = FormattedText.composite(var0, CommonComponents.ELLIPSIS);
                     this.hoverText = ChatSelectionScreen.this.font.split(param2, ChatSelectionList.this.getRowWidth());
@@ -310,7 +326,7 @@ public class ChatSelectionScreen extends Screen {
                     GuiComponent.fill(param0, param3 - 1, param2 - 1, param3 + param4 - 3, param2 + param5 + 1, -16777216);
                 }
 
-                int var0 = this.playerMessage ? param3 + 8 : param3;
+                int var0 = param3 + this.getTextIndent();
                 int var1 = param2 + 1 + (param5 - 9) / 2;
                 GuiComponent.drawString(
                     param0, ChatSelectionScreen.this.font, Language.getInstance().getVisualOrder(this.text), var0, var1, this.canReport ? -1 : -1593835521
@@ -319,6 +335,14 @@ public class ChatSelectionScreen extends Screen {
                     ChatSelectionScreen.this.setTooltip(this.hoverText);
                 }
 
+            }
+
+            private int getMaximumTextWidth() {
+                return ChatSelectionList.this.getRowWidth() - this.getTextIndent();
+            }
+
+            private int getTextIndent() {
+                return this.playerMessage ? 8 : 0;
             }
 
             @Override

@@ -16,7 +16,7 @@ public class GenericWaitingScreen extends Screen {
     private static final int TITLE_Y = 80;
     private static final int MESSAGE_Y = 120;
     private static final int MESSAGE_MAX_WIDTH = 360;
-    private final Component initialButtonLabel;
+    private Component buttonLabel;
     private Runnable buttonCallback;
     @Nullable
     private MultiLineLabel message;
@@ -25,14 +25,14 @@ public class GenericWaitingScreen extends Screen {
 
     public GenericWaitingScreen(Component param0, Component param1, Runnable param2) {
         super(param0);
-        this.initialButtonLabel = param1;
+        this.buttonLabel = param1;
         this.buttonCallback = param2;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.initButton(this.initialButtonLabel);
+        this.initButton();
     }
 
     @Override
@@ -56,7 +56,12 @@ public class GenericWaitingScreen extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-        return false;
+        return this.message != null && this.button.active;
+    }
+
+    @Override
+    public void onClose() {
+        this.buttonCallback.run();
     }
 
     public void update(Component param0, Runnable param1) {
@@ -64,6 +69,7 @@ public class GenericWaitingScreen extends Screen {
     }
 
     public void update(@Nullable Component param0, Component param1, Runnable param2) {
+        this.buttonLabel = param1;
         this.buttonCallback = param2;
         if (param0 != null) {
             this.message = MultiLineLabel.create(this.font, param0, 360);
@@ -72,16 +78,17 @@ public class GenericWaitingScreen extends Screen {
             this.message = null;
         }
 
-        this.initButton(param1);
+        this.initButton();
         this.disableButtonUntil = Util.getMillis() + TimeUnit.SECONDS.toMillis(1L);
     }
 
-    private void initButton(Component param0) {
+    private void initButton() {
         this.removeWidget(this.button);
         int var0 = 150;
         int var1 = 20;
         int var2 = this.message != null ? this.message.getLineCount() : 1;
-        int var3 = Math.min(120 + (var2 + 4) * 9, this.height - 40);
-        this.button = this.addRenderableWidget(new Button((this.width - 150) / 2, var3, 150, 20, param0, param0x -> this.buttonCallback.run()));
+        int var3 = Math.max(var2, 5) * 9;
+        int var4 = Math.min(120 + var3, this.height - 40);
+        this.button = this.addRenderableWidget(new Button((this.width - 150) / 2, var4, 150, 20, this.buttonLabel, param0 -> this.onClose()));
     }
 }
