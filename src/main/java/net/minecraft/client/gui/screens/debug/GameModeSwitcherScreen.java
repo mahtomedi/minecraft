@@ -116,7 +116,7 @@ public class GameModeSwitcherScreen extends Screen {
             Optional<GameModeSwitcherScreen.GameModeIcon> var0 = GameModeSwitcherScreen.GameModeIcon.getFromGameType(param0.gameMode.getPlayerMode());
             GameModeSwitcherScreen.GameModeIcon var1 = param1.get();
             if (var0.isPresent() && param0.player.hasPermissions(2) && var1 != var0.get()) {
-                param0.player.command(var1.getCommand());
+                param0.player.commandUnsigned(var1.getCommand());
             }
 
         }

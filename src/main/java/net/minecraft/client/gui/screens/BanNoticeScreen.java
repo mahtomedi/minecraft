@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.chat.report.ReportReason;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,23 +33,29 @@ public class BanNoticeScreen {
 
     private static Component getBannedScreenText(BanDetails param0) {
         return Component.translatable(
-            "gui.banned.description",
-            getBanReasonText(param0),
-            getBanStatusText(param0),
-            ConfirmLinkScreen.confirmMessage(true, "https://aka.ms/mcjavamoderation")
+            "gui.banned.description", getBanReasonText(param0), getBanStatusText(param0), Component.literal("https://aka.ms/mcjavamoderation")
         );
     }
 
     private static Component getBanReasonText(BanDetails param0) {
-        Component var0 = null;
-        String var1 = param0.reason();
-        if (StringUtils.isNumeric(var1)) {
-            var0 = ReportReason.getTranslationById(Integer.parseInt(var1));
-        }
+        String var0 = param0.reason();
+        String var1 = param0.reasonMessage();
+        if (StringUtils.isNumeric(var0)) {
+            int var2 = Integer.parseInt(var0);
+            Component var3 = ReportReason.getTranslationById(var2);
+            MutableComponent var5;
+            if (var3 != null) {
+                var5 = ComponentUtils.mergeStyles(var3.copy(), Style.EMPTY.withBold(true));
+            } else if (var1 != null) {
+                var5 = Component.translatable("gui.banned.description.reason_id_message", var2, var1).withStyle(ChatFormatting.BOLD);
+            } else {
+                var5 = Component.translatable("gui.banned.description.reason_id", var2).withStyle(ChatFormatting.BOLD);
+            }
 
-        return var0 != null
-            ? Component.translatable("gui.banned.description.reason", ComponentUtils.mergeStyles(var0.copy(), Style.EMPTY.withBold(true)))
-            : Component.translatable("gui.banned.description.unknownreason");
+            return Component.translatable("gui.banned.description.reason", var5);
+        } else {
+            return Component.translatable("gui.banned.description.unknownreason");
+        }
     }
 
     private static Component getBanStatusText(BanDetails param0) {

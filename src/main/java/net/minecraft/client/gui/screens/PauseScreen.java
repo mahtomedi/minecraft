@@ -123,7 +123,7 @@ public class PauseScreen extends Screen {
                     98,
                     20,
                     Component.translatable("menu.playerReporting"),
-                    param0 -> this.minecraft.setScreen(SocialInteractionsScreen.createWithWarning())
+                    param0 -> this.minecraft.setScreen(new SocialInteractionsScreen())
                 )
             );
         }

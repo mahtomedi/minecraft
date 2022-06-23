@@ -28,8 +28,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ChatReportBuilder {
     private static final String REPORT_TYPE_CHAT = "CHAT";
-    private static final int CONTEXT_FRONT = 2;
-    private static final int CONTEXT_BACK = 4;
     private final UUID id;
     private final Instant createdAt;
     private final UUID reportedProfileId;
@@ -151,8 +149,8 @@ public class ChatReportBuilder {
     }
 
     private IntStream selectContextMessages(ChatLog param0, int param1) {
-        int var0 = param0.offsetClamped(param1, -4);
-        int var1 = param0.offsetClamped(param1, 2);
+        int var0 = param0.offsetClamped(param1, -this.limits.leadingContextMessageCount());
+        int var1 = param0.offsetClamped(param1, this.limits.trailingContextMessageCount());
         return param0.selectBetween(var0, var1).ids();
     }
 

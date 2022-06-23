@@ -25,6 +25,7 @@ import net.minecraft.util.datafix.fixes.BedItemColorFix;
 import net.minecraft.util.datafix.fixes.BiomeFix;
 import net.minecraft.util.datafix.fixes.BitStorageAlignFix;
 import net.minecraft.util.datafix.fixes.BlendingDataFix;
+import net.minecraft.util.datafix.fixes.BlendingDataRemoveFromNetherEndFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBannerColorFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBlockStateFix;
 import net.minecraft.util.datafix.fixes.BlockEntityCustomNameToComponentFix;
@@ -998,6 +999,8 @@ public class DataFixers {
             )
         );
         param0.addFixer(new PoiTypeRemoveFix(var173, "Remove unpopulated villager PoI types", Set.of("minecraft:unemployed", "minecraft:nitwit")::contains));
+        Schema var175 = param0.addSchema(3108, SAME_NAMESPACED);
+        param0.addFixer(new BlendingDataRemoveFromNetherEndFix(var175));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

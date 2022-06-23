@@ -1,15 +1,10 @@
 package net.minecraft.client.gui.spectator;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -25,13 +20,7 @@ public class PlayerMenuItem implements SpectatorMenuItem {
     public PlayerMenuItem(GameProfile param0) {
         this.profile = param0;
         Minecraft var0 = Minecraft.getInstance();
-        Map<Type, MinecraftProfileTexture> var1 = var0.getSkinManager().getInsecureSkinInformation(param0);
-        if (var1.containsKey(Type.SKIN)) {
-            this.location = var0.getSkinManager().registerTexture(var1.get(Type.SKIN), Type.SKIN);
-        } else {
-            this.location = DefaultPlayerSkin.getDefaultSkin(UUIDUtil.getOrCreatePlayerUUID(param0));
-        }
-
+        this.location = var0.getSkinManager().getInsecureSkinLocation(param0);
         this.name = Component.literal(param0.getName());
     }
 

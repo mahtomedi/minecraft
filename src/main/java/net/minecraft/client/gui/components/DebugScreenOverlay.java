@@ -328,8 +328,8 @@ public class DebugScreenOverlay extends GuiComponent {
                     );
                 }
 
-                if (var23 != null) {
-                    var17.add(String.format("Blending: %s", var23.isOldNoiseGeneration() ? "Old" : "New"));
+                if (var23 != null && var23.isOldNoiseGeneration()) {
+                    var17.add("Blending: Old");
                 }
             }
 

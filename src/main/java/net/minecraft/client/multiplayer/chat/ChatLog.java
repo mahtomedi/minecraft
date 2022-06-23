@@ -1,6 +1,8 @@
 package net.minecraft.client.multiplayer.chat;
 
+import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.ints.IntList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Spliterators;
 import java.util.PrimitiveIterator.OfInt;
@@ -48,6 +50,10 @@ public interface ChatLog {
 
     default ChatLog.Selection selectAll() {
         return this.selectAfter(this.oldest());
+    }
+
+    default ChatLog.Selection selectAllDescending() {
+        return this.selectBefore(this.newest());
     }
 
     default ChatLog.Selection selectAfter(int param0) {
@@ -103,6 +109,10 @@ public interface ChatLog {
 
         public Stream<LoggedChat> messages() {
             return this.ids().mapToObj(this.log::lookup).filter(Objects::nonNull);
+        }
+
+        public Collection<GameProfile> distinctGameProfiles() {
+            return this.messages().map(param0 -> param0 instanceof LoggedChat.Player var0 ? var0.profile() : null).filter(Objects::nonNull).distinct().toList();
         }
 
         public Stream<LoggedChat.WithId> messagesWithIds() {

@@ -1,7 +1,9 @@
 package net.minecraft.client.gui.screens.social;
 
 import com.google.common.base.Strings;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
@@ -43,6 +45,17 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
     }
 
     public void updatePlayerList(Collection<UUID> param0, double param1) {
+        this.addOnlinePlayers(param0);
+        this.updateFiltersAndScroll(param1);
+    }
+
+    public void updatePlayerListWithLog(Collection<UUID> param0, double param1) {
+        this.addOnlinePlayers(param0);
+        this.addPlayersFromLog(param0);
+        this.updateFiltersAndScroll(param1);
+    }
+
+    private void addOnlinePlayers(Collection<UUID> param0) {
         this.players.clear();
 
         for(UUID var0 : param0) {
@@ -57,10 +70,30 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
             }
         }
 
+        this.players.sort((param0x, param1) -> param0x.getPlayerName().compareToIgnoreCase(param1.getPlayerName()));
+    }
+
+    private void addPlayersFromLog(Collection<UUID> param0) {
+        for(GameProfile var1 : this.minecraft.getReportingContext().chatLog().selectAllDescending().distinctGameProfiles()) {
+            if (!param0.contains(var1.getId())) {
+                PlayerEntry var2 = new PlayerEntry(
+                    this.minecraft,
+                    this.socialInteractionsScreen,
+                    var1.getId(),
+                    var1.getName(),
+                    Suppliers.memoize(() -> this.minecraft.getSkinManager().getInsecureSkinLocation(var1))
+                );
+                var2.setRemoved(true);
+                this.players.add(var2);
+            }
+        }
+
+    }
+
+    private void updateFiltersAndScroll(double param0) {
         this.updateFilteredPlayers();
-        this.players.sort((param0x, param1x) -> param0x.getPlayerName().compareToIgnoreCase(param1x.getPlayerName()));
         this.replaceEntries(this.players);
-        this.setScrollAmount(param1);
+        this.setScrollAmount(param0);
     }
 
     private void updateFilteredPlayers() {

@@ -3,13 +3,11 @@ package net.minecraft.client.gui.screens.reporting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.chat.report.ReportReason;
@@ -20,13 +18,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ReportReasonSelectionScreen extends Screen {
-    private static final String STANDARDS_LINK = "https://aka.ms/mccommunitystandards";
+    private static final String ADDITIONAL_INFO_LINK = "https://aka.ms/aboutjavareporting";
     private static final Component REASON_TITLE = Component.translatable("gui.abuseReport.reason.title");
     private static final Component REASON_DESCRIPTION = Component.translatable("gui.abuseReport.reason.description");
-    private static final Component COMMUNITY_STANDARDS_LABEL = Component.translatable(
-            "gui.chatReport.standards", Component.translatable("gui.chatReport.standards_name").withStyle(ChatFormatting.UNDERLINE)
-        )
-        .withStyle(ChatFormatting.GRAY);
+    private static final Component READ_INFO_LABEL = Component.translatable("gui.chatReport.read_info");
     private static final int FOOTER_HEIGHT = 85;
     private static final int BUTTON_WIDTH = 150;
     private static final int BUTTON_HEIGHT = 20;
@@ -49,23 +44,23 @@ public class ReportReasonSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        int var0 = this.font.width(COMMUNITY_STANDARDS_LABEL);
-        int var1 = (this.width - var0) / 2;
-        this.addRenderableWidget(
-            new PlainTextButton(var1, 16 + 9 * 3 / 2, var0, 9, COMMUNITY_STANDARDS_LABEL, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-                    if (param0x) {
-                        Util.getPlatform().openUri("https://aka.ms/mccommunitystandards");
-                    }
-    
-                    this.minecraft.setScreen(this);
-                }, "https://aka.ms/mccommunitystandards", true)), this.font)
-        );
         this.reasonSelectionList = new ReportReasonSelectionScreen.ReasonSelectionList(this.minecraft);
         this.reasonSelectionList.setRenderBackground(false);
         this.addWidget(this.reasonSelectionList);
-        ReportReasonSelectionScreen.ReasonSelectionList.Entry var2 = Util.mapNullable(this.selectedReasonOnInit, this.reasonSelectionList::findEntry);
-        this.reasonSelectionList.setSelected(var2);
-        this.addRenderableWidget(new Button(this.buttonLeft(), this.buttonTop(), 150, 20, CommonComponents.GUI_DONE, param0 -> {
+        ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Util.mapNullable(this.selectedReasonOnInit, this.reasonSelectionList::findEntry);
+        this.reasonSelectionList.setSelected(var0);
+        int var1 = this.width / 2 - 150 - 5;
+        this.addRenderableWidget(
+            new Button(var1, this.buttonTop(), 150, 20, READ_INFO_LABEL, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
+                    if (param0x) {
+                        Util.getPlatform().openUri("https://aka.ms/aboutjavareporting");
+                    }
+    
+                    this.minecraft.setScreen(this);
+                }, "https://aka.ms/aboutjavareporting", true)))
+        );
+        int var2 = this.width / 2 + 5;
+        this.addRenderableWidget(new Button(var2, this.buttonTop(), 150, 20, CommonComponents.GUI_DONE, param0 -> {
             ReportReasonSelectionScreen.ReasonSelectionList.Entry var0x = this.reasonSelectionList.getSelected();
             if (var0x != null) {
                 this.onSelectedReason.accept(var0x.getReason());
@@ -96,10 +91,6 @@ public class ReportReasonSelectionScreen extends Screen {
             this.font.drawWordWrap(var0.reason.description(), var1, var3 + (var6 - var7) / 2, var5, -1);
         }
 
-    }
-
-    private int buttonLeft() {
-        return this.contentRight() - 150;
     }
 
     private int buttonTop() {

@@ -181,11 +181,13 @@ public class KeyboardHandler {
                     if (!this.minecraft.player.hasPermissions(2)) {
                         this.debugFeedbackTranslated("debug.creative_spectator.error");
                     } else if (!this.minecraft.player.isSpectator()) {
-                        this.minecraft.player.command("gamemode spectator");
+                        this.minecraft.player.commandUnsigned("gamemode spectator");
                     } else {
                         this.minecraft
                             .player
-                            .command("gamemode " + MoreObjects.firstNonNull(this.minecraft.gameMode.getPreviousPlayerMode(), GameType.CREATIVE).getName());
+                            .commandUnsigned(
+                                "gamemode " + MoreObjects.firstNonNull(this.minecraft.gameMode.getPreviousPlayerMode(), GameType.CREATIVE).getName()
+                            );
                     }
 
                     return true;

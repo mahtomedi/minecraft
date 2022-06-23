@@ -52,7 +52,7 @@ public class PlayerInfo {
         try {
             ProfilePublicKey.Data var1 = param0.getProfilePublicKey();
             if (var1 != null) {
-                var0 = ProfilePublicKey.createValidated(param1, var1);
+                var0 = ProfilePublicKey.createValidated(param1, this.profile.getId(), var1);
             }
         } catch (InsecurePublicKeyException | CryptException var5) {
             LOGGER.error("Failed to retrieve publicKey property for profile {}", this.profile.getId(), var5);

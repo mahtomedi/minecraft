@@ -1835,7 +1835,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     this.socialInteractionsToast = null;
                 }
 
-                this.setScreen(SocialInteractionsScreen.createWithWarning());
+                this.setScreen(new SocialInteractionsScreen());
             }
         }
 
@@ -2080,7 +2080,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     @Nullable
-    private BanDetails multiplayerBan() {
+    public BanDetails multiplayerBan() {
         return this.userApiService.properties().bannedScopes().get("MULTIPLAYER");
     }
 

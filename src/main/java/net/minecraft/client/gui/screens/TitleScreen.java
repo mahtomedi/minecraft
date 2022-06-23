@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens;
 
 import com.google.common.util.concurrent.Runnables;
+import com.mojang.authlib.minecraft.BanDetails;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -201,37 +202,49 @@ public class TitleScreen extends Screen {
                 param0x -> this.minecraft.setScreen(new SelectWorldScreen(this))
             )
         );
-        boolean var0 = this.minecraft.allowsMultiplayer();
-        Button.OnTooltip var1 = var0
+        final Component var0 = this.getMultiplayerDisabledReason();
+        boolean var1 = var0 == null;
+        Button.OnTooltip var2 = var0 == null
             ? Button.NO_TOOLTIP
             : new Button.OnTooltip() {
-                private final Component text = Component.translatable("title.multiplayer.disabled");
-    
                 @Override
                 public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
-                    if (!param0.active) {
-                        TitleScreen.this.renderTooltip(
-                            param1, TitleScreen.this.minecraft.font.split(this.text, Math.max(TitleScreen.this.width / 2 - 43, 170)), param2, param3
-                        );
-                    }
-    
+                    TitleScreen.this.renderTooltip(
+                        param1, TitleScreen.this.minecraft.font.split(var0, Math.max(TitleScreen.this.width / 2 - 43, 170)), param2, param3
+                    );
                 }
     
                 @Override
                 public void narrateTooltip(Consumer<Component> param0) {
-                    param0.accept(this.text);
+                    param0.accept(var0);
                 }
             };
         this.addRenderableWidget(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, Component.translatable("menu.multiplayer"), param0x -> {
             Screen var0x = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
             this.minecraft.setScreen(var0x);
-        }, var1)).active = var0;
+        }, var2)).active = var1;
         this.addRenderableWidget(
                 new Button(
-                    this.width / 2 - 100, param0 + param1 * 2, 200, 20, Component.translatable("menu.online"), param0x -> this.realmsButtonClicked(), var1
+                    this.width / 2 - 100, param0 + param1 * 2, 200, 20, Component.translatable("menu.online"), param0x -> this.realmsButtonClicked(), var2
                 )
             )
-            .active = var0;
+            .active = var1;
+    }
+
+    @Nullable
+    private Component getMultiplayerDisabledReason() {
+        if (this.minecraft.allowsMultiplayer()) {
+            return null;
+        } else {
+            BanDetails var0 = this.minecraft.multiplayerBan();
+            if (var0 != null) {
+                return var0.expires() != null
+                    ? Component.translatable("title.multiplayer.disabled.banned.temporary")
+                    : Component.translatable("title.multiplayer.disabled.banned.permanent");
+            } else {
+                return Component.translatable("title.multiplayer.disabled");
+            }
+        }
     }
 
     private void createDemoMenuOptions(int param0, int param1) {

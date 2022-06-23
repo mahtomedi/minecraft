@@ -386,9 +386,9 @@ public class ChatScreen extends Screen {
 
             Component var0 = this.chatPreview.pull(param0);
             if (param0.startsWith("/")) {
-                this.minecraft.player.command(param0.substring(1), var0);
+                this.minecraft.player.commandSigned(param0.substring(1), var0);
             } else {
-                this.minecraft.player.chat(param0, var0);
+                this.minecraft.player.chatSigned(param0, var0);
             }
 
         }

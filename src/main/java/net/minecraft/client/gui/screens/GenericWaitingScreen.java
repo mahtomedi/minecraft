@@ -1,12 +1,11 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,28 +15,53 @@ public class GenericWaitingScreen extends Screen {
     private static final int TITLE_Y = 80;
     private static final int MESSAGE_Y = 120;
     private static final int MESSAGE_MAX_WIDTH = 360;
-    private Component buttonLabel;
-    private Runnable buttonCallback;
+    @Nullable
+    private final Component messageText;
+    private final Component buttonLabel;
+    private final Runnable buttonCallback;
     @Nullable
     private MultiLineLabel message;
     private Button button;
-    private long disableButtonUntil;
+    private int disableButtonTicks;
 
-    public GenericWaitingScreen(Component param0, Component param1, Runnable param2) {
+    public static GenericWaitingScreen createWaiting(Component param0, Component param1, Runnable param2) {
+        return new GenericWaitingScreen(param0, null, param1, param2, 0);
+    }
+
+    public static GenericWaitingScreen createCompleted(Component param0, Component param1, Component param2, Runnable param3) {
+        return new GenericWaitingScreen(param0, param1, param2, param3, 20);
+    }
+
+    protected GenericWaitingScreen(Component param0, @Nullable Component param1, Component param2, Runnable param3, int param4) {
         super(param0);
-        this.buttonLabel = param1;
-        this.buttonCallback = param2;
+        this.messageText = param1;
+        this.buttonLabel = param2;
+        this.buttonCallback = param3;
+        this.disableButtonTicks = param4;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.initButton();
+        if (this.messageText != null) {
+            this.message = MultiLineLabel.create(this.font, this.messageText, 360);
+        }
+
+        int var0 = 150;
+        int var1 = 20;
+        int var2 = this.message != null ? this.message.getLineCount() : 1;
+        int var3 = Math.max(var2, 5) * 9;
+        int var4 = Math.min(120 + var3, this.height - 40);
+        this.button = this.addRenderableWidget(new Button((this.width - 150) / 2, var4, 150, 20, this.buttonLabel, param0 -> this.onClose()));
     }
 
     @Override
     public void tick() {
-        this.button.active = Util.getMillis() > this.disableButtonUntil;
+        if (this.disableButtonTicks > 0) {
+            --this.disableButtonTicks;
+        }
+
+        this.button.active = this.disableButtonTicks == 0;
     }
 
     @Override
@@ -64,31 +88,8 @@ public class GenericWaitingScreen extends Screen {
         this.buttonCallback.run();
     }
 
-    public void update(Component param0, Runnable param1) {
-        this.update(null, param0, param1);
-    }
-
-    public void update(@Nullable Component param0, Component param1, Runnable param2) {
-        this.buttonLabel = param1;
-        this.buttonCallback = param2;
-        if (param0 != null) {
-            this.message = MultiLineLabel.create(this.font, param0, 360);
-            NarratorChatListener.INSTANCE.sayNow(param0);
-        } else {
-            this.message = null;
-        }
-
-        this.initButton();
-        this.disableButtonUntil = Util.getMillis() + TimeUnit.SECONDS.toMillis(1L);
-    }
-
-    private void initButton() {
-        this.removeWidget(this.button);
-        int var0 = 150;
-        int var1 = 20;
-        int var2 = this.message != null ? this.message.getLineCount() : 1;
-        int var3 = Math.max(var2, 5) * 9;
-        int var4 = Math.min(120 + var3, this.height - 40);
-        this.button = this.addRenderableWidget(new Button((this.width - 150) / 2, var4, 150, 20, this.buttonLabel, param0 -> this.onClose()));
+    @Override
+    public Component getNarrationMessage() {
+        return CommonComponents.joinForNarration(this.title, this.messageText != null ? this.messageText : CommonComponents.EMPTY);
     }
 }

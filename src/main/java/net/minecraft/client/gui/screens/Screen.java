@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -338,13 +339,13 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                     URI var4 = new File(var0.getValue()).toURI();
                     this.openLink(var4);
                 } else if (var0.getAction() == ClickEvent.Action.SUGGEST_COMMAND) {
-                    this.insertText(var0.getValue(), true);
+                    this.insertText(SharedConstants.filterText(var0.getValue()), true);
                 } else if (var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                    String var5 = var0.getValue();
+                    String var5 = SharedConstants.filterText(var0.getValue());
                     if (var5.startsWith("/")) {
-                        this.minecraft.player.command(var5.substring(1));
+                        this.minecraft.player.commandUnsigned(var5.substring(1));
                     } else {
-                        this.minecraft.player.chat(var5);
+                        LOGGER.warn("Failed to run command without '/' prefix from click event: '{}'", var5);
                     }
                 } else if (var0.getAction() == ClickEvent.Action.COPY_TO_CLIPBOARD) {
                     this.minecraft.keyboardHandler.setClipboard(var0.getValue());
