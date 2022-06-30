@@ -2,7 +2,7 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -19,7 +19,7 @@ public class RealmsLongConfirmationScreen extends RealmsScreen {
     private final boolean yesNoQuestion;
 
     public RealmsLongConfirmationScreen(BooleanConsumer param0, RealmsLongConfirmationScreen.Type param1, Component param2, Component param3, boolean param4) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.callback = param0;
         this.type = param1;
         this.line2 = param2;

@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.HotbarManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.inventory.Hotbar;
@@ -778,7 +777,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             Component var7 = param0.options.keyLoadHotbarActivator.getTranslatedKeyMessage();
             Component var8 = Component.translatable("inventory.hotbarSaved", var7, var6);
             param0.gui.setOverlayMessage(var8, false);
-            NarratorChatListener.INSTANCE.sayNow(var8);
+            param0.getNarrator().sayNow(var8);
             var1.save();
         }
 

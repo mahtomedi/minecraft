@@ -18,10 +18,10 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
@@ -87,7 +87,7 @@ public class BookEditScreen extends Screen {
     private final Component ownerText;
 
     public BookEditScreen(Player param0, ItemStack param1, InteractionHand param2) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.owner = param0;
         this.book = param1;
         this.hand = param2;

@@ -37,9 +37,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ArgumentSignatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MessageSigner;
@@ -56,7 +54,6 @@ import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -500,12 +497,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void displayClientMessage(Component param0, boolean param1) {
-        ResourceKey<ChatType> var0 = param1 ? ChatType.GAME_INFO : ChatType.SYSTEM;
-        this.level
-            .registryAccess()
-            .registry(Registry.CHAT_TYPE_REGISTRY)
-            .map(param1x -> param1x.get(var0))
-            .ifPresent(param1x -> this.minecraft.gui.handleSystemChat(param1x, param0));
+        this.minecraft.getChatListener().handleSystemMessage(param0, param1);
     }
 
     private void moveTowardsClosestSpace(double param0, double param1) {

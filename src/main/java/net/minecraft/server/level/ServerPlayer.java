@@ -590,7 +590,7 @@ public class ServerPlayer extends Player {
                 );
             Team var2 = this.getTeam();
             if (var2 == null || var2.getDeathMessageVisibility() == Team.Visibility.ALWAYS) {
-                this.server.getPlayerList().broadcastSystemMessage(var1, ChatType.SYSTEM);
+                this.server.getPlayerList().broadcastSystemMessage(var1, false);
             } else if (var2.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OTHER_TEAMS) {
                 this.server.getPlayerList().broadcastSystemToTeam(this, var1);
             } else if (var2.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OWN_TEAM) {
@@ -1143,7 +1143,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void displayClientMessage(Component param0, boolean param1) {
-        this.sendSystemMessage(param0, param1 ? ChatType.GAME_INFO : ChatType.SYSTEM);
+        this.sendSystemMessage(param0, param1);
     }
 
     @Override
@@ -1294,38 +1294,33 @@ public class ServerPlayer extends Player {
 
     @Override
     public void sendSystemMessage(Component param0) {
-        this.sendSystemMessage(param0, ChatType.SYSTEM);
+        this.sendSystemMessage(param0, false);
     }
 
-    public void sendSystemMessage(Component param0, ResourceKey<ChatType> param1) {
-        if (this.acceptsChat(param1)) {
-            this.connection.send(new ClientboundSystemChatPacket(param0, this.resolveChatTypeId(param1)), param2 -> {
-                if (!param2.isSuccess()) {
-                    this.handleMessageDeliveryFailure(param0, param1);
+    public void sendSystemMessage(Component param0, boolean param1) {
+        if (this.acceptsSystemMessages(param1)) {
+            this.connection.send(new ClientboundSystemChatPacket(param0, param1), param1x -> {
+                if (!param1x.isSuccess()) {
+                    this.handleMessageDeliveryFailure(param0);
                 }
 
             });
         }
     }
 
-    private void handleMessageDeliveryFailure(Component param0, ResourceKey<ChatType> param1) {
-        if ((param1 == ChatType.GAME_INFO || param1 == ChatType.SYSTEM) && this.acceptsChat(ChatType.SYSTEM)) {
+    private void handleMessageDeliveryFailure(Component param0) {
+        if (this.acceptsSystemMessages(false)) {
             int var0 = 256;
             String var1 = param0.getString(256);
             Component var2 = Component.literal(var1).withStyle(ChatFormatting.YELLOW);
             this.connection
-                .send(
-                    new ClientboundSystemChatPacket(
-                        Component.translatable("multiplayer.message_not_delivered", var2).withStyle(ChatFormatting.RED),
-                        this.resolveChatTypeId(ChatType.SYSTEM)
-                    )
-                );
+                .send(new ClientboundSystemChatPacket(Component.translatable("multiplayer.message_not_delivered", var2).withStyle(ChatFormatting.RED), false));
         }
 
     }
 
     public void sendChatMessage(PlayerChatMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
-        if (this.acceptsChat(param2)) {
+        if (this.acceptsChatMessages()) {
             this.connection
                 .send(
                     new ClientboundPlayerChatPacket(
@@ -1369,16 +1364,12 @@ public class ServerPlayer extends Player {
         return this.chatVisibility;
     }
 
-    private boolean acceptsChat(ResourceKey<ChatType> param0) {
-        switch(this.chatVisibility) {
-            case HIDDEN:
-                return param0 == ChatType.GAME_INFO;
-            case SYSTEM:
-                return param0 == ChatType.SYSTEM || param0 == ChatType.GAME_INFO;
-            case FULL:
-            default:
-                return true;
-        }
+    private boolean acceptsSystemMessages(boolean param0) {
+        return this.chatVisibility == ChatVisiblity.HIDDEN ? param0 : true;
+    }
+
+    private boolean acceptsChatMessages() {
+        return this.chatVisibility == ChatVisiblity.FULL;
     }
 
     public void sendTexturePack(String param0, String param1, boolean param2, @Nullable Component param3) {

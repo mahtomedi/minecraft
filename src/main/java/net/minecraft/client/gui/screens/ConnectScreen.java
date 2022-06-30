@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
@@ -40,7 +40,7 @@ public class ConnectScreen extends Screen {
     private long lastNarration = -1L;
 
     private ConnectScreen(Screen param0) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.parent = param0;
     }
 
@@ -89,7 +89,13 @@ public class ConnectScreen extends Screen {
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
                     ConnectScreen.this.connection
-                        .send(new ServerboundHelloPacket(param0.getUser().getName(), param0.getProfileKeyPairManager().profilePublicKeyData()));
+                        .send(
+                            new ServerboundHelloPacket(
+                                param0.getUser().getName(),
+                                param0.getProfileKeyPairManager().profilePublicKeyData(),
+                                Optional.ofNullable(param0.getUser().getProfileId())
+                            )
+                        );
                 } catch (Exception var61) {
                     if (ConnectScreen.this.aborted) {
                         return;
@@ -161,7 +167,7 @@ public class ConnectScreen extends Screen {
         long var0 = Util.getMillis();
         if (var0 - this.lastNarration > 2000L) {
             this.lastNarration = var0;
-            NarratorChatListener.INSTANCE.sayNow(Component.translatable("narrator.joining"));
+            this.minecraft.getNarrator().sayNow(Component.translatable("narrator.joining"));
         }
 
         drawCenteredString(param0, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);

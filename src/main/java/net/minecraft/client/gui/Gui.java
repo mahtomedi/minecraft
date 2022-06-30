@@ -22,10 +22,6 @@ import net.minecraft.client.AttackIndicatorStatus;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.chat.ChatListener;
-import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.chat.OverlayChatListener;
-import net.minecraft.client.gui.chat.StandardChatListener;
 import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
@@ -42,8 +38,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ChatSender;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -130,7 +124,6 @@ public class Gui extends GuiComponent {
     private int screenHeight;
     private float autosaveIndicatorValue;
     private float lastAutosaveIndicatorValue;
-    private final List<ChatListener> chatListeners;
     private float scopeScale;
 
     public Gui(Minecraft param0, ItemRenderer param1) {
@@ -142,7 +135,6 @@ public class Gui extends GuiComponent {
         this.tabList = new PlayerTabOverlay(param0, this);
         this.bossOverlay = new BossHealthOverlay(param0);
         this.subtitleOverlay = new SubtitleOverlay(param0);
-        this.chatListeners = List.of(new StandardChatListener(param0), NarratorChatListener.INSTANCE, new OverlayChatListener(param0));
         this.resetTitleTimes();
     }
 
@@ -1170,7 +1162,7 @@ public class Gui extends GuiComponent {
     public void setNowPlaying(Component param0) {
         Component var0 = Component.translatable("record.nowPlaying", param0);
         this.setOverlayMessage(var0, true);
-        NarratorChatListener.INSTANCE.sayNow(var0);
+        this.minecraft.getNarrator().sayNow(var0);
     }
 
     public void setOverlayMessage(Component param0, boolean param1) {
@@ -1220,20 +1212,6 @@ public class Gui extends GuiComponent {
         this.title = null;
         this.subtitle = null;
         this.titleTime = 0;
-    }
-
-    public void handlePlayerChat(ChatType param0, Component param1, ChatSender param2) {
-        for(ChatListener var0 : this.chatListeners) {
-            var0.handle(param0, param1, param2);
-        }
-
-    }
-
-    public void handleSystemChat(ChatType param0, Component param1) {
-        for(ChatListener var0 : this.chatListeners) {
-            var0.handle(param0, param1, null);
-        }
-
     }
 
     public ChatComponent getChat() {

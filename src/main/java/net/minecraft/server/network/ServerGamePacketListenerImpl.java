@@ -1098,14 +1098,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
                         InteractionResult var11 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
                         if (var9 == Direction.UP && !var11.consumesAction() && var5.getY() >= var10 - 1 && wasBlockPlacementAttempt(this.player, var2)) {
                             Component var12 = Component.translatable("build.tooHigh", var10 - 1).withStyle(ChatFormatting.RED);
-                            this.player.sendSystemMessage(var12, ChatType.GAME_INFO);
+                            this.player.sendSystemMessage(var12, true);
                         } else if (var11.shouldSwing()) {
                             this.player.swing(var1, true);
                         }
                     }
                 } else {
                     Component var13 = Component.translatable("build.tooHigh", var10 - 1).withStyle(ChatFormatting.RED);
-                    this.player.sendSystemMessage(var13, ChatType.GAME_INFO);
+                    this.player.sendSystemMessage(var13, true);
                 }
 
                 this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var5));
@@ -1180,9 +1180,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
         this.server.invalidateStatus();
         this.server
             .getPlayerList()
-            .broadcastSystemMessage(
-                Component.translatable("multiplayer.player.left", this.player.getDisplayName()).withStyle(ChatFormatting.YELLOW), ChatType.SYSTEM
-            );
+            .broadcastSystemMessage(Component.translatable("multiplayer.player.left", this.player.getDisplayName()).withStyle(ChatFormatting.YELLOW), false);
         this.player.disconnect();
         this.server.getPlayerList().remove(this.player);
         this.player.getTextFilter().leave();
@@ -1265,26 +1263,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
             LOGGER.warn("{} sent out-of-order chat: '{}'", this.player.getName().getString(), param0);
             this.disconnect(Component.translatable("multiplayer.disconnect.out_of_order_chat"));
             return false;
+        } else if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
+            this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), false));
+            return false;
         } else {
-            if (this.isChatExpired(param1)) {
-                LOGGER.warn("{} sent expired chat: '{}'. Is the client/server system time unsynchronized?", this.player.getName().getString(), param0);
-            }
-
-            if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
-                Registry<ChatType> var0 = this.player.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-                int var1 = var0.getId(var0.get(ChatType.SYSTEM));
-                this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), var1));
-                return false;
-            } else {
-                this.player.resetLastActionTime();
-                return true;
-            }
+            this.player.resetLastActionTime();
+            return true;
         }
-    }
-
-    private boolean isChatExpired(Instant param0) {
-        Instant var0 = param0.plus(ServerboundChatPacket.MESSAGE_EXPIRES_AFTER);
-        return Instant.now().isAfter(var0);
     }
 
     private boolean updateChatOrder(Instant param0) {
@@ -1317,12 +1302,25 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener, S
     }
 
     private void broadcastChatMessage(FilteredText<PlayerChatMessage> param0x) {
-        if (!param0x.raw().verify(this.player)) {
-            LOGGER.warn("{} sent message with invalid signature: '{}'", this.player.getName().getString(), param0x.raw().signedContent().getString());
-        } else {
-            this.server.getPlayerList().broadcastChatMessage(param0x, this.player, ChatType.CHAT);
-            this.detectRateSpam();
+        PlayerChatMessage var0x = param0x.raw();
+        if (!var0x.verify(this.player)) {
+            LOGGER.warn("{} sent message with invalid signature: '{}'", this.player.getName().getString(), var0x.signedContent().getString());
+            if (this.server.enforceSecureProfile()) {
+                this.disconnect(Component.translatable("multiplayer.disconnect.unsigned_chat"));
+                return;
+            }
         }
+
+        if (var0x.hasExpiredServer(Instant.now())) {
+            LOGGER.warn(
+                "{} sent expired chat: '{}'. Is the client/server system time unsynchronized?",
+                this.player.getName().getString(),
+                var0x.signedContent().getString()
+            );
+        }
+
+        this.server.getPlayerList().broadcastChatMessage(param0x, this.player, ChatType.CHAT);
+        this.detectRateSpam();
     }
 
     private void detectRateSpam() {

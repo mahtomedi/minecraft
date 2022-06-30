@@ -27,6 +27,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -1609,6 +1610,11 @@ public abstract class Player extends LivingEntity {
 
             return super.causeFallDamage(param0, param1, param2);
         }
+    }
+
+    @Override
+    public ChatSender asChatSender() {
+        return new ChatSender(this.getGameProfile().getId(), this.getDisplayName());
     }
 
     public boolean tryToStartFallFlying() {

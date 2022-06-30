@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -62,7 +62,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
     private final BooleanConsumer callback;
 
     public RealmsDownloadLatestWorldScreen(Screen param0, WorldDownload param1, String param2, BooleanConsumer param3) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.callback = param3;
         this.lastScreen = param0;
         this.worldName = param2;
@@ -110,7 +110,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
         ++this.animTick;
         if (this.status != null && this.narrationRateLimiter.tryAcquire(1)) {
             Component var0 = this.createProgressNarrationMessage();
-            NarratorChatListener.INSTANCE.sayNow(var0);
+            this.minecraft.getNarrator().sayNow(var0);
         }
 
     }

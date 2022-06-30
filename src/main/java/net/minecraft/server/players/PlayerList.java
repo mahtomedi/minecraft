@@ -213,7 +213,7 @@ public abstract class PlayerList {
             var15 = Component.translatable("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
         }
 
-        this.broadcastSystemMessage(var15.withStyle(ChatFormatting.YELLOW), ChatType.SYSTEM);
+        this.broadcastSystemMessage(var15.withStyle(ChatFormatting.YELLOW), false);
         var11.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
@@ -574,7 +574,7 @@ public abstract class PlayerList {
     public void broadcastSystemToAllExceptTeam(Player param0, Component param1) {
         Team var0 = param0.getTeam();
         if (var0 == null) {
-            this.broadcastSystemMessage(param1, ChatType.SYSTEM);
+            this.broadcastSystemMessage(param1, false);
         } else {
             for(int var1 = 0; var1 < this.players.size(); ++var1) {
                 ServerPlayer var2 = this.players.get(var1);
@@ -777,11 +777,11 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastSystemMessage(Component param0, ResourceKey<ChatType> param1) {
+    public void broadcastSystemMessage(Component param0, boolean param1) {
         this.broadcastSystemMessage(param0, param1x -> param0, param1);
     }
 
-    public void broadcastSystemMessage(Component param0, Function<ServerPlayer, Component> param1, ResourceKey<ChatType> param2) {
+    public void broadcastSystemMessage(Component param0, Function<ServerPlayer, Component> param1, boolean param2) {
         this.server.sendSystemMessage(param0);
 
         for(ServerPlayer var0 : this.players) {

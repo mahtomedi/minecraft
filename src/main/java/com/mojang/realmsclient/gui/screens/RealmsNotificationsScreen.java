@@ -8,8 +8,8 @@ import com.mojang.realmsclient.gui.RealmsDataFetcher;
 import com.mojang.realmsclient.gui.task.DataFetcher;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +30,7 @@ public class RealmsNotificationsScreen extends RealmsScreen {
     private static boolean hasUnreadNews;
 
     public RealmsNotificationsScreen() {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
     }
 
     @Override

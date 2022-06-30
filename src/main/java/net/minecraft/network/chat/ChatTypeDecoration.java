@@ -33,12 +33,12 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
         );
     }
 
-    public Component decorate(Component param0, @Nullable ChatSender param1) {
+    public Component decorate(Component param0, ChatSender param1) {
         Object[] var0 = this.resolveParameters(param0, param1);
         return Component.translatable(this.translationKey, var0).withStyle(this.style);
     }
 
-    private Component[] resolveParameters(Component param0, @Nullable ChatSender param1) {
+    private Component[] resolveParameters(Component param0, ChatSender param1) {
         Component[] var0 = new Component[this.parameters.size()];
 
         for(int var1 = 0; var1 < var0.length; ++var1) {
@@ -50,8 +50,8 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
     }
 
     public static enum Parameter implements StringRepresentable {
-        SENDER("sender", (param0, param1) -> param1 != null ? param1.name() : null),
-        TEAM_NAME("team_name", (param0, param1) -> param1 != null ? param1.teamName() : null),
+        SENDER("sender", (param0, param1) -> param1.name()),
+        TEAM_NAME("team_name", (param0, param1) -> param1.teamName()),
         CONTENT("content", (param0, param1) -> param0);
 
         public static final Codec<ChatTypeDecoration.Parameter> CODEC = StringRepresentable.fromEnum(ChatTypeDecoration.Parameter::values);
@@ -63,7 +63,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
             this.selector = param1;
         }
 
-        public Component select(Component param0, @Nullable ChatSender param1) {
+        public Component select(Component param0, ChatSender param1) {
             Component var0 = this.selector.select(param0, param1);
             return Objects.requireNonNullElse(var0, CommonComponents.EMPTY);
         }
@@ -75,7 +75,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
 
         public interface Selector {
             @Nullable
-            Component select(Component var1, @Nullable ChatSender var2);
+            Component select(Component var1, ChatSender var2);
         }
     }
 }

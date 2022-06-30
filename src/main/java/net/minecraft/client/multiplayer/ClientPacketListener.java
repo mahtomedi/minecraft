@@ -10,7 +10,6 @@ import io.netty.buffer.Unpooled;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.time.Instant;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.ClientRecipeBook;
@@ -34,7 +32,6 @@ import net.minecraft.client.DebugQueryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.MapRenderer;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.toasts.RecipeToast;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -55,7 +52,6 @@ import net.minecraft.client.gui.screens.multiplayer.ChatPreviewWarningScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
-import net.minecraft.client.multiplayer.chat.LoggedChat;
 import net.minecraft.client.particle.ItemPickupParticle;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
@@ -221,7 +217,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -241,7 +236,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -285,7 +279,6 @@ import net.minecraft.world.scores.Team;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -802,62 +795,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleSystemChat(ClientboundSystemChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        if (!this.minecraft.options.hideMatchedNames().get() || !this.minecraft.isBlocked(this.guessChatUUID(param0.content()))) {
-            Registry<ChatType> var0 = this.registryAccess.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-            ChatType var1 = param0.resolveType(var0);
-            this.minecraft.gui.handleSystemChat(var1, param0.content());
-            Instant var2 = Instant.now();
-            this.minecraft.getReportingContext().chatLog().push(LoggedChat.system(param0.content(), var2));
-        }
-    }
-
-    private UUID guessChatUUID(Component param0) {
-        String var0 = StringDecomposer.getPlainText(param0);
-        String var1 = StringUtils.substringBetween(var0, "<", ">");
-        return var1 == null ? Util.NIL_UUID : this.minecraft.getPlayerSocialManager().getDiscoveredUUID(var1);
+        this.minecraft.getChatListener().handleSystemMessage(param0.content(), param0.overlay());
     }
 
     @Override
     public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ChatSender var0 = param0.sender();
-        if (param0.hasExpired(Instant.now())) {
-            LOGGER.warn("Received expired chat packet from {}", var0.name().getString());
-        }
-
-        Registry<ChatType> var1 = this.registryAccess.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-        ChatType var2 = param0.resolveType(var1);
+        Registry<ChatType> var0 = this.registryAccess.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+        ChatType var1 = param0.resolveType(var0);
+        ChatSender var2 = param0.sender();
         PlayerChatMessage var3 = param0.getMessage();
-        this.handlePlayerChat(var2, var3, var0);
-    }
-
-    private void handlePlayerChat(ChatType param0, PlayerChatMessage param1, ChatSender param2) {
-        if (!this.minecraft.isBlocked(param2.uuid())) {
-            boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
-            PlayerInfo var1 = this.getPlayerInfo(param1.signature().sender());
-            if (var1 != null && !this.hasValidSignature(param1, var1)) {
-                LOGGER.warn("Received chat packet without valid signature from {}", var1.getProfile().getName());
-                if (var0) {
-                    return;
-                }
-            }
-
-            PlayerChatMessage var2 = var0 ? param1.removeUnsignedContent() : param1;
-            Component var3 = var2.serverContent();
-            this.minecraft.gui.handlePlayerChat(param0, var3, param2);
-            GameProfile var4 = this.getSenderProfile(param2);
-            this.minecraft.getReportingContext().chatLog().push(LoggedChat.player(var4, param2.name(), var2));
-        }
-    }
-
-    private GameProfile getSenderProfile(ChatSender param0) {
-        PlayerInfo var0 = this.getPlayerInfo(param0.uuid());
-        return var0 == null ? new GameProfile(param0.uuid(), param0.name().getString()) : var0.getProfile();
-    }
-
-    private boolean hasValidSignature(PlayerChatMessage param0, PlayerInfo param1) {
-        ProfilePublicKey var0 = param1.getProfilePublicKey();
-        return var0 != null && param0.verify(var0);
+        this.minecraft.getChatListener().handleChatMessage(var1, var3, var2);
     }
 
     @Override
@@ -926,7 +874,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
                         Component var4 = Component.translatable("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage());
                         this.minecraft.gui.setOverlayMessage(var4, false);
-                        NarratorChatListener.INSTANCE.sayNow(var4);
+                        this.minecraft.getNarrator().sayNow(var4);
                     }
                 }
             }

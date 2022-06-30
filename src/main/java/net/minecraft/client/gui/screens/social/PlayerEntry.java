@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
@@ -250,7 +249,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         this.showButton.visible = param0;
         this.hideButton.visible = !param0;
         this.minecraft.gui.getChat().addMessage(param1);
-        NarratorChatListener.INSTANCE.sayNow(param1);
+        this.minecraft.getNarrator().sayNow(param1);
     }
 
     MutableComponent getEntryNarationMessage(MutableComponent param0) {

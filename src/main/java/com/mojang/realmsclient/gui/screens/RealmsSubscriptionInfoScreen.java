@@ -12,7 +12,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -47,7 +47,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private static final String PURCHASE_LINK = "https://aka.ms/ExtendJavaRealms";
 
     public RealmsSubscriptionInfoScreen(Screen param0, RealmsServer param1, Screen param2) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.lastScreen = param0;
         this.serverData = param1;
         this.mainScreen = param2;

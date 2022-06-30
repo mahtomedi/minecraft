@@ -1,29 +1,14 @@
 package net.minecraft.client;
 
+import javax.annotation.Nullable;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class GuiMessage<T> {
-    private final int addedTime;
-    private final T message;
-    private final int id;
-
-    public GuiMessage(int param0, T param1, int param2) {
-        this.message = param1;
-        this.addedTime = param0;
-        this.id = param2;
-    }
-
-    public T getMessage() {
-        return this.message;
-    }
-
-    public int getAddedTime() {
-        return this.addedTime;
-    }
-
-    public int getId() {
-        return this.id;
+public record GuiMessage(int addedTime, Component content, @Nullable GuiMessageTag tag) {
+    @OnlyIn(Dist.CLIENT)
+    public static record Line(int addedTime, FormattedCharSequence content, @Nullable GuiMessageTag tag, boolean endOfEntry) {
     }
 }

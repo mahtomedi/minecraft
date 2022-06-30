@@ -32,7 +32,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
@@ -535,7 +534,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     }
 
     private boolean shouldRunNarration() {
-        return NarratorChatListener.INSTANCE.isActive();
+        return this.minecraft.getNarrator().isActive();
     }
 
     public void handleDelayedNarration() {
@@ -560,7 +559,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
         this.narrationState.update(this::updateNarrationState);
         String var0 = this.narrationState.collectNarrationText(!param0);
         if (!var0.isEmpty()) {
-            NarratorChatListener.INSTANCE.sayNow(var0);
+            this.minecraft.getNarrator().sayNow(var0);
         }
 
     }

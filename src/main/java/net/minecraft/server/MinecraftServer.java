@@ -1700,8 +1700,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         ChatTypeDecoration var0 = this.registryAccess()
             .registry(Registry.CHAT_TYPE_REGISTRY)
             .map(param1x -> param1x.get(param2))
-            .flatMap(ChatType::chat)
-            .flatMap(ChatType.TextDisplay::decoration)
+            .map(ChatType::chat)
             .orElse(ChatType.DEFAULT_CHAT_DECORATION);
         LOGGER.info(var0.decorate(param1, param0).getString());
     }

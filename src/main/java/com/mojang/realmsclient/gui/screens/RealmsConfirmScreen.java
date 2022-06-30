@@ -2,7 +2,7 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,7 @@ public class RealmsConfirmScreen extends RealmsScreen {
     private final Component title2;
 
     public RealmsConfirmScreen(BooleanConsumer param0, Component param1, Component param2) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.callback = param0;
         this.title1 = param1;
         this.title2 = param2;

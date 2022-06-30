@@ -101,27 +101,25 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
     }
 
     public void handleAcceptedLogin() {
+        ProfilePublicKey var0 = null;
         if (!this.gameProfile.isComplete()) {
             this.gameProfile = this.createFakeProfile(this.gameProfile);
-        }
-
-        UUID var0 = this.gameProfile.getId();
-        ProfilePublicKey var1 = null;
-
-        try {
-            SignatureValidator var2 = this.server.getServiceSignatureValidator();
-            var1 = validatePublicKey(this.profilePublicKeyData, var0, var2, this.server.enforceSecureProfile());
-        } catch (ServerLoginPacketListenerImpl.PublicKeyValidationException var81) {
-            LOGGER.error(var81.getMessage(), var81.getCause());
-            if (!this.connection.isMemoryConnection()) {
-                this.disconnect(var81.getComponent());
-                return;
+        } else {
+            try {
+                SignatureValidator var1 = this.server.getServiceSignatureValidator();
+                var0 = validatePublicKey(this.profilePublicKeyData, this.gameProfile.getId(), var1, this.server.enforceSecureProfile());
+            } catch (ServerLoginPacketListenerImpl.PublicKeyValidationException var71) {
+                LOGGER.error(var71.getMessage(), var71.getCause());
+                if (!this.connection.isMemoryConnection()) {
+                    this.disconnect(var71.getComponent());
+                    return;
+                }
             }
         }
 
-        Component var4 = this.server.getPlayerList().canPlayerLogin(this.connection.getRemoteAddress(), this.gameProfile);
-        if (var4 != null) {
-            this.disconnect(var4);
+        Component var3 = this.server.getPlayerList().canPlayerLogin(this.connection.getRemoteAddress(), this.gameProfile);
+        if (var3 != null) {
+            this.disconnect(var3);
         } else {
             this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;
             if (this.server.getCompressionThreshold() >= 0 && !this.connection.isMemoryConnection()) {
@@ -133,21 +131,21 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
             }
 
             this.connection.send(new ClientboundGameProfilePacket(this.gameProfile));
-            ServerPlayer var5 = this.server.getPlayerList().getPlayer(var0);
+            ServerPlayer var4 = this.server.getPlayerList().getPlayer(this.gameProfile.getId());
 
             try {
-                ServerPlayer var6 = this.server.getPlayerList().getPlayerForLogin(this.gameProfile, var1);
-                if (var5 != null) {
+                ServerPlayer var5 = this.server.getPlayerList().getPlayerForLogin(this.gameProfile, var0);
+                if (var4 != null) {
                     this.state = ServerLoginPacketListenerImpl.State.DELAY_ACCEPT;
-                    this.delayedAcceptPlayer = var6;
+                    this.delayedAcceptPlayer = var5;
                 } else {
-                    this.placeNewPlayer(var6);
+                    this.placeNewPlayer(var5);
                 }
-            } catch (Exception var71) {
-                LOGGER.error("Couldn't place player in world", (Throwable)var71);
-                Component var8 = Component.translatable("multiplayer.disconnect.invalid_player_data");
-                this.connection.send(new ClientboundDisconnectPacket(var8));
-                this.connection.disconnect(var8);
+            } catch (Exception var61) {
+                LOGGER.error("Couldn't place player in world", (Throwable)var61);
+                Component var7 = Component.translatable("multiplayer.disconnect.invalid_player_data");
+                this.connection.send(new ClientboundDisconnectPacket(var7));
+                this.connection.disconnect(var7);
             }
         }
 
@@ -263,7 +261,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                         ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
                     } else if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
                         ServerLoginPacketListenerImpl.LOGGER.warn("Failed to verify username but will let them in anyway!");
-                        ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(var0);
+                        ServerLoginPacketListenerImpl.this.gameProfile = var0;
                         ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
                     } else {
                         ServerLoginPacketListenerImpl.this.disconnect(Component.translatable("multiplayer.disconnect.unverified_username"));
@@ -272,7 +270,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener 
                 } catch (AuthenticationUnavailableException var3) {
                     if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
                         ServerLoginPacketListenerImpl.LOGGER.warn("Authentication servers are down but will let them in anyway!");
-                        ServerLoginPacketListenerImpl.this.gameProfile = ServerLoginPacketListenerImpl.this.createFakeProfile(var0);
+                        ServerLoginPacketListenerImpl.this.gameProfile = var0;
                         ServerLoginPacketListenerImpl.this.state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
                     } else {
                         ServerLoginPacketListenerImpl.this.disconnect(Component.translatable("multiplayer.disconnect.authservers_down"));

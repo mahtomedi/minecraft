@@ -30,7 +30,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
@@ -75,7 +75,7 @@ public class RealmsUploadScreen extends RealmsScreen {
     private final Runnable callback;
 
     public RealmsUploadScreen(long param0, int param1, RealmsResetWorldScreen param2, LevelSummary param3, Runnable param4) {
-        super(NarratorChatListener.NO_TITLE);
+        super(GameNarrator.NO_TITLE);
         this.worldId = param0;
         this.slotId = param1;
         this.lastScreen = param2;
@@ -232,7 +232,7 @@ public class RealmsUploadScreen extends RealmsScreen {
         ++this.tickCount;
         if (this.status != null && this.narrationRateLimiter.tryAcquire(1)) {
             Component var0 = this.createProgressNarrationMessage();
-            NarratorChatListener.INSTANCE.sayNow(var0);
+            this.minecraft.getNarrator().sayNow(var0);
         }
 
     }

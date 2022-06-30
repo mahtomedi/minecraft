@@ -42,7 +42,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -639,12 +638,10 @@ public class Options {
     private final OptionInstance<NarratorStatus> narrator = new OptionInstance<>(
         "options.narrator",
         OptionInstance.noTooltip(),
-        (param0x, param1x) -> (Component)(NarratorChatListener.INSTANCE.isActive()
-                ? param1x.getName()
-                : Component.translatable("options.narrator.notavailable")),
+        (param0x, param1x) -> (Component)(this.minecraft.getNarrator().isActive() ? param1x.getName() : Component.translatable("options.narrator.notavailable")),
         new OptionInstance.Enum<>(Arrays.asList(NarratorStatus.values()), Codec.INT.xmap(NarratorStatus::byId, NarratorStatus::getId)),
         NarratorStatus.OFF,
-        param0x -> NarratorChatListener.INSTANCE.updateNarratorStatus(param0x)
+        param0x -> this.minecraft.getNarrator().updateNarratorStatus(param0x)
     );
     public String languageCode = "en_us";
     private final OptionInstance<String> soundDevice = new OptionInstance<>(

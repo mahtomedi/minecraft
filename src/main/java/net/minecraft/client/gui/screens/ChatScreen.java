@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.ClientChatPreview;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -37,6 +38,7 @@ public class ChatScreen extends Screen {
     private static final Component PREVIEW_WARNING_TITLE = Component.translatable("chatPreview.warning.toast.title");
     private static final Component PREVIEW_WARNING_TOAST = Component.translatable("chatPreview.warning.toast");
     private static final Component PREVIEW_HINT = Component.translatable("chat.preview").withStyle(ChatFormatting.DARK_GRAY);
+    private static final int TOOLTIP_MAX_WIDTH = 260;
     private String historyBuffer = "";
     private int historyPos = -1;
     protected EditBox input;
@@ -266,6 +268,11 @@ public class ChatScreen extends Screen {
         Style var0 = this.getComponentStyleAt((double)param1, (double)param2);
         if (var0 != null && var0.getHoverEvent() != null) {
             this.renderComponentHoverEffect(param0, var0, param1, param2);
+        } else {
+            GuiMessageTag var1 = this.minecraft.gui.getChat().getMessageTagAt((double)param1, (double)param2);
+            if (var1 != null && var1.text() != null) {
+                this.renderTooltip(param0, this.font.split(var1.text(), 260), param1, param2);
+            }
         }
 
         super.render(param0, param1, param2, param3);

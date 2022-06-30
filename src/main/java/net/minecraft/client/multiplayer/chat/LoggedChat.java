@@ -15,8 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public interface LoggedChat {
-    static LoggedChat player(GameProfile param0, Component param1, PlayerChatMessage param2) {
-        return new LoggedChat.Player(param0, param1, param2);
+    static LoggedChat player(GameProfile param0, Component param1, PlayerChatMessage param2, ChatTrustLevel param3) {
+        return new LoggedChat.Player(param0, param1, param2, param3);
     }
 
     static LoggedChat system(Component param0, Instant param1) {
@@ -32,7 +32,7 @@ public interface LoggedChat {
     boolean canReport(UUID var1);
 
     @OnlyIn(Dist.CLIENT)
-    public static record Player(GameProfile profile, Component displayName, PlayerChatMessage message) implements LoggedChat {
+    public static record Player(GameProfile profile, Component displayName, PlayerChatMessage message, ChatTrustLevel trustLevel) implements LoggedChat {
         private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
         @Override

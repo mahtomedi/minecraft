@@ -1,15 +1,11 @@
-package net.minecraft.client.gui.chat;
+package net.minecraft.client;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.text2speech.Narrator;
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.NarratorStatus;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
-import net.minecraft.network.chat.ChatSender;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,30 +13,23 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class NarratorChatListener implements ChatListener {
+public class GameNarrator {
     public static final Component NO_TITLE = CommonComponents.EMPTY;
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final NarratorChatListener INSTANCE = new NarratorChatListener();
+    private final Minecraft minecraft;
     private final Narrator narrator = Narrator.getNarrator();
 
-    @Override
-    public void handle(ChatType param0, Component param1, @Nullable ChatSender param2) {
-        NarratorStatus var0 = getStatus();
-        if (var0 != NarratorStatus.OFF) {
-            if (!this.narrator.active()) {
-                this.logNarratedMessage(param1.getString());
-            } else {
-                param0.narration().ifPresent(param3 -> {
-                    if (var0.shouldNarrate(param3.priority())) {
-                        Component var0x = param3.decorate(param1, param2);
-                        String var1x = var0x.getString();
-                        this.logNarratedMessage(var1x);
-                        this.narrator.say(var1x, param3.priority().interrupts());
-                    }
+    public GameNarrator(Minecraft param0) {
+        this.minecraft = param0;
+    }
 
-                });
-            }
+    public void sayChatNow(Supplier<Component> param0) {
+        if (this.getStatus().shouldNarrateChat()) {
+            String var0 = param0.get().getString();
+            this.logNarratedMessage(var0);
+            this.narrator.say(var0, false);
         }
+
     }
 
     public void sayNow(Component param0) {
@@ -48,8 +37,7 @@ public class NarratorChatListener implements ChatListener {
     }
 
     public void sayNow(String param0) {
-        NarratorStatus var0 = getStatus();
-        if (var0 != NarratorStatus.OFF && var0 != NarratorStatus.CHAT && !param0.isEmpty()) {
+        if (this.getStatus().shouldNarrateSystem() && !param0.isEmpty()) {
             this.logNarratedMessage(param0);
             if (this.narrator.active()) {
                 this.narrator.clear();
@@ -59,8 +47,8 @@ public class NarratorChatListener implements ChatListener {
 
     }
 
-    private static NarratorStatus getStatus() {
-        return Minecraft.getInstance().options.narrator().get();
+    private NarratorStatus getStatus() {
+        return this.minecraft.options.narrator().get();
     }
 
     private void logNarratedMessage(String param0) {
@@ -96,7 +84,7 @@ public class NarratorChatListener implements ChatListener {
     }
 
     public void clear() {
-        if (getStatus() != NarratorStatus.OFF && this.narrator.active()) {
+        if (this.getStatus() != NarratorStatus.OFF && this.narrator.active()) {
             this.narrator.clear();
         }
     }

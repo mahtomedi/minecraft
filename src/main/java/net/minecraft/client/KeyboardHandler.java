@@ -12,7 +12,6 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -340,7 +339,7 @@ public class KeyboardHandler {
                 }
             }
 
-            if (NarratorChatListener.INSTANCE.isActive()) {
+            if (this.minecraft.getNarrator().isActive()) {
                 boolean var1 = var0 == null || !(var0.getFocused() instanceof EditBox) || !((EditBox)var0.getFocused()).canConsumeInput();
                 if (param3 != 0 && param1 == 66 && Screen.hasControlDown() && var1) {
                     boolean var2 = this.minecraft.options.narrator().get() == NarratorStatus.OFF;
