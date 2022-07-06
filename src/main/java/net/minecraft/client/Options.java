@@ -336,8 +336,7 @@ public class Options {
         new OptionInstance.IntRange(0, 60).xmap(param0x -> (double)param0x / 10.0, param0x -> (int)(param0x * 10.0)),
         Codec.doubleRange(0.0, 6.0),
         0.0,
-        param0x -> {
-        }
+        param0x -> Minecraft.getInstance().getChatListener().setMessageDelay(param0x)
     );
     private final OptionInstance<Integer> mipmapLevels = new OptionInstance<>(
         "options.mipmapLevels",

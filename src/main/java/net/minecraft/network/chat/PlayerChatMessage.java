@@ -3,6 +3,7 @@ package net.minecraft.network.chat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,15 +37,16 @@ public record PlayerChatMessage(Component signedContent, MessageSignature signat
         Component var1 = param1.raw();
         PlayerChatMessage var2 = signed(var0, var1, param2, param3);
         if (param1.isFiltered()) {
-            PlayerChatMessage var3 = Util.mapNullable(param1.filtered(), PlayerChatMessage::unsigned);
-            return new FilteredText<>(var2, var3);
+            UUID var3 = param2.sender();
+            PlayerChatMessage var4 = Util.mapNullable(param1.filtered(), param1x -> unsigned(var3, param1x));
+            return new FilteredText<>(var2, var4);
         } else {
             return FilteredText.passThrough(var2);
         }
     }
 
-    public static PlayerChatMessage unsigned(Component param0x) {
-        return new PlayerChatMessage(param0x, MessageSignature.unsigned(), Optional.empty());
+    public static PlayerChatMessage unsigned(UUID param0, Component param1) {
+        return new PlayerChatMessage(param1, MessageSignature.unsigned(param0), Optional.empty());
     }
 
     public PlayerChatMessage withUnsignedContent(Component param0) {
@@ -79,5 +81,9 @@ public record PlayerChatMessage(Component signedContent, MessageSignature signat
 
     public boolean hasExpiredClient(Instant param0) {
         return param0.isAfter(this.signature.timeStamp().plus(MESSAGE_EXPIRES_AFTER_CLIENT));
+    }
+
+    public boolean isSignedBy(ChatSender param0) {
+        return param0.isPlayer() && this.signature.sender().equals(param0.profileId());
     }
 }

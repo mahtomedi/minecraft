@@ -163,20 +163,20 @@ public class SocialInteractionsScreen extends Screen {
             case ALL:
                 this.allButton.setMessage(TAB_ALL_SELECTED);
                 Collection<UUID> var1 = this.minecraft.player.connection.getOnlinePlayerIds();
-                this.socialInteractionsPlayerList.updatePlayerListWithLog(var1, this.socialInteractionsPlayerList.getScrollAmount());
+                this.socialInteractionsPlayerList.updatePlayerList(var1, this.socialInteractionsPlayerList.getScrollAmount(), true);
                 break;
             case HIDDEN:
                 this.hiddenButton.setMessage(TAB_HIDDEN_SELECTED);
                 Set<UUID> var2 = this.minecraft.getPlayerSocialManager().getHiddenPlayers();
                 var0 = var2.isEmpty();
-                this.socialInteractionsPlayerList.updatePlayerList(var2, this.socialInteractionsPlayerList.getScrollAmount());
+                this.socialInteractionsPlayerList.updatePlayerList(var2, this.socialInteractionsPlayerList.getScrollAmount(), false);
                 break;
             case BLOCKED:
                 this.blockedButton.setMessage(TAB_BLOCKED_SELECTED);
                 PlayerSocialManager var3 = this.minecraft.getPlayerSocialManager();
                 Set<UUID> var4 = this.minecraft.player.connection.getOnlinePlayerIds().stream().filter(var3::isBlocked).collect(Collectors.toSet());
                 var0 = var4.isEmpty();
-                this.socialInteractionsPlayerList.updatePlayerList(var4, this.socialInteractionsPlayerList.getScrollAmount());
+                this.socialInteractionsPlayerList.updatePlayerList(var4, this.socialInteractionsPlayerList.getScrollAmount(), false);
         }
 
         GameNarrator var5 = this.minecraft.getNarrator();

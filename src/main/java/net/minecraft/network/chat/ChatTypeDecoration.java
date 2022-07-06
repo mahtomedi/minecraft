@@ -22,14 +22,19 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
         return new ChatTypeDecoration(param0, List.of(ChatTypeDecoration.Parameter.SENDER, ChatTypeDecoration.Parameter.CONTENT), Style.EMPTY);
     }
 
-    public static ChatTypeDecoration directMessage(String param0) {
+    public static ChatTypeDecoration incomingDirectMessage(String param0) {
         Style var0 = Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(true);
         return new ChatTypeDecoration(param0, List.of(ChatTypeDecoration.Parameter.SENDER, ChatTypeDecoration.Parameter.CONTENT), var0);
     }
 
+    public static ChatTypeDecoration outgoingDirectMessage(String param0) {
+        Style var0 = Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(true);
+        return new ChatTypeDecoration(param0, List.of(ChatTypeDecoration.Parameter.TARGET, ChatTypeDecoration.Parameter.CONTENT), var0);
+    }
+
     public static ChatTypeDecoration teamMessage(String param0) {
         return new ChatTypeDecoration(
-            param0, List.of(ChatTypeDecoration.Parameter.TEAM_NAME, ChatTypeDecoration.Parameter.SENDER, ChatTypeDecoration.Parameter.CONTENT), Style.EMPTY
+            param0, List.of(ChatTypeDecoration.Parameter.TARGET, ChatTypeDecoration.Parameter.SENDER, ChatTypeDecoration.Parameter.CONTENT), Style.EMPTY
         );
     }
 
@@ -51,7 +56,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
 
     public static enum Parameter implements StringRepresentable {
         SENDER("sender", (param0, param1) -> param1.name()),
-        TEAM_NAME("team_name", (param0, param1) -> param1.teamName()),
+        TARGET("target", (param0, param1) -> param1.targetName()),
         CONTENT("content", (param0, param1) -> param0);
 
         public static final Codec<ChatTypeDecoration.Parameter> CODEC = StringRepresentable.fromEnum(ChatTypeDecoration.Parameter::values);

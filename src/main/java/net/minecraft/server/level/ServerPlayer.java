@@ -1321,17 +1321,17 @@ public class ServerPlayer extends Player {
 
     public void sendChatMessage(PlayerChatMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
         if (this.acceptsChatMessages()) {
-            this.connection
-                .send(
-                    new ClientboundPlayerChatPacket(
-                        param0.signedContent(),
-                        param0.unsignedContent(),
-                        this.resolveChatTypeId(param2),
-                        param1,
-                        param0.signature().timeStamp(),
-                        param0.signature().saltSignature()
-                    )
-                );
+            int var0 = this.resolveChatTypeId(param2);
+            if (param0.isSignedBy(param1)) {
+                this.connection
+                    .send(
+                        new ClientboundPlayerChatPacket(
+                            param0.signedContent(), param0.unsignedContent(), var0, param1, param0.signature().timeStamp(), param0.signature().saltSignature()
+                        )
+                    );
+            } else {
+                this.connection.send(ClientboundPlayerChatPacket.system(param0.serverContent(), var0, param1.toSystem(), param0.signature().timeStamp()));
+            }
         }
 
     }

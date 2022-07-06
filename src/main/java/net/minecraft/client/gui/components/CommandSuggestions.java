@@ -196,7 +196,7 @@ public class CommandSuggestions {
         } else {
             String var7 = var0.substring(0, var4);
             int var8 = getLastWordIndex(var7);
-            Collection<String> var9 = this.minecraft.player.connection.getSuggestionsProvider().getOnlinePlayerNames();
+            Collection<String> var9 = this.minecraft.player.connection.getSuggestionsProvider().getCustomTabSugggestions();
             this.pendingSuggestions = SharedSuggestionProvider.suggest(var9, new SuggestionsBuilder(var7, var8));
         }
 

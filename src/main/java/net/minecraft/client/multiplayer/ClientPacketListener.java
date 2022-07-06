@@ -112,6 +112,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundCooldownPacket;
+import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
@@ -1544,6 +1545,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
             }
 
         }
+    }
+
+    @Override
+    public void handleCustomChatCompletions(ClientboundCustomChatCompletionsPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.suggestionsProvider.modifyCustomCompletions(param0.action(), param0.entries());
     }
 
     @Override

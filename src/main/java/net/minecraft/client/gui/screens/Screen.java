@@ -217,10 +217,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 var5 = this.height - var1 - 6;
             }
 
-            if (param3 - var1 - 8 < 0) {
-                var5 = param3 + 8;
-            }
-
             param0.pushPose();
             int var8 = -267386864;
             int var9 = 1347420415;

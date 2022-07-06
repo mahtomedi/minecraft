@@ -43,7 +43,7 @@ public class TeamMsgCommand {
             throw ERROR_NOT_ON_TEAM.create();
         } else {
             Component var2 = var1.getFormattedDisplayName().withStyle(SUGGEST_STYLE);
-            ChatSender var3 = param0.asChatSender().withTeamName(var2);
+            ChatSender var3 = param0.asChatSender().withTargetName(var2);
             List<ServerPlayer> var4 = param0.getServer()
                 .getPlayerList()
                 .getPlayers()

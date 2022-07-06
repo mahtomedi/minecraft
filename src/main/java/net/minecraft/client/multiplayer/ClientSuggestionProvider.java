@@ -6,6 +6,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -18,6 +19,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -36,6 +38,7 @@ public class ClientSuggestionProvider implements SharedSuggestionProvider {
     private int pendingSuggestionsId = -1;
     @Nullable
     private CompletableFuture<Suggestions> pendingSuggestionsFuture;
+    private final Set<String> customCompletionSuggestions = new HashSet<>();
 
     public ClientSuggestionProvider(ClientPacketListener param0, Minecraft param1) {
         this.connection = param0;
@@ -51,6 +54,17 @@ public class ClientSuggestionProvider implements SharedSuggestionProvider {
         }
 
         return var0;
+    }
+
+    @Override
+    public Collection<String> getCustomTabSugggestions() {
+        if (this.customCompletionSuggestions.isEmpty()) {
+            return this.getOnlinePlayerNames();
+        } else {
+            Set<String> var0 = new HashSet<>(this.getOnlinePlayerNames());
+            var0.addAll(this.customCompletionSuggestions);
+            return var0;
+        }
     }
 
     @Override
@@ -150,6 +164,21 @@ public class ClientSuggestionProvider implements SharedSuggestionProvider {
             this.pendingSuggestionsFuture.complete(param1);
             this.pendingSuggestionsFuture = null;
             this.pendingSuggestionsId = -1;
+        }
+
+    }
+
+    public void modifyCustomCompletions(ClientboundCustomChatCompletionsPacket.Action param0, List<String> param1) {
+        switch(param0) {
+            case ADD:
+                this.customCompletionSuggestions.addAll(param1);
+                break;
+            case REMOVE:
+                param1.forEach(this.customCompletionSuggestions::remove);
+                break;
+            case SET:
+                this.customCompletionSuggestions.clear();
+                this.customCompletionSuggestions.addAll(param1);
         }
 
     }

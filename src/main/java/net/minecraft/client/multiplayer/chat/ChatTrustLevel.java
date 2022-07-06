@@ -15,8 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public enum ChatTrustLevel {
     SECURE,
     MODIFIED,
-    NOT_SECURE,
-    UNKNOWN;
+    NOT_SECURE;
 
     public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2) {
         if (param0.hasExpiredClient(Instant.now())) {

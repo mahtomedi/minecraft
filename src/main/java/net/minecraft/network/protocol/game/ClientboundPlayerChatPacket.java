@@ -27,6 +27,10 @@ public record ClientboundPlayerChatPacket(
         );
     }
 
+    public static ClientboundPlayerChatPacket system(Component param0, int param1, ChatSender param2, Instant param3) {
+        return new ClientboundPlayerChatPacket(param0, Optional.empty(), param1, param2, param3, Crypt.SaltSignaturePair.EMPTY);
+    }
+
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeComponent(this.signedContent);

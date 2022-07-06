@@ -7,12 +7,17 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -44,56 +49,85 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
         RenderSystem.disableScissor();
     }
 
-    public void updatePlayerList(Collection<UUID> param0, double param1) {
-        this.addOnlinePlayers(param0);
-        this.updateFiltersAndScroll(param1);
+    public void updatePlayerList(Collection<UUID> param0, double param1, boolean param2) {
+        Map<UUID, PlayerEntry> var0 = new HashMap<>();
+        this.addOnlinePlayers(param0, var0);
+        this.updatePlayersFromChatLog(var0, param2);
+        this.updateFiltersAndScroll(var0.values(), param1);
     }
 
-    public void updatePlayerListWithLog(Collection<UUID> param0, double param1) {
-        this.addOnlinePlayers(param0);
-        this.addPlayersFromLog(param0);
-        this.updateFiltersAndScroll(param1);
+    private void addOnlinePlayers(Collection<UUID> param0, Map<UUID, PlayerEntry> param1) {
+        ClientPacketListener var0 = this.minecraft.player.connection;
+
+        for(UUID var1 : param0) {
+            PlayerInfo var2 = var0.getPlayerInfo(var1);
+            if (var2 != null) {
+                UUID var3 = var2.getProfile().getId();
+                param1.put(var3, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var3, var2.getProfile().getName(), var2::getSkinLocation));
+            }
+        }
+
     }
 
-    private void addOnlinePlayers(Collection<UUID> param0) {
-        this.players.clear();
+    private void updatePlayersFromChatLog(Map<UUID, PlayerEntry> param0, boolean param1) {
+        Collection<GameProfile> var0 = this.minecraft.getReportingContext().chatLog().selectAllDescending().distinctGameProfiles();
+        Iterator var4 = var0.iterator();
 
-        for(UUID var0 : param0) {
-            PlayerInfo var1 = this.minecraft.player.connection.getPlayerInfo(var0);
-            if (var1 != null) {
-                this.players
-                    .add(
-                        new PlayerEntry(
-                            this.minecraft, this.socialInteractionsScreen, var1.getProfile().getId(), var1.getProfile().getName(), var1::getSkinLocation
-                        )
+        while(true) {
+            PlayerEntry var2;
+            do {
+                if (!var4.hasNext()) {
+                    return;
+                }
+
+                GameProfile var1 = (GameProfile)var4.next();
+                if (param1) {
+                    var2 = param0.computeIfAbsent(
+                        var1.getId(),
+                        param1x -> {
+                            PlayerEntry var0x = new PlayerEntry(
+                                this.minecraft,
+                                this.socialInteractionsScreen,
+                                var1.getId(),
+                                var1.getName(),
+                                Suppliers.memoize(() -> this.minecraft.getSkinManager().getInsecureSkinLocation(var1))
+                            );
+                            var0x.setRemoved(true);
+                            return var0x;
+                        }
                     );
-            }
-        }
+                    break;
+                }
 
-        this.players.sort((param0x, param1) -> param0x.getPlayerName().compareToIgnoreCase(param1.getPlayerName()));
+                var2 = param0.get(var1.getId());
+            } while(var2 == null);
+
+            var2.setHasRecentMessages(true);
+        }
     }
 
-    private void addPlayersFromLog(Collection<UUID> param0) {
-        for(GameProfile var1 : this.minecraft.getReportingContext().chatLog().selectAllDescending().distinctGameProfiles()) {
-            if (!param0.contains(var1.getId())) {
-                PlayerEntry var2 = new PlayerEntry(
-                    this.minecraft,
-                    this.socialInteractionsScreen,
-                    var1.getId(),
-                    var1.getName(),
-                    Suppliers.memoize(() -> this.minecraft.getSkinManager().getInsecureSkinLocation(var1))
-                );
-                var2.setRemoved(true);
-                this.players.add(var2);
+    private void sortPlayerEntries() {
+        this.players.sort(Comparator.<PlayerEntry, Integer>comparing(param0 -> {
+            if (param0.getPlayerId().equals(this.minecraft.getUser().getProfileId())) {
+                return 0;
+            } else if (param0.getPlayerId().version() == 2) {
+                return 3;
+            } else {
+                return param0.hasRecentMessages() ? 1 : 2;
             }
-        }
-
+        }).thenComparing(param0 -> {
+            int var0 = param0.getPlayerName().codePointAt(0);
+            return var0 != 95 && (var0 < 97 || var0 > 122) && (var0 < 65 || var0 > 90) && (var0 < 48 || var0 > 57) ? 1 : 0;
+        }).thenComparing(PlayerEntry::getPlayerName, String::compareToIgnoreCase));
     }
 
-    private void updateFiltersAndScroll(double param0) {
+    private void updateFiltersAndScroll(Collection<PlayerEntry> param0, double param1) {
+        this.players.clear();
+        this.players.addAll(param0);
+        this.sortPlayerEntries();
         this.updateFilteredPlayers();
         this.replaceEntries(this.players);
-        this.setScrollAmount(param0);
+        this.setScrollAmount(param1);
     }
 
     private void updateFilteredPlayers() {

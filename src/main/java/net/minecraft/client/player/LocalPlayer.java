@@ -340,7 +340,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             LOGGER.error("Failed to sign chat message: '{}'", param1.getString(), var4);
         }
 
-        return MessageSignature.unsigned();
+        return MessageSignature.unsigned(this.getUUID());
     }
 
     private void sendCommand(MessageSigner param0, String param1, @Nullable Component param2) {

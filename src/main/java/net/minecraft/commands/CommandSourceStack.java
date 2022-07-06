@@ -19,7 +19,9 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.ChatSender;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -412,6 +414,18 @@ public class CommandSourceStack implements SharedSuggestionProvider {
 
     public CommandSigningContext getSigningContext() {
         return this.signingContext;
+    }
+
+    public void sendChatMessage(ChatSender param0, PlayerChatMessage param1, ResourceKey<ChatType> param2) {
+        if (!this.silent) {
+            ServerPlayer var0 = this.getPlayer();
+            if (var0 != null) {
+                var0.sendChatMessage(param1, param0, param2);
+            } else {
+                this.source.sendSystemMessage(this.server.decorateChatMessage(param0, param1.serverContent(), param2));
+            }
+
+        }
     }
 
     public void sendSuccess(Component param0, boolean param1) {
