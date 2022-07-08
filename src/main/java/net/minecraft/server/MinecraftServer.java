@@ -60,9 +60,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.gametest.framework.GameTestTicker;
 import net.minecraft.network.chat.ChatDecorator;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.ChatTypeDecoration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
@@ -1696,17 +1694,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return 1000000;
     }
 
-    public void logChatMessage(ChatSender param0, Component param1, ResourceKey<ChatType> param2) {
-        LOGGER.info(this.decorateChatMessage(param0, param1, param2).getString());
-    }
+    public void logChatMessage(Component param0, ChatType.Bound param1, @Nullable String param2) {
+        String var0 = param1.decorate(param0).getString();
+        if (param2 != null) {
+            LOGGER.info("[{}] {}", param2, var0);
+        } else {
+            LOGGER.info("{}", var0);
+        }
 
-    public Component decorateChatMessage(ChatSender param0, Component param1, ResourceKey<ChatType> param2) {
-        ChatTypeDecoration var0 = this.registryAccess()
-            .registry(Registry.CHAT_TYPE_REGISTRY)
-            .map(param1x -> param1x.get(param2))
-            .map(ChatType::chat)
-            .orElse(ChatType.DEFAULT_CHAT_DECORATION);
-        return var0.decorate(param1, param0);
     }
 
     public ChatDecorator getChatDecorator() {

@@ -38,12 +38,12 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
         );
     }
 
-    public Component decorate(Component param0, ChatSender param1) {
+    public Component decorate(Component param0, ChatType.Bound param1) {
         Object[] var0 = this.resolveParameters(param0, param1);
         return Component.translatable(this.translationKey, var0).withStyle(this.style);
     }
 
-    private Component[] resolveParameters(Component param0, ChatSender param1) {
+    private Component[] resolveParameters(Component param0, ChatType.Bound param1) {
         Component[] var0 = new Component[this.parameters.size()];
 
         for(int var1 = 0; var1 < var0.length; ++var1) {
@@ -68,7 +68,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
             this.selector = param1;
         }
 
-        public Component select(Component param0, ChatSender param1) {
+        public Component select(Component param0, ChatType.Bound param1) {
             Component var0 = this.selector.select(param0, param1);
             return Objects.requireNonNullElse(var0, CommonComponents.EMPTY);
         }
@@ -80,7 +80,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
 
         public interface Selector {
             @Nullable
-            Component select(Component var1, ChatSender var2);
+            Component select(Component var1, ChatType.Bound var2);
         }
     }
 }

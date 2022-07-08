@@ -21,7 +21,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.OutgoingPlayerChatMessage;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -66,7 +66,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         @Nullable Entity param8
     ) {
         this(param0, param1, param2, param3, param4, param5, param6, param7, param8, false, (param0x, param1x, param2x) -> {
-        }, EntityAnchorArgument.Anchor.FEET, CommandSigningContext.NONE);
+        }, EntityAnchorArgument.Anchor.FEET, CommandSigningContext.anonymous());
     }
 
     protected CommandSourceStack(
@@ -352,7 +352,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
     }
 
     public ChatSender asChatSender() {
-        return this.entity != null ? this.entity.asChatSender() : ChatSender.system(this.getDisplayName());
+        return this.entity != null ? this.entity.asChatSender() : ChatSender.SYSTEM;
     }
 
     @Override
@@ -416,13 +416,13 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         return this.signingContext;
     }
 
-    public void sendChatMessage(ChatSender param0, PlayerChatMessage param1, ResourceKey<ChatType> param2) {
+    public void sendChatMessage(OutgoingPlayerChatMessage param0, ChatType.Bound param1) {
         if (!this.silent) {
             ServerPlayer var0 = this.getPlayer();
             if (var0 != null) {
-                var0.sendChatMessage(param1, param0, param2);
+                var0.sendChatMessage(param0, param1);
             } else {
-                this.source.sendSystemMessage(this.server.decorateChatMessage(param0, param1.serverContent(), param2));
+                this.source.sendSystemMessage(param1.decorate(param0.original().serverContent()));
             }
 
         }

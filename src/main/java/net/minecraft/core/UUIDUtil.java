@@ -3,6 +3,8 @@ package net.minecraft.core;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
@@ -29,6 +31,12 @@ public final class UUIDUtil {
 
     private static int[] leastMostToIntArray(long param0, long param1) {
         return new int[]{(int)(param0 >> 32), (int)param0, (int)(param1 >> 32), (int)param1};
+    }
+
+    public static byte[] uuidToByteArray(UUID param0) {
+        byte[] var0 = new byte[16];
+        ByteBuffer.wrap(var0).order(ByteOrder.BIG_ENDIAN).putLong(param0.getMostSignificantBits()).putLong(param0.getLeastSignificantBits());
+        return var0;
     }
 
     public static UUID readUUID(Dynamic<?> param0) {

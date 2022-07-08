@@ -83,11 +83,11 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.MessageSignature;
+import net.minecraft.network.chat.SignedMessageChain;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -115,6 +115,7 @@ import net.minecraft.network.protocol.game.ClientboundCooldownPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundDeleteChatPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
@@ -140,6 +141,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPingPacket;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
@@ -305,6 +307,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private Set<ResourceKey<Level>> levels;
     private RegistryAccess.Frozen registryAccess = RegistryAccess.BUILTIN.get();
     private final ClientTelemetryManager telemetryManager;
+    private final SignedMessageChain.Encoder signedMessageEncoder = new SignedMessageChain().encoder();
 
     public ClientPacketListener(Minecraft param0, Screen param1, Connection param2, GameProfile param3, ClientTelemetryManager param4) {
         this.minecraft = param0;
@@ -802,11 +805,24 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Registry<ChatType> var0 = this.registryAccess.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-        ChatType var1 = param0.resolveType(var0);
-        ChatSender var2 = param0.sender();
-        PlayerChatMessage var3 = param0.getMessage();
-        this.minecraft.getChatListener().handleChatMessage(var1, var3, var2);
+        ChatType.Bound var0 = param0.resolveChatType(this.registryAccess);
+        this.minecraft.getChatListener().handleChatMessage(param0.message(), var0);
+    }
+
+    @Override
+    public void handlePlayerChatHeader(ClientboundPlayerChatHeaderPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.minecraft.getChatListener().handleChatHeader(param0.header(), param0.headerSignature(), param0.bodyDigest());
+    }
+
+    @Override
+    public void handleDeleteChat(ClientboundDeleteChatPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        MessageSignature var0 = param0.messageSignature();
+        if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue(var0)) {
+            this.minecraft.gui.getChat().deleteMessage(var0);
+        }
+
     }
 
     @Override
@@ -2380,5 +2396,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     public RegistryAccess registryAccess() {
         return this.registryAccess;
+    }
+
+    public SignedMessageChain.Encoder signedMessageEncoder() {
+        return this.signedMessageEncoder;
     }
 }

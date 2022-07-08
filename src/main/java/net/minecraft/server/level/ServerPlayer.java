@@ -21,16 +21,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.MessageSignature;
+import net.minecraft.network.chat.OutgoingPlayerChatMessage;
+import net.minecraft.network.chat.SignedMessageHeader;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
@@ -51,6 +51,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
@@ -1319,26 +1320,19 @@ public class ServerPlayer extends Player {
 
     }
 
-    public void sendChatMessage(PlayerChatMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
+    public void sendChatMessage(OutgoingPlayerChatMessage param0, ChatType.Bound param1) {
         if (this.acceptsChatMessages()) {
-            int var0 = this.resolveChatTypeId(param2);
-            if (param0.isSignedBy(param1)) {
-                this.connection
-                    .send(
-                        new ClientboundPlayerChatPacket(
-                            param0.signedContent(), param0.unsignedContent(), var0, param1, param0.signature().timeStamp(), param0.signature().saltSignature()
-                        )
-                    );
-            } else {
-                this.connection.send(ClientboundPlayerChatPacket.system(param0.serverContent(), var0, param1.toSystem(), param0.signature().timeStamp()));
-            }
+            ClientboundPlayerChatPacket var0 = param0.packetForPlayer(this, param1);
+            this.connection.send(var0);
         }
 
     }
 
-    private int resolveChatTypeId(ResourceKey<ChatType> param0) {
-        Registry<ChatType> var0 = this.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-        return var0.getId(var0.get(param0));
+    public void sendChatHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+        if (this.acceptsChatMessages()) {
+            this.connection.send(new ClientboundPlayerChatHeaderPacket(param0, param1, param2));
+        }
+
     }
 
     public String getIpAddress() {

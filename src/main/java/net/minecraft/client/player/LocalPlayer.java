@@ -1,14 +1,11 @@
 package net.minecraft.client.player;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.logging.LogUtils;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -301,31 +298,26 @@ public class LocalPlayer extends AbstractClientPlayer {
         return !var1.isEmpty();
     }
 
-    public void chatSigned(String param0) {
-        this.chatSigned(param0, null);
-    }
-
     public void chatSigned(String param0, @Nullable Component param1) {
-        MessageSigner var0 = MessageSigner.create(this.getUUID());
-        this.sendChat(var0, param0, param1);
+        this.sendChat(param0, param1);
     }
 
     public void commandUnsigned(String param0) {
-        this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), ArgumentSignatures.empty(), false));
+        this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, false));
     }
 
     public void commandSigned(String param0, @Nullable Component param1) {
-        MessageSigner var0 = MessageSigner.create(this.getUUID());
-        this.sendCommand(var0, param0, param1);
+        this.sendCommand(param0, param1);
     }
 
-    private void sendChat(MessageSigner param0, String param1, @Nullable Component param2) {
-        if (param2 != null) {
-            MessageSignature var0 = this.signMessage(param0, param2);
-            this.connection.send(new ServerboundChatPacket(param1, var0, true));
+    private void sendChat(String param0, @Nullable Component param1) {
+        MessageSigner var0 = this.createMessageSigner();
+        if (param1 != null) {
+            MessageSignature var1 = this.signMessage(var0, param1);
+            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var1, true));
         } else {
-            MessageSignature var1 = this.signMessage(param0, Component.literal(param1));
-            this.connection.send(new ServerboundChatPacket(param1, var1, false));
+            MessageSignature var2 = this.signMessage(var0, Component.literal(param0));
+            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var2, false));
         }
 
     }
@@ -334,44 +326,41 @@ public class LocalPlayer extends AbstractClientPlayer {
         try {
             Signer var0 = this.minecraft.getProfileKeyPairManager().signer();
             if (var0 != null) {
-                return param0.sign(var0, param1);
+                return this.connection.signedMessageEncoder().pack(var0, param0, param1).signature();
             }
         } catch (Exception var4) {
             LOGGER.error("Failed to sign chat message: '{}'", param1.getString(), var4);
         }
 
-        return MessageSignature.unsigned(this.getUUID());
+        return MessageSignature.EMPTY;
     }
 
-    private void sendCommand(MessageSigner param0, String param1, @Nullable Component param2) {
-        ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param1, this.connection.getSuggestionsProvider());
-        ArgumentSignatures var1 = this.signCommandArguments(param0, var0, param2);
-        this.connection.send(new ServerboundChatCommandPacket(param1, param0.timeStamp(), var1, param2 != null));
+    private void sendCommand(String param0, @Nullable Component param1) {
+        ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param0, this.connection.getSuggestionsProvider());
+        MessageSigner var1 = this.createMessageSigner();
+        ArgumentSignatures var2 = this.signCommandArguments(var1, var0, param1);
+        this.connection.send(new ServerboundChatCommandPacket(param0, var1.timeStamp(), var1.salt(), var2, param1 != null));
     }
 
     private ArgumentSignatures signCommandArguments(MessageSigner param0, ParseResults<SharedSuggestionProvider> param1, @Nullable Component param2) {
-        Map<String, Component> var0 = ArgumentSignatures.collectLastChildPlainSignableComponents(param1.getContext());
-        if (var0.isEmpty()) {
-            return ArgumentSignatures.empty();
+        Signer var0 = this.minecraft.getProfileKeyPairManager().signer();
+        if (var0 == null) {
+            return ArgumentSignatures.EMPTY;
         } else {
-            Signer var1 = this.minecraft.getProfileKeyPairManager().signer();
-            if (var1 == null) {
-                return ArgumentSignatures.empty();
-            } else {
-                try {
-                    Builder<String, byte[]> var2 = ImmutableMap.builder();
-                    var0.forEach((param4, param5) -> {
-                        Component var0x = param2 != null ? param2 : param5;
-                        MessageSignature var1x = param0.sign(var1, var0x);
-                        var2.put(param4, var1x.saltSignature().signature());
-                    });
-                    return new ArgumentSignatures(param0.salt(), var2.build());
-                } catch (Exception var7) {
-                    LOGGER.error("Failed to sign command arguments", (Throwable)var7);
-                    return ArgumentSignatures.empty();
-                }
+            try {
+                return ArgumentSignatures.signCommand(param1.getContext(), (param3, param4) -> {
+                    Component var0x = param2 != null ? param2 : param4;
+                    return this.connection.signedMessageEncoder().pack(var0, param0, var0x).signature();
+                });
+            } catch (Exception var6) {
+                LOGGER.error("Failed to sign command arguments", (Throwable)var6);
+                return ArgumentSignatures.EMPTY;
             }
         }
+    }
+
+    private MessageSigner createMessageSigner() {
+        return MessageSigner.create(this.getUUID());
     }
 
     @Override

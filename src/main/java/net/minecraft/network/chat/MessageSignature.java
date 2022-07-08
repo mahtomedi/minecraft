@@ -1,50 +1,66 @@
 package net.minecraft.network.chat;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
-import java.security.SignatureException;
-import java.time.Instant;
-import java.util.UUID;
-import net.minecraft.Util;
-import net.minecraft.util.Crypt;
+import it.unimi.dsi.fastutil.bytes.ByteArrays;
+import java.util.Arrays;
+import java.util.Base64;
+import javax.annotation.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.SignatureUpdater;
 import net.minecraft.util.SignatureValidator;
 
-public record MessageSignature(UUID sender, Instant timeStamp, Crypt.SaltSignaturePair saltSignature) {
-    public static MessageSignature unsigned(UUID param0) {
-        return new MessageSignature(param0, Instant.now(), Crypt.SaltSignaturePair.EMPTY);
+public record MessageSignature(byte[] bytes) {
+    public static final MessageSignature EMPTY = new MessageSignature(ByteArrays.EMPTY_ARRAY);
+
+    public MessageSignature(FriendlyByteBuf param0) {
+        this(param0.readByteArray());
     }
 
-    public boolean verify(SignatureValidator param0, Component param1) {
-        return this.isValid()
-            ? param0.validate(
-                (SignatureUpdater)(param1x -> updateSignature(param1x, param1, this.sender, this.timeStamp, this.saltSignature.salt())),
-                this.saltSignature.signature()
-            )
-            : false;
+    public void write(FriendlyByteBuf param0) {
+        param0.writeByteArray(this.bytes);
     }
 
-    public boolean verify(SignatureValidator param0, String param1) throws SignatureException {
-        return this.verify(param0, Component.literal(param1));
+    public boolean verify(SignatureValidator param0, SignedMessageHeader param1, SignedMessageBody param2) {
+        if (!this.isEmpty()) {
+            byte[] var0 = param2.hash().asBytes();
+            return param0.validate((SignatureUpdater)(param2x -> param1.updateSignature(param2x, var0)), this.bytes);
+        } else {
+            return false;
+        }
     }
 
-    public static void updateSignature(SignatureUpdater.Output param0, Component param1, UUID param2, Instant param3, long param4) throws SignatureException {
-        byte[] var0 = new byte[32];
-        ByteBuffer var1 = ByteBuffer.wrap(var0).order(ByteOrder.BIG_ENDIAN);
-        var1.putLong(param4);
-        var1.putLong(param2.getMostSignificantBits()).putLong(param2.getLeastSignificantBits());
-        var1.putLong(param3.getEpochSecond());
-        param0.update(var0);
-        param0.update(encodeContent(param1));
+    public boolean verify(SignatureValidator param0, SignedMessageHeader param1, byte[] param2) {
+        return !this.isEmpty() ? param0.validate((SignatureUpdater)(param2x -> param1.updateSignature(param2x, param2)), this.bytes) : false;
     }
 
-    private static byte[] encodeContent(Component param0) {
-        String var0 = Component.Serializer.toStableJson(param0);
-        return var0.getBytes(StandardCharsets.UTF_8);
+    public boolean isEmpty() {
+        return this.bytes.length == 0;
     }
 
-    public boolean isValid() {
-        return this.sender != Util.NIL_UUID && this.saltSignature.isValid();
+    @Nullable
+    public String asString() {
+        return !this.isEmpty() ? Base64.getEncoder().encodeToString(this.bytes) : null;
+    }
+
+    @Override
+    public boolean equals(Object param0) {
+        if (this == param0) {
+            return true;
+        } else {
+            if (param0 instanceof MessageSignature var0 && Arrays.equals(this.bytes, var0.bytes)) {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(this.bytes);
+    }
+
+    @Override
+    public String toString() {
+        return !this.isEmpty() ? Base64.getEncoder().encodeToString(this.bytes) : "empty";
     }
 }

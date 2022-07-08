@@ -2,88 +2,93 @@ package net.minecraft.network.chat;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import net.minecraft.Util;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.level.ServerPlayer;
+import javax.annotation.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.network.FilteredText;
+import net.minecraft.util.SignatureValidator;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 
-public record PlayerChatMessage(Component signedContent, MessageSignature signature, Optional<Component> unsignedContent) {
+public record PlayerChatMessage(
+    SignedMessageHeader signedHeader, MessageSignature headerSignature, SignedMessageBody signedBody, Optional<Component> unsignedContent
+) {
     public static final Duration MESSAGE_EXPIRES_AFTER_SERVER = Duration.ofMinutes(5L);
     public static final Duration MESSAGE_EXPIRES_AFTER_CLIENT = MESSAGE_EXPIRES_AFTER_SERVER.plus(Duration.ofMinutes(2L));
 
-    public static PlayerChatMessage signed(Component param0, MessageSignature param1) {
-        return new PlayerChatMessage(param0, param1, Optional.empty());
+    public PlayerChatMessage(FriendlyByteBuf param0) {
+        this(new SignedMessageHeader(param0), new MessageSignature(param0), new SignedMessageBody(param0), param0.readOptional(FriendlyByteBuf::readComponent));
     }
 
-    public static PlayerChatMessage signed(String param0, MessageSignature param1) {
-        return signed(Component.literal(param0), param1);
+    public static PlayerChatMessage unsigned(MessageSigner param0, Component param1) {
+        SignedMessageBody var0 = new SignedMessageBody(param1, param0.timeStamp(), param0.salt(), List.of());
+        SignedMessageHeader var1 = new SignedMessageHeader(null, param0.profileId());
+        return new PlayerChatMessage(var1, MessageSignature.EMPTY, var0, Optional.empty());
     }
 
-    public static PlayerChatMessage signed(Component param0, Component param1, MessageSignature param2, boolean param3) {
-        if (param0.equals(param1)) {
-            return signed(param0, param2);
+    public void write(FriendlyByteBuf param0) {
+        this.signedHeader.write(param0);
+        this.headerSignature.write(param0);
+        this.signedBody.write(param0);
+        param0.writeOptional(this.unsignedContent, FriendlyByteBuf::writeComponent);
+    }
+
+    public FilteredText<PlayerChatMessage> withFilteredText(@Nullable Component param0) {
+        if (param0 == null) {
+            return FilteredText.fullyFiltered(this);
         } else {
-            return !param3 ? signed(param0, param2).withUnsignedContent(param1) : signed(param1, param2);
+            return this.signedContent().equals(param0) ? FilteredText.passThrough(this) : new FilteredText<>(this, unsigned(this.signer(), param0));
         }
     }
 
-    public static FilteredText<PlayerChatMessage> filteredSigned(
-        FilteredText<Component> param0, FilteredText<Component> param1, MessageSignature param2, boolean param3
-    ) {
-        Component var0 = param0.raw();
-        Component var1 = param1.raw();
-        PlayerChatMessage var2 = signed(var0, var1, param2, param3);
-        if (param1.isFiltered()) {
-            UUID var3 = param2.sender();
-            PlayerChatMessage var4 = Util.mapNullable(param1.filtered(), param1x -> unsigned(var3, param1x));
-            return new FilteredText<>(var2, var4);
-        } else {
-            return FilteredText.passThrough(var2);
-        }
-    }
-
-    public static PlayerChatMessage unsigned(UUID param0, Component param1) {
-        return new PlayerChatMessage(param1, MessageSignature.unsigned(param0), Optional.empty());
-    }
-
-    public PlayerChatMessage withUnsignedContent(Component param0) {
-        return new PlayerChatMessage(this.signedContent, this.signature, Optional.of(param0));
+    public PlayerChatMessage withDecoratedContent(Component param0) {
+        Optional<Component> var0 = !this.signedContent().equals(param0) ? Optional.of(param0) : Optional.empty();
+        return new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, var0);
     }
 
     public PlayerChatMessage removeUnsignedContent() {
-        return this.unsignedContent.isPresent() ? new PlayerChatMessage(this.signedContent, this.signature, Optional.empty()) : this;
+        return this.unsignedContent.isPresent() ? new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, Optional.empty()) : this;
+    }
+
+    public boolean verify(SignatureValidator param0) {
+        return this.headerSignature.verify(param0, this.signedHeader, this.signedBody);
     }
 
     public boolean verify(ProfilePublicKey param0) {
-        return this.signature.verify(param0.createSignatureValidator(), this.signedContent);
+        SignatureValidator var0 = param0.createSignatureValidator();
+        return this.verify(var0);
     }
 
-    public boolean verify(ServerPlayer param0) {
-        ProfilePublicKey var0 = param0.getProfilePublicKey();
-        return var0 == null || this.verify(var0);
+    public boolean verify(ChatSender param0) {
+        ProfilePublicKey var0 = param0.profilePublicKey();
+        return var0 != null && this.verify(var0);
     }
 
-    public boolean verify(CommandSourceStack param0) {
-        ServerPlayer var0 = param0.getPlayer();
-        return var0 == null || this.verify(var0);
+    public Component signedContent() {
+        return this.signedBody.content();
     }
 
     public Component serverContent() {
-        return this.unsignedContent.orElse(this.signedContent);
+        return this.unsignedContent().orElse(this.signedContent());
+    }
+
+    public Instant timeStamp() {
+        return this.signedBody.timeStamp();
+    }
+
+    public long salt() {
+        return this.signedBody.salt();
     }
 
     public boolean hasExpiredServer(Instant param0) {
-        return param0.isAfter(this.signature.timeStamp().plus(MESSAGE_EXPIRES_AFTER_SERVER));
+        return param0.isAfter(this.timeStamp().plus(MESSAGE_EXPIRES_AFTER_SERVER));
     }
 
     public boolean hasExpiredClient(Instant param0) {
-        return param0.isAfter(this.signature.timeStamp().plus(MESSAGE_EXPIRES_AFTER_CLIENT));
+        return param0.isAfter(this.timeStamp().plus(MESSAGE_EXPIRES_AFTER_CLIENT));
     }
 
-    public boolean isSignedBy(ChatSender param0) {
-        return param0.isPlayer() && this.signature.sender().equals(param0.profileId());
+    public MessageSigner signer() {
+        return new MessageSigner(this.signedHeader.sender(), this.timeStamp(), this.salt());
     }
 }

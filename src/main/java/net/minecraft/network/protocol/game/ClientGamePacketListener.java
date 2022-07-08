@@ -31,9 +31,13 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handlePlayerChat(ClientboundPlayerChatPacket var1);
 
+    void handlePlayerChatHeader(ClientboundPlayerChatHeaderPacket var1);
+
     void handleChatPreview(ClientboundChatPreviewPacket var1);
 
     void handleSetDisplayChatPreview(ClientboundSetDisplayChatPreviewPacket var1);
+
+    void handleDeleteChat(ClientboundDeleteChatPacket var1);
 
     void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket var1);
 

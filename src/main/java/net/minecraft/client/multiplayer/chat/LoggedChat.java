@@ -53,7 +53,7 @@ public interface LoggedChat {
         }
 
         private Component getTimeComponent() {
-            LocalDateTime var0 = LocalDateTime.ofInstant(this.message.signature().timeStamp(), ZoneOffset.systemDefault());
+            LocalDateTime var0 = LocalDateTime.ofInstant(this.message.timeStamp(), ZoneOffset.systemDefault());
             return Component.literal(var0.format(TIME_FORMATTER)).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
         }
 

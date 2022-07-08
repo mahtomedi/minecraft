@@ -18,7 +18,11 @@ public record FilteredText<T>(T raw, @Nullable T filtered) {
     }
 
     public <U> FilteredText<U> map(Function<T, U> param0) {
-        return new FilteredText<>(param0.apply(this.raw), Util.mapNullable(this.filtered, param0));
+        return this.map(param0, param0);
+    }
+
+    public <U> FilteredText<U> map(Function<T, U> param0, Function<T, U> param1) {
+        return new FilteredText<>(param0.apply(this.raw), Util.mapNullable(this.filtered, param1));
     }
 
     public boolean isFiltered() {
@@ -42,5 +46,10 @@ public record FilteredText<T>(T raw, @Nullable T filtered) {
     public T filter(CommandSourceStack param0, ServerPlayer param1) {
         ServerPlayer var0 = param0.getPlayer();
         return (T)(var0 != null ? this.filter(var0, param1) : this.raw);
+    }
+
+    @Nullable
+    public T select(boolean param0) {
+        return (T)(param0 ? this.filtered : this.raw);
     }
 }

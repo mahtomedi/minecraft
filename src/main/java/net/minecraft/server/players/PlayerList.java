@@ -11,12 +11,14 @@ import java.io.File;
 import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.FileUtil;
@@ -32,6 +34,7 @@ import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.OutgoingPlayerChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
@@ -793,7 +796,7 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, CommandSourceStack param1, ResourceKey<ChatType> param2) {
+    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, CommandSourceStack param1, ChatType.Bound param2) {
         ServerPlayer var0 = param1.getPlayer();
         if (var0 != null) {
             this.broadcastChatMessage(param0, var0, param2);
@@ -803,26 +806,42 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, ServerPlayer param1, ResourceKey<ChatType> param2) {
-        this.broadcastChatMessage(param0.raw(), param2x -> param0.filter(param1, param2x), param1.asChatSender(), param2);
+    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, ServerPlayer param1, ChatType.Bound param2) {
+        this.broadcastChatMessage(param0, param1::shouldFilterMessageTo, param1.asChatSender(), param2);
     }
 
-    public void broadcastChatMessage(PlayerChatMessage param0, ChatSender param1, ResourceKey<ChatType> param2) {
-        this.broadcastChatMessage(param0, param1x -> param0, param1, param2);
+    public void broadcastChatMessage(PlayerChatMessage param0, ChatSender param1, ChatType.Bound param2) {
+        this.broadcastChatMessage(FilteredText.passThrough(param0), param0x -> false, param1, param2);
     }
 
-    public void broadcastChatMessage(
-        PlayerChatMessage param0, Function<ServerPlayer, PlayerChatMessage> param1, ChatSender param2, ResourceKey<ChatType> param3
-    ) {
-        this.server.logChatMessage(param2, param0.serverContent(), param3);
+    private void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, Predicate<ServerPlayer> param1, ChatSender param2, ChatType.Bound param3) {
+        boolean var0 = this.verifyChatTrusted(param0.raw(), param2);
+        this.server.logChatMessage(param0.raw().serverContent(), param3, var0 ? null : "Not Secure");
+        FilteredText<OutgoingPlayerChatMessage> var1 = OutgoingPlayerChatMessage.createFromFiltered(param0, param2);
 
-        for(ServerPlayer var0 : this.players) {
-            PlayerChatMessage var1 = param1.apply(var0);
-            if (var1 != null) {
-                var0.sendChatMessage(var1, param2, param3);
+        for(ServerPlayer var2 : this.players) {
+            OutgoingPlayerChatMessage var3 = var1.select(param1.test(var2));
+            if (var3 != null) {
+                var2.sendChatMessage(var3, param3);
             }
         }
 
+        var1.raw().sendHeadersToRemainingPlayers(this);
+    }
+
+    public void broadcastMessageHeader(PlayerChatMessage param0, Set<ServerPlayer> param1) {
+        byte[] var0 = param0.signedBody().hash().asBytes();
+
+        for(ServerPlayer var1 : this.players) {
+            if (!param1.contains(var1)) {
+                var1.sendChatHeader(param0.signedHeader(), param0.headerSignature(), var0);
+            }
+        }
+
+    }
+
+    private boolean verifyChatTrusted(PlayerChatMessage param0, ChatSender param1) {
+        return !param0.hasExpiredServer(Instant.now()) && param0.verify(param1);
     }
 
     public ServerStatsCounter getPlayerStats(Player param0) {

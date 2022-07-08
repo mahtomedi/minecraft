@@ -9,48 +9,46 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.OutgoingPlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.FilteredText;
 
 public class MsgCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         LiteralCommandNode<CommandSourceStack> var0 = param0.register(
             Commands.literal("msg")
-                .then(
-                    Commands.argument("targets", EntityArgument.players())
-                        .then(
-                            Commands.argument("message", MessageArgument.message())
-                                .executes(
-                                    param0x -> sendMessage(
-                                            param0x.getSource(),
-                                            EntityArgument.getPlayers(param0x, "targets"),
-                                            MessageArgument.getChatMessage(param0x, "message")
-                                        )
-                                )
-                        )
-                )
+                .then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("message", MessageArgument.message()).executes(param0x -> {
+                    MessageArgument.ChatMessage var0x = MessageArgument.getChatMessage(param0x, "message");
+        
+                    try {
+                        return sendMessage(param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), var0x);
+                    } catch (Exception var3) {
+                        var0x.consume(param0x.getSource());
+                        throw var3;
+                    }
+                })))
         );
         param0.register(Commands.literal("tell").redirect(var0));
         param0.register(Commands.literal("w").redirect(var0));
     }
 
     private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, MessageArgument.ChatMessage param2) {
-        if (param1.isEmpty()) {
-            return 0;
-        } else {
-            ChatSender var0 = param0.asChatSender();
-            param2.resolve(param0).thenAcceptAsync(param3 -> {
-                for(ServerPlayer var0x : param1) {
-                    ChatSender var1x = var0.withTargetName(var0x.getDisplayName());
-                    param0.sendChatMessage(var1x, param3.raw(), ChatType.MSG_COMMAND_OUTGOING);
-                    PlayerChatMessage var2x = param3.filter(param0, var0x);
-                    if (var2x != null) {
-                        var0x.sendChatMessage(var2x, var0, ChatType.MSG_COMMAND_INCOMING);
-                    }
-                }
+        ChatSender var0 = param0.asChatSender();
+        ChatType.Bound var1 = ChatType.bind(ChatType.MSG_COMMAND_INCOMING, param0);
+        param2.resolve(param0).thenAcceptAsync(param4 -> {
+            FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param4, var0);
 
-            }, param0.getServer());
-            return param1.size();
-        }
+            for(ServerPlayer var1x : param1) {
+                ChatType.Bound var2x = ChatType.bind(ChatType.MSG_COMMAND_OUTGOING, param0).withTargetName(var1x.getDisplayName());
+                param0.sendChatMessage(var0x.raw(), var2x);
+                OutgoingPlayerChatMessage var3x = var0x.filter(param0, var1x);
+                if (var3x != null) {
+                    var1x.sendChatMessage(var3x, var1);
+                }
+            }
+
+            var0x.raw().sendHeadersToRemainingPlayers(param0.getServer().getPlayerList());
+        }, param0.getServer());
+        return param1.size();
     }
 }

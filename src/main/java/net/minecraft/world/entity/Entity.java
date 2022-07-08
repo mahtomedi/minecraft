@@ -1070,7 +1070,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public ChatSender asChatSender() {
-        return ChatSender.system(this.getDisplayName());
+        return ChatSender.SYSTEM;
     }
 
     public void updateSwimming() {

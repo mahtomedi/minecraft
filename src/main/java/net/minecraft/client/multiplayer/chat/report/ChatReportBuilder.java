@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -21,7 +20,6 @@ import net.minecraft.client.multiplayer.chat.ChatLog;
 import net.minecraft.client.multiplayer.chat.LoggedChat;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.util.Crypt;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -131,21 +129,16 @@ public class ChatReportBuilder {
 
     private ReportChatMessage buildReportedChatMessage(int param0, LoggedChat.Player param1) {
         PlayerChatMessage var0 = param1.message();
-        Instant var1 = var0.signature().timeStamp();
-        Crypt.SaltSignaturePair var2 = var0.signature().saltSignature();
-        long var3 = var2.salt();
-        String var4 = var2.isValid() ? encodeSignature(var2.signature()) : null;
-        String var5 = encodeComponent(var0.signedContent());
-        String var6 = var0.unsignedContent().map(ChatReportBuilder::encodeComponent).orElse(null);
-        return new ReportChatMessage(param1.profileId(), var1, var3, var4, var5, var6, this.isReported(param0));
+        Instant var1 = var0.timeStamp();
+        long var2 = var0.salt();
+        String var3 = var0.headerSignature().asString();
+        String var4 = encodeComponent(var0.signedContent());
+        String var5 = var0.unsignedContent().map(ChatReportBuilder::encodeComponent).orElse(null);
+        return new ReportChatMessage(param1.profileId(), var1, var2, var3, var4, var5, this.isReported(param0));
     }
 
     private static String encodeComponent(Component param0x) {
         return Component.Serializer.toStableJson(param0x);
-    }
-
-    private static String encodeSignature(byte[] param0) {
-        return Base64.getEncoder().encodeToString(param0);
     }
 
     private IntStream selectContextMessages(ChatLog param0, int param1) {

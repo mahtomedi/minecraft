@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.chat.ChatListener;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -167,7 +169,7 @@ public class ChatComponent extends GuiComponent {
     }
 
     public void addMessage(Component param0, @Nullable GuiMessageTag param1) {
-        this.addMessage(param0, this.minecraft.gui.getGuiTicks(), param1, false);
+        this.addMessage(param0, null, param1);
         String var0 = param0.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n");
         String var1 = Util.mapNullable(param1, GuiMessageTag::logTag);
         if (var1 != null) {
@@ -178,10 +180,14 @@ public class ChatComponent extends GuiComponent {
 
     }
 
-    private void addMessage(Component param0, int param1, @Nullable GuiMessageTag param2, boolean param3) {
+    public void addMessage(Component param0, @Nullable MessageSignature param1, @Nullable GuiMessageTag param2) {
+        this.addMessage(param0, param1, this.minecraft.gui.getGuiTicks(), param2, false);
+    }
+
+    private void addMessage(Component param0, @Nullable MessageSignature param1, int param2, @Nullable GuiMessageTag param3, boolean param4) {
         int var0 = Mth.floor((double)this.getWidth() / this.getScale());
-        if (param2 != null && param2.icon() != null) {
-            var0 -= param2.icon().width + 4 + 2;
+        if (param3 != null && param3.icon() != null) {
+            var0 -= param3.icon().width + 4 + 2;
         }
 
         List<FormattedCharSequence> var1 = ComponentRenderUtils.wrapComponents(param0, var0, this.minecraft.font);
@@ -195,15 +201,15 @@ public class ChatComponent extends GuiComponent {
             }
 
             boolean var5 = var3 == var1.size() - 1;
-            this.trimmedMessages.add(0, new GuiMessage.Line(param1, var4, param2, var5));
+            this.trimmedMessages.add(0, new GuiMessage.Line(param2, var4, param3, var5));
         }
 
         while(this.trimmedMessages.size() > 100) {
             this.trimmedMessages.remove(this.trimmedMessages.size() - 1);
         }
 
-        if (!param3) {
-            this.allMessages.add(0, new GuiMessage(param1, param0, param2));
+        if (!param4) {
+            this.allMessages.add(0, new GuiMessage(param2, param0, param1, param3));
 
             while(this.allMessages.size() > 100) {
                 this.allMessages.remove(this.allMessages.size() - 1);
@@ -212,13 +218,31 @@ public class ChatComponent extends GuiComponent {
 
     }
 
+    public void deleteMessage(MessageSignature param0) {
+        Iterator<GuiMessage> var0 = this.allMessages.iterator();
+
+        while(var0.hasNext()) {
+            MessageSignature var1 = var0.next().headerSignature();
+            if (var1 != null && var1.equals(param0)) {
+                var0.remove();
+                break;
+            }
+        }
+
+        this.refreshTrimmedMessage();
+    }
+
     public void rescaleChat() {
-        this.trimmedMessages.clear();
         this.resetChatScroll();
+        this.refreshTrimmedMessage();
+    }
+
+    private void refreshTrimmedMessage() {
+        this.trimmedMessages.clear();
 
         for(int var0 = this.allMessages.size() - 1; var0 >= 0; --var0) {
             GuiMessage var1 = this.allMessages.get(var0);
-            this.addMessage(var1.content(), var1.addedTime(), var1.tag(), true);
+            this.addMessage(var1.content(), var1.headerSignature(), var1.addedTime(), var1.tag(), true);
         }
 
     }

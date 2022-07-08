@@ -3,8 +3,6 @@ package net.minecraft.server.network;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import net.minecraft.Util;
-import net.minecraft.network.chat.Component;
 
 public interface TextFilter {
     TextFilter DUMMY = new TextFilter() {
@@ -34,11 +32,4 @@ public interface TextFilter {
     CompletableFuture<FilteredText<String>> processStreamMessage(String var1);
 
     CompletableFuture<List<FilteredText<String>>> processMessageBundle(List<String> var1);
-
-    default CompletableFuture<FilteredText<Component>> processStreamComponent(Component param0) {
-        return this.processStreamMessage(param0.getString()).thenApply(param1 -> {
-            Component var0 = Util.mapNullable(param1.filtered(), Component::literal);
-            return new FilteredText<>(param0, var0);
-        });
-    }
 }
