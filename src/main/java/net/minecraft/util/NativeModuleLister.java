@@ -17,6 +17,7 @@ import com.sun.jna.ptr.PointerByReference;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class NativeModuleLister {
     }
 
     private static String langTableKey(String param0, int param1, int param2) {
-        return String.format("\\StringFileInfo\\%04x%04x\\%s", param1, param2, param0);
+        return String.format(Locale.ROOT, "\\StringFileInfo\\%04x%04x\\%s", param1, param2, param0);
     }
 
     private static OptionalInt findLangAndCodepage(int[] param0) {

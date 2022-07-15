@@ -28,6 +28,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.TaskChainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -53,6 +54,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
     private final EntityAnchorArgument.Anchor anchor;
     private final Vec2 rotation;
     private final CommandSigningContext signingContext;
+    private final TaskChainer chatMessageChainer;
 
     public CommandSourceStack(
         CommandSource param0,
@@ -66,7 +68,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         @Nullable Entity param8
     ) {
         this(param0, param1, param2, param3, param4, param5, param6, param7, param8, false, (param0x, param1x, param2x) -> {
-        }, EntityAnchorArgument.Anchor.FEET, CommandSigningContext.anonymous());
+        }, EntityAnchorArgument.Anchor.FEET, CommandSigningContext.anonymous(), TaskChainer.IMMEDIATE);
     }
 
     protected CommandSourceStack(
@@ -82,7 +84,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         boolean param9,
         @Nullable ResultConsumer<CommandSourceStack> param10,
         EntityAnchorArgument.Anchor param11,
-        CommandSigningContext param12
+        CommandSigningContext param12,
+        TaskChainer param13
     ) {
         this.source = param0;
         this.worldPosition = param1;
@@ -97,6 +100,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         this.anchor = param11;
         this.rotation = param2;
         this.signingContext = param12;
+        this.chatMessageChainer = param13;
     }
 
     public CommandSourceStack withSource(CommandSource param0) {
@@ -115,7 +119,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -135,7 +140,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -155,7 +161,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -175,7 +182,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -195,7 +203,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 param0,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -219,7 +228,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 true,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             )
             : this;
     }
@@ -240,7 +250,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -260,7 +271,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -280,7 +292,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 param0,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
     }
 
@@ -303,7 +316,8 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
-                this.signingContext
+                this.signingContext,
+                this.chatMessageChainer
             );
         }
     }
@@ -339,6 +353,28 @@ public class CommandSourceStack implements SharedSuggestionProvider {
                 this.silent,
                 this.consumer,
                 this.anchor,
+                param0,
+                this.chatMessageChainer
+            );
+    }
+
+    public CommandSourceStack withChatMessageChainer(TaskChainer param0) {
+        return param0 == this.chatMessageChainer
+            ? this
+            : new CommandSourceStack(
+                this.source,
+                this.worldPosition,
+                this.rotation,
+                this.level,
+                this.permissionLevel,
+                this.textName,
+                this.displayName,
+                this.server,
+                this.entity,
+                this.silent,
+                this.consumer,
+                this.anchor,
+                this.signingContext,
                 param0
             );
     }
@@ -414,6 +450,10 @@ public class CommandSourceStack implements SharedSuggestionProvider {
 
     public CommandSigningContext getSigningContext() {
         return this.signingContext;
+    }
+
+    public TaskChainer getChatMessageChainer() {
+        return this.chatMessageChainer;
     }
 
     public void sendChatMessage(OutgoingPlayerChatMessage param0, ChatType.Bound param1) {

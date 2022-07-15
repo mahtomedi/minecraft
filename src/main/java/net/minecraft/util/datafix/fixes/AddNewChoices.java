@@ -5,6 +5,7 @@ import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TaggedChoice.TaggedChoiceType;
+import java.util.Locale;
 
 public class AddNewChoices extends DataFix {
     private final String name;
@@ -29,7 +30,7 @@ public class AddNewChoices extends DataFix {
         } else {
             return this.fixTypeEverywhere(param0, param1, param2, param1x -> param1xx -> {
                     if (!param2.hasType(param1xx.getFirst())) {
-                        throw new IllegalArgumentException(String.format("Unknown type %s in %s ", param1xx.getFirst(), this.type));
+                        throw new IllegalArgumentException(String.format(Locale.ROOT, "Unknown type %s in %s ", param1xx.getFirst(), this.type));
                     } else {
                         return param1xx;
                     }

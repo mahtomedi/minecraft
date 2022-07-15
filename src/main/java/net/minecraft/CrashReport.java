@@ -9,9 +9,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import net.minecraft.util.MemoryReserve;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 
 public class CrashReport {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     private final String title;
     private final Throwable exception;
     private final List<CrashReportCategory> details = Lists.newArrayList();
@@ -110,7 +112,7 @@ public class CrashReport {
         var0.append(getErrorComment());
         var0.append("\n\n");
         var0.append("Time: ");
-        var0.append(new SimpleDateFormat().format(new Date()));
+        var0.append(DATE_TIME_FORMATTER.format(ZonedDateTime.now()));
         var0.append("\n");
         var0.append("Description: ");
         var0.append(this.title);

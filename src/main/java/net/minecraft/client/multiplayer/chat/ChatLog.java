@@ -18,14 +18,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface ChatLog {
     int NO_MESSAGE = -1;
 
-    void push(LoggedChat var1);
+    void push(LoggedChatEvent var1);
 
     @Nullable
-    LoggedChat lookup(int var1);
+    LoggedChatEvent lookup(int var1);
 
-    default LoggedChat.WithId lookupWithId(int param0) {
-        LoggedChat var0 = this.lookup(param0);
-        return var0 != null ? new LoggedChat.WithId(param0, var0) : null;
+    @Nullable
+    default ChatLog.Entry<LoggedChatEvent> lookupEntry(int param0) {
+        LoggedChatEvent var0 = this.lookup(param0);
+        return var0 != null ? new ChatLog.Entry<>(param0, var0) : null;
     }
 
     default boolean contains(int param0) {
@@ -33,8 +34,6 @@ public interface ChatLog {
     }
 
     int offset(int var1, int var2);
-
-    int offsetClamped(int var1, int var2);
 
     default int before(int param0) {
         return this.offset(param0, -1);
@@ -93,6 +92,14 @@ public interface ChatLog {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public static record Entry<T extends LoggedChatEvent>(int id, T event) {
+        @Nullable
+        public <U extends LoggedChatEvent> ChatLog.Entry<U> tryCast(Class<U> param0) {
+            return param0.isInstance(this.event) ? new ChatLog.Entry<>(this.id, param0.cast(this.event)) : null;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static class Selection {
         private static final int CHARACTERISTICS = 1041;
         private final ChatLog log;
@@ -107,16 +114,20 @@ public interface ChatLog {
             return StreamSupport.intStream(Spliterators.spliteratorUnknownSize(this.ids, 1041), false);
         }
 
-        public Stream<LoggedChat> messages() {
+        public Stream<LoggedChatEvent> events() {
             return this.ids().mapToObj(this.log::lookup).filter(Objects::nonNull);
         }
 
         public Collection<GameProfile> distinctGameProfiles() {
-            return this.messages().map(param0 -> param0 instanceof LoggedChat.Player var0 ? var0.profile() : null).filter(Objects::nonNull).distinct().toList();
+            return this.events()
+                .map(param0 -> param0 instanceof LoggedChatMessage.Player var0 ? var0.profile() : null)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
         }
 
-        public Stream<LoggedChat.WithId> messagesWithIds() {
-            return this.ids().mapToObj(this.log::lookupWithId).filter(Objects::nonNull);
+        public Stream<ChatLog.Entry<LoggedChatEvent>> entries() {
+            return this.ids().mapToObj(this.log::lookupEntry).filter(Objects::nonNull);
         }
     }
 }

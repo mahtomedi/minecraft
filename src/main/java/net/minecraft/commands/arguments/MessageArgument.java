@@ -11,14 +11,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSigningContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.chat.ChatDecorator;
+import net.minecraft.network.chat.ChatMessageContent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MessageSigner;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -45,9 +47,8 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
         MessageArgument.Message var0 = param0.getArgument(param1, MessageArgument.Message.class);
         Component var1 = var0.resolveComponent(param0.getSource());
         CommandSigningContext var2 = param0.getSource().getSigningContext();
-        MessageSignature var3 = var2.getArgumentSignature(param1);
-        boolean var4 = var2.signedArgumentPreview(param1);
-        return new MessageArgument.ChatMessage(var0.text, var1, var3, var4);
+        CommandSigningContext.SignedArgument var3 = var2.getArgument(param1);
+        return new MessageArgument.ChatMessage(var0.text, var1, var3);
     }
 
     public MessageArgument.Message parse(StringReader param0) throws CommandSyntaxException {
@@ -59,8 +60,8 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
         return EXAMPLES;
     }
 
-    public Component getPlainSignableComponent(MessageArgument.Message param0) {
-        return Component.literal(param0.getText());
+    public String getSignableText(MessageArgument.Message param0) {
+        return param0.getText();
     }
 
     public CompletableFuture<Component> resolvePreview(CommandSourceStack param0, MessageArgument.Message param1) throws CommandSyntaxException {
@@ -79,33 +80,36 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
         });
     }
 
-    public static record ChatMessage(String plain, Component formatted, MessageSignature signature, boolean signedPreview) {
-        public CompletableFuture<FilteredText<PlayerChatMessage>> resolve(CommandSourceStack param0) {
-            CompletableFuture<FilteredText<PlayerChatMessage>> var0 = this.filterPlainText(param0, this.plain).thenComposeAsync(param1 -> {
-                FilteredText<Component> var0x = this.rebuildMessageIfNeeded(param0, param1);
-                return this.resolveFiltered(param0, param1, var0x);
-            }, param0.getServer());
-            var0.thenAccept(
-                param1 -> {
-                    PlayerChatMessage var0x = param1.raw();
-                    if (var0x.hasExpiredServer(Instant.now())) {
-                        MessageArgument.LOGGER
-                            .warn(
-                                "{} sent expired chat: '{}'. Is the client/server system time unsynchronized?",
-                                param0.getDisplayName().getString(),
-                                var0x.signedContent().getString()
-                            );
-                    }
-    
-                }
-            );
-            MessageArgument.logResolutionFailure(param0, var0);
-            return var0;
+    public static record ChatMessage(String plain, Component formatted, CommandSigningContext.SignedArgument signedArgument) {
+        public void resolve(CommandSourceStack param0, Consumer<FilteredText<PlayerChatMessage>> param1) {
+            param0.getChatMessageChainer()
+                .append(
+                    () -> this.filterPlainText(param0, this.plain)
+                            .thenComposeAsync(param1x -> {
+                                FilteredText<Component> var0 = this.rebuildMessageIfNeeded(param0, param1x);
+                                return this.resolveFiltered(param0, param1x, var0);
+                            }, param0.getServer())
+                            .thenApply(
+                                (Function<? super FilteredText<PlayerChatMessage>, ? extends FilteredText<PlayerChatMessage>>)(param1x -> {
+                                    PlayerChatMessage var0 = param1x.raw();
+                                    if (var0.hasExpiredServer(Instant.now())) {
+                                        MessageArgument.LOGGER
+                                            .warn(
+                                                "{} sent expired chat: '{}'. Is the client/server system time unsynchronized?",
+                                                param0.getDisplayName().getString(),
+                                                var0.signedContent().plain().getString()
+                                            );
+                                    }
+                
+                                    return param1x;
+                                })
+                            )
+                            .thenAcceptAsync(param1, param0.getServer())
+                );
         }
 
         private FilteredText<Component> rebuildMessageIfNeeded(CommandSourceStack param0, FilteredText<String> param1) {
-            String var0 = param1.filtered();
-            return var0 != null ? new FilteredText<>(this.formatted, this.rebuildFilteredMessage(param0, var0)) : FilteredText.passThrough(this.formatted);
+            return param1.mapWithEquality(param0x -> this.formatted, param1x -> this.rebuildFilteredMessage(param0, param1x));
         }
 
         @Nullable
@@ -126,13 +130,13 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
             CommandSigningContext var2 = param0.getSigningContext();
             SignedMessageChain.Decoder var3 = var2.decoder();
             MessageSigner var4 = var2.argumentSigner();
-            SignedMessageChain.Link var5 = new SignedMessageChain.Link(this.signature);
-            if (this.signedPreview) {
-                return var0.decorateFiltered(var1, param2).thenApply(param3 -> var3.unpack(var5, var4, param3));
+            SignedMessageChain.Link var5 = new SignedMessageChain.Link(this.signedArgument.signature());
+            if (this.signedArgument.signedPreview()) {
+                return var0.decorateFiltered(var1, param2)
+                    .thenApply(param4 -> var3.unpack(var5, var4, ChatMessageContent.fromFiltered(param1, param4), this.signedArgument.lastSeenMessages()));
             } else {
-                FilteredText<Component> var6 = param1.map(Component::literal);
-                FilteredText<PlayerChatMessage> var7 = var3.unpack(var5, var4, var6);
-                return var0.decorateFiltered(var1, param2).thenApply(param1x -> ChatDecorator.attachDecoration(var7, param1x));
+                FilteredText<PlayerChatMessage> var6 = var3.unpack(var5, var4, ChatMessageContent.fromFiltered(param1), this.signedArgument.lastSeenMessages());
+                return var0.decorateFiltered(var1, param2).thenApply(param1x -> ChatDecorator.attachUnsignedDecoration(var6, param1x));
             }
         }
 
@@ -143,10 +147,10 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
 
         public void consume(CommandSourceStack param0) {
             if (!param0.getSigningContext().argumentSigner().isSystem()) {
-                this.resolve(param0).thenAcceptAsync(param1 -> {
+                this.resolve(param0, param1 -> {
                     PlayerList var0 = param0.getServer().getPlayerList();
                     var0.broadcastMessageHeader(param1.raw(), Set.of());
-                }, param0.getServer());
+                });
             }
 
         }

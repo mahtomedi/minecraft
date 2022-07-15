@@ -251,18 +251,18 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         DedicatedServerProperties var0 = this.getProperties();
 
         try (Writer var1 = Files.newBufferedWriter(param0)) {
-            var1.write(String.format("sync-chunk-writes=%s%n", var0.syncChunkWrites));
-            var1.write(String.format("gamemode=%s%n", var0.gamemode));
-            var1.write(String.format("spawn-monsters=%s%n", var0.spawnMonsters));
-            var1.write(String.format("entity-broadcast-range-percentage=%d%n", var0.entityBroadcastRangePercentage));
-            var1.write(String.format("max-world-size=%d%n", var0.maxWorldSize));
-            var1.write(String.format("spawn-npcs=%s%n", var0.spawnNpcs));
-            var1.write(String.format("view-distance=%d%n", var0.viewDistance));
-            var1.write(String.format("simulation-distance=%d%n", var0.simulationDistance));
-            var1.write(String.format("spawn-animals=%s%n", var0.spawnAnimals));
-            var1.write(String.format("generate-structures=%s%n", var0.getWorldGenSettings(this.registryAccess()).generateStructures()));
-            var1.write(String.format("use-native=%s%n", var0.useNativeTransport));
-            var1.write(String.format("rate-limit=%d%n", var0.rateLimitPacketsPerSecond));
+            var1.write(String.format(Locale.ROOT, "sync-chunk-writes=%s%n", var0.syncChunkWrites));
+            var1.write(String.format(Locale.ROOT, "gamemode=%s%n", var0.gamemode));
+            var1.write(String.format(Locale.ROOT, "spawn-monsters=%s%n", var0.spawnMonsters));
+            var1.write(String.format(Locale.ROOT, "entity-broadcast-range-percentage=%d%n", var0.entityBroadcastRangePercentage));
+            var1.write(String.format(Locale.ROOT, "max-world-size=%d%n", var0.maxWorldSize));
+            var1.write(String.format(Locale.ROOT, "spawn-npcs=%s%n", var0.spawnNpcs));
+            var1.write(String.format(Locale.ROOT, "view-distance=%d%n", var0.viewDistance));
+            var1.write(String.format(Locale.ROOT, "simulation-distance=%d%n", var0.simulationDistance));
+            var1.write(String.format(Locale.ROOT, "spawn-animals=%s%n", var0.spawnAnimals));
+            var1.write(String.format(Locale.ROOT, "generate-structures=%s%n", var0.getWorldGenSettings(this.registryAccess()).generateStructures()));
+            var1.write(String.format(Locale.ROOT, "use-native=%s%n", var0.useNativeTransport));
+            var1.write(String.format(Locale.ROOT, "rate-limit=%d%n", var0.rateLimitPacketsPerSecond));
         }
 
     }

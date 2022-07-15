@@ -264,7 +264,7 @@ public class ClientPackSource implements RepositorySource {
         try (FilePackResources var0 = new FilePackResources(param0)) {
             var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
         } catch (IOException var9) {
-            return Util.failedFuture(new IOException(String.format("Invalid resourcepack at %s", param0), var9));
+            return Util.failedFuture(new IOException(String.format(Locale.ROOT, "Invalid resourcepack at %s", param0), var9));
         }
 
         LOGGER.info("Applying server pack {}", param0);

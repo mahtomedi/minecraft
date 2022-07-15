@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.FormattedText;
@@ -35,7 +36,7 @@ public class ClientLanguage extends Language {
         for(LanguageInfo var2 : param1) {
             var1 |= var2.isBidirectional();
             String var3 = var2.getCode();
-            String var4 = String.format("lang/%s.json", var3);
+            String var4 = String.format(Locale.ROOT, "lang/%s.json", var3);
 
             for(String var5 : param0.getNamespaces()) {
                 try {

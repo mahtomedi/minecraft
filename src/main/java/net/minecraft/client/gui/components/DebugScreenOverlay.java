@@ -183,9 +183,9 @@ public class DebugScreenOverlay extends GuiComponent {
         float var3 = var1.getAverageReceivedPackets();
         String var4;
         if (var0 != null) {
-            var4 = String.format("Integrated server @ %.0f ms ticks, %.0f tx, %.0f rx", var0.getAverageTickTime(), var2, var3);
+            var4 = String.format(Locale.ROOT, "Integrated server @ %.0f ms ticks, %.0f tx, %.0f rx", var0.getAverageTickTime(), var2, var3);
         } else {
-            var4 = String.format("\"%s\" server, %.0f tx, %.0f rx", this.minecraft.player.getServerBrand(), var2, var3);
+            var4 = String.format(Locale.ROOT, "\"%s\" server, %.0f tx, %.0f rx", this.minecraft.player.getServerBrand(), var2, var3);
         }
 
         BlockPos var6 = this.minecraft.getCameraEntity().blockPosition();
@@ -205,7 +205,7 @@ public class DebugScreenOverlay extends GuiComponent {
                 "P: " + this.minecraft.particleEngine.countParticles() + ". T: " + this.minecraft.level.getEntityCount(),
                 this.minecraft.level.gatherChunkSourceStats(),
                 "",
-                String.format("Chunk-relative: %d %d %d", var6.getX() & 15, var6.getY() & 15, var6.getZ() & 15)
+                String.format(Locale.ROOT, "Chunk-relative: %d %d %d", var6.getX() & 15, var6.getY() & 15, var6.getZ() & 15)
             );
         } else {
             Entity var7 = this.minecraft.getCameraEntity();
@@ -258,9 +258,14 @@ public class DebugScreenOverlay extends GuiComponent {
                     this.minecraft.getCameraEntity().getZ()
                 )
             );
-            var17.add(String.format("Block: %d %d %d [%d %d %d]", var6.getX(), var6.getY(), var6.getZ(), var6.getX() & 15, var6.getY() & 15, var6.getZ() & 15));
             var17.add(
                 String.format(
+                    Locale.ROOT, "Block: %d %d %d [%d %d %d]", var6.getX(), var6.getY(), var6.getZ(), var6.getX() & 15, var6.getY() & 15, var6.getZ() & 15
+                )
+            );
+            var17.add(
+                String.format(
+                    Locale.ROOT,
                     "Chunk: %d %d %d [%d %d in r.%d.%d.mca]",
                     var14.x,
                     SectionPos.blockToSectionCoord(var6.getY()),
@@ -365,7 +370,8 @@ public class DebugScreenOverlay extends GuiComponent {
             }
 
             var17.add(
-                this.minecraft.getSoundManager().getDebugString() + String.format(" (Mood %d%%)", Math.round(this.minecraft.player.getCurrentMood() * 100.0F))
+                this.minecraft.getSoundManager().getDebugString()
+                    + String.format(Locale.ROOT, " (Mood %d%%)", Math.round(this.minecraft.player.getCurrentMood() * 100.0F))
             );
             return var17;
         }
@@ -427,15 +433,19 @@ public class DebugScreenOverlay extends GuiComponent {
         long var2 = Runtime.getRuntime().freeMemory();
         long var3 = var1 - var2;
         List<String> var4 = Lists.newArrayList(
-            String.format("Java: %s %dbit", System.getProperty("java.version"), this.minecraft.is64Bit() ? 64 : 32),
-            String.format("Mem: % 2d%% %03d/%03dMB", var3 * 100L / var0, bytesToMegabytes(var3), bytesToMegabytes(var0)),
-            String.format("Allocation rate: %03dMB /s", bytesToMegabytes(this.allocationRateCalculator.bytesAllocatedPerSecond(var3))),
-            String.format("Allocated: % 2d%% %03dMB", var1 * 100L / var0, bytesToMegabytes(var1)),
+            String.format(Locale.ROOT, "Java: %s %dbit", System.getProperty("java.version"), this.minecraft.is64Bit() ? 64 : 32),
+            String.format(Locale.ROOT, "Mem: % 2d%% %03d/%03dMB", var3 * 100L / var0, bytesToMegabytes(var3), bytesToMegabytes(var0)),
+            String.format(Locale.ROOT, "Allocation rate: %03dMB /s", bytesToMegabytes(this.allocationRateCalculator.bytesAllocatedPerSecond(var3))),
+            String.format(Locale.ROOT, "Allocated: % 2d%% %03dMB", var1 * 100L / var0, bytesToMegabytes(var1)),
             "",
-            String.format("CPU: %s", GlUtil.getCpuInfo()),
+            String.format(Locale.ROOT, "CPU: %s", GlUtil.getCpuInfo()),
             "",
             String.format(
-                "Display: %dx%d (%s)", Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), GlUtil.getVendor()
+                Locale.ROOT,
+                "Display: %dx%d (%s)",
+                Minecraft.getInstance().getWindow().getWidth(),
+                Minecraft.getInstance().getWindow().getHeight(),
+                GlUtil.getVendor()
             ),
             GlUtil.getRenderer(),
             GlUtil.getOpenGLVersion()

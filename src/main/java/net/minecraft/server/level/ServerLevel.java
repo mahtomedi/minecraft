@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -1350,20 +1351,20 @@ public class ServerLevel extends Level implements WorldGenLevel {
         ChunkMap var0 = this.getChunkSource().chunkMap;
 
         try (Writer var1 = Files.newBufferedWriter(param0.resolve("stats.txt"))) {
-            var1.write(String.format("spawning_chunks: %d\n", var0.getDistanceManager().getNaturalSpawnChunkCount()));
+            var1.write(String.format(Locale.ROOT, "spawning_chunks: %d\n", var0.getDistanceManager().getNaturalSpawnChunkCount()));
             NaturalSpawner.SpawnState var2 = this.getChunkSource().getLastSpawnState();
             if (var2 != null) {
                 for(Entry<MobCategory> var3 : var2.getMobCategoryCounts().object2IntEntrySet()) {
-                    var1.write(String.format("spawn_count.%s: %d\n", var3.getKey().getName(), var3.getIntValue()));
+                    var1.write(String.format(Locale.ROOT, "spawn_count.%s: %d\n", var3.getKey().getName(), var3.getIntValue()));
                 }
             }
 
-            var1.write(String.format("entities: %s\n", this.entityManager.gatherStats()));
-            var1.write(String.format("block_entity_tickers: %d\n", this.blockEntityTickers.size()));
-            var1.write(String.format("block_ticks: %d\n", this.getBlockTicks().count()));
-            var1.write(String.format("fluid_ticks: %d\n", this.getFluidTicks().count()));
+            var1.write(String.format(Locale.ROOT, "entities: %s\n", this.entityManager.gatherStats()));
+            var1.write(String.format(Locale.ROOT, "block_entity_tickers: %d\n", this.blockEntityTickers.size()));
+            var1.write(String.format(Locale.ROOT, "block_ticks: %d\n", this.getBlockTicks().count()));
+            var1.write(String.format(Locale.ROOT, "fluid_ticks: %d\n", this.getFluidTicks().count()));
             var1.write("distance_manager: " + var0.getDistanceManager().getDebugStatus() + "\n");
-            var1.write(String.format("pending_tasks: %d\n", this.getChunkSource().getPendingTasksCount()));
+            var1.write(String.format(Locale.ROOT, "pending_tasks: %d\n", this.getChunkSource().getPendingTasksCount()));
         }
 
         CrashReport var4 = new CrashReport("Level dump", new Exception("dummy"));
@@ -1487,6 +1488,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @VisibleForTesting
     public String getWatchdogStats() {
         return String.format(
+            Locale.ROOT,
             "players: %s, entities: %s [%s], block_entities: %d [%s], block_ticks: %d, fluid_ticks: %d, chunk_source: %s",
             this.players.size(),
             this.entityManager.gatherStats(),

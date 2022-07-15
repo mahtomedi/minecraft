@@ -35,7 +35,9 @@ import net.minecraft.commands.arguments.ArgumentSignatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.ChatMessageContent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MessageSigner;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
@@ -302,8 +304,14 @@ public class LocalPlayer extends AbstractClientPlayer {
         this.sendChat(param0, param1);
     }
 
+    public boolean commandHasSignableArguments(String param0) {
+        ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param0, this.connection.getSuggestionsProvider());
+        return ArgumentSignatures.hasSignableArguments(var0);
+    }
+
     public void commandUnsigned(String param0) {
-        this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, false));
+        LastSeenMessages.Update var0 = this.connection.generateMessageAcknowledgements();
+        this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, false, var0));
     }
 
     public void commandSigned(String param0, @Nullable Component param1) {
@@ -312,24 +320,27 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     private void sendChat(String param0, @Nullable Component param1) {
         MessageSigner var0 = this.createMessageSigner();
+        LastSeenMessages.Update var1 = this.connection.generateMessageAcknowledgements();
         if (param1 != null) {
-            MessageSignature var1 = this.signMessage(var0, param1);
-            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var1, true));
+            ChatMessageContent var2 = new ChatMessageContent(param0, param1);
+            MessageSignature var3 = this.signMessage(var0, var2, var1.lastSeen());
+            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var3, true, var1));
         } else {
-            MessageSignature var2 = this.signMessage(var0, Component.literal(param0));
-            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var2, false));
+            ChatMessageContent var4 = new ChatMessageContent(param0);
+            MessageSignature var5 = this.signMessage(var0, var4, var1.lastSeen());
+            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var5, false, var1));
         }
 
     }
 
-    private MessageSignature signMessage(MessageSigner param0, Component param1) {
+    private MessageSignature signMessage(MessageSigner param0, ChatMessageContent param1, LastSeenMessages param2) {
         try {
             Signer var0 = this.minecraft.getProfileKeyPairManager().signer();
             if (var0 != null) {
-                return this.connection.signedMessageEncoder().pack(var0, param0, param1).signature();
+                return this.connection.signedMessageEncoder().pack(var0, param0, param1, param2).signature();
             }
-        } catch (Exception var4) {
-            LOGGER.error("Failed to sign chat message: '{}'", param1.getString(), var4);
+        } catch (Exception var5) {
+            LOGGER.error("Failed to sign chat message: '{}'", param1.plain().getString(), var5);
         }
 
         return MessageSignature.EMPTY;
@@ -338,22 +349,25 @@ public class LocalPlayer extends AbstractClientPlayer {
     private void sendCommand(String param0, @Nullable Component param1) {
         ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param0, this.connection.getSuggestionsProvider());
         MessageSigner var1 = this.createMessageSigner();
-        ArgumentSignatures var2 = this.signCommandArguments(var1, var0, param1);
-        this.connection.send(new ServerboundChatCommandPacket(param0, var1.timeStamp(), var1.salt(), var2, param1 != null));
+        LastSeenMessages.Update var2 = this.connection.generateMessageAcknowledgements();
+        ArgumentSignatures var3 = this.signCommandArguments(var1, var0, param1, var2.lastSeen());
+        this.connection.send(new ServerboundChatCommandPacket(param0, var1.timeStamp(), var1.salt(), var3, param1 != null, var2));
     }
 
-    private ArgumentSignatures signCommandArguments(MessageSigner param0, ParseResults<SharedSuggestionProvider> param1, @Nullable Component param2) {
+    private ArgumentSignatures signCommandArguments(
+        MessageSigner param0, ParseResults<SharedSuggestionProvider> param1, @Nullable Component param2, LastSeenMessages param3
+    ) {
         Signer var0 = this.minecraft.getProfileKeyPairManager().signer();
         if (var0 == null) {
             return ArgumentSignatures.EMPTY;
         } else {
             try {
-                return ArgumentSignatures.signCommand(param1.getContext(), (param3, param4) -> {
-                    Component var0x = param2 != null ? param2 : param4;
-                    return this.connection.signedMessageEncoder().pack(var0, param0, var0x).signature();
+                return ArgumentSignatures.signCommand(param1.getContext(), (param4, param5) -> {
+                    ChatMessageContent var0x = param2 != null ? new ChatMessageContent(param5, param2) : new ChatMessageContent(param5);
+                    return this.connection.signedMessageEncoder().pack(var0, param0, var0x, param3).signature();
                 });
-            } catch (Exception var6) {
-                LOGGER.error("Failed to sign command arguments", (Throwable)var6);
+            } catch (Exception var7) {
+                LOGGER.error("Failed to sign command arguments", (Throwable)var7);
                 return ArgumentSignatures.EMPTY;
             }
         }

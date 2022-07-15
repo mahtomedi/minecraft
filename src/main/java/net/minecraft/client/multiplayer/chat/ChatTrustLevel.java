@@ -15,15 +15,15 @@ public enum ChatTrustLevel {
     MODIFIED,
     NOT_SECURE;
 
-    public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2) {
-        if (param0.hasExpiredClient(Instant.now())) {
+    public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2, Instant param3) {
+        if (param0.hasExpiredClient(param3)) {
             return NOT_SECURE;
         } else if (param2 == null || !param2.getMessageValidator().validateMessage(param0)) {
             return NOT_SECURE;
         } else if (param0.unsignedContent().isPresent()) {
             return MODIFIED;
         } else {
-            return !param1.contains(param0.signedContent()) ? MODIFIED : SECURE;
+            return !param1.contains(param0.signedContent().decorated()) ? MODIFIED : SECURE;
         }
     }
 
@@ -34,7 +34,7 @@ public enum ChatTrustLevel {
     @Nullable
     public GuiMessageTag createTag(PlayerChatMessage param0) {
         return switch(this) {
-            case MODIFIED -> GuiMessageTag.chatModified(param0.signedContent());
+            case MODIFIED -> GuiMessageTag.chatModified(param0.signedContent().plain());
             case NOT_SECURE -> GuiMessageTag.chatNotSecure();
             default -> null;
         };

@@ -30,7 +30,7 @@ public class CrashReportCategory {
         StringBuilder var0 = new StringBuilder();
 
         try {
-            var0.append(String.format("World: (%d,%d,%d)", param1, param2, param3));
+            var0.append(String.format(Locale.ROOT, "World: (%d,%d,%d)", param1, param2, param3));
         } catch (Throwable var191) {
             var0.append("(Error finding world loc)");
         }
@@ -52,6 +52,7 @@ public class CrashReportCategory {
             int var13 = SectionPos.sectionToBlockCoord(var4 + 1) - 1;
             var0.append(
                 String.format(
+                    Locale.ROOT,
                     "Section: (at %d,%d,%d in %d,%d,%d; chunk contains blocks %d,%d,%d to %d,%d,%d)",
                     var5,
                     var6,
@@ -88,6 +89,7 @@ public class CrashReportCategory {
             int var26 = (var16 + 1 << 9) - 1;
             var0.append(
                 String.format(
+                    Locale.ROOT,
                     "Region: (%d,%d; contains chunks %d,%d to %d,%d, blocks %d,%d,%d to %d,%d,%d)",
                     var15,
                     var16,

@@ -50,19 +50,20 @@ public class TeamMsgCommand {
         } else {
             Component var2 = var1.getFormattedDisplayName().withStyle(SUGGEST_STYLE);
             ChatSender var3 = param0.asChatSender();
-            ChatType.Bound var4 = ChatType.bind(ChatType.TEAM_MSG_COMMAND, param0).withTargetName(var2);
-            List<ServerPlayer> var5 = param0.getServer()
+            ChatType.Bound var4 = ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, param0).withTargetName(var2);
+            ChatType.Bound var5 = ChatType.bind(ChatType.TEAM_MSG_COMMAND_OUTGOING, param0).withTargetName(var2);
+            List<ServerPlayer> var6 = param0.getServer()
                 .getPlayerList()
                 .getPlayers()
                 .stream()
                 .filter(param2 -> param2 == var0 || param2.getTeam() == var1)
                 .toList();
-            param1.resolve(param0).thenAcceptAsync(param6 -> {
+            param1.resolve(param0, param6 -> {
                 FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param6, var3);
 
-                for(ServerPlayer var1x : var5) {
+                for(ServerPlayer var1x : var6) {
                     if (var1x == var0) {
-                        var1x.sendSystemMessage(Component.translatable("chat.type.team.sent", var2, param0.getDisplayName(), param6.raw().serverContent()));
+                        var1x.sendChatMessage(var0x.raw(), var5);
                     } else {
                         OutgoingPlayerChatMessage var2x = var0x.filter(param0, var1x);
                         if (var2x != null) {
@@ -72,8 +73,8 @@ public class TeamMsgCommand {
                 }
 
                 var0x.raw().sendHeadersToRemainingPlayers(param0.getServer().getPlayerList());
-            }, param0.getServer());
-            return var5.size();
+            });
+            return var6.size();
         }
     }
 }

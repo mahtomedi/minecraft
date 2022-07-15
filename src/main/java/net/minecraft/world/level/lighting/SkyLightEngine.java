@@ -1,5 +1,6 @@
 package net.minecraft.world.level.lighting;
 
+import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -42,7 +43,7 @@ public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorag
                 int var10 = Integer.signum(var7 - var4);
                 Direction var11 = Direction.fromNormal(var8, var9, var10);
                 if (var11 == null) {
-                    throw new IllegalStateException(String.format("Light was spread in illegal direction %d, %d, %d", var8, var9, var10));
+                    throw new IllegalStateException(String.format(Locale.ROOT, "Light was spread in illegal direction %d, %d, %d", var8, var9, var10));
                 } else {
                     BlockState var12 = this.getStateAndOpacity(param0, null);
                     VoxelShape var13 = this.getShape(var12, param0, var11);

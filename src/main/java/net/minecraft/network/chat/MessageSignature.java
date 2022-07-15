@@ -1,6 +1,7 @@
 package net.minecraft.network.chat;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrays;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Base64;
 import javax.annotation.Nullable;
@@ -37,8 +38,8 @@ public record MessageSignature(byte[] bytes) {
     }
 
     @Nullable
-    public String asString() {
-        return !this.isEmpty() ? Base64.getEncoder().encodeToString(this.bytes) : null;
+    public ByteBuffer asByteBuffer() {
+        return !this.isEmpty() ? ByteBuffer.wrap(this.bytes) : null;
     }
 
     @Override

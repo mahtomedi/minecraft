@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -360,6 +361,7 @@ public class ModelBakery {
                                 } catch (Exception var8x) {
                                     throw new ModelBakery.BlockStateDefinitionException(
                                         String.format(
+                                            Locale.ROOT,
                                             "Exception loading blockstate definition: '%s' in resourcepack: '%s': %s",
                                             var9,
                                             param1.sourcePackId(),
@@ -423,7 +425,9 @@ public class ModelBakery {
                 } catch (ModelBakery.BlockStateDefinitionException var24) {
                     throw var24;
                 } catch (Exception var25) {
-                    throw new ModelBakery.BlockStateDefinitionException(String.format("Exception loading blockstate definition: '%s': %s", var9, var25));
+                    throw new ModelBakery.BlockStateDefinitionException(
+                        String.format(Locale.ROOT, "Exception loading blockstate definition: '%s': %s", var9, var25)
+                    );
                 } finally {
                     HashMap var22 = Maps.newHashMap();
                     var7.forEach((param4, param5) -> {

@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -331,7 +332,7 @@ public final class NbtUtils {
                             param0.append(' ');
                         }
 
-                        param0.append(String.format("0x%02X", var1[var3] & 255));
+                        param0.append(String.format(Locale.ROOT, "0x%02X", var1[var3] & 255));
                     }
                 }
 
@@ -398,7 +399,7 @@ public final class NbtUtils {
                 int var11 = 0;
 
                 for(int var12 : var10) {
-                    var11 = Math.max(var11, String.format("%X", var12).length());
+                    var11 = Math.max(var11, String.format(Locale.ROOT, "%X", var12).length());
                 }
 
                 int var13 = var10.length;
@@ -422,7 +423,7 @@ public final class NbtUtils {
                             param0.append(' ');
                         }
 
-                        param0.append(String.format("0x%0" + var11 + "X", var10[var14]));
+                        param0.append(String.format(Locale.ROOT, "0x%0" + var11 + "X", var10[var14]));
                     }
                 }
 
@@ -435,7 +436,7 @@ public final class NbtUtils {
                 long var23 = 0L;
 
                 for(long var24 : var22) {
-                    var23 = Math.max(var23, (long)String.format("%X", var24).length());
+                    var23 = Math.max(var23, (long)String.format(Locale.ROOT, "%X", var24).length());
                 }
 
                 long var25 = (long)var22.length;
@@ -459,7 +460,7 @@ public final class NbtUtils {
                             param0.append(' ');
                         }
 
-                        param0.append(String.format("0x%0" + var23 + "X", var22[var26]));
+                        param0.append(String.format(Locale.ROOT, "0x%0" + var23 + "X", var22[var26]));
                     }
                 }
 

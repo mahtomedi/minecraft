@@ -12,6 +12,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -284,7 +285,7 @@ public class QueryThreadGs4 extends GenericThread {
             this.identBytes[3] = var0[6];
             this.ident = new String(this.identBytes, StandardCharsets.UTF_8);
             this.challenge = RandomSource.create().nextInt(16777216);
-            this.challengeBytes = String.format("\t%s%d\u0000", this.ident, this.challenge).getBytes(StandardCharsets.UTF_8);
+            this.challengeBytes = String.format(Locale.ROOT, "\t%s%d\u0000", this.ident, this.challenge).getBytes(StandardCharsets.UTF_8);
         }
 
         public Boolean before(long param0) {

@@ -20,7 +20,7 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.chat.ChatTrustLevel;
-import net.minecraft.client.multiplayer.chat.LoggedChat;
+import net.minecraft.client.multiplayer.chat.LoggedChatMessage;
 import net.minecraft.client.multiplayer.chat.report.ChatReportBuilder;
 import net.minecraft.client.multiplayer.chat.report.ReportingContext;
 import net.minecraft.locale.Language;
@@ -77,7 +77,7 @@ public class ChatSelectionScreen extends Screen {
         this.chatSelectionList.setScrollAmount((double)this.chatSelectionList.getMaxScroll());
     }
 
-    private boolean canReport(LoggedChat param0) {
+    private boolean canReport(LoggedChatMessage param0) {
         return param0.canReport(this.report.reportedProfileId());
     }
 
@@ -147,11 +147,11 @@ public class ChatSelectionScreen extends Screen {
         }
 
         @Override
-        public void acceptMessage(int param0, LoggedChat param1) {
+        public void acceptMessage(int param0, LoggedChatMessage param1) {
             Component var0 = param1.toContentComponent();
             Component var1 = param1.toNarrationComponent();
             boolean var2 = param1.canReport(ChatSelectionScreen.this.report.reportedProfileId());
-            if (param1 instanceof LoggedChat.Player var3) {
+            if (param1 instanceof LoggedChatMessage.Player var3) {
                 ChatTrustLevel var4 = var3.trustLevel();
                 GuiMessageTag var5 = var4.createTag(var3.message());
                 ChatSelectionScreen.ChatSelectionList.Entry var6 = new ChatSelectionScreen.ChatSelectionList.MessageEntry(param0, var0, var1, var5, var2, true);
@@ -164,7 +164,7 @@ public class ChatSelectionScreen extends Screen {
 
         }
 
-        private void updateHeading(LoggedChat.Player param0, boolean param1) {
+        private void updateHeading(LoggedChatMessage.Player param0, boolean param1) {
             ChatSelectionScreen.ChatSelectionList.Entry var0 = new ChatSelectionScreen.ChatSelectionList.MessageHeadingEntry(
                 param0.profile(), param0.toHeadingComponent(), param1
             );

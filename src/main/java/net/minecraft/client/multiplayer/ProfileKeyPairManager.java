@@ -10,12 +10,12 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PublicKey;
 import java.time.DateTimeException;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -115,12 +115,12 @@ public class ProfileKeyPairManager {
     }
 
     private static ProfilePublicKey.Data parsePublicKey(KeyPairResponse param0) throws CryptException {
-        if (!Strings.isNullOrEmpty(param0.getPublicKey()) && !Strings.isNullOrEmpty(param0.getPublicKeySignature())) {
+        if (!Strings.isNullOrEmpty(param0.getPublicKey()) && param0.getPublicKeySignature() != null && param0.getPublicKeySignature().array().length != 0) {
             try {
                 Instant var0 = Instant.parse(param0.getExpiresAt());
                 PublicKey var1 = Crypt.stringToRsaPublicKey(param0.getPublicKey());
-                byte[] var2 = Base64.getDecoder().decode(param0.getPublicKeySignature());
-                return new ProfilePublicKey.Data(var0, var1, var2);
+                ByteBuffer var2 = param0.getPublicKeySignature();
+                return new ProfilePublicKey.Data(var0, var1, var2.array());
             } catch (IllegalArgumentException | DateTimeException var4) {
                 throw new CryptException(var4);
             }

@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -43,6 +44,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.chat.ChatPreviewStatus;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -332,7 +334,7 @@ public class Options {
         OptionInstance.noTooltip(),
         (param0x, param1x) -> param1x <= 0.0
                 ? Component.translatable("options.chat.delay_none")
-                : Component.translatable("options.chat.delay", String.format("%.1f", param1x)),
+                : Component.translatable("options.chat.delay", String.format(Locale.ROOT, "%.1f", param1x)),
         new OptionInstance.IntRange(0, 60).xmap(param0x -> (double)param0x / 10.0, param0x -> (int)(param0x * 10.0)),
         Codec.doubleRange(0.0, 6.0),
         0.0,
@@ -370,7 +372,7 @@ public class Options {
     private final OptionInstance<Double> mouseWheelSensitivity = new OptionInstance<>(
         "options.mouseWheelSensitivity",
         OptionInstance.noTooltip(),
-        (param0x, param1x) -> genericValueLabel(param0x, Component.literal(String.format("%.2f", param1x))),
+        (param0x, param1x) -> genericValueLabel(param0x, Component.literal(String.format(Locale.ROOT, "%.2f", param1x))),
         new OptionInstance.IntRange(-200, 100).xmap(Options::logMouse, Options::unlogMouse),
         Codec.doubleRange(logMouse(-200), logMouse(100)),
         logMouse(0),
@@ -473,9 +475,23 @@ public class Options {
         "options.hideMatchedNames", OptionInstance.cachedConstantTooltip(CHAT_TOOLTIP_HIDE_MATCHED_NAMES), true
     );
     private final OptionInstance<Boolean> showAutosaveIndicator = OptionInstance.createBoolean("options.autosaveIndicator", true);
-    private static final Component CHAT_TOOLTIP_PREVIEW = Component.translatable("options.chatPreview.tooltip");
-    private final OptionInstance<Boolean> chatPreview = OptionInstance.createBoolean(
-        "options.chatPreview", OptionInstance.cachedConstantTooltip(CHAT_TOOLTIP_PREVIEW), true
+    private static final Component CHAT_PREVIEW_OFF_TOOLTIP = Component.translatable("options.chatPreview.tooltip.off");
+    private static final Component CHAT_PREVIEW_LIVE_TOOLTIP = Component.translatable("options.chatPreview.tooltip.live");
+    private static final Component CHAT_PREVIEW_CONFIRM_TOOLTIP = Component.translatable("options.chatPreview.tooltip.confirm");
+    private final OptionInstance<ChatPreviewStatus> chatPreview = new OptionInstance<>(
+        "options.chatPreview",
+        param0x -> param1x -> {
+                return switch(param1x) {
+                    case OFF -> OptionInstance.splitTooltip(param0x, CHAT_PREVIEW_OFF_TOOLTIP);
+                    case LIVE -> OptionInstance.splitTooltip(param0x, CHAT_PREVIEW_LIVE_TOOLTIP);
+                    case CONFIRM -> OptionInstance.splitTooltip(param0x, CHAT_PREVIEW_CONFIRM_TOOLTIP);
+                };
+            },
+        OptionInstance.forOptionEnum(),
+        new OptionInstance.Enum<>(Arrays.asList(ChatPreviewStatus.values()), Codec.INT.xmap(ChatPreviewStatus::byId, ChatPreviewStatus::getId)),
+        ChatPreviewStatus.LIVE,
+        param0x -> {
+        }
     );
     private static final Component CHAT_TOOLTIP_ONLY_SHOW_SECURE = Component.translatable("options.onlyShowSecureChat.tooltip");
     private final OptionInstance<Boolean> onlyShowSecureChat = OptionInstance.createBoolean(
@@ -877,7 +893,7 @@ public class Options {
         return this.showAutosaveIndicator;
     }
 
-    public OptionInstance<Boolean> chatPreview() {
+    public OptionInstance<ChatPreviewStatus> chatPreview() {
         return this.chatPreview;
     }
 

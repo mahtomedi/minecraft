@@ -3,6 +3,7 @@ package net.minecraft.server.level;
 import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -140,12 +141,12 @@ public class WorldGenRegion implements WorldGenLevel {
             if (var2 != null) {
                 throw (RuntimeException)Util.pauseInIde(
                     new RuntimeException(
-                        String.format("Chunk is not of correct status. Expecting %s, got %s | %s %s", param2, var2.getStatus(), param0, param1)
+                        String.format(Locale.ROOT, "Chunk is not of correct status. Expecting %s, got %s | %s %s", param2, var2.getStatus(), param0, param1)
                     )
                 );
             } else {
                 throw (RuntimeException)Util.pauseInIde(
-                    new RuntimeException(String.format("We are asking a region for a chunk out of bound | %s %s", param0, param1))
+                    new RuntimeException(String.format(Locale.ROOT, "We are asking a region for a chunk out of bound | %s %s", param0, param1))
                 );
             }
         }

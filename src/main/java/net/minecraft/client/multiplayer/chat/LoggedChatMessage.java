@@ -9,18 +9,20 @@ import java.time.format.FormatStyle;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.SignedMessageHeader;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public interface LoggedChat {
-    static LoggedChat player(GameProfile param0, Component param1, PlayerChatMessage param2, ChatTrustLevel param3) {
-        return new LoggedChat.Player(param0, param1, param2, param3);
+public interface LoggedChatMessage extends LoggedChatEvent {
+    static LoggedChatMessage.Player player(GameProfile param0, Component param1, PlayerChatMessage param2, ChatTrustLevel param3) {
+        return new LoggedChatMessage.Player(param0, param1, param2, param3);
     }
 
-    static LoggedChat system(Component param0, Instant param1) {
-        return new LoggedChat.System(param0, param1);
+    static LoggedChatMessage.System system(Component param0, Instant param1) {
+        return new LoggedChatMessage.System(param0, param1);
     }
 
     Component toContentComponent();
@@ -32,7 +34,9 @@ public interface LoggedChat {
     boolean canReport(UUID var1);
 
     @OnlyIn(Dist.CLIENT)
-    public static record Player(GameProfile profile, Component displayName, PlayerChatMessage message, ChatTrustLevel trustLevel) implements LoggedChat {
+    public static record Player(GameProfile profile, Component displayName, PlayerChatMessage message, ChatTrustLevel trustLevel)
+        implements LoggedChatMessage,
+        LoggedChatMessageLink {
         private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
         @Override
@@ -62,13 +66,28 @@ public interface LoggedChat {
             return this.profileId().equals(param0);
         }
 
+        @Override
+        public SignedMessageHeader header() {
+            return this.message.signedHeader();
+        }
+
+        @Override
+        public byte[] bodyDigest() {
+            return this.message.signedBody().hash().asBytes();
+        }
+
+        @Override
+        public MessageSignature headerSignature() {
+            return this.message.headerSignature();
+        }
+
         public UUID profileId() {
             return this.profile.getId();
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static record System(Component message, Instant timeStamp) implements LoggedChat {
+    public static record System(Component message, Instant timeStamp) implements LoggedChatMessage {
         @Override
         public Component toContentComponent() {
             return this.message;
@@ -78,9 +97,5 @@ public interface LoggedChat {
         public boolean canReport(UUID param0) {
             return false;
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static record WithId(int id, LoggedChat message) {
     }
 }

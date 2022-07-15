@@ -12,21 +12,13 @@ public class SayCommand {
         param0.register(
             Commands.literal("say")
                 .requires(param0x -> param0x.hasPermission(2))
-                .then(
-                    Commands.argument("message", MessageArgument.message())
-                        .executes(
-                            param0x -> {
-                                MessageArgument.ChatMessage var0x = MessageArgument.getChatMessage(param0x, "message");
-                                CommandSourceStack var1 = param0x.getSource();
-                                PlayerList var2 = var1.getServer().getPlayerList();
-                                var0x.resolve(var1)
-                                    .thenAcceptAsync(
-                                        param2 -> var2.broadcastChatMessage(param2, var1, ChatType.bind(ChatType.SAY_COMMAND, var1)), var1.getServer()
-                                    );
-                                return 1;
-                            }
-                        )
-                )
+                .then(Commands.argument("message", MessageArgument.message()).executes(param0x -> {
+                    MessageArgument.ChatMessage var0x = MessageArgument.getChatMessage(param0x, "message");
+                    CommandSourceStack var1 = param0x.getSource();
+                    PlayerList var2 = var1.getServer().getPlayerList();
+                    var0x.resolve(var1, param2 -> var2.broadcastChatMessage(param2, var1, ChatType.bind(ChatType.SAY_COMMAND, var1)));
+                    return 1;
+                }))
         );
     }
 }

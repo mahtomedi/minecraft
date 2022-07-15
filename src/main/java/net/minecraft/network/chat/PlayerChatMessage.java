@@ -2,7 +2,6 @@ package net.minecraft.network.chat;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,7 +20,7 @@ public record PlayerChatMessage(
     }
 
     public static PlayerChatMessage unsigned(MessageSigner param0, Component param1) {
-        SignedMessageBody var0 = new SignedMessageBody(param1, param0.timeStamp(), param0.salt(), List.of());
+        SignedMessageBody var0 = new SignedMessageBody(new ChatMessageContent(param1), param0.timeStamp(), param0.salt(), LastSeenMessages.EMPTY);
         SignedMessageHeader var1 = new SignedMessageHeader(null, param0.profileId());
         return new PlayerChatMessage(var1, MessageSignature.EMPTY, var0, Optional.empty());
     }
@@ -37,12 +36,12 @@ public record PlayerChatMessage(
         if (param0 == null) {
             return FilteredText.fullyFiltered(this);
         } else {
-            return this.signedContent().equals(param0) ? FilteredText.passThrough(this) : new FilteredText<>(this, unsigned(this.signer(), param0));
+            return this.signedContent().decorated().equals(param0) ? FilteredText.passThrough(this) : new FilteredText<>(this, unsigned(this.signer(), param0));
         }
     }
 
-    public PlayerChatMessage withDecoratedContent(Component param0) {
-        Optional<Component> var0 = !this.signedContent().equals(param0) ? Optional.of(param0) : Optional.empty();
+    public PlayerChatMessage withUnsignedContent(Component param0) {
+        Optional<Component> var0 = !this.signedContent().decorated().equals(param0) ? Optional.of(param0) : Optional.empty();
         return new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, var0);
     }
 
@@ -64,12 +63,12 @@ public record PlayerChatMessage(
         return var0 != null && this.verify(var0);
     }
 
-    public Component signedContent() {
+    public ChatMessageContent signedContent() {
         return this.signedBody.content();
     }
 
     public Component serverContent() {
-        return this.unsignedContent().orElse(this.signedContent());
+        return this.unsignedContent().orElse(this.signedContent().decorated());
     }
 
     public Instant timeStamp() {
@@ -90,5 +89,9 @@ public record PlayerChatMessage(
 
     public MessageSigner signer() {
         return new MessageSigner(this.signedHeader.sender(), this.timeStamp(), this.salt());
+    }
+
+    public LastSeenMessages.Entry toLastSeenEntry() {
+        return new LastSeenMessages.Entry(this.signer().profileId(), this.headerSignature);
     }
 }

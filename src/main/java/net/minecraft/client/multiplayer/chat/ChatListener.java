@@ -3,11 +3,8 @@ package net.minecraft.client.multiplayer.chat;
 import com.google.common.collect.Queues;
 import com.mojang.authlib.GameProfile;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.UUID;
-import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.GuiMessageTag;
@@ -63,16 +60,21 @@ public class ChatListener {
         this.delayedMessageQueue.remove().accept();
     }
 
-    public Collection<?> delayedMessageQueue() {
-        return this.delayedMessageQueue;
+    public long queueSize() {
+        return this.delayedMessageQueue.stream().filter(ChatListener.Message::isVisible).count();
+    }
+
+    public void clearQueue() {
+        this.delayedMessageQueue.forEach(param0 -> {
+            param0.remove();
+            param0.accept();
+        });
+        this.delayedMessageQueue.clear();
     }
 
     public boolean removeFromDelayedMessageQueue(MessageSignature param0) {
-        Iterator<ChatListener.Message> var0 = this.delayedMessageQueue.iterator();
-
-        while(var0.hasNext()) {
-            if (var0.next().getHeaderSignature().equals(param0)) {
-                var0.remove();
+        for(ChatListener.Message var0 : this.delayedMessageQueue) {
+            if (var0.removeIfSignatureMatches(param0)) {
                 return true;
             }
         }
@@ -93,45 +95,99 @@ public class ChatListener {
 
     }
 
-    public void handleChatMessage(PlayerChatMessage param0, ChatType.Bound param1) {
-        boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
-        PlayerChatMessage var1 = var0 ? param0.removeUnsignedContent() : param0;
-        Component var2 = param1.decorate(var1.serverContent());
+    public void handleChatMessage(final PlayerChatMessage param0, final ChatType.Bound param1) {
+        final boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
+        final PlayerChatMessage var1 = var0 ? param0.removeUnsignedContent() : param0;
+        final Component var2 = param1.decorate(var1.serverContent());
         MessageSigner var3 = param0.signer();
         if (!var3.isSystem()) {
-            PlayerInfo var4 = this.resolveSenderPlayer(var3.profileId());
-            ChatTrustLevel var5 = this.evaluateTrustLevel(param0, var2, var4);
-            if (var0 && var5.isNotSecure()) {
-                return;
-            }
+            final PlayerInfo var4 = this.resolveSenderPlayer(var3.profileId());
+            final Instant var5 = Instant.now();
+            this.handleMessage(new ChatListener.Message() {
+                private boolean removed;
 
-            this.handleMessage(new ChatListener.Message(param0.headerSignature(), () -> this.processPlayerChatMessage(param1, param0, var2, var4, var5)));
+                @Override
+                public boolean accept() {
+                    if (this.removed) {
+                        byte[] var0 = param0.signedBody().hash().asBytes();
+                        ChatListener.this.processPlayerChatHeader(param0.signedHeader(), param0.headerSignature(), var0);
+                        return false;
+                    } else {
+                        return ChatListener.this.processPlayerChatMessage(param1, param0, var2, var4, var0, var5);
+                    }
+                }
+
+                @Override
+                public boolean removeIfSignatureMatches(MessageSignature param0x) {
+                    if (param0.headerSignature().equals(param0)) {
+                        this.removed = true;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                @Override
+                public void remove() {
+                    this.removed = true;
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return !this.removed;
+                }
+            });
         } else {
-            this.handleMessage(new ChatListener.Message(param0.headerSignature(), () -> this.processNonPlayerChatMessage(param1, var1, var2)));
+            this.handleMessage(new ChatListener.Message() {
+                @Override
+                public boolean accept() {
+                    return ChatListener.this.processNonPlayerChatMessage(param1, var1, var2);
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return true;
+                }
+            });
         }
 
     }
 
     public void handleChatHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-        this.handleMessage(new ChatListener.Message(param1, () -> this.processPlayerChatHeader(param0, param1, param2)));
+        this.handleMessage(() -> this.processPlayerChatHeader(param0, param1, param2));
     }
 
-    private boolean processPlayerChatMessage(
-        ChatType.Bound param0, PlayerChatMessage param1, Component param2, @Nullable PlayerInfo param3, ChatTrustLevel param4
+    boolean processPlayerChatMessage(
+        ChatType.Bound param0, PlayerChatMessage param1, Component param2, @Nullable PlayerInfo param3, boolean param4, Instant param5
     ) {
-        if (this.minecraft.isBlocked(param1.signer().profileId())) {
+        boolean var0 = this.showMessageToPlayer(param0, param1, param2, param3, param4, param5);
+        ClientPacketListener var1 = this.minecraft.getConnection();
+        if (var1 != null) {
+            var1.markMessageAsProcessed(param1, var0);
+        }
+
+        return var0;
+    }
+
+    private boolean showMessageToPlayer(
+        ChatType.Bound param0, PlayerChatMessage param1, Component param2, @Nullable PlayerInfo param3, boolean param4, Instant param5
+    ) {
+        ChatTrustLevel var0 = this.evaluateTrustLevel(param1, param2, param3, param5);
+        if (param4 && var0.isNotSecure()) {
+            return false;
+        } else if (this.minecraft.isBlocked(param1.signer().profileId())) {
             return false;
         } else {
-            GuiMessageTag var0 = param4.createTag(param1);
-            this.minecraft.gui.getChat().addMessage(param2, param1.headerSignature(), var0);
+            GuiMessageTag var1 = var0.createTag(param1);
+            this.minecraft.gui.getChat().addMessage(param2, param1.headerSignature(), var1);
             this.narrateChatMessage(param0, param1);
-            this.logPlayerMessage(param1, param0, param3, param4);
+            this.logPlayerMessage(param1, param0, param3, var0);
             this.previousMessageTime = Util.getMillis();
             return true;
         }
     }
 
-    private boolean processNonPlayerChatMessage(ChatType.Bound param0, PlayerChatMessage param1, Component param2) {
+    boolean processNonPlayerChatMessage(ChatType.Bound param0, PlayerChatMessage param1, Component param2) {
         this.minecraft.gui.getChat().addMessage(param2, GuiMessageTag.system());
         this.narrateChatMessage(param0, param1);
         this.logSystemMessage(param2, param1.timeStamp());
@@ -139,7 +195,7 @@ public class ChatListener {
         return true;
     }
 
-    private boolean processPlayerChatHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+    boolean processPlayerChatHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
         PlayerInfo var0 = this.resolveSenderPlayer(param0.sender());
         if (var0 != null) {
             var0.getMessageValidator().validateHeader(param0, param1, param2);
@@ -153,8 +209,8 @@ public class ChatListener {
         this.minecraft.getNarrator().sayChatNow(() -> param0.decorateNarration(param1.serverContent()));
     }
 
-    private ChatTrustLevel evaluateTrustLevel(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2) {
-        return this.isSenderLocalPlayer(param0.signer().profileId()) ? ChatTrustLevel.SECURE : ChatTrustLevel.evaluate(param0, param1, param2);
+    private ChatTrustLevel evaluateTrustLevel(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2, Instant param3) {
+        return this.isSenderLocalPlayer(param0.signer().profileId()) ? ChatTrustLevel.SECURE : ChatTrustLevel.evaluate(param0, param1, param2, param3);
     }
 
     private void logPlayerMessage(PlayerChatMessage param0, ChatType.Bound param1, @Nullable PlayerInfo param2, ChatTrustLevel param3) {
@@ -166,10 +222,17 @@ public class ChatListener {
         }
 
         ChatLog var2 = this.minecraft.getReportingContext().chatLog();
-        var2.push(LoggedChat.player(var0, param1.name(), param0, param3));
+        var2.push(LoggedChatMessage.player(var0, param1.name(), param0, param3));
+    }
+
+    private void logSystemMessage(Component param0, Instant param1) {
+        ChatLog var0 = this.minecraft.getReportingContext().chatLog();
+        var0.push(LoggedChatMessage.system(param0, param1));
     }
 
     private void logPlayerHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+        ChatLog var0 = this.minecraft.getReportingContext().chatLog();
+        var0.push(LoggedChatMessageLink.header(param0, param1, param2));
     }
 
     @Nullable
@@ -197,11 +260,6 @@ public class ChatListener {
         return var1 == null ? Util.NIL_UUID : this.minecraft.getPlayerSocialManager().getDiscoveredUUID(var1);
     }
 
-    private void logSystemMessage(Component param0, Instant param1) {
-        ChatLog var0 = this.minecraft.getReportingContext().chatLog();
-        var0.push(LoggedChat.system(param0, param1));
-    }
-
     private boolean isSenderLocalPlayer(UUID param0) {
         if (this.minecraft.isLocalServer() && this.minecraft.player != null) {
             UUID var0 = this.minecraft.player.getGameProfile().getId();
@@ -212,13 +270,18 @@ public class ChatListener {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static record Message(MessageSignature headerSignature, BooleanSupplier processMessage) {
-        MessageSignature getHeaderSignature() {
-            return this.headerSignature;
+    interface Message {
+        default boolean removeIfSignatureMatches(MessageSignature param0) {
+            return false;
         }
 
-        public boolean accept() {
-            return this.processMessage.getAsBoolean();
+        default void remove() {
+        }
+
+        boolean accept();
+
+        default boolean isVisible() {
+            return false;
         }
     }
 }

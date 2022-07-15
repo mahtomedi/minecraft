@@ -1323,6 +1323,7 @@ public class ServerPlayer extends Player {
     public void sendChatMessage(OutgoingPlayerChatMessage param0, ChatType.Bound param1) {
         if (this.acceptsChatMessages()) {
             ClientboundPlayerChatPacket var0 = param0.packetForPlayer(this, param1);
+            this.connection.addPendingMessage(var0.message());
             this.connection.send(var0);
         }
 

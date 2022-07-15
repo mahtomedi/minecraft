@@ -45,9 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -798,7 +796,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public static void crash(CrashReport param0) {
         File var0 = new File(getInstance().gameDirectory, "crash-reports");
-        File var1 = new File(var0, "crash-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-client.txt");
+        File var1 = new File(var0, "crash-" + Util.getFilenameFormattedDateTime() + "-client.txt");
         Bootstrap.realStdoutPrintln(param0.getFriendlyReport());
         if (param0.getSaveFile() != null) {
             Bootstrap.realStdoutPrintln("#@!@# Game crashed! Crash report saved to: #@!@# " + param0.getSaveFile());
@@ -1166,6 +1164,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
             fps = this.frames;
             this.fpsString = String.format(
+                Locale.ROOT,
                 "%d fps T: %s%s%s%s B: %d%s",
                 fps,
                 var8 == 260 ? "inf" : var8,
@@ -1359,9 +1358,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         Path var4;
         try {
-            String var2 = String.format(
-                "%s-%s-%s", new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()), var0, SharedConstants.getCurrentVersion().getId()
-            );
+            String var2 = String.format(Locale.ROOT, "%s-%s-%s", Util.getFilenameFormattedDateTime(), var0, SharedConstants.getCurrentVersion().getId());
             String var3 = FileUtil.findAvailableName(MetricsPersister.PROFILING_RESULTS_DIR, var2, ".zip");
             var4 = MetricsPersister.PROFILING_RESULTS_DIR.resolve(var3);
         } catch (IOException var21) {

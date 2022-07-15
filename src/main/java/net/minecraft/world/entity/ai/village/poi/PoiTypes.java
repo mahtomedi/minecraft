@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -84,12 +85,18 @@ public class PoiTypes {
     }
 
     private static void registerBlockStates(Holder<PoiType> param0) {
-        param0.value().matchingStates().forEach(param1 -> {
-            Holder<PoiType> var0x = TYPE_BY_STATE.put(param1, param0);
-            if (var0x != null) {
-                throw (IllegalStateException)Util.pauseInIde(new IllegalStateException(String.format("%s is defined in more than one PoI type", param1)));
-            }
-        });
+        param0.value()
+            .matchingStates()
+            .forEach(
+                param1 -> {
+                    Holder<PoiType> var0x = TYPE_BY_STATE.put(param1, param0);
+                    if (var0x != null) {
+                        throw (IllegalStateException)Util.pauseInIde(
+                            new IllegalStateException(String.format(Locale.ROOT, "%s is defined in more than one PoI type", param1))
+                        );
+                    }
+                }
+            );
     }
 
     public static Optional<Holder<PoiType>> forState(BlockState param0) {

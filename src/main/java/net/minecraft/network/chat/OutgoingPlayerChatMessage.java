@@ -26,7 +26,7 @@ public interface OutgoingPlayerChatMessage {
     }
 
     static FilteredText<OutgoingPlayerChatMessage> createFromFiltered(FilteredText<PlayerChatMessage> param0, ChatSender param1) {
-        return param0.map(param2 -> create(param0.raw(), param1), OutgoingPlayerChatMessage.NotTracked::new);
+        return param0.mapWithEquality(param2 -> create(param0.raw(), param1), OutgoingPlayerChatMessage.NotTracked::new);
     }
 
     public static class Disguised implements OutgoingPlayerChatMessage {

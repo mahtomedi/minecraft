@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import net.minecraft.server.ServerInterface;
 import net.minecraft.server.rcon.PktUtils;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public class RconClient extends GenericThread {
                             this.sendAuthFailure();
                             continue;
                         default:
-                            this.sendCmdResponse(var4, String.format("Unknown request %s", Integer.toHexString(var5)));
+                            this.sendCmdResponse(var4, String.format(Locale.ROOT, "Unknown request %s", Integer.toHexString(var5)));
                             continue;
                     }
                 }

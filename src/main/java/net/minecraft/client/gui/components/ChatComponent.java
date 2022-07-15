@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -99,8 +98,8 @@ public class ChatComponent extends GuiComponent {
                     }
                 }
 
-                Collection<?> var24 = this.minecraft.getChatListener().delayedMessageQueue();
-                if (!var24.isEmpty()) {
+                long var24 = this.minecraft.getChatListener().queueSize();
+                if (var24 > 0L) {
                     int var25 = (int)(128.0 * var5);
                     int var26 = (int)(255.0 * var6);
                     param0.pushPose();
@@ -108,7 +107,7 @@ public class ChatComponent extends GuiComponent {
                     fill(param0, -2, 0, var4 + 4, 9, var26 << 24);
                     RenderSystem.enableBlend();
                     param0.translate(0.0, 0.0, 50.0);
-                    this.minecraft.font.drawShadow(param0, Component.translatable("chat.queue", var24.size()), 0.0F, 1.0F, 16777215 + (var25 << 24));
+                    this.minecraft.font.drawShadow(param0, Component.translatable("chat.queue", var24), 0.0F, 1.0F, 16777215 + (var25 << 24));
                     param0.popPose();
                     RenderSystem.disableBlend();
                 }
@@ -155,7 +154,7 @@ public class ChatComponent extends GuiComponent {
     }
 
     public void clearMessages(boolean param0) {
-        this.minecraft.getChatListener().delayedMessageQueue().clear();
+        this.minecraft.getChatListener().clearQueue();
         this.trimmedMessages.clear();
         this.allMessages.clear();
         if (param0) {
@@ -280,7 +279,7 @@ public class ChatComponent extends GuiComponent {
     public boolean handleChatQueueClicked(double param0, double param1) {
         if (this.isChatFocused() && !this.minecraft.options.hideGui && !this.isChatHidden()) {
             ChatListener var0 = this.minecraft.getChatListener();
-            if (var0.delayedMessageQueue().isEmpty()) {
+            if (var0.queueSize() == 0L) {
                 return false;
             } else {
                 double var1 = param0 - 2.0;

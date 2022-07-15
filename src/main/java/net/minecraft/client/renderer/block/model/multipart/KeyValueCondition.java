@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.block.model.multipart;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Splitter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class KeyValueCondition implements Condition {
     public Predicate<BlockState> getPredicate(StateDefinition<Block, BlockState> param0) {
         Property<?> var0 = param0.getProperty(this.key);
         if (var0 == null) {
-            throw new RuntimeException(String.format("Unknown property '%s' on '%s'", this.key, param0.getOwner()));
+            throw new RuntimeException(String.format(Locale.ROOT, "Unknown property '%s' on '%s'", this.key, param0.getOwner()));
         } else {
             String var1 = this.value;
             boolean var2 = !var1.isEmpty() && var1.charAt(0) == '!';
@@ -38,7 +39,7 @@ public class KeyValueCondition implements Condition {
 
             List<String> var3 = PIPE_SPLITTER.splitToList(var1);
             if (var3.isEmpty()) {
-                throw new RuntimeException(String.format("Empty value '%s' for property '%s' on '%s'", this.value, this.key, param0.getOwner()));
+                throw new RuntimeException(String.format(Locale.ROOT, "Empty value '%s' for property '%s' on '%s'", this.value, this.key, param0.getOwner()));
             } else {
                 Predicate<BlockState> var4;
                 if (var3.size() == 1) {
@@ -58,7 +59,9 @@ public class KeyValueCondition implements Condition {
     private Predicate<BlockState> getBlockStatePredicate(StateDefinition<Block, BlockState> param0, Property<?> param1, String param2) {
         Optional<?> var0 = param1.getValue(param2);
         if (!var0.isPresent()) {
-            throw new RuntimeException(String.format("Unknown value '%s' for property '%s' on '%s' in '%s'", param2, this.key, param0.getOwner(), this.value));
+            throw new RuntimeException(
+                String.format(Locale.ROOT, "Unknown value '%s' for property '%s' on '%s' in '%s'", param2, this.key, param0.getOwner(), this.value)
+            );
         } else {
             return param2x -> param2x.getValue(param1).equals(var0.get());
         }

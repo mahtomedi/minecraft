@@ -222,7 +222,7 @@ public class FilledProfileResults implements ProfileResults {
     }
 
     private static StringBuilder indentLine(StringBuilder param0, int param1) {
-        param0.append(String.format("[%02d] ", param1));
+        param0.append(String.format(Locale.ROOT, "[%02d] ", param1));
 
         for(int var0 = 0; var0 < param1; ++var0) {
             param0.append("|   ");

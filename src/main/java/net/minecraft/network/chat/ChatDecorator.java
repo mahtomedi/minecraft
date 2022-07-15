@@ -23,15 +23,10 @@ public interface ChatDecorator {
         }
     }
 
-    default CompletableFuture<FilteredText<PlayerChatMessage>> decorateSignedChat(@Nullable ServerPlayer param0, FilteredText<PlayerChatMessage> param1) {
-        FilteredText<Component> var0 = param1.map(PlayerChatMessage::signedContent);
-        return this.decorateFiltered(param0, var0).thenApply(param1x -> attachDecoration(param1, param1x));
-    }
-
-    static FilteredText<PlayerChatMessage> attachDecoration(FilteredText<PlayerChatMessage> param0, FilteredText<Component> param1) {
+    static FilteredText<PlayerChatMessage> attachUnsignedDecoration(FilteredText<PlayerChatMessage> param0, FilteredText<Component> param1) {
         return param0.map(
-            param1x -> param1x.withDecoratedContent(param1.raw()),
-            param1x -> param1.filtered() != null ? param1x.withDecoratedContent(param1.filtered()) : param1x
+            param1x -> param1x.withUnsignedContent(param1.raw()),
+            param1x -> param1.filtered() != null ? param1x.withUnsignedContent(param1.filtered()) : param1x
         );
     }
 }

@@ -3,6 +3,7 @@ package net.minecraft;
 import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -53,7 +54,7 @@ public class SystemReport {
         this.ignoreErrors("hardware", () -> this.putHardware(new SystemInfo()));
         this.setDetail("JVM Flags", () -> {
             List<String> var0 = Util.getVmArguments().collect(Collectors.toList());
-            return String.format("%d total; %s", var0.size(), String.join(" ", var0));
+            return String.format(Locale.ROOT, "%d total; %s", var0.size(), String.join(" ", var0));
         });
     }
 
@@ -91,19 +92,19 @@ public class SystemReport {
         int var0 = 0;
 
         for(PhysicalMemory var1 : param0) {
-            String var2 = String.format("Memory slot #%d ", var0++);
-            this.setDetail(var2 + "capacity (MB)", () -> String.format("%.2f", (float)var1.getCapacity() / 1048576.0F));
-            this.setDetail(var2 + "clockSpeed (GHz)", () -> String.format("%.2f", (float)var1.getClockSpeed() / 1.0E9F));
+            String var2 = String.format(Locale.ROOT, "Memory slot #%d ", var0++);
+            this.setDetail(var2 + "capacity (MB)", () -> String.format(Locale.ROOT, "%.2f", (float)var1.getCapacity() / 1048576.0F));
+            this.setDetail(var2 + "clockSpeed (GHz)", () -> String.format(Locale.ROOT, "%.2f", (float)var1.getClockSpeed() / 1.0E9F));
             this.setDetail(var2 + "type", var1::getMemoryType);
         }
 
     }
 
     private void putVirtualMemory(VirtualMemory param0) {
-        this.setDetail("Virtual memory max (MB)", () -> String.format("%.2f", (float)param0.getVirtualMax() / 1048576.0F));
-        this.setDetail("Virtual memory used (MB)", () -> String.format("%.2f", (float)param0.getVirtualInUse() / 1048576.0F));
-        this.setDetail("Swap memory total (MB)", () -> String.format("%.2f", (float)param0.getSwapTotal() / 1048576.0F));
-        this.setDetail("Swap memory used (MB)", () -> String.format("%.2f", (float)param0.getSwapUsed() / 1048576.0F));
+        this.setDetail("Virtual memory max (MB)", () -> String.format(Locale.ROOT, "%.2f", (float)param0.getVirtualMax() / 1048576.0F));
+        this.setDetail("Virtual memory used (MB)", () -> String.format(Locale.ROOT, "%.2f", (float)param0.getVirtualInUse() / 1048576.0F));
+        this.setDetail("Swap memory total (MB)", () -> String.format(Locale.ROOT, "%.2f", (float)param0.getSwapTotal() / 1048576.0F));
+        this.setDetail("Swap memory used (MB)", () -> String.format(Locale.ROOT, "%.2f", (float)param0.getSwapUsed() / 1048576.0F));
     }
 
     private void putMemory(GlobalMemory param0) {
@@ -115,10 +116,10 @@ public class SystemReport {
         int var0 = 0;
 
         for(GraphicsCard var1 : param0) {
-            String var2 = String.format("Graphics card #%d ", var0++);
+            String var2 = String.format(Locale.ROOT, "Graphics card #%d ", var0++);
             this.setDetail(var2 + "name", var1::getName);
             this.setDetail(var2 + "vendor", var1::getVendor);
-            this.setDetail(var2 + "VRAM (MB)", () -> String.format("%.2f", (float)var1.getVRam() / 1048576.0F));
+            this.setDetail(var2 + "VRAM (MB)", () -> String.format(Locale.ROOT, "%.2f", (float)var1.getVRam() / 1048576.0F));
             this.setDetail(var2 + "deviceId", var1::getDeviceId);
             this.setDetail(var2 + "versionInfo", var1::getVersionInfo);
         }
@@ -131,7 +132,7 @@ public class SystemReport {
         this.setDetail("Processor Name", var0::getName);
         this.setDetail("Identifier", var0::getIdentifier);
         this.setDetail("Microarchitecture", var0::getMicroarchitecture);
-        this.setDetail("Frequency (GHz)", () -> String.format("%.2f", (float)var0.getVendorFreq() / 1.0E9F));
+        this.setDetail("Frequency (GHz)", () -> String.format(Locale.ROOT, "%.2f", (float)var0.getVendorFreq() / 1.0E9F));
         this.setDetail("Number of physical packages", () -> String.valueOf(param0.getPhysicalPackageCount()));
         this.setDetail("Number of physical CPUs", () -> String.valueOf(param0.getPhysicalProcessorCount()));
         this.setDetail("Number of logical CPUs", () -> String.valueOf(param0.getLogicalProcessorCount()));

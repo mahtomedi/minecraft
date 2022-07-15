@@ -1,5 +1,6 @@
 package net.minecraft.world.level.redstone;
 
+import java.util.Locale;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -42,13 +43,18 @@ public interface NeighborUpdater {
         } catch (Throwable var9) {
             CrashReport var1 = CrashReport.forThrowable(var9, "Exception while updating neighbours");
             CrashReportCategory var2 = var1.addCategory("Block being updated");
-            var2.setDetail("Source block type", () -> {
-                try {
-                    return String.format("ID #%s (%s // %s)", Registry.BLOCK.getKey(param3), param3.getDescriptionId(), param3.getClass().getCanonicalName());
-                } catch (Throwable var2x) {
-                    return "ID #" + Registry.BLOCK.getKey(param3);
+            var2.setDetail(
+                "Source block type",
+                () -> {
+                    try {
+                        return String.format(
+                            Locale.ROOT, "ID #%s (%s // %s)", Registry.BLOCK.getKey(param3), param3.getDescriptionId(), param3.getClass().getCanonicalName()
+                        );
+                    } catch (Throwable var2x) {
+                        return "ID #" + Registry.BLOCK.getKey(param3);
+                    }
                 }
-            });
+            );
             CrashReportCategory.populateBlockDetails(var2, param0, param2, param1);
             throw new ReportedException(var1);
         }

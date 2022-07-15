@@ -66,7 +66,9 @@ public abstract class GlslPreprocessor {
 
                         var3.addAll(var11);
                     } else {
-                        String var12 = var6 ? String.format("/*#moj_import \"%s\"*/", var5) : String.format("/*#moj_import <%s>*/", var5);
+                        String var12 = var6
+                            ? String.format(Locale.ROOT, "/*#moj_import \"%s\"*/", var5)
+                            : String.format(Locale.ROOT, "/*#moj_import <%s>*/", var5);
                         var3.add(var2 + var7 + var12);
                     }
 

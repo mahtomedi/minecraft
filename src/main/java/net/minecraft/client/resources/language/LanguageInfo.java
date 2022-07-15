@@ -1,6 +1,7 @@
 package net.minecraft.client.resources.language;
 
 import com.mojang.bridge.game.Language;
+import java.util.Locale;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -39,7 +40,7 @@ public class LanguageInfo implements Language, Comparable<LanguageInfo> {
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", this.name, this.region);
+        return String.format(Locale.ROOT, "%s (%s)", this.name, this.region);
     }
 
     @Override

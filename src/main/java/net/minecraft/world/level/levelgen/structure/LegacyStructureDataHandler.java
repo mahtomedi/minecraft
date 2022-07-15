@@ -233,7 +233,7 @@ public class LegacyStructureDataHandler {
             List<String> var1 = ImmutableList.of("EndCity");
             return new LegacyStructureDataHandler(param1, var1, var1);
         } else {
-            throw new RuntimeException(String.format("Unknown dimension type : %s", param0));
+            throw new RuntimeException(String.format(Locale.ROOT, "Unknown dimension type : %s", param0));
         }
     }
 }

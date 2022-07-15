@@ -74,7 +74,7 @@ public class CommandSuggestions {
     @Nullable
     private CompletableFuture<Suggestions> pendingSuggestions;
     @Nullable
-    CommandSuggestions.SuggestionsList suggestions;
+    private CommandSuggestions.SuggestionsList suggestions;
     private boolean allowSuggestions;
     boolean keepSuggestions;
 
@@ -137,6 +137,10 @@ public class CommandSuggestions {
             }
         }
 
+    }
+
+    public void hide() {
+        this.suggestions = null;
     }
 
     private List<Suggestion> sortSuggestions(Suggestions param0) {
@@ -335,19 +339,29 @@ public class CommandSuggestions {
     }
 
     public void render(PoseStack param0, int param1, int param2) {
+        if (!this.renderSuggestions(param0, param1, param2)) {
+            this.renderUsage(param0);
+        }
+
+    }
+
+    public boolean renderSuggestions(PoseStack param0, int param1, int param2) {
         if (this.suggestions != null) {
             this.suggestions.render(param0, param1, param2);
+            return true;
         } else {
-            int var0 = 0;
+            return false;
+        }
+    }
 
-            for(FormattedCharSequence var1 : this.commandUsage) {
-                int var2 = this.anchorToBottom ? this.screen.height - 14 - 13 - 12 * var0 : 72 + 12 * var0;
-                GuiComponent.fill(
-                    param0, this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor
-                );
-                this.font.drawShadow(param0, var1, (float)this.commandUsagePosition, (float)(var2 + 2), -1);
-                ++var0;
-            }
+    public void renderUsage(PoseStack param0) {
+        int var0 = 0;
+
+        for(FormattedCharSequence var1 : this.commandUsage) {
+            int var2 = this.anchorToBottom ? this.screen.height - 14 - 13 - 12 * var0 : 72 + 12 * var0;
+            GuiComponent.fill(param0, this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor);
+            this.font.drawShadow(param0, var1, (float)this.commandUsagePosition, (float)(var2 + 2), -1);
+            ++var0;
         }
 
     }
@@ -557,7 +571,7 @@ public class CommandSuggestions {
                 this.useSuggestion();
                 return true;
             } else if (param0 == 256) {
-                this.hide();
+                CommandSuggestions.this.hide();
                 return true;
             } else {
                 return false;
@@ -618,10 +632,6 @@ public class CommandSuggestions {
             return var1 != null
                 ? Component.translatable("narration.suggestion.tooltip", this.current + 1, this.suggestionList.size(), var0.getText(), var1)
                 : Component.translatable("narration.suggestion", this.current + 1, this.suggestionList.size(), var0.getText());
-        }
-
-        public void hide() {
-            CommandSuggestions.this.suggestions = null;
         }
     }
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
@@ -137,7 +138,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
                 "Sprites",
                 var16.getAllSprites()
                     .stream()
-                    .map(param0x -> String.format("%s[%dx%d]", param0x.name(), param0x.width(), param0x.height()))
+                    .map(param0x -> String.format(Locale.ROOT, "%s[%dx%d]", param0x.name(), param0x.width(), param0x.height()))
                     .collect(Collectors.joining(","))
             );
             var13.setDetail("Max Texture Size", var1);
@@ -236,7 +237,7 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
     }
 
     private ResourceLocation getResourceLocation(ResourceLocation param0) {
-        return new ResourceLocation(param0.getNamespace(), String.format("textures/%s%s", param0.getPath(), ".png"));
+        return new ResourceLocation(param0.getNamespace(), String.format(Locale.ROOT, "textures/%s%s", param0.getPath(), ".png"));
     }
 
     public void cycleAnimationFrames() {

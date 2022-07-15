@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -798,7 +799,9 @@ public abstract class BlockBehaviour {
                 if (!this.collisionShape.isEmpty() && param0.getOffsetType() != BlockBehaviour.OffsetType.NONE) {
                     throw new IllegalStateException(
                         String.format(
-                            "%s has a collision shape and an offset type, but is not marked as dynamicShape in its properties.", Registry.BLOCK.getKey(var0)
+                            Locale.ROOT,
+                            "%s has a collision shape and an offset type, but is not marked as dynamicShape in its properties.",
+                            Registry.BLOCK.getKey(var0)
                         )
                     );
                 } else {

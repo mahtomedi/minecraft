@@ -3,6 +3,7 @@ package net.minecraft.client.resources.metadata.animation;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import java.util.List;
+import java.util.Locale;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -43,7 +44,7 @@ public class AnimationMetadataSection {
         if (isDivisionInteger(param0, var1) && isDivisionInteger(param1, var2)) {
             return var0;
         } else {
-            throw new IllegalArgumentException(String.format("Image size %s,%s is not multiply of frame size %s,%s", param0, param1, var1, var2));
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "Image size %s,%s is not multiply of frame size %s,%s", param0, param1, var1, var2));
         }
     }
 

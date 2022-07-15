@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.core.Registry;
@@ -68,8 +69,8 @@ public class FeatureCountTracker {
                             (param3, param4) -> LOGGER.debug(
                                     var3
                                         + " "
-                                        + String.format("%10d ", param4)
-                                        + String.format("%10f ", (double)param4.intValue() / (double)var4.intValue())
+                                        + String.format(Locale.ROOT, "%10d ", param4)
+                                        + String.format(Locale.ROOT, "%10f ", (double)param4.intValue() / (double)var4.intValue())
                                         + param3.topFeature().flatMap(var2::getResourceKey).map(ResourceKey::location)
                                         + " "
                                         + param3.feature().feature()

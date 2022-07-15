@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.logging.LogUtils;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
@@ -161,7 +162,12 @@ public class ResetChunksCommand {
         param0.sendSuccess(
             Component.literal(
                 String.format(
-                    "%d chunks have been reset. This took %d ms for %d chunks, or %02f ms per chunk", var15, var37, var15, (float)var37 / (float)var15
+                    Locale.ROOT,
+                    "%d chunks have been reset. This took %d ms for %d chunks, or %02f ms per chunk",
+                    var15,
+                    var37,
+                    var15,
+                    (float)var37 / (float)var15
                 )
             ),
             true
