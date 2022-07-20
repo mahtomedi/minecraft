@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
@@ -49,17 +50,21 @@ public class ProfileKeyPairManager {
         return CompletableFuture.supplyAsync(() -> {
             Optional<ProfileKeyPair> var0 = this.readProfileKeyPair().filter(param0x -> !param0x.publicKey().data().hasExpired());
             if (var0.isPresent() && !var0.get().dueRefresh()) {
-                return var0;
-            } else {
-                try {
-                    ProfileKeyPair var1 = this.fetchProfileKeyPair(param0);
-                    this.writeProfileKeyPair(var1);
-                    return Optional.of(var1);
-                } catch (CryptException | MinecraftClientException | IOException var4) {
-                    LOGGER.error("Failed to retrieve profile key pair", (Throwable)var4);
-                    this.writeProfileKeyPair(null);
+                if (SharedConstants.IS_RUNNING_IN_IDE) {
                     return var0;
                 }
+
+                this.writeProfileKeyPair(null);
+            }
+
+            try {
+                ProfileKeyPair var1 = this.fetchProfileKeyPair(param0);
+                this.writeProfileKeyPair(var1);
+                return Optional.of(var1);
+            } catch (CryptException | MinecraftClientException | IOException var4) {
+                LOGGER.error("Failed to retrieve profile key pair", (Throwable)var4);
+                this.writeProfileKeyPair(null);
+                return var0;
             }
         }, Util.backgroundExecutor());
     }
@@ -90,15 +95,17 @@ public class ProfileKeyPairManager {
         }
 
         if (param0 != null) {
-            ProfileKeyPair.CODEC.encodeStart(JsonOps.INSTANCE, param0).result().ifPresent(param0x -> {
-                try {
-                    Files.createDirectories(this.profileKeyPairPath.getParent());
-                    Files.writeString(this.profileKeyPairPath, param0x.toString());
-                } catch (Exception var3x) {
-                    LOGGER.error("Failed to write profile key pair file {}", this.profileKeyPairPath, var3x);
-                }
+            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                ProfileKeyPair.CODEC.encodeStart(JsonOps.INSTANCE, param0).result().ifPresent(param0x -> {
+                    try {
+                        Files.createDirectories(this.profileKeyPairPath.getParent());
+                        Files.writeString(this.profileKeyPairPath, param0x.toString());
+                    } catch (Exception var3x) {
+                        LOGGER.error("Failed to write profile key pair file {}", this.profileKeyPairPath, var3x);
+                    }
 
-            });
+                });
+            }
         }
     }
 

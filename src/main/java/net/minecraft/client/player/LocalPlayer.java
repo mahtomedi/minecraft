@@ -40,6 +40,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.MessageSigner;
+import net.minecraft.network.chat.PreviewableCommand;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
@@ -60,6 +61,7 @@ import net.minecraft.stats.StatsCounter;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Signer;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -306,12 +308,17 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     public boolean commandHasSignableArguments(String param0) {
         ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param0, this.connection.getSuggestionsProvider());
-        return ArgumentSignatures.hasSignableArguments(var0);
+        return ArgumentSignatures.hasSignableArguments(PreviewableCommand.of(var0));
     }
 
-    public void commandUnsigned(String param0) {
-        LastSeenMessages.Update var0 = this.connection.generateMessageAcknowledgements();
-        this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, false, var0));
+    public boolean commandUnsigned(String param0) {
+        if (!this.commandHasSignableArguments(param0)) {
+            LastSeenMessages.Update var0 = this.connection.generateMessageAcknowledgements();
+            this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, false, var0));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void commandSigned(String param0, @Nullable Component param1) {
@@ -319,16 +326,17 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     private void sendChat(String param0, @Nullable Component param1) {
-        MessageSigner var0 = this.createMessageSigner();
-        LastSeenMessages.Update var1 = this.connection.generateMessageAcknowledgements();
+        String var0 = StringUtil.trimChatMessage(param0);
+        MessageSigner var1 = this.createMessageSigner();
+        LastSeenMessages.Update var2 = this.connection.generateMessageAcknowledgements();
         if (param1 != null) {
-            ChatMessageContent var2 = new ChatMessageContent(param0, param1);
-            MessageSignature var3 = this.signMessage(var0, var2, var1.lastSeen());
-            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var3, true, var1));
+            ChatMessageContent var3 = new ChatMessageContent(var0, param1);
+            MessageSignature var4 = this.signMessage(var1, var3, var2.lastSeen());
+            this.connection.send(new ServerboundChatPacket(var0, var1.timeStamp(), var1.salt(), var4, true, var2));
         } else {
-            ChatMessageContent var4 = new ChatMessageContent(param0);
-            MessageSignature var5 = this.signMessage(var0, var4, var1.lastSeen());
-            this.connection.send(new ServerboundChatPacket(param0, var0.timeStamp(), var0.salt(), var5, false, var1));
+            ChatMessageContent var5 = new ChatMessageContent(var0);
+            MessageSignature var6 = this.signMessage(var1, var5, var2.lastSeen());
+            this.connection.send(new ServerboundChatPacket(var0, var1.timeStamp(), var1.salt(), var6, false, var2));
         }
 
     }
@@ -340,7 +348,7 @@ public class LocalPlayer extends AbstractClientPlayer {
                 return this.connection.signedMessageEncoder().pack(var0, param0, param1, param2).signature();
             }
         } catch (Exception var5) {
-            LOGGER.error("Failed to sign chat message: '{}'", param1.plain().getString(), var5);
+            LOGGER.error("Failed to sign chat message: '{}'", param1.plain(), var5);
         }
 
         return MessageSignature.EMPTY;
@@ -362,7 +370,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             return ArgumentSignatures.EMPTY;
         } else {
             try {
-                return ArgumentSignatures.signCommand(param1.getContext(), (param4, param5) -> {
+                return ArgumentSignatures.signCommand(PreviewableCommand.of(param1), (param4, param5) -> {
                     ChatMessageContent var0x = param2 != null ? new ChatMessageContent(param5, param2) : new ChatMessageContent(param5);
                     return this.connection.signedMessageEncoder().pack(var0, param0, var0x, param3).signature();
                 });

@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
@@ -15,6 +16,7 @@ import com.mojang.logging.LogUtils;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -204,22 +206,29 @@ public class Commands {
         this.dispatcher.setConsumer((param0x, param1x, param2) -> param0x.getSource().onCommandComplete(param0x, param1x, param2));
     }
 
-    public int performPrefixedCommand(CommandSourceStack param0, String param1) {
-        return this.performCommand(param0, param1.startsWith("/") ? param1.substring(1) : param1);
+    public static <S> ParseResults<S> mapSource(ParseResults<S> param0, UnaryOperator<S> param1) {
+        CommandContextBuilder<S> var0 = param0.getContext();
+        CommandContextBuilder<S> var1 = var0.withSource(param1.apply(var0.getSource()));
+        return new ParseResults<>(var1, param0.getReader(), param0.getExceptions());
     }
 
-    public int performCommand(CommandSourceStack param0, String param1) {
-        StringReader var0 = new StringReader(param1);
-        param0.getServer().getProfiler().push(() -> "/" + param1);
+    public int performPrefixedCommand(CommandSourceStack param0, String param1) {
+        param1 = param1.startsWith("/") ? param1.substring(1) : param1;
+        return this.performCommand(this.dispatcher.parse(param1, param0), param1);
+    }
+
+    public int performCommand(ParseResults<CommandSourceStack> param0, String param1) {
+        CommandSourceStack var0 = param0.getContext().getSource();
+        var0.getServer().getProfiler().push(() -> "/" + param1);
 
         try {
             try {
-                return this.dispatcher.execute(var0, param0);
+                return this.dispatcher.execute(param0);
             } catch (CommandRuntimeException var13) {
-                param0.sendFailure(var13.getComponent());
+                var0.sendFailure(var13.getComponent());
                 return 0;
             } catch (CommandSyntaxException var14) {
-                param0.sendFailure(ComponentUtils.fromMessage(var14.getRawMessage()));
+                var0.sendFailure(ComponentUtils.fromMessage(var14.getRawMessage()));
                 if (var14.getInput() != null && var14.getCursor() >= 0) {
                     int var3 = Math.min(var14.getInput().length(), var14.getCursor());
                     MutableComponent var4 = Component.empty()
@@ -236,7 +245,7 @@ public class Commands {
                     }
 
                     var4.append(Component.translatable("command.context.here").withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
-                    param0.sendFailure(var4);
+                    var0.sendFailure(var4);
                 }
             } catch (Exception var15) {
                 MutableComponent var7 = Component.literal(var15.getMessage() == null ? var15.getClass().getName() : var15.getMessage());
@@ -254,11 +263,11 @@ public class Commands {
                     }
                 }
 
-                param0.sendFailure(
+                var0.sendFailure(
                     Component.translatable("command.failed").withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var7)))
                 );
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
-                    param0.sendFailure(Component.literal(Util.describeError(var15)));
+                    var0.sendFailure(Component.literal(Util.describeError(var15)));
                     LOGGER.error("'/{}' threw an exception", param1, var15);
                 }
 
@@ -267,7 +276,7 @@ public class Commands {
 
             return 0;
         } finally {
-            param0.getServer().getProfiler().pop();
+            var0.getServer().getProfiler().pop();
         }
     }
 

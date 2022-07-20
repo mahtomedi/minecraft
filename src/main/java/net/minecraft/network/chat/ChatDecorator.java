@@ -11,16 +11,8 @@ public interface ChatDecorator {
 
     CompletableFuture<Component> decorate(@Nullable ServerPlayer var1, Component var2);
 
-    default CompletableFuture<FilteredText<Component>> decorateFiltered(@Nullable ServerPlayer param0, FilteredText<Component> param1) {
-        CompletableFuture<Component> var0 = this.decorate(param0, param1.raw());
-        if (param1.filtered() == null) {
-            return var0.thenApply(FilteredText::fullyFiltered);
-        } else if (!param1.isFiltered()) {
-            return var0.thenApply(FilteredText::passThrough);
-        } else {
-            CompletableFuture<Component> var1 = this.decorate(param0, param1.filtered());
-            return CompletableFuture.allOf(var0, var1).thenApply(param2 -> new FilteredText<>(var0.join(), var1.join()));
-        }
+    default CompletableFuture<FilteredText<Component>> rebuildFiltered(@Nullable ServerPlayer param0, FilteredText<Component> param1, Component param2) {
+        return param1.rebuildIfNeededAsync(param2, param1x -> this.decorate(param0, param1x));
     }
 
     static FilteredText<PlayerChatMessage> attachUnsignedDecoration(FilteredText<PlayerChatMessage> param0, FilteredText<Component> param1) {

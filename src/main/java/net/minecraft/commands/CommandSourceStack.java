@@ -68,7 +68,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         @Nullable Entity param8
     ) {
         this(param0, param1, param2, param3, param4, param5, param6, param7, param8, false, (param0x, param1x, param2x) -> {
-        }, EntityAnchorArgument.Anchor.FEET, CommandSigningContext.anonymous(), TaskChainer.IMMEDIATE);
+        }, EntityAnchorArgument.Anchor.FEET, CommandSigningContext.ANONYMOUS, TaskChainer.IMMEDIATE);
     }
 
     protected CommandSourceStack(
@@ -462,7 +462,7 @@ public class CommandSourceStack implements SharedSuggestionProvider {
             if (var0 != null) {
                 var0.sendChatMessage(param0, param1);
             } else {
-                this.source.sendSystemMessage(param1.decorate(param0.original().serverContent()));
+                this.source.sendSystemMessage(param1.decorate(param0.serverContent()));
             }
 
         }

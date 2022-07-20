@@ -169,6 +169,13 @@ public class ChatComponent extends GuiComponent {
 
     public void addMessage(Component param0, @Nullable GuiMessageTag param1) {
         this.addMessage(param0, null, param1);
+    }
+
+    public void addMessage(Component param0, @Nullable MessageSignature param1, @Nullable GuiMessageTag param2) {
+        this.addMessage(param0, param1, this.minecraft.gui.getGuiTicks(), param2, false);
+    }
+
+    private void logChatMessage(Component param0, @Nullable GuiMessageTag param1) {
         String var0 = param0.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n");
         String var1 = Util.mapNullable(param1, GuiMessageTag::logTag);
         if (var1 != null) {
@@ -179,11 +186,8 @@ public class ChatComponent extends GuiComponent {
 
     }
 
-    public void addMessage(Component param0, @Nullable MessageSignature param1, @Nullable GuiMessageTag param2) {
-        this.addMessage(param0, param1, this.minecraft.gui.getGuiTicks(), param2, false);
-    }
-
     private void addMessage(Component param0, @Nullable MessageSignature param1, int param2, @Nullable GuiMessageTag param3, boolean param4) {
+        this.logChatMessage(param0, param3);
         int var0 = Mth.floor((double)this.getWidth() / this.getScale());
         if (param3 != null && param3.icon() != null) {
             var0 -= param3.icon().width + 4 + 2;

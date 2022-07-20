@@ -33,7 +33,7 @@ public record SignedMessageBody(ChatMessageContent content, Instant timeStamp, l
             var1.writeLong(this.salt);
             var1.writeLong(this.timeStamp.getEpochSecond());
             OutputStreamWriter var2 = new OutputStreamWriter(var1, StandardCharsets.UTF_8);
-            var2.write(Component.Serializer.toStableJson(this.content.plain()));
+            var2.write(this.content.plain());
             var2.flush();
             var1.write(70);
             if (this.content.isDecorated()) {
@@ -46,5 +46,9 @@ public record SignedMessageBody(ChatMessageContent content, Instant timeStamp, l
         }
 
         return var0.hash();
+    }
+
+    public SignedMessageBody withContent(ChatMessageContent param0) {
+        return new SignedMessageBody(param0, this.timeStamp, this.salt, this.lastSeen);
     }
 }

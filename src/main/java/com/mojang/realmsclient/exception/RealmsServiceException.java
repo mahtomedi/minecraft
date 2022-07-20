@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.exception;
 
 import com.mojang.realmsclient.client.RealmsError;
+import java.util.Locale;
 import javax.annotation.Nullable;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,9 +33,9 @@ public class RealmsServiceException extends Exception {
         if (this.realmsError != null) {
             String var0 = "mco.errorMessage." + this.realmsError.getErrorCode();
             String var1 = I18n.exists(var0) ? I18n.get(var0) : this.realmsError.getErrorMessage();
-            return "Realms service error (%d/%d) %s".formatted(this.httpResultCode, this.realmsError.getErrorCode(), var1);
+            return String.format(Locale.ROOT, "Realms service error (%d/%d) %s", this.httpResultCode, this.realmsError.getErrorCode(), var1);
         } else {
-            return "Realms service error (%d) %s".formatted(this.httpResultCode, this.rawResponse);
+            return String.format(Locale.ROOT, "Realms service error (%d) %s", this.httpResultCode, this.rawResponse);
         }
     }
 

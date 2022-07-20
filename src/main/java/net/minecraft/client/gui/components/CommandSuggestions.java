@@ -376,6 +376,11 @@ public class CommandSuggestions {
     }
 
     @Nullable
+    public ParseResults<SharedSuggestionProvider> getCurrentContext() {
+        return this.currentParse;
+    }
+
+    @Nullable
     private static <S> CommandNode<S> getNodeAt(int param0, CommandContextBuilder<S> param1) {
         StringRange var0 = param1.getRange();
         if (param0 < var0.getStart()) {

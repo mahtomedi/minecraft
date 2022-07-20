@@ -189,13 +189,14 @@ public class ChatReportBuilder {
     }
 
     private static Int2ObjectMap<LoggedChatMessage.Player> collectReferencedContext(ChatLog param0, int param1, AbuseReportLimits param2) {
-        Int2ObjectMap<LoggedChatMessage.Player> var0 = new Int2ObjectOpenHashMap<>();
-        walkLastSeenReferenceGraph(param0, param1, (param2x, param3) -> {
-            var0.put(param2x, param3);
-            return var0.size() < param2.leadingContextMessageCount();
+        int var0 = param2.leadingContextMessageCount() + 1;
+        Int2ObjectMap<LoggedChatMessage.Player> var1 = new Int2ObjectOpenHashMap<>();
+        walkMessageReferenceGraph(param0, param1, (param2x, param3) -> {
+            var1.put(param2x, param3);
+            return var1.size() < var0;
         });
-        trailingContext(param0, param1, param2.trailingContextMessageCount()).forEach(param1x -> var0.put(param1x.id(), param1x.event()));
-        return var0;
+        trailingContext(param0, param1, param2.trailingContextMessageCount()).forEach(param1x -> var1.put(param1x.id(), param1x.event()));
+        return var1;
     }
 
     private static Stream<ChatLog.Entry<LoggedChatMessage.Player>> trailingContext(ChatLog param0, int param1, int param2) {
@@ -206,7 +207,7 @@ public class ChatReportBuilder {
             .limit((long)param2);
     }
 
-    private static void walkLastSeenReferenceGraph(ChatLog param0, int param1, ChatReportBuilder.LastSeenVisitor param2) {
+    private static void walkMessageReferenceGraph(ChatLog param0, int param1, ChatReportBuilder.ReferencedMessageVisitor param2) {
         IntPriorityQueue var0 = new IntArrayPriorityQueue(IntComparators.OPPOSITE_COMPARATOR);
         var0.enqueue(param1);
         IntSet var1 = new IntOpenHashSet();
@@ -220,7 +221,7 @@ public class ChatReportBuilder {
                     break;
                 }
 
-                for(int var4 : lastSeenReferences(param0, var2, var3)) {
+                for(int var4 : messageReferences(param0, var2, var3.message())) {
                     if (var1.add(var4)) {
                         var0.enqueue(var4);
                     }
@@ -230,26 +231,30 @@ public class ChatReportBuilder {
 
     }
 
-    private static IntCollection lastSeenReferences(ChatLog param0, int param1, LoggedChatMessage.Player param2) {
-        Set<MessageSignature> var0 = param2.message()
-            .signedBody()
+    private static IntCollection messageReferences(ChatLog param0, int param1, PlayerChatMessage param2) {
+        Set<MessageSignature> var0 = param2.signedBody()
             .lastSeen()
             .entries()
             .stream()
             .map(LastSeenMessages.Entry::lastSignature)
-            .collect(Collectors.toSet());
-        IntList var1 = new IntArrayList();
-        Iterator<ChatLog.Entry<LoggedChatEvent>> var2 = param0.selectBefore(param1).entries().iterator();
+            .collect(Collectors.toCollection(ObjectOpenHashSet::new));
+        MessageSignature var1 = param2.signedHeader().previousSignature();
+        if (var1 != null) {
+            var0.add(var1);
+        }
 
-        while(var2.hasNext() && !var0.isEmpty()) {
-            ChatLog.Entry<LoggedChatEvent> var3 = var2.next();
-            LoggedChatEvent var8 = var3.event();
-            if (var8 instanceof LoggedChatMessage.Player var4 && var0.remove(var4.headerSignature())) {
-                var1.add(var3.id());
+        IntList var2 = new IntArrayList();
+        Iterator<ChatLog.Entry<LoggedChatEvent>> var3 = param0.selectBefore(param1).entries().iterator();
+
+        while(var3.hasNext() && !var0.isEmpty()) {
+            ChatLog.Entry<LoggedChatEvent> var4 = var3.next();
+            LoggedChatEvent var9 = var4.event();
+            if (var9 instanceof LoggedChatMessage.Player var5 && var0.remove(var5.headerSignature())) {
+                var2.add(var4.id());
             }
         }
 
-        return var1;
+        return var2;
     }
 
     private ReportChatMessage buildReportedChatMessage(int param0, LoggedChatMessage.Player param1) {
@@ -261,7 +266,7 @@ public class ChatReportBuilder {
         ByteBuffer var5 = Util.mapNullable(var0.signedHeader().previousSignature(), MessageSignature::asByteBuffer);
         ByteBuffer var6 = ByteBuffer.wrap(var1.hash().asBytes());
         ReportChatMessageContent var7 = new ReportChatMessageContent(
-            encodeComponent(var0.signedContent().plain()), var0.signedContent().isDecorated() ? encodeComponent(var0.signedContent().decorated()) : null
+            var0.signedContent().plain(), var0.signedContent().isDecorated() ? encodeComponent(var0.signedContent().decorated()) : null
         );
         String var8 = var0.unsignedContent().map(ChatReportBuilder::encodeComponent).orElse(null);
         List<LastSeenSignature> var9 = var1.lastSeen()
@@ -309,7 +314,7 @@ public class ChatReportBuilder {
     }
 
     @OnlyIn(Dist.CLIENT)
-    interface LastSeenVisitor {
+    interface ReferencedMessageVisitor {
         boolean accept(int var1, LoggedChatMessage.Player var2);
     }
 

@@ -443,7 +443,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
 
     @Override
     public boolean enforceSecureProfile() {
-        return this.getProperties().enforceSecureProfile;
+        return this.getProperties().enforceSecureProfile && this.getProperties().onlineMode;
     }
 
     protected boolean convertOldUsers() {

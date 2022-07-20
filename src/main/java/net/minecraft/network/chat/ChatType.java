@@ -2,7 +2,7 @@ package net.minecraft.network.chat;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Holder;
@@ -116,9 +116,10 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
             param0.writeNullable(this.targetName, FriendlyByteBuf::writeComponent);
         }
 
-        public ChatType.Bound resolve(RegistryAccess param0) {
+        public Optional<ChatType.Bound> resolve(RegistryAccess param0) {
             Registry<ChatType> var0 = param0.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-            return new ChatType.Bound(Objects.requireNonNull(var0.byId(this.chatType), "Invalid chat type"), this.name, this.targetName);
+            ChatType var1 = var0.byId(this.chatType);
+            return Optional.ofNullable(var1).map(param0x -> new ChatType.Bound(param0x, this.name, this.targetName));
         }
     }
 }

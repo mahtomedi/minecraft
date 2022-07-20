@@ -817,7 +817,7 @@ public abstract class PlayerList {
     private void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, Predicate<ServerPlayer> param1, ChatSender param2, ChatType.Bound param3) {
         boolean var0 = this.verifyChatTrusted(param0.raw(), param2);
         this.server.logChatMessage(param0.raw().serverContent(), param3, var0 ? null : "Not Secure");
-        FilteredText<OutgoingPlayerChatMessage> var1 = OutgoingPlayerChatMessage.createFromFiltered(param0, param2);
+        FilteredText<OutgoingPlayerChatMessage> var1 = OutgoingPlayerChatMessage.createFromFiltered(param0);
 
         for(ServerPlayer var2 : this.players) {
             OutgoingPlayerChatMessage var3 = var1.select(param1.test(var2));

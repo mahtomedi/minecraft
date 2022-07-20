@@ -1,15 +1,15 @@
 {
-    "id": "1.19.1-pre5",
-    "name": "1.19.1 Pre-release 5",
+    "id": "1.19.1-pre6",
+    "name": "1.19.1 Pre-release 6",
     "release_target": "1.19.1",
-    "world_version": 3113,
+    "world_version": 3114,
     "series_id": "main",
-    "protocol_version": 1073741922,
+    "protocol_version": 1073741923,
     "pack_version": {
         "resource": 9,
         "data": 10
     },
-    "build_time": "2022-07-15T11:49:54+00:00",
+    "build_time": "2022-07-20T15:47:38+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
     "stable": false

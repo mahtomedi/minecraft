@@ -1,5 +1,6 @@
 package net.minecraft.server.network;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -25,9 +26,18 @@ public record FilteredText<T>(T raw, @Nullable T filtered) {
         return new FilteredText<>(param0.apply(this.raw), Util.mapNullable(this.filtered, param1));
     }
 
-    public <U> FilteredText<U> mapWithEquality(Function<T, U> param0, Function<T, U> param1) {
-        U var0 = param0.apply(this.raw);
-        return this.raw.equals(this.filtered) ? passThrough(var0) : new FilteredText<>(var0, Util.mapNullable(this.filtered, param1));
+    public <U> FilteredText<U> rebuildIfNeeded(U param0, Function<T, U> param1) {
+        return !this.isFiltered() ? passThrough(param0) : new FilteredText<>(param0, Util.mapNullable(this.filtered, param1));
+    }
+
+    public <U> CompletableFuture<FilteredText<U>> rebuildIfNeededAsync(U param0, Function<T, CompletableFuture<U>> param1) {
+        if (this.filtered() == null) {
+            return CompletableFuture.completedFuture(fullyFiltered(param0));
+        } else {
+            return !this.isFiltered()
+                ? CompletableFuture.completedFuture(passThrough(param0))
+                : param1.apply(this.filtered()).thenApply(param1x -> new FilteredText<>(param0, param1x));
+        }
     }
 
     public boolean isFiltered() {

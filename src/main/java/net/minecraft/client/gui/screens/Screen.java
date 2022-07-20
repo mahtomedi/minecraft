@@ -338,9 +338,11 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 } else if (var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
                     String var5 = SharedConstants.filterText(var0.getValue());
                     if (var5.startsWith("/")) {
-                        this.minecraft.player.commandUnsigned(var5.substring(1));
+                        if (!this.minecraft.player.commandUnsigned(var5.substring(1))) {
+                            LOGGER.error("Not allowed to run command with signed argument from click event: '{}'", var5);
+                        }
                     } else {
-                        LOGGER.warn("Failed to run command without '/' prefix from click event: '{}'", var5);
+                        LOGGER.error("Failed to run command without '/' prefix from click event: '{}'", var5);
                     }
                 } else if (var0.getAction() == ClickEvent.Action.COPY_TO_CLIPBOARD) {
                     this.minecraft.keyboardHandler.setClipboard(var0.getValue());

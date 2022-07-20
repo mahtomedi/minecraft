@@ -1380,6 +1380,10 @@ public abstract class Player extends LivingEntity {
     public void updateTutorialInventoryAction(ItemStack param0, ItemStack param1, ClickAction param2) {
     }
 
+    public boolean hasContainerOpen() {
+        return this.containerMenu != this.inventoryMenu;
+    }
+
     public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {
         this.startSleeping(param0);
         this.sleepCounter = 0;

@@ -405,26 +405,30 @@ public class MultiPlayerGameMode {
 
     public void handleInventoryMouseClick(int param0, int param1, int param2, ClickType param3, Player param4) {
         AbstractContainerMenu var0 = param4.containerMenu;
-        NonNullList<Slot> var1 = var0.slots;
-        int var2 = var1.size();
-        List<ItemStack> var3 = Lists.newArrayListWithCapacity(var2);
+        if (param0 != var0.containerId) {
+            LOGGER.warn("Ignoring click in mismatching container. Click in {}, player has {}.", param0, var0.containerId);
+        } else {
+            NonNullList<Slot> var1 = var0.slots;
+            int var2 = var1.size();
+            List<ItemStack> var3 = Lists.newArrayListWithCapacity(var2);
 
-        for(Slot var4 : var1) {
-            var3.add(var4.getItem().copy());
-        }
-
-        var0.clicked(param1, param2, param3, param4);
-        Int2ObjectMap<ItemStack> var5 = new Int2ObjectOpenHashMap<>();
-
-        for(int var6 = 0; var6 < var2; ++var6) {
-            ItemStack var7 = var3.get(var6);
-            ItemStack var8 = var1.get(var6).getItem();
-            if (!ItemStack.matches(var7, var8)) {
-                var5.put(var6, var8.copy());
+            for(Slot var4 : var1) {
+                var3.add(var4.getItem().copy());
             }
-        }
 
-        this.connection.send(new ServerboundContainerClickPacket(param0, var0.getStateId(), param1, param2, param3, var0.getCarried().copy(), var5));
+            var0.clicked(param1, param2, param3, param4);
+            Int2ObjectMap<ItemStack> var5 = new Int2ObjectOpenHashMap<>();
+
+            for(int var6 = 0; var6 < var2; ++var6) {
+                ItemStack var7 = var3.get(var6);
+                ItemStack var8 = var1.get(var6).getItem();
+                if (!ItemStack.matches(var7, var8)) {
+                    var5.put(var6, var8.copy());
+                }
+            }
+
+            this.connection.send(new ServerboundContainerClickPacket(param0, var0.getStateId(), param1, param2, param3, var0.getCarried().copy(), var5));
+        }
     }
 
     public void handlePlaceRecipe(int param0, Recipe<?> param1, boolean param2) {

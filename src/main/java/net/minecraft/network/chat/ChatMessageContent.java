@@ -4,17 +4,9 @@ import java.util.Objects;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.network.FilteredText;
 
-public record ChatMessageContent(Component plain, Component decorated) {
-    public ChatMessageContent(Component param0) {
-        this(param0, param0);
-    }
-
-    public ChatMessageContent(String param0, Component param1) {
-        this(Component.literal(param0), param1);
-    }
-
+public record ChatMessageContent(String plain, Component decorated) {
     public ChatMessageContent(String param0) {
-        this(Component.literal(param0));
+        this(param0, Component.literal(param0));
     }
 
     public static FilteredText<ChatMessageContent> fromFiltered(FilteredText<String> param0) {
@@ -29,17 +21,17 @@ public record ChatMessageContent(Component plain, Component decorated) {
     }
 
     public boolean isDecorated() {
-        return !this.decorated.equals(this.plain);
+        return !this.decorated.equals(Component.literal(this.plain));
     }
 
     public static ChatMessageContent read(FriendlyByteBuf param0) {
-        Component var0 = param0.readComponent();
+        String var0 = param0.readUtf(256);
         Component var1 = param0.readNullable(FriendlyByteBuf::readComponent);
-        return new ChatMessageContent(var0, Objects.requireNonNullElse(var1, var0));
+        return new ChatMessageContent(var0, Objects.requireNonNullElse(var1, Component.literal(var0)));
     }
 
     public static void write(FriendlyByteBuf param0, ChatMessageContent param1) {
-        param0.writeComponent(param1.plain());
+        param0.writeUtf(param1.plain(), 256);
         Component var0 = param1.isDecorated() ? param1.decorated() : null;
         param0.writeNullable(var0, FriendlyByteBuf::writeComponent);
     }

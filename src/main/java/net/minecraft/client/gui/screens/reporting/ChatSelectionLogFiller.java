@@ -12,29 +12,31 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
-public class ChatSelectionLogFiller {
+public class ChatSelectionLogFiller<T extends LoggedChatMessage> {
     private static final int CONTEXT_FOLDED_SIZE = 4;
     private final ChatLog log;
-    private final Predicate<LoggedChatMessage> canReport;
+    private final Predicate<T> canReport;
     private int nextMessageId;
+    final Class<T> tClass;
 
-    public ChatSelectionLogFiller(ChatLog param0, Predicate<LoggedChatMessage> param1) {
+    public ChatSelectionLogFiller(ChatLog param0, Predicate<T> param1, Class<T> param2) {
         this.log = param0;
         this.canReport = param1;
         this.nextMessageId = param0.newest();
+        this.tClass = param2;
     }
 
-    public void fillNextPage(int param0, ChatSelectionLogFiller.Output param1) {
+    public void fillNextPage(int param0, ChatSelectionLogFiller.Output<T> param1) {
         int var0 = 0;
 
         while(var0 < param0) {
-            ChatLogSegmenter.Results var1 = this.nextSegment();
+            ChatLogSegmenter.Results<T> var1 = this.nextSegment();
             if (var1 == null) {
                 break;
             }
 
             if (var1.type().foldable()) {
-                var0 += addFoldedMessagesTo(var1.messages(), param1);
+                var0 += this.addFoldedMessagesTo(var1.messages(), param1);
             } else {
                 param1.acceptMessages(var1.messages());
                 var0 += var1.messages().size();
@@ -43,7 +45,7 @@ public class ChatSelectionLogFiller {
 
     }
 
-    private static int addFoldedMessagesTo(List<ChatLog.Entry<LoggedChatMessage>> param0, ChatSelectionLogFiller.Output param1) {
+    private int addFoldedMessagesTo(List<ChatLog.Entry<T>> param0, ChatSelectionLogFiller.Output<T> param1) {
         int var0 = 8;
         if (param0.size() > 8) {
             int var1 = param0.size() - 8;
@@ -58,12 +60,12 @@ public class ChatSelectionLogFiller {
     }
 
     @Nullable
-    private ChatLogSegmenter.Results nextSegment() {
-        ChatLogSegmenter var0 = new ChatLogSegmenter(param0 -> this.getMessageType(param0.event()));
+    private ChatLogSegmenter.Results<T> nextSegment() {
+        ChatLogSegmenter<T> var0 = new ChatLogSegmenter<>(param0 -> this.getMessageType(param0.event()));
         OptionalInt var1 = this.log
             .selectBefore(this.nextMessageId)
             .entries()
-            .map(param0 -> param0.tryCast(LoggedChatMessage.class))
+            .map(param0 -> param0.tryCast(this.tClass))
             .filter(Objects::nonNull)
             .takeWhile(var0::accept)
             .mapToInt(ChatLog.Entry::id)
@@ -75,20 +77,20 @@ public class ChatSelectionLogFiller {
         return var0.build();
     }
 
-    private ChatLogSegmenter.MessageType getMessageType(LoggedChatMessage param0) {
+    private ChatLogSegmenter.MessageType getMessageType(T param0) {
         return this.canReport.test(param0) ? ChatLogSegmenter.MessageType.REPORTABLE : ChatLogSegmenter.MessageType.CONTEXT;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public interface Output {
-        default void acceptMessages(Iterable<ChatLog.Entry<LoggedChatMessage>> param0) {
-            for(ChatLog.Entry<LoggedChatMessage> var0 : param0) {
+    public interface Output<T extends LoggedChatMessage> {
+        default void acceptMessages(Iterable<ChatLog.Entry<T>> param0) {
+            for(ChatLog.Entry<T> var0 : param0) {
                 this.acceptMessage(var0.id(), var0.event());
             }
 
         }
 
-        void acceptMessage(int var1, LoggedChatMessage var2);
+        void acceptMessage(int var1, T var2);
 
         void acceptDivider(Component var1);
     }

@@ -9,51 +9,21 @@ import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.players.PlayerList;
 
 public interface OutgoingPlayerChatMessage {
-    PlayerChatMessage original();
+    Component serverContent();
 
     ClientboundPlayerChatPacket packetForPlayer(ServerPlayer var1, ChatType.Bound var2);
 
     void sendHeadersToRemainingPlayers(PlayerList var1);
 
-    static OutgoingPlayerChatMessage create(PlayerChatMessage param0, ChatSender param1) {
-        if (param0.signer().isSystem()) {
-            return new OutgoingPlayerChatMessage.NotTracked(param0);
-        } else {
-            return (OutgoingPlayerChatMessage)(!param0.signer().profileId().equals(param1.profileId())
-                ? new OutgoingPlayerChatMessage.Disguised(param0)
-                : new OutgoingPlayerChatMessage.Tracked(param0));
-        }
+    static OutgoingPlayerChatMessage create(PlayerChatMessage param0) {
+        return (OutgoingPlayerChatMessage)(param0.signer().isSystem()
+            ? new OutgoingPlayerChatMessage.NotTracked(param0)
+            : new OutgoingPlayerChatMessage.Tracked(param0));
     }
 
-    static FilteredText<OutgoingPlayerChatMessage> createFromFiltered(FilteredText<PlayerChatMessage> param0, ChatSender param1) {
-        return param0.mapWithEquality(param2 -> create(param0.raw(), param1), OutgoingPlayerChatMessage.NotTracked::new);
-    }
-
-    public static class Disguised implements OutgoingPlayerChatMessage {
-        private final PlayerChatMessage signedMessage;
-        private final PlayerChatMessage unsignedMessage;
-
-        public Disguised(PlayerChatMessage param0) {
-            this.signedMessage = param0;
-            this.unsignedMessage = PlayerChatMessage.unsigned(MessageSigner.system(), param0.serverContent());
-        }
-
-        @Override
-        public PlayerChatMessage original() {
-            return this.signedMessage;
-        }
-
-        @Override
-        public ClientboundPlayerChatPacket packetForPlayer(ServerPlayer param0, ChatType.Bound param1) {
-            RegistryAccess var0 = param0.level.registryAccess();
-            ChatType.BoundNetwork var1 = param1.toNetwork(var0);
-            return new ClientboundPlayerChatPacket(this.unsignedMessage, var1);
-        }
-
-        @Override
-        public void sendHeadersToRemainingPlayers(PlayerList param0) {
-            param0.broadcastMessageHeader(this.signedMessage, Set.of());
-        }
+    static FilteredText<OutgoingPlayerChatMessage> createFromFiltered(FilteredText<PlayerChatMessage> param0) {
+        OutgoingPlayerChatMessage var0 = create(param0.raw());
+        return param0.rebuildIfNeeded(var0, OutgoingPlayerChatMessage.NotTracked::new);
     }
 
     public static class NotTracked implements OutgoingPlayerChatMessage {
@@ -64,8 +34,8 @@ public interface OutgoingPlayerChatMessage {
         }
 
         @Override
-        public PlayerChatMessage original() {
-            return this.message;
+        public Component serverContent() {
+            return this.message.serverContent();
         }
 
         @Override
@@ -89,8 +59,8 @@ public interface OutgoingPlayerChatMessage {
         }
 
         @Override
-        public PlayerChatMessage original() {
-            return this.message;
+        public Component serverContent() {
+            return this.message.serverContent();
         }
 
         @Override

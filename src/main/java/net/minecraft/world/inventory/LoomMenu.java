@@ -147,6 +147,10 @@ public class LoomMenu extends AbstractContainerMenu {
         }
     }
 
+    private boolean isValidPatternIndex(int param0) {
+        return param0 >= 0 && param0 < this.selectablePatterns.size();
+    }
+
     @Override
     public void slotsChanged(Container param0) {
         ItemStack var0 = this.bannerSlot.getItem();
@@ -154,35 +158,36 @@ public class LoomMenu extends AbstractContainerMenu {
         ItemStack var2 = this.patternSlot.getItem();
         if (!var0.isEmpty() && !var1.isEmpty()) {
             int var3 = this.selectedBannerPatternIndex.get();
-            List<Holder<BannerPattern>> var4 = this.selectablePatterns;
+            boolean var4 = this.isValidPatternIndex(var3);
+            List<Holder<BannerPattern>> var5 = this.selectablePatterns;
             this.selectablePatterns = this.getSelectablePatterns(var2);
-            Holder<BannerPattern> var5;
+            Holder<BannerPattern> var6;
             if (this.selectablePatterns.size() == 1) {
                 this.selectedBannerPatternIndex.set(0);
-                var5 = this.selectablePatterns.get(0);
-            } else if (var3 == -1) {
+                var6 = this.selectablePatterns.get(0);
+            } else if (!var4) {
                 this.selectedBannerPatternIndex.set(-1);
-                var5 = null;
+                var6 = null;
             } else {
-                Holder<BannerPattern> var7 = var4.get(var3);
-                int var8 = this.selectablePatterns.indexOf(var7);
-                if (var8 != -1) {
-                    var5 = var7;
-                    this.selectedBannerPatternIndex.set(var8);
+                Holder<BannerPattern> var8 = var5.get(var3);
+                int var9 = this.selectablePatterns.indexOf(var8);
+                if (var9 != -1) {
+                    var6 = var8;
+                    this.selectedBannerPatternIndex.set(var9);
                 } else {
-                    var5 = null;
+                    var6 = null;
                     this.selectedBannerPatternIndex.set(-1);
                 }
             }
 
-            if (var5 != null) {
-                CompoundTag var11 = BlockItem.getBlockEntityData(var0);
-                boolean var12 = var11 != null && var11.contains("Patterns", 9) && !var0.isEmpty() && var11.getList("Patterns", 10).size() >= 6;
-                if (var12) {
+            if (var6 != null) {
+                CompoundTag var12 = BlockItem.getBlockEntityData(var0);
+                boolean var13 = var12 != null && var12.contains("Patterns", 9) && !var0.isEmpty() && var12.getList("Patterns", 10).size() >= 6;
+                if (var13) {
                     this.selectedBannerPatternIndex.set(-1);
                     this.resultSlot.set(ItemStack.EMPTY);
                 } else {
-                    this.setupResultSlot(var5);
+                    this.setupResultSlot(var6);
                 }
             } else {
                 this.resultSlot.set(ItemStack.EMPTY);

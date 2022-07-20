@@ -660,7 +660,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                             }
 
                             if (var9.emitsEvents() && (this.onGround || param1.y == 0.0 || this.isInPowderSnow || var13)) {
-                                this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this.getResponsibleEntity(), this.getBlockStateOn()));
+                                this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
                             }
                         }
                     } else if (var6.isAir()) {
@@ -1011,7 +1011,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         if (param1) {
             if (this.fallDistance > 0.0F) {
                 param2.getBlock().fallOn(this.level, param2, param3, this, this.fallDistance);
-                this.level.gameEvent(GameEvent.HIT_GROUND, this.position, GameEvent.Context.of(this.getResponsibleEntity(), this.getBlockStateOn()));
+                this.level.gameEvent(GameEvent.HIT_GROUND, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
             }
 
             this.resetFallDistance();
@@ -1019,11 +1019,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.fallDistance -= (float)param0;
         }
 
-    }
-
-    @Nullable
-    public Entity getResponsibleEntity() {
-        return this;
     }
 
     public boolean fireImmune() {
@@ -1563,7 +1558,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             double var4 = var1.getDouble(1);
             double var5 = var1.getDouble(2);
             this.setDeltaMovement(Math.abs(var3) > 10.0 ? 0.0 : var3, Math.abs(var4) > 10.0 ? 0.0 : var4, Math.abs(var5) > 10.0 ? 0.0 : var5);
-            this.setPosRaw(var0.getDouble(0), Mth.clamp(var0.getDouble(1), -2.0E7, 2.0E7), var0.getDouble(2));
+            double var6 = 3.0000512E7;
+            this.setPosRaw(
+                Mth.clamp(var0.getDouble(0), -3.0000512E7, 3.0000512E7),
+                Mth.clamp(var0.getDouble(1), -2.0E7, 2.0E7),
+                Mth.clamp(var0.getDouble(2), -3.0000512E7, 3.0000512E7)
+            );
             this.setYRot(var2.getFloat(0));
             this.setXRot(var2.getFloat(1));
             this.setOldPosAndRot();
@@ -1589,12 +1589,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.reapplyPosition();
                 this.setRot(this.getYRot(), this.getXRot());
                 if (param0.contains("CustomName", 8)) {
-                    String var6 = param0.getString("CustomName");
+                    String var7 = param0.getString("CustomName");
 
                     try {
-                        this.setCustomName(Component.Serializer.fromJson(var6));
-                    } catch (Exception var14) {
-                        LOGGER.warn("Failed to parse entity custom name {}", var6, var14);
+                        this.setCustomName(Component.Serializer.fromJson(var7));
+                    } catch (Exception var16) {
+                        LOGGER.warn("Failed to parse entity custom name {}", var7, var16);
                     }
                 }
 
@@ -1606,11 +1606,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.hasVisualFire = param0.getBoolean("HasVisualFire");
                 if (param0.contains("Tags", 9)) {
                     this.tags.clear();
-                    ListTag var8 = param0.getList("Tags", 8);
-                    int var9 = Math.min(var8.size(), 1024);
+                    ListTag var9 = param0.getList("Tags", 8);
+                    int var10 = Math.min(var9.size(), 1024);
 
-                    for(int var10 = 0; var10 < var9; ++var10) {
-                        this.tags.add(var8.getString(var10));
+                    for(int var11 = 0; var11 < var10; ++var11) {
+                        this.tags.add(var9.getString(var11));
                     }
                 }
 
@@ -1622,11 +1622,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             } else {
                 throw new IllegalStateException("Entity has invalid rotation");
             }
-        } catch (Throwable var15) {
-            CrashReport var12 = CrashReport.forThrowable(var15, "Loading entity NBT");
-            CrashReportCategory var13 = var12.addCategory("Entity being loaded");
-            this.fillCrashReportCategory(var13);
-            throw new ReportedException(var12);
+        } catch (Throwable var17) {
+            CrashReport var13 = CrashReport.forThrowable(var17, "Loading entity NBT");
+            CrashReportCategory var14 = var13.addCategory("Entity being loaded");
+            this.fillCrashReportCategory(var14);
+            throw new ReportedException(var13);
         }
     }
 

@@ -64,7 +64,7 @@ public class SkinManager {
 
     private ResourceLocation registerTexture(MinecraftProfileTexture param0, Type param1, @Nullable SkinManager.SkinTextureCallback param2) {
         String var0 = Hashing.sha1().hashUnencodedChars(param0.getHash()).toString();
-        ResourceLocation var1 = new ResourceLocation("skins/" + var0);
+        ResourceLocation var1 = getTextureLocation(param1, var0);
         AbstractTexture var2 = this.textureManager.getTexture(var1, MissingTextureAtlasSprite.getTexture());
         if (var2 == MissingTextureAtlasSprite.getTexture()) {
             File var3 = new File(this.skinsDirectory, var0.length() > 2 ? var0.substring(0, 2) : "xx");
@@ -81,6 +81,15 @@ public class SkinManager {
         }
 
         return var1;
+    }
+
+    private static ResourceLocation getTextureLocation(Type param0, String param1) {
+        String var0 = switch(param0) {
+            case SKIN -> "skins";
+            case CAPE -> "capes";
+            case ELYTRA -> "elytra";
+        };
+        return new ResourceLocation(var0 + "/" + param1);
     }
 
     public void registerSkins(GameProfile param0, SkinManager.SkinTextureCallback param1, boolean param2) {

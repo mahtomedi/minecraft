@@ -104,6 +104,7 @@ import net.minecraft.util.datafix.fixes.ItemCustomNameToComponentFix;
 import net.minecraft.util.datafix.fixes.ItemIdFix;
 import net.minecraft.util.datafix.fixes.ItemLoreFix;
 import net.minecraft.util.datafix.fixes.ItemPotionFix;
+import net.minecraft.util.datafix.fixes.ItemRemoveBlockEntityTagFix;
 import net.minecraft.util.datafix.fixes.ItemRenameFix;
 import net.minecraft.util.datafix.fixes.ItemShulkerBoxColorFix;
 import net.minecraft.util.datafix.fixes.ItemSpawnEggFix;
@@ -369,6 +370,37 @@ public class DataFixers {
         param0.addFixer(new BlockNameFlatteningFix(var41, true));
         param0.addFixer(new ItemStackTheFlatteningFix(var41, false));
         Schema var42 = param0.addSchema(1451, 5, V1451_5::new);
+        param0.addFixer(
+            new ItemRemoveBlockEntityTagFix(
+                var42,
+                false,
+                Set.of(
+                    "minecraft:note_block",
+                    "minecraft:flower_pot",
+                    "minecraft:dandelion",
+                    "minecraft:poppy",
+                    "minecraft:blue_orchid",
+                    "minecraft:allium",
+                    "minecraft:azure_bluet",
+                    "minecraft:red_tulip",
+                    "minecraft:orange_tulip",
+                    "minecraft:white_tulip",
+                    "minecraft:pink_tulip",
+                    "minecraft:oxeye_daisy",
+                    "minecraft:cactus",
+                    "minecraft:brown_mushroom",
+                    "minecraft:red_mushroom",
+                    "minecraft:oak_sapling",
+                    "minecraft:spruce_sapling",
+                    "minecraft:birch_sapling",
+                    "minecraft:jungle_sapling",
+                    "minecraft:acacia_sapling",
+                    "minecraft:dark_oak_sapling",
+                    "minecraft:dead_bush",
+                    "minecraft:fern"
+                )
+            )
+        );
         param0.addFixer(new AddNewChoices(var42, "RemoveNoteBlockFlowerPotFix", References.BLOCK_ENTITY));
         param0.addFixer(new ItemStackSpawnEggFix(var42, false));
         param0.addFixer(new EntityWolfColorFix(var42, false));

@@ -7,12 +7,13 @@ import net.minecraft.world.entity.player.ProfilePublicKey;
 public interface SignedMessageValidator {
     SignedMessageValidator ALWAYS_REJECT = new SignedMessageValidator() {
         @Override
-        public void validateHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+        public SignedMessageValidator.State validateHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+            return SignedMessageValidator.State.NOT_SECURE;
         }
 
         @Override
-        public boolean validateMessage(PlayerChatMessage param0) {
-            return false;
+        public SignedMessageValidator.State validateMessage(PlayerChatMessage param0) {
+            return SignedMessageValidator.State.NOT_SECURE;
         }
     };
 
@@ -20,44 +21,60 @@ public interface SignedMessageValidator {
         return (SignedMessageValidator)(param0 != null ? new SignedMessageValidator.KeyBased(param0.createSignatureValidator()) : ALWAYS_REJECT);
     }
 
-    void validateHeader(SignedMessageHeader var1, MessageSignature var2, byte[] var3);
+    SignedMessageValidator.State validateHeader(SignedMessageHeader var1, MessageSignature var2, byte[] var3);
 
-    boolean validateMessage(PlayerChatMessage var1);
+    SignedMessageValidator.State validateMessage(PlayerChatMessage var1);
 
     public static class KeyBased implements SignedMessageValidator {
         private final SignatureValidator validator;
         @Nullable
         private MessageSignature lastSignature;
-        boolean isChainConsistent = true;
+        private boolean isChainConsistent = true;
 
         public KeyBased(SignatureValidator param0) {
             this.validator = param0;
         }
 
         private boolean validateChain(SignedMessageHeader param0, MessageSignature param1) {
-            return this.lastSignature == null || this.lastSignature.equals(param0.previousSignature()) || this.lastSignature.equals(param1);
+            if (param1.isEmpty()) {
+                return false;
+            } else {
+                return this.lastSignature == null || this.lastSignature.equals(param0.previousSignature()) || this.lastSignature.equals(param1);
+            }
         }
 
         private boolean validateContents(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-            return this.validateChain(param0, param1) && param1.verify(this.validator, param0, param2);
+            return param1.verify(this.validator, param0, param2);
         }
 
-        @Override
-        public void validateHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-            this.isChainConsistent = this.isChainConsistent && this.validateContents(param0, param1, param2);
-            this.lastSignature = param1;
-        }
-
-        @Override
-        public boolean validateMessage(PlayerChatMessage param0) {
-            if (this.isChainConsistent && this.validateContents(param0.signedHeader(), param0.headerSignature(), param0.signedBody().hash().asBytes())) {
-                this.lastSignature = param0.headerSignature();
-                return true;
-            } else {
-                this.isChainConsistent = true;
+        private SignedMessageValidator.State updateAndValidate(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+            this.isChainConsistent = this.isChainConsistent && this.validateChain(param0, param1);
+            if (!this.isChainConsistent) {
+                return SignedMessageValidator.State.BROKEN_CHAIN;
+            } else if (!this.validateContents(param0, param1, param2)) {
                 this.lastSignature = null;
-                return false;
+                return SignedMessageValidator.State.NOT_SECURE;
+            } else {
+                this.lastSignature = param1;
+                return SignedMessageValidator.State.SECURE;
             }
         }
+
+        @Override
+        public SignedMessageValidator.State validateHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
+            return this.updateAndValidate(param0, param1, param2);
+        }
+
+        @Override
+        public SignedMessageValidator.State validateMessage(PlayerChatMessage param0) {
+            byte[] var0 = param0.signedBody().hash().asBytes();
+            return this.updateAndValidate(param0.signedHeader(), param0.headerSignature(), var0);
+        }
+    }
+
+    public static enum State {
+        SECURE,
+        NOT_SECURE,
+        BROKEN_CHAIN;
     }
 }

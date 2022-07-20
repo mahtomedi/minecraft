@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
@@ -9,6 +10,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class InBedChatScreen extends ChatScreen {
+    private Button leaveBedButton;
+
     public InBedChatScreen() {
         super("");
     }
@@ -16,9 +19,15 @@ public class InBedChatScreen extends ChatScreen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(
+        this.leaveBedButton = this.addRenderableWidget(
             new Button(this.width / 2 - 100, this.height - 40, 200, 20, Component.translatable("multiplayer.stopSleeping"), param0 -> this.sendWakeUp())
         );
+    }
+
+    @Override
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.leaveBedButton.visible = this.getDisplayedPreviewText() == null;
+        super.render(param0, param1, param2, param3);
     }
 
     @Override
@@ -31,9 +40,12 @@ public class InBedChatScreen extends ChatScreen {
         if (param0 == 256) {
             this.sendWakeUp();
         } else if (param0 == 257 || param0 == 335) {
-            this.handleChatInput(this.input.getValue(), true);
-            this.input.setValue("");
-            this.minecraft.gui.getChat().resetChatScroll();
+            if (this.handleChatInput(this.input.getValue(), true)) {
+                this.minecraft.setScreen(null);
+                this.input.setValue("");
+                this.minecraft.gui.getChat().resetChatScroll();
+            }
+
             return true;
         }
 

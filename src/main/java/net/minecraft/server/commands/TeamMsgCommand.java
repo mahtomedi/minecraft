@@ -58,8 +58,8 @@ public class TeamMsgCommand {
                 .stream()
                 .filter(param2 -> param2 == var0 || param2.getTeam() == var1)
                 .toList();
-            param1.resolve(param0, param6 -> {
-                FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param6, var3);
+            param1.resolve(param0, param5 -> {
+                FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param5);
 
                 for(ServerPlayer var1x : var6) {
                     if (var1x == var0) {

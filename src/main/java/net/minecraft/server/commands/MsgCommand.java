@@ -7,7 +7,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.MessageArgument;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.OutgoingPlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,17 +32,16 @@ public class MsgCommand {
     }
 
     private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, MessageArgument.ChatMessage param2) {
-        ChatSender var0 = param0.asChatSender();
-        ChatType.Bound var1 = ChatType.bind(ChatType.MSG_COMMAND_INCOMING, param0);
-        param2.resolve(param0, param4 -> {
-            FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param4, var0);
+        ChatType.Bound var0 = ChatType.bind(ChatType.MSG_COMMAND_INCOMING, param0);
+        param2.resolve(param0, param3 -> {
+            FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param3);
 
             for(ServerPlayer var1x : param1) {
                 ChatType.Bound var2x = ChatType.bind(ChatType.MSG_COMMAND_OUTGOING, param0).withTargetName(var1x.getDisplayName());
                 param0.sendChatMessage(var0x.raw(), var2x);
                 OutgoingPlayerChatMessage var3x = var0x.filter(param0, var1x);
                 if (var3x != null) {
-                    var1x.sendChatMessage(var3x, var1);
+                    var1x.sendChatMessage(var3x, var0);
                 }
             }
 

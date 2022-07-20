@@ -10,17 +10,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ChatLogSegmenter {
-    private final Function<ChatLog.Entry<LoggedChatMessage>, ChatLogSegmenter.MessageType> typeFunction;
-    private final List<ChatLog.Entry<LoggedChatMessage>> messages = new ArrayList<>();
+public class ChatLogSegmenter<T extends LoggedChatMessage> {
+    private final Function<ChatLog.Entry<T>, ChatLogSegmenter.MessageType> typeFunction;
+    private final List<ChatLog.Entry<T>> messages = new ArrayList<>();
     @Nullable
     private ChatLogSegmenter.MessageType segmentType;
 
-    public ChatLogSegmenter(Function<ChatLog.Entry<LoggedChatMessage>, ChatLogSegmenter.MessageType> param0) {
+    public ChatLogSegmenter(Function<ChatLog.Entry<T>, ChatLogSegmenter.MessageType> param0) {
         this.typeFunction = param0;
     }
 
-    public boolean accept(ChatLog.Entry<LoggedChatMessage> param0) {
+    public boolean accept(ChatLog.Entry<T> param0) {
         ChatLogSegmenter.MessageType var0 = this.typeFunction.apply(param0);
         if (this.segmentType != null && var0 != this.segmentType) {
             return false;
@@ -32,8 +32,8 @@ public class ChatLogSegmenter {
     }
 
     @Nullable
-    public ChatLogSegmenter.Results build() {
-        return !this.messages.isEmpty() && this.segmentType != null ? new ChatLogSegmenter.Results(this.messages, this.segmentType) : null;
+    public ChatLogSegmenter.Results<T> build() {
+        return !this.messages.isEmpty() && this.segmentType != null ? new ChatLogSegmenter.Results<>(this.messages, this.segmentType) : null;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -47,6 +47,6 @@ public class ChatLogSegmenter {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static record Results(List<ChatLog.Entry<LoggedChatMessage>> messages, ChatLogSegmenter.MessageType type) {
+    public static record Results<T extends LoggedChatMessage>(List<ChatLog.Entry<T>> messages, ChatLogSegmenter.MessageType type) {
     }
 }

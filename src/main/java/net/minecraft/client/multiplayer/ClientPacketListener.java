@@ -813,8 +813,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ChatType.Bound var0 = param0.resolveChatType(this.registryAccess);
-        this.minecraft.getChatListener().handleChatMessage(param0.message(), var0);
+        Optional<ChatType.Bound> var0 = param0.resolveChatType(this.registryAccess);
+        if (!var0.isPresent()) {
+            this.connection.disconnect(Component.translatable("multiplayer.disconnect.invalid_packet"));
+        } else {
+            this.minecraft.getChatListener().handleChatMessage(param0.message(), var0.get());
+        }
     }
 
     @Override
@@ -999,6 +1003,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         String var9 = var2.getServerBrand();
         this.minecraft.cameraEntity = null;
+        if (var2.hasContainerOpen()) {
+            var2.closeContainer();
+        }
+
         LocalPlayer var10 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
         var10.setId(var3);
         this.minecraft.player = var10;
@@ -2414,8 +2422,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     public void markMessageAsProcessed(PlayerChatMessage param0, boolean param1) {
-        if (!param0.signer().isSystem()) {
-            LastSeenMessages.Entry var0 = param0.toLastSeenEntry();
+        LastSeenMessages.Entry var0 = param0.toLastSeenEntry();
+        if (var0 != null) {
             if (param1) {
                 this.lastSeenMessagesTracker.push(var0);
                 this.lastUnacknowledgedReceivedMessage = Optional.empty();
@@ -2426,7 +2434,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             if (this.unacknowledgedReceivedMessageCount++ > 64) {
                 this.send(new ServerboundChatAckPacket(this.generateMessageAcknowledgements()));
             }
-        }
 
+        }
     }
 }

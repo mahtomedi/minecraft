@@ -158,7 +158,7 @@ public class ChaseClient {
                             var1x, Vec3.atLowerCornerOf(var2.getSharedSpawnPos()), Vec2.ZERO, var2, 4, "", CommonComponents.EMPTY, this.server, var1x
                         );
                         Commands var4 = this.server.getCommands();
-                        var4.performCommand(var3, param0);
+                        var4.performPrefixedCommand(var3, param0);
                     }
                 }
             );

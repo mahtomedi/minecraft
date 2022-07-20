@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
@@ -138,9 +139,9 @@ public class JfrProfiler implements JvmProfiler {
                     CUSTOM_EVENTS.forEach(param2::enable);
                     param2.setDumpOnExit(true);
                     param2.setToDisk(true);
-                    param2.setName("%s-%s-%s".formatted(param1.getDescription(), SharedConstants.getCurrentVersion().getName(), var1));
+                    param2.setName(String.format(Locale.ROOT, "%s-%s-%s", param1.getDescription(), SharedConstants.getCurrentVersion().getName(), var1));
                 });
-                Path var2 = Paths.get("debug/%s-%s.jfr".formatted(param1.getDescription(), var1));
+                Path var2 = Paths.get(String.format(Locale.ROOT, "debug/%s-%s.jfr", param1.getDescription(), var1));
                 if (!Files.exists(var2.getParent())) {
                     Files.createDirectories(var2.getParent());
                 }
