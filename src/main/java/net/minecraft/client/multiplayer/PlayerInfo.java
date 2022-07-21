@@ -44,7 +44,7 @@ public class PlayerInfo {
     private final ProfilePublicKey profilePublicKey;
     private final SignedMessageValidator messageValidator;
 
-    public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate param0, SignatureValidator param1) {
+    public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate param0, SignatureValidator param1, boolean param2) {
         this.profile = param0.getProfile();
         this.gameMode = param0.getGameMode();
         this.latency = param0.getLatency();
@@ -56,12 +56,12 @@ public class PlayerInfo {
             if (var1 != null) {
                 var0 = ProfilePublicKey.createValidated(param1, this.profile.getId(), var1);
             }
-        } catch (InsecurePublicKeyException | CryptException var5) {
-            LOGGER.error("Failed to retrieve publicKey property for profile {}", this.profile.getId(), var5);
+        } catch (InsecurePublicKeyException | CryptException var6) {
+            LOGGER.error("Failed to retrieve publicKey property for profile {}", this.profile.getId(), var6);
         }
 
         this.profilePublicKey = var0;
-        this.messageValidator = SignedMessageValidator.create(var0);
+        this.messageValidator = SignedMessageValidator.create(var0, param2);
     }
 
     public GameProfile getProfile() {

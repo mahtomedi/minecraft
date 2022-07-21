@@ -35,6 +35,7 @@ public class ServerData {
     @Nullable
     private ServerData.ChatPreview chatPreview;
     private boolean chatPreviewEnabled = true;
+    private boolean enforcesSecureChat;
 
     public ServerData(String param0, String param1, boolean param2) {
         this.name = param0;
@@ -140,6 +141,14 @@ public class ServerData {
         return this.chatPreviewEnabled && this.chatPreview != null;
     }
 
+    public void setEnforcesSecureChat(boolean param0) {
+        this.enforcesSecureChat = param0;
+    }
+
+    public boolean enforcesSecureChat() {
+        return this.enforcesSecureChat;
+    }
+
     public void copyNameIconFrom(ServerData param0) {
         this.ip = param0.ip;
         this.name = param0.name;
@@ -151,6 +160,7 @@ public class ServerData {
         this.setResourcePackStatus(param0.getResourcePackStatus());
         this.lan = param0.lan;
         this.chatPreview = Util.mapNullable(param0.chatPreview, ServerData.ChatPreview::copy);
+        this.enforcesSecureChat = param0.enforcesSecureChat;
     }
 
     @OnlyIn(Dist.CLIENT)

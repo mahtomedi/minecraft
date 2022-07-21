@@ -168,7 +168,12 @@ public class InputConstants {
             for(InputConstants.Type var0 : InputConstants.Type.values()) {
                 if (param0.startsWith(var0.defaultPrefix)) {
                     String var1 = param0.substring(var0.defaultPrefix.length() + 1);
-                    return var0.getOrCreate(Integer.parseInt(var1));
+                    int var2 = Integer.parseInt(var1);
+                    if (var0 == InputConstants.Type.MOUSE) {
+                        --var2;
+                    }
+
+                    return var0.getOrCreate(var2);
                 }
             }
 

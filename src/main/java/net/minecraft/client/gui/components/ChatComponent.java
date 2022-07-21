@@ -164,11 +164,7 @@ public class ChatComponent extends GuiComponent {
     }
 
     public void addMessage(Component param0) {
-        this.addMessage(param0, null);
-    }
-
-    public void addMessage(Component param0, @Nullable GuiMessageTag param1) {
-        this.addMessage(param0, null, param1);
+        this.addMessage(param0, null, GuiMessageTag.system());
     }
 
     public void addMessage(Component param0, @Nullable MessageSignature param1, @Nullable GuiMessageTag param2) {

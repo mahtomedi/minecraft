@@ -2318,7 +2318,10 @@ public abstract class LivingEntity extends Entity {
             }
         }
 
-        this.aiStep();
+        if (!this.isRemoved()) {
+            this.aiStep();
+        }
+
         double var2 = this.getX() - this.xo;
         double var3 = this.getZ() - this.zo;
         float var4 = (float)(var2 * var2 + var3 * var3);

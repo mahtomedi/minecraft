@@ -628,6 +628,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.status
                 .setVersion(new ServerStatus.Version(SharedConstants.getCurrentVersion().getName(), SharedConstants.getCurrentVersion().getProtocolVersion()));
             this.status.setPreviewsChat(this.previewsChat());
+            this.status.setEnforcesSecureChat(this.enforceSecureProfile());
             this.updateStatusIcon(this.status);
 
             while(this.running) {

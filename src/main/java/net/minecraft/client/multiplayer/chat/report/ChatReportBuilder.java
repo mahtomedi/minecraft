@@ -129,13 +129,9 @@ public class ChatReportBuilder {
         } else {
             String var1 = Objects.requireNonNull(this.reason).backendName();
             ReportEvidence var2 = this.buildEvidence(param0.chatLog());
-            if (var2.messages.size() > this.limits.maxEvidenceMessageCount()) {
-                return Either.right(ChatReportBuilder.CannotBuildReason.TOO_MANY_MESSAGES);
-            } else {
-                ReportedEntity var3 = new ReportedEntity(this.reportedProfileId);
-                AbuseReport var4 = new AbuseReport(this.comments, var1, var2, var3, this.createdAt);
-                return Either.left(new ChatReportBuilder.Result(this.reportId, var4));
-            }
+            ReportedEntity var3 = new ReportedEntity(this.reportedProfileId);
+            AbuseReport var4 = new AbuseReport(this.comments, var1, var2, var3, this.createdAt);
+            return Either.left(new ChatReportBuilder.Result(this.reportId, var4));
         }
     }
 

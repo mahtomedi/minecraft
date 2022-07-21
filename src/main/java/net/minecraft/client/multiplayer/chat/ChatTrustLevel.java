@@ -18,19 +18,21 @@ public enum ChatTrustLevel {
     BROKEN_CHAIN;
 
     public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2, Instant param3) {
-        if (param2 != null && !param0.hasExpiredClient(param3)) {
+        if (param2 == null) {
+            return NOT_SECURE;
+        } else {
             SignedMessageValidator.State var0 = param2.getMessageValidator().validateMessage(param0);
             if (var0 == SignedMessageValidator.State.BROKEN_CHAIN) {
                 return BROKEN_CHAIN;
             } else if (var0 == SignedMessageValidator.State.NOT_SECURE) {
+                return NOT_SECURE;
+            } else if (param0.hasExpiredClient(param3)) {
                 return NOT_SECURE;
             } else if (param0.unsignedContent().isPresent()) {
                 return MODIFIED;
             } else {
                 return !param1.contains(param0.signedContent().decorated()) ? MODIFIED : SECURE;
             }
-        } else {
-            return NOT_SECURE;
         }
     }
 

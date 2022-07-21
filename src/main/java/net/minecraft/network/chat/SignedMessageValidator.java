@@ -5,20 +5,24 @@ import net.minecraft.util.SignatureValidator;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 
 public interface SignedMessageValidator {
-    SignedMessageValidator ALWAYS_REJECT = new SignedMessageValidator() {
-        @Override
-        public SignedMessageValidator.State validateHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-            return SignedMessageValidator.State.NOT_SECURE;
-        }
+    static SignedMessageValidator alwaysReturn(final SignedMessageValidator.State param0) {
+        return new SignedMessageValidator() {
+            @Override
+            public SignedMessageValidator.State validateHeader(SignedMessageHeader param0x, MessageSignature param1, byte[] param2) {
+                return param0;
+            }
 
-        @Override
-        public SignedMessageValidator.State validateMessage(PlayerChatMessage param0) {
-            return SignedMessageValidator.State.NOT_SECURE;
-        }
-    };
+            @Override
+            public SignedMessageValidator.State validateMessage(PlayerChatMessage param0x) {
+                return param0;
+            }
+        };
+    }
 
-    static SignedMessageValidator create(@Nullable ProfilePublicKey param0) {
-        return (SignedMessageValidator)(param0 != null ? new SignedMessageValidator.KeyBased(param0.createSignatureValidator()) : ALWAYS_REJECT);
+    static SignedMessageValidator create(@Nullable ProfilePublicKey param0, boolean param1) {
+        return (SignedMessageValidator)(param0 == null
+            ? alwaysReturn(param1 ? SignedMessageValidator.State.BROKEN_CHAIN : SignedMessageValidator.State.NOT_SECURE)
+            : new SignedMessageValidator.KeyBased(param0.createSignatureValidator()));
     }
 
     SignedMessageValidator.State validateHeader(SignedMessageHeader var1, MessageSignature var2, byte[] var3);

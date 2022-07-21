@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.ClientRecipeBook;
@@ -33,6 +34,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.gui.components.toasts.RecipeToast;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.DeathScreen;
@@ -292,6 +294,8 @@ import org.slf4j.Logger;
 public class ClientPacketListener implements ClientGamePacketListener {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component GENERIC_DISCONNECT_MESSAGE = Component.translatable("disconnect.lost");
+    private static final Component UNSECURE_SERVER_TOAST_TITLE = Component.translatable("multiplayer.unsecureserver.toast.title");
+    private static final Component UNSERURE_SERVER_TOAST = Component.translatable("multiplayer.unsecureserver.toast");
     private static final int UNACKNOWLEDGED_MESSAGES_THRESHOLD = 64;
     private final Connection connection;
     private final GameProfile localGameProfile;
@@ -1568,9 +1572,17 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
             });
             var0.setPreviewsChat(param0.previewsChat());
+            var0.setEnforcesSecureChat(param0.enforcesSecureChat());
             ServerList.saveSingleServer(var0);
-            ServerData.ChatPreview var1 = var0.getChatPreview();
-            if (var1 != null && !var1.isAcknowledged()) {
+            if (!param0.enforcesSecureChat()) {
+                SystemToast var1 = SystemToast.multiline(
+                    this.minecraft, SystemToast.SystemToastIds.UNSECURE_SERVER_WARNING, UNSECURE_SERVER_TOAST_TITLE, UNSERURE_SERVER_TOAST
+                );
+                this.minecraft.getToasts().addToast(var1);
+            }
+
+            ServerData.ChatPreview var2 = var0.getChatPreview();
+            if (var2 != null && !var2.isAcknowledged()) {
                 this.minecraft.execute(() -> this.minecraft.setScreen(new ChatPreviewWarningScreen(this.minecraft.screen, var0)));
             }
 
@@ -1635,7 +1647,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else {
                 PlayerInfo var1 = this.playerInfoMap.get(var0.getProfile().getId());
                 if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER) {
-                    var1 = new PlayerInfo(var0, this.minecraft.getServiceSignatureValidator());
+                    boolean var2 = Util.mapNullable(this.minecraft.getCurrentServer(), ServerData::enforcesSecureChat, false);
+                    var1 = new PlayerInfo(var0, this.minecraft.getServiceSignatureValidator(), var2);
                     this.playerInfoMap.put(var1.getProfile().getId(), var1);
                     this.minecraft.getPlayerSocialManager().addPlayer(var1);
                 }

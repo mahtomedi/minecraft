@@ -1372,7 +1372,7 @@ public class ServerPlayer extends Player {
     }
 
     public void sendServerStatus(ServerStatus param0) {
-        this.connection.send(new ClientboundServerDataPacket(param0.getDescription(), param0.getFavicon(), param0.previewsChat()));
+        this.connection.send(new ClientboundServerDataPacket(param0.getDescription(), param0.getFavicon(), param0.previewsChat(), param0.enforcesSecureChat()));
     }
 
     @Override
