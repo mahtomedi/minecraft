@@ -1646,7 +1646,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 this.playerInfoMap.remove(var0.getProfile().getId());
             } else {
                 PlayerInfo var1 = this.playerInfoMap.get(var0.getProfile().getId());
-                if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER) {
+                if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER && var1 == null) {
                     boolean var2 = Util.mapNullable(this.minecraft.getCurrentServer(), ServerData::enforcesSecureChat, false);
                     var1 = new PlayerInfo(var0, this.minecraft.getServiceSignatureValidator(), var2);
                     this.playerInfoMap.put(var1.getProfile().getId(), var1);

@@ -2,6 +2,7 @@ package net.minecraft.server.network;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.network.chat.FilterMask;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.thread.ProcessorMailbox;
 import org.slf4j.Logger;
@@ -165,8 +167,8 @@ public class TextFilterClient implements AutoCloseable {
         });
     }
 
-    CompletableFuture<FilteredText<String>> requestMessageProcessing(GameProfile param0, String param1, TextFilterClient.IgnoreStrategy param2, Executor param3) {
-        return param1.isEmpty() ? CompletableFuture.completedFuture(FilteredText.EMPTY_STRING) : CompletableFuture.supplyAsync(() -> {
+    CompletableFuture<FilteredText> requestMessageProcessing(GameProfile param0, String param1, TextFilterClient.IgnoreStrategy param2, Executor param3) {
+        return param1.isEmpty() ? CompletableFuture.completedFuture(FilteredText.EMPTY) : CompletableFuture.supplyAsync(() -> {
             JsonObject var0 = this.chatEncoder.encode(param0, param1);
 
             try {
@@ -179,15 +181,32 @@ public class TextFilterClient implements AutoCloseable {
                     if (var3x == null) {
                         return FilteredText.fullyFiltered(param1);
                     } else {
-                        int var4x = GsonHelper.getAsJsonArray(var1, "hashes").size();
-                        return param2.shouldIgnore(var3x, var4x) ? FilteredText.fullyFiltered(param1) : new FilteredText<>(param1, var3x);
+                        JsonArray var4x = GsonHelper.getAsJsonArray(var1, "hashes");
+                        FilterMask var5 = this.parseMask(param1, var4x, param2);
+                        return new FilteredText(param1, var5);
                     }
                 }
-            } catch (Exception var9) {
-                LOGGER.warn("Failed to validate message '{}'", param1, var9);
+            } catch (Exception var10) {
+                LOGGER.warn("Failed to validate message '{}'", param1, var10);
                 return FilteredText.fullyFiltered(param1);
             }
         }, param3);
+    }
+
+    private FilterMask parseMask(String param0, JsonArray param1, TextFilterClient.IgnoreStrategy param2) {
+        if (param1.isEmpty()) {
+            return FilterMask.PASS_THROUGH;
+        } else if (param2.shouldIgnore(param0, param1.size())) {
+            return FilterMask.FULLY_FILTERED;
+        } else {
+            FilterMask var0 = new FilterMask(param0.length());
+
+            for(int var1 = 0; var1 < param1.size(); ++var1) {
+                var0.setFiltered(param1.get(var1).getAsInt());
+            }
+
+            return var0;
+        }
     }
 
     @Override
@@ -321,8 +340,8 @@ public class TextFilterClient implements AutoCloseable {
         }
 
         @Override
-        public CompletableFuture<List<FilteredText<String>>> processMessageBundle(List<String> param0) {
-            List<CompletableFuture<FilteredText<String>>> var0 = param0.stream()
+        public CompletableFuture<List<FilteredText>> processMessageBundle(List<String> param0) {
+            List<CompletableFuture<FilteredText>> var0 = param0.stream()
                 .map(
                     param0x -> TextFilterClient.this.requestMessageProcessing(
                             this.profile, param0x, TextFilterClient.this.chatIgnoreStrategy, this.streamExecutor
@@ -333,7 +352,7 @@ public class TextFilterClient implements AutoCloseable {
         }
 
         @Override
-        public CompletableFuture<FilteredText<String>> processStreamMessage(String param0) {
+        public CompletableFuture<FilteredText> processStreamMessage(String param0) {
             return TextFilterClient.this.requestMessageProcessing(this.profile, param0, TextFilterClient.this.chatIgnoreStrategy, this.streamExecutor);
         }
     }

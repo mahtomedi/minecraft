@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -41,12 +43,17 @@ public interface LoggedChatMessage extends LoggedChatEvent {
 
         @Override
         public Component toContentComponent() {
-            return this.message.serverContent();
+            if (!this.message.filterMask().isEmpty()) {
+                Component var0 = this.message.filterMask().apply(this.message.signedContent());
+                return Objects.requireNonNullElse(var0, CommonComponents.EMPTY);
+            } else {
+                return this.message.serverContent();
+            }
         }
 
         @Override
         public Component toNarrationComponent() {
-            Component var0 = this.message.serverContent();
+            Component var0 = this.toContentComponent();
             Component var1 = this.getTimeComponent();
             return Component.translatable("gui.chatSelection.message.narrate", this.displayName, var0, var1);
         }
@@ -63,7 +70,7 @@ public interface LoggedChatMessage extends LoggedChatEvent {
 
         @Override
         public boolean canReport(UUID param0) {
-            return this.profileId().equals(param0);
+            return this.message.hasSignatureFrom(param0);
         }
 
         @Override

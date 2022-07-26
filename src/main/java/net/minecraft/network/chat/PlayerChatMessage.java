@@ -3,28 +3,40 @@ package net.minecraft.network.chat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.FilteredText;
 import net.minecraft.util.SignatureValidator;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 
 public record PlayerChatMessage(
-    SignedMessageHeader signedHeader, MessageSignature headerSignature, SignedMessageBody signedBody, Optional<Component> unsignedContent
+    SignedMessageHeader signedHeader,
+    MessageSignature headerSignature,
+    SignedMessageBody signedBody,
+    Optional<Component> unsignedContent,
+    FilterMask filterMask
 ) {
     public static final Duration MESSAGE_EXPIRES_AFTER_SERVER = Duration.ofMinutes(5L);
     public static final Duration MESSAGE_EXPIRES_AFTER_CLIENT = MESSAGE_EXPIRES_AFTER_SERVER.plus(Duration.ofMinutes(2L));
 
     public PlayerChatMessage(FriendlyByteBuf param0) {
-        this(new SignedMessageHeader(param0), new MessageSignature(param0), new SignedMessageBody(param0), param0.readOptional(FriendlyByteBuf::readComponent));
+        this(
+            new SignedMessageHeader(param0),
+            new MessageSignature(param0),
+            new SignedMessageBody(param0),
+            param0.readOptional(FriendlyByteBuf::readComponent),
+            FilterMask.read(param0)
+        );
     }
 
     public static PlayerChatMessage system(ChatMessageContent param0) {
-        MessageSigner var0 = MessageSigner.system();
-        SignedMessageBody var1 = new SignedMessageBody(param0, var0.timeStamp(), var0.salt(), LastSeenMessages.EMPTY);
-        SignedMessageHeader var2 = new SignedMessageHeader(null, var0.profileId());
-        return new PlayerChatMessage(var2, MessageSignature.EMPTY, var1, Optional.empty());
+        return unsigned(MessageSigner.system(), param0);
+    }
+
+    public static PlayerChatMessage unsigned(MessageSigner param0, ChatMessageContent param1) {
+        SignedMessageBody var0 = new SignedMessageBody(param1, param0.timeStamp(), param0.salt(), LastSeenMessages.EMPTY);
+        SignedMessageHeader var1 = new SignedMessageHeader(null, param0.profileId());
+        return new PlayerChatMessage(var1, MessageSignature.EMPTY, var0, Optional.empty(), FilterMask.PASS_THROUGH);
     }
 
     public void write(FriendlyByteBuf param0) {
@@ -32,24 +44,28 @@ public record PlayerChatMessage(
         this.headerSignature.write(param0);
         this.signedBody.write(param0);
         param0.writeOptional(this.unsignedContent, FriendlyByteBuf::writeComponent);
-    }
-
-    public FilteredText<PlayerChatMessage> withFilteredText(FilteredText<ChatMessageContent> param0) {
-        return param0.rebuildIfNeeded(
-            this,
-            param0x -> this.signedContent().equals(param0x)
-                    ? this
-                    : new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody.withContent(param0x), this.unsignedContent)
-        );
+        FilterMask.write(param0, this.filterMask);
     }
 
     public PlayerChatMessage withUnsignedContent(Component param0) {
         Optional<Component> var0 = !this.signedContent().decorated().equals(param0) ? Optional.of(param0) : Optional.empty();
-        return new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, var0);
+        return new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, var0, this.filterMask);
     }
 
     public PlayerChatMessage removeUnsignedContent() {
-        return this.unsignedContent.isPresent() ? new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, Optional.empty()) : this;
+        return this.unsignedContent.isPresent()
+            ? new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, Optional.empty(), this.filterMask)
+            : this;
+    }
+
+    public PlayerChatMessage filter(FilterMask param0) {
+        return this.filterMask.equals(param0)
+            ? this
+            : new PlayerChatMessage(this.signedHeader, this.headerSignature, this.signedBody, this.unsignedContent, param0);
+    }
+
+    public PlayerChatMessage filter(boolean param0) {
+        return this.filter(param0 ? this.filterMask : FilterMask.PASS_THROUGH);
     }
 
     public boolean verify(SignatureValidator param0) {
@@ -100,7 +116,11 @@ public record PlayerChatMessage(
         return !this.headerSignature.isEmpty() && !var0.isSystem() ? new LastSeenMessages.Entry(var0.profileId(), this.headerSignature) : null;
     }
 
-    public boolean hasSignatureFrom(ServerPlayer param0) {
-        return !this.headerSignature.isEmpty() && this.signedHeader.sender().equals(param0.getUUID());
+    public boolean hasSignatureFrom(UUID param0) {
+        return !this.headerSignature.isEmpty() && this.signedHeader.sender().equals(param0);
+    }
+
+    public boolean isFullyFiltered() {
+        return this.filterMask.isFullyFiltered();
     }
 }

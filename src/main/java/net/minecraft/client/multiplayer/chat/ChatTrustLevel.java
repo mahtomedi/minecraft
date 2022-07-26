@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public enum ChatTrustLevel {
     SECURE,
     MODIFIED,
+    FILTERED,
     NOT_SECURE,
     BROKEN_CHAIN;
 
@@ -28,6 +29,8 @@ public enum ChatTrustLevel {
                 return NOT_SECURE;
             } else if (param0.hasExpiredClient(param3)) {
                 return NOT_SECURE;
+            } else if (!param0.filterMask().isEmpty()) {
+                return FILTERED;
             } else if (param0.unsignedContent().isPresent()) {
                 return MODIFIED;
             } else {
@@ -44,6 +47,7 @@ public enum ChatTrustLevel {
     public GuiMessageTag createTag(PlayerChatMessage param0) {
         return switch(this) {
             case MODIFIED -> GuiMessageTag.chatModified(param0.signedContent().plain());
+            case FILTERED -> GuiMessageTag.chatFiltered();
             case NOT_SECURE -> GuiMessageTag.chatNotSecure();
             default -> null;
         };

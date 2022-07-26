@@ -456,13 +456,34 @@ public class CommandSourceStack implements SharedSuggestionProvider {
         return this.chatMessageChainer;
     }
 
-    public void sendChatMessage(OutgoingPlayerChatMessage param0, ChatType.Bound param1) {
+    public boolean shouldFilterMessageTo(ServerPlayer param0) {
+        ServerPlayer var0 = this.getPlayer();
+        if (param0 == var0) {
+            return false;
+        } else {
+            return var0 != null && var0.isTextFilteringEnabled() || param0.isTextFilteringEnabled();
+        }
+    }
+
+    public void sendChatMessage(OutgoingPlayerChatMessage param0, boolean param1, ChatType.Bound param2) {
         if (!this.silent) {
             ServerPlayer var0 = this.getPlayer();
             if (var0 != null) {
-                var0.sendChatMessage(param0, param1);
+                var0.sendChatMessage(param0, param1, param2);
             } else {
-                this.source.sendSystemMessage(param1.decorate(param0.serverContent()));
+                this.source.sendSystemMessage(param2.decorate(param0.serverContent()));
+            }
+
+        }
+    }
+
+    public void sendSystemMessage(Component param0) {
+        if (!this.silent) {
+            ServerPlayer var0 = this.getPlayer();
+            if (var0 != null) {
+                var0.sendSystemMessage(param0);
+            } else {
+                this.source.sendSystemMessage(param0);
             }
 
         }

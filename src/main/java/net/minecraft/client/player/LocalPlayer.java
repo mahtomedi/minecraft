@@ -326,19 +326,11 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     private void sendChat(String param0, @Nullable Component param1) {
-        String var0 = StringUtil.trimChatMessage(param0);
+        ChatMessageContent var0 = this.buildSignedContent(param0, param1);
         MessageSigner var1 = this.createMessageSigner();
         LastSeenMessages.Update var2 = this.connection.generateMessageAcknowledgements();
-        if (param1 != null) {
-            ChatMessageContent var3 = new ChatMessageContent(var0, param1);
-            MessageSignature var4 = this.signMessage(var1, var3, var2.lastSeen());
-            this.connection.send(new ServerboundChatPacket(var0, var1.timeStamp(), var1.salt(), var4, true, var2));
-        } else {
-            ChatMessageContent var5 = new ChatMessageContent(var0);
-            MessageSignature var6 = this.signMessage(var1, var5, var2.lastSeen());
-            this.connection.send(new ServerboundChatPacket(var0, var1.timeStamp(), var1.salt(), var6, false, var2));
-        }
-
+        MessageSignature var3 = this.signMessage(var1, var0, var2.lastSeen());
+        this.connection.send(new ServerboundChatPacket(var0.plain(), var1.timeStamp(), var1.salt(), var3, var0.isDecorated(), var2));
     }
 
     private MessageSignature signMessage(MessageSigner param0, ChatMessageContent param1, LastSeenMessages param2) {
@@ -371,7 +363,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         } else {
             try {
                 return ArgumentSignatures.signCommand(PreviewableCommand.of(param1), (param4, param5) -> {
-                    ChatMessageContent var0x = param2 != null ? new ChatMessageContent(param5, param2) : new ChatMessageContent(param5);
+                    ChatMessageContent var0x = this.buildSignedContent(param5, param2);
                     return this.connection.signedMessageEncoder().pack(var0, param0, var0x, param3).signature();
                 });
             } catch (Exception var7) {
@@ -379,6 +371,11 @@ public class LocalPlayer extends AbstractClientPlayer {
                 return ArgumentSignatures.EMPTY;
             }
         }
+    }
+
+    private ChatMessageContent buildSignedContent(String param0, @Nullable Component param1) {
+        String var0 = StringUtil.trimChatMessage(param0);
+        return param1 != null ? new ChatMessageContent(var0, param1) : new ChatMessageContent(var0);
     }
 
     private MessageSigner createMessageSigner() {

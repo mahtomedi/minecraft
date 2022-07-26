@@ -6,6 +6,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -13,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface Toast {
     ResourceLocation TEXTURE = new ResourceLocation("textures/gui/toasts.png");
     Object NO_TOKEN = new Object();
+    int SLOT_HEIGHT = 32;
 
     Toast.Visibility render(PoseStack var1, ToastComponent var2, long var3);
 
@@ -26,6 +28,10 @@ public interface Toast {
 
     default int height() {
         return 32;
+    }
+
+    default int slotCount() {
+        return Mth.positiveCeilDiv(this.height(), 32);
     }
 
     @OnlyIn(Dist.CLIENT)

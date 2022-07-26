@@ -63,14 +63,15 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
             PlayerInfo var2 = var0.getPlayerInfo(var1);
             if (var2 != null) {
                 UUID var3 = var2.getProfile().getId();
-                param1.put(var3, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var3, var2.getProfile().getName(), var2::getSkinLocation));
+                boolean var4 = var2.getProfilePublicKey() != null;
+                param1.put(var3, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var3, var2.getProfile().getName(), var2::getSkinLocation, var4));
             }
         }
 
     }
 
     private void updatePlayersFromChatLog(Map<UUID, PlayerEntry> param0, boolean param1) {
-        Collection<GameProfile> var0 = this.minecraft.getReportingContext().chatLog().selectAllDescending().distinctGameProfiles();
+        Collection<GameProfile> var0 = this.minecraft.getReportingContext().chatLog().selectAllDescending().reportableGameProfiles();
         Iterator var4 = var0.iterator();
 
         while(true) {
@@ -90,7 +91,8 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
                                 this.socialInteractionsScreen,
                                 var1.getId(),
                                 var1.getName(),
-                                Suppliers.memoize(() -> this.minecraft.getSkinManager().getInsecureSkinLocation(var1))
+                                Suppliers.memoize(() -> this.minecraft.getSkinManager().getInsecureSkinLocation(var1)),
+                                true
                             );
                             var0x.setRemoved(true);
                             return var0x;
@@ -158,11 +160,12 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
 
         if ((param1 == SocialInteractionsScreen.Page.ALL || this.minecraft.getPlayerSocialManager().shouldHideMessageFrom(var0))
             && (Strings.isNullOrEmpty(this.filter) || param0.getProfile().getName().toLowerCase(Locale.ROOT).contains(this.filter))) {
-            PlayerEntry var2 = new PlayerEntry(
-                this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkinLocation
+            boolean var2 = param0.getProfilePublicKey() != null;
+            PlayerEntry var3 = new PlayerEntry(
+                this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkinLocation, var2
             );
-            this.addEntry(var2);
-            this.players.add(var2);
+            this.addEntry(var3);
+            this.players.add(var3);
         }
 
     }

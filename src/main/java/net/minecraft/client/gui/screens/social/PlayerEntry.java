@@ -42,6 +42,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private boolean isRemoved;
     private boolean hasRecentMessages;
     private final boolean reportingEnabled;
+    private final boolean playerReportable;
     @Nullable
     private Button hideButton;
     @Nullable
@@ -58,6 +59,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private static final Component HIDDEN_OFFLINE = Component.translatable("gui.socialInteractions.status_hidden_offline").withStyle(ChatFormatting.ITALIC);
     private static final Component BLOCKED_OFFLINE = Component.translatable("gui.socialInteractions.status_blocked_offline").withStyle(ChatFormatting.ITALIC);
     private static final Component REPORT_DISABLED_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report.disabled");
+    private static final Component NOT_REPORTABLE_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report.not_reportable");
     private static final Component HIDE_TEXT_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.hide");
     private static final Component SHOW_TEXT_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.show");
     private static final Component REPORT_PLAYER_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report");
@@ -72,13 +74,16 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     public static final int PLAYERNAME_COLOR = FastColor.ARGB32.color(255, 255, 255, 255);
     public static final int PLAYER_STATUS_COLOR = FastColor.ARGB32.color(140, 255, 255, 255);
 
-    public PlayerEntry(final Minecraft param0, final SocialInteractionsScreen param1, UUID param2, String param3, Supplier<ResourceLocation> param4) {
+    public PlayerEntry(
+        final Minecraft param0, final SocialInteractionsScreen param1, UUID param2, String param3, Supplier<ResourceLocation> param4, boolean param5
+    ) {
         this.minecraft = param0;
         this.id = param2;
         this.playerName = param3;
         this.skinGetter = param4;
         ReportingContext var0 = param0.getReportingContext();
         this.reportingEnabled = var0.sender().isEnabled();
+        this.playerReportable = param5;
         final Component var1 = Component.translatable("gui.socialInteractions.narration.hide", param3);
         final Component var2 = Component.translatable("gui.socialInteractions.narration.show", param3);
         this.hideTooltip = param0.font.split(HIDE_TEXT_TOOLTIP, 150);
@@ -179,7 +184,9 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     }
 
     Component getReportButtonText(boolean param0) {
-        if (!this.reportingEnabled) {
+        if (!this.playerReportable) {
+            return NOT_REPORTABLE_TOOLTIP;
+        } else if (!this.reportingEnabled) {
             return REPORT_DISABLED_TOOLTIP;
         } else if (!this.hasRecentMessages) {
             return Component.translatable("gui.socialInteractions.tooltip.report.no_messages", this.playerName);
@@ -258,7 +265,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     public void setHasRecentMessages(boolean param0) {
         this.hasRecentMessages = param0;
         if (this.reportButton != null) {
-            this.reportButton.active = this.reportingEnabled && param0;
+            this.reportButton.active = this.reportingEnabled && this.playerReportable && param0;
         }
 
         this.reportTooltip = this.minecraft.font.split(this.getReportButtonText(false), 150);

@@ -41,11 +41,15 @@ public class Font {
     public final int lineHeight = 9;
     public final RandomSource random = RandomSource.create();
     private final Function<ResourceLocation, FontSet> fonts;
+    final boolean filterFishyGlyphs;
     private final StringSplitter splitter;
 
-    public Font(Function<ResourceLocation, FontSet> param0) {
+    public Font(Function<ResourceLocation, FontSet> param0, boolean param1) {
         this.fonts = param0;
-        this.splitter = new StringSplitter((param0x, param1) -> this.getFontSet(param1.getFont()).getGlyphInfo(param0x).getAdvance(param1.isBold()));
+        this.filterFishyGlyphs = param1;
+        this.splitter = new StringSplitter(
+            (param0x, param1x) -> this.getFontSet(param1x.getFont()).getGlyphInfo(param0x, this.filterFishyGlyphs).getAdvance(param1x.isBold())
+        );
     }
 
     FontSet getFontSet(ResourceLocation param0) {
@@ -184,7 +188,7 @@ public class Font {
                     param0.accept((param6x, param7x, param8) -> {
                         boolean var0x = param7x.isBold();
                         FontSet var1x = this.getFontSet(param7x.getFont());
-                        GlyphInfo var2x = var1x.getGlyphInfo(param8);
+                        GlyphInfo var2x = var1x.getGlyphInfo(param8, this.filterFishyGlyphs);
                         var1.x = var4[0] + (float)var5 * var2x.getShadowOffset();
                         var1.y = param2 + (float)var6 * var2x.getShadowOffset();
                         var4[0] += var2x.getAdvance(var0x);
@@ -422,7 +426,7 @@ public class Font {
         @Override
         public boolean accept(int param0, Style param1, int param2) {
             FontSet var0 = Font.this.getFontSet(param1.getFont());
-            GlyphInfo var1 = var0.getGlyphInfo(param2);
+            GlyphInfo var1 = var0.getGlyphInfo(param2, Font.this.filterFishyGlyphs);
             BakedGlyph var2 = param1.isObfuscated() && param2 != 32 ? var0.getRandomGlyph(var1) : var0.getGlyph(param2);
             boolean var3 = param1.isBold();
             float var4 = this.a;

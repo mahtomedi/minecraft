@@ -1,70 +1,30 @@
 package net.minecraft.server.network;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.Objects;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.FilterMask;
 
-public record FilteredText<T>(T raw, @Nullable T filtered) {
-    public static final FilteredText<String> EMPTY_STRING = passThrough("");
+public record FilteredText(String raw, FilterMask mask) {
+    public static final FilteredText EMPTY = passThrough("");
 
-    public static <T> FilteredText<T> passThrough(T param0) {
-        return new FilteredText<>(param0, param0);
+    public static FilteredText passThrough(String param0) {
+        return new FilteredText(param0, FilterMask.PASS_THROUGH);
     }
 
-    public static <T> FilteredText<T> fullyFiltered(T param0) {
-        return new FilteredText<>(param0, (T)null);
+    public static FilteredText fullyFiltered(String param0) {
+        return new FilteredText(param0, FilterMask.FULLY_FILTERED);
     }
 
-    public <U> FilteredText<U> map(Function<T, U> param0) {
-        return this.map(param0, param0);
+    @Nullable
+    public String filtered() {
+        return this.mask.apply(this.raw);
     }
 
-    public <U> FilteredText<U> map(Function<T, U> param0, Function<T, U> param1) {
-        return new FilteredText<>(param0.apply(this.raw), Util.mapNullable(this.filtered, param1));
-    }
-
-    public <U> FilteredText<U> rebuildIfNeeded(U param0, Function<T, U> param1) {
-        return !this.isFiltered() ? passThrough(param0) : new FilteredText<>(param0, Util.mapNullable(this.filtered, param1));
-    }
-
-    public <U> CompletableFuture<FilteredText<U>> rebuildIfNeededAsync(U param0, Function<T, CompletableFuture<U>> param1) {
-        if (this.filtered() == null) {
-            return CompletableFuture.completedFuture(fullyFiltered(param0));
-        } else {
-            return !this.isFiltered()
-                ? CompletableFuture.completedFuture(passThrough(param0))
-                : param1.apply(this.filtered()).thenApply(param1x -> new FilteredText<>(param0, param1x));
-        }
+    public String filteredOrEmpty() {
+        return Objects.requireNonNullElse(this.filtered(), "");
     }
 
     public boolean isFiltered() {
-        return !this.raw.equals(this.filtered);
-    }
-
-    public boolean isFullyFiltered() {
-        return this.filtered == null;
-    }
-
-    public T filteredOrElse(T param0) {
-        return (T)(this.filtered != null ? this.filtered : param0);
-    }
-
-    @Nullable
-    public T filter(ServerPlayer param0, ServerPlayer param1) {
-        return (T)(param0.shouldFilterMessageTo(param1) ? this.filtered : this.raw);
-    }
-
-    @Nullable
-    public T filter(CommandSourceStack param0, ServerPlayer param1) {
-        ServerPlayer var0 = param0.getPlayer();
-        return (T)(var0 != null ? this.filter(var0, param1) : this.raw);
-    }
-
-    @Nullable
-    public T select(boolean param0) {
-        return (T)(param0 ? this.filtered : this.raw);
+        return !this.mask.isEmpty();
     }
 }

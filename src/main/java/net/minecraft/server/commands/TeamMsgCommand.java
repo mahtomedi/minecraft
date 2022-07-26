@@ -8,7 +8,6 @@ import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.MessageArgument;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -16,7 +15,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.OutgoingPlayerChatMessage;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.FilteredText;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.PlayerTeam;
 
@@ -49,32 +48,33 @@ public class TeamMsgCommand {
             throw ERROR_NOT_ON_TEAM.create();
         } else {
             Component var2 = var1.getFormattedDisplayName().withStyle(SUGGEST_STYLE);
-            ChatSender var3 = param0.asChatSender();
-            ChatType.Bound var4 = ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, param0).withTargetName(var2);
-            ChatType.Bound var5 = ChatType.bind(ChatType.TEAM_MSG_COMMAND_OUTGOING, param0).withTargetName(var2);
-            List<ServerPlayer> var6 = param0.getServer()
+            ChatType.Bound var3 = ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, param0).withTargetName(var2);
+            ChatType.Bound var4 = ChatType.bind(ChatType.TEAM_MSG_COMMAND_OUTGOING, param0).withTargetName(var2);
+            List<ServerPlayer> var5 = param0.getServer()
                 .getPlayerList()
                 .getPlayers()
                 .stream()
                 .filter(param2 -> param2 == var0 || param2.getTeam() == var1)
                 .toList();
             param1.resolve(param0, param5 -> {
-                FilteredText<OutgoingPlayerChatMessage> var0x = OutgoingPlayerChatMessage.createFromFiltered(param5);
+                OutgoingPlayerChatMessage var0x = OutgoingPlayerChatMessage.create(param5);
+                boolean var1x = param5.isFullyFiltered();
+                boolean var2x = false;
 
-                for(ServerPlayer var1x : var6) {
-                    if (var1x == var0) {
-                        var1x.sendChatMessage(var0x.raw(), var5);
-                    } else {
-                        OutgoingPlayerChatMessage var2x = var0x.filter(param0, var1x);
-                        if (var2x != null) {
-                            var1x.sendChatMessage(var2x, var4);
-                        }
-                    }
+                for(ServerPlayer var3x : var5) {
+                    ChatType.Bound var4x = var3x == var0 ? var4 : var3;
+                    boolean var5x = param0.shouldFilterMessageTo(var3x);
+                    var3x.sendChatMessage(var0x, var5x, var4x);
+                    var2x |= var1x && var5x && var3x != var0;
                 }
 
-                var0x.raw().sendHeadersToRemainingPlayers(param0.getServer().getPlayerList());
+                if (var2x) {
+                    param0.sendSystemMessage(PlayerList.CHAT_FILTERED_FULL);
+                }
+
+                var0x.sendHeadersToRemainingPlayers(param0.getServer().getPlayerList());
             });
-            return var6.size();
+            return var5.size();
         }
     }
 }

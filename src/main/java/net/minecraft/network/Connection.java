@@ -25,8 +25,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.TimeoutException;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Queue;
@@ -127,7 +125,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                         Packet<?> var3 = (Packet<?>)(var2 == ConnectionProtocol.LOGIN
                             ? new ClientboundLoginDisconnectPacket(var1)
                             : new ClientboundDisconnectPacket(var1));
-                        this.send(var3, param1x -> this.disconnect(var1));
+                        this.send(var3, PacketSendListener.thenRun(() -> this.disconnect(var1)));
                         this.setReadOnly();
                     } else {
                         LOGGER.debug("Double fault", param1);
@@ -169,7 +167,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         this.send(param0, null);
     }
 
-    public void send(Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1) {
+    public void send(Packet<?> param0, @Nullable PacketSendListener param1) {
         if (this.isConnected()) {
             this.flushQueue();
             this.sendPacket(param0, param1);
@@ -179,7 +177,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     }
 
-    private void sendPacket(Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1) {
+    private void sendPacket(Packet<?> param0, @Nullable PacketSendListener param1) {
         ConnectionProtocol var0 = ConnectionProtocol.getProtocolForPacket(param0);
         ConnectionProtocol var1 = this.getCurrentProtocol();
         ++this.sentPackets;
@@ -196,16 +194,25 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     }
 
-    private void doSendPacket(
-        Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1, ConnectionProtocol param2, ConnectionProtocol param3
-    ) {
+    private void doSendPacket(Packet<?> param0, @Nullable PacketSendListener param1, ConnectionProtocol param2, ConnectionProtocol param3) {
         if (param2 != param3) {
             this.setProtocol(param2);
         }
 
         ChannelFuture var0 = this.channel.writeAndFlush(param0);
         if (param1 != null) {
-            var0.addListener(param1);
+            var0.addListener(param1x -> {
+                if (param1x.isSuccess()) {
+                    param1.onSuccess();
+                } else {
+                    Packet<?> var0x = param1.onFailure();
+                    if (var0x != null) {
+                        ChannelFuture var1x = this.channel.writeAndFlush(var0x);
+                        var1x.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+                    }
+                }
+
+            });
         }
 
         var0.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
@@ -412,9 +419,9 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     static class PacketHolder {
         final Packet<?> packet;
         @Nullable
-        final GenericFutureListener<? extends Future<? super Void>> listener;
+        final PacketSendListener listener;
 
-        public PacketHolder(Packet<?> param0, @Nullable GenericFutureListener<? extends Future<? super Void>> param1) {
+        public PacketHolder(Packet<?> param0, @Nullable PacketSendListener param1) {
             this.packet = param0;
             this.listener = param1;
         }

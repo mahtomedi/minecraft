@@ -2,11 +2,16 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MessageSignature;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.SignedMessageHeader;
 import net.minecraft.network.protocol.Packet;
 
 public record ClientboundPlayerChatHeaderPacket(SignedMessageHeader header, MessageSignature headerSignature, byte[] bodyDigest)
     implements Packet<ClientGamePacketListener> {
+    public ClientboundPlayerChatHeaderPacket(PlayerChatMessage param0) {
+        this(param0.signedHeader(), param0.headerSignature(), param0.signedBody().hash().asBytes());
+    }
+
     public ClientboundPlayerChatHeaderPacket(FriendlyByteBuf param0) {
         this(new SignedMessageHeader(param0), new MessageSignature(param0), param0.readByteArray());
     }

@@ -2,22 +2,10 @@ package net.minecraft.network.chat;
 
 import java.util.Objects;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.network.FilteredText;
 
 public record ChatMessageContent(String plain, Component decorated) {
     public ChatMessageContent(String param0) {
         this(param0, Component.literal(param0));
-    }
-
-    public static FilteredText<ChatMessageContent> fromFiltered(FilteredText<String> param0) {
-        return param0.map(ChatMessageContent::new);
-    }
-
-    public static FilteredText<ChatMessageContent> fromFiltered(FilteredText<String> param0, FilteredText<Component> param1) {
-        return param0.map(
-            param1x -> new ChatMessageContent(param1x, param1.raw()),
-            param1x -> param1.filtered() != null ? new ChatMessageContent(param1x, param1.filtered()) : null
-        );
     }
 
     public boolean isDecorated() {

@@ -24,6 +24,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -52,7 +53,6 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
@@ -577,17 +577,16 @@ public class ServerPlayer extends Player {
             this.connection
                 .send(
                     new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var1),
-                    param1 -> {
-                        if (!param1.isSuccess()) {
+                    PacketSendListener.exceptionallySend(
+                        () -> {
                             int var0x = 256;
                             String var1x = var1.getString(256);
                             Component var2x = Component.translatable("death.attack.message_too_long", Component.literal(var1x).withStyle(ChatFormatting.YELLOW));
                             Component var3x = Component.translatable("death.attack.even_more_magic", this.getDisplayName())
-                                .withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
-                            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var3x));
+                                .withStyle(param1 -> param1.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
+                            return new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var3x);
                         }
-        
-                    }
+                    )
                 );
             Team var2 = this.getTeam();
             if (var2 == null || var2.getDeathMessageVisibility() == Team.Visibility.ALWAYS) {
@@ -1300,31 +1299,30 @@ public class ServerPlayer extends Player {
 
     public void sendSystemMessage(Component param0, boolean param1) {
         if (this.acceptsSystemMessages(param1)) {
-            this.connection.send(new ClientboundSystemChatPacket(param0, param1), param1x -> {
-                if (!param1x.isSuccess()) {
-                    this.handleMessageDeliveryFailure(param0);
-                }
-
-            });
-        }
-    }
-
-    private void handleMessageDeliveryFailure(Component param0) {
-        if (this.acceptsSystemMessages(false)) {
-            int var0 = 256;
-            String var1 = param0.getString(256);
-            Component var2 = Component.literal(var1).withStyle(ChatFormatting.YELLOW);
             this.connection
-                .send(new ClientboundSystemChatPacket(Component.translatable("multiplayer.message_not_delivered", var2).withStyle(ChatFormatting.RED), false));
+                .send(
+                    new ClientboundSystemChatPacket(param0, param1),
+                    PacketSendListener.exceptionallySend(
+                        () -> {
+                            if (this.acceptsSystemMessages(false)) {
+                                int var0 = 256;
+                                String var1x = param0.getString(256);
+                                Component var2x = Component.literal(var1x).withStyle(ChatFormatting.YELLOW);
+                                return new ClientboundSystemChatPacket(
+                                    Component.translatable("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED), false
+                                );
+                            } else {
+                                return null;
+                            }
+                        }
+                    )
+                );
         }
-
     }
 
-    public void sendChatMessage(OutgoingPlayerChatMessage param0, ChatType.Bound param1) {
+    public void sendChatMessage(OutgoingPlayerChatMessage param0, boolean param1, ChatType.Bound param2) {
         if (this.acceptsChatMessages()) {
-            ClientboundPlayerChatPacket var0 = param0.packetForPlayer(this, param1);
-            this.connection.addPendingMessage(var0.message());
-            this.connection.send(var0);
+            param0.sendToPlayer(this, param1, param2);
         }
 
     }

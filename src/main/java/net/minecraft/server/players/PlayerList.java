@@ -68,7 +68,6 @@ import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -104,6 +103,7 @@ public abstract class PlayerList {
     public static final File IPBANLIST_FILE = new File("banned-ips.json");
     public static final File OPLIST_FILE = new File("ops.json");
     public static final File WHITELIST_FILE = new File("whitelist.json");
+    public static final Component CHAT_FILTERED_FULL = Component.translatable("chat.filtered_full");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int SEND_PLAYER_INFO_INTERVAL = 600;
     private static final SimpleDateFormat BAN_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
@@ -796,37 +796,36 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, CommandSourceStack param1, ChatType.Bound param2) {
-        ServerPlayer var0 = param1.getPlayer();
-        if (var0 != null) {
-            this.broadcastChatMessage(param0, var0, param2);
-        } else {
-            this.broadcastChatMessage(param0.raw(), param1.asChatSender(), param2);
-        }
-
+    public void broadcastChatMessage(PlayerChatMessage param0, CommandSourceStack param1, ChatType.Bound param2) {
+        this.broadcastChatMessage(param0, param1::shouldFilterMessageTo, param1.getPlayer(), param1.asChatSender(), param2);
     }
 
-    public void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, ServerPlayer param1, ChatType.Bound param2) {
-        this.broadcastChatMessage(param0, param1::shouldFilterMessageTo, param1.asChatSender(), param2);
+    public void broadcastChatMessage(PlayerChatMessage param0, ServerPlayer param1, ChatType.Bound param2) {
+        this.broadcastChatMessage(param0, param1::shouldFilterMessageTo, param1, param1.asChatSender(), param2);
     }
 
-    public void broadcastChatMessage(PlayerChatMessage param0, ChatSender param1, ChatType.Bound param2) {
-        this.broadcastChatMessage(FilteredText.passThrough(param0), param0x -> false, param1, param2);
-    }
+    private void broadcastChatMessage(
+        PlayerChatMessage param0, Predicate<ServerPlayer> param1, @Nullable ServerPlayer param2, ChatSender param3, ChatType.Bound param4
+    ) {
+        boolean var0 = this.verifyChatTrusted(param0, param3);
+        this.server.logChatMessage(param0.serverContent(), param4, var0 ? null : "Not Secure");
+        OutgoingPlayerChatMessage var1 = OutgoingPlayerChatMessage.create(param0);
+        boolean var2 = param0.isFullyFiltered();
+        boolean var3 = false;
 
-    private void broadcastChatMessage(FilteredText<PlayerChatMessage> param0, Predicate<ServerPlayer> param1, ChatSender param2, ChatType.Bound param3) {
-        boolean var0 = this.verifyChatTrusted(param0.raw(), param2);
-        this.server.logChatMessage(param0.raw().serverContent(), param3, var0 ? null : "Not Secure");
-        FilteredText<OutgoingPlayerChatMessage> var1 = OutgoingPlayerChatMessage.createFromFiltered(param0);
-
-        for(ServerPlayer var2 : this.players) {
-            OutgoingPlayerChatMessage var3 = var1.select(param1.test(var2));
-            if (var3 != null) {
-                var2.sendChatMessage(var3, param3);
+        for(ServerPlayer var4 : this.players) {
+            boolean var5 = param1.test(var4);
+            var4.sendChatMessage(var1, var5, param4);
+            if (param2 != var4) {
+                var3 |= var2 && var5;
             }
         }
 
-        var1.raw().sendHeadersToRemainingPlayers(this);
+        if (var3 && param2 != null) {
+            param2.sendSystemMessage(CHAT_FILTERED_FULL);
+        }
+
+        var1.sendHeadersToRemainingPlayers(this);
     }
 
     public void broadcastMessageHeader(PlayerChatMessage param0, Set<ServerPlayer> param1) {

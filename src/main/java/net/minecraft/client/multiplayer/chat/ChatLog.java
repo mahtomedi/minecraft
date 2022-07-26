@@ -118,12 +118,14 @@ public interface ChatLog {
             return this.ids().mapToObj(this.log::lookup).filter(Objects::nonNull);
         }
 
-        public Collection<GameProfile> distinctGameProfiles() {
-            return this.events()
-                .map(param0 -> param0 instanceof LoggedChatMessage.Player var0 ? var0.profile() : null)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+        public Collection<GameProfile> reportableGameProfiles() {
+            return this.events().map(param0 -> {
+                if (param0 instanceof LoggedChatMessage.Player var0 && var0.canReport(var0.profile().getId())) {
+                    return var0.profile();
+                }
+
+                return null;
+            }).filter(Objects::nonNull).distinct().toList();
         }
 
         public Stream<ChatLog.Entry<LoggedChatEvent>> entries() {

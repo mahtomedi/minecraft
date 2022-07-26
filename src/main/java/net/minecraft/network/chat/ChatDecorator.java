@@ -3,7 +3,6 @@ package net.minecraft.network.chat;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.FilteredText;
 
 @FunctionalInterface
 public interface ChatDecorator {
@@ -11,14 +10,13 @@ public interface ChatDecorator {
 
     CompletableFuture<Component> decorate(@Nullable ServerPlayer var1, Component var2);
 
-    default CompletableFuture<FilteredText<Component>> rebuildFiltered(@Nullable ServerPlayer param0, FilteredText<Component> param1, Component param2) {
-        return param1.rebuildIfNeededAsync(param2, param1x -> this.decorate(param0, param1x));
+    default CompletableFuture<PlayerChatMessage> decorate(@Nullable ServerPlayer param0, PlayerChatMessage param1) {
+        return param1.signedContent().isDecorated()
+            ? CompletableFuture.completedFuture(param1)
+            : this.decorate(param0, param1.serverContent()).thenApply(param1::withUnsignedContent);
     }
 
-    static FilteredText<PlayerChatMessage> attachUnsignedDecoration(FilteredText<PlayerChatMessage> param0, FilteredText<Component> param1) {
-        return param0.map(
-            param1x -> param1x.withUnsignedContent(param1.raw()),
-            param1x -> param1.filtered() != null ? param1x.withUnsignedContent(param1.filtered()) : param1x
-        );
+    static PlayerChatMessage attachIfNotDecorated(PlayerChatMessage param0, Component param1) {
+        return !param0.signedContent().isDecorated() ? param0.withUnsignedContent(param1) : param0;
     }
 }
