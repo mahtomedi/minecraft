@@ -16,7 +16,7 @@ public class AnimationUtils {
         ModelPart var1 = param3 ? param1 : param0;
         var0.yRot = (param3 ? -0.3F : 0.3F) + param2.yRot;
         var1.yRot = (param3 ? 0.6F : -0.6F) + param2.yRot;
-        var0.xRot = ((float) (-Math.PI / 2)) + param2.xRot + 0.1F;
+        var0.xRot = (float) (-Math.PI / 2) + param2.xRot + 0.1F;
         var1.xRot = -1.5F + param2.xRot;
     }
 

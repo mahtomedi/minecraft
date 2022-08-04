@@ -42,41 +42,44 @@ public class ProfileKeyPairManager {
     public ProfileKeyPairManager(UserApiService param0, UUID param1, Path param2) {
         this.userApiService = param0;
         this.profileKeyPairPath = param2.resolve(PROFILE_KEY_PAIR_DIR).resolve(param1 + ".json");
-        this.keyPair = this.readOrFetchProfileKeyPair();
+        this.keyPair = CompletableFuture.<Optional<ProfileKeyPair>>supplyAsync(
+                () -> this.readProfileKeyPair().filter(param0x -> !param0x.publicKey().data().hasExpired()), Util.backgroundExecutor()
+            )
+            .thenCompose(this::readOrFetchProfileKeyPair);
     }
 
     public CompletableFuture<Optional<ProfilePublicKey.Data>> preparePublicKey() {
-        this.keyPair = this.readOrFetchProfileKeyPair();
+        this.keyPair = this.keyPair.thenCompose(param0 -> {
+            Optional<ProfileKeyPair> var0 = param0.map(ProfileKeyPairManager.Result::keyPair);
+            return this.readOrFetchProfileKeyPair(var0);
+        });
         return this.keyPair.thenApply(param0 -> param0.map(param0x -> param0x.keyPair().publicKey().data()));
     }
 
-    private CompletableFuture<Optional<ProfileKeyPairManager.Result>> readOrFetchProfileKeyPair() {
+    private CompletableFuture<Optional<ProfileKeyPairManager.Result>> readOrFetchProfileKeyPair(Optional<ProfileKeyPair> param0x) {
         return CompletableFuture.<Optional<ProfileKeyPair>>supplyAsync(() -> {
-            Optional<ProfileKeyPair> var0 = this.readProfileKeyPair().filter(param0 -> !param0.publicKey().data().hasExpired());
-            if (var0.isPresent() && !var0.get().dueRefresh()) {
+            if (param0x.isPresent() && !param0x.get().dueRefresh()) {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
-                    return var0;
+                    return param0x;
                 }
 
                 this.writeProfileKeyPair(null);
             }
 
             try {
-                ProfileKeyPair var1 = this.fetchProfileKeyPair(this.userApiService);
-                this.writeProfileKeyPair(var1);
-                return Optional.of(var1);
+                ProfileKeyPair var1x = this.fetchProfileKeyPair(this.userApiService);
+                this.writeProfileKeyPair(var1x);
+                return Optional.of(var1x);
             } catch (CryptException | MinecraftClientException | IOException var3) {
                 LOGGER.error("Failed to retrieve profile key pair", (Throwable)var3);
                 this.writeProfileKeyPair(null);
-                return var0;
+                return param0x;
             }
-        }, Util.backgroundExecutor()).thenApply(param0 -> param0.map(ProfileKeyPairManager.Result::new));
+        }, Util.backgroundExecutor()).thenApply(param0xx -> param0xx.map(ProfileKeyPairManager.Result::new));
     }
 
     private Optional<ProfileKeyPair> readProfileKeyPair() {
-        if (this.keyPair.isDone()) {
-            return this.keyPair.join().map(ProfileKeyPairManager.Result::keyPair);
-        } else if (Files.notExists(this.profileKeyPairPath)) {
+        if (Files.notExists(this.profileKeyPairPath)) {
             return Optional.empty();
         } else {
             try {

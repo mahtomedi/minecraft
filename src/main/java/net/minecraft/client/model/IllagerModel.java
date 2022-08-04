@@ -135,7 +135,7 @@ public class IllagerModel<T extends AbstractIllager> extends HierarchicalModel<T
             this.leftArm.yRot = 0.0F;
         } else if (var0 == AbstractIllager.IllagerArmPose.BOW_AND_ARROW) {
             this.rightArm.yRot = -0.1F + this.head.yRot;
-            this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
+            this.rightArm.xRot = ((float) (-Math.PI / 2)) + this.head.xRot;
             this.leftArm.xRot = -0.9424779F + this.head.xRot;
             this.leftArm.yRot = this.head.yRot - 0.4F;
             this.leftArm.zRot = (float) (Math.PI / 2);
