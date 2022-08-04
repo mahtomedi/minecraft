@@ -218,6 +218,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -1926,45 +1927,46 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public void doWorldLoad(String param0, LevelStorageSource.LevelStorageAccess param1, PackRepository param2, WorldStem param3) {
+        CompletableFuture<Optional<ProfilePublicKey.Data>> var0 = this.profileKeyPairManager.preparePublicKey();
         this.clearLevel();
         this.progressListener.set(null);
 
         try {
             param1.saveDataTag(param3.registryAccess(), param3.worldData());
-            Services var0 = Services.create(this.authenticationService, this.gameDirectory);
-            var0.profileCache().setExecutor(this);
-            SkullBlockEntity.setup(var0, this);
+            Services var1 = Services.create(this.authenticationService, this.gameDirectory);
+            var1.profileCache().setExecutor(this);
+            SkullBlockEntity.setup(var1, this);
             GameProfileCache.setUsesAuthentication(false);
-            this.singleplayerServer = MinecraftServer.spin(param4 -> new IntegratedServer(param4, this, param1, param2, param3, var0, param0x -> {
+            this.singleplayerServer = MinecraftServer.spin(param4 -> new IntegratedServer(param4, this, param1, param2, param3, var1, param0x -> {
                     StoringChunkProgressListener var0x = new StoringChunkProgressListener(param0x + 0);
                     this.progressListener.set(var0x);
                     return ProcessorChunkProgressListener.createStarted(var0x, this.progressTasks::add);
                 }));
             this.isLocalServer = true;
             this.updateReportEnvironment(ReportEnvironment.local());
-        } catch (Throwable var9) {
-            CrashReport var2 = CrashReport.forThrowable(var9, "Starting integrated server");
-            CrashReportCategory var3 = var2.addCategory("Starting integrated server");
-            var3.setDetail("Level ID", param0);
-            var3.setDetail("Level Name", () -> param3.worldData().getLevelName());
-            throw new ReportedException(var2);
+        } catch (Throwable var10) {
+            CrashReport var3 = CrashReport.forThrowable(var10, "Starting integrated server");
+            CrashReportCategory var4 = var3.addCategory("Starting integrated server");
+            var4.setDetail("Level ID", param0);
+            var4.setDetail("Level Name", () -> param3.worldData().getLevelName());
+            throw new ReportedException(var3);
         }
 
         while(this.progressListener.get() == null) {
             Thread.yield();
         }
 
-        LevelLoadingScreen var4 = new LevelLoadingScreen(this.progressListener.get());
-        this.setScreen(var4);
+        LevelLoadingScreen var5 = new LevelLoadingScreen(this.progressListener.get());
+        this.setScreen(var5);
         this.profiler.push("waitForServer");
 
         while(!this.singleplayerServer.isReady()) {
-            var4.tick();
+            var5.tick();
             this.runTick(false);
 
             try {
                 Thread.sleep(16L);
-            } catch (InterruptedException var8) {
+            } catch (InterruptedException var9) {
             }
 
             if (this.delayedCrash != null) {
@@ -1974,17 +1976,13 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         this.profiler.pop();
-        SocketAddress var5 = this.singleplayerServer.getConnection().startMemoryChannel();
-        Connection var6 = Connection.connectToLocalServer(var5);
-        var6.setListener(new ClientHandshakePacketListenerImpl(var6, this, null, param0x -> {
+        SocketAddress var6 = this.singleplayerServer.getConnection().startMemoryChannel();
+        Connection var7 = Connection.connectToLocalServer(var6);
+        var7.setListener(new ClientHandshakePacketListenerImpl(var7, this, null, param0x -> {
         }));
-        var6.send(new ClientIntentionPacket(var5.toString(), 0, ConnectionProtocol.LOGIN));
-        var6.send(
-            new ServerboundHelloPacket(
-                this.getUser().getName(), this.profileKeyPairManager.profilePublicKeyData(), Optional.ofNullable(this.getUser().getProfileId())
-            )
-        );
-        this.pendingConnection = var6;
+        var7.send(new ClientIntentionPacket(var6.toString(), 0, ConnectionProtocol.LOGIN));
+        var7.send(new ServerboundHelloPacket(this.getUser().getName(), var0.join(), Optional.ofNullable(this.getUser().getProfileId())));
+        this.pendingConnection = var7;
     }
 
     public void setLevel(ClientLevel param0) {

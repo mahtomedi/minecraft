@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.net.InetSocketAddress;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
@@ -22,6 +23,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -54,8 +56,9 @@ public class ConnectScreen extends Screen {
     }
 
     private void connect(final Minecraft param0, final ServerAddress param1) {
+        final CompletableFuture<Optional<ProfilePublicKey.Data>> var0 = param0.getProfileKeyPairManager().preparePublicKey();
         LOGGER.info("Connecting to {}, {}", param1.getHost(), param1.getPort());
-        Thread var0 = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+        Thread var1 = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             @Override
             public void run() {
                 InetSocketAddress var0 = null;
@@ -89,13 +92,7 @@ public class ConnectScreen extends Screen {
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
                     ConnectScreen.this.connection
-                        .send(
-                            new ServerboundHelloPacket(
-                                param0.getUser().getName(),
-                                param0.getProfileKeyPairManager().profilePublicKeyData(),
-                                Optional.ofNullable(param0.getUser().getProfileId())
-                            )
-                        );
+                        .send(new ServerboundHelloPacket(param0.getUser().getName(), var0.join(), Optional.ofNullable(param0.getUser().getProfileId())));
                 } catch (Exception var61) {
                     if (ConnectScreen.this.aborted) {
                         return;
@@ -124,8 +121,8 @@ public class ConnectScreen extends Screen {
 
             }
         };
-        var0.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        var0.start();
+        var1.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        var1.start();
     }
 
     private void updateStatus(Component param0) {

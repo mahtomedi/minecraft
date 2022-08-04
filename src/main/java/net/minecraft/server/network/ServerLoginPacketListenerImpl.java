@@ -3,13 +3,13 @@ package net.minecraft.server.network;
 import com.google.common.primitives.Ints;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
-import com.mojang.authlib.minecraft.InsecurePublicKeyException.MissingException;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.PrivateKey;
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
@@ -21,7 +21,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ThrowingComponent;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
 import net.minecraft.network.protocol.login.ClientboundHelloPacket;
@@ -46,9 +45,6 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
     static final Logger LOGGER = LogUtils.getLogger();
     private static final int MAX_TICKS_BEFORE_LOGIN = 600;
     private static final RandomSource RANDOM = RandomSource.create();
-    private static final Component MISSING_PROFILE_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.missing_public_key");
-    private static final Component INVALID_SIGNATURE = Component.translatable("multiplayer.disconnect.invalid_public_key_signature");
-    private static final Component INVALID_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.invalid_public_key");
     private final byte[] nonce;
     final MinecraftServer server;
     public final Connection connection;
@@ -111,8 +107,8 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
             try {
                 SignatureValidator var1 = this.server.getServiceSignatureValidator();
                 var0 = validatePublicKey(this.profilePublicKeyData, this.gameProfile.getId(), var1, this.server.enforceSecureProfile());
-            } catch (ServerLoginPacketListenerImpl.PublicKeyValidationException var71) {
-                LOGGER.error(var71.getMessage(), var71.getCause());
+            } catch (ProfilePublicKey.ValidationException var71) {
+                LOGGER.error("Failed to validate profile key: {}", var71.getMessage());
                 if (!this.connection.isMemoryConnection()) {
                     this.disconnect(var71.getComponent());
                     return;
@@ -170,27 +166,15 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
     }
 
     @Nullable
-    private static ProfilePublicKey validatePublicKey(@Nullable ProfilePublicKey.Data param0, UUID param1, SignatureValidator param2, boolean param3) throws ServerLoginPacketListenerImpl.PublicKeyValidationException {
-        try {
-            if (param0 == null) {
-                if (param3) {
-                    throw new ServerLoginPacketListenerImpl.PublicKeyValidationException(MISSING_PROFILE_PUBLIC_KEY);
-                } else {
-                    return null;
-                }
-            } else {
-                return ProfilePublicKey.createValidated(param2, param1, param0);
-            }
-        } catch (MissingException var5) {
+    private static ProfilePublicKey validatePublicKey(@Nullable ProfilePublicKey.Data param0, UUID param1, SignatureValidator param2, boolean param3) throws ProfilePublicKey.ValidationException {
+        if (param0 == null) {
             if (param3) {
-                throw new ServerLoginPacketListenerImpl.PublicKeyValidationException(INVALID_SIGNATURE, var5);
+                throw new ProfilePublicKey.ValidationException(ProfilePublicKey.MISSING_PROFILE_PUBLIC_KEY);
             } else {
                 return null;
             }
-        } catch (CryptException var6) {
-            throw new ServerLoginPacketListenerImpl.PublicKeyValidationException(INVALID_PUBLIC_KEY, var6);
-        } catch (Exception var7) {
-            throw new ServerLoginPacketListenerImpl.PublicKeyValidationException(INVALID_SIGNATURE, var7);
+        } else {
+            return ProfilePublicKey.createValidated(param2, param1, param0, Duration.ZERO);
         }
     }
 
@@ -227,7 +211,7 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
         try {
             PrivateKey var0 = this.server.getKeyPair().getPrivate();
             if (this.profilePublicKeyData != null) {
-                ProfilePublicKey var1 = ProfilePublicKey.createTrusted(this.profilePublicKeyData);
+                ProfilePublicKey var1 = new ProfilePublicKey(this.profilePublicKeyData);
                 if (!param0.isChallengeSignatureValid(this.nonce, var1)) {
                     throw new IllegalStateException("Protocol error");
                 }
@@ -303,16 +287,6 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
     protected GameProfile createFakeProfile(GameProfile param0) {
         UUID var0 = UUIDUtil.createOfflinePlayerUUID(param0.getName());
         return new GameProfile(var0, param0.getName());
-    }
-
-    static class PublicKeyValidationException extends ThrowingComponent {
-        public PublicKeyValidationException(Component param0) {
-            super(param0);
-        }
-
-        public PublicKeyValidationException(Component param0, Throwable param1) {
-            super(param0, param1);
-        }
     }
 
     static enum State {

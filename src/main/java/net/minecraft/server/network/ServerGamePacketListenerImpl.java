@@ -1399,20 +1399,28 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
 
     private boolean verifyChatMessage(PlayerChatMessage param0) {
         ChatSender var0 = this.player.asChatSender();
-        if (var0.profilePublicKey() != null && !param0.verify(var0)) {
-            this.disconnect(Component.translatable("multiplayer.disconnect.unsigned_chat"));
-            return false;
-        } else {
-            if (param0.hasExpiredServer(Instant.now())) {
-                LOGGER.warn(
-                    "{} sent expired chat: '{}'. Is the client/server system time unsynchronized?",
-                    this.player.getName().getString(),
-                    param0.signedContent().plain()
-                );
+        ProfilePublicKey var1 = var0.profilePublicKey();
+        if (var1 != null) {
+            if (var1.data().hasExpired()) {
+                this.player.sendSystemMessage(Component.translatable("chat.disabled.expiredProfileKey").withStyle(ChatFormatting.RED));
+                return false;
             }
 
-            return true;
+            if (!param0.verify(var0)) {
+                this.disconnect(Component.translatable("multiplayer.disconnect.unsigned_chat"));
+                return false;
+            }
         }
+
+        if (param0.hasExpiredServer(Instant.now())) {
+            LOGGER.warn(
+                "{} sent expired chat: '{}'. Is the client/server system time unsynchronized?",
+                this.player.getName().getString(),
+                param0.signedContent().plain()
+            );
+        }
+
+        return true;
     }
 
     private void detectRateSpam() {

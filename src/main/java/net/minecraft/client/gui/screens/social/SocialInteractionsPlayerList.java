@@ -118,8 +118,14 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
                 return param0.hasRecentMessages() ? 1 : 2;
             }
         }).thenComparing(param0 -> {
-            int var0 = param0.getPlayerName().codePointAt(0);
-            return var0 != 95 && (var0 < 97 || var0 > 122) && (var0 < 65 || var0 > 90) && (var0 < 48 || var0 > 57) ? 1 : 0;
+            if (!param0.getPlayerName().isBlank()) {
+                int var0 = param0.getPlayerName().codePointAt(0);
+                if (var0 == 95 || var0 >= 97 && var0 <= 122 || var0 >= 65 && var0 <= 90 || var0 >= 48 && var0 <= 57) {
+                    return 0;
+                }
+            }
+
+            return 1;
         }).thenComparing(PlayerEntry::getPlayerName, String::compareToIgnoreCase));
     }
 

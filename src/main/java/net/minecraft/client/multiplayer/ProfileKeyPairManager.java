@@ -35,20 +35,24 @@ import org.slf4j.Logger;
 public class ProfileKeyPairManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Path PROFILE_KEY_PAIR_DIR = Path.of("profilekeys");
+    private final UserApiService userApiService;
     private final Path profileKeyPairPath;
-    private final CompletableFuture<Optional<ProfilePublicKey>> publicKey;
-    private final CompletableFuture<Optional<Signer>> signer;
+    private CompletableFuture<Optional<ProfileKeyPairManager.Result>> keyPair;
 
     public ProfileKeyPairManager(UserApiService param0, UUID param1, Path param2) {
+        this.userApiService = param0;
         this.profileKeyPairPath = param2.resolve(PROFILE_KEY_PAIR_DIR).resolve(param1 + ".json");
-        CompletableFuture<Optional<ProfileKeyPair>> var0 = this.readOrFetchProfileKeyPair(param0);
-        this.publicKey = var0.thenApply(param0x -> param0x.map(ProfileKeyPair::publicKey));
-        this.signer = var0.thenApply(param0x -> param0x.map(param0xx -> Signer.from(param0xx.privateKey(), "SHA256withRSA")));
+        this.keyPair = this.readOrFetchProfileKeyPair();
     }
 
-    private CompletableFuture<Optional<ProfileKeyPair>> readOrFetchProfileKeyPair(UserApiService param0) {
-        return CompletableFuture.supplyAsync(() -> {
-            Optional<ProfileKeyPair> var0 = this.readProfileKeyPair().filter(param0x -> !param0x.publicKey().data().hasExpired());
+    public CompletableFuture<Optional<ProfilePublicKey.Data>> preparePublicKey() {
+        this.keyPair = this.readOrFetchProfileKeyPair();
+        return this.keyPair.thenApply(param0 -> param0.map(param0x -> param0x.keyPair().publicKey().data()));
+    }
+
+    private CompletableFuture<Optional<ProfileKeyPairManager.Result>> readOrFetchProfileKeyPair() {
+        return CompletableFuture.<Optional<ProfileKeyPair>>supplyAsync(() -> {
+            Optional<ProfileKeyPair> var0 = this.readProfileKeyPair().filter(param0 -> !param0.publicKey().data().hasExpired());
             if (var0.isPresent() && !var0.get().dueRefresh()) {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     return var0;
@@ -58,19 +62,21 @@ public class ProfileKeyPairManager {
             }
 
             try {
-                ProfileKeyPair var1 = this.fetchProfileKeyPair(param0);
+                ProfileKeyPair var1 = this.fetchProfileKeyPair(this.userApiService);
                 this.writeProfileKeyPair(var1);
                 return Optional.of(var1);
-            } catch (CryptException | MinecraftClientException | IOException var4) {
-                LOGGER.error("Failed to retrieve profile key pair", (Throwable)var4);
+            } catch (CryptException | MinecraftClientException | IOException var3) {
+                LOGGER.error("Failed to retrieve profile key pair", (Throwable)var3);
                 this.writeProfileKeyPair(null);
                 return var0;
             }
-        }, Util.backgroundExecutor());
+        }, Util.backgroundExecutor()).thenApply(param0 -> param0.map(ProfileKeyPairManager.Result::new));
     }
 
     private Optional<ProfileKeyPair> readProfileKeyPair() {
-        if (Files.notExists(this.profileKeyPairPath)) {
+        if (this.keyPair.isDone()) {
+            return this.keyPair.join().map(ProfileKeyPairManager.Result::keyPair);
+        } else if (Files.notExists(this.profileKeyPairPath)) {
             return Optional.empty();
         } else {
             try {
@@ -113,9 +119,7 @@ public class ProfileKeyPairManager {
         KeyPairResponse var0 = param0.getKeyPair();
         if (var0 != null) {
             ProfilePublicKey.Data var1 = parsePublicKey(var0);
-            return new ProfileKeyPair(
-                Crypt.stringToPemRsaPrivateKey(var0.getPrivateKey()), ProfilePublicKey.createTrusted(var1), Instant.parse(var0.getRefreshedAfter())
-            );
+            return new ProfileKeyPair(Crypt.stringToPemRsaPrivateKey(var0.getPrivateKey()), new ProfilePublicKey(var1), Instant.parse(var0.getRefreshedAfter()));
         } else {
             throw new IOException("Could not retrieve profile key pair");
         }
@@ -138,14 +142,17 @@ public class ProfileKeyPairManager {
 
     @Nullable
     public Signer signer() {
-        return this.signer.join().orElse(null);
+        return this.keyPair.join().map(ProfileKeyPairManager.Result::signer).orElse(null);
     }
 
     public Optional<ProfilePublicKey> profilePublicKey() {
-        return this.publicKey.join();
+        return this.keyPair.join().map(param0 -> param0.keyPair().publicKey());
     }
 
-    public Optional<ProfilePublicKey.Data> profilePublicKeyData() {
-        return this.profilePublicKey().map(ProfilePublicKey::data);
+    @OnlyIn(Dist.CLIENT)
+    static record Result(ProfileKeyPair keyPair, Signer signer) {
+        public Result(ProfileKeyPair param0) {
+            this(param0, Signer.from(param0.privateKey(), "SHA256withRSA"));
+        }
     }
 }

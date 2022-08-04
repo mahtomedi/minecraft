@@ -1,41 +1,34 @@
 package net.minecraft.world.entity.player;
 
-import com.mojang.authlib.minecraft.InsecurePublicKeyException;
-import com.mojang.authlib.minecraft.InsecurePublicKeyException.InvalidException;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.PublicKey;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ThrowingComponent;
 import net.minecraft.util.Crypt;
-import net.minecraft.util.CryptException;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.SignatureValidator;
 
 public record ProfilePublicKey(ProfilePublicKey.Data data) {
-    public static final Codec<ProfilePublicKey> TRUSTED_CODEC = ProfilePublicKey.Data.CODEC.comapFlatMap(param0 -> {
-        try {
-            return DataResult.success(createTrusted(param0));
-        } catch (CryptException var2) {
-            return DataResult.error("Malformed public key");
-        }
-    }, ProfilePublicKey::data);
+    public static final Component MISSING_PROFILE_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.missing_public_key");
+    public static final Component EXPIRED_PROFILE_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.expired_public_key");
+    private static final Component INVALID_SIGNATURE = Component.translatable("multiplayer.disconnect.invalid_public_key_signature");
+    public static final Duration EXPIRY_GRACE_PERIOD = Duration.ofHours(8L);
+    public static final Codec<ProfilePublicKey> TRUSTED_CODEC = ProfilePublicKey.Data.CODEC.xmap(ProfilePublicKey::new, ProfilePublicKey::data);
 
-    public static ProfilePublicKey createTrusted(ProfilePublicKey.Data param0) throws CryptException {
-        return new ProfilePublicKey(param0);
-    }
-
-    public static ProfilePublicKey createValidated(SignatureValidator param0, UUID param1, ProfilePublicKey.Data param2) throws InsecurePublicKeyException, CryptException {
-        if (param2.hasExpired()) {
-            throw new InvalidException("Expired profile public key");
+    public static ProfilePublicKey createValidated(SignatureValidator param0, UUID param1, ProfilePublicKey.Data param2, Duration param3) throws ProfilePublicKey.ValidationException {
+        if (param2.hasExpired(param3)) {
+            throw new ProfilePublicKey.ValidationException(EXPIRED_PROFILE_PUBLIC_KEY);
         } else if (!param2.validateSignature(param0, param1)) {
-            throw new InvalidException("Invalid profile public key signature");
+            throw new ProfilePublicKey.ValidationException(INVALID_SIGNATURE);
         } else {
-            return createTrusted(param2);
+            return new ProfilePublicKey(param2);
         }
     }
 
@@ -78,6 +71,16 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
 
         public boolean hasExpired() {
             return this.expiresAt.isBefore(Instant.now());
+        }
+
+        public boolean hasExpired(Duration param0) {
+            return this.expiresAt.plus(param0).isBefore(Instant.now());
+        }
+    }
+
+    public static class ValidationException extends ThrowingComponent {
+        public ValidationException(Component param0) {
+            super(param0);
         }
     }
 }
