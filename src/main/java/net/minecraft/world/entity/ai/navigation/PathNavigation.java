@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.DebugPackets;
@@ -249,9 +248,19 @@ public abstract class PathNavigation {
                 return true;
             } else {
                 Vec3 var1 = Vec3.atBottomCenterOf(this.path.getNodePos(this.path.getNextNodeIndex() + 1));
-                Vec3 var2 = var1.subtract(var0);
-                Vec3 var3 = param0.subtract(var0);
-                return var2.dot(var3) > 0.0;
+                Vec3 var2 = var0.subtract(param0);
+                Vec3 var3 = var1.subtract(param0);
+                double var4 = var2.lengthSqr();
+                double var5 = var3.lengthSqr();
+                boolean var6 = var5 < var4;
+                boolean var7 = var4 < 0.5;
+                if (!var6 && !var7) {
+                    return false;
+                } else {
+                    Vec3 var8 = var2.normalize();
+                    Vec3 var9 = var3.normalize();
+                    return var9.dot(var8) < 0.0;
+                }
             }
         }
     }
@@ -271,19 +280,20 @@ public abstract class PathNavigation {
 
         if (this.path != null && !this.path.isDone()) {
             Vec3i var0 = this.path.getNextNodePos();
+            long var1 = this.level.getGameTime();
             if (var0.equals(this.timeoutCachedNode)) {
-                this.timeoutTimer += Util.getMillis() - this.lastTimeoutCheck;
+                this.timeoutTimer += var1 - this.lastTimeoutCheck;
             } else {
                 this.timeoutCachedNode = var0;
-                double var1 = param0.distanceTo(Vec3.atBottomCenterOf(this.timeoutCachedNode));
-                this.timeoutLimit = this.mob.getSpeed() > 0.0F ? var1 / (double)this.mob.getSpeed() * 1000.0 : 0.0;
+                double var2 = param0.distanceTo(Vec3.atBottomCenterOf(this.timeoutCachedNode));
+                this.timeoutLimit = this.mob.getSpeed() > 0.0F ? var2 / (double)this.mob.getSpeed() * 20.0 : 0.0;
             }
 
             if (this.timeoutLimit > 0.0 && (double)this.timeoutTimer > this.timeoutLimit * 3.0) {
                 this.timeoutPath();
             }
 
-            this.lastTimeoutCheck = Util.getMillis();
+            this.lastTimeoutCheck = var1;
         }
 
     }

@@ -7,8 +7,6 @@ public interface ServerGamePacketListener extends ServerPacketListener {
 
     void handleChatCommand(ServerboundChatCommandPacket var1);
 
-    void handleChatPreview(ServerboundChatPreviewPacket var1);
-
     void handleChatAck(ServerboundChatAckPacket var1);
 
     void handleClientCommand(ServerboundClientCommandPacket var1);

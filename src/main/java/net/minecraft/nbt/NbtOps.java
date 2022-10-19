@@ -1,9 +1,7 @@
 package net.minecraft.nbt;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.PeekingIterator;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
@@ -11,10 +9,15 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.RecordBuilder.AbstractStringBuilder;
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -25,6 +28,7 @@ import javax.annotation.Nullable;
 
 public class NbtOps implements DynamicOps<Tag> {
     public static final NbtOps INSTANCE = new NbtOps();
+    private static final String WRAPPER_MARKER = "";
 
     protected NbtOps() {
     }
@@ -67,7 +71,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public DataResult<Number> getNumberValue(Tag param0) {
-        return param0 instanceof NumericTag ? DataResult.success(((NumericTag)param0).getAsNumber()) : DataResult.error("Not a number");
+        return param0 instanceof NumericTag var0 ? DataResult.success(var0.getAsNumber()) : DataResult.error("Not a number");
     }
 
     public Tag createNumeric(Number param0) {
@@ -103,63 +107,23 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public DataResult<String> getStringValue(Tag param0) {
-        return param0 instanceof StringTag ? DataResult.success(param0.getAsString()) : DataResult.error("Not a string");
+        return param0 instanceof StringTag var0 ? DataResult.success(var0.getAsString()) : DataResult.error("Not a string");
     }
 
     public Tag createString(String param0) {
         return StringTag.valueOf(param0);
     }
 
-    private static CollectionTag<?> createGenericList(byte param0, byte param1) {
-        if (typesMatch(param0, param1, (byte)4)) {
-            return new LongArrayTag(new long[0]);
-        } else if (typesMatch(param0, param1, (byte)1)) {
-            return new ByteArrayTag(new byte[0]);
-        } else {
-            return (CollectionTag<?>)(typesMatch(param0, param1, (byte)3) ? new IntArrayTag(new int[0]) : new ListTag());
-        }
-    }
-
-    private static boolean typesMatch(byte param0, byte param1, byte param2) {
-        return param0 == param2 && (param1 == param2 || param1 == 0);
-    }
-
-    private static <T extends Tag> void fillOne(CollectionTag<T> param0, Tag param1, Tag param2) {
-        if (param1 instanceof CollectionTag var0) {
-            var0.forEach(param1x -> param0.add(param1x));
-        }
-
-        param0.add(param2);
-    }
-
-    private static <T extends Tag> void fillMany(CollectionTag<T> param0, Tag param1, List<Tag> param2) {
-        if (param1 instanceof CollectionTag var0) {
-            var0.forEach(param1x -> param0.add(param1x));
-        }
-
-        param2.forEach(param1x -> param0.add(param1x));
-    }
-
     public DataResult<Tag> mergeToList(Tag param0, Tag param1) {
-        if (!(param0 instanceof CollectionTag) && !(param0 instanceof EndTag)) {
-            return DataResult.error("mergeToList called with not a list: " + param0, param0);
-        } else {
-            CollectionTag<?> var0 = createGenericList(param0 instanceof CollectionTag ? ((CollectionTag)param0).getElementType() : 0, param1.getId());
-            fillOne(var0, param0, param1);
-            return DataResult.success(var0);
-        }
+        return createCollector(param0)
+            .map(param1x -> DataResult.success(param1x.accept(param1).result()))
+            .orElseGet(() -> DataResult.error("mergeToList called with not a list: " + param0, param0));
     }
 
     public DataResult<Tag> mergeToList(Tag param0, List<Tag> param1) {
-        if (!(param0 instanceof CollectionTag) && !(param0 instanceof EndTag)) {
-            return DataResult.error("mergeToList called with not a list: " + param0, param0);
-        } else {
-            CollectionTag<?> var0 = createGenericList(
-                param0 instanceof CollectionTag ? ((CollectionTag)param0).getElementType() : 0, param1.stream().findFirst().map(Tag::getId).orElse((byte)0)
-            );
-            fillMany(var0, param0, param1);
-            return DataResult.success(var0);
-        }
+        return createCollector(param0)
+            .map(param1x -> DataResult.success(param1x.acceptAll(param1).result()))
+            .orElseGet(() -> DataResult.error("mergeToList called with not a list: " + param0, param0));
     }
 
     public DataResult<Tag> mergeToMap(Tag param0, Tag param1, Tag param2) {
@@ -201,50 +165,39 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public DataResult<Stream<Pair<Tag, Tag>>> getMapValues(Tag param0) {
-        if (!(param0 instanceof CompoundTag)) {
-            return DataResult.error("Not a map: " + param0);
-        } else {
-            CompoundTag var0 = (CompoundTag)param0;
-            return DataResult.success(var0.getAllKeys().stream().map(param1 -> Pair.of(this.createString(param1), var0.get(param1))));
-        }
+        return param0 instanceof CompoundTag var0
+            ? DataResult.success(var0.getAllKeys().stream().map(param1 -> Pair.of(this.createString(param1), var0.get(param1))))
+            : DataResult.error("Not a map: " + param0);
     }
 
     public DataResult<Consumer<BiConsumer<Tag, Tag>>> getMapEntries(Tag param0) {
-        if (!(param0 instanceof CompoundTag)) {
-            return DataResult.error("Not a map: " + param0);
-        } else {
-            CompoundTag var0 = (CompoundTag)param0;
-            return DataResult.success(param1 -> var0.getAllKeys().forEach(param2 -> param1.accept(this.createString(param2), var0.get(param2))));
-        }
+        return param0 instanceof CompoundTag var0
+            ? DataResult.success(param1 -> var0.getAllKeys().forEach(param2 -> param1.accept(this.createString(param2), var0.get(param2))))
+            : DataResult.error("Not a map: " + param0);
     }
 
     public DataResult<MapLike<Tag>> getMap(Tag param0) {
-        if (!(param0 instanceof CompoundTag)) {
-            return DataResult.error("Not a map: " + param0);
-        } else {
-            final CompoundTag var0 = (CompoundTag)param0;
-            return DataResult.success(new MapLike<Tag>() {
-                @Nullable
-                public Tag get(Tag param0) {
-                    return var0.get(param0.getAsString());
-                }
+        return param0 instanceof CompoundTag var0 ? DataResult.success(new MapLike<Tag>() {
+            @Nullable
+            public Tag get(Tag param0) {
+                return var0.get(param0.getAsString());
+            }
 
-                @Nullable
-                public Tag get(String param0) {
-                    return var0.get(param0);
-                }
+            @Nullable
+            public Tag get(String param0) {
+                return var0.get(param0);
+            }
 
-                @Override
-                public Stream<Pair<Tag, Tag>> entries() {
-                    return var0.getAllKeys().stream().map(param1 -> Pair.of(NbtOps.this.createString(param1), var0.get(param1)));
-                }
+            @Override
+            public Stream<Pair<Tag, Tag>> entries() {
+                return var0.getAllKeys().stream().map(param1 -> Pair.of(NbtOps.this.createString(param1), var0.get(param1)));
+            }
 
-                @Override
-                public String toString() {
-                    return "MapLike[" + var0 + "]";
-                }
-            });
-        }
+            @Override
+            public String toString() {
+                return "MapLike[" + var0 + "]";
+            }
+        }) : DataResult.error("Not a map: " + param0);
     }
 
     public Tag createMap(Stream<Pair<Tag, Tag>> param0) {
@@ -253,18 +206,39 @@ public class NbtOps implements DynamicOps<Tag> {
         return var0;
     }
 
+    private static Tag tryUnwrap(CompoundTag param0) {
+        if (param0.size() == 1) {
+            Tag var0 = param0.get("");
+            if (var0 != null) {
+                return var0;
+            }
+        }
+
+        return param0;
+    }
+
     public DataResult<Stream<Tag>> getStream(Tag param0) {
-        return param0 instanceof CollectionTag ? DataResult.success(((CollectionTag)param0).stream().map(param0x -> param0x)) : DataResult.error("Not a list");
+        if (param0 instanceof ListTag var0) {
+            return var0.getElementType() == 10
+                ? DataResult.success(var0.stream().map(param0x -> tryUnwrap((CompoundTag)param0x)))
+                : DataResult.success(var0.stream());
+        } else {
+            return param0 instanceof CollectionTag var1 ? DataResult.success(var1.stream().map(param0x -> param0x)) : DataResult.error("Not a list");
+        }
     }
 
     public DataResult<Consumer<Consumer<Tag>>> getList(Tag param0) {
-        return param0 instanceof CollectionTag var0 ? DataResult.success(var0::forEach) : DataResult.error("Not a list: " + param0);
+        if (param0 instanceof ListTag var0) {
+            return var0.getElementType() == 10
+                ? DataResult.success(param1 -> var0.forEach(param1x -> param1.accept(tryUnwrap((CompoundTag)param1x))))
+                : DataResult.success(var0::forEach);
+        } else {
+            return param0 instanceof CollectionTag var1 ? DataResult.success(var1::forEach) : DataResult.error("Not a list: " + param0);
+        }
     }
 
     public DataResult<ByteBuffer> getByteBuffer(Tag param0) {
-        return param0 instanceof ByteArrayTag
-            ? DataResult.success(ByteBuffer.wrap(((ByteArrayTag)param0).getAsByteArray()))
-            : DynamicOps.super.getByteBuffer(param0);
+        return param0 instanceof ByteArrayTag var0 ? DataResult.success(ByteBuffer.wrap(var0.getAsByteArray())) : DynamicOps.super.getByteBuffer(param0);
     }
 
     public Tag createByteList(ByteBuffer param0) {
@@ -272,7 +246,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public DataResult<IntStream> getIntStream(Tag param0) {
-        return param0 instanceof IntArrayTag ? DataResult.success(Arrays.stream(((IntArrayTag)param0).getAsIntArray())) : DynamicOps.super.getIntStream(param0);
+        return param0 instanceof IntArrayTag var0 ? DataResult.success(Arrays.stream(var0.getAsIntArray())) : DynamicOps.super.getIntStream(param0);
     }
 
     public Tag createIntList(IntStream param0) {
@@ -280,9 +254,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public DataResult<LongStream> getLongStream(Tag param0) {
-        return param0 instanceof LongArrayTag
-            ? DataResult.success(Arrays.stream(((LongArrayTag)param0).getAsLongArray()))
-            : DynamicOps.super.getLongStream(param0);
+        return param0 instanceof LongArrayTag var0 ? DataResult.success(Arrays.stream(var0.getAsLongArray())) : DynamicOps.super.getLongStream(param0);
     }
 
     public Tag createLongList(LongStream param0) {
@@ -290,33 +262,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public Tag createList(Stream<Tag> param0) {
-        PeekingIterator<Tag> var0 = Iterators.peekingIterator(param0.iterator());
-        if (!var0.hasNext()) {
-            return new ListTag();
-        } else {
-            Tag var1 = var0.peek();
-            if (var1 instanceof ByteTag) {
-                List<Byte> var2 = Lists.newArrayList(Iterators.transform(var0, param0x -> ((ByteTag)param0x).getAsByte()));
-                return new ByteArrayTag(var2);
-            } else if (var1 instanceof IntTag) {
-                List<Integer> var3 = Lists.newArrayList(Iterators.transform(var0, param0x -> ((IntTag)param0x).getAsInt()));
-                return new IntArrayTag(var3);
-            } else if (var1 instanceof LongTag) {
-                List<Long> var4 = Lists.newArrayList(Iterators.transform(var0, param0x -> ((LongTag)param0x).getAsLong()));
-                return new LongArrayTag(var4);
-            } else {
-                ListTag var5 = new ListTag();
-
-                while(var0.hasNext()) {
-                    Tag var6 = var0.next();
-                    if (!(var6 instanceof EndTag)) {
-                        var5.add(var6);
-                    }
-                }
-
-                return var5;
-            }
-        }
+        return NbtOps.InitialListCollector.INSTANCE.acceptAll(param0).result();
     }
 
     public Tag remove(Tag param0, String param1) {
@@ -339,6 +285,247 @@ public class NbtOps implements DynamicOps<Tag> {
         return new NbtOps.NbtRecordBuilder();
     }
 
+    private static Optional<NbtOps.ListCollector> createCollector(Tag param0) {
+        if (param0 instanceof EndTag) {
+            return Optional.of(NbtOps.InitialListCollector.INSTANCE);
+        } else {
+            if (param0 instanceof CollectionTag var0) {
+                if (var0.isEmpty()) {
+                    return Optional.of(NbtOps.InitialListCollector.INSTANCE);
+                }
+
+                if (var0 instanceof ListTag var1) {
+                    return switch(var1.getElementType()) {
+                        case 0 -> Optional.of(NbtOps.InitialListCollector.INSTANCE);
+                        case 10 -> Optional.of(new NbtOps.HeterogenousListCollector(var1));
+                        default -> Optional.of(new NbtOps.HomogenousListCollector(var1));
+                    };
+                }
+
+                if (var0 instanceof ByteArrayTag var2) {
+                    return Optional.of(new NbtOps.ByteListCollector(var2.getAsByteArray()));
+                }
+
+                if (var0 instanceof IntArrayTag var3) {
+                    return Optional.of(new NbtOps.IntListCollector(var3.getAsIntArray()));
+                }
+
+                if (var0 instanceof LongArrayTag var4) {
+                    return Optional.of(new NbtOps.LongListCollector(var4.getAsLongArray()));
+                }
+            }
+
+            return Optional.empty();
+        }
+    }
+
+    static class ByteListCollector implements NbtOps.ListCollector {
+        private final ByteArrayList values = new ByteArrayList();
+
+        public ByteListCollector(byte param0) {
+            this.values.add(param0);
+        }
+
+        public ByteListCollector(byte[] param0) {
+            this.values.addElements(0, param0);
+        }
+
+        @Override
+        public NbtOps.ListCollector accept(Tag param0) {
+            if (param0 instanceof ByteTag var0) {
+                this.values.add(var0.getAsByte());
+                return this;
+            } else {
+                return new NbtOps.HeterogenousListCollector(this.values).accept(param0);
+            }
+        }
+
+        @Override
+        public Tag result() {
+            return new ByteArrayTag(this.values.toByteArray());
+        }
+    }
+
+    static class HeterogenousListCollector implements NbtOps.ListCollector {
+        private final ListTag result = new ListTag();
+
+        public HeterogenousListCollector() {
+        }
+
+        public HeterogenousListCollector(Collection<Tag> param0) {
+            this.result.addAll(param0);
+        }
+
+        public HeterogenousListCollector(IntArrayList param0) {
+            param0.forEach(param0x -> this.result.add(wrapElement(IntTag.valueOf(param0x))));
+        }
+
+        public HeterogenousListCollector(ByteArrayList param0) {
+            param0.forEach(param0x -> this.result.add(wrapElement(ByteTag.valueOf(param0x))));
+        }
+
+        public HeterogenousListCollector(LongArrayList param0) {
+            param0.forEach(param0x -> this.result.add(wrapElement(LongTag.valueOf(param0x))));
+        }
+
+        private static boolean isWrapper(CompoundTag param0) {
+            return param0.size() == 1 && param0.contains("");
+        }
+
+        private static Tag wrapIfNeeded(Tag param0) {
+            if (param0 instanceof CompoundTag var0 && !isWrapper(var0)) {
+                return var0;
+            }
+
+            return wrapElement(param0);
+        }
+
+        private static CompoundTag wrapElement(Tag param0) {
+            CompoundTag var0 = new CompoundTag();
+            var0.put("", param0);
+            return var0;
+        }
+
+        @Override
+        public NbtOps.ListCollector accept(Tag param0) {
+            this.result.add(wrapIfNeeded(param0));
+            return this;
+        }
+
+        @Override
+        public Tag result() {
+            return this.result;
+        }
+    }
+
+    static class HomogenousListCollector implements NbtOps.ListCollector {
+        private final ListTag result = new ListTag();
+
+        HomogenousListCollector(Tag param0) {
+            this.result.add(param0);
+        }
+
+        HomogenousListCollector(ListTag param0) {
+            this.result.addAll(param0);
+        }
+
+        @Override
+        public NbtOps.ListCollector accept(Tag param0) {
+            if (param0.getId() != this.result.getElementType()) {
+                return new NbtOps.HeterogenousListCollector().acceptAll(this.result).accept(param0);
+            } else {
+                this.result.add(param0);
+                return this;
+            }
+        }
+
+        @Override
+        public Tag result() {
+            return this.result;
+        }
+    }
+
+    static class InitialListCollector implements NbtOps.ListCollector {
+        public static final NbtOps.InitialListCollector INSTANCE = new NbtOps.InitialListCollector();
+
+        private InitialListCollector() {
+        }
+
+        @Override
+        public NbtOps.ListCollector accept(Tag param0) {
+            if (param0 instanceof CompoundTag var0) {
+                return new NbtOps.HeterogenousListCollector().accept(var0);
+            } else if (param0 instanceof ByteTag var1) {
+                return new NbtOps.ByteListCollector(var1.getAsByte());
+            } else if (param0 instanceof IntTag var2) {
+                return new NbtOps.IntListCollector(var2.getAsInt());
+            } else {
+                return (NbtOps.ListCollector)(param0 instanceof LongTag var3
+                    ? new NbtOps.LongListCollector(var3.getAsLong())
+                    : new NbtOps.HomogenousListCollector(param0));
+            }
+        }
+
+        @Override
+        public Tag result() {
+            return new ListTag();
+        }
+    }
+
+    static class IntListCollector implements NbtOps.ListCollector {
+        private final IntArrayList values = new IntArrayList();
+
+        public IntListCollector(int param0) {
+            this.values.add(param0);
+        }
+
+        public IntListCollector(int[] param0) {
+            this.values.addElements(0, param0);
+        }
+
+        @Override
+        public NbtOps.ListCollector accept(Tag param0) {
+            if (param0 instanceof IntTag var0) {
+                this.values.add(var0.getAsInt());
+                return this;
+            } else {
+                return new NbtOps.HeterogenousListCollector(this.values).accept(param0);
+            }
+        }
+
+        @Override
+        public Tag result() {
+            return new IntArrayTag(this.values.toIntArray());
+        }
+    }
+
+    interface ListCollector {
+        NbtOps.ListCollector accept(Tag var1);
+
+        default NbtOps.ListCollector acceptAll(Iterable<Tag> param0) {
+            NbtOps.ListCollector var0 = this;
+
+            for(Tag var1 : param0) {
+                var0 = var0.accept(var1);
+            }
+
+            return var0;
+        }
+
+        default NbtOps.ListCollector acceptAll(Stream<Tag> param0) {
+            return this.acceptAll(param0::iterator);
+        }
+
+        Tag result();
+    }
+
+    static class LongListCollector implements NbtOps.ListCollector {
+        private final LongArrayList values = new LongArrayList();
+
+        public LongListCollector(long param0) {
+            this.values.add(param0);
+        }
+
+        public LongListCollector(long[] param0) {
+            this.values.addElements(0, param0);
+        }
+
+        @Override
+        public NbtOps.ListCollector accept(Tag param0) {
+            if (param0 instanceof LongTag var0) {
+                this.values.add(var0.getAsLong());
+                return this;
+            } else {
+                return new NbtOps.HeterogenousListCollector(this.values).accept(param0);
+            }
+        }
+
+        @Override
+        public Tag result() {
+            return new LongArrayTag(this.values.toLongArray());
+        }
+    }
+
     class NbtRecordBuilder extends AbstractStringBuilder<Tag, CompoundTag> {
         protected NbtRecordBuilder() {
             super(NbtOps.this);
@@ -359,13 +546,14 @@ public class NbtOps implements DynamicOps<Tag> {
             } else if (!(param1 instanceof CompoundTag)) {
                 return DataResult.error("mergeToMap called with not a map: " + param1, param1);
             } else {
-                CompoundTag var0 = new CompoundTag(Maps.newHashMap(((CompoundTag)param1).entries()));
+                CompoundTag var0 = (CompoundTag)param1;
+                CompoundTag var1 = new CompoundTag(Maps.newHashMap(var0.entries()));
 
-                for(Entry<String, Tag> var1 : param0.entries().entrySet()) {
-                    var0.put(var1.getKey(), var1.getValue());
+                for(Entry<String, Tag> var2 : param0.entries().entrySet()) {
+                    var1.put(var2.getKey(), var2.getValue());
                 }
 
-                return DataResult.success(var0);
+                return DataResult.success(var1);
             }
         }
     }

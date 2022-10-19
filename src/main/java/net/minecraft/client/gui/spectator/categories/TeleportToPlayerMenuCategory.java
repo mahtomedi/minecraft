@@ -30,7 +30,7 @@ public class TeleportToPlayerMenuCategory implements SpectatorMenuCategory, Spec
     private final List<SpectatorMenuItem> items = Lists.newArrayList();
 
     public TeleportToPlayerMenuCategory() {
-        this(PROFILE_ORDER.sortedCopy(Minecraft.getInstance().getConnection().getOnlinePlayers()));
+        this(PROFILE_ORDER.sortedCopy(Minecraft.getInstance().getConnection().getListedOnlinePlayers()));
     }
 
     public TeleportToPlayerMenuCategory(Collection<PlayerInfo> param0) {

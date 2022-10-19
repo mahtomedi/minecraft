@@ -1,13 +1,13 @@
 package net.minecraft.data.tags;
 
 import net.minecraft.core.Registry;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.PaintingVariantTags;
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.entity.decoration.PaintingVariants;
 
 public class PaintingVariantTagsProvider extends TagsProvider<PaintingVariant> {
-    public PaintingVariantTagsProvider(DataGenerator param0) {
+    public PaintingVariantTagsProvider(PackOutput param0) {
         super(param0, Registry.PAINTING_VARIANT);
     }
 

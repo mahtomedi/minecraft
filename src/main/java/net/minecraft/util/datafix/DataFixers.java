@@ -136,6 +136,7 @@ import net.minecraft.util.datafix.fixes.OptionsForceVBOFix;
 import net.minecraft.util.datafix.fixes.OptionsKeyLwjgl3Fix;
 import net.minecraft.util.datafix.fixes.OptionsKeyTranslationFix;
 import net.minecraft.util.datafix.fixes.OptionsLowerCaseLanguageFix;
+import net.minecraft.util.datafix.fixes.OptionsProgrammerArtFix;
 import net.minecraft.util.datafix.fixes.OptionsRenameFieldFix;
 import net.minecraft.util.datafix.fixes.OverreachingTickFix;
 import net.minecraft.util.datafix.fixes.PlayerUUIDFix;
@@ -232,6 +233,9 @@ import net.minecraft.util.datafix.schemas.V3078;
 import net.minecraft.util.datafix.schemas.V3081;
 import net.minecraft.util.datafix.schemas.V3082;
 import net.minecraft.util.datafix.schemas.V3083;
+import net.minecraft.util.datafix.schemas.V3202;
+import net.minecraft.util.datafix.schemas.V3203;
+import net.minecraft.util.datafix.schemas.V3204;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -1033,6 +1037,14 @@ public class DataFixers {
         param0.addFixer(new PoiTypeRemoveFix(var173, "Remove unpopulated villager PoI types", Set.of("minecraft:unemployed", "minecraft:nitwit")::contains));
         Schema var175 = param0.addSchema(3108, SAME_NAMESPACED);
         param0.addFixer(new BlendingDataRemoveFromNetherEndFix(var175));
+        Schema var176 = param0.addSchema(3201, SAME_NAMESPACED);
+        param0.addFixer(new OptionsProgrammerArtFix(var176));
+        Schema var177 = param0.addSchema(3202, V3202::new);
+        param0.addFixer(new AddNewChoices(var177, "Added Hanging Sign", References.BLOCK_ENTITY));
+        Schema var178 = param0.addSchema(3203, V3203::new);
+        param0.addFixer(new AddNewChoices(var178, "Added Camel", References.ENTITY));
+        Schema var179 = param0.addSchema(3204, V3204::new);
+        param0.addFixer(new AddNewChoices(var179, "Added Chiseled Bookshelf", References.BLOCK_ENTITY));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

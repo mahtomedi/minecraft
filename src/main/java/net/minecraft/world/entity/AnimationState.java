@@ -20,6 +20,15 @@ public class AnimationState {
 
     }
 
+    public void animateWhen(boolean param0, int param1) {
+        if (param0) {
+            this.startIfStopped(param1);
+        } else {
+            this.stop();
+        }
+
+    }
+
     public void stop() {
         this.lastTime = Long.MAX_VALUE;
     }

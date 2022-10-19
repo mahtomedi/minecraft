@@ -25,9 +25,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -213,25 +216,31 @@ public final class NbtUtils {
         return var0;
     }
 
-    public static BlockState readBlockState(CompoundTag param0) {
-        if (!param0.contains("Name", 8)) {
+    public static BlockState readBlockState(HolderLookup<Block> param0, CompoundTag param1) {
+        if (!param1.contains("Name", 8)) {
             return Blocks.AIR.defaultBlockState();
         } else {
-            Block var0 = Registry.BLOCK.get(new ResourceLocation(param0.getString("Name")));
-            BlockState var1 = var0.defaultBlockState();
-            if (param0.contains("Properties", 10)) {
-                CompoundTag var2 = param0.getCompound("Properties");
-                StateDefinition<Block, BlockState> var3 = var0.getStateDefinition();
+            ResourceLocation var0 = new ResourceLocation(param1.getString("Name"));
+            Optional<? extends Holder<Block>> var1 = param0.get(ResourceKey.create(Registry.BLOCK_REGISTRY, var0));
+            if (var1.isEmpty()) {
+                return Blocks.AIR.defaultBlockState();
+            } else {
+                Block var2 = var1.get().value();
+                BlockState var3 = var2.defaultBlockState();
+                if (param1.contains("Properties", 10)) {
+                    CompoundTag var4 = param1.getCompound("Properties");
+                    StateDefinition<Block, BlockState> var5 = var2.getStateDefinition();
 
-                for(String var4 : var2.getAllKeys()) {
-                    Property<?> var5 = var3.getProperty(var4);
-                    if (var5 != null) {
-                        var1 = setValueHelper(var1, var5, var4, var2, param0);
+                    for(String var6 : var4.getAllKeys()) {
+                        Property<?> var7 = var5.getProperty(var6);
+                        if (var7 != null) {
+                            var3 = setValueHelper(var3, var7, var6, var4, param1);
+                        }
                     }
                 }
-            }
 
-            return var1;
+                return var3;
+            }
         }
     }
 

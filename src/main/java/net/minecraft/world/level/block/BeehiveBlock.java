@@ -115,14 +115,14 @@ public class BeehiveBlock extends BaseEntityBlock {
         if (var1 >= 5) {
             Item var3 = var0.getItem();
             if (var0.is(Items.SHEARS)) {
-                param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
                 dropHoneycomb(param1, param2);
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
                 var2 = true;
                 param1.gameEvent(param3, GameEvent.SHEAR, param2);
             } else if (var0.is(Items.GLASS_BOTTLE)) {
                 var0.shrink(1);
-                param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                 if (var0.isEmpty()) {
                     param3.setItemInHand(param4, new ItemStack(Items.HONEY_BOTTLE));
                 } else if (!param3.getInventory().add(new ItemStack(Items.HONEY_BOTTLE))) {

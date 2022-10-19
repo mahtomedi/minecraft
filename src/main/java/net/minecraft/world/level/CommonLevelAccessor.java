@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,6 +31,4 @@ public interface CommonLevelAccessor extends EntityGetter, LevelReader, LevelSim
     default BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
         return LevelReader.super.getHeightmapPos(param0, param1);
     }
-
-    RegistryAccess registryAccess();
 }

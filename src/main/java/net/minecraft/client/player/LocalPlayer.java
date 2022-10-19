@@ -1,9 +1,7 @@
 package net.minecraft.client.player;
 
 import com.google.common.collect.Lists;
-import com.mojang.brigadier.ParseResults;
 import com.mojang.logging.LogUtils;
-import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +14,7 @@ import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
 import net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen;
+import net.minecraft.client.gui.screens.inventory.HangingSignEditScreen;
 import net.minecraft.client.gui.screens.inventory.JigsawBlockEditScreen;
 import net.minecraft.client.gui.screens.inventory.MinecartCommandBlockEditScreen;
 import net.minecraft.client.gui.screens.inventory.SignEditScreen;
@@ -30,19 +29,10 @@ import net.minecraft.client.resources.sounds.RidingMinecartSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.UnderwaterAmbientSoundHandler;
 import net.minecraft.client.resources.sounds.UnderwaterAmbientSoundInstances;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ArgumentSignatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.ChatMessageContent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.LastSeenMessages;
-import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.chat.MessageSigner;
-import net.minecraft.network.chat.PreviewableCommand;
-import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
-import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -60,8 +50,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.StatsCounter;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Signer;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -83,6 +71,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.block.entity.HangingSignBlockEntity;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
@@ -149,7 +138,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     public LocalPlayer(
         Minecraft param0, ClientLevel param1, ClientPacketListener param2, StatsCounter param3, ClientRecipeBook param4, boolean param5, boolean param6
     ) {
-        super(param1, param2.getLocalGameProfile(), param0.getProfileKeyPairManager().profilePublicKey().orElse(null));
+        super(param1, param2.getLocalGameProfile());
         this.minecraft = param0;
         this.connection = param2;
         this.stats = param3;
@@ -300,86 +289,6 @@ public class LocalPlayer extends AbstractClientPlayer {
         ItemStack var1 = this.getInventory().removeFromSelected(param0);
         this.connection.send(new ServerboundPlayerActionPacket(var0, BlockPos.ZERO, Direction.DOWN));
         return !var1.isEmpty();
-    }
-
-    public void chatSigned(String param0, @Nullable Component param1) {
-        this.sendChat(param0, param1);
-    }
-
-    public boolean commandHasSignableArguments(String param0) {
-        ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param0, this.connection.getSuggestionsProvider());
-        return ArgumentSignatures.hasSignableArguments(PreviewableCommand.of(var0));
-    }
-
-    public boolean commandUnsigned(String param0) {
-        if (!this.commandHasSignableArguments(param0)) {
-            LastSeenMessages.Update var0 = this.connection.generateMessageAcknowledgements();
-            this.connection.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, false, var0));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void commandSigned(String param0, @Nullable Component param1) {
-        this.sendCommand(param0, param1);
-    }
-
-    private void sendChat(String param0, @Nullable Component param1) {
-        ChatMessageContent var0 = this.buildSignedContent(param0, param1);
-        MessageSigner var1 = this.createMessageSigner();
-        LastSeenMessages.Update var2 = this.connection.generateMessageAcknowledgements();
-        MessageSignature var3 = this.signMessage(var1, var0, var2.lastSeen());
-        this.connection.send(new ServerboundChatPacket(var0.plain(), var1.timeStamp(), var1.salt(), var3, var0.isDecorated(), var2));
-    }
-
-    private MessageSignature signMessage(MessageSigner param0, ChatMessageContent param1, LastSeenMessages param2) {
-        try {
-            Signer var0 = this.minecraft.getProfileKeyPairManager().signer();
-            if (var0 != null) {
-                return this.connection.signedMessageEncoder().pack(var0, param0, param1, param2).signature();
-            }
-        } catch (Exception var5) {
-            LOGGER.error("Failed to sign chat message: '{}'", param1.plain(), var5);
-        }
-
-        return MessageSignature.EMPTY;
-    }
-
-    private void sendCommand(String param0, @Nullable Component param1) {
-        ParseResults<SharedSuggestionProvider> var0 = this.connection.getCommands().parse(param0, this.connection.getSuggestionsProvider());
-        MessageSigner var1 = this.createMessageSigner();
-        LastSeenMessages.Update var2 = this.connection.generateMessageAcknowledgements();
-        ArgumentSignatures var3 = this.signCommandArguments(var1, var0, param1, var2.lastSeen());
-        this.connection.send(new ServerboundChatCommandPacket(param0, var1.timeStamp(), var1.salt(), var3, param1 != null, var2));
-    }
-
-    private ArgumentSignatures signCommandArguments(
-        MessageSigner param0, ParseResults<SharedSuggestionProvider> param1, @Nullable Component param2, LastSeenMessages param3
-    ) {
-        Signer var0 = this.minecraft.getProfileKeyPairManager().signer();
-        if (var0 == null) {
-            return ArgumentSignatures.EMPTY;
-        } else {
-            try {
-                return ArgumentSignatures.signCommand(PreviewableCommand.of(param1), (param4, param5) -> {
-                    ChatMessageContent var0x = this.buildSignedContent(param5, param2);
-                    return this.connection.signedMessageEncoder().pack(var0, param0, var0x, param3).signature();
-                });
-            } catch (Exception var7) {
-                LOGGER.error("Failed to sign command arguments", (Throwable)var7);
-                return ArgumentSignatures.EMPTY;
-            }
-        }
-    }
-
-    private ChatMessageContent buildSignedContent(String param0, @Nullable Component param1) {
-        String var0 = StringUtil.trimChatMessage(param0);
-        return param1 != null ? new ChatMessageContent(var0, param1) : new ChatMessageContent(var0);
-    }
-
-    private MessageSigner createMessageSigner() {
-        return MessageSigner.create(this.getUUID());
     }
 
     @Override
@@ -640,9 +549,14 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     }
 
-    public boolean isRidingJumpable() {
-        Entity var0 = this.getVehicle();
-        return this.isPassenger() && var0 instanceof PlayerRideableJumping && ((PlayerRideableJumping)var0).canJump();
+    @Nullable
+    public PlayerRideableJumping jumpableVehicle() {
+        Entity var2 = this.getVehicle();
+        if (var2 instanceof PlayerRideableJumping var0 && var0.canJump()) {
+            return var0;
+        }
+
+        return null;
     }
 
     public float getJumpRidingScale() {
@@ -650,8 +564,18 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     @Override
+    public boolean isTextFilteringEnabled() {
+        return this.minecraft.isTextFilteringEnabled();
+    }
+
+    @Override
     public void openTextEdit(SignBlockEntity param0) {
-        this.minecraft.setScreen(new SignEditScreen(param0, this.minecraft.isTextFilteringEnabled()));
+        if (param0 instanceof HangingSignBlockEntity var0) {
+            this.minecraft.setScreen(new HangingSignEditScreen(var0, this.minecraft.isTextFilteringEnabled()));
+        } else {
+            this.minecraft.setScreen(new SignEditScreen(param0, this.minecraft.isTextFilteringEnabled()));
+        }
+
     }
 
     @Override
@@ -786,7 +710,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         boolean var5 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.getAbilities().mayfly;
-        if ((this.onGround || this.isUnderWater())
+        if ((this.onGround || this.isUnderWater() || this.isPassenger() && this.getVehicle().isOnGround())
             && !var1
             && !var2
             && this.hasEnoughImpulseToStartSprinting()
@@ -878,8 +802,8 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
         }
 
-        if (this.isRidingJumpable()) {
-            PlayerRideableJumping var12 = (PlayerRideableJumping)this.getVehicle();
+        PlayerRideableJumping var12 = this.jumpableVehicle();
+        if (var12 != null && var12.getJumpCooldown() == 0) {
             if (this.jumpRidingTicks < 0) {
                 ++this.jumpRidingTicks;
                 if (this.jumpRidingTicks == 0) {

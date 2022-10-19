@@ -121,9 +121,8 @@ public class JoinMultiplayerScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-        if (this.lanServerList.isDirty()) {
-            List<LanServer> var0 = this.lanServerList.getServers();
-            this.lanServerList.markClean();
+        List<LanServer> var0 = this.lanServerList.takeDirtyServers();
+        if (var0 != null) {
             this.serverSelectionList.updateNetworkServers(var0);
         }
 

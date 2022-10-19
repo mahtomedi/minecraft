@@ -17,30 +17,42 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class VibrationSignalParticle extends TextureSheetParticle {
     private final PositionSource target;
-    private float yRot;
-    private float yRotO;
+    private float rot;
+    private float rotO;
+    private float pitch;
+    private float pitchO;
 
     VibrationSignalParticle(ClientLevel param0, double param1, double param2, double param3, PositionSource param4, int param5) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.quadSize = 0.3F;
         this.target = param4;
         this.lifetime = param5;
+        Optional<Vec3> var0 = param4.getPosition(param0);
+        if (var0.isPresent()) {
+            Vec3 var1 = var0.get();
+            double var2 = param1 - var1.x();
+            double var3 = param2 - var1.y();
+            double var4 = param3 - var1.z();
+            this.rotO = this.rot = (float)Mth.atan2(var2, var4);
+            this.pitchO = this.pitch = (float)Mth.atan2(var3, Math.sqrt(var2 * var2 + var4 * var4));
+        }
+
     }
 
     @Override
     public void render(VertexConsumer param0, Camera param1, float param2) {
         float var0 = Mth.sin(((float)this.age + param2 - (float) (Math.PI * 2)) * 0.05F) * 2.0F;
-        float var1 = Mth.lerp(param2, this.yRotO, this.yRot);
-        float var2 = 1.0472F;
-        this.renderSignal(param0, param1, param2, param2x -> {
-            param2x.mul(Vector3f.YP.rotation(var1));
-            param2x.mul(Vector3f.XP.rotation(-1.0472F));
-            param2x.mul(Vector3f.YP.rotation(var0));
+        float var1 = Mth.lerp(param2, this.rotO, this.rot);
+        float var2 = Mth.lerp(param2, this.pitchO, this.pitch) + ((float) (Math.PI / 2));
+        this.renderSignal(param0, param1, param2, param3 -> {
+            param3.mul(Vector3f.YP.rotation(var1));
+            param3.mul(Vector3f.XP.rotation(-var2));
+            param3.mul(Vector3f.YP.rotation(var0));
         });
-        this.renderSignal(param0, param1, param2, param2x -> {
-            param2x.mul(Vector3f.YP.rotation((float) -Math.PI + var1));
-            param2x.mul(Vector3f.XP.rotation(1.0472F));
-            param2x.mul(Vector3f.YP.rotation(var0));
+        this.renderSignal(param0, param1, param2, param3 -> {
+            param3.mul(Vector3f.YP.rotation((float) -Math.PI + var1));
+            param3.mul(Vector3f.XP.rotation(var2));
+            param3.mul(Vector3f.YP.rotation(var0));
         });
     }
 
@@ -122,8 +134,13 @@ public class VibrationSignalParticle extends TextureSheetParticle {
                 this.x = Mth.lerp(var2, this.x, var3.x());
                 this.y = Mth.lerp(var2, this.y, var3.y());
                 this.z = Mth.lerp(var2, this.z, var3.z());
-                this.yRotO = this.yRot;
-                this.yRot = (float)Mth.atan2(this.x - var3.x(), this.z - var3.z());
+                double var4 = this.x - var3.x();
+                double var5 = this.y - var3.y();
+                double var6 = this.z - var3.z();
+                this.rotO = this.rot;
+                this.rot = (float)Mth.atan2(var4, var6);
+                this.pitchO = this.pitch;
+                this.pitch = (float)Mth.atan2(var5, Math.sqrt(var4 * var4 + var6 * var6));
             }
         }
     }

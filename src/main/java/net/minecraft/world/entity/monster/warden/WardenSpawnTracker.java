@@ -14,7 +14,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -71,16 +70,20 @@ public class WardenSpawnTracker {
                 var0.add(param2);
             }
 
-            if (var0.stream().anyMatch(param0x -> param0x.getWardenSpawnTracker().onCooldown())) {
+            if (var0.stream().anyMatch(param0x -> param0x.getWardenSpawnTracker().map(WardenSpawnTracker::onCooldown).orElse(false))) {
                 return OptionalInt.empty();
             } else {
                 Optional<WardenSpawnTracker> var1 = var0.stream()
-                    .map(Player::getWardenSpawnTracker)
-                    .max(Comparator.comparingInt(param0x -> param0x.warningLevel));
-                WardenSpawnTracker var2 = var1.get();
-                var2.increaseWarningLevel();
-                var0.forEach(param1x -> param1x.getWardenSpawnTracker().copyData(var2));
-                return OptionalInt.of(var2.warningLevel);
+                    .flatMap(param0x -> param0x.getWardenSpawnTracker().stream())
+                    .max(Comparator.comparingInt(WardenSpawnTracker::getWarningLevel));
+                if (var1.isPresent()) {
+                    WardenSpawnTracker var2 = var1.get();
+                    var2.increaseWarningLevel();
+                    var0.forEach(param1x -> param1x.getWardenSpawnTracker().ifPresent(param1xx -> param1xx.copyData(var2)));
+                    return OptionalInt.of(var2.warningLevel);
+                } else {
+                    return OptionalInt.empty();
+                }
             }
         }
     }

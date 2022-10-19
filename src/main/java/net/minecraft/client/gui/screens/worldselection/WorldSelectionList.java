@@ -5,6 +5,7 @@ import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,9 +47,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.WorldStem;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageException;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -550,18 +550,17 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
         public void recreateWorld() {
             this.queueLoadScreen();
 
-            try (
-                LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess(this.summary.getLevelId());
-                WorldStem var1 = this.minecraft.createWorldOpenFlows().loadWorldStem(var0, false);
-            ) {
-                WorldGenSettings var2 = var1.worldData().worldGenSettings();
-                Path var3 = CreateWorldScreen.createTempDataPackDirFromExistingWorld(var0.getLevelPath(LevelResource.DATAPACK_DIR), this.minecraft);
-                if (var2.isOldCustomizedWorld()) {
+            try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess(this.summary.getLevelId())) {
+                Pair<LevelSettings, WorldCreationContext> var1 = this.minecraft.createWorldOpenFlows().recreateWorldData(var0);
+                LevelSettings var2 = var1.getFirst();
+                WorldCreationContext var3 = var1.getSecond();
+                Path var4 = CreateWorldScreen.createTempDataPackDirFromExistingWorld(var0.getLevelPath(LevelResource.DATAPACK_DIR), this.minecraft);
+                if (var3.options().isOldCustomizedWorld()) {
                     this.minecraft
                         .setScreen(
                             new ConfirmScreen(
-                                param2 -> this.minecraft
-                                        .setScreen((Screen)(param2 ? CreateWorldScreen.createFromExisting(this.screen, var1, var3) : this.screen)),
+                                param3 -> this.minecraft
+                                        .setScreen((Screen)(param3 ? CreateWorldScreen.createFromExisting(this.screen, var2, var3, var4) : this.screen)),
                                 Component.translatable("selectWorld.recreate.customized.title"),
                                 Component.translatable("selectWorld.recreate.customized.text"),
                                 CommonComponents.GUI_PROCEED,
@@ -569,10 +568,10 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                             )
                         );
                 } else {
-                    this.minecraft.setScreen(CreateWorldScreen.createFromExisting(this.screen, var1, var3));
+                    this.minecraft.setScreen(CreateWorldScreen.createFromExisting(this.screen, var2, var3, var4));
                 }
-            } catch (Exception var9) {
-                WorldSelectionList.LOGGER.error("Unable to recreate world", (Throwable)var9);
+            } catch (Exception var8) {
+                WorldSelectionList.LOGGER.error("Unable to recreate world", (Throwable)var8);
                 this.minecraft
                     .setScreen(
                         new AlertScreen(

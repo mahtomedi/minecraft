@@ -669,7 +669,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     @Override
     public boolean canBreed() {
-        return this.foodLevel + this.countFoodPointsInInventory() >= 12 && this.getAge() == 0;
+        return this.foodLevel + this.countFoodPointsInInventory() >= 12 && !this.isSleeping() && this.getAge() == 0;
     }
 
     private boolean hungry() {
@@ -769,6 +769,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
+    @Nullable
     public Villager getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         double var0 = this.random.nextDouble();
         VillagerType var1;
@@ -790,18 +791,22 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         if (param0.getDifficulty() != Difficulty.PEACEFUL) {
             LOGGER.info("Villager {} was struck by lightning {}.", this, param1);
             Witch var0 = EntityType.WITCH.create(param0);
-            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-            var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
-            var0.setNoAi(this.isNoAi());
-            if (this.hasCustomName()) {
-                var0.setCustomName(this.getCustomName());
-                var0.setCustomNameVisible(this.isCustomNameVisible());
-            }
+            if (var0 != null) {
+                var0.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
+                var0.setNoAi(this.isNoAi());
+                if (this.hasCustomName()) {
+                    var0.setCustomName(this.getCustomName());
+                    var0.setCustomNameVisible(this.isCustomNameVisible());
+                }
 
-            var0.setPersistenceRequired();
-            param0.addFreshEntityWithPassengers(var0);
-            this.releaseAllPois();
-            this.discard();
+                var0.setPersistenceRequired();
+                param0.addFreshEntityWithPassengers(var0);
+                this.releaseAllPois();
+                this.discard();
+            } else {
+                super.thunderHit(param0, param1);
+            }
         } else {
             super.thunderHit(param0, param1);
         }

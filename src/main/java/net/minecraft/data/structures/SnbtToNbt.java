@@ -16,8 +16,8 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
@@ -28,11 +28,13 @@ public class SnbtToNbt implements DataProvider {
     @Nullable
     private static final Path DUMP_SNBT_TO = null;
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final DataGenerator generator;
+    private final PackOutput output;
+    private final Iterable<Path> inputFolders;
     private final List<SnbtToNbt.Filter> filters = Lists.newArrayList();
 
-    public SnbtToNbt(DataGenerator param0) {
-        this.generator = param0;
+    public SnbtToNbt(PackOutput param0, Iterable<Path> param1) {
+        this.output = param0;
+        this.inputFolders = param1;
     }
 
     public SnbtToNbt addFilter(SnbtToNbt.Filter param0) {
@@ -52,10 +54,10 @@ public class SnbtToNbt implements DataProvider {
 
     @Override
     public void run(CachedOutput param0) throws IOException {
-        Path var0 = this.generator.getOutputFolder();
+        Path var0 = this.output.getOutputFolder();
         List<CompletableFuture<SnbtToNbt.TaskResult>> var1 = Lists.newArrayList();
 
-        for(Path var2 : this.generator.getInputFolders()) {
+        for(Path var2 : this.inputFolders) {
             Files.walk(var2)
                 .filter(param0x -> param0x.toString().endsWith(".snbt"))
                 .forEach(

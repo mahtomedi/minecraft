@@ -10,14 +10,17 @@ import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleCookingSerializer;
 import net.minecraft.world.level.ItemLike;
 
 public class SimpleCookingRecipeBuilder implements RecipeBuilder {
+    private final RecipeCategory category;
+    private final CookingBookCategory bookCategory;
     private final Item result;
     private final Ingredient ingredient;
     private final float experience;
@@ -25,34 +28,46 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
     @Nullable
     private String group;
-    private final SimpleCookingSerializer<?> serializer;
+    private final RecipeSerializer<? extends AbstractCookingRecipe> serializer;
 
-    private SimpleCookingRecipeBuilder(ItemLike param0, Ingredient param1, float param2, int param3, SimpleCookingSerializer<?> param4) {
-        this.result = param0.asItem();
-        this.ingredient = param1;
-        this.experience = param2;
-        this.cookingTime = param3;
-        this.serializer = param4;
+    private SimpleCookingRecipeBuilder(
+        RecipeCategory param0,
+        CookingBookCategory param1,
+        ItemLike param2,
+        Ingredient param3,
+        float param4,
+        int param5,
+        RecipeSerializer<? extends AbstractCookingRecipe> param6
+    ) {
+        this.category = param0;
+        this.bookCategory = param1;
+        this.result = param2.asItem();
+        this.ingredient = param3;
+        this.experience = param4;
+        this.cookingTime = param5;
+        this.serializer = param6;
     }
 
-    public static SimpleCookingRecipeBuilder cooking(Ingredient param0, ItemLike param1, float param2, int param3, SimpleCookingSerializer<?> param4) {
-        return new SimpleCookingRecipeBuilder(param1, param0, param2, param3, param4);
+    public static SimpleCookingRecipeBuilder generic(
+        Ingredient param0, RecipeCategory param1, ItemLike param2, float param3, int param4, RecipeSerializer<? extends AbstractCookingRecipe> param5
+    ) {
+        return new SimpleCookingRecipeBuilder(param1, determineRecipeCategory(param5, param2), param2, param0, param3, param4, param5);
     }
 
-    public static SimpleCookingRecipeBuilder campfireCooking(Ingredient param0, ItemLike param1, float param2, int param3) {
-        return cooking(param0, param1, param2, param3, RecipeSerializer.CAMPFIRE_COOKING_RECIPE);
+    public static SimpleCookingRecipeBuilder campfireCooking(Ingredient param0, RecipeCategory param1, ItemLike param2, float param3, int param4) {
+        return new SimpleCookingRecipeBuilder(param1, CookingBookCategory.FOOD, param2, param0, param3, param4, RecipeSerializer.CAMPFIRE_COOKING_RECIPE);
     }
 
-    public static SimpleCookingRecipeBuilder blasting(Ingredient param0, ItemLike param1, float param2, int param3) {
-        return cooking(param0, param1, param2, param3, RecipeSerializer.BLASTING_RECIPE);
+    public static SimpleCookingRecipeBuilder blasting(Ingredient param0, RecipeCategory param1, ItemLike param2, float param3, int param4) {
+        return new SimpleCookingRecipeBuilder(param1, determineBlastingRecipeCategory(param2), param2, param0, param3, param4, RecipeSerializer.BLASTING_RECIPE);
     }
 
-    public static SimpleCookingRecipeBuilder smelting(Ingredient param0, ItemLike param1, float param2, int param3) {
-        return cooking(param0, param1, param2, param3, RecipeSerializer.SMELTING_RECIPE);
+    public static SimpleCookingRecipeBuilder smelting(Ingredient param0, RecipeCategory param1, ItemLike param2, float param3, int param4) {
+        return new SimpleCookingRecipeBuilder(param1, determineSmeltingRecipeCategory(param2), param2, param0, param3, param4, RecipeSerializer.SMELTING_RECIPE);
     }
 
-    public static SimpleCookingRecipeBuilder smoking(Ingredient param0, ItemLike param1, float param2, int param3) {
-        return cooking(param0, param1, param2, param3, RecipeSerializer.SMOKING_RECIPE);
+    public static SimpleCookingRecipeBuilder smoking(Ingredient param0, RecipeCategory param1, ItemLike param2, float param3, int param4) {
+        return new SimpleCookingRecipeBuilder(param1, CookingBookCategory.FOOD, param2, param0, param3, param4, RecipeSerializer.SMOKING_RECIPE);
     }
 
     public SimpleCookingRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
@@ -82,15 +97,40 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
             new SimpleCookingRecipeBuilder.Result(
                 param1,
                 this.group == null ? "" : this.group,
+                this.bookCategory,
                 this.ingredient,
                 this.result,
                 this.experience,
                 this.cookingTime,
                 this.advancement,
-                new ResourceLocation(param1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + param1.getPath()),
+                param1.withPrefix("recipes/" + this.category.getFolderName() + "/"),
                 this.serializer
             )
         );
+    }
+
+    private static CookingBookCategory determineSmeltingRecipeCategory(ItemLike param0) {
+        if (param0.asItem().isEdible()) {
+            return CookingBookCategory.FOOD;
+        } else {
+            return param0.asItem() instanceof BlockItem ? CookingBookCategory.BLOCKS : CookingBookCategory.MISC;
+        }
+    }
+
+    private static CookingBookCategory determineBlastingRecipeCategory(ItemLike param0) {
+        return param0.asItem() instanceof BlockItem ? CookingBookCategory.BLOCKS : CookingBookCategory.MISC;
+    }
+
+    private static CookingBookCategory determineRecipeCategory(RecipeSerializer<? extends AbstractCookingRecipe> param0, ItemLike param1) {
+        if (param0 == RecipeSerializer.SMELTING_RECIPE) {
+            return determineSmeltingRecipeCategory(param1);
+        } else if (param0 == RecipeSerializer.BLASTING_RECIPE) {
+            return determineBlastingRecipeCategory(param1);
+        } else if (param0 != RecipeSerializer.SMOKING_RECIPE && param0 != RecipeSerializer.CAMPFIRE_COOKING_RECIPE) {
+            throw new IllegalStateException("Unknown cooking recipe type");
+        } else {
+            return CookingBookCategory.FOOD;
+        }
     }
 
     private void ensureValid(ResourceLocation param0) {
@@ -99,9 +139,10 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
         }
     }
 
-    public static class Result implements FinishedRecipe {
+    static class Result implements FinishedRecipe {
         private final ResourceLocation id;
         private final String group;
+        private final CookingBookCategory category;
         private final Ingredient ingredient;
         private final Item result;
         private final float experience;
@@ -113,23 +154,25 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
         public Result(
             ResourceLocation param0,
             String param1,
-            Ingredient param2,
-            Item param3,
-            float param4,
-            int param5,
-            Advancement.Builder param6,
-            ResourceLocation param7,
-            RecipeSerializer<? extends AbstractCookingRecipe> param8
+            CookingBookCategory param2,
+            Ingredient param3,
+            Item param4,
+            float param5,
+            int param6,
+            Advancement.Builder param7,
+            ResourceLocation param8,
+            RecipeSerializer<? extends AbstractCookingRecipe> param9
         ) {
             this.id = param0;
             this.group = param1;
-            this.ingredient = param2;
-            this.result = param3;
-            this.experience = param4;
-            this.cookingTime = param5;
-            this.advancement = param6;
-            this.advancementId = param7;
-            this.serializer = param8;
+            this.category = param2;
+            this.ingredient = param3;
+            this.result = param4;
+            this.experience = param5;
+            this.cookingTime = param6;
+            this.advancement = param7;
+            this.advancementId = param8;
+            this.serializer = param9;
         }
 
         @Override
@@ -138,6 +181,7 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
                 param0.addProperty("group", this.group);
             }
 
+            param0.addProperty("category", this.category.getSerializedName());
             param0.add("ingredient", this.ingredient.toJson());
             param0.addProperty("result", Registry.ITEM.getKey(this.result).toString());
             param0.addProperty("experience", this.experience);

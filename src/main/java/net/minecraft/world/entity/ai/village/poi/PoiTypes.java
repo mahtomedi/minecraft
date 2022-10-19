@@ -80,23 +80,21 @@ public class PoiTypes {
     private static PoiType register(Registry<PoiType> param0, ResourceKey<PoiType> param1, Set<BlockState> param2, int param3, int param4) {
         PoiType var0 = new PoiType(param2, param3, param4);
         Registry.register(param0, param1, var0);
-        registerBlockStates(param0.getHolderOrThrow(param1));
+        registerBlockStates(param0.getHolderOrThrow(param1), param2);
         return var0;
     }
 
-    private static void registerBlockStates(Holder<PoiType> param0) {
-        param0.value()
-            .matchingStates()
-            .forEach(
-                param1 -> {
-                    Holder<PoiType> var0x = TYPE_BY_STATE.put(param1, param0);
-                    if (var0x != null) {
-                        throw (IllegalStateException)Util.pauseInIde(
-                            new IllegalStateException(String.format(Locale.ROOT, "%s is defined in more than one PoI type", param1))
-                        );
-                    }
+    private static void registerBlockStates(Holder<PoiType> param0, Set<BlockState> param1) {
+        param1.forEach(
+            param1x -> {
+                Holder<PoiType> var0x = TYPE_BY_STATE.put(param1x, param0);
+                if (var0x != null) {
+                    throw (IllegalStateException)Util.pauseInIde(
+                        new IllegalStateException(String.format(Locale.ROOT, "%s is defined in more than one PoI type", param1x))
+                    );
                 }
-            );
+            }
+        );
     }
 
     public static Optional<Holder<PoiType>> forState(BlockState param0) {

@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -54,6 +55,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
@@ -145,9 +147,10 @@ public class Gui extends GuiComponent {
     }
 
     public void render(PoseStack param0, float param1) {
-        this.screenWidth = this.minecraft.getWindow().getGuiScaledWidth();
-        this.screenHeight = this.minecraft.getWindow().getGuiScaledHeight();
-        Font var0 = this.getFont();
+        Window var0 = this.minecraft.getWindow();
+        this.screenWidth = var0.getGuiScaledWidth();
+        this.screenHeight = var0.getGuiScaledHeight();
+        Font var1 = this.getFont();
         RenderSystem.enableBlend();
         if (Minecraft.useFancyGraphics()) {
             this.renderVignette(this.minecraft.getCameraEntity());
@@ -157,15 +160,15 @@ public class Gui extends GuiComponent {
             RenderSystem.defaultBlendFunc();
         }
 
-        float var1 = this.minecraft.getDeltaFrameTime();
-        this.scopeScale = Mth.lerp(0.5F * var1, this.scopeScale, 1.125F);
+        float var2 = this.minecraft.getDeltaFrameTime();
+        this.scopeScale = Mth.lerp(0.5F * var2, this.scopeScale, 1.125F);
         if (this.minecraft.options.getCameraType().isFirstPerson()) {
             if (this.minecraft.player.isScoping()) {
                 this.renderSpyglassOverlay(this.scopeScale);
             } else {
                 this.scopeScale = 0.5F;
-                ItemStack var2 = this.minecraft.player.getInventory().getArmor(3);
-                if (var2.is(Blocks.CARVED_PUMPKIN.asItem())) {
+                ItemStack var3 = this.minecraft.player.getInventory().getArmor(3);
+                if (var3.is(Blocks.CARVED_PUMPKIN.asItem())) {
                     this.renderTextureOverlay(PUMPKIN_BLUR_LOCATION, 1.0F);
                 }
             }
@@ -175,9 +178,9 @@ public class Gui extends GuiComponent {
             this.renderTextureOverlay(POWDER_SNOW_OUTLINE_LOCATION, this.minecraft.player.getPercentFrozen());
         }
 
-        float var3 = Mth.lerp(param1, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
-        if (var3 > 0.0F && !this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
-            this.renderPortalOverlay(var3);
+        float var4 = Mth.lerp(param1, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+        if (var4 > 0.0F && !this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
+            this.renderPortalOverlay(var4);
         }
 
         if (this.minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR) {
@@ -205,11 +208,12 @@ public class Gui extends GuiComponent {
 
             this.renderVehicleHealth(param0);
             RenderSystem.disableBlend();
-            int var4 = this.screenWidth / 2 - 91;
-            if (this.minecraft.player.isRidingJumpable()) {
-                this.renderJumpMeter(param0, var4);
+            int var5 = this.screenWidth / 2 - 91;
+            PlayerRideableJumping var6 = this.minecraft.player.jumpableVehicle();
+            if (var6 != null) {
+                this.renderJumpMeter(var6, param0, var5);
             } else if (this.minecraft.gameMode.hasExperience()) {
-                this.renderExperienceBar(param0, var4);
+                this.renderExperienceBar(param0, var5);
             }
 
             if (this.minecraft.options.heldItemTooltips && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
@@ -222,14 +226,14 @@ public class Gui extends GuiComponent {
         if (this.minecraft.player.getSleepTimer() > 0) {
             this.minecraft.getProfiler().push("sleep");
             RenderSystem.disableDepthTest();
-            float var5 = (float)this.minecraft.player.getSleepTimer();
-            float var6 = var5 / 100.0F;
-            if (var6 > 1.0F) {
-                var6 = 1.0F - (var5 - 100.0F) / 10.0F;
+            float var7 = (float)this.minecraft.player.getSleepTimer();
+            float var8 = var7 / 100.0F;
+            if (var8 > 1.0F) {
+                var8 = 1.0F - (var7 - 100.0F) / 10.0F;
             }
 
-            int var7 = (int)(220.0F * var6) << 24 | 1052704;
-            fill(param0, 0, 0, this.screenWidth, this.screenHeight, var7);
+            int var9 = (int)(220.0F * var8) << 24 | 1052704;
+            fill(param0, 0, 0, this.screenWidth, this.screenHeight, var9);
             RenderSystem.enableDepthTest();
             this.minecraft.getProfiler().pop();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -247,26 +251,26 @@ public class Gui extends GuiComponent {
         if (!this.minecraft.options.hideGui) {
             if (this.overlayMessageString != null && this.overlayMessageTime > 0) {
                 this.minecraft.getProfiler().push("overlayMessage");
-                float var8 = (float)this.overlayMessageTime - param1;
-                int var9 = (int)(var8 * 255.0F / 20.0F);
-                if (var9 > 255) {
-                    var9 = 255;
+                float var10 = (float)this.overlayMessageTime - param1;
+                int var11 = (int)(var10 * 255.0F / 20.0F);
+                if (var11 > 255) {
+                    var11 = 255;
                 }
 
-                if (var9 > 8) {
+                if (var11 > 8) {
                     param0.pushPose();
                     param0.translate((double)(this.screenWidth / 2), (double)(this.screenHeight - 68), 0.0);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
-                    int var10 = 16777215;
+                    int var12 = 16777215;
                     if (this.animateOverlayMessageColor) {
-                        var10 = Mth.hsvToRgb(var8 / 50.0F, 0.7F, 0.6F) & 16777215;
+                        var12 = Mth.hsvToRgb(var10 / 50.0F, 0.7F, 0.6F) & 16777215;
                     }
 
-                    int var11 = var9 << 24 & 0xFF000000;
-                    int var12 = var0.width(this.overlayMessageString);
-                    this.drawBackdrop(param0, var0, -4, var12, 16777215 | var11);
-                    var0.drawShadow(param0, this.overlayMessageString, (float)(-var12 / 2), -4.0F, var10 | var11);
+                    int var13 = var11 << 24 & 0xFF000000;
+                    int var14 = var1.width(this.overlayMessageString);
+                    this.drawBackdrop(param0, var1, -4, var14, 16777215 | var13);
+                    var1.drawShadow(param0, this.overlayMessageString, (float)(-var14 / 2), -4.0F, var12 | var13);
                     RenderSystem.disableBlend();
                     param0.popPose();
                 }
@@ -276,36 +280,36 @@ public class Gui extends GuiComponent {
 
             if (this.title != null && this.titleTime > 0) {
                 this.minecraft.getProfiler().push("titleAndSubtitle");
-                float var13 = (float)this.titleTime - param1;
-                int var14 = 255;
+                float var15 = (float)this.titleTime - param1;
+                int var16 = 255;
                 if (this.titleTime > this.titleFadeOutTime + this.titleStayTime) {
-                    float var15 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - var13;
-                    var14 = (int)(var15 * 255.0F / (float)this.titleFadeInTime);
+                    float var17 = (float)(this.titleFadeInTime + this.titleStayTime + this.titleFadeOutTime) - var15;
+                    var16 = (int)(var17 * 255.0F / (float)this.titleFadeInTime);
                 }
 
                 if (this.titleTime <= this.titleFadeOutTime) {
-                    var14 = (int)(var13 * 255.0F / (float)this.titleFadeOutTime);
+                    var16 = (int)(var15 * 255.0F / (float)this.titleFadeOutTime);
                 }
 
-                var14 = Mth.clamp(var14, 0, 255);
-                if (var14 > 8) {
+                var16 = Mth.clamp(var16, 0, 255);
+                if (var16 > 8) {
                     param0.pushPose();
                     param0.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), 0.0);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     param0.pushPose();
                     param0.scale(4.0F, 4.0F, 4.0F);
-                    int var16 = var14 << 24 & 0xFF000000;
-                    int var17 = var0.width(this.title);
-                    this.drawBackdrop(param0, var0, -10, var17, 16777215 | var16);
-                    var0.drawShadow(param0, this.title, (float)(-var17 / 2), -10.0F, 16777215 | var16);
+                    int var18 = var16 << 24 & 0xFF000000;
+                    int var19 = var1.width(this.title);
+                    this.drawBackdrop(param0, var1, -10, var19, 16777215 | var18);
+                    var1.drawShadow(param0, this.title, (float)(-var19 / 2), -10.0F, 16777215 | var18);
                     param0.popPose();
                     if (this.subtitle != null) {
                         param0.pushPose();
                         param0.scale(2.0F, 2.0F, 2.0F);
-                        int var18 = var0.width(this.subtitle);
-                        this.drawBackdrop(param0, var0, 5, var18, 16777215 | var16);
-                        var0.drawShadow(param0, this.subtitle, (float)(-var18 / 2), 5.0F, 16777215 | var16);
+                        int var20 = var1.width(this.subtitle);
+                        this.drawBackdrop(param0, var1, 5, var20, 16777215 | var18);
+                        var1.drawShadow(param0, this.subtitle, (float)(-var20 / 2), 5.0F, 16777215 | var18);
                         param0.popPose();
                     }
 
@@ -317,36 +321,35 @@ public class Gui extends GuiComponent {
             }
 
             this.subtitleOverlay.render(param0);
-            Scoreboard var19 = this.minecraft.level.getScoreboard();
-            Objective var20 = null;
-            PlayerTeam var21 = var19.getPlayersTeam(this.minecraft.player.getScoreboardName());
-            if (var21 != null) {
-                int var22 = var21.getColor().getId();
-                if (var22 >= 0) {
-                    var20 = var19.getDisplayObjective(3 + var22);
+            Scoreboard var21 = this.minecraft.level.getScoreboard();
+            Objective var22 = null;
+            PlayerTeam var23 = var21.getPlayersTeam(this.minecraft.player.getScoreboardName());
+            if (var23 != null) {
+                int var24 = var23.getColor().getId();
+                if (var24 >= 0) {
+                    var22 = var21.getDisplayObjective(3 + var24);
                 }
             }
 
-            Objective var23 = var20 != null ? var20 : var19.getDisplayObjective(1);
-            if (var23 != null) {
-                this.displayScoreboardSidebar(param0, var23);
+            Objective var25 = var22 != null ? var22 : var21.getDisplayObjective(1);
+            if (var25 != null) {
+                this.displayScoreboardSidebar(param0, var25);
             }
 
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            param0.pushPose();
-            param0.translate(0.0, (double)(this.screenHeight - 48), 0.0);
+            int var26 = Mth.floor(this.minecraft.mouseHandler.xpos() * (double)var0.getGuiScaledWidth() / (double)var0.getScreenWidth());
+            int var27 = Mth.floor(this.minecraft.mouseHandler.ypos() * (double)var0.getGuiScaledHeight() / (double)var0.getScreenHeight());
             this.minecraft.getProfiler().push("chat");
-            this.chat.render(param0, this.tickCount);
+            this.chat.render(param0, this.tickCount, var26, var27);
             this.minecraft.getProfiler().pop();
-            param0.popPose();
-            var23 = var19.getDisplayObjective(0);
+            var25 = var21.getDisplayObjective(0);
             if (!this.minecraft.options.keyPlayerList.isDown()
-                || this.minecraft.isLocalServer() && this.minecraft.player.connection.getOnlinePlayers().size() <= 1 && var23 == null) {
+                || this.minecraft.isLocalServer() && this.minecraft.player.connection.getListedOnlinePlayers().size() <= 1 && var25 == null) {
                 this.tabList.setVisible(false);
             } else {
                 this.tabList.setVisible(true);
-                this.tabList.render(param0, this.screenWidth, var19, var23);
+                this.tabList.render(param0, this.screenWidth, var21, var25);
             }
 
             this.renderSavingIndicator(param0);
@@ -478,7 +481,7 @@ public class Gui extends GuiComponent {
                     int var14 = var9;
                     float var15 = var10;
                     var5.add(() -> {
-                        RenderSystem.setShaderTexture(0, var12.atlas().location());
+                        RenderSystem.setShaderTexture(0, var12.atlasLocation());
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var15);
                         blit(param0, var13 + 3, var14 + 3, this.getBlitOffset(), 18, 18, var12);
                     });
@@ -554,16 +557,18 @@ public class Gui extends GuiComponent {
         }
     }
 
-    public void renderJumpMeter(PoseStack param0, int param1) {
+    public void renderJumpMeter(PlayerRideableJumping param0, PoseStack param1, int param2) {
         this.minecraft.getProfiler().push("jumpBar");
         RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
         float var0 = this.minecraft.player.getJumpRidingScale();
         int var1 = 182;
         int var2 = (int)(var0 * 183.0F);
         int var3 = this.screenHeight - 32 + 3;
-        this.blit(param0, param1, var3, 0, 84, 182, 5);
-        if (var2 > 0) {
-            this.blit(param0, param1, var3, 0, 89, var2, 5);
+        this.blit(param1, param2, var3, 0, 84, 182, 5);
+        if (param0.getJumpCooldown() > 0) {
+            this.blit(param1, param2, var3, 0, 74, 182, 5);
+        } else if (var2 > 0) {
+            this.blit(param1, param2, var3, 0, 89, var2, 5);
         }
 
         this.minecraft.getProfiler().pop();
@@ -1150,6 +1155,7 @@ public class Gui extends GuiComponent {
             this.lastToolHighlight = var1;
         }
 
+        this.chat.tick();
     }
 
     private void tickAutosaveIndicator() {

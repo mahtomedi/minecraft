@@ -6,9 +6,11 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ResourceOrTagLocationArgument;
+import net.minecraft.commands.arguments.ResourceOrTagArgument;
+import net.minecraft.commands.arguments.ResourceOrTagKeyArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -34,14 +36,8 @@ public class LocateCommand {
     private static final DynamicCommandExceptionType ERROR_BIOME_NOT_FOUND = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.locate.biome.not_found", param0)
     );
-    private static final DynamicCommandExceptionType ERROR_BIOME_INVALID = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.locate.biome.invalid", param0)
-    );
     private static final DynamicCommandExceptionType ERROR_POI_NOT_FOUND = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.locate.poi.not_found", param0)
-    );
-    private static final DynamicCommandExceptionType ERROR_POI_INVALID = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.locate.poi.invalid", param0)
     );
     private static final int MAX_STRUCTURE_SEARCH_RADIUS = 100;
     private static final int MAX_BIOME_SEARCH_RADIUS = 6400;
@@ -49,18 +45,18 @@ public class LocateCommand {
     private static final int BIOME_SAMPLE_RESOLUTION_VERTICAL = 64;
     private static final int POI_SEARCH_RADIUS = 256;
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
             Commands.literal("locate")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
                     Commands.literal("structure")
                         .then(
-                            Commands.argument("structure", ResourceOrTagLocationArgument.resourceOrTag(Registry.STRUCTURE_REGISTRY))
+                            Commands.argument("structure", ResourceOrTagKeyArgument.resourceOrTagKey(Registry.STRUCTURE_REGISTRY))
                                 .executes(
                                     param0x -> locateStructure(
                                             param0x.getSource(),
-                                            ResourceOrTagLocationArgument.getRegistryType(
+                                            ResourceOrTagKeyArgument.getResourceOrTagKey(
                                                 param0x, "structure", Registry.STRUCTURE_REGISTRY, ERROR_STRUCTURE_INVALID
                                             )
                                         )
@@ -70,11 +66,10 @@ public class LocateCommand {
                 .then(
                     Commands.literal("biome")
                         .then(
-                            Commands.argument("biome", ResourceOrTagLocationArgument.resourceOrTag(Registry.BIOME_REGISTRY))
+                            Commands.argument("biome", ResourceOrTagArgument.resourceOrTag(param1, Registry.BIOME_REGISTRY))
                                 .executes(
                                     param0x -> locateBiome(
-                                            param0x.getSource(),
-                                            ResourceOrTagLocationArgument.getRegistryType(param0x, "biome", Registry.BIOME_REGISTRY, ERROR_BIOME_INVALID)
+                                            param0x.getSource(), ResourceOrTagArgument.getResourceOrTag(param0x, "biome", Registry.BIOME_REGISTRY)
                                         )
                                 )
                         )
@@ -82,13 +77,11 @@ public class LocateCommand {
                 .then(
                     Commands.literal("poi")
                         .then(
-                            Commands.argument("poi", ResourceOrTagLocationArgument.resourceOrTag(Registry.POINT_OF_INTEREST_TYPE_REGISTRY))
+                            Commands.argument("poi", ResourceOrTagArgument.resourceOrTag(param1, Registry.POINT_OF_INTEREST_TYPE_REGISTRY))
                                 .executes(
                                     param0x -> locatePoi(
                                             param0x.getSource(),
-                                            ResourceOrTagLocationArgument.getRegistryType(
-                                                param0x, "poi", Registry.POINT_OF_INTEREST_TYPE_REGISTRY, ERROR_POI_INVALID
-                                            )
+                                            ResourceOrTagArgument.getResourceOrTag(param0x, "poi", Registry.POINT_OF_INTEREST_TYPE_REGISTRY)
                                         )
                                 )
                         )
@@ -96,13 +89,11 @@ public class LocateCommand {
         );
     }
 
-    private static Optional<? extends HolderSet.ListBacked<Structure>> getHolders(
-        ResourceOrTagLocationArgument.Result<Structure> param0, Registry<Structure> param1
-    ) {
+    private static Optional<? extends HolderSet.ListBacked<Structure>> getHolders(ResourceOrTagKeyArgument.Result<Structure> param0, Registry<Structure> param1) {
         return param0.unwrap().map(param1x -> param1.getHolder(param1x).map(param0x -> HolderSet.direct(param0x)), param1::getTag);
     }
 
-    private static int locateStructure(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<Structure> param1) throws CommandSyntaxException {
+    private static int locateStructure(CommandSourceStack param0, ResourceOrTagKeyArgument.Result<Structure> param1) throws CommandSyntaxException {
         Registry<Structure> var0 = param0.getLevel().registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
         HolderSet<Structure> var1 = getHolders(param1, var0).orElseThrow(() -> ERROR_STRUCTURE_INVALID.create(param1.asPrintable()));
         BlockPos var2 = new BlockPos(param0.getPosition());
@@ -115,7 +106,7 @@ public class LocateCommand {
         }
     }
 
-    private static int locateBiome(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<Biome> param1) throws CommandSyntaxException {
+    private static int locateBiome(CommandSourceStack param0, ResourceOrTagArgument.Result<Biome> param1) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param0.getPosition());
         Pair<BlockPos, Holder<Biome>> var1 = param0.getLevel().findClosestBiome3d(param1, var0, 6400, 32, 64);
         if (var1 == null) {
@@ -125,7 +116,7 @@ public class LocateCommand {
         }
     }
 
-    private static int locatePoi(CommandSourceStack param0, ResourceOrTagLocationArgument.Result<PoiType> param1) throws CommandSyntaxException {
+    private static int locatePoi(CommandSourceStack param0, ResourceOrTagArgument.Result<PoiType> param1) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param0.getPosition());
         ServerLevel var1 = param0.getLevel();
         Optional<Pair<Holder<PoiType>, BlockPos>> var2 = var1.getPoiManager().findClosestWithType(param1, var0, 256, PoiManager.Occupancy.ANY);
@@ -136,34 +127,48 @@ public class LocateCommand {
         }
     }
 
+    private static String getElementName(Pair<BlockPos, ? extends Holder<?>> param0) {
+        return param0.getSecond().unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]");
+    }
+
     public static int showLocateResult(
         CommandSourceStack param0,
-        ResourceOrTagLocationArgument.Result<?> param1,
+        ResourceOrTagArgument.Result<?> param1,
         BlockPos param2,
         Pair<BlockPos, ? extends Holder<?>> param3,
         String param4,
         boolean param5
     ) {
-        BlockPos var0 = param3.getFirst();
-        String var1 = param1.unwrap()
-            .map(
-                param0x -> param0x.location().toString(),
-                param1x -> "#"
-                        + param1x.location()
-                        + " ("
-                        + (String)param3.getSecond().unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]")
-                        + ")"
-            );
-        int var2 = param5 ? Mth.floor(Mth.sqrt((float)param2.distSqr(var0))) : Mth.floor(dist(param2.getX(), param2.getZ(), var0.getX(), var0.getZ()));
-        String var3 = param5 ? String.valueOf(var0.getY()) : "~";
-        Component var4 = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", var0.getX(), var3, var0.getZ()))
+        String var0 = param1.unwrap().map(param1x -> param1.asPrintable(), param2x -> param1.asPrintable() + " (" + getElementName(param3) + ")");
+        return showLocateResult(param0, param2, param3, param4, param5, var0);
+    }
+
+    public static int showLocateResult(
+        CommandSourceStack param0,
+        ResourceOrTagKeyArgument.Result<?> param1,
+        BlockPos param2,
+        Pair<BlockPos, ? extends Holder<?>> param3,
+        String param4,
+        boolean param5
+    ) {
+        String var0 = param1.unwrap().map(param0x -> param0x.location().toString(), param1x -> "#" + param1x.location() + " (" + getElementName(param3) + ")");
+        return showLocateResult(param0, param2, param3, param4, param5, var0);
+    }
+
+    private static int showLocateResult(
+        CommandSourceStack param0, BlockPos param1, Pair<BlockPos, ? extends Holder<?>> param2, String param3, boolean param4, String param5
+    ) {
+        BlockPos var0 = param2.getFirst();
+        int var1 = param4 ? Mth.floor(Mth.sqrt((float)param1.distSqr(var0))) : Mth.floor(dist(param1.getX(), param1.getZ(), var0.getX(), var0.getZ()));
+        String var2 = param4 ? String.valueOf(var0.getY()) : "~";
+        Component var3 = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", var0.getX(), var2, var0.getZ()))
             .withStyle(
                 param2x -> param2x.withColor(ChatFormatting.GREEN)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var0.getX() + " " + var3 + " " + var0.getZ()))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var0.getX() + " " + var2 + " " + var0.getZ()))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.coordinates.tooltip")))
             );
-        param0.sendSuccess(Component.translatable(param4, var1, var4, var2), false);
-        return var2;
+        param0.sendSuccess(Component.translatable(param3, param5, var3, var1), false);
+        return var1;
     }
 
     private static float dist(int param0, int param1, int param2, int param3) {

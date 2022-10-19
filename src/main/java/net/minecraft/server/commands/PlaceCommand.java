@@ -233,7 +233,7 @@ public class PlaceCommand {
         );
     }
 
-    public static int placeFeature(CommandSourceStack param0, Holder<ConfiguredFeature<?, ?>> param1, BlockPos param2) throws CommandSyntaxException {
+    public static int placeFeature(CommandSourceStack param0, Holder.Reference<ConfiguredFeature<?, ?>> param1, BlockPos param2) throws CommandSyntaxException {
         ServerLevel var0 = param0.getLevel();
         ConfiguredFeature<?, ?> var1 = param1.value();
         ChunkPos var2 = new ChunkPos(param2);
@@ -241,7 +241,7 @@ public class PlaceCommand {
         if (!var1.place(var0, var0.getChunkSource().getGenerator(), var0.getRandom(), param2)) {
             throw ERROR_FEATURE_FAILED.create();
         } else {
-            String var3 = param1.unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]");
+            String var3 = param1.key().location().toString();
             param0.sendSuccess(Component.translatable("commands.place.feature.success", var3, param2.getX(), param2.getY(), param2.getZ()), true);
             return 1;
         }
@@ -257,7 +257,7 @@ public class PlaceCommand {
         }
     }
 
-    public static int placeStructure(CommandSourceStack param0, Holder<Structure> param1, BlockPos param2) throws CommandSyntaxException {
+    public static int placeStructure(CommandSourceStack param0, Holder.Reference<Structure> param1, BlockPos param2) throws CommandSyntaxException {
         ServerLevel var0 = param0.getLevel();
         Structure var1 = param1.value();
         ChunkGenerator var2 = var0.getChunkSource().getGenerator();
@@ -298,7 +298,7 @@ public class PlaceCommand {
                             param3
                         )
                 );
-            String var7 = param1.unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unregistered]");
+            String var7 = param1.key().location().toString();
             param0.sendSuccess(Component.translatable("commands.place.structure.success", var7, param2.getX(), param2.getY(), param2.getZ()), true);
             return 1;
         }

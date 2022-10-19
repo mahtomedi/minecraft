@@ -2,8 +2,6 @@ package net.minecraft.world.level.levelgen;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -59,17 +57,17 @@ public final class RandomState {
             public DensityFunction.NoiseHolder visitNoise(DensityFunction.NoiseHolder param0) {
                 Holder<NormalNoise.NoiseParameters> var0 = param0.noiseData();
                 if (var0) {
-                    if (Objects.equals(var0.unwrapKey(), Optional.of(Noises.TEMPERATURE))) {
+                    if (var0.is(Noises.TEMPERATURE)) {
                         NormalNoise var1 = NormalNoise.createLegacyNetherBiome(this.newLegacyInstance(0L), new NormalNoise.NoiseParameters(-7, 1.0, 1.0));
                         return new DensityFunction.NoiseHolder(var0, var1);
                     }
 
-                    if (Objects.equals(var0.unwrapKey(), Optional.of(Noises.VEGETATION))) {
+                    if (var0.is(Noises.VEGETATION)) {
                         NormalNoise var2 = NormalNoise.createLegacyNetherBiome(this.newLegacyInstance(1L), new NormalNoise.NoiseParameters(-7, 1.0, 1.0));
                         return new DensityFunction.NoiseHolder(var0, var2);
                     }
 
-                    if (Objects.equals(var0.unwrapKey(), Optional.of(Noises.SHIFT))) {
+                    if (var0.is(Noises.SHIFT)) {
                         NormalNoise var3 = NormalNoise.create(
                             RandomState.this.random.fromHashOf(Noises.SHIFT.location()), new NormalNoise.NoiseParameters(0, 0.0)
                         );
@@ -99,13 +97,29 @@ public final class RandomState {
         }
 
         this.router = param0.noiseRouter().mapAll(new NoiseWiringHelper());
+        DensityFunction.Visitor var1 = new DensityFunction.Visitor() {
+            private final Map<DensityFunction, DensityFunction> wrapped = new HashMap<>();
+
+            private DensityFunction wrapNew(DensityFunction param0) {
+                if (param0 instanceof DensityFunctions.HolderHolder var0) {
+                    return var0.function().value();
+                } else {
+                    return param0 instanceof DensityFunctions.Marker var1 ? var1.wrapped() : param0;
+                }
+            }
+
+            @Override
+            public DensityFunction apply(DensityFunction param0) {
+                return this.wrapped.computeIfAbsent(param0, this::wrapNew);
+            }
+        };
         this.sampler = new Climate.Sampler(
-            this.router.temperature(),
-            this.router.vegetation(),
-            this.router.continents(),
-            this.router.erosion(),
-            this.router.depth(),
-            this.router.ridges(),
+            this.router.temperature().mapAll(var1),
+            this.router.vegetation().mapAll(var1),
+            this.router.continents().mapAll(var1),
+            this.router.erosion().mapAll(var1),
+            this.router.depth().mapAll(var1),
+            this.router.ridges().mapAll(var1),
             param0.spawnTarget()
         );
     }

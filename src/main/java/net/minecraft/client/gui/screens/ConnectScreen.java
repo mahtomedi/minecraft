@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
 import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
@@ -21,9 +22,9 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.LocalChatSession;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -50,13 +51,13 @@ public class ConnectScreen extends Screen {
         ConnectScreen var0 = new ConnectScreen(param0);
         param1.clearLevel();
         param1.prepareForMultiplayer();
-        param1.setCurrentServer(param3);
+        param1.updateReportEnvironment(ReportEnvironment.thirdParty(param3 != null ? param3.ip : param2.getHost()));
         param1.setScreen(var0);
-        var0.connect(param1, param2);
+        var0.connect(param1, param2, param3);
     }
 
-    private void connect(final Minecraft param0, final ServerAddress param1) {
-        final CompletableFuture<Optional<ProfilePublicKey.Data>> var0 = param0.getProfileKeyPairManager().preparePublicKey();
+    private void connect(final Minecraft param0, final ServerAddress param1, @Nullable final ServerData param2) {
+        final CompletableFuture<LocalChatSession> var0 = param0.getProfileKeyPairManager().prepareChatSession();
         LOGGER.info("Connecting to {}, {}", param1.getHost(), param1.getPort());
         Thread var1 = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             @Override
@@ -84,36 +85,41 @@ public class ConnectScreen extends Screen {
 
                     var0 = var1.get();
                     ConnectScreen.this.connection = Connection.connectToServer(var0, param0.options.useNativeTransport());
+                    LocalChatSession var2 = var0.join();
                     ConnectScreen.this.connection
                         .setListener(
                             new ClientHandshakePacketListenerImpl(
-                                ConnectScreen.this.connection, param0, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
+                                ConnectScreen.this.connection, param0, var2, param2, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
                             )
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
                     ConnectScreen.this.connection
-                        .send(new ServerboundHelloPacket(param0.getUser().getName(), var0.join(), Optional.ofNullable(param0.getUser().getProfileId())));
+                        .send(
+                            new ServerboundHelloPacket(
+                                param0.getUser().getName(), var2.asRemote().asData(), Optional.ofNullable(param0.getUser().getProfileId())
+                            )
+                        );
                 } catch (Exception var61) {
                     if (ConnectScreen.this.aborted) {
                         return;
                     }
 
-                    Throwable var51 = var61.getCause();
-                    Exception var4;
-                    if (var51 instanceof Exception var3) {
-                        var4 = var3;
+                    Throwable var5x = var61.getCause();
+                    Exception var5;
+                    if (var5x instanceof Exception var4) {
+                        var5 = var4;
                     } else {
-                        var4 = var61;
+                        var5 = var61;
                     }
 
                     ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var61);
-                    String var6 = var0 == null
-                        ? var4.getMessage()
-                        : var4.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
+                    String var7 = var0 == null
+                        ? var5.getMessage()
+                        : var5.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
                     param0.execute(
                         () -> param0.setScreen(
                                 new DisconnectedScreen(
-                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var6)
+                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var7)
                                 )
                             )
                     );

@@ -59,12 +59,13 @@ public class PhantomSpawner implements CustomSpawner {
 
                                             for(int var13 = 0; var13 < var12; ++var13) {
                                                 Phantom var14 = EntityType.PHANTOM.create(param0);
-                                                var14.moveTo(var8, 0.0F, 0.0F);
-                                                var11 = var14.finalizeSpawn(param0, var4, MobSpawnType.NATURAL, var11, null);
-                                                param0.addFreshEntityWithPassengers(var14);
+                                                if (var14 != null) {
+                                                    var14.moveTo(var8, 0.0F, 0.0F);
+                                                    var11 = var14.finalizeSpawn(param0, var4, MobSpawnType.NATURAL, var11, null);
+                                                    param0.addFreshEntityWithPassengers(var14);
+                                                    ++var1;
+                                                }
                                             }
-
-                                            var1 += var12;
                                         }
                                     }
                                 }

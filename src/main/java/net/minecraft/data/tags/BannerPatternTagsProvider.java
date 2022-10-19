@@ -1,13 +1,13 @@
 package net.minecraft.data.tags;
 
 import net.minecraft.core.Registry;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BannerPatternTags;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatterns;
 
 public class BannerPatternTagsProvider extends TagsProvider<BannerPattern> {
-    public BannerPatternTagsProvider(DataGenerator param0) {
+    public BannerPatternTagsProvider(PackOutput param0) {
         super(param0, Registry.BANNER_PATTERN);
     }
 

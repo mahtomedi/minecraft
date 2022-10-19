@@ -7,6 +7,7 @@ import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.Util;
@@ -17,25 +18,27 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.DatapackLoadFailureScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.LayeredRegistryAccess;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.WorldLoader;
 import net.minecraft.server.WorldStem;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
-import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldDimensions;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
@@ -58,16 +61,24 @@ public class WorldOpenFlows {
         this.doLoadLevel(param0, param1, false, true);
     }
 
-    public void createFreshLevel(String param0, LevelSettings param1, RegistryAccess param2, WorldGenSettings param3) {
+    public void createFreshLevel(String param0, LevelSettings param1, WorldOptions param2, Function<RegistryAccess, WorldDimensions> param3) {
         LevelStorageSource.LevelStorageAccess var0 = this.createWorldAccess(param0);
         if (var0 != null) {
-            PackRepository var1 = createPackRepository(var0);
-            DataPackConfig var2 = param1.getDataPackConfig();
+            PackRepository var1 = ServerPacksSource.createPackRepository(var0);
+            WorldDataConfiguration var2 = param1.getDataConfiguration();
 
             try {
-                WorldLoader.PackConfig var3 = new WorldLoader.PackConfig(var1, var2, false);
-                WorldStem var4 = this.loadWorldStem(
-                    var3, (param3x, param4) -> Pair.of(new PrimaryLevelData(param1, param3, Lifecycle.stable()), param2.freeze())
+                WorldLoader.PackConfig var3 = new WorldLoader.PackConfig(var1, var2, false, false);
+                WorldStem var4 = this.loadWorldDataBlocking(
+                    var3,
+                    param3x -> {
+                        WorldDimensions.Complete var0x = param3.apply(param3x.datapackWorldgen())
+                            .bake(param3x.datapackDimensions().registryOrThrow(Registry.LEVEL_STEM_REGISTRY));
+                        return new WorldLoader.DataLoadOutput<>(
+                            new PrimaryLevelData(param1, param2, var0x.specialWorldProperty(), var0x.lifecycle()), var0x.dimensionsRegistryAccess()
+                        );
+                    },
+                    WorldStem::new
                 );
                 this.minecraft.doWorldLoad(param0, var0, var1, var4);
             } catch (Exception var10) {
@@ -91,48 +102,93 @@ public class WorldOpenFlows {
     }
 
     public void createLevelFromExistingSettings(
-        LevelStorageSource.LevelStorageAccess param0, ReloadableServerResources param1, RegistryAccess.Frozen param2, WorldData param3
+        LevelStorageSource.LevelStorageAccess param0, ReloadableServerResources param1, LayeredRegistryAccess<RegistryLayer> param2, WorldData param3
     ) {
-        PackRepository var0 = createPackRepository(param0);
-        CloseableResourceManager var1 = new WorldLoader.PackConfig(var0, param3.getDataPackConfig(), false).createResourceManager().getSecond();
+        PackRepository var0 = ServerPacksSource.createPackRepository(param0);
+        CloseableResourceManager var1 = new WorldLoader.PackConfig(var0, param3.getDataConfiguration(), false, false).createResourceManager().getSecond();
         this.minecraft.doWorldLoad(param0.getLevelId(), param0, var0, new WorldStem(var1, param1, param2, param3));
     }
 
-    private static PackRepository createPackRepository(LevelStorageSource.LevelStorageAccess param0) {
-        return new PackRepository(
-            PackType.SERVER_DATA,
-            new ServerPacksSource(),
-            new FolderRepositorySource(param0.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
-        );
-    }
-
     private WorldStem loadWorldStem(LevelStorageSource.LevelStorageAccess param0, boolean param1, PackRepository param2) throws Exception {
-        DataPackConfig var0 = param0.getDataPacks();
-        if (var0 == null) {
-            throw new IllegalStateException("Failed to load data pack config");
-        } else {
-            WorldLoader.PackConfig var1 = new WorldLoader.PackConfig(param2, var0, param1);
-            return this.loadWorldStem(var1, (param1x, param2x) -> {
-                RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
-                DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param1x);
-                WorldData var2x = param0.getDataTag(var1x, param2x, var0x.allElementsLifecycle());
+        WorldLoader.PackConfig var0 = this.getPackConfigFromLevelData(param0, param1, param2);
+        return this.loadWorldDataBlocking(
+            var0,
+            param1x -> {
+                DynamicOps<Tag> var0x = RegistryOps.create(NbtOps.INSTANCE, param1x.datapackWorldgen());
+                Registry<LevelStem> var1x = param1x.datapackDimensions().registryOrThrow(Registry.LEVEL_STEM_REGISTRY);
+                Pair<WorldData, WorldDimensions.Complete> var2x = param0.getDataTag(
+                    var0x, param1x.dataConfiguration(), var1x, param1x.datapackWorldgen().allElementsLifecycle()
+                );
                 if (var2x == null) {
                     throw new IllegalStateException("Failed to load world");
                 } else {
-                    return Pair.of(var2x, var0x.freeze());
+                    return new WorldLoader.DataLoadOutput<>(
+                        (WorldData)var2x.getFirst(), ((WorldDimensions.Complete)var2x.getSecond()).dimensionsRegistryAccess()
+                    );
                 }
-            });
+            },
+            WorldStem::new
+        );
+    }
+
+    public Pair<LevelSettings, WorldCreationContext> recreateWorldData(LevelStorageSource.LevelStorageAccess param0) throws Exception {
+        PackRepository var0 = ServerPacksSource.createPackRepository(param0);
+        WorldLoader.PackConfig var1 = this.getPackConfigFromLevelData(param0, false, var0);
+        return this.loadWorldDataBlocking(
+            var1,
+            param1 -> {
+                DynamicOps<Tag> var0x = RegistryOps.create(NbtOps.INSTANCE, param1.datapackWorldgen());
+                Registry<LevelStem> var1x = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable()).freeze();
+                Pair<WorldData, WorldDimensions.Complete> var2x = param0.getDataTag(
+                    var0x, param1.dataConfiguration(), var1x, param1.datapackWorldgen().allElementsLifecycle()
+                );
+                if (var2x == null) {
+                    throw new IllegalStateException("Failed to load world");
+                } else {
+                    return new WorldLoader.DataLoadOutput<>(
+                        new Data(
+                            ((WorldData)var2x.getFirst()).getLevelSettings(),
+                            ((WorldData)var2x.getFirst()).worldGenOptions(),
+                            ((WorldDimensions.Complete)var2x.getSecond()).dimensions()
+                        ),
+                        param1.datapackDimensions()
+                    );
+                }
+            },
+            (param0x, param1, param2, param3) -> {
+                param0x.close();
+                return Pair.of(
+                    param3.levelSettings,
+                    new WorldCreationContext(
+                        param3.options, new WorldDimensions(param3.existingDimensions), param2, param1, param3.levelSettings.getDataConfiguration()
+                    )
+                );
+            }
+        );
+
+        @OnlyIn(Dist.CLIENT)
+        record Data(LevelSettings levelSettings, WorldOptions options, Registry<LevelStem> existingDimensions) {
+        }
+
+    }
+
+    private WorldLoader.PackConfig getPackConfigFromLevelData(LevelStorageSource.LevelStorageAccess param0, boolean param1, PackRepository param2) {
+        WorldDataConfiguration var0 = param0.getDataConfiguration();
+        if (var0 == null) {
+            throw new IllegalStateException("Failed to load data pack config");
+        } else {
+            return new WorldLoader.PackConfig(param2, var0, param1, false);
         }
     }
 
     public WorldStem loadWorldStem(LevelStorageSource.LevelStorageAccess param0, boolean param1) throws Exception {
-        PackRepository var0 = createPackRepository(param0);
+        PackRepository var0 = ServerPacksSource.createPackRepository(param0);
         return this.loadWorldStem(param0, param1, var0);
     }
 
-    private WorldStem loadWorldStem(WorldLoader.PackConfig param0, WorldLoader.WorldDataSupplier<WorldData> param1) throws Exception {
+    private <D, R> R loadWorldDataBlocking(WorldLoader.PackConfig param0, WorldLoader.WorldDataSupplier<D> param1, WorldLoader.ResultFactory<D, R> param2) throws Exception {
         WorldLoader.InitConfig var0 = new WorldLoader.InitConfig(param0, Commands.CommandSelection.INTEGRATED, 2);
-        CompletableFuture<WorldStem> var1 = WorldStem.load(var0, param1, Util.backgroundExecutor(), this.minecraft);
+        CompletableFuture<R> var1 = WorldLoader.load(var0, param1, param2, Util.backgroundExecutor(), this.minecraft);
         this.minecraft.managedBlock(var1::isDone);
         return var1.get();
     }
@@ -140,23 +196,23 @@ public class WorldOpenFlows {
     private void doLoadLevel(Screen param0, String param1, boolean param2, boolean param3) {
         LevelStorageSource.LevelStorageAccess var0 = this.createWorldAccess(param1);
         if (var0 != null) {
-            PackRepository var1 = createPackRepository(var0);
+            PackRepository var1 = ServerPacksSource.createPackRepository(var0);
 
             WorldStem var2;
             try {
                 var2 = this.loadWorldStem(var0, param2, var1);
             } catch (Exception var11) {
-                LOGGER.warn("Failed to load datapacks, can't proceed with server load", (Throwable)var11);
+                LOGGER.warn("Failed to load level data or datapacks, can't proceed with server load", (Throwable)var11);
                 this.minecraft.setScreen(new DatapackLoadFailureScreen(() -> this.doLoadLevel(param0, param1, true, param3)));
                 safeCloseAccess(var0, param1);
                 return;
             }
 
             WorldData var5 = var2.worldData();
-            boolean var6 = var5.worldGenSettings().isOldCustomizedWorld();
+            boolean var6 = var5.worldGenOptions().isOldCustomizedWorld();
             boolean var7 = var5.worldGenSettingsLifecycle() != Lifecycle.stable();
             if (!param3 || !var6 && !var7) {
-                this.minecraft.getClientPackSource().loadBundledResourcePack(var0).thenApply(param0x -> true).exceptionallyComposeAsync(param0x -> {
+                this.minecraft.getDownloadedPackSource().loadBundledResourcePack(var0).thenApply(param0x -> true).exceptionallyComposeAsync(param0x -> {
                     LOGGER.warn("Failed to load pack: ", param0x);
                     return this.promptBundledPackLoadFailure();
                 }, this.minecraft).thenAcceptAsync(param5 -> {
@@ -165,7 +221,7 @@ public class WorldOpenFlows {
                     } else {
                         var2.close();
                         safeCloseAccess(var0, param1);
-                        this.minecraft.getClientPackSource().clearServerPack().thenRunAsync(() -> this.minecraft.setScreen(param0), this.minecraft);
+                        this.minecraft.getDownloadedPackSource().clearServerPack().thenRunAsync(() -> this.minecraft.setScreen(param0), this.minecraft);
                     }
 
                 }, this.minecraft).exceptionally(param0x -> {
@@ -238,17 +294,13 @@ public class WorldOpenFlows {
         } else if (param2 == Lifecycle.experimental()) {
             param0.setScreen(
                 new ConfirmScreen(
-                    var0,
-                    Component.translatable("selectWorld.import_worldgen_settings.experimental.title"),
-                    Component.translatable("selectWorld.import_worldgen_settings.experimental.question")
+                    var0, Component.translatable("selectWorld.warning.experimental.title"), Component.translatable("selectWorld.warning.experimental.question")
                 )
             );
         } else {
             param0.setScreen(
                 new ConfirmScreen(
-                    var0,
-                    Component.translatable("selectWorld.import_worldgen_settings.deprecated.title"),
-                    Component.translatable("selectWorld.import_worldgen_settings.deprecated.question")
+                    var0, Component.translatable("selectWorld.warning.deprecated.title"), Component.translatable("selectWorld.warning.deprecated.question")
                 )
             );
         }

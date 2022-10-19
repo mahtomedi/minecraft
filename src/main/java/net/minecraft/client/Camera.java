@@ -81,7 +81,7 @@ public class Camera {
             var3 *= 0.1F;
             Vec3 var4 = this.position.add((double)var1, (double)var2, (double)var3);
             Vec3 var5 = new Vec3(
-                this.position.x - (double)this.forwards.x() * param0 + (double)var1 + (double)var3,
+                this.position.x - (double)this.forwards.x() * param0 + (double)var1,
                 this.position.y - (double)this.forwards.y() * param0 + (double)var2,
                 this.position.z - (double)this.forwards.z() * param0 + (double)var3
             );

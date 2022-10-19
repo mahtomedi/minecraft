@@ -124,7 +124,7 @@ public class SetBannerPatternFunction extends LootItemConditionalFunction {
             for(int var2 = 0; var2 < var1.size(); ++var2) {
                 JsonObject var3 = GsonHelper.convertToJsonObject(var1.get(var2), "pattern[" + var2 + "]");
                 String var4 = GsonHelper.getAsString(var3, "pattern");
-                Optional<Holder<BannerPattern>> var5 = Registry.BANNER_PATTERN
+                Optional<? extends Holder<BannerPattern>> var5 = Registry.BANNER_PATTERN
                     .getHolder(ResourceKey.create(Registry.BANNER_PATTERN_REGISTRY, new ResourceLocation(var4)));
                 if (var5.isEmpty()) {
                     throw new JsonSyntaxException("Unknown pattern: " + var4);

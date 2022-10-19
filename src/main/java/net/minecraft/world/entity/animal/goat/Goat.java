@@ -160,12 +160,14 @@ public class Goat extends Animal {
         return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_MILK : SoundEvents.GOAT_MILK;
     }
 
+    @Nullable
     public Goat getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Goat var0 = EntityType.GOAT.create(param0);
         if (var0 != null) {
             GoatAi.initMemories(var0, param0.getRandom());
-            boolean var1 = param1 instanceof Goat && ((Goat)param1).isScreamingGoat();
-            var0.setScreamingGoat(var1 || param0.getRandom().nextDouble() < 0.02);
+            AgeableMob var1 = (AgeableMob)(param0.getRandom().nextBoolean() ? this : param1);
+            boolean var3 = var1 instanceof Goat var2 && var2.isScreamingGoat() || param0.getRandom().nextDouble() < 0.02;
+            var0.setScreamingGoat(var3);
         }
 
         return var0;

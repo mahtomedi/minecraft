@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +19,6 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.context.UseOnContext;
@@ -88,7 +85,7 @@ public class PotionItem extends Item {
         ItemStack var3 = param0.getItemInHand();
         BlockState var4 = var0.getBlockState(var1);
         if (param0.getClickedFace() != Direction.DOWN && var4.is(BlockTags.CONVERTABLE_TO_MUD) && PotionUtils.getPotion(var3) == Potions.WATER) {
-            var0.playSound(null, var1, SoundEvents.GENERIC_SPLASH, SoundSource.PLAYERS, 1.0F, 1.0F);
+            var0.playSound(null, var1, SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1.0F, 1.0F);
             var2.setItemInHand(param0.getHand(), ItemUtils.createFilledResult(var3, var2, new ItemStack(Items.GLASS_BOTTLE)));
             var2.awardStat(Stats.ITEM_USED.get(var3.getItem()));
             if (!var0.isClientSide) {
@@ -146,17 +143,5 @@ public class PotionItem extends Item {
     @Override
     public boolean isFoil(ItemStack param0) {
         return super.isFoil(param0) || !PotionUtils.getMobEffects(param0).isEmpty();
-    }
-
-    @Override
-    public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowedIn(param0)) {
-            for(Potion var0 : Registry.POTION) {
-                if (var0 != Potions.EMPTY) {
-                    param1.add(PotionUtils.setPotion(new ItemStack(this), var0));
-                }
-            }
-        }
-
     }
 }

@@ -15,11 +15,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 
-public class ShapelessRecipeBuilder implements RecipeBuilder {
+public class ShapelessRecipeBuilder extends CraftingRecipeBuilder implements RecipeBuilder {
+    private final RecipeCategory category;
     private final Item result;
     private final int count;
     private final List<Ingredient> ingredients = Lists.newArrayList();
@@ -27,17 +29,18 @@ public class ShapelessRecipeBuilder implements RecipeBuilder {
     @Nullable
     private String group;
 
-    public ShapelessRecipeBuilder(ItemLike param0, int param1) {
-        this.result = param0.asItem();
-        this.count = param1;
+    public ShapelessRecipeBuilder(RecipeCategory param0, ItemLike param1, int param2) {
+        this.category = param0;
+        this.result = param1.asItem();
+        this.count = param2;
     }
 
-    public static ShapelessRecipeBuilder shapeless(ItemLike param0) {
-        return new ShapelessRecipeBuilder(param0, 1);
+    public static ShapelessRecipeBuilder shapeless(RecipeCategory param0, ItemLike param1) {
+        return new ShapelessRecipeBuilder(param0, param1, 1);
     }
 
-    public static ShapelessRecipeBuilder shapeless(ItemLike param0, int param1) {
-        return new ShapelessRecipeBuilder(param0, param1);
+    public static ShapelessRecipeBuilder shapeless(RecipeCategory param0, ItemLike param1, int param2) {
+        return new ShapelessRecipeBuilder(param0, param1, param2);
     }
 
     public ShapelessRecipeBuilder requires(TagKey<Item> param0) {
@@ -97,9 +100,10 @@ public class ShapelessRecipeBuilder implements RecipeBuilder {
                 this.result,
                 this.count,
                 this.group == null ? "" : this.group,
+                determineBookCategory(this.category),
                 this.ingredients,
                 this.advancement,
-                new ResourceLocation(param1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + param1.getPath())
+                param1.withPrefix("recipes/" + this.category.getFolderName() + "/")
             )
         );
     }
@@ -110,7 +114,7 @@ public class ShapelessRecipeBuilder implements RecipeBuilder {
         }
     }
 
-    public static class Result implements FinishedRecipe {
+    public static class Result extends CraftingRecipeBuilder.CraftingResult {
         private final ResourceLocation id;
         private final Item result;
         private final int count;
@@ -120,19 +124,28 @@ public class ShapelessRecipeBuilder implements RecipeBuilder {
         private final ResourceLocation advancementId;
 
         public Result(
-            ResourceLocation param0, Item param1, int param2, String param3, List<Ingredient> param4, Advancement.Builder param5, ResourceLocation param6
+            ResourceLocation param0,
+            Item param1,
+            int param2,
+            String param3,
+            CraftingBookCategory param4,
+            List<Ingredient> param5,
+            Advancement.Builder param6,
+            ResourceLocation param7
         ) {
+            super(param4);
             this.id = param0;
             this.result = param1;
             this.count = param2;
             this.group = param3;
-            this.ingredients = param4;
-            this.advancement = param5;
-            this.advancementId = param6;
+            this.ingredients = param5;
+            this.advancement = param6;
+            this.advancementId = param7;
         }
 
         @Override
         public void serializeRecipeData(JsonObject param0) {
+            super.serializeRecipeData(param0);
             if (!this.group.isEmpty()) {
                 param0.addProperty("group", this.group);
             }

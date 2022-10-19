@@ -17,21 +17,21 @@ public class ModelLocationUtils {
 
     public static ResourceLocation getModelLocation(Block param0, String param1) {
         ResourceLocation var0 = Registry.BLOCK.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "block/" + var0.getPath() + param1);
+        return var0.withPath(param1x -> "block/" + param1x + param1);
     }
 
     public static ResourceLocation getModelLocation(Block param0) {
         ResourceLocation var0 = Registry.BLOCK.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "block/" + var0.getPath());
+        return var0.withPrefix("block/");
     }
 
     public static ResourceLocation getModelLocation(Item param0) {
         ResourceLocation var0 = Registry.ITEM.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "item/" + var0.getPath());
+        return var0.withPrefix("item/");
     }
 
     public static ResourceLocation getModelLocation(Item param0, String param1) {
         ResourceLocation var0 = Registry.ITEM.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "item/" + var0.getPath() + param1);
+        return var0.withPath(param1x -> "item/" + param1x + param1);
     }
 }

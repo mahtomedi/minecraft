@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Block;
@@ -13,7 +14,7 @@ public class BlockParticleOption implements ParticleOptions {
     public static final ParticleOptions.Deserializer<BlockParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<BlockParticleOption>() {
         public BlockParticleOption fromCommand(ParticleType<BlockParticleOption> param0, StringReader param1) throws CommandSyntaxException {
             param1.expect(' ');
-            return new BlockParticleOption(param0, BlockStateParser.parseForBlock(Registry.BLOCK, param1, false).blockState());
+            return new BlockParticleOption(param0, BlockStateParser.parseForBlock(HolderLookup.forRegistry(Registry.BLOCK), param1, false).blockState());
         }
 
         public BlockParticleOption fromNetwork(ParticleType<BlockParticleOption> param0, FriendlyByteBuf param1) {

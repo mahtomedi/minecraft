@@ -47,6 +47,7 @@ public class AllayAi {
     private static final int MAX_WAIT_DURATION = 60;
     private static final int TIME_TO_FORGET_NOTEBLOCK = 600;
     private static final int DISTANCE_TO_WANTED_ITEM = 32;
+    private static final int GIVE_ITEM_TIMEOUT_DURATION = 20;
 
     protected static Brain<?> makeBrain(Brain<Allay> param0) {
         initCoreActivity(param0);
@@ -77,7 +78,7 @@ public class AllayAi {
             Activity.IDLE,
             ImmutableList.of(
                 Pair.of(0, new GoToWantedItem<>(param0x -> true, 1.75F, true, 32)),
-                Pair.of(1, new GoAndGiveItemsToTarget<>(AllayAi::getItemDepositPosition, 2.25F)),
+                Pair.of(1, new GoAndGiveItemsToTarget<>(AllayAi::getItemDepositPosition, 2.25F, 20)),
                 Pair.of(2, new StayCloseToTarget<>(AllayAi::getItemDepositPosition, 4, 16, 2.25F)),
                 Pair.of(3, new RunSometimes<>(new SetEntityLookTarget(param0x -> true, 6.0F), UniformInt.of(30, 60))),
                 Pair.of(

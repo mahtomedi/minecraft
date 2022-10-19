@@ -13,6 +13,11 @@ public class BlockPosTracker implements PositionTracker {
         this.centerPosition = Vec3.atCenterOf(param0);
     }
 
+    public BlockPosTracker(Vec3 param0) {
+        this.blockPos = new BlockPos(param0);
+        this.centerPosition = param0;
+    }
+
     @Override
     public Vec3 currentPosition() {
         return this.centerPosition;

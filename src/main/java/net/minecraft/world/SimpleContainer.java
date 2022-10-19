@@ -219,6 +219,8 @@ public class SimpleContainer implements Container, StackedContentsCompatible {
     }
 
     public void fromTag(ListTag param0) {
+        this.clearContent();
+
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             ItemStack var1 = ItemStack.of(param0.getCompound(var0));
             if (!var1.isEmpty()) {

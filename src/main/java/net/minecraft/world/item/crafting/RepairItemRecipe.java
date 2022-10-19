@@ -14,8 +14,8 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
 public class RepairItemRecipe extends CustomRecipe {
-    public RepairItemRecipe(ResourceLocation param0) {
-        super(param0);
+    public RepairItemRecipe(ResourceLocation param0, CraftingBookCategory param1) {
+        super(param0, param1);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

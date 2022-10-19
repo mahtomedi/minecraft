@@ -12,6 +12,7 @@ import com.mojang.serialization.Lifecycle;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,14 +30,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -46,17 +50,21 @@ import net.minecraft.nbt.visitors.FieldSelector;
 import net.minecraft.nbt.visitors.SkipFields;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.DirectoryLock;
 import net.minecraft.util.MemoryReserve;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
-import net.minecraft.world.level.DataPackConfig;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import org.slf4j.Logger;
 
 public class LevelStorageSource {
@@ -99,7 +107,7 @@ public class LevelStorageSource {
         return new LevelStorageSource(param0, param0.resolve("../backups"), DataFixers.getDataFixer());
     }
 
-    private static <T> Pair<WorldGenSettings, Lifecycle> readWorldGenSettings(Dynamic<T> param0, DataFixer param1, int param2) {
+    private static <T> DataResult<WorldGenSettings> readWorldGenSettings(Dynamic<T> param0, DataFixer param1, int param2) {
         Dynamic<T> var0 = param0.get("WorldGenSettings").orElseEmptyMap();
 
         for(String var1 : OLD_SETTINGS_KEYS) {
@@ -110,15 +118,11 @@ public class LevelStorageSource {
         }
 
         Dynamic<T> var3 = param1.update(References.WORLD_GEN_SETTINGS, var0, param2, SharedConstants.getCurrentVersion().getWorldVersion());
-        DataResult<WorldGenSettings> var4 = WorldGenSettings.CODEC.parse(var3);
-        return Pair.of(var4.resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error)).orElseGet(() -> {
-            RegistryAccess var0x = RegistryAccess.readFromDisk(var3);
-            return WorldPresets.createNormalWorldFromPreset(var0x);
-        }), var4.lifecycle());
+        return WorldGenSettings.CODEC.parse(var3);
     }
 
-    private static DataPackConfig readDataPackConfig(Dynamic<?> param0) {
-        return DataPackConfig.CODEC.parse(param0).resultOrPartial(LOGGER::error).orElse(DataPackConfig.DEFAULT);
+    private static WorldDataConfiguration readDataConfig(Dynamic<?> param0) {
+        return WorldDataConfiguration.CODEC.parse(param0).resultOrPartial(LOGGER::error).orElse(WorldDataConfiguration.DEFAULT);
     }
 
     public String getName() {
@@ -206,7 +210,7 @@ public class LevelStorageSource {
     }
 
     @Nullable
-    private static DataPackConfig getDataPacks(Path param0, DataFixer param1) {
+    private static WorldDataConfiguration getDataConfiguration(Path param0, DataFixer param1) {
         try {
             Tag var0 = readLightweightData(param0);
             if (var0 instanceof CompoundTag var1) {
@@ -215,7 +219,7 @@ public class LevelStorageSource {
                 Dynamic<Tag> var4 = param1.update(
                     DataFixTypes.LEVEL.getType(), new Dynamic<>(NbtOps.INSTANCE, var2), var3, SharedConstants.getCurrentVersion().getWorldVersion()
                 );
-                return var4.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
+                return readDataConfig(var4);
             }
         } catch (Exception var7) {
             LOGGER.error("Exception reading {}", param0, var7);
@@ -224,26 +228,31 @@ public class LevelStorageSource {
         return null;
     }
 
-    static BiFunction<Path, DataFixer, PrimaryLevelData> getLevelData(DynamicOps<Tag> param0, DataPackConfig param1, Lifecycle param2) {
-        return (param3, param4) -> {
+    static BiFunction<Path, DataFixer, Pair<WorldData, WorldDimensions.Complete>> getLevelData(
+        DynamicOps<Tag> param0, WorldDataConfiguration param1, Registry<LevelStem> param2, Lifecycle param3
+    ) {
+        return (param4, param5) -> {
+            CompoundTag var0;
             try {
-                CompoundTag var0 = NbtIo.readCompressed(param3.toFile());
-                CompoundTag var1x = var0.getCompound("Data");
-                CompoundTag var2x = var1x.contains("Player", 10) ? var1x.getCompound("Player") : null;
-                var1x.remove("Player");
-                int var3 = var1x.contains("DataVersion", 99) ? var1x.getInt("DataVersion") : -1;
-                Dynamic<Tag> var4 = param4.update(
-                    DataFixTypes.LEVEL.getType(), new Dynamic<>(param0, var1x), var3, SharedConstants.getCurrentVersion().getWorldVersion()
-                );
-                Pair<WorldGenSettings, Lifecycle> var5 = readWorldGenSettings(var4, param4, var3);
-                LevelVersion var6 = LevelVersion.parse(var4);
-                LevelSettings var7 = LevelSettings.parse(var4, param1);
-                Lifecycle var8 = var5.getSecond().add(param2);
-                return PrimaryLevelData.parse(var4, param4, var3, var2x, var7, var6, var5.getFirst(), var8);
-            } catch (Exception var14) {
-                LOGGER.error("Exception reading {}", param3, var14);
-                return null;
+                var2x = NbtIo.readCompressed(param4.toFile());
+            } catch (IOException var17) {
+                throw new UncheckedIOException(var17);
             }
+
+            CompoundTag var3x = var2x.getCompound("Data");
+            CompoundTag var4 = var3x.contains("Player", 10) ? var3x.getCompound("Player") : null;
+            var3x.remove("Player");
+            int var5 = var3x.contains("DataVersion", 99) ? var3x.getInt("DataVersion") : -1;
+            Dynamic<Tag> var6 = param5.update(
+                DataFixTypes.LEVEL.getType(), new Dynamic<>(param0, var3x), var5, SharedConstants.getCurrentVersion().getWorldVersion()
+            );
+            WorldGenSettings var7 = readWorldGenSettings(var6, param5, var5).getOrThrow(false, Util.prefix("WorldGenSettings: ", LOGGER::error));
+            LevelVersion var8 = LevelVersion.parse(var6);
+            LevelSettings var9 = LevelSettings.parse(var6, param1);
+            WorldDimensions.Complete var10 = var7.dimensions().bake(param2);
+            Lifecycle var11 = var10.lifecycle().add(param3);
+            PrimaryLevelData var12 = PrimaryLevelData.parse(var6, param5, var5, var4, var9, var8, var10.specialWorldProperty(), var7.options(), var11);
+            return Pair.of(var12, var10);
         };
     }
 
@@ -262,20 +271,31 @@ public class LevelStorageSource {
                     if (var6 == 19132 || var6 == 19133) {
                         boolean var7 = var6 != this.getStorageVersion();
                         Path var8 = param0.iconFile();
-                        DataPackConfig var9 = var4.get("DataPacks").result().map(LevelStorageSource::readDataPackConfig).orElse(DataPackConfig.DEFAULT);
+                        WorldDataConfiguration var9 = readDataConfig(var4);
                         LevelSettings var10 = LevelSettings.parse(var4, var9);
-                        return new LevelSummary(var10, var5, param0.directoryName(), var7, param1, var8);
+                        FeatureFlagSet var11 = parseFeatureFlagsFromSummary(var4);
+                        boolean var12 = FeatureFlags.isExperimental(var11);
+                        return new LevelSummary(var10, var5, param0.directoryName(), var7, param1, var12, var8);
                     }
                 } else {
                     LOGGER.warn("Invalid root tag in {}", param2);
                 }
 
                 return null;
-            } catch (Exception var16) {
-                LOGGER.error("Exception reading {}", param2, var16);
+            } catch (Exception var18) {
+                LOGGER.error("Exception reading {}", param2, var18);
                 return null;
             }
         };
+    }
+
+    private static FeatureFlagSet parseFeatureFlagsFromSummary(Dynamic<Tag> param0) {
+        Set<ResourceLocation> var0 = param0.get("enabled_features")
+            .asStream()
+            .flatMap(param0x -> param0x.asString().result().map(ResourceLocation::tryParse).stream())
+            .collect(Collectors.toSet());
+        return FeatureFlags.REGISTRY.fromNames(var0, param0x -> {
+        });
     }
 
     @Nullable
@@ -395,15 +415,17 @@ public class LevelStorageSource {
         }
 
         @Nullable
-        public WorldData getDataTag(DynamicOps<Tag> param0, DataPackConfig param1, Lifecycle param2) {
+        public Pair<WorldData, WorldDimensions.Complete> getDataTag(
+            DynamicOps<Tag> param0, WorldDataConfiguration param1, Registry<LevelStem> param2, Lifecycle param3
+        ) {
             this.checkLock();
-            return LevelStorageSource.this.readLevelData(this.levelDirectory, LevelStorageSource.getLevelData(param0, param1, param2));
+            return LevelStorageSource.this.readLevelData(this.levelDirectory, LevelStorageSource.getLevelData(param0, param1, param2, param3));
         }
 
         @Nullable
-        public DataPackConfig getDataPacks() {
+        public WorldDataConfiguration getDataConfiguration() {
             this.checkLock();
-            return LevelStorageSource.this.readLevelData(this.levelDirectory, LevelStorageSource::getDataPacks);
+            return LevelStorageSource.this.readLevelData(this.levelDirectory, LevelStorageSource::getDataConfiguration);
         }
 
         public void saveDataTag(RegistryAccess param0, WorldData param1) {

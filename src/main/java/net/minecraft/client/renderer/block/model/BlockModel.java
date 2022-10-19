@@ -13,7 +13,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import java.io.Reader;
 import java.io.StringReader;
@@ -34,6 +33,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BuiltInModel;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.SimpleBakedModel;
@@ -125,8 +125,8 @@ public class BlockModel implements UnbakedModel {
         return this.overrides;
     }
 
-    private ItemOverrides getItemOverrides(ModelBakery param0, BlockModel param1) {
-        return this.overrides.isEmpty() ? ItemOverrides.EMPTY : new ItemOverrides(param0, param1, param0::getModel, this.overrides);
+    private ItemOverrides getItemOverrides(ModelBaker param0, BlockModel param1) {
+        return this.overrides.isEmpty() ? ItemOverrides.EMPTY : new ItemOverrides(param0, param1, this.overrides);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class BlockModel implements UnbakedModel {
     }
 
     @Override
-    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> param0, Set<Pair<String, String>> param1) {
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> param0) {
         Set<UnbakedModel> var0 = Sets.newLinkedHashSet();
 
         for(BlockModel var1 = this; var1.parentLocation != null && var1.parent == null; var1 = var1.parent) {
@@ -177,39 +177,21 @@ public class BlockModel implements UnbakedModel {
             var1.parent = (BlockModel)var2;
         }
 
-        Set<Material> var3 = Sets.newHashSet(this.getMaterial("particle"));
-
-        for(BlockElement var4 : this.getElements()) {
-            for(BlockElementFace var5 : var4.faces.values()) {
-                Material var6 = this.getMaterial(var5.texture);
-                if (Objects.equals(var6.texture(), MissingTextureAtlasSprite.getLocation())) {
-                    param1.add(Pair.of(var5.texture, this.name));
-                }
-
-                var3.add(var6);
-            }
-        }
-
-        this.overrides.forEach(param3 -> {
-            UnbakedModel var0x = param0.apply(param3.getModel());
+        this.overrides.forEach(param1 -> {
+            UnbakedModel var0x = param0.apply(param1.getModel());
             if (!Objects.equals(var0x, this)) {
-                var3.addAll(var0x.getMaterials(param0, param1));
+                var0x.resolveParents(param0);
             }
         });
-        if (this.getRootModel() == ModelBakery.GENERATION_MARKER) {
-            ItemModelGenerator.LAYERS.forEach(param1x -> var3.add(this.getMaterial(param1x)));
-        }
-
-        return var3;
     }
 
     @Override
-    public BakedModel bake(ModelBakery param0, Function<Material, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
+    public BakedModel bake(ModelBaker param0, Function<Material, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
         return this.bake(param0, this, param1, param2, param3, true);
     }
 
     public BakedModel bake(
-        ModelBakery param0, BlockModel param1, Function<Material, TextureAtlasSprite> param2, ModelState param3, ResourceLocation param4, boolean param5
+        ModelBaker param0, BlockModel param1, Function<Material, TextureAtlasSprite> param2, ModelState param3, ResourceLocation param4, boolean param5
     ) {
         TextureAtlasSprite var0 = param2.apply(this.getMaterial("particle"));
         if (this.getRootModel() == ModelBakery.BLOCK_ENTITY_MARKER) {

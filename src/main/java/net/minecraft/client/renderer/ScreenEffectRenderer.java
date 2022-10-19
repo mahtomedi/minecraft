@@ -67,7 +67,7 @@ public class ScreenEffectRenderer {
     }
 
     private static void renderTex(TextureAtlasSprite param0, PoseStack param1) {
-        RenderSystem.setShaderTexture(0, param0.atlas().location());
+        RenderSystem.setShaderTexture(0, param0.atlasLocation());
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         float var1 = 0.1F;
@@ -126,7 +126,7 @@ public class ScreenEffectRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableTexture();
         TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
-        RenderSystem.setShaderTexture(0, var1.atlas().location());
+        RenderSystem.setShaderTexture(0, var1.atlasLocation());
         float var2 = var1.getU0();
         float var3 = var1.getU1();
         float var4 = (var2 + var3) / 2.0F;

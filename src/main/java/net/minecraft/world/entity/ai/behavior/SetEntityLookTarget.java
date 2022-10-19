@@ -46,7 +46,9 @@ public class SetEntityLookTarget extends Behavior<LivingEntity> {
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
         NearestVisibleLivingEntities var0 = param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
-        this.nearestEntityMatchingTest = var0.findClosest(this.predicate.and(param1x -> param1x.distanceToSqr(param1) <= (double)this.maxDistSqr));
+        this.nearestEntityMatchingTest = var0.findClosest(
+            this.predicate.and(param1x -> param1x.distanceToSqr(param1) <= (double)this.maxDistSqr && !param1.hasPassenger(param1x))
+        );
         return this.nearestEntityMatchingTest.isPresent();
     }
 

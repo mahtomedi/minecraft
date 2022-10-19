@@ -317,24 +317,29 @@ public class MultiPlayerGameMode {
             boolean var2 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
             boolean var3 = param0.isSecondaryUseActive() && var2;
             if (!var3) {
-                InteractionResult var4 = this.minecraft.level.getBlockState(var0).use(this.minecraft.level, param0, param1, param2);
-                if (var4.consumesAction()) {
-                    return var4;
+                BlockState var4 = this.minecraft.level.getBlockState(var0);
+                if (!this.connection.isFeatureEnabled(var4.getBlock().requiredFeatures())) {
+                    return InteractionResult.FAIL;
+                }
+
+                InteractionResult var5 = var4.use(this.minecraft.level, param0, param1, param2);
+                if (var5.consumesAction()) {
+                    return var5;
                 }
             }
 
             if (!var1.isEmpty() && !param0.getCooldowns().isOnCooldown(var1.getItem())) {
-                UseOnContext var5 = new UseOnContext(param0, param1, param2);
-                InteractionResult var7;
+                UseOnContext var6 = new UseOnContext(param0, param1, param2);
+                InteractionResult var8;
                 if (this.localPlayerMode.isCreative()) {
-                    int var6 = var1.getCount();
-                    var7 = var1.useOn(var5);
-                    var1.setCount(var6);
+                    int var7 = var1.getCount();
+                    var8 = var1.useOn(var6);
+                    var1.setCount(var7);
                 } else {
-                    var7 = var1.useOn(var5);
+                    var8 = var1.useOn(var6);
                 }
 
-                return var7;
+                return var8;
             } else {
                 return InteractionResult.PASS;
             }
@@ -440,14 +445,14 @@ public class MultiPlayerGameMode {
     }
 
     public void handleCreativeModeItemAdd(ItemStack param0, int param1) {
-        if (this.localPlayerMode.isCreative()) {
+        if (this.localPlayerMode.isCreative() && this.connection.isFeatureEnabled(param0.getItem().requiredFeatures())) {
             this.connection.send(new ServerboundSetCreativeModeSlotPacket(param1, param0));
         }
 
     }
 
     public void handleCreativeModeItemDrop(ItemStack param0) {
-        if (this.localPlayerMode.isCreative() && !param0.isEmpty()) {
+        if (this.localPlayerMode.isCreative() && !param0.isEmpty() && this.connection.isFeatureEnabled(param0.getItem().requiredFeatures())) {
             this.connection.send(new ServerboundSetCreativeModeSlotPacket(-1, param0));
         }
 

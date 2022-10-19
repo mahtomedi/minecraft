@@ -468,7 +468,7 @@ public abstract class AbstractArrow extends Projectile {
         super.readAdditionalSaveData(param0);
         this.life = param0.getShort("life");
         if (param0.contains("inBlockState", 10)) {
-            this.lastState = NbtUtils.readBlockState(param0.getCompound("inBlockState"));
+            this.lastState = NbtUtils.readBlockState(this.level.holderLookup(Registry.BLOCK_REGISTRY), param0.getCompound("inBlockState"));
         }
 
         this.shakeTime = param0.getByte("shake") & 255;

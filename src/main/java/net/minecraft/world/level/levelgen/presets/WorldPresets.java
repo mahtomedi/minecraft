@@ -8,7 +8,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
@@ -23,7 +22,7 @@ import net.minecraft.world.level.levelgen.DebugLevelSource;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -44,33 +43,23 @@ public class WorldPresets {
         return ResourceKey.create(Registry.WORLD_PRESET_REGISTRY, new ResourceLocation(param0));
     }
 
-    public static Optional<ResourceKey<WorldPreset>> fromSettings(WorldGenSettings param0) {
-        ChunkGenerator var0 = param0.overworld();
-        if (var0 instanceof FlatLevelSource) {
-            return Optional.of(FLAT);
-        } else {
-            return var0 instanceof DebugLevelSource ? Optional.of(DEBUG) : Optional.empty();
-        }
+    public static Optional<ResourceKey<WorldPreset>> fromSettings(Registry<LevelStem> param0) {
+        return param0.getOptional(LevelStem.OVERWORLD).flatMap(param0x -> {
+            ChunkGenerator var0x = param0x.generator();
+            if (var0x instanceof FlatLevelSource) {
+                return Optional.of(FLAT);
+            } else {
+                return var0x instanceof DebugLevelSource ? Optional.of(DEBUG) : Optional.empty();
+            }
+        });
     }
 
-    public static WorldGenSettings createNormalWorldFromPreset(RegistryAccess param0, long param1, boolean param2, boolean param3) {
-        return param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value().createWorldGenSettings(param1, param2, param3);
-    }
-
-    public static WorldGenSettings createNormalWorldFromPreset(RegistryAccess param0, long param1) {
-        return createNormalWorldFromPreset(param0, param1, true, false);
-    }
-
-    public static WorldGenSettings createNormalWorldFromPreset(RegistryAccess param0) {
-        return createNormalWorldFromPreset(param0, RandomSource.create().nextLong());
-    }
-
-    public static WorldGenSettings demoSettings(RegistryAccess param0) {
-        return createNormalWorldFromPreset(param0, (long)"North Carolina".hashCode(), true, true);
+    public static WorldDimensions createNormalWorldDimensions(RegistryAccess param0) {
+        return param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value().createWorldDimensions();
     }
 
     public static LevelStem getNormalOverworld(RegistryAccess param0) {
-        return param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value().overworldOrThrow();
+        return param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value().overworld().orElseThrow();
     }
 
     static class Bootstrap {

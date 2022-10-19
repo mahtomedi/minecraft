@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Map.Entry;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -16,8 +17,6 @@ import org.slf4j.Logger;
 
 public abstract class SimpleJsonResourceReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String PATH_SUFFIX = ".json";
-    private static final int PATH_SUFFIX_LENGTH = ".json".length();
     private final Gson gson;
     private final String directory;
 
@@ -28,25 +27,24 @@ public abstract class SimpleJsonResourceReloadListener extends SimplePreparableR
 
     protected Map<ResourceLocation, JsonElement> prepare(ResourceManager param0, ProfilerFiller param1) {
         Map<ResourceLocation, JsonElement> var0 = Maps.newHashMap();
-        int var1 = this.directory.length() + 1;
+        FileToIdConverter var1 = FileToIdConverter.json(this.directory);
 
-        for(Entry<ResourceLocation, Resource> var2 : param0.listResources(this.directory, param0x -> param0x.getPath().endsWith(".json")).entrySet()) {
+        for(Entry<ResourceLocation, Resource> var2 : var1.listMatchingResources(param0).entrySet()) {
             ResourceLocation var3 = var2.getKey();
-            String var4 = var3.getPath();
-            ResourceLocation var5 = new ResourceLocation(var3.getNamespace(), var4.substring(var1, var4.length() - PATH_SUFFIX_LENGTH));
+            ResourceLocation var4 = var1.fileToId(var3);
 
-            try (Reader var6 = var2.getValue().openAsReader()) {
-                JsonElement var7 = GsonHelper.fromJson(this.gson, var6, JsonElement.class);
-                if (var7 != null) {
-                    JsonElement var8 = var0.put(var5, var7);
-                    if (var8 != null) {
-                        throw new IllegalStateException("Duplicate data file ignored with ID " + var5);
+            try (Reader var5 = var2.getValue().openAsReader()) {
+                JsonElement var6 = GsonHelper.fromJson(this.gson, var5, JsonElement.class);
+                if (var6 != null) {
+                    JsonElement var7 = var0.put(var4, var6);
+                    if (var7 != null) {
+                        throw new IllegalStateException("Duplicate data file ignored with ID " + var4);
                     }
                 } else {
-                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", var5, var3);
+                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", var4, var3);
                 }
-            } catch (IllegalArgumentException | IOException | JsonParseException var15) {
-                LOGGER.error("Couldn't parse data file {} from {}", var5, var3, var15);
+            } catch (IllegalArgumentException | IOException | JsonParseException var14) {
+                LOGGER.error("Couldn't parse data file {} from {}", var4, var3, var14);
             }
         }
 

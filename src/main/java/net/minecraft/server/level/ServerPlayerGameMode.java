@@ -7,7 +7,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
@@ -51,7 +51,13 @@ public class ServerPlayerGameMode {
         if (param0 == this.gameModeForPlayer) {
             return false;
         } else {
-            this.setGameModeForPlayer(param0, this.gameModeForPlayer);
+            this.setGameModeForPlayer(param0, this.previousGameModeForPlayer);
+            this.player.onUpdateAbilities();
+            this.player
+                .server
+                .getPlayerList()
+                .broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, this.player));
+            this.level.updateSleepingPlayerList();
             return true;
         }
     }
@@ -60,9 +66,6 @@ public class ServerPlayerGameMode {
         this.previousGameModeForPlayer = param1;
         this.gameModeForPlayer = param0;
         param0.updatePlayerAbilities(this.player.getAbilities());
-        this.player.onUpdateAbilities();
-        this.player.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.UPDATE_GAME_MODE, this.player));
-        this.level.updateSleepingPlayerList();
     }
 
     public GameType getGameModeForPlayer() {
@@ -297,7 +300,9 @@ public class ServerPlayerGameMode {
     public InteractionResult useItemOn(ServerPlayer param0, Level param1, ItemStack param2, InteractionHand param3, BlockHitResult param4) {
         BlockPos var0 = param4.getBlockPos();
         BlockState var1 = param1.getBlockState(var0);
-        if (this.gameModeForPlayer == GameType.SPECTATOR) {
+        if (!var1.getBlock().isEnabled(param1.enabledFeatures())) {
+            return InteractionResult.FAIL;
+        } else if (this.gameModeForPlayer == GameType.SPECTATOR) {
             MenuProvider var2 = var1.getMenuProvider(param1, var0);
             if (var2 != null) {
                 param0.openMenu(var2);

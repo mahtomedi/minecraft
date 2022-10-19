@@ -96,7 +96,13 @@ public class DismountHelper {
                     }
                 }
 
-                return !param1.getWorldBorder().isWithinBounds(var2) ? null : var1;
+                if (param0 != EntityType.PLAYER
+                    || !param1.getBlockState(param2).is(BlockTags.INVALID_SPAWN_INSIDE)
+                        && !param1.getBlockState(param2.above()).is(BlockTags.INVALID_SPAWN_INSIDE)) {
+                    return !param1.getWorldBorder().isWithinBounds(var2) ? null : var1;
+                } else {
+                    return null;
+                }
             }
         }
     }

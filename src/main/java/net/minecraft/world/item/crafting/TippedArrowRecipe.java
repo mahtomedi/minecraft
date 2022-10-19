@@ -8,8 +8,8 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 
 public class TippedArrowRecipe extends CustomRecipe {
-    public TippedArrowRecipe(ResourceLocation param0) {
-        super(param0);
+    public TippedArrowRecipe(ResourceLocation param0, CraftingBookCategory param1) {
+        super(param0, param1);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

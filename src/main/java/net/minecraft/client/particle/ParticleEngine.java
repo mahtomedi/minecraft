@@ -9,17 +9,21 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -27,12 +31,13 @@ import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -43,8 +48,10 @@ import net.minecraft.core.particles.ParticleGroup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
@@ -57,9 +64,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleEngine implements PreparableReloadListener {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final FileToIdConverter PARTICLE_LISTER = FileToIdConverter.json("particles");
     private static final int MAX_PARTICLES_PER_LAYER = 16384;
     private static final List<ParticleRenderType> RENDER_ORDER = ImmutableList.of(
         ParticleRenderType.TERRAIN_SHEET,
@@ -202,77 +212,95 @@ public class ParticleEngine implements PreparableReloadListener {
         Executor param4,
         Executor param5
     ) {
-        Map<ResourceLocation, List<ResourceLocation>> var0 = Maps.newConcurrentMap();
-        CompletableFuture<?>[] var1 = Registry.PARTICLE_TYPE
-            .keySet()
-            .stream()
-            .map(param3x -> CompletableFuture.runAsync(() -> this.loadParticleDescription(param1, param3x, var0), param4))
-            .toArray(param0x -> new CompletableFuture[param0x]);
-        return CompletableFuture.allOf(var1)
-            .thenApplyAsync(param3x -> {
-                param2.startTick();
-                param2.push("stitching");
-                TextureAtlas.Preparations var0x = this.textureAtlas.prepareToStitch(param1, var0.values().stream().flatMap(Collection::stream), param2, 0);
-                param2.pop();
-                param2.endTick();
-                return var0x;
-            }, param4)
-            .thenCompose(param0::wait)
-            .thenAcceptAsync(
-                param2x -> {
-                    this.particles.clear();
-                    param3.startTick();
-                    param3.push("upload");
-                    this.textureAtlas.reload(param2x);
-                    param3.popPush("bindSpriteSets");
-                    TextureAtlasSprite var0x = this.textureAtlas.getSprite(MissingTextureAtlasSprite.getLocation());
-                    var0.forEach(
-                        (param1x, param2xx) -> {
-                            ImmutableList<TextureAtlasSprite> var0xx = param2xx.isEmpty()
-                                ? ImmutableList.of(var0x)
-                                : param2xx.stream().map(this.textureAtlas::getSprite).collect(ImmutableList.toImmutableList());
-                            this.spriteSets.get(param1x).rebind(var0xx);
+        @OnlyIn(Dist.CLIENT)
+        record ParticleDefinition(ResourceLocation id, Optional<List<ResourceLocation>> sprites) {
+        }
+
+        CompletableFuture<List<ParticleDefinition>> var0 = CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(
+                () -> PARTICLE_LISTER.listMatchingResources(param1), param4
+            )
+            .thenCompose(param1x -> {
+                List<CompletableFuture<ParticleDefinition>> var0x = new ArrayList<>(param1x.size());
+                param1x.forEach((param2x, param3x) -> {
+                    ResourceLocation var0xx = PARTICLE_LISTER.fileToId(param2x);
+                    var0x.add(CompletableFuture.supplyAsync(() -> new ParticleDefinition(var0xx, this.loadParticleDescription(var0xx, param3x)), param4));
+                });
+                return Util.sequence(var0x);
+            });
+        CompletableFuture<SpriteLoader.Preparations> var1 = CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(
+                () -> SpriteLoader.listSprites(param1, "particle"), param4
+            )
+            .thenCompose(param1x -> SpriteLoader.create(this.textureAtlas).stitch(param1x, 0, param4))
+            .thenCompose(SpriteLoader.Preparations::waitForUpload);
+        return CompletableFuture.allOf(var1, var0).thenCompose(param0::wait).thenAcceptAsync(param3x -> {
+            this.particles.clear();
+            param3.startTick();
+            param3.push("upload");
+            SpriteLoader.Preparations var0x = var1.join();
+            this.textureAtlas.upload(var0x);
+            param3.popPush("bindSpriteSets");
+            Set<ResourceLocation> var1x = new HashSet<>();
+            TextureAtlasSprite var2x = var0x.missing();
+            var0.join().forEach(param3xx -> {
+                Optional<List<ResourceLocation>> var0xx = param3xx.sprites();
+                if (!var0xx.isEmpty()) {
+                    List<TextureAtlasSprite> var1xx = new ArrayList();
+
+                    for(ResourceLocation var2xx : (List)var0xx.get()) {
+                        TextureAtlasSprite var3x = var0x.regions().get(var2xx);
+                        if (var3x == null) {
+                            var1x.add(var2xx);
+                            var1xx.add(var2x);
+                        } else {
+                            var1xx.add(var3x);
                         }
-                    );
-                    param3.pop();
-                    param3.endTick();
-                },
-                param5
-            );
+                    }
+
+                    if (var1xx.isEmpty()) {
+                        var1xx.add(var2x);
+                    }
+
+                    this.spriteSets.get(param3xx.id()).rebind(var1xx);
+                }
+            });
+            if (!var1x.isEmpty()) {
+                LOGGER.warn("Missing particle sprites: {}", var1x.stream().sorted().map(ResourceLocation::toString).collect(Collectors.joining(",")));
+            }
+
+            param3.pop();
+            param3.endTick();
+        }, param5);
     }
 
     public void close() {
         this.textureAtlas.clearTextureData();
     }
 
-    private void loadParticleDescription(ResourceManager param0, ResourceLocation param1, Map<ResourceLocation, List<ResourceLocation>> param2) {
-        ResourceLocation var0 = new ResourceLocation(param1.getNamespace(), "particles/" + param1.getPath() + ".json");
-
+    private Optional<List<ResourceLocation>> loadParticleDescription(ResourceLocation param0, Resource param1) {
         try {
-            try (Reader var1 = param0.openAsReader(var0)) {
-                ParticleDescription var2 = ParticleDescription.fromJson(GsonHelper.parse(var1));
-                List<ResourceLocation> var3 = var2.getTextures();
-                boolean var4 = this.spriteSets.containsKey(param1);
-                if (var3 == null) {
-                    if (var4) {
-                        throw new IllegalStateException("Missing texture list for particle " + param1);
-                    }
-                } else {
-                    if (!var4) {
-                        throw new IllegalStateException("Redundant texture list for particle " + param1);
+            Optional var7;
+            try (Reader var0 = param1.openAsReader()) {
+                ParticleDescription var1 = ParticleDescription.fromJson(GsonHelper.parse(var0));
+                List<ResourceLocation> var2 = var1.getTextures();
+                boolean var3 = this.spriteSets.containsKey(param0);
+                if (var2 == null) {
+                    if (var3) {
+                        throw new IllegalStateException("Missing texture list for particle " + param0);
                     }
 
-                    param2.put(
-                        param1,
-                        var3.stream()
-                            .map(param0x -> new ResourceLocation(param0x.getNamespace(), "particle/" + param0x.getPath()))
-                            .collect(Collectors.toList())
-                    );
+                    return Optional.empty();
                 }
+
+                if (!var3) {
+                    throw new IllegalStateException("Redundant texture list for particle " + param0);
+                }
+
+                var7 = Optional.of(var2.stream().map(param0x -> param0x.withPrefix("particle/")).collect(Collectors.toList()));
             }
 
-        } catch (IOException var11) {
-            throw new IllegalStateException("Failed to load description for particle " + param1, var11);
+            return var7;
+        } catch (IOException var10) {
+            throw new IllegalStateException("Failed to load description for particle " + param0, var10);
         }
     }
 
@@ -424,7 +452,7 @@ public class ParticleEngine implements PreparableReloadListener {
     }
 
     public void destroy(BlockPos param0, BlockState param1) {
-        if (!param1.isAir()) {
+        if (!param1.isAir() && param1.shouldSpawnParticlesOnBreak()) {
             VoxelShape var0 = param1.getShape(this.level, param0);
             double var1 = 0.25;
             var0.forAllBoxes(

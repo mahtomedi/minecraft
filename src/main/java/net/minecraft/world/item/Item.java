@@ -13,7 +13,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -32,6 +31,10 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureElement;
+import net.minecraft.world.flag.FeatureFlag;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
@@ -46,7 +49,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
-public class Item implements ItemLike {
+public class Item implements FeatureElement, ItemLike {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
     protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
@@ -55,8 +58,6 @@ public class Item implements ItemLike {
     public static final int EAT_DURATION = 32;
     public static final int MAX_BAR_WIDTH = 13;
     private final Holder.Reference<Item> builtInRegistryHolder = Registry.ITEM.createIntrusiveHolder(this);
-    @Nullable
-    protected final CreativeModeTab category;
     private final Rarity rarity;
     private final int maxStackSize;
     private final int maxDamage;
@@ -67,6 +68,7 @@ public class Item implements ItemLike {
     private String descriptionId;
     @Nullable
     private final FoodProperties foodProperties;
+    private final FeatureFlagSet requiredFeatures;
 
     public static int getId(Item param0) {
         return param0 == null ? 0 : Registry.ITEM.getId(param0);
@@ -82,13 +84,13 @@ public class Item implements ItemLike {
     }
 
     public Item(Item.Properties param0) {
-        this.category = param0.category;
         this.rarity = param0.rarity;
         this.craftingRemainingItem = param0.craftingRemainingItem;
         this.maxDamage = param0.maxDamage;
         this.maxStackSize = param0.maxStackSize;
         this.foodProperties = param0.foodProperties;
         this.isFireResistant = param0.isFireResistant;
+        this.requiredFeatures = param0.requiredFeatures;
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             String var0 = this.getClass().getSimpleName();
             if (!var0.endsWith("Item")) {
@@ -314,23 +316,6 @@ public class Item implements ItemLike {
         return 0;
     }
 
-    public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowedIn(param0)) {
-            param1.add(new ItemStack(this));
-        }
-
-    }
-
-    protected boolean allowedIn(CreativeModeTab param0) {
-        CreativeModeTab var0 = this.getItemCategory();
-        return var0 != null && (param0 == CreativeModeTab.TAB_SEARCH || param0 == var0);
-    }
-
-    @Nullable
-    public final CreativeModeTab getItemCategory() {
-        return this.category;
-    }
-
     public boolean isValidRepairItem(ItemStack param0, ItemStack param1) {
         return false;
     }
@@ -381,17 +366,21 @@ public class Item implements ItemLike {
         return true;
     }
 
+    @Override
+    public FeatureFlagSet requiredFeatures() {
+        return this.requiredFeatures;
+    }
+
     public static class Properties {
         int maxStackSize = 64;
         int maxDamage;
         @Nullable
         Item craftingRemainingItem;
-        @Nullable
-        CreativeModeTab category;
         Rarity rarity = Rarity.COMMON;
         @Nullable
         FoodProperties foodProperties;
         boolean isFireResistant;
+        FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
 
         public Item.Properties food(FoodProperties param0) {
             this.foodProperties = param0;
@@ -422,11 +411,6 @@ public class Item implements ItemLike {
             return this;
         }
 
-        public Item.Properties tab(CreativeModeTab param0) {
-            this.category = param0;
-            return this;
-        }
-
         public Item.Properties rarity(Rarity param0) {
             this.rarity = param0;
             return this;
@@ -434,6 +418,11 @@ public class Item implements ItemLike {
 
         public Item.Properties fireResistant() {
             this.isFireResistant = true;
+            return this;
+        }
+
+        public Item.Properties requiredFeatures(FeatureFlag... param0) {
+            this.requiredFeatures = FeatureFlags.REGISTRY.subset(param0);
             return this;
         }
     }

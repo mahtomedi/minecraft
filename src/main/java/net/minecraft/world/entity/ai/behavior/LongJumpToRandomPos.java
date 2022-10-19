@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -23,11 +23,10 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
@@ -46,14 +45,21 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
     protected Vec3 chosenJump;
     protected int findJumpTries;
     protected long prepareJumpStart;
-    private Function<E, SoundEvent> getJumpSound;
-    private final Predicate<BlockState> acceptableLandingSpot;
+    private final Function<E, SoundEvent> getJumpSound;
+    private final BiPredicate<E, BlockPos> acceptableLandingSpot;
 
     public LongJumpToRandomPos(UniformInt param0, int param1, int param2, float param3, Function<E, SoundEvent> param4) {
-        this(param0, param1, param2, param3, param4, param0x -> false);
+        this(param0, param1, param2, param3, param4, LongJumpToRandomPos::defaultAcceptableLandingSpot);
     }
 
-    public LongJumpToRandomPos(UniformInt param0, int param1, int param2, float param3, Function<E, SoundEvent> param4, Predicate<BlockState> param5) {
+    public static <E extends Mob> boolean defaultAcceptableLandingSpot(E param0x, BlockPos param1x) {
+        Level var0 = param0x.level;
+        BlockPos var1 = param1x.below();
+        return var0.getBlockState(var1).isSolidRender(var0, var1)
+            && param0x.getPathfindingMalus(WalkNodeEvaluator.getBlockPathTypeStatic(var0, param1x.mutable())) == 0.0F;
+    }
+
+    public LongJumpToRandomPos(UniformInt param0, int param1, int param2, float param3, Function<E, SoundEvent> param4, BiPredicate<E, BlockPos> param5) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
@@ -166,17 +172,11 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
         return var0;
     }
 
-    protected boolean isAcceptableLandingPosition(ServerLevel param0, E param1, BlockPos param2) {
+    private boolean isAcceptableLandingPosition(ServerLevel param0, E param1, BlockPos param2) {
         BlockPos var0 = param1.blockPosition();
         int var1 = var0.getX();
         int var2 = var0.getZ();
-        if (var1 == param2.getX() && var2 == param2.getZ()) {
-            return false;
-        } else if (!param1.getNavigation().isStableDestination(param2) && !this.acceptableLandingSpot.test(param0.getBlockState(param2.below()))) {
-            return false;
-        } else {
-            return param1.getPathfindingMalus(WalkNodeEvaluator.getBlockPathTypeStatic(param1.level, param2.mutable())) == 0.0F;
-        }
+        return var1 == param2.getX() && var2 == param2.getZ() ? false : this.acceptableLandingSpot.test(param1, param2);
     }
 
     @Nullable
@@ -225,18 +225,19 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
                 int var19 = Mth.ceil(var6 / var17) * 2;
                 double var20 = 0.0;
                 Vec3 var21 = null;
+                EntityDimensions var22 = param0.getDimensions(Pose.LONG_JUMPING);
 
-                for(int var22 = 0; var22 < var19 - 1; ++var22) {
+                for(int var23 = 0; var23 < var19 - 1; ++var23) {
                     var20 += var6 / (double)var19;
-                    double var23 = var11 / var12 * var20 - Math.pow(var20, 2.0) * 0.08 / (2.0 * var15 * Math.pow(var12, 2.0));
-                    double var24 = var20 * var14;
-                    double var25 = var20 * var13;
-                    Vec3 var26 = new Vec3(var0.x + var24, var0.y + var23, var0.z + var25);
-                    if (var21 != null && !this.isClearTransition(param0, var21, var26)) {
+                    double var24 = var11 / var12 * var20 - Math.pow(var20, 2.0) * 0.08 / (2.0 * var15 * Math.pow(var12, 2.0));
+                    double var25 = var20 * var14;
+                    double var26 = var20 * var13;
+                    Vec3 var27 = new Vec3(var0.x + var25, var0.y + var24, var0.z + var26);
+                    if (var21 != null && !this.isClearTransition(param0, var22, var21, var27)) {
                         return null;
                     }
 
-                    var21 = var26;
+                    var21 = var27;
                 }
 
                 return new Vec3(var17 * var14, var18, var17 * var13).scale(0.95F);
@@ -244,18 +245,16 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
         }
     }
 
-    private boolean isClearTransition(Mob param0, Vec3 param1, Vec3 param2) {
-        EntityDimensions var0 = param0.getDimensions(Pose.LONG_JUMPING);
-        Vec3 var1 = param2.subtract(param1);
-        double var2 = (double)Math.min(var0.width, var0.height);
-        int var3 = Mth.ceil(var1.length() / var2);
-        Vec3 var4 = var1.normalize();
-        Vec3 var5 = param1;
+    private boolean isClearTransition(Mob param0, EntityDimensions param1, Vec3 param2, Vec3 param3) {
+        Vec3 var0 = param3.subtract(param2);
+        double var1 = (double)Math.min(param1.width, param1.height);
+        int var2 = Mth.ceil(var0.length() / var1);
+        Vec3 var3 = var0.normalize();
+        Vec3 var4 = param2;
 
-        for(int var6 = 0; var6 < var3; ++var6) {
-            var5 = var6 == var3 - 1 ? param2 : var5.add(var4.scale(var2 * 0.9F));
-            AABB var7 = var0.makeBoundingBox(var5);
-            if (!param0.level.noCollision(param0, var7)) {
+        for(int var5 = 0; var5 < var2; ++var5) {
+            var4 = var5 == var2 - 1 ? param3 : var4.add(var3.scale(var1 * 0.9F));
+            if (!param0.level.noCollision(param0, param1.makeBoundingBox(var4))) {
                 return false;
             }
         }

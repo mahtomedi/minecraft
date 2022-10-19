@@ -83,10 +83,10 @@ public class PortalForcer {
 
                 for(int var11 = var9; var11 >= this.level.getMinBuildHeight(); --var11) {
                     var8.setY(var11);
-                    if (this.level.isEmptyBlock(var8)) {
+                    if (this.canPortalReplaceBlock(var8)) {
                         int var12 = var11;
 
-                        while(var11 > this.level.getMinBuildHeight() && this.level.isEmptyBlock(var8.move(Direction.DOWN))) {
+                        while(var11 > this.level.getMinBuildHeight() && this.canPortalReplaceBlock(var8.move(Direction.DOWN))) {
                             --var11;
                         }
 
@@ -163,6 +163,11 @@ public class PortalForcer {
         return Optional.of(new BlockUtil.FoundRectangle(var2.immutable(), 2, 3));
     }
 
+    private boolean canPortalReplaceBlock(BlockPos.MutableBlockPos param0) {
+        BlockState var0 = this.level.getBlockState(param0);
+        return var0.canBeReplaced() && var0.getFluidState().isEmpty();
+    }
+
     private boolean canHostFrame(BlockPos param0, BlockPos.MutableBlockPos param1, Direction param2, int param3) {
         Direction var0 = param2.getClockWise();
 
@@ -173,7 +178,7 @@ public class PortalForcer {
                     return false;
                 }
 
-                if (var2 >= 0 && !this.level.isEmptyBlock(param1)) {
+                if (var2 >= 0 && !this.canPortalReplaceBlock(param1)) {
                     return false;
                 }
             }

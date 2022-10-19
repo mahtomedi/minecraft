@@ -25,7 +25,7 @@ import net.minecraft.Util;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.ArgumentUtils;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
@@ -107,6 +107,7 @@ import net.minecraft.server.commands.WorldBorderCommand;
 import net.minecraft.server.commands.data.DataCommands;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
+import net.minecraft.world.flag.FeatureFlags;
 import org.slf4j.Logger;
 
 public class Commands {
@@ -120,7 +121,7 @@ public class Commands {
 
     public Commands(Commands.CommandSelection param0, CommandBuildContext param1) {
         AdvancementCommands.register(this.dispatcher);
-        AttributeCommand.register(this.dispatcher);
+        AttributeCommand.register(this.dispatcher, param1);
         ExecuteCommand.register(this.dispatcher, param1);
         BossBarCommands.register(this.dispatcher);
         ClearInventoryCommands.register(this.dispatcher, param1);
@@ -130,9 +131,9 @@ public class Commands {
         DebugCommand.register(this.dispatcher);
         DefaultGameModeCommands.register(this.dispatcher);
         DifficultyCommand.register(this.dispatcher);
-        EffectCommands.register(this.dispatcher);
+        EffectCommands.register(this.dispatcher, param1);
         EmoteCommands.register(this.dispatcher);
-        EnchantCommand.register(this.dispatcher);
+        EnchantCommand.register(this.dispatcher, param1);
         ExperienceCommand.register(this.dispatcher);
         FillCommand.register(this.dispatcher, param1);
         ForceLoadCommand.register(this.dispatcher);
@@ -145,10 +146,10 @@ public class Commands {
         KickCommand.register(this.dispatcher);
         KillCommand.register(this.dispatcher);
         ListPlayersCommand.register(this.dispatcher);
-        LocateCommand.register(this.dispatcher);
+        LocateCommand.register(this.dispatcher, param1);
         LootCommand.register(this.dispatcher, param1);
         MsgCommand.register(this.dispatcher);
-        ParticleCommand.register(this.dispatcher);
+        ParticleCommand.register(this.dispatcher, param1);
         PlaceCommand.register(this.dispatcher);
         PlaySoundCommand.register(this.dispatcher);
         ReloadCommand.register(this.dispatcher);
@@ -163,7 +164,7 @@ public class Commands {
         SpectateCommand.register(this.dispatcher);
         SpreadPlayersCommand.register(this.dispatcher);
         StopSoundCommand.register(this.dispatcher);
-        SummonCommand.register(this.dispatcher);
+        SummonCommand.register(this.dispatcher, param1);
         TagCommand.register(this.dispatcher);
         TeamCommand.register(this.dispatcher);
         TeamMsgCommand.register(this.dispatcher);
@@ -358,7 +359,7 @@ public class Commands {
     }
 
     public static void validate() {
-        CommandBuildContext var0 = new CommandBuildContext(RegistryAccess.BUILTIN.get());
+        CommandBuildContext var0 = new CommandBuildContext(BuiltinRegistries.createAccess(), FeatureFlags.REGISTRY.allFlags());
         var0.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.RETURN_EMPTY);
         CommandDispatcher<CommandSourceStack> var1 = new Commands(Commands.CommandSelection.ALL, var0).getDispatcher();
         RootCommandNode<CommandSourceStack> var2 = var1.getRoot();

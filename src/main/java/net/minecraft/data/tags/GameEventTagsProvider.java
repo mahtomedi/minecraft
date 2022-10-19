@@ -2,7 +2,7 @@ package net.minecraft.data.tags;
 
 import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.core.Registry;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.GameEventTags;
 import net.minecraft.world.level.gameevent.GameEvent;
 
@@ -51,7 +51,7 @@ public class GameEventTagsProvider extends TagsProvider<GameEvent> {
         GameEvent.TELEPORT
     };
 
-    public GameEventTagsProvider(DataGenerator param0) {
+    public GameEventTagsProvider(PackOutput param0) {
         super(param0, Registry.GAME_EVENT);
     }
 

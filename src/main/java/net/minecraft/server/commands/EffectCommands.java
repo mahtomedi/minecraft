@@ -8,10 +8,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Collection;
 import javax.annotation.Nullable;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.MobEffectArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -27,7 +30,7 @@ public class EffectCommands {
         Component.translatable("commands.effect.clear.specific.failed")
     );
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
             Commands.literal("effect")
                 .requires(param0x -> param0x.hasPermission(2))
@@ -38,12 +41,12 @@ public class EffectCommands {
                             Commands.argument("targets", EntityArgument.entities())
                                 .executes(param0x -> clearEffects(param0x.getSource(), EntityArgument.getEntities(param0x, "targets")))
                                 .then(
-                                    Commands.argument("effect", MobEffectArgument.effect())
+                                    Commands.argument("effect", ResourceArgument.resource(param1, Registry.MOB_EFFECT_REGISTRY))
                                         .executes(
                                             param0x -> clearEffect(
                                                     param0x.getSource(),
                                                     EntityArgument.getEntities(param0x, "targets"),
-                                                    MobEffectArgument.getEffect(param0x, "effect")
+                                                    ResourceArgument.getMobEffect(param0x, "effect")
                                                 )
                                         )
                                 )
@@ -54,12 +57,12 @@ public class EffectCommands {
                         .then(
                             Commands.argument("targets", EntityArgument.entities())
                                 .then(
-                                    Commands.argument("effect", MobEffectArgument.effect())
+                                    Commands.argument("effect", ResourceArgument.resource(param1, Registry.MOB_EFFECT_REGISTRY))
                                         .executes(
                                             param0x -> giveEffect(
                                                     param0x.getSource(),
                                                     EntityArgument.getEntities(param0x, "targets"),
-                                                    MobEffectArgument.getEffect(param0x, "effect"),
+                                                    ResourceArgument.getMobEffect(param0x, "effect"),
                                                     null,
                                                     0,
                                                     true
@@ -71,7 +74,7 @@ public class EffectCommands {
                                                     param0x -> giveEffect(
                                                             param0x.getSource(),
                                                             EntityArgument.getEntities(param0x, "targets"),
-                                                            MobEffectArgument.getEffect(param0x, "effect"),
+                                                            ResourceArgument.getMobEffect(param0x, "effect"),
                                                             IntegerArgumentType.getInteger(param0x, "seconds"),
                                                             0,
                                                             true
@@ -83,7 +86,7 @@ public class EffectCommands {
                                                             param0x -> giveEffect(
                                                                     param0x.getSource(),
                                                                     EntityArgument.getEntities(param0x, "targets"),
-                                                                    MobEffectArgument.getEffect(param0x, "effect"),
+                                                                    ResourceArgument.getMobEffect(param0x, "effect"),
                                                                     IntegerArgumentType.getInteger(param0x, "seconds"),
                                                                     IntegerArgumentType.getInteger(param0x, "amplifier"),
                                                                     true
@@ -95,7 +98,7 @@ public class EffectCommands {
                                                                     param0x -> giveEffect(
                                                                             param0x.getSource(),
                                                                             EntityArgument.getEntities(param0x, "targets"),
-                                                                            MobEffectArgument.getEffect(param0x, "effect"),
+                                                                            ResourceArgument.getMobEffect(param0x, "effect"),
                                                                             IntegerArgumentType.getInteger(param0x, "seconds"),
                                                                             IntegerArgumentType.getInteger(param0x, "amplifier"),
                                                                             !BoolArgumentType.getBool(param0x, "hideParticles")
@@ -111,44 +114,45 @@ public class EffectCommands {
     }
 
     private static int giveEffect(
-        CommandSourceStack param0, Collection<? extends Entity> param1, MobEffect param2, @Nullable Integer param3, int param4, boolean param5
+        CommandSourceStack param0, Collection<? extends Entity> param1, Holder<MobEffect> param2, @Nullable Integer param3, int param4, boolean param5
     ) throws CommandSyntaxException {
-        int var0 = 0;
-        int var1;
+        MobEffect var0 = param2.value();
+        int var1 = 0;
+        int var2;
         if (param3 != null) {
-            if (param2.isInstantenous()) {
-                var1 = param3;
+            if (var0.isInstantenous()) {
+                var2 = param3;
             } else {
-                var1 = param3 * 20;
+                var2 = param3 * 20;
             }
-        } else if (param2.isInstantenous()) {
-            var1 = 1;
+        } else if (var0.isInstantenous()) {
+            var2 = 1;
         } else {
-            var1 = 600;
+            var2 = 600;
         }
 
-        for(Entity var5 : param1) {
-            if (var5 instanceof LivingEntity) {
-                MobEffectInstance var6 = new MobEffectInstance(param2, var1, param4, false, param5);
-                if (((LivingEntity)var5).addEffect(var6, param0.getEntity())) {
-                    ++var0;
+        for(Entity var6 : param1) {
+            if (var6 instanceof LivingEntity) {
+                MobEffectInstance var7 = new MobEffectInstance(var0, var2, param4, false, param5);
+                if (((LivingEntity)var6).addEffect(var7, param0.getEntity())) {
+                    ++var1;
                 }
             }
         }
 
-        if (var0 == 0) {
+        if (var1 == 0) {
             throw ERROR_GIVE_FAILED.create();
         } else {
             if (param1.size() == 1) {
                 param0.sendSuccess(
-                    Component.translatable("commands.effect.give.success.single", param2.getDisplayName(), param1.iterator().next().getDisplayName(), var1 / 20),
+                    Component.translatable("commands.effect.give.success.single", var0.getDisplayName(), param1.iterator().next().getDisplayName(), var2 / 20),
                     true
                 );
             } else {
-                param0.sendSuccess(Component.translatable("commands.effect.give.success.multiple", param2.getDisplayName(), param1.size(), var1 / 20), true);
+                param0.sendSuccess(Component.translatable("commands.effect.give.success.multiple", var0.getDisplayName(), param1.size(), var2 / 20), true);
             }
 
-            return var0;
+            return var1;
         }
     }
 
@@ -174,28 +178,29 @@ public class EffectCommands {
         }
     }
 
-    private static int clearEffect(CommandSourceStack param0, Collection<? extends Entity> param1, MobEffect param2) throws CommandSyntaxException {
-        int var0 = 0;
+    private static int clearEffect(CommandSourceStack param0, Collection<? extends Entity> param1, Holder<MobEffect> param2) throws CommandSyntaxException {
+        MobEffect var0 = param2.value();
+        int var1 = 0;
 
-        for(Entity var1 : param1) {
-            if (var1 instanceof LivingEntity && ((LivingEntity)var1).removeEffect(param2)) {
-                ++var0;
+        for(Entity var2 : param1) {
+            if (var2 instanceof LivingEntity && ((LivingEntity)var2).removeEffect(var0)) {
+                ++var1;
             }
         }
 
-        if (var0 == 0) {
+        if (var1 == 0) {
             throw ERROR_CLEAR_SPECIFIC_FAILED.create();
         } else {
             if (param1.size() == 1) {
                 param0.sendSuccess(
-                    Component.translatable("commands.effect.clear.specific.success.single", param2.getDisplayName(), param1.iterator().next().getDisplayName()),
+                    Component.translatable("commands.effect.clear.specific.success.single", var0.getDisplayName(), param1.iterator().next().getDisplayName()),
                     true
                 );
             } else {
-                param0.sendSuccess(Component.translatable("commands.effect.clear.specific.success.multiple", param2.getDisplayName(), param1.size()), true);
+                param0.sendSuccess(Component.translatable("commands.effect.clear.specific.success.multiple", var0.getDisplayName(), param1.size()), true);
             }
 
-            return var0;
+            return var1;
         }
     }
 }

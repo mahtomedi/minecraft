@@ -387,6 +387,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         }
     }
 
+    @Nullable
     public Strider getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         return EntityType.STRIDER.create(param0);
     }
@@ -453,21 +454,24 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
             return super.finalizeSpawn(param0, param1, param2, param3, param4);
         } else {
             RandomSource var0 = param0.getRandom();
-            Object var8;
             if (var0.nextInt(30) == 0) {
                 Mob var1 = EntityType.ZOMBIFIED_PIGLIN.create(param0.getLevel());
-                var8 = this.spawnJockey(param0, param1, var1, new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(var0), false));
-                var1.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
-                this.equipSaddle(null);
+                if (var1 != null) {
+                    param3 = this.spawnJockey(param0, param1, var1, new Zombie.ZombieGroupData(Zombie.getSpawnAsBabyOdds(var0), false));
+                    var1.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.WARPED_FUNGUS_ON_A_STICK));
+                    this.equipSaddle(null);
+                }
             } else if (var0.nextInt(10) == 0) {
                 AgeableMob var2 = EntityType.STRIDER.create(param0.getLevel());
-                var2.setAge(-24000);
-                var8 = this.spawnJockey(param0, param1, var2, null);
+                if (var2 != null) {
+                    var2.setAge(-24000);
+                    param3 = this.spawnJockey(param0, param1, var2, null);
+                }
             } else {
-                var8 = new AgeableMob.AgeableMobGroupData(0.5F);
+                param3 = new AgeableMob.AgeableMobGroupData(0.5F);
             }
 
-            return super.finalizeSpawn(param0, param1, param2, (SpawnGroupData)var8, param4);
+            return super.finalizeSpawn(param0, param1, param2, param3, param4);
         }
     }
 

@@ -83,7 +83,7 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
     }
 
     protected void tick(ServerLevel param0, E param1, long param2) {
-        if (this.ramCandidate.isPresent()) {
+        if (!this.ramCandidate.isEmpty()) {
             param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.ramCandidate.get().getStartPosition(), this.walkSpeed, 0));
             param1.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.ramCandidate.get().getTarget(), true));
             boolean var0 = !this.ramCandidate.get().getTarget().blockPosition().equals(this.ramCandidate.get().getTargetPosition());
@@ -95,7 +95,7 @@ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E
                 BlockPos var1 = param1.blockPosition();
                 if (var1.equals(this.ramCandidate.get().getStartPosition())) {
                     param0.broadcastEntityEvent(param1, (byte)58);
-                    if (!this.reachedRamPositionTimestamp.isPresent()) {
+                    if (this.reachedRamPositionTimestamp.isEmpty()) {
                         this.reachedRamPositionTimestamp = Optional.of(param2);
                     }
 

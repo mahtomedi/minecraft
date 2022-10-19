@@ -109,14 +109,14 @@ public class GameEvent {
         }
     }
 
-    public static final class Message implements Comparable<GameEvent.Message> {
+    public static final class ListenerInfo implements Comparable<GameEvent.ListenerInfo> {
         private final GameEvent gameEvent;
         private final Vec3 source;
         private final GameEvent.Context context;
         private final GameEventListener recipient;
         private final double distanceToRecipient;
 
-        public Message(GameEvent param0, Vec3 param1, GameEvent.Context param2, GameEventListener param3, Vec3 param4) {
+        public ListenerInfo(GameEvent param0, Vec3 param1, GameEvent.Context param2, GameEventListener param3, Vec3 param4) {
             this.gameEvent = param0;
             this.source = param1;
             this.context = param2;
@@ -124,7 +124,7 @@ public class GameEvent {
             this.distanceToRecipient = param1.distanceToSqr(param4);
         }
 
-        public int compareTo(GameEvent.Message param0) {
+        public int compareTo(GameEvent.ListenerInfo param0) {
             return Double.compare(this.distanceToRecipient, param0.distanceToRecipient);
         }
 

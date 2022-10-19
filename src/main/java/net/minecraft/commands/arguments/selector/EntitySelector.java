@@ -120,6 +120,10 @@ public class EntitySelector {
     }
 
     public List<? extends Entity> findEntities(CommandSourceStack param0) throws CommandSyntaxException {
+        return this.findEntitiesRaw(param0).stream().filter(param1 -> param1.getType().isEnabled(param0.enabledFeatures())).toList();
+    }
+
+    private List<? extends Entity> findEntitiesRaw(CommandSourceStack param0) throws CommandSyntaxException {
         this.checkPermissions(param0);
         if (!this.includesEntities) {
             return this.findPlayers(param0);

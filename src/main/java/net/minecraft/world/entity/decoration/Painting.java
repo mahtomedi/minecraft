@@ -3,6 +3,7 @@ package net.minecraft.world.entity.decoration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -115,8 +117,12 @@ public class Painting extends HangingEntity {
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
-        ResourceKey<PaintingVariant> var0 = ResourceKey.create(Registry.PAINTING_VARIANT_REGISTRY, ResourceLocation.tryParse(param0.getString("variant")));
-        this.setVariant(Registry.PAINTING_VARIANT.getHolder(var0).orElseGet(Painting::getDefaultVariant));
+        Holder<PaintingVariant> var0 = Optional.ofNullable(ResourceLocation.tryParse(param0.getString("variant")))
+            .map(param0x -> ResourceKey.create(Registry.PAINTING_VARIANT_REGISTRY, param0x))
+            .flatMap(Registry.PAINTING_VARIANT::getHolder)
+            .map((Function<? super Holder.Reference<PaintingVariant>, ? extends Holder.Reference<PaintingVariant>>)(param0x -> param0x))
+            .orElseGet(Painting::getDefaultVariant);
+        this.setVariant(var0);
         this.direction = Direction.from2DDataValue(param0.getByte("facing"));
         super.readAdditionalSaveData(param0);
         this.setDirection(this.direction);
@@ -165,7 +171,7 @@ public class Painting extends HangingEntity {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this, this.direction.get3DDataValue(), this.getPos());
     }
 

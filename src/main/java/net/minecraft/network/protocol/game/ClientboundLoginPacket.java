@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistrySynchronization;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
@@ -40,7 +41,7 @@ public record ClientboundLoginPacket(
             GameType.byId(param0.readByte()),
             GameType.byNullableId(param0.readByte()),
             param0.readCollection(Sets::newHashSetWithExpectedSize, param0x -> param0x.readResourceKey(Registry.DIMENSION_REGISTRY)),
-            param0.readWithCodec(RegistryAccess.NETWORK_CODEC).freeze(),
+            param0.readWithCodec(RegistrySynchronization.NETWORK_CODEC).freeze(),
             param0.readResourceKey(Registry.DIMENSION_TYPE_REGISTRY),
             param0.readResourceKey(Registry.DIMENSION_REGISTRY),
             param0.readLong(),
@@ -62,7 +63,7 @@ public record ClientboundLoginPacket(
         param0.writeByte(this.gameType.getId());
         param0.writeByte(GameType.getNullableId(this.previousGameType));
         param0.writeCollection(this.levels, FriendlyByteBuf::writeResourceKey);
-        param0.writeWithCodec(RegistryAccess.NETWORK_CODEC, this.registryHolder);
+        param0.writeWithCodec(RegistrySynchronization.NETWORK_CODEC, this.registryHolder);
         param0.writeResourceKey(this.dimensionType);
         param0.writeResourceKey(this.dimension);
         param0.writeLong(this.seed);

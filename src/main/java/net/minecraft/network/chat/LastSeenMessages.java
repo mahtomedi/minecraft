@@ -1,56 +1,66 @@
 package net.minecraft.network.chat;
 
-import java.io.DataOutput;
-import java.io.IOException;
+import com.google.common.primitives.Ints;
+import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.SignatureUpdater;
 
-public record LastSeenMessages(List<LastSeenMessages.Entry> entries) {
+public record LastSeenMessages(List<MessageSignature> entries) {
     public static LastSeenMessages EMPTY = new LastSeenMessages(List.of());
-    public static final int LAST_SEEN_MESSAGES_MAX_LENGTH = 5;
+    public static final int LAST_SEEN_MESSAGES_MAX_LENGTH = 20;
 
-    public LastSeenMessages(FriendlyByteBuf param0) {
-        this(param0.readCollection(FriendlyByteBuf.limitValue(ArrayList::new, 5), LastSeenMessages.Entry::new));
-    }
+    public void updateSignature(SignatureUpdater.Output param0) throws SignatureException {
+        param0.update(Ints.toByteArray(this.entries.size()));
 
-    public void write(FriendlyByteBuf param0) {
-        param0.writeCollection(this.entries, (param0x, param1) -> param1.write(param0x));
-    }
-
-    public void updateHash(DataOutput param0) throws IOException {
-        for(LastSeenMessages.Entry var0 : this.entries) {
-            UUID var1 = var0.profileId();
-            MessageSignature var2 = var0.lastSignature();
-            param0.writeByte(70);
-            param0.writeLong(var1.getMostSignificantBits());
-            param0.writeLong(var1.getLeastSignificantBits());
-            param0.write(var2.bytes());
+        for(MessageSignature var0 : this.entries) {
+            param0.update(var0.bytes());
         }
 
     }
 
-    public static record Entry(UUID profileId, MessageSignature lastSignature) {
-        public Entry(FriendlyByteBuf param0) {
-            this(param0.readUUID(), new MessageSignature(param0));
+    public LastSeenMessages.Packed pack(MessageSignature.Packer param0) {
+        return new LastSeenMessages.Packed(this.entries.stream().map(param1 -> param1.pack(param0)).toList());
+    }
+
+    public static record Packed(List<MessageSignature.Packed> entries) {
+        public static final LastSeenMessages.Packed EMPTY = new LastSeenMessages.Packed(List.of());
+
+        public Packed(FriendlyByteBuf param0) {
+            this(param0.readCollection(FriendlyByteBuf.limitValue(ArrayList::new, 20), MessageSignature.Packed::read));
         }
 
         public void write(FriendlyByteBuf param0) {
-            param0.writeUUID(this.profileId);
-            this.lastSignature.write(param0);
+            param0.writeCollection(this.entries, MessageSignature.Packed::write);
+        }
+
+        public Optional<LastSeenMessages> unpack(MessageSignature.Unpacker param0) {
+            List<MessageSignature> var0 = new ArrayList<>(this.entries.size());
+
+            for(MessageSignature.Packed var1 : this.entries) {
+                Optional<MessageSignature> var2 = var1.unpack(param0);
+                if (var2.isEmpty()) {
+                    return Optional.empty();
+                }
+
+                var0.add(var2.get());
+            }
+
+            return Optional.of(new LastSeenMessages(var0));
         }
     }
 
-    public static record Update(LastSeenMessages lastSeen, Optional<LastSeenMessages.Entry> lastReceived) {
+    public static record Update(int offset, BitSet acknowledged) {
         public Update(FriendlyByteBuf param0) {
-            this(new LastSeenMessages(param0), param0.readOptional(LastSeenMessages.Entry::new));
+            this(param0.readVarInt(), param0.readFixedBitSet(20));
         }
 
         public void write(FriendlyByteBuf param0) {
-            this.lastSeen.write(param0);
-            param0.writeOptional(this.lastReceived, (param0x, param1) -> param1.write(param0x));
+            param0.writeVarInt(this.offset);
+            param0.writeFixedBitSet(this.acknowledged, 20);
         }
     }
 }

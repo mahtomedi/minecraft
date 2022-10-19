@@ -5,8 +5,6 @@ import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
@@ -38,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -58,11 +57,11 @@ public class PackSelectionScreen extends Screen {
     private long ticksToReload;
     private TransferableSelectionList availablePackList;
     private TransferableSelectionList selectedPackList;
-    private final File packDir;
+    private final Path packDir;
     private Button doneButton;
     private final Map<String, ResourceLocation> packIcons = Maps.newHashMap();
 
-    public PackSelectionScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2, File param3, Component param4) {
+    public PackSelectionScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2, Path param3, Component param4) {
         super(param4);
         this.lastScreen = param0;
         this.model = new PackSelectionModel(this::populateLists, this::getPackIcon, param1, param2);
@@ -100,7 +99,7 @@ public class PackSelectionScreen extends Screen {
                 150,
                 20,
                 Component.translatable("pack.openFolder"),
-                param0 -> Util.getPlatform().openFile(this.packDir),
+                param0 -> Util.getPlatform().openUri(this.packDir.toUri()),
                 new Button.OnTooltip() {
                     @Override
                     public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
@@ -200,7 +199,7 @@ public class PackSelectionScreen extends Screen {
         String var0 = param0.stream().map(Path::getFileName).map(Path::toString).collect(Collectors.joining(", "));
         this.minecraft.setScreen(new ConfirmScreen(param1 -> {
             if (param1) {
-                copyPacks(this.minecraft, param0, this.packDir.toPath());
+                copyPacks(this.minecraft, param0, this.packDir);
                 this.reload();
             }
 
@@ -210,11 +209,9 @@ public class PackSelectionScreen extends Screen {
 
     private ResourceLocation loadPackIcon(TextureManager param0, Pack param1) {
         try {
-            ResourceLocation var8;
-            try (
-                PackResources var0 = param1.open();
-                InputStream var1 = var0.getRootResource("pack.png");
-            ) {
+            ResourceLocation var9;
+            try (PackResources var0 = param1.open()) {
+                IoSupplier<InputStream> var1 = var0.getRootResource("pack.png");
                 if (var1 == null) {
                     return DEFAULT_ICON;
                 }
@@ -223,18 +220,19 @@ public class PackSelectionScreen extends Screen {
                 ResourceLocation var3 = new ResourceLocation(
                     "minecraft", "pack/" + Util.sanitizeName(var2, ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(var2) + "/icon"
                 );
-                NativeImage var4 = NativeImage.read(var1);
-                param0.register(var3, new DynamicTexture(var4));
-                var8 = var3;
+
+                try (InputStream var4 = var1.get()) {
+                    NativeImage var5 = NativeImage.read(var4);
+                    param0.register(var3, new DynamicTexture(var5));
+                    var9 = var3;
+                }
             }
 
-            return var8;
-        } catch (FileNotFoundException var13) {
+            return var9;
         } catch (Exception var14) {
             LOGGER.warn("Failed to load icon from pack {}", param1.getId(), var14);
+            return DEFAULT_ICON;
         }
-
-        return DEFAULT_ICON;
     }
 
     private ResourceLocation getPackIcon(Pack param0x) {
@@ -246,14 +244,14 @@ public class PackSelectionScreen extends Screen {
         private final WatchService watcher;
         private final Path packPath;
 
-        public Watcher(File param0) throws IOException {
-            this.packPath = param0.toPath();
-            this.watcher = this.packPath.getFileSystem().newWatchService();
+        public Watcher(Path param0) throws IOException {
+            this.packPath = param0;
+            this.watcher = param0.getFileSystem().newWatchService();
 
             try {
-                this.watchDir(this.packPath);
+                this.watchDir(param0);
 
-                try (DirectoryStream<Path> var0 = Files.newDirectoryStream(this.packPath)) {
+                try (DirectoryStream<Path> var0 = Files.newDirectoryStream(param0)) {
                     for(Path var1 : var0) {
                         if (Files.isDirectory(var1, LinkOption.NOFOLLOW_LINKS)) {
                             this.watchDir(var1);
@@ -268,7 +266,7 @@ public class PackSelectionScreen extends Screen {
         }
 
         @Nullable
-        public static PackSelectionScreen.Watcher create(File param0) {
+        public static PackSelectionScreen.Watcher create(Path param0) {
             try {
                 return new PackSelectionScreen.Watcher(param0);
             } catch (IOException var2) {

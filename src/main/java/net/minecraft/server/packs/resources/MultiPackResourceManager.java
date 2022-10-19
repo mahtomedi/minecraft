@@ -46,7 +46,7 @@ public class MultiPackResourceManager implements CloseableResourceManager {
                     } else if (var7) {
                         var9.push(var2);
                     } else {
-                        var9.pushFilterOnly(var2.getName(), var5);
+                        var9.pushFilterOnly(var2.packId(), var5);
                     }
                 }
             }
@@ -58,9 +58,9 @@ public class MultiPackResourceManager implements CloseableResourceManager {
     @Nullable
     private ResourceFilterSection getPackFilterSection(PackResources param0) {
         try {
-            return param0.getMetadataSection(ResourceFilterSection.SERIALIZER);
+            return param0.getMetadataSection(ResourceFilterSection.TYPE);
         } catch (IOException var3) {
-            LOGGER.error("Failed to get filter section from pack {}", param0.getName());
+            LOGGER.error("Failed to get filter section from pack {}", param0.packId());
             return null;
         }
     }
@@ -84,6 +84,7 @@ public class MultiPackResourceManager implements CloseableResourceManager {
 
     @Override
     public Map<ResourceLocation, Resource> listResources(String param0, Predicate<ResourceLocation> param1) {
+        checkTrailingDirectoryPath(param0);
         Map<ResourceLocation, Resource> var0 = new TreeMap<>();
 
         for(FallbackResourceManager var1 : this.namespacedManagers.values()) {
@@ -95,6 +96,7 @@ public class MultiPackResourceManager implements CloseableResourceManager {
 
     @Override
     public Map<ResourceLocation, List<Resource>> listResourceStacks(String param0, Predicate<ResourceLocation> param1) {
+        checkTrailingDirectoryPath(param0);
         Map<ResourceLocation, List<Resource>> var0 = new TreeMap<>();
 
         for(FallbackResourceManager var1 : this.namespacedManagers.values()) {
@@ -102,6 +104,12 @@ public class MultiPackResourceManager implements CloseableResourceManager {
         }
 
         return var0;
+    }
+
+    private static void checkTrailingDirectoryPath(String param0) {
+        if (param0.endsWith("/")) {
+            throw new IllegalArgumentException("Trailing slash in path " + param0);
+        }
     }
 
     @Override

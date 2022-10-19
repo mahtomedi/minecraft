@@ -7,8 +7,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class MapCloningRecipe extends CustomRecipe {
-    public MapCloningRecipe(ResourceLocation param0) {
-        super(param0);
+    public MapCloningRecipe(ResourceLocation param0, CraftingBookCategory param1) {
+        super(param0, param1);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

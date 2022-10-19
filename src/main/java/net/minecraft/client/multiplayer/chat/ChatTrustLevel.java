@@ -1,12 +1,12 @@
 package net.minecraft.client.multiplayer.chat;
 
 import java.time.Instant;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.GuiMessageTag;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.network.chat.SignedMessageValidator;
+import net.minecraft.network.chat.Style;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,40 +14,41 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public enum ChatTrustLevel {
     SECURE,
     MODIFIED,
-    FILTERED,
-    NOT_SECURE,
-    BROKEN_CHAIN;
+    NOT_SECURE;
 
-    public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2, Instant param3) {
-        if (param2 == null) {
+    public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, Instant param2) {
+        if (!param0.hasSignature() || param0.hasExpiredClient(param2)) {
             return NOT_SECURE;
         } else {
-            SignedMessageValidator.State var0 = param2.getMessageValidator().validateMessage(param0);
-            if (var0 == SignedMessageValidator.State.BROKEN_CHAIN) {
-                return BROKEN_CHAIN;
-            } else if (var0 == SignedMessageValidator.State.NOT_SECURE) {
-                return NOT_SECURE;
-            } else if (param0.hasExpiredClient(param3)) {
-                return NOT_SECURE;
-            } else if (!param0.filterMask().isEmpty()) {
-                return FILTERED;
-            } else if (param0.unsignedContent().isPresent()) {
-                return MODIFIED;
-            } else {
-                return !param1.contains(param0.signedContent().decorated()) ? MODIFIED : SECURE;
-            }
+            return isModified(param0, param1) ? MODIFIED : SECURE;
         }
     }
 
+    private static boolean isModified(PlayerChatMessage param0, Component param1) {
+        if (!param1.getString().contains(param0.signedContent())) {
+            return true;
+        } else {
+            Component var0 = param0.unsignedContent();
+            return var0 == null ? false : containsModifiedStyle(var0);
+        }
+    }
+
+    private static boolean containsModifiedStyle(Component param0) {
+        return param0.<Boolean>visit((param0x, param1) -> isModifiedStyle(param0x) ? Optional.of(true) : Optional.empty(), Style.EMPTY).orElse(false);
+    }
+
+    private static boolean isModifiedStyle(Style param0) {
+        return !param0.getFont().equals(Style.DEFAULT_FONT);
+    }
+
     public boolean isNotSecure() {
-        return this == NOT_SECURE || this == BROKEN_CHAIN;
+        return this == NOT_SECURE;
     }
 
     @Nullable
     public GuiMessageTag createTag(PlayerChatMessage param0) {
         return switch(this) {
-            case MODIFIED -> GuiMessageTag.chatModified(param0.signedContent().plain());
-            case FILTERED -> GuiMessageTag.chatFiltered();
+            case MODIFIED -> GuiMessageTag.chatModified(param0.signedContent());
             case NOT_SECURE -> GuiMessageTag.chatNotSecure();
             default -> null;
         };

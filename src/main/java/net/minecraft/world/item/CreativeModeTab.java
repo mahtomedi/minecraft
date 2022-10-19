@@ -1,144 +1,31 @@
 package net.minecraft.world.item;
 
+import java.util.Collection;
 import javax.annotation.Nullable;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.level.ItemLike;
 
 public abstract class CreativeModeTab {
-    public static final CreativeModeTab[] TABS = new CreativeModeTab[12];
-    public static final CreativeModeTab TAB_BUILDING_BLOCKS = (new CreativeModeTab(0, "buildingBlocks") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.BRICKS);
-        }
-    }).setRecipeFolderName("building_blocks");
-    public static final CreativeModeTab TAB_DECORATIONS = new CreativeModeTab(1, "decorations") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.PEONY);
-        }
-    };
-    public static final CreativeModeTab TAB_REDSTONE = new CreativeModeTab(2, "redstone") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.REDSTONE);
-        }
-    };
-    public static final CreativeModeTab TAB_TRANSPORTATION = new CreativeModeTab(3, "transportation") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.POWERED_RAIL);
-        }
-    };
-    public static final CreativeModeTab TAB_MISC = new CreativeModeTab(6, "misc") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.LAVA_BUCKET);
-        }
-    };
-    public static final CreativeModeTab TAB_SEARCH = (new CreativeModeTab(5, "search") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.COMPASS);
-        }
-    }).setBackgroundSuffix("item_search.png");
-    public static final CreativeModeTab TAB_FOOD = new CreativeModeTab(7, "food") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.APPLE);
-        }
-    };
-    public static final CreativeModeTab TAB_TOOLS = (new CreativeModeTab(8, "tools") {
-            @Override
-            public ItemStack makeIcon() {
-                return new ItemStack(Items.IRON_AXE);
-            }
-        })
-        .setEnchantmentCategories(
-            new EnchantmentCategory[]{
-                EnchantmentCategory.VANISHABLE, EnchantmentCategory.DIGGER, EnchantmentCategory.FISHING_ROD, EnchantmentCategory.BREAKABLE
-            }
-        );
-    public static final CreativeModeTab TAB_COMBAT = (new CreativeModeTab(9, "combat") {
-            @Override
-            public ItemStack makeIcon() {
-                return new ItemStack(Items.GOLDEN_SWORD);
-            }
-        })
-        .setEnchantmentCategories(
-            new EnchantmentCategory[]{
-                EnchantmentCategory.VANISHABLE,
-                EnchantmentCategory.ARMOR,
-                EnchantmentCategory.ARMOR_FEET,
-                EnchantmentCategory.ARMOR_HEAD,
-                EnchantmentCategory.ARMOR_LEGS,
-                EnchantmentCategory.ARMOR_CHEST,
-                EnchantmentCategory.BOW,
-                EnchantmentCategory.WEAPON,
-                EnchantmentCategory.WEARABLE,
-                EnchantmentCategory.BREAKABLE,
-                EnchantmentCategory.TRIDENT,
-                EnchantmentCategory.CROSSBOW
-            }
-        );
-    public static final CreativeModeTab TAB_BREWING = new CreativeModeTab(10, "brewing") {
-        @Override
-        public ItemStack makeIcon() {
-            return PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER);
-        }
-    };
-    public static final CreativeModeTab TAB_MATERIALS = TAB_MISC;
-    public static final CreativeModeTab TAB_HOTBAR = new CreativeModeTab(4, "hotbar") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.BOOKSHELF);
-        }
-
-        @Override
-        public void fillItemList(NonNullList<ItemStack> param0) {
-            throw new RuntimeException("Implement exception client-side.");
-        }
-
-        @Override
-        public boolean isAlignedRight() {
-            return true;
-        }
-    };
-    public static final CreativeModeTab TAB_INVENTORY = (new CreativeModeTab(11, "inventory") {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.CHEST);
-        }
-    }).setBackgroundSuffix("inventory.png").hideScroll().hideTitle();
     private final int id;
-    private final String langId;
     private final Component displayName;
-    private String recipeFolderName;
     private String backgroundSuffix = "items.png";
     private boolean canScroll = true;
     private boolean showTitle = true;
-    private EnchantmentCategory[] enchantmentCategories = new EnchantmentCategory[0];
     private ItemStack iconItemStack;
+    @Nullable
+    private ItemStackLinkedSet displayItems;
+    @Nullable
+    private ItemStackLinkedSet displayItemsSearchTab;
 
-    public CreativeModeTab(int param0, String param1) {
+    public CreativeModeTab(int param0, Component param1) {
         this.id = param0;
-        this.langId = param1;
-        this.displayName = Component.translatable("itemGroup." + param1);
+        this.displayName = param1;
         this.iconItemStack = ItemStack.EMPTY;
-        TABS[param0] = this;
     }
 
     public int getId() {
         return this.id;
-    }
-
-    public String getRecipeFolderName() {
-        return this.recipeFolderName == null ? this.langId : this.recipeFolderName;
     }
 
     public Component getDisplayName() {
@@ -155,17 +42,14 @@ public abstract class CreativeModeTab {
 
     public abstract ItemStack makeIcon();
 
+    protected abstract void generateDisplayItems(FeatureFlagSet var1, CreativeModeTab.Output var2);
+
     public String getBackgroundSuffix() {
         return this.backgroundSuffix;
     }
 
     public CreativeModeTab setBackgroundSuffix(String param0) {
         this.backgroundSuffix = param0;
-        return this;
-    }
-
-    public CreativeModeTab setRecipeFolderName(String param0) {
-        this.recipeFolderName = param0;
         return this;
     }
 
@@ -199,31 +83,109 @@ public abstract class CreativeModeTab {
         return this.getColumn() == 5;
     }
 
-    public EnchantmentCategory[] getEnchantmentCategories() {
-        return this.enchantmentCategories;
+    private ItemStackLinkedSet lazyBuildDisplayItems(FeatureFlagSet param0, boolean param1) {
+        if (this.displayItems == null || this.displayItemsSearchTab == null) {
+            CreativeModeTab.ItemDisplayBuilder var0 = new CreativeModeTab.ItemDisplayBuilder(this, param0);
+            this.generateDisplayItems(param0, var0);
+            this.displayItems = var0.getTabContents();
+            this.displayItemsSearchTab = var0.getSearchTabContents();
+        }
+
+        return param1 ? this.displayItemsSearchTab : this.displayItems;
     }
 
-    public CreativeModeTab setEnchantmentCategories(EnchantmentCategory... param0) {
-        this.enchantmentCategories = param0;
-        return this;
+    public ItemStackLinkedSet getDisplayItems(FeatureFlagSet param0) {
+        return this.lazyBuildDisplayItems(param0, false);
     }
 
-    public boolean hasEnchantmentCategory(@Nullable EnchantmentCategory param0) {
-        if (param0 != null) {
-            for(EnchantmentCategory var0 : this.enchantmentCategories) {
-                if (var0 == param0) {
-                    return true;
+    public ItemStackLinkedSet getSearchTabDisplayItems(FeatureFlagSet param0) {
+        return this.lazyBuildDisplayItems(param0, true);
+    }
+
+    public boolean contains(FeatureFlagSet param0, ItemStack param1) {
+        return this.getSearchTabDisplayItems(param0).contains(param1);
+    }
+
+    public void invalidateDisplayListCache() {
+        this.displayItems = null;
+        this.displayItemsSearchTab = null;
+    }
+
+    static class ItemDisplayBuilder implements CreativeModeTab.Output {
+        private final ItemStackLinkedSet tabContents = new ItemStackLinkedSet();
+        private final ItemStackLinkedSet searchTabContents = new ItemStackLinkedSet();
+        private final CreativeModeTab tab;
+        private final FeatureFlagSet featureFlagSet;
+
+        public ItemDisplayBuilder(CreativeModeTab param0, FeatureFlagSet param1) {
+            this.tab = param0;
+            this.featureFlagSet = param1;
+        }
+
+        @Override
+        public void accept(ItemStack param0, CreativeModeTab.TabVisibility param1) {
+            boolean var0 = this.tabContents.contains(param0) && param1 != CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY;
+            if (var0) {
+                throw new IllegalStateException(
+                    "Accidentally adding the same item stack twice "
+                        + param0.getDisplayName().getString()
+                        + " to a Creative Mode Tab: "
+                        + this.tab.getDisplayName().getString()
+                );
+            } else {
+                if (param0.getItem().isEnabled(this.featureFlagSet)) {
+                    switch(param1) {
+                        case PARENT_AND_SEARCH_TABS:
+                            this.tabContents.add(param0);
+                            this.searchTabContents.add(param0);
+                            break;
+                        case PARENT_TAB_ONLY:
+                            this.tabContents.add(param0);
+                            break;
+                        case SEARCH_TAB_ONLY:
+                            this.searchTabContents.add(param0);
+                    }
                 }
+
             }
         }
 
-        return false;
-    }
-
-    public void fillItemList(NonNullList<ItemStack> param0) {
-        for(Item var0 : Registry.ITEM) {
-            var0.fillItemCategory(this, param0);
+        public ItemStackLinkedSet getTabContents() {
+            return this.tabContents;
         }
 
+        public ItemStackLinkedSet getSearchTabContents() {
+            return this.searchTabContents;
+        }
+    }
+
+    protected interface Output {
+        void accept(ItemStack var1, CreativeModeTab.TabVisibility var2);
+
+        default void accept(ItemStack param0) {
+            this.accept(param0, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+
+        default void accept(ItemLike param0, CreativeModeTab.TabVisibility param1) {
+            this.accept(new ItemStack(param0), param1);
+        }
+
+        default void accept(ItemLike param0) {
+            this.accept(new ItemStack(param0), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+
+        default void acceptAll(Collection<ItemStack> param0, CreativeModeTab.TabVisibility param1) {
+            param0.forEach(param1x -> this.accept(param1x, param1));
+        }
+
+        default void acceptAll(Collection<ItemStack> param0) {
+            this.acceptAll(param0, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+    }
+
+    protected static enum TabVisibility {
+        PARENT_AND_SEARCH_TABS,
+        PARENT_TAB_ONLY,
+        SEARCH_TAB_ONLY;
     }
 }

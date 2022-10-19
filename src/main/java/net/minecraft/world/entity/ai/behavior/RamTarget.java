@@ -94,7 +94,7 @@ public class RamTarget extends Behavior<Goat> {
         } else {
             Optional<WalkTarget> var9 = var1.getMemory(MemoryModuleType.WALK_TARGET);
             Optional<Vec3> var10 = var1.getMemory(MemoryModuleType.RAM_TARGET);
-            boolean var11 = !var9.isPresent() || !var10.isPresent() || var9.get().getTarget().currentPosition().closerThan(var10.get(), 0.25);
+            boolean var11 = var9.isEmpty() || var10.isEmpty() || var9.get().getTarget().currentPosition().closerThan(var10.get(), 0.25);
             if (var11) {
                 this.finishRam(param0, param1);
             }

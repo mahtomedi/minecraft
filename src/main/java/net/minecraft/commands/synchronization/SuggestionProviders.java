@@ -32,7 +32,7 @@ public class SuggestionProviders {
     public static final SuggestionProvider<CommandSourceStack> SUMMONABLE_ENTITIES = register(
         new ResourceLocation("summonable_entities"),
         (param0, param1) -> SharedSuggestionProvider.suggestResource(
-                Registry.ENTITY_TYPE.stream().filter(EntityType::canSummon),
+                Registry.ENTITY_TYPE.stream().filter(param1x -> param1x.isEnabled(param0.getSource().enabledFeatures()) && param1x.canSummon()),
                 param1,
                 EntityType::getKey,
                 param0x -> Component.translatable(Util.makeDescriptionId("entity", EntityType.getKey(param0x)))

@@ -13,8 +13,8 @@ public class FireworkRocketRecipe extends CustomRecipe {
     private static final Ingredient GUNPOWDER_INGREDIENT = Ingredient.of(Items.GUNPOWDER);
     private static final Ingredient STAR_INGREDIENT = Ingredient.of(Items.FIREWORK_STAR);
 
-    public FireworkRocketRecipe(ResourceLocation param0) {
-        super(param0);
+    public FireworkRocketRecipe(ResourceLocation param0, CraftingBookCategory param1) {
+        super(param0, param1);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

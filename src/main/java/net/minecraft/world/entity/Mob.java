@@ -1157,41 +1157,45 @@ public abstract class Mob extends LivingEntity {
             return null;
         } else {
             T var0 = param0.create(this.level);
-            var0.copyPosition(this);
-            var0.setBaby(this.isBaby());
-            var0.setNoAi(this.isNoAi());
-            if (this.hasCustomName()) {
-                var0.setCustomName(this.getCustomName());
-                var0.setCustomNameVisible(this.isCustomNameVisible());
-            }
+            if (var0 == null) {
+                return null;
+            } else {
+                var0.copyPosition(this);
+                var0.setBaby(this.isBaby());
+                var0.setNoAi(this.isNoAi());
+                if (this.hasCustomName()) {
+                    var0.setCustomName(this.getCustomName());
+                    var0.setCustomNameVisible(this.isCustomNameVisible());
+                }
 
-            if (this.isPersistenceRequired()) {
-                var0.setPersistenceRequired();
-            }
+                if (this.isPersistenceRequired()) {
+                    var0.setPersistenceRequired();
+                }
 
-            var0.setInvulnerable(this.isInvulnerable());
-            if (param1) {
-                var0.setCanPickUpLoot(this.canPickUpLoot());
+                var0.setInvulnerable(this.isInvulnerable());
+                if (param1) {
+                    var0.setCanPickUpLoot(this.canPickUpLoot());
 
-                for(EquipmentSlot var1 : EquipmentSlot.values()) {
-                    ItemStack var2 = this.getItemBySlot(var1);
-                    if (!var2.isEmpty()) {
-                        var0.setItemSlot(var1, var2.copy());
-                        var0.setDropChance(var1, this.getEquipmentDropChance(var1));
-                        var2.setCount(0);
+                    for(EquipmentSlot var1 : EquipmentSlot.values()) {
+                        ItemStack var2 = this.getItemBySlot(var1);
+                        if (!var2.isEmpty()) {
+                            var0.setItemSlot(var1, var2.copy());
+                            var0.setDropChance(var1, this.getEquipmentDropChance(var1));
+                            var2.setCount(0);
+                        }
                     }
                 }
-            }
 
-            this.level.addFreshEntity(var0);
-            if (this.isPassenger()) {
-                Entity var3 = this.getVehicle();
-                this.stopRiding();
-                var0.startRiding(var3, true);
-            }
+                this.level.addFreshEntity(var0);
+                if (this.isPassenger()) {
+                    Entity var3 = this.getVehicle();
+                    this.stopRiding();
+                    var0.startRiding(var3, true);
+                }
 
-            this.discard();
-            return var0;
+                this.discard();
+                return var0;
+            }
         }
     }
 

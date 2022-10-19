@@ -9,7 +9,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PanoramaRenderer {
     private final Minecraft minecraft;
     private final CubeMap cubeMap;
-    private float time;
+    private float spin;
+    private float bob;
 
     public PanoramaRenderer(CubeMap param0) {
         this.cubeMap = param0;
@@ -17,7 +18,13 @@ public class PanoramaRenderer {
     }
 
     public void render(float param0, float param1) {
-        this.time += param0;
-        this.cubeMap.render(this.minecraft, Mth.sin(this.time * 0.001F) * 5.0F + 25.0F, -this.time * 0.1F, param1);
+        float var0 = (float)((double)param0 * this.minecraft.options.panoramaSpeed().get());
+        this.spin = wrap(this.spin + var0 * 0.1F, 360.0F);
+        this.bob = wrap(this.bob + var0 * 0.001F, (float) (Math.PI * 2));
+        this.cubeMap.render(this.minecraft, Mth.sin(this.bob) * 5.0F + 25.0F, -this.spin, param1);
+    }
+
+    private static float wrap(float param0, float param1) {
+        return param0 > param1 ? param0 - param1 : param0;
     }
 }

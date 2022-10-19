@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer.block;
 
-import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -9,7 +8,6 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockModelShaper {
-    private final Map<BlockState, BakedModel> modelByStateCache = Maps.newIdentityHashMap();
+    private Map<BlockState, BakedModel> modelByStateCache = Map.of();
     private final ModelManager modelManager;
 
     public BlockModelShaper(ModelManager param0) {
@@ -41,15 +39,8 @@ public class BlockModelShaper {
         return this.modelManager;
     }
 
-    public void rebuildCache() {
-        this.modelByStateCache.clear();
-
-        for(Block var0 : Registry.BLOCK) {
-            var0.getStateDefinition()
-                .getPossibleStates()
-                .forEach(param0 -> this.modelByStateCache.put(param0, this.modelManager.getModel(stateToModelLocation(param0))));
-        }
-
+    public void replaceCache(Map<BlockState, BakedModel> param0) {
+        this.modelByStateCache = param0;
     }
 
     public static ModelResourceLocation stateToModelLocation(BlockState param0) {

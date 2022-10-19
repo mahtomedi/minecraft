@@ -86,15 +86,22 @@ public class RaidCommand {
     private static int spawnLeader(CommandSourceStack param0) {
         param0.sendSuccess(Component.literal("Spawned a raid captain"), false);
         Raider var0 = EntityType.PILLAGER.create(param0.getLevel());
-        var0.setPatrolLeader(true);
-        var0.setItemSlot(EquipmentSlot.HEAD, Raid.getLeaderBannerInstance());
-        var0.setPos(param0.getPosition().x, param0.getPosition().y, param0.getPosition().z);
-        var0.finalizeSpawn(param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(new BlockPos(param0.getPosition())), MobSpawnType.COMMAND, null, null);
-        param0.getLevel().addFreshEntityWithPassengers(var0);
-        return 1;
+        if (var0 == null) {
+            param0.sendFailure(Component.literal("Pillager failed to spawn"));
+            return 0;
+        } else {
+            var0.setPatrolLeader(true);
+            var0.setItemSlot(EquipmentSlot.HEAD, Raid.getLeaderBannerInstance());
+            var0.setPos(param0.getPosition().x, param0.getPosition().y, param0.getPosition().z);
+            var0.finalizeSpawn(
+                param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(new BlockPos(param0.getPosition())), MobSpawnType.COMMAND, null, null
+            );
+            param0.getLevel().addFreshEntityWithPassengers(var0);
+            return 1;
+        }
     }
 
-    private static int playSound(CommandSourceStack param0, Component param1) {
+    private static int playSound(CommandSourceStack param0, @Nullable Component param1) {
         if (param1 != null && param1.getString().equals("local")) {
             param0.getLevel().playSound(null, new BlockPos(param0.getPosition().add(5.0, 0.0, 0.0)), SoundEvents.RAID_HORN, SoundSource.NEUTRAL, 2.0F, 1.0F);
         }

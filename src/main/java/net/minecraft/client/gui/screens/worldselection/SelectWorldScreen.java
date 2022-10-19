@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class SelectWorldScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final WorldOptions TEST_OPTIONS = new WorldOptions((long)"test1".hashCode(), true, false);
     protected final Screen lastScreen;
     @Nullable
     private List<FormattedCharSequence> toolTip;

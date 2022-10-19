@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -16,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -53,7 +53,9 @@ public class BlockItem extends Item {
     }
 
     public InteractionResult place(BlockPlaceContext param0) {
-        if (!param0.canPlace()) {
+        if (!this.getBlock().isEnabled(param0.getLevel().enabledFeatures())) {
+            return InteractionResult.FAIL;
+        } else if (!param0.canPlace()) {
             return InteractionResult.FAIL;
         } else {
             BlockPlaceContext var0 = this.updatePlacementContext(param0);
@@ -188,14 +190,6 @@ public class BlockItem extends Item {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowedIn(param0)) {
-            this.getBlock().fillItemCategory(param0, param1);
-        }
-
-    }
-
-    @Override
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);
         this.getBlock().appendHoverText(param0, param1, param2, param3);
@@ -240,5 +234,10 @@ public class BlockItem extends Item {
             param0.addTagElement("BlockEntityTag", param2);
         }
 
+    }
+
+    @Override
+    public FeatureFlagSet requiredFeatures() {
+        return this.getBlock().requiredFeatures();
     }
 }

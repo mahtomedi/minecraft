@@ -7,7 +7,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +32,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +40,6 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -175,26 +172,26 @@ public class EntitySelectorOptions {
                     param0.setSuggestions(
                         (param0x, param1) -> SharedSuggestionProvider.suggest(Arrays.asList("nearest", "furthest", "random", "arbitrary"), param0x)
                     );
-                    BiConsumer<Vec3, List<? extends Entity>> var2;
+                    BiConsumer var10001;
                     switch(var1) {
                         case "nearest":
-                            var2 = EntitySelectorParser.ORDER_NEAREST;
+                            var10001 = EntitySelectorParser.ORDER_NEAREST;
                             break;
                         case "furthest":
-                            var2 = EntitySelectorParser.ORDER_FURTHEST;
+                            var10001 = EntitySelectorParser.ORDER_FURTHEST;
                             break;
                         case "random":
-                            var2 = EntitySelectorParser.ORDER_RANDOM;
+                            var10001 = EntitySelectorParser.ORDER_RANDOM;
                             break;
                         case "arbitrary":
-                            var2 = EntitySelectorParser.ORDER_ARBITRARY;
+                            var10001 = EntitySelectorParser.ORDER_ARBITRARY;
                             break;
                         default:
                             param0.getReader().setCursor(var0);
                             throw ERROR_SORT_UNKNOWN.createWithContext(param0.getReader(), var1);
                     }
     
-                    param0.setOrder(var2);
+                    param0.setOrder(var10001);
                     param0.setSorted(true);
                 },
                 param0 -> !param0.isCurrentEntity() && !param0.isSorted(),
@@ -509,7 +506,7 @@ public class EntitySelectorOptions {
     public static EntitySelectorOptions.Modifier get(EntitySelectorParser param0, String param1, int param2) throws CommandSyntaxException {
         EntitySelectorOptions.Option var0 = OPTIONS.get(param1);
         if (var0 != null) {
-            if (var0.predicate.test(param0)) {
+            if (var0.canUse.test(param0)) {
                 return var0.modifier;
             } else {
                 throw ERROR_INAPPLICABLE_OPTION.createWithContext(param0.getReader(), param1);
@@ -524,7 +521,7 @@ public class EntitySelectorOptions {
         String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
 
         for(Entry<String, EntitySelectorOptions.Option> var1 : OPTIONS.entrySet()) {
-            if (var1.getValue().predicate.test(param0) && var1.getKey().toLowerCase(Locale.ROOT).startsWith(var0)) {
+            if (var1.getValue().canUse.test(param0) && var1.getKey().toLowerCase(Locale.ROOT).startsWith(var0)) {
                 param1.suggest((String)var1.getKey() + "=", var1.getValue().description);
             }
         }
@@ -535,15 +532,6 @@ public class EntitySelectorOptions {
         void handle(EntitySelectorParser var1) throws CommandSyntaxException;
     }
 
-    static class Option {
-        public final EntitySelectorOptions.Modifier modifier;
-        public final Predicate<EntitySelectorParser> predicate;
-        public final Component description;
-
-        Option(EntitySelectorOptions.Modifier param0, Predicate<EntitySelectorParser> param1, Component param2) {
-            this.modifier = param0;
-            this.predicate = param1;
-            this.description = param2;
-        }
+    static record Option(EntitySelectorOptions.Modifier modifier, Predicate<EntitySelectorParser> canUse, Component description) {
     }
 }

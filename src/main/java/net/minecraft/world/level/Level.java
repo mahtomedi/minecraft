@@ -368,6 +368,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return !this.dimensionType().hasFixedTime() && !this.isDay();
     }
 
+    public void playSound(@Nullable Entity param0, BlockPos param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
+        this.playSound(param0 instanceof Player var0 ? var0 : null, param1, param2, param3, param4, param5);
+    }
+
     @Override
     public void playSound(@Nullable Player param0, BlockPos param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
         this.playSound(param0, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, param2, param3, param4, param5);
@@ -387,6 +391,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public void playSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
         this.playSeededSound(param0, param1, param2, param3, param4, param5, this.threadSafeRandom.nextLong());
+    }
+
+    public void playLocalSound(BlockPos param0, SoundEvent param1, SoundSource param2, float param3, float param4, boolean param5) {
+        this.playLocalSound((double)param0.getX() + 0.5, (double)param0.getY() + 0.5, (double)param0.getZ() + 0.5, param1, param2, param3, param4, param5);
     }
 
     public void playLocalSound(double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7) {

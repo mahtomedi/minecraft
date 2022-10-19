@@ -210,7 +210,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
             int var4 = param2 + 12;
             int var5 = param3 - 12;
             if (var4 + var0 > this.width) {
-                var4 -= 28 + var0;
+                var4 = Math.max(var4 - 24 - 4 - var0, 4);
             }
 
             if (var5 + var1 + 6 > this.height) {
@@ -338,7 +338,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 } else if (var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
                     String var5 = SharedConstants.filterText(var0.getValue());
                     if (var5.startsWith("/")) {
-                        if (!this.minecraft.player.commandUnsigned(var5.substring(1))) {
+                        if (!this.minecraft.player.connection.sendUnsignedCommand(var5.substring(1))) {
                             LOGGER.error("Not allowed to run command with signed argument from click event: '{}'", var5);
                         }
                     } else {

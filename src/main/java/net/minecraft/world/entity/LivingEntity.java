@@ -23,6 +23,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -31,7 +32,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
@@ -1882,8 +1882,16 @@ public abstract class LivingEntity extends Entity {
         return this.getAttributes().getInstance(param0);
     }
 
+    public double getAttributeValue(Holder<Attribute> param0) {
+        return this.getAttributeValue(param0.value());
+    }
+
     public double getAttributeValue(Attribute param0) {
         return this.getAttributes().getValue(param0);
+    }
+
+    public double getAttributeBaseValue(Holder<Attribute> param0) {
+        return this.getAttributeBaseValue(param0.value());
     }
 
     public double getAttributeBaseValue(Attribute param0) {
@@ -2130,11 +2138,8 @@ public abstract class LivingEntity extends Entity {
                     this.setDeltaMovement(var11.x, 0.3F, var11.z);
                 }
             } else if (this.isFallFlying()) {
+                this.checkSlowFallDistance();
                 Vec3 var12 = this.getDeltaMovement();
-                if (var12.y > -0.5) {
-                    this.fallDistance = 1.0F;
-                }
-
                 Vec3 var13 = this.getLookAngle();
                 float var14 = this.getXRot() * (float) (Math.PI / 180.0);
                 double var15 = Math.sqrt(var13.x * var13.x + var13.z * var13.z);
@@ -2430,7 +2435,7 @@ public abstract class LivingEntity extends Entity {
             }
 
             ItemStack var5 = this.getItemBySlot(var1);
-            if (!ItemStack.matches(var5, var2)) {
+            if (this.equipmentHasChanged(var2, var5)) {
                 if (var0 == null) {
                     var0 = Maps.newEnumMap(EquipmentSlot.class);
                 }
@@ -2447,6 +2452,10 @@ public abstract class LivingEntity extends Entity {
         }
 
         return var0;
+    }
+
+    public boolean equipmentHasChanged(ItemStack param0, ItemStack param1) {
+        return !ItemStack.matches(param1, param0);
     }
 
     private void handleHandSwap(Map<EquipmentSlot, ItemStack> param0) {
@@ -3169,11 +3178,6 @@ public abstract class LivingEntity extends Entity {
 
     public boolean canTakeItem(ItemStack param0) {
         return false;
-    }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override

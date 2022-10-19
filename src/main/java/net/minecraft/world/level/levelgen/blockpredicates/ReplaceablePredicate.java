@@ -16,7 +16,7 @@ class ReplaceablePredicate extends StateTestingPredicate {
 
     @Override
     protected boolean test(BlockState param0) {
-        return param0.getMaterial().isReplaceable();
+        return param0.canBeReplaced();
     }
 
     @Override

@@ -116,7 +116,7 @@ public class GetServerDetailsTask extends LongRunningTask {
             try {
                 if (param2) {
                     this.scheduleResourcePackDownload(param0).thenRun(() -> setScreen(param1.apply(param0))).exceptionally(param1x -> {
-                        Minecraft.getInstance().getClientPackSource().clearServerPack();
+                        Minecraft.getInstance().getDownloadedPackSource().clearServerPack();
                         LOGGER.error("Failed to download resource pack from {}", param0, param1x);
                         setScreen(new RealmsGenericErrorScreen(Component.literal("Failed to download resource pack!"), this.lastScreen));
                         return null;
@@ -144,7 +144,9 @@ public class GetServerDetailsTask extends LongRunningTask {
 
     private CompletableFuture<?> scheduleResourcePackDownload(RealmsServerAddress param0) {
         try {
-            return Minecraft.getInstance().getClientPackSource().downloadAndSelectResourcePack(new URL(param0.resourcePackUrl), param0.resourcePackHash, false);
+            return Minecraft.getInstance()
+                .getDownloadedPackSource()
+                .downloadAndSelectResourcePack(new URL(param0.resourcePackUrl), param0.resourcePackHash, false);
         } catch (Exception var4) {
             CompletableFuture<Void> var1 = new CompletableFuture<>();
             var1.completeExceptionally(var4);

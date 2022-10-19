@@ -19,12 +19,16 @@ import com.mojang.logging.LogUtils;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -43,11 +47,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -73,12 +80,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class GameRenderer implements ResourceManagerReloadListener, AutoCloseable {
+public class GameRenderer implements AutoCloseable {
     private static final ResourceLocation NAUSEA_LOCATION = new ResourceLocation("textures/misc/nausea.png");
-    private static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final boolean DEPTH_BUFFER_DEBUG = false;
     public static final float PROJECTION_Z_NEAR = 0.05F;
-    private final Minecraft minecraft;
+    final Minecraft minecraft;
     private final ResourceManager resourceManager;
     private final RandomSource random = RandomSource.create();
     private float renderDistance;
@@ -108,8 +115,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     private float itemActivationOffX;
     private float itemActivationOffY;
     @Nullable
-    private PostChain postEffect;
-    private static final ResourceLocation[] EFFECTS = new ResourceLocation[]{
+    PostChain postEffect;
+    static final ResourceLocation[] EFFECTS = new ResourceLocation[]{
         new ResourceLocation("shaders/post/notch.json"),
         new ResourceLocation("shaders/post/fxaa.json"),
         new ResourceLocation("shaders/post/art.json"),
@@ -136,7 +143,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         new ResourceLocation("shaders/post/spider.json")
     };
     public static final int EFFECT_NONE = EFFECTS.length;
-    private int effectIndex = EFFECT_NONE;
+    int effectIndex = EFFECT_NONE;
     private boolean effectActive;
     private final Camera mainCamera = new Camera();
     public ShaderInstance blitShader;
@@ -336,7 +343,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         }
     }
 
-    private void loadEffect(ResourceLocation param0) {
+    void loadEffect(ResourceLocation param0) {
         if (this.postEffect != null) {
             this.postEffect.close();
         }
@@ -357,20 +364,52 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
     }
 
-    @Override
-    public void onResourceManagerReload(ResourceManager param0) {
-        this.reloadShaders(param0);
-        if (this.postEffect != null) {
-            this.postEffect.close();
-        }
+    public PreparableReloadListener createReloadListener() {
+        return new SimplePreparableReloadListener<GameRenderer.ResourceCache>() {
+            protected GameRenderer.ResourceCache prepare(ResourceManager param0, ProfilerFiller param1) {
+                Map<ResourceLocation, Resource> var0 = param0.listResources(
+                    "shaders",
+                    param0x -> {
+                        String var0x = param0x.getPath();
+                        return var0x.endsWith(".json")
+                            || var0x.endsWith(Program.Type.FRAGMENT.getExtension())
+                            || var0x.endsWith(Program.Type.VERTEX.getExtension())
+                            || var0x.endsWith(".glsl");
+                    }
+                );
+                Map<ResourceLocation, Resource> var1 = new HashMap<>();
+                var0.forEach((param1x, param2) -> {
+                    try (InputStream var2x = param2.open()) {
+                        byte[] var1x = var2x.readAllBytes();
+                        var1.put(param1x, new Resource(param2.source(), () -> new ByteArrayInputStream(var1x)));
+                    } catch (Exception var8) {
+                        GameRenderer.LOGGER.warn("Failed to read resource {}", param1x, var8);
+                    }
 
-        this.postEffect = null;
-        if (this.effectIndex == EFFECT_NONE) {
-            this.checkEntityPostEffect(this.minecraft.getCameraEntity());
-        } else {
-            this.loadEffect(EFFECTS[this.effectIndex]);
-        }
+                });
+                return new GameRenderer.ResourceCache(param0, var1);
+            }
 
+            protected void apply(GameRenderer.ResourceCache param0, ResourceManager param1, ProfilerFiller param2) {
+                GameRenderer.this.reloadShaders(param0);
+                if (GameRenderer.this.postEffect != null) {
+                    GameRenderer.this.postEffect.close();
+                }
+
+                GameRenderer.this.postEffect = null;
+                if (GameRenderer.this.effectIndex == GameRenderer.EFFECT_NONE) {
+                    GameRenderer.this.checkEntityPostEffect(GameRenderer.this.minecraft.getCameraEntity());
+                } else {
+                    GameRenderer.this.loadEffect(GameRenderer.EFFECTS[GameRenderer.this.effectIndex]);
+                }
+
+            }
+
+            @Override
+            public String getName() {
+                return "Shader Loader";
+            }
+        };
     }
 
     public void preloadUiShader(ResourceProvider param0) {
@@ -402,7 +441,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         }
     }
 
-    public void reloadShaders(ResourceManager param0) {
+    void reloadShaders(ResourceProvider param0) {
         RenderSystem.assertOnRenderThread();
         List<Program> var0 = Lists.newArrayList();
         var0.addAll(Program.Type.FRAGMENT.getPrograms().values());
@@ -1547,5 +1586,14 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     @Nullable
     public static ShaderInstance getRendertypeCrumblingShader() {
         return rendertypeCrumblingShader;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static record ResourceCache(ResourceProvider original, Map<ResourceLocation, Resource> cache) implements ResourceProvider {
+        @Override
+        public Optional<Resource> getResource(ResourceLocation param0) {
+            Resource var0 = this.cache.get(param0);
+            return var0 != null ? Optional.of(var0) : this.original.getResource(param0);
+        }
     }
 }

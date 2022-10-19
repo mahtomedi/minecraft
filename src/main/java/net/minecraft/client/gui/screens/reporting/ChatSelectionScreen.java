@@ -46,7 +46,7 @@ public class ChatSelectionScreen extends Screen {
     private ChatSelectionScreen.ChatSelectionList chatSelectionList;
     final ChatReportBuilder report;
     private final Consumer<ChatReportBuilder> onSelected;
-    private ChatSelectionLogFiller<LoggedChatMessage.Player> chatLogFiller;
+    private ChatSelectionLogFiller chatLogFiller;
     @Nullable
     private List<FormattedCharSequence> tooltip;
 
@@ -60,7 +60,7 @@ public class ChatSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        this.chatLogFiller = new ChatSelectionLogFiller<>(this.reportingContext.chatLog(), this::canReport, LoggedChatMessage.Player.class);
+        this.chatLogFiller = new ChatSelectionLogFiller(this.reportingContext, this::canReport);
         this.contextInfoLabel = MultiLineLabel.create(this.font, CONTEXT_INFO, this.width - 16);
         this.chatSelectionList = new ChatSelectionScreen.ChatSelectionList(this.minecraft, (this.contextInfoLabel.getLineCount() + 1) * 9);
         this.chatSelectionList.setRenderBackground(false);
@@ -128,9 +128,7 @@ public class ChatSelectionScreen extends Screen {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public class ChatSelectionList
-        extends ObjectSelectionList<ChatSelectionScreen.ChatSelectionList.Entry>
-        implements ChatSelectionLogFiller.Output<LoggedChatMessage.Player> {
+    public class ChatSelectionList extends ObjectSelectionList<ChatSelectionScreen.ChatSelectionList.Entry> implements ChatSelectionLogFiller.Output {
         @Nullable
         private ChatSelectionScreen.ChatSelectionList.Heading previousHeading;
 
@@ -148,6 +146,7 @@ public class ChatSelectionScreen extends Screen {
 
         }
 
+        @Override
         public void acceptMessage(int param0, LoggedChatMessage.Player param1) {
             boolean var0 = param1.canReport(ChatSelectionScreen.this.report.reportedProfileId());
             ChatTrustLevel var1 = param1.trustLevel();
@@ -306,7 +305,7 @@ public class ChatSelectionScreen extends Screen {
 
         @OnlyIn(Dist.CLIENT)
         public class MessageEntry extends ChatSelectionScreen.ChatSelectionList.Entry {
-            private static final ResourceLocation CHECKMARK_TEXTURE = new ResourceLocation("realms", "textures/gui/realms/checkmark.png");
+            private static final ResourceLocation CHECKMARK_TEXTURE = new ResourceLocation("minecraft", "textures/gui/checkmark.png");
             private static final int CHECKMARK_WIDTH = 9;
             private static final int CHECKMARK_HEIGHT = 8;
             private static final int INDENT_AMOUNT = 11;

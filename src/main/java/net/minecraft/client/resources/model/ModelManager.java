@@ -1,39 +1,102 @@
 package net.minecraft.client.resources.model;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.minecraft.Util;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockModelShaper;
-import net.minecraft.client.renderer.texture.AtlasSet;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.blockentity.BellRenderer;
+import net.minecraft.client.renderer.blockentity.EnchantTableRenderer;
+import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelManager extends SimplePreparableReloadListener<ModelBakery> implements AutoCloseable {
+public class ModelManager implements PreparableReloadListener, AutoCloseable {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Map<ResourceLocation, AtlasSet.ResourceLister> VANILLA_ATLASES = Map.of(
+        Sheets.BANNER_SHEET,
+        param0 -> {
+            Map<ResourceLocation, Resource> var0 = new HashMap<>();
+            SpriteLoader.addSprite(param0, ModelBakery.BANNER_BASE.texture(), var0::put);
+            SpriteLoader.listSprites(param0, "entity/banner", var0::put);
+            return var0;
+        },
+        Sheets.BED_SHEET,
+        param0 -> SpriteLoader.listSprites(param0, "entity/bed"),
+        Sheets.CHEST_SHEET,
+        param0 -> SpriteLoader.listSprites(param0, "entity/chest"),
+        Sheets.SHIELD_SHEET,
+        param0 -> {
+            Map<ResourceLocation, Resource> var0 = new HashMap<>();
+            SpriteLoader.addSprite(param0, ModelBakery.SHIELD_BASE.texture(), var0::put);
+            SpriteLoader.addSprite(param0, ModelBakery.NO_PATTERN_SHIELD.texture(), var0::put);
+            SpriteLoader.listSprites(param0, "entity/shield", var0::put);
+            return var0;
+        },
+        Sheets.SIGN_SHEET,
+        param0 -> SpriteLoader.listSprites(param0, "entity/signs"),
+        Sheets.SHULKER_SHEET,
+        param0 -> SpriteLoader.listSprites(param0, "entity/shulker"),
+        TextureAtlas.LOCATION_BLOCKS,
+        param0 -> {
+            Map<ResourceLocation, Resource> var0 = new HashMap<>();
+            SpriteLoader.listSprites(param0, "block", var0::put);
+            SpriteLoader.listSprites(param0, "item", var0::put);
+            SpriteLoader.listSprites(param0, "entity/conduit", var0::put);
+            SpriteLoader.addSprite(param0, BellRenderer.BELL_RESOURCE_LOCATION.texture(), var0::put);
+            SpriteLoader.addSprite(param0, EnchantTableRenderer.BOOK_LOCATION.texture(), var0::put);
+            return var0;
+        },
+        Sheets.HANGING_SIGN_SHEET,
+        param0 -> SpriteLoader.listSprites(param0, "entity/signs/hanging")
+    );
     private Map<ResourceLocation, BakedModel> bakedRegistry;
-    @Nullable
-    private AtlasSet atlases;
+    private final AtlasSet atlases;
     private final BlockModelShaper blockModelShaper;
-    private final TextureManager textureManager;
     private final BlockColors blockColors;
     private int maxMipmapLevels;
     private BakedModel missingModel;
     private Object2IntMap<BlockState> modelGroups;
 
     public ModelManager(TextureManager param0, BlockColors param1, int param2) {
-        this.textureManager = param0;
         this.blockColors = param1;
         this.maxMipmapLevels = param2;
         this.blockModelShaper = new BlockModelShaper(this);
+        this.atlases = new AtlasSet(VANILLA_ATLASES, param0);
     }
 
     public BakedModel getModel(ModelResourceLocation param0) {
@@ -48,28 +111,152 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
         return this.blockModelShaper;
     }
 
-    protected ModelBakery prepare(ResourceManager param0, ProfilerFiller param1) {
-        param1.startTick();
-        ModelBakery var0 = new ModelBakery(param0, this.blockColors, param1, this.maxMipmapLevels);
-        param1.endTick();
-        return var0;
+    @Override
+    public final CompletableFuture<Void> reload(
+        PreparableReloadListener.PreparationBarrier param0,
+        ResourceManager param1,
+        ProfilerFiller param2,
+        ProfilerFiller param3,
+        Executor param4,
+        Executor param5
+    ) {
+        param2.startTick();
+        CompletableFuture<Map<ResourceLocation, BlockModel>> var0 = loadBlockModels(param1, param4);
+        CompletableFuture<Map<ResourceLocation, List<ModelBakery.LoadedJson>>> var1 = loadBlockStates(param1, param4);
+        CompletableFuture<ModelBakery> var2 = var0.thenCombineAsync(
+            var1, (param1x, param2x) -> new ModelBakery(this.blockColors, param2, param1x, param2x), param4
+        );
+        Map<ResourceLocation, CompletableFuture<AtlasSet.StitchResult>> var3 = this.atlases.scheduleLoad(param1, this.maxMipmapLevels, param4);
+        return CompletableFuture.allOf(Stream.concat(var3.values().stream(), Stream.of(var2)).toArray(param0x -> new CompletableFuture[param0x]))
+            .thenApplyAsync(
+                param3x -> this.loadModels(
+                        param2, var3.entrySet().stream().collect(Collectors.toMap(Entry::getKey, param0x -> param0x.getValue().join())), var2.join()
+                    ),
+                param4
+            )
+            .thenCompose(param0x -> param0x.readyForUpload.thenApply(param1x -> param0x))
+            .thenCompose(param0::wait)
+            .thenAcceptAsync(param1x -> this.apply(param1x, param3), param5);
     }
 
-    protected void apply(ModelBakery param0, ResourceManager param1, ProfilerFiller param2) {
-        param2.startTick();
-        param2.push("upload");
-        if (this.atlases != null) {
-            this.atlases.close();
+    private static CompletableFuture<Map<ResourceLocation, BlockModel>> loadBlockModels(ResourceManager param0, Executor param1) {
+        return CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(() -> ModelBakery.MODEL_LISTER.listMatchingResources(param0), param1)
+            .thenCompose(
+                param1x -> {
+                    List<CompletableFuture<Pair<ResourceLocation, BlockModel>>> var0x = new ArrayList(param1x.size());
+        
+                    for(Entry<ResourceLocation, Resource> var1x : param1x.entrySet()) {
+                        var0x.add(CompletableFuture.supplyAsync(() -> {
+                            try {
+                                Pair var2x;
+                                try (Reader var1xx = ((Resource)var1x.getValue()).openAsReader()) {
+                                    var2x = Pair.of((ResourceLocation)var1x.getKey(), BlockModel.fromStream(var1xx));
+                                }
+        
+                                return var2x;
+                            } catch (IOException var6) {
+                                LOGGER.error("Failed to load model {}", var1x.getKey(), var6);
+                                return null;
+                            }
+                        }, param1));
+                    }
+        
+                    return Util.sequence(var0x)
+                        .thenApply(param0x -> param0x.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond)));
+                }
+            );
+    }
+
+    private static CompletableFuture<Map<ResourceLocation, List<ModelBakery.LoadedJson>>> loadBlockStates(ResourceManager param0, Executor param1) {
+        return CompletableFuture.<Map<ResourceLocation, List<Resource>>>supplyAsync(
+                () -> ModelBakery.BLOCKSTATE_LISTER.listMatchingResourceStacks(param0), param1
+            )
+            .thenCompose(
+                param1x -> {
+                    List<CompletableFuture<Pair<ResourceLocation, List<ModelBakery.LoadedJson>>>> var0x = new ArrayList(param1x.size());
+        
+                    for(Entry<ResourceLocation, List<Resource>> var1x : param1x.entrySet()) {
+                        var0x.add(CompletableFuture.supplyAsync(() -> {
+                            List<Resource> var0xx = (List)var1x.getValue();
+                            List<ModelBakery.LoadedJson> var1xx = new ArrayList(var0xx.size());
+        
+                            for(Resource var2x : var0xx) {
+                                try (Reader var3 = var2x.openAsReader()) {
+                                    JsonObject var4x = GsonHelper.parse(var3);
+                                    var1xx.add(new ModelBakery.LoadedJson(var2x.sourcePackId(), var4x));
+                                } catch (IOException var10) {
+                                    LOGGER.error("Failed to load blockstate {} from pack {}", var1x.getKey(), var2x.sourcePackId(), var10);
+                                }
+                            }
+        
+                            return Pair.of((ResourceLocation)var1x.getKey(), var1xx);
+                        }, param1));
+                    }
+        
+                    return Util.sequence(var0x)
+                        .thenApply(param0x -> param0x.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond)));
+                }
+            );
+    }
+
+    private ModelManager.ReloadState loadModels(ProfilerFiller param0, Map<ResourceLocation, AtlasSet.StitchResult> param1, ModelBakery param2) {
+        param0.push("load");
+        param0.popPush("baking");
+        Multimap<ResourceLocation, Material> var0 = HashMultimap.create();
+        param2.bakeModels((param2x, param3) -> {
+            AtlasSet.StitchResult var0x = param1.get(param3.atlasLocation());
+            TextureAtlasSprite var1x = var0x.getSprite(param3.texture());
+            if (var1x != null) {
+                return var1x;
+            } else {
+                var0.put(param2x, param3);
+                return var0x.missing();
+            }
+        });
+        var0.asMap()
+            .forEach(
+                (param0x, param1x) -> LOGGER.warn(
+                        "Missing textures in model {}:\n{}",
+                        param0x,
+                        param1x.stream()
+                            .sorted(Material.COMPARATOR)
+                            .map(param0xx -> "    " + param0xx.atlasLocation() + ":" + param0xx.texture())
+                            .collect(Collectors.joining("\n"))
+                    )
+            );
+        param0.popPush("dispatch");
+        Map<ResourceLocation, BakedModel> var1 = param2.getBakedTopLevelModels();
+        BakedModel var2 = var1.get(ModelBakery.MISSING_MODEL_LOCATION);
+        Map<BlockState, BakedModel> var3 = new IdentityHashMap<>();
+
+        for(Block var4 : Registry.BLOCK) {
+            var4.getStateDefinition().getPossibleStates().forEach(param3 -> {
+                ResourceLocation var0x = param3.getBlock().builtInRegistryHolder().key().location();
+                BakedModel var1x = var1.getOrDefault(BlockModelShaper.stateToModelLocation(var0x, param3), var2);
+                var3.put(param3, var1x);
+            });
         }
 
-        this.atlases = param0.uploadTextures(this.textureManager, param2);
-        this.bakedRegistry = param0.getBakedTopLevelModels();
-        this.modelGroups = param0.getModelGroups();
-        this.missingModel = this.bakedRegistry.get(ModelBakery.MISSING_MODEL_LOCATION);
-        param2.popPush("cache");
-        this.blockModelShaper.rebuildCache();
-        param2.pop();
-        param2.endTick();
+        CompletableFuture<Void> var5 = CompletableFuture.allOf(
+            param1.values().stream().map(AtlasSet.StitchResult::readyForUpload).toArray(param0x -> new CompletableFuture[param0x])
+        );
+        param0.pop();
+        param0.endTick();
+        return new ModelManager.ReloadState(param2, var2, var3, param1, var5);
+    }
+
+    private void apply(ModelManager.ReloadState param0, ProfilerFiller param1) {
+        param1.startTick();
+        param1.push("upload");
+        param0.atlasPreparations.values().forEach(AtlasSet.StitchResult::upload);
+        ModelBakery var0 = param0.modelBakery;
+        this.bakedRegistry = var0.getBakedTopLevelModels();
+        this.modelGroups = var0.getModelGroups();
+        this.missingModel = param0.missingModel;
+        param1.popPush("cache");
+        this.blockModelShaper.replaceCache(param0.modelCache);
+        param1.pop();
+        param1.endTick();
     }
 
     public boolean requiresRender(BlockState param0, BlockState param1) {
@@ -96,13 +283,20 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
 
     @Override
     public void close() {
-        if (this.atlases != null) {
-            this.atlases.close();
-        }
-
+        this.atlases.close();
     }
 
     public void updateMaxMipLevel(int param0) {
         this.maxMipmapLevels = param0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static record ReloadState(
+        ModelBakery modelBakery,
+        BakedModel missingModel,
+        Map<BlockState, BakedModel> modelCache,
+        Map<ResourceLocation, AtlasSet.StitchResult> atlasPreparations,
+        CompletableFuture<Void> readyForUpload
+    ) {
     }
 }

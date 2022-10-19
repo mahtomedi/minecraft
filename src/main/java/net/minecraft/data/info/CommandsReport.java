@@ -7,22 +7,25 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.synchronization.ArgumentUtils;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
+import net.minecraft.world.flag.FeatureFlags;
 
 public class CommandsReport implements DataProvider {
-    private final DataGenerator generator;
+    private final PackOutput output;
 
-    public CommandsReport(DataGenerator param0) {
-        this.generator = param0;
+    public CommandsReport(PackOutput param0) {
+        this.output = param0;
     }
 
     @Override
     public void run(CachedOutput param0) throws IOException {
-        Path var0 = this.generator.getOutputFolder(DataGenerator.Target.REPORTS).resolve("commands.json");
-        CommandDispatcher<CommandSourceStack> var1 = new Commands(Commands.CommandSelection.ALL, new CommandBuildContext(RegistryAccess.BUILTIN.get()))
+        Path var0 = this.output.getOutputFolder(PackOutput.Target.REPORTS).resolve("commands.json");
+        CommandDispatcher<CommandSourceStack> var1 = new Commands(
+                Commands.CommandSelection.ALL, new CommandBuildContext(BuiltinRegistries.createAccess(), FeatureFlags.REGISTRY.allFlags())
+            )
             .getDispatcher();
         DataProvider.saveStable(param0, ArgumentUtils.serializeNodeToJson(var1, var1.getRoot()), var0);
     }

@@ -89,12 +89,8 @@ public class BlockStateParser {
         this.allowNbt = param3;
     }
 
-    public static BlockStateParser.BlockResult parseForBlock(Registry<Block> param0, String param1, boolean param2) throws CommandSyntaxException {
+    public static BlockStateParser.BlockResult parseForBlock(HolderLookup<Block> param0, String param1, boolean param2) throws CommandSyntaxException {
         return parseForBlock(param0, new StringReader(param1), param2);
-    }
-
-    public static BlockStateParser.BlockResult parseForBlock(Registry<Block> param0, StringReader param1, boolean param2) throws CommandSyntaxException {
-        return parseForBlock(HolderLookup.forRegistry(param0), param1, param2);
     }
 
     public static BlockStateParser.BlockResult parseForBlock(HolderLookup<Block> param0, StringReader param1, boolean param2) throws CommandSyntaxException {
@@ -110,12 +106,8 @@ public class BlockStateParser {
         }
     }
 
-    public static Either<BlockStateParser.BlockResult, BlockStateParser.TagResult> parseForTesting(Registry<Block> param0, String param1, boolean param2) throws CommandSyntaxException {
+    public static Either<BlockStateParser.BlockResult, BlockStateParser.TagResult> parseForTesting(HolderLookup<Block> param0, String param1, boolean param2) throws CommandSyntaxException {
         return parseForTesting(param0, new StringReader(param1), param2);
-    }
-
-    public static Either<BlockStateParser.BlockResult, BlockStateParser.TagResult> parseForTesting(Registry<Block> param0, StringReader param1, boolean param2) throws CommandSyntaxException {
-        return parseForTesting(HolderLookup.forRegistry(param0), new StringReader(param1), param2);
     }
 
     public static Either<BlockStateParser.BlockResult, BlockStateParser.TagResult> parseForTesting(

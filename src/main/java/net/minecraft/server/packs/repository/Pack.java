@@ -2,88 +2,99 @@ package net.minecraft.server.packs.repository;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.logging.LogUtils;
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.server.packs.FeatureFlagsMetadataSection;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.world.flag.FeatureFlagSet;
 import org.slf4j.Logger;
 
 public class Pack {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final String id;
-    private final Supplier<PackResources> supplier;
+    private final Pack.ResourcesSupplier resources;
     private final Component title;
     private final Component description;
     private final PackCompatibility compatibility;
+    private final FeatureFlagSet requestedFeatures;
     private final Pack.Position defaultPosition;
     private final boolean required;
     private final boolean fixedPosition;
     private final PackSource packSource;
 
     @Nullable
-    public static Pack create(
-        String param0, boolean param1, Supplier<PackResources> param2, Pack.PackConstructor param3, Pack.Position param4, PackSource param5
+    public static Pack readMetaAndCreate(
+        String param0, Component param1, boolean param2, Pack.ResourcesSupplier param3, PackType param4, Pack.Position param5, PackSource param6
     ) {
-        try {
-            Pack var8;
-            try (PackResources var0 = param2.get()) {
-                PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.SERIALIZER);
-                if (var1 == null) {
-                    LOGGER.warn("Couldn't find pack meta for pack {}", param0);
-                    return null;
-                }
-
-                var8 = param3.create(param0, Component.literal(var0.getName()), param1, param2, var1, param4, param5);
-            }
-
-            return var8;
-        } catch (IOException var11) {
-            LOGGER.warn("Couldn't get pack info for: {}", var11.toString());
-            return null;
-        }
+        Pack.Info var0 = readPackInfo(param0, param3);
+        return var0 != null ? create(param0, param1, param2, param3, var0, param4, param5, false, param6) : null;
     }
 
-    public Pack(
+    public static Pack create(
+        String param0,
+        Component param1,
+        boolean param2,
+        Pack.ResourcesSupplier param3,
+        Pack.Info param4,
+        PackType param5,
+        Pack.Position param6,
+        boolean param7,
+        PackSource param8
+    ) {
+        return new Pack(param0, param2, param3, param1, param4, param4.compatibility(param5), param6, param7, param8);
+    }
+
+    private Pack(
         String param0,
         boolean param1,
-        Supplier<PackResources> param2,
+        Pack.ResourcesSupplier param2,
         Component param3,
-        Component param4,
+        Pack.Info param4,
         PackCompatibility param5,
         Pack.Position param6,
         boolean param7,
         PackSource param8
     ) {
         this.id = param0;
-        this.supplier = param2;
+        this.resources = param2;
         this.title = param3;
-        this.description = param4;
+        this.description = param4.description();
         this.compatibility = param5;
+        this.requestedFeatures = param4.requestedFeatures();
         this.required = param1;
         this.defaultPosition = param6;
         this.fixedPosition = param7;
         this.packSource = param8;
     }
 
-    public Pack(
-        String param0,
-        Component param1,
-        boolean param2,
-        Supplier<PackResources> param3,
-        PackMetadataSection param4,
-        PackType param5,
-        Pack.Position param6,
-        PackSource param7
-    ) {
-        this(param0, param2, param3, param1, param4.getDescription(), PackCompatibility.forMetadata(param4, param5), param6, false, param7);
+    @Nullable
+    public static Pack.Info readPackInfo(String param0, Pack.ResourcesSupplier param1) {
+        try {
+            Pack.Info var6;
+            try (PackResources var0 = param1.open(param0)) {
+                PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.TYPE);
+                if (var1 == null) {
+                    LOGGER.warn("Missing metadata in pack {}", param0);
+                    return null;
+                }
+
+                FeatureFlagsMetadataSection var2 = var0.getMetadataSection(FeatureFlagsMetadataSection.TYPE);
+                FeatureFlagSet var3 = var2 != null ? var2.flags() : FeatureFlagSet.of();
+                var6 = new Pack.Info(var1.getDescription(), var1.getPackFormat(), var3);
+            }
+
+            return var6;
+        } catch (Exception var9) {
+            LOGGER.warn("Failed to read pack metadata", (Throwable)var9);
+            return null;
+        }
     }
 
     public Component getTitle() {
@@ -107,8 +118,12 @@ public class Pack {
         return this.compatibility;
     }
 
+    public FeatureFlagSet getRequestedFeatures() {
+        return this.requestedFeatures;
+    }
+
     public PackResources open() {
-        return this.supplier.get();
+        return this.resources.open(this.id);
     }
 
     public String getId() {
@@ -148,10 +163,10 @@ public class Pack {
         return this.id.hashCode();
     }
 
-    @FunctionalInterface
-    public interface PackConstructor {
-        @Nullable
-        Pack create(String var1, Component var2, boolean var3, Supplier<PackResources> var4, PackMetadataSection var5, Pack.Position var6, PackSource var7);
+    public static record Info(Component description, int format, FeatureFlagSet requestedFeatures) {
+        public PackCompatibility compatibility(PackType param0) {
+            return PackCompatibility.forFormat(this.format, param0);
+        }
     }
 
     public static enum Position {
@@ -188,5 +203,10 @@ public class Pack {
         public Pack.Position opposite() {
             return this == TOP ? BOTTOM : TOP;
         }
+    }
+
+    @FunctionalInterface
+    public interface ResourcesSupplier {
+        PackResources open(String var1);
     }
 }

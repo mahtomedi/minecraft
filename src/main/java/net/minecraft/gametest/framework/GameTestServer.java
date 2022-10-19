@@ -3,10 +3,10 @@ package net.minecraft.gametest.framework;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Lifecycle;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -17,9 +17,11 @@ import net.minecraft.SystemReport;
 import net.minecraft.Util;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.LayeredRegistryAccess;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.Services;
 import net.minecraft.server.WorldLoader;
 import net.minecraft.server.WorldStem;
@@ -30,17 +32,20 @@ import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.SignatureValidator;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldDimensions;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
-import net.minecraft.world.level.storage.WorldData;
 import org.slf4j.Logger;
 
 public class GameTestServer extends MinecraftServer {
@@ -53,9 +58,7 @@ public class GameTestServer extends MinecraftServer {
         param0.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, null);
         param0.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null);
     });
-    private static final LevelSettings TEST_SETTINGS = new LevelSettings(
-        "Test Level", GameType.CREATIVE, false, Difficulty.NORMAL, true, TEST_GAME_RULES, DataPackConfig.DEFAULT
-    );
+    private static final WorldOptions WORLD_OPTIONS = new WorldOptions(0L, false, false);
     @Nullable
     private MultipleTestTracker testTracker;
 
@@ -65,34 +68,44 @@ public class GameTestServer extends MinecraftServer {
         if (param3.isEmpty()) {
             throw new IllegalArgumentException("No test batches were given!");
         } else {
-            WorldLoader.PackConfig var0 = new WorldLoader.PackConfig(param2, DataPackConfig.DEFAULT, false);
-            WorldLoader.InitConfig var1 = new WorldLoader.InitConfig(var0, Commands.CommandSelection.DEDICATED, 4);
+            param2.reload();
+            WorldDataConfiguration var0 = new WorldDataConfiguration(
+                new DataPackConfig(new ArrayList<>(param2.getAvailableIds()), List.of()), FeatureFlags.REGISTRY.allFlags()
+            );
+            LevelSettings var1 = new LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.NORMAL, true, TEST_GAME_RULES, var0);
+            WorldLoader.PackConfig var2 = new WorldLoader.PackConfig(param2, var0, false, true);
+            WorldLoader.InitConfig var3 = new WorldLoader.InitConfig(var2, Commands.CommandSelection.DEDICATED, 4);
 
             try {
                 LOGGER.debug("Starting resource loading");
-                Stopwatch var2 = Stopwatch.createStarted();
-                WorldStem var3 = Util.<WorldStem>blockUntilDone(
-                        param1x -> WorldStem.load(
-                                var1,
-                                (param0x, param1xx) -> {
-                                    RegistryAccess.Frozen var0x = RegistryAccess.BUILTIN.get();
-                                    WorldGenSettings var1x = var0x.<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
+                Stopwatch var4 = Stopwatch.createStarted();
+                WorldStem var5 = Util.<WorldStem>blockUntilDone(
+                        param2x -> WorldLoader.load(
+                                var3,
+                                param1x -> {
+                                    Registry<LevelStem> var0x = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable()).freeze();
+                                    WorldDimensions.Complete var1x = param1x.datapackWorldgen()
+                                        .<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
                                         .getHolderOrThrow(WorldPresets.FLAT)
                                         .value()
-                                        .createWorldGenSettings(0L, false, false);
-                                    WorldData var2x = new PrimaryLevelData(TEST_SETTINGS, var1x, Lifecycle.stable());
-                                    return Pair.of(var2x, var0x);
+                                        .createWorldDimensions()
+                                        .bake(var0x);
+                                    return new WorldLoader.DataLoadOutput<>(
+                                        new PrimaryLevelData(var1, WORLD_OPTIONS, var1x.specialWorldProperty(), var1x.lifecycle()),
+                                        var1x.dimensionsRegistryAccess()
+                                    );
                                 },
+                                WorldStem::new,
                                 Util.backgroundExecutor(),
-                                param1x
+                                param2x
                             )
                     )
                     .get();
-                var2.stop();
-                LOGGER.debug("Finished resource loading after {} ms", var2.elapsed(TimeUnit.MILLISECONDS));
-                return new GameTestServer(param0, param1, param2, var3, param3, param4);
-            } catch (Exception var9) {
-                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var9);
+                var4.stop();
+                LOGGER.debug("Finished resource loading after {} ms", var4.elapsed(TimeUnit.MILLISECONDS));
+                return new GameTestServer(param0, param1, param2, var5, param3, param4);
+            } catch (Exception var11) {
+                LOGGER.warn("Failed to load vanilla datapack, bit oops", (Throwable)var11);
                 System.exit(-1);
                 throw new IllegalStateException();
             }
@@ -109,7 +122,7 @@ public class GameTestServer extends MinecraftServer {
 
     @Override
     public boolean initServer() {
-        this.setPlayerList(new PlayerList(this, this.registryAccess(), this.playerDataStorage, 1) {
+        this.setPlayerList(new PlayerList(this, this.registries(), this.playerDataStorage, 1) {
         });
         this.loadLevel();
         ServerLevel var0 = this.overworld();

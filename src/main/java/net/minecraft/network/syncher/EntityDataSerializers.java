@@ -29,6 +29,7 @@ public class EntityDataSerializers {
     private static final CrudeIncrementalIntIdentityHashBiMap<EntityDataSerializer<?>> SERIALIZERS = CrudeIncrementalIntIdentityHashBiMap.create(16);
     public static final EntityDataSerializer<Byte> BYTE = EntityDataSerializer.simple((param0, param1) -> param0.writeByte(param1), FriendlyByteBuf::readByte);
     public static final EntityDataSerializer<Integer> INT = EntityDataSerializer.simple(FriendlyByteBuf::writeVarInt, FriendlyByteBuf::readVarInt);
+    public static final EntityDataSerializer<Long> LONG = EntityDataSerializer.simple(FriendlyByteBuf::writeVarLong, FriendlyByteBuf::readVarLong);
     public static final EntityDataSerializer<Float> FLOAT = EntityDataSerializer.simple(FriendlyByteBuf::writeFloat, FriendlyByteBuf::readFloat);
     public static final EntityDataSerializer<String> STRING = EntityDataSerializer.simple(FriendlyByteBuf::writeUtf, FriendlyByteBuf::readUtf);
     public static final EntityDataSerializer<Component> COMPONENT = EntityDataSerializer.simple(FriendlyByteBuf::writeComponent, FriendlyByteBuf::readComponent);
@@ -160,6 +161,7 @@ public class EntityDataSerializers {
     static {
         registerSerializer(BYTE);
         registerSerializer(INT);
+        registerSerializer(LONG);
         registerSerializer(FLOAT);
         registerSerializer(STRING);
         registerSerializer(COMPONENT);

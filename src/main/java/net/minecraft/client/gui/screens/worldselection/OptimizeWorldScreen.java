@@ -11,6 +11,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -19,7 +21,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,22 +45,28 @@ public class OptimizeWorldScreen extends Screen {
         Minecraft param0, BooleanConsumer param1, DataFixer param2, LevelStorageSource.LevelStorageAccess param3, boolean param4
     ) {
         try {
-            OptimizeWorldScreen var7;
+            OptimizeWorldScreen var8;
             try (WorldStem var0 = param0.createWorldOpenFlows().loadWorldStem(param3, false)) {
                 WorldData var1 = var0.worldData();
-                param3.saveDataTag(var0.registryAccess(), var1);
-                var7 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var1.worldGenSettings());
+                RegistryAccess.Frozen var2 = var0.registries().compositeAccess();
+                param3.saveDataTag(var2, var1);
+                var8 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var2.registryOrThrow(Registry.LEVEL_STEM_REGISTRY));
             }
 
-            return var7;
-        } catch (Exception var10) {
-            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var10);
+            return var8;
+        } catch (Exception var11) {
+            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var11);
             return null;
         }
     }
 
     private OptimizeWorldScreen(
-        BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, LevelSettings param3, boolean param4, WorldGenSettings param5
+        BooleanConsumer param0,
+        DataFixer param1,
+        LevelStorageSource.LevelStorageAccess param2,
+        LevelSettings param3,
+        boolean param4,
+        Registry<LevelStem> param5
     ) {
         super(Component.translatable("optimizeWorld.title", param3.levelName()));
         this.callback = param0;

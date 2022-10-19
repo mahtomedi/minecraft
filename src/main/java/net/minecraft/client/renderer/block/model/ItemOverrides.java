@@ -5,14 +5,13 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
-import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,8 +31,8 @@ public class ItemOverrides {
         this.properties = new ResourceLocation[0];
     }
 
-    public ItemOverrides(ModelBakery param0, BlockModel param1, Function<ResourceLocation, UnbakedModel> param2, List<ItemOverride> param3) {
-        this.properties = param3.stream()
+    public ItemOverrides(ModelBaker param0, BlockModel param1, List<ItemOverride> param2) {
+        this.properties = param2.stream()
             .flatMap(ItemOverride::getPredicates)
             .map(ItemOverride.Predicate::getProperty)
             .distinct()
@@ -46,9 +45,9 @@ public class ItemOverrides {
 
         List<ItemOverrides.BakedOverride> var2 = Lists.newArrayList();
 
-        for(int var3 = param3.size() - 1; var3 >= 0; --var3) {
-            ItemOverride var4 = param3.get(var3);
-            BakedModel var5 = this.bakeModel(param0, param1, param2, var4);
+        for(int var3 = param2.size() - 1; var3 >= 0; --var3) {
+            ItemOverride var4 = param2.get(var3);
+            BakedModel var5 = this.bakeModel(param0, param1, var4);
             ItemOverrides.PropertyMatcher[] var6 = var4.getPredicates().map(param1x -> {
                 int var0x = var0.getInt(param1x.getProperty());
                 return new ItemOverrides.PropertyMatcher(var0x, param1x.getValue());
@@ -60,9 +59,9 @@ public class ItemOverrides {
     }
 
     @Nullable
-    private BakedModel bakeModel(ModelBakery param0, BlockModel param1, Function<ResourceLocation, UnbakedModel> param2, ItemOverride param3) {
-        UnbakedModel var0 = param2.apply(param3.getModel());
-        return Objects.equals(var0, param1) ? null : param0.bake(param3.getModel(), BlockModelRotation.X0_Y0);
+    private BakedModel bakeModel(ModelBaker param0, BlockModel param1, ItemOverride param2) {
+        UnbakedModel var0 = param0.getModel(param2.getModel());
+        return Objects.equals(var0, param1) ? null : param0.bake(param2.getModel(), BlockModelRotation.X0_Y0);
     }
 
     @Nullable

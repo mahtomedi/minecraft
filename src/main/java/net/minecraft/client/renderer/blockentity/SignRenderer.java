@@ -27,12 +27,12 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,8 +40,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
-    public static final int MAX_LINE_WIDTH = 90;
-    private static final int LINE_HEIGHT = 10;
     private static final String STICK = "stick";
     private static final int BLACK_TEXT_OUTLINE_COLOR = -988212;
     private static final int OUTLINE_RENDER_DISTANCE = Mth.square(16);
@@ -60,11 +58,11 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         BlockState var0 = param0.getBlockState();
         param2.pushPose();
         float var1 = 0.6666667F;
-        WoodType var2 = getWoodType(var0.getBlock());
+        WoodType var2 = SignBlock.getWoodType(var0.getBlock());
         SignRenderer.SignModel var3 = this.signModels.get(var2);
         if (var0.getBlock() instanceof StandingSignBlock) {
             param2.translate(0.5, 0.5, 0.5);
-            float var4 = -((float)(var0.getValue(StandingSignBlock.ROTATION) * 360) / 16.0F);
+            float var4 = -RotationSegment.convertToDegrees(var0.getValue(StandingSignBlock.ROTATION));
             param2.mulPose(Vector3f.YP.rotationDegrees(var4));
             var3.stick.visible = true;
         } else {
@@ -75,48 +73,72 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
             var3.stick.visible = false;
         }
 
-        param2.pushPose();
-        param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-        Material var6 = Sheets.getSignMaterial(var2);
-        VertexConsumer var7 = var6.buffer(param3, var3::renderType);
-        var3.root.render(param2, var7, param4, param5);
-        param2.popPose();
-        float var8 = 0.010416667F;
-        param2.translate(0.0, 0.33333334F, 0.046666667F);
-        param2.scale(0.010416667F, -0.010416667F, 0.010416667F);
-        int var9 = getDarkColor(param0);
-        int var10 = 20;
-        FormattedCharSequence[] var11 = param0.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), param0x -> {
-            List<FormattedCharSequence> var0x = this.font.split(param0x, 90);
+        this.renderSign(param2, param3, param4, param5, 0.6666667F, var2, var3);
+        this.renderSignText(param0, param2, param3, param4, 0.6666667F);
+    }
+
+    void renderSign(PoseStack param0, MultiBufferSource param1, int param2, int param3, float param4, WoodType param5, Model param6) {
+        param0.pushPose();
+        param0.scale(param4, -param4, -param4);
+        Material var0 = this.getSignMaterial(param5);
+        VertexConsumer var1 = var0.buffer(param1, param6::renderType);
+        this.renderSignModel(param0, param2, param3, param6, var1);
+        param0.popPose();
+    }
+
+    void renderSignModel(PoseStack param0, int param1, int param2, Model param3, VertexConsumer param4) {
+        SignRenderer.SignModel var0 = (SignRenderer.SignModel)param3;
+        var0.root.render(param0, param4, param1, param2);
+    }
+
+    Material getSignMaterial(WoodType param0) {
+        return Sheets.getSignMaterial(param0);
+    }
+
+    void renderSignText(SignBlockEntity param0, PoseStack param1, MultiBufferSource param2, int param3, float param4) {
+        float var0 = 0.015625F * param4;
+        Vec3 var1 = this.getTextOffset(param4);
+        param1.translate(var1.x, var1.y, var1.z);
+        param1.scale(var0, -var0, var0);
+        int var2 = getDarkColor(param0);
+        int var3 = 4 * param0.getTextLineHeight() / 2;
+        FormattedCharSequence[] var4 = param0.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), param1x -> {
+            List<FormattedCharSequence> var0x = this.font.split(param1x, param0.getMaxTextLineWidth());
             return var0x.isEmpty() ? FormattedCharSequence.EMPTY : var0x.get(0);
         });
-        int var12;
-        boolean var13;
-        int var14;
+        int var5;
+        boolean var6;
+        int var7;
         if (param0.hasGlowingText()) {
-            var12 = param0.getColor().getTextColor();
-            var13 = isOutlineVisible(param0, var12);
-            var14 = 15728880;
+            var5 = param0.getColor().getTextColor();
+            var6 = isOutlineVisible(param0, var5);
+            var7 = 15728880;
         } else {
-            var12 = var9;
-            var13 = false;
-            var14 = param4;
+            var5 = var2;
+            var6 = false;
+            var7 = param3;
         }
 
-        for(int var18 = 0; var18 < 4; ++var18) {
-            FormattedCharSequence var19 = var11[var18];
-            float var20 = (float)(-this.font.width(var19) / 2);
-            if (var13) {
-                this.font.drawInBatch8xOutline(var19, var20, (float)(var18 * 10 - 20), var12, var9, param2.last().pose(), param3, var14);
+        for(int var11 = 0; var11 < 4; ++var11) {
+            FormattedCharSequence var12 = var4[var11];
+            float var13 = (float)(-this.font.width(var12) / 2);
+            if (var6) {
+                this.font
+                    .drawInBatch8xOutline(var12, var13, (float)(var11 * param0.getTextLineHeight() - var3), var5, var2, param1.last().pose(), param2, var7);
             } else {
-                this.font.drawInBatch(var19, var20, (float)(var18 * 10 - 20), var12, false, param2.last().pose(), param3, false, 0, var14);
+                this.font
+                    .drawInBatch(var12, var13, (float)(var11 * param0.getTextLineHeight() - var3), var5, false, param1.last().pose(), param2, false, 0, var7);
             }
         }
 
-        param2.popPose();
+        param1.popPose();
     }
 
-    private static boolean isOutlineVisible(SignBlockEntity param0, int param1) {
+    Vec3 getTextOffset(float param0) {
+        return new Vec3(0.0, (double)(0.5F * param0), (double)(0.07F * param0));
+    }
+
+    static boolean isOutlineVisible(SignBlockEntity param0, int param1) {
         if (param1 == DyeColor.BLACK.getTextColor()) {
             return true;
         } else {
@@ -131,24 +153,13 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         }
     }
 
-    private static int getDarkColor(SignBlockEntity param0) {
+    static int getDarkColor(SignBlockEntity param0) {
         int var0 = param0.getColor().getTextColor();
         double var1 = 0.4;
         int var2 = (int)((double)NativeImage.getR(var0) * 0.4);
         int var3 = (int)((double)NativeImage.getG(var0) * 0.4);
         int var4 = (int)((double)NativeImage.getB(var0) * 0.4);
         return var0 == DyeColor.BLACK.getTextColor() && param0.hasGlowingText() ? -988212 : NativeImage.combine(0, var4, var3, var2);
-    }
-
-    public static WoodType getWoodType(Block param0) {
-        WoodType var0;
-        if (param0 instanceof SignBlock) {
-            var0 = ((SignBlock)param0).type();
-        } else {
-            var0 = WoodType.OAK;
-        }
-
-        return var0;
     }
 
     public static SignRenderer.SignModel createSignModel(EntityModelSet param0, WoodType param1) {

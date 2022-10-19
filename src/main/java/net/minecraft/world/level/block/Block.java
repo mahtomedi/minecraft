@@ -133,7 +133,7 @@ public class Block extends BlockBehaviour implements ItemLike {
         } else {
             for(Entity var2 : param2.getEntities(null, var0.bounds())) {
                 double var3 = Shapes.collide(Direction.Axis.Y, var2.getBoundingBox().move(0.0, 1.0, 0.0), List.of(var0), -1.0);
-                var2.teleportTo(var2.getX(), var2.getY() + 1.0 + var3, var2.getZ());
+                var2.teleportRelative(0.0, 1.0 + var3, 0.0);
             }
 
             return param1;

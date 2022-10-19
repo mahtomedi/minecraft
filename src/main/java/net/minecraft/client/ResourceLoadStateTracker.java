@@ -26,9 +26,7 @@ public class ResourceLoadStateTracker {
             LOGGER.warn("Reload already ongoing, replacing");
         }
 
-        this.reloadState = new ResourceLoadStateTracker.ReloadState(
-            param0, param1.stream().map(PackResources::getName).collect(ImmutableList.toImmutableList())
-        );
+        this.reloadState = new ResourceLoadStateTracker.ReloadState(param0, param1.stream().map(PackResources::packId).collect(ImmutableList.toImmutableList()));
     }
 
     public void startRecovery(Throwable param0) {

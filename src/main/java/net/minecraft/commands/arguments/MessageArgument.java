@@ -4,11 +4,9 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.logging.LogUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -16,20 +14,15 @@ import net.minecraft.commands.CommandSigningContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
-import net.minecraft.network.chat.ChatDecorator;
-import net.minecraft.network.chat.ChatMessageContent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.FilteredText;
-import net.minecraft.server.players.PlayerList;
-import org.slf4j.Logger;
 
 public class MessageArgument implements SignedArgument<MessageArgument.Message> {
     private static final Collection<String> EXAMPLES = Arrays.asList("Hello world!", "foo", "@e", "Hello @p :)");
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static MessageArgument message() {
         return new MessageArgument();
@@ -40,17 +33,41 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
         return var0.resolveComponent(param0.getSource());
     }
 
-    public static MessageArgument.ChatMessage getChatMessage(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+    public static void resolveChatMessage(CommandContext<CommandSourceStack> param0, String param1, Consumer<PlayerChatMessage> param2) throws CommandSyntaxException {
         MessageArgument.Message var0 = param0.getArgument(param1, MessageArgument.Message.class);
-        Component var1 = var0.resolveComponent(param0.getSource());
-        CommandSigningContext var2 = param0.getSource().getSigningContext();
-        PlayerChatMessage var3 = var2.getArgument(param1);
-        if (var3 == null) {
-            ChatMessageContent var4 = new ChatMessageContent(var0.text, var1);
-            return new MessageArgument.ChatMessage(PlayerChatMessage.system(var4));
+        CommandSourceStack var1 = param0.getSource();
+        Component var2 = var0.resolveComponent(var1);
+        CommandSigningContext var3 = var1.getSigningContext();
+        PlayerChatMessage var4 = var3.getArgument(param1);
+        if (var4 != null) {
+            resolveSignedMessage(param2, var1, var4.withUnsignedContent(var2));
         } else {
-            return new MessageArgument.ChatMessage(ChatDecorator.attachIfNotDecorated(var3, var1));
+            resolveDisguisedMessage(param2, var1, PlayerChatMessage.system(var0.text).withUnsignedContent(var2));
         }
+
+    }
+
+    private static void resolveSignedMessage(Consumer<PlayerChatMessage> param0, CommandSourceStack param1, PlayerChatMessage param2) {
+        MinecraftServer var0 = param1.getServer();
+        CompletableFuture<FilteredText> var1 = filterPlainText(param1, param2);
+        CompletableFuture<Component> var2 = var0.getChatDecorator().decorate(param1.getPlayer(), param2.decoratedContent());
+        param1.getChatMessageChainer().append(param4 -> CompletableFuture.allOf(var1, var2).thenAcceptAsync(param4x -> {
+                PlayerChatMessage var0x = param2.withUnsignedContent(var2.join()).filter(var1.join().mask());
+                param0.accept(var0x);
+            }, param4));
+    }
+
+    private static void resolveDisguisedMessage(Consumer<PlayerChatMessage> param0, CommandSourceStack param1, PlayerChatMessage param2) {
+        MinecraftServer var0 = param1.getServer();
+        CompletableFuture<Component> var1 = var0.getChatDecorator().decorate(param1.getPlayer(), param2.decoratedContent());
+        param1.getChatMessageChainer().append(param3 -> var1.thenAcceptAsync(param2x -> param0.accept(param2.withUnsignedContent(param2x)), param3));
+    }
+
+    private static CompletableFuture<FilteredText> filterPlainText(CommandSourceStack param0, PlayerChatMessage param1) {
+        ServerPlayer var0 = param0.getPlayer();
+        return var0 != null && param1.hasSignatureFrom(var0.getUUID())
+            ? var0.getTextFilter().processStreamMessage(param1.signedContent())
+            : CompletableFuture.completedFuture(FilteredText.passThrough(param1.signedContent()));
     }
 
     public MessageArgument.Message parse(StringReader param0) throws CommandSyntaxException {
@@ -60,57 +77,6 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
     @Override
     public Collection<String> getExamples() {
         return EXAMPLES;
-    }
-
-    public String getSignableText(MessageArgument.Message param0) {
-        return param0.getText();
-    }
-
-    public CompletableFuture<Component> resolvePreview(CommandSourceStack param0, MessageArgument.Message param1) throws CommandSyntaxException {
-        return param1.resolveDecoratedComponent(param0);
-    }
-
-    @Override
-    public Class<MessageArgument.Message> getValueType() {
-        return MessageArgument.Message.class;
-    }
-
-    static void logResolutionFailure(CommandSourceStack param0, CompletableFuture<?> param1) {
-        param1.exceptionally(param1x -> {
-            LOGGER.error("Encountered unexpected exception while resolving chat message argument from '{}'", param0.getDisplayName().getString(), param1x);
-            return null;
-        });
-    }
-
-    public static record ChatMessage(PlayerChatMessage signedArgument) {
-        public void resolve(CommandSourceStack param0, Consumer<PlayerChatMessage> param1) {
-            MinecraftServer var0 = param0.getServer();
-            param0.getChatMessageChainer().append(() -> {
-                CompletableFuture<FilteredText> var0x = this.filterPlainText(param0, this.signedArgument.signedContent().plain());
-                CompletableFuture<PlayerChatMessage> var1x = var0.getChatDecorator().decorate(param0.getPlayer(), this.signedArgument);
-                return CompletableFuture.allOf(var0x, var1x).thenAcceptAsync(param3 -> {
-                    PlayerChatMessage var0xx = ((PlayerChatMessage)var1x.join()).filter(var0x.join().mask());
-                    param1.accept(var0xx);
-                }, var0);
-            });
-        }
-
-        private CompletableFuture<FilteredText> filterPlainText(CommandSourceStack param0, String param1) {
-            ServerPlayer var0 = param0.getPlayer();
-            return var0 != null && this.signedArgument.hasSignatureFrom(var0.getUUID())
-                ? var0.getTextFilter().processStreamMessage(param1)
-                : CompletableFuture.completedFuture(FilteredText.passThrough(param1));
-        }
-
-        public void consume(CommandSourceStack param0) {
-            if (!this.signedArgument.signer().isSystem()) {
-                this.resolve(param0, param1 -> {
-                    PlayerList var0 = param0.getServer().getPlayerList();
-                    var0.broadcastMessageHeader(param1, Set.of());
-                });
-            }
-
-        }
     }
 
     public static class Message {
@@ -128,13 +94,6 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
 
         public MessageArgument.Part[] getParts() {
             return this.parts;
-        }
-
-        CompletableFuture<Component> resolveDecoratedComponent(CommandSourceStack param0) throws CommandSyntaxException {
-            Component var0 = this.resolveComponent(param0);
-            CompletableFuture<Component> var1 = param0.getServer().getChatDecorator().decorate(param0.getPlayer(), var0);
-            MessageArgument.logResolutionFailure(param0, var1);
-            return var1;
         }
 
         Component resolveComponent(CommandSourceStack param0) throws CommandSyntaxException {

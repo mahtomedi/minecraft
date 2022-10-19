@@ -1,5 +1,6 @@
 package net.minecraft.server.dedicated;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -7,12 +8,14 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -26,9 +29,14 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldDimensions;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
@@ -38,6 +46,7 @@ import org.slf4j.Logger;
 public class DedicatedServerProperties extends Settings<DedicatedServerProperties> {
     static final Logger LOGGER = LogUtils.getLogger();
     private static final Pattern SHA1 = Pattern.compile("^[a-fA-F0-9]{40}$");
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',').trimResults();
     public final boolean onlineMode = this.get("online-mode", true);
     public final boolean preventProxyConnections = this.get("prevent-proxy-connections", false);
     public final String serverIp = this.get("server-ip", "");
@@ -85,28 +94,34 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final boolean hideOnlinePlayers = this.get("hide-online-players", false);
     public final int entityBroadcastRangePercentage = this.get("entity-broadcast-range-percentage", param0x -> Mth.clamp(param0x, 10, 1000), 100);
     public final String textFilteringConfig = this.get("text-filtering-config", "");
-    public Optional<MinecraftServer.ServerResourcePackInfo> serverResourcePackInfo;
-    public final boolean previewsChat = this.get("previews-chat", false);
+    public final Optional<MinecraftServer.ServerResourcePackInfo> serverResourcePackInfo;
+    public final DataPackConfig initialDataPackConfiguration;
     public final Settings<DedicatedServerProperties>.MutableValue<Integer> playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
     public final Settings<DedicatedServerProperties>.MutableValue<Boolean> whiteList = this.getMutable("white-list", false);
     public final boolean enforceSecureProfile = this.get("enforce-secure-profile", true);
-    private final DedicatedServerProperties.WorldGenProperties worldGenProperties = new DedicatedServerProperties.WorldGenProperties(
-        this.get("level-seed", ""),
-        this.get("generator-settings", param0x -> GsonHelper.parse(!param0x.isEmpty() ? param0x : "{}"), new JsonObject()),
-        this.get("generate-structures", true),
-        this.get("level-type", param0x -> param0x.toLowerCase(Locale.ROOT), WorldPresets.NORMAL.location().toString())
-    );
-    @Nullable
-    private WorldGenSettings worldGenSettings;
+    private final DedicatedServerProperties.WorldDimensionData worldDimensionData;
+    public final WorldOptions worldOptions;
 
     public DedicatedServerProperties(Properties param0) {
         super(param0);
+        String var0 = this.get("level-seed", "");
+        boolean var1 = this.get("generate-structures", true);
+        long var2 = WorldOptions.parseSeed(var0).orElse(RandomSource.create().nextLong());
+        this.worldOptions = new WorldOptions(var2, var1, false);
+        this.worldDimensionData = new DedicatedServerProperties.WorldDimensionData(
+            this.get("generator-settings", param0x -> GsonHelper.parse(!param0x.isEmpty() ? param0x : "{}"), new JsonObject()),
+            this.get("level-type", param0x -> param0x.toLowerCase(Locale.ROOT), WorldPresets.NORMAL.location().toString())
+        );
         this.serverResourcePackInfo = getServerPackInfo(
             this.get("resource-pack", ""),
             this.get("resource-pack-sha1", ""),
             this.getLegacyString("resource-pack-hash"),
             this.get("require-resource-pack", false),
             this.get("resource-pack-prompt", "")
+        );
+        this.initialDataPackConfiguration = getDatapackConfig(
+            this.get("initial-enabled-packs", String.join(",", WorldDataConfiguration.DEFAULT.dataPacks().getEnabled())),
+            this.get("initial-disabled-packs", String.join(",", WorldDataConfiguration.DEFAULT.dataPacks().getDisabled()))
         );
     }
 
@@ -115,9 +130,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     }
 
     protected DedicatedServerProperties reload(RegistryAccess param0, Properties param1) {
-        DedicatedServerProperties var0 = new DedicatedServerProperties(param1);
-        var0.getWorldGenSettings(param0);
-        return var0;
+        return new DedicatedServerProperties(param1);
     }
 
     @Nullable
@@ -165,53 +178,59 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         }
     }
 
-    public WorldGenSettings getWorldGenSettings(RegistryAccess param0) {
-        if (this.worldGenSettings == null) {
-            this.worldGenSettings = this.worldGenProperties.create(param0);
-        }
-
-        return this.worldGenSettings;
+    private static DataPackConfig getDatapackConfig(String param0, String param1) {
+        List<String> var0 = COMMA_SPLITTER.splitToList(param0);
+        List<String> var1 = COMMA_SPLITTER.splitToList(param1);
+        return new DataPackConfig(var0, var1);
     }
 
-    public static record WorldGenProperties(String levelSeed, JsonObject generatorSettings, boolean generateStructures, String levelType) {
+    private static FeatureFlagSet getFeatures(String param0) {
+        return FeatureFlags.REGISTRY.fromNames(COMMA_SPLITTER.splitToStream(param0).mapMulti((param0x, param1) -> {
+            ResourceLocation var0x = ResourceLocation.tryParse(param0x);
+            if (var0x == null) {
+                LOGGER.warn("Invalid resource location {}, ignoring", param0x);
+            } else {
+                param1.accept(var0x);
+            }
+
+        }).collect(Collectors.toList()));
+    }
+
+    public WorldDimensions createDimensions(RegistryAccess param0) {
+        return this.worldDimensionData.create(param0);
+    }
+
+    static record WorldDimensionData(JsonObject generatorSettings, String levelType) {
         private static final Map<String, ResourceKey<WorldPreset>> LEGACY_PRESET_NAMES = Map.of(
             "default", WorldPresets.NORMAL, "largebiomes", WorldPresets.LARGE_BIOMES
         );
 
-        public WorldGenSettings create(RegistryAccess param0) {
-            long var0 = WorldGenSettings.parseSeed(this.levelSeed()).orElse(RandomSource.create().nextLong());
-            Registry<WorldPreset> var1 = param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY);
-            Holder<WorldPreset> var2 = var1.getHolder(WorldPresets.NORMAL)
-                .or(() -> var1.holders().findAny())
+        public WorldDimensions create(RegistryAccess param0) {
+            Registry<WorldPreset> var0 = param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY);
+            Holder.Reference<WorldPreset> var1 = var0.getHolder(WorldPresets.NORMAL)
+                .or(() -> var0.holders().findAny())
                 .orElseThrow(() -> new IllegalStateException("Invalid datapack contents: can't find default preset"));
-            Holder<WorldPreset> var3 = Optional.ofNullable(ResourceLocation.tryParse(this.levelType))
+            Holder<WorldPreset> var2 = Optional.ofNullable(ResourceLocation.tryParse(this.levelType))
                 .map(param0x -> ResourceKey.create(Registry.WORLD_PRESET_REGISTRY, param0x))
                 .or(() -> Optional.ofNullable(LEGACY_PRESET_NAMES.get(this.levelType)))
-                .flatMap(var1::getHolder)
-                .orElseGet(
-                    () -> {
-                        DedicatedServerProperties.LOGGER
-                            .warn(
-                                "Failed to parse level-type {}, defaulting to {}",
-                                this.levelType,
-                                var2.unwrapKey().map(param0x -> param0x.location().toString()).orElse("[unnamed]")
-                            );
-                        return var2;
-                    }
-                );
-            WorldGenSettings var4 = var3.value().createWorldGenSettings(var0, this.generateStructures, false);
-            if (var3.is(WorldPresets.FLAT)) {
-                RegistryOps<JsonElement> var5 = RegistryOps.create(JsonOps.INSTANCE, param0);
-                Optional<FlatLevelGeneratorSettings> var6 = FlatLevelGeneratorSettings.CODEC
-                    .parse(new Dynamic<>(var5, this.generatorSettings()))
+                .flatMap(var0::getHolder)
+                .orElseGet(() -> {
+                    DedicatedServerProperties.LOGGER.warn("Failed to parse level-type {}, defaulting to {}", this.levelType, var1.key().location());
+                    return var1;
+                });
+            WorldDimensions var3 = var2.value().createWorldDimensions();
+            if (var2.is(WorldPresets.FLAT)) {
+                RegistryOps<JsonElement> var4 = RegistryOps.create(JsonOps.INSTANCE, param0);
+                Optional<FlatLevelGeneratorSettings> var5 = FlatLevelGeneratorSettings.CODEC
+                    .parse(new Dynamic<>(var4, this.generatorSettings()))
                     .resultOrPartial(DedicatedServerProperties.LOGGER::error);
-                if (var6.isPresent()) {
-                    Registry<StructureSet> var7 = param0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-                    return WorldGenSettings.replaceOverworldGenerator(param0, var4, new FlatLevelSource(var7, var6.get()));
+                if (var5.isPresent()) {
+                    Registry<StructureSet> var6 = param0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
+                    return var3.replaceOverworldGenerator(param0, new FlatLevelSource(var6, var5.get()));
                 }
             }
 
-            return var4;
+            return var3;
         }
     }
 }

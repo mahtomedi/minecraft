@@ -7,10 +7,13 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Collection;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ItemEnchantmentArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,19 +36,19 @@ public class EnchantCommand {
     );
     private static final SimpleCommandExceptionType ERROR_NOTHING_HAPPENED = new SimpleCommandExceptionType(Component.translatable("commands.enchant.failed"));
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
             Commands.literal("enchant")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
                     Commands.argument("targets", EntityArgument.entities())
                         .then(
-                            Commands.argument("enchantment", ItemEnchantmentArgument.enchantment())
+                            Commands.argument("enchantment", ResourceArgument.resource(param1, Registry.ENCHANTMENT_REGISTRY))
                                 .executes(
                                     param0x -> enchant(
                                             param0x.getSource(),
                                             EntityArgument.getEntities(param0x, "targets"),
-                                            ItemEnchantmentArgument.getEnchantment(param0x, "enchantment"),
+                                            ResourceArgument.getEnchantment(param0x, "enchantment"),
                                             1
                                         )
                                 )
@@ -55,7 +58,7 @@ public class EnchantCommand {
                                             param0x -> enchant(
                                                     param0x.getSource(),
                                                     EntityArgument.getEntities(param0x, "targets"),
-                                                    ItemEnchantmentArgument.getEnchantment(param0x, "enchantment"),
+                                                    ResourceArgument.getEnchantment(param0x, "enchantment"),
                                                     IntegerArgumentType.getInteger(param0x, "level")
                                                 )
                                         )
@@ -65,42 +68,43 @@ public class EnchantCommand {
         );
     }
 
-    private static int enchant(CommandSourceStack param0, Collection<? extends Entity> param1, Enchantment param2, int param3) throws CommandSyntaxException {
-        if (param3 > param2.getMaxLevel()) {
-            throw ERROR_LEVEL_TOO_HIGH.create(param3, param2.getMaxLevel());
+    private static int enchant(CommandSourceStack param0, Collection<? extends Entity> param1, Holder<Enchantment> param2, int param3) throws CommandSyntaxException {
+        Enchantment var0 = param2.value();
+        if (param3 > var0.getMaxLevel()) {
+            throw ERROR_LEVEL_TOO_HIGH.create(param3, var0.getMaxLevel());
         } else {
-            int var0 = 0;
+            int var1 = 0;
 
-            for(Entity var1 : param1) {
-                if (var1 instanceof LivingEntity var2) {
-                    ItemStack var3 = var2.getMainHandItem();
-                    if (!var3.isEmpty()) {
-                        if (param2.canEnchant(var3) && EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(var3).keySet(), param2)) {
-                            var3.enchant(param2, param3);
-                            ++var0;
+            for(Entity var2 : param1) {
+                if (var2 instanceof LivingEntity var3) {
+                    ItemStack var4 = var3.getMainHandItem();
+                    if (!var4.isEmpty()) {
+                        if (var0.canEnchant(var4) && EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(var4).keySet(), var0)) {
+                            var4.enchant(var0, param3);
+                            ++var1;
                         } else if (param1.size() == 1) {
-                            throw ERROR_INCOMPATIBLE.create(var3.getItem().getName(var3).getString());
+                            throw ERROR_INCOMPATIBLE.create(var4.getItem().getName(var4).getString());
                         }
                     } else if (param1.size() == 1) {
-                        throw ERROR_NO_ITEM.create(var2.getName().getString());
+                        throw ERROR_NO_ITEM.create(var3.getName().getString());
                     }
                 } else if (param1.size() == 1) {
-                    throw ERROR_NOT_LIVING_ENTITY.create(var1.getName().getString());
+                    throw ERROR_NOT_LIVING_ENTITY.create(var2.getName().getString());
                 }
             }
 
-            if (var0 == 0) {
+            if (var1 == 0) {
                 throw ERROR_NOTHING_HAPPENED.create();
             } else {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        Component.translatable("commands.enchant.success.single", param2.getFullname(param3), param1.iterator().next().getDisplayName()), true
+                        Component.translatable("commands.enchant.success.single", var0.getFullname(param3), param1.iterator().next().getDisplayName()), true
                     );
                 } else {
-                    param0.sendSuccess(Component.translatable("commands.enchant.success.multiple", param2.getFullname(param3), param1.size()), true);
+                    param0.sendSuccess(Component.translatable("commands.enchant.success.multiple", var0.getFullname(param3), param1.size()), true);
                 }
 
-                return var0;
+                return var1;
             }
         }
     }

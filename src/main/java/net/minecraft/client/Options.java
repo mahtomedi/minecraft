@@ -20,8 +20,6 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,10 +28,13 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -44,7 +45,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.multiplayer.chat.ChatPreviewStatus;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -276,6 +276,10 @@ public class Options {
         0.5,
         param0x -> Minecraft.getInstance().gui.getChat().rescaleChat()
     );
+    private final OptionInstance<Double> panoramaSpeed = new OptionInstance<>(
+        "options.accessibility.panorama_speed", OptionInstance.noTooltip(), Options::percentValueLabel, OptionInstance.UnitDouble.INSTANCE, 1.0, param0x -> {
+        }
+    );
     @Nullable
     public String fullscreenVideoModeString;
     public boolean hideServerAddress;
@@ -349,7 +353,6 @@ public class Options {
         param0x -> {
         }
     );
-    private final Object2FloatMap<SoundSource> sourceVolumes = Util.make(new Object2FloatOpenHashMap<>(), param0x -> param0x.defaultReturnValue(1.0F));
     public boolean useNativeTransport = true;
     private final OptionInstance<AttackIndicatorStatus> attackIndicator = new OptionInstance<>(
         "options.attackIndicator",
@@ -415,6 +418,12 @@ public class Options {
         "options.allowServerListing", OptionInstance.cachedConstantTooltip(ALLOW_SERVER_LISTING_TOOLTIP), true, param0x -> this.broadcastOptions()
     );
     private final OptionInstance<Boolean> reducedDebugInfo = OptionInstance.createBoolean("options.reducedDebugInfo", false);
+    private final Map<SoundSource, OptionInstance<Double>> soundSourceVolumes = Util.make(new EnumMap<>(SoundSource.class), param0x -> {
+        for(SoundSource var0x : SoundSource.values()) {
+            param0x.put(var0x, this.createSoundSliderOptionInstance("soundCategory." + var0x.getName(), var0x));
+        }
+
+    });
     private final OptionInstance<Boolean> showSubtitles = OptionInstance.createBoolean("options.showSubtitles", false);
     private static final Component DIRECTIONAL_AUDIO_TOOLTIP_ON = Component.translatable("options.directionalAudio.on.tooltip");
     private static final Component DIRECTIONAL_AUDIO_TOOLTIP_OFF = Component.translatable("options.directionalAudio.off.tooltip");
@@ -475,24 +484,6 @@ public class Options {
         "options.hideMatchedNames", OptionInstance.cachedConstantTooltip(CHAT_TOOLTIP_HIDE_MATCHED_NAMES), true
     );
     private final OptionInstance<Boolean> showAutosaveIndicator = OptionInstance.createBoolean("options.autosaveIndicator", true);
-    private static final Component CHAT_PREVIEW_OFF_TOOLTIP = Component.translatable("options.chatPreview.tooltip.off");
-    private static final Component CHAT_PREVIEW_LIVE_TOOLTIP = Component.translatable("options.chatPreview.tooltip.live");
-    private static final Component CHAT_PREVIEW_CONFIRM_TOOLTIP = Component.translatable("options.chatPreview.tooltip.confirm");
-    private final OptionInstance<ChatPreviewStatus> chatPreview = new OptionInstance<>(
-        "options.chatPreview",
-        param0x -> param1x -> {
-                return switch(param1x) {
-                    case OFF -> OptionInstance.splitTooltip(param0x, CHAT_PREVIEW_OFF_TOOLTIP);
-                    case LIVE -> OptionInstance.splitTooltip(param0x, CHAT_PREVIEW_LIVE_TOOLTIP);
-                    case CONFIRM -> OptionInstance.splitTooltip(param0x, CHAT_PREVIEW_CONFIRM_TOOLTIP);
-                };
-            },
-        OptionInstance.forOptionEnum(),
-        new OptionInstance.Enum<>(Arrays.asList(ChatPreviewStatus.values()), Codec.INT.xmap(ChatPreviewStatus::byId, ChatPreviewStatus::getId)),
-        ChatPreviewStatus.LIVE,
-        param0x -> {
-        }
-    );
     private static final Component CHAT_TOOLTIP_ONLY_SHOW_SECURE = Component.translatable("options.onlyShowSecureChat.tooltip");
     private final OptionInstance<Boolean> onlyShowSecureChat = OptionInstance.createBoolean(
         "options.onlyShowSecureChat", OptionInstance.cachedConstantTooltip(CHAT_TOOLTIP_ONLY_SHOW_SECURE), false
@@ -749,6 +740,10 @@ public class Options {
         return this.textBackgroundOpacity;
     }
 
+    public OptionInstance<Double> panoramaSpeed() {
+        return this.panoramaSpeed;
+    }
+
     public OptionInstance<HumanoidArm> mainHand() {
         return this.mainHand;
     }
@@ -853,6 +848,25 @@ public class Options {
         return this.reducedDebugInfo;
     }
 
+    public final float getSoundSourceVolume(SoundSource param0) {
+        return this.getSoundSourceOptionInstance(param0).get().floatValue();
+    }
+
+    public final OptionInstance<Double> getSoundSourceOptionInstance(SoundSource param0) {
+        return Objects.requireNonNull(this.soundSourceVolumes.get(param0));
+    }
+
+    private OptionInstance<Double> createSoundSliderOptionInstance(String param0, SoundSource param1) {
+        return new OptionInstance<>(
+            param0,
+            OptionInstance.noTooltip(),
+            (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+            OptionInstance.UnitDouble.INSTANCE,
+            1.0,
+            param1x -> Minecraft.getInstance().getSoundManager().updateSourceVolume(param1, param1x.floatValue())
+        );
+    }
+
     public OptionInstance<Boolean> showSubtitles() {
         return this.showSubtitles;
     }
@@ -891,10 +905,6 @@ public class Options {
 
     public OptionInstance<Boolean> showAutosaveIndicator() {
         return this.showAutosaveIndicator;
-    }
-
-    public OptionInstance<ChatPreviewStatus> chatPreview() {
-        return this.chatPreview;
     }
 
     public OptionInstance<Boolean> onlyShowSecureChat() {
@@ -1057,7 +1067,6 @@ public class Options {
         this.syncWrites = param0.process("syncChunkWrites", this.syncWrites);
         param0.process("showAutosaveIndicator", this.showAutosaveIndicator);
         param0.process("allowServerListing", this.allowServerListing);
-        param0.process("chatPreview", this.chatPreview);
         param0.process("onlyShowSecureChat", this.onlyShowSecureChat);
 
         for(KeyMapping var0 : this.keyMappings) {
@@ -1069,7 +1078,7 @@ public class Options {
         }
 
         for(SoundSource var3 : SoundSource.values()) {
-            this.sourceVolumes.computeFloat(var3, (param1, param2) -> param0.process("soundCategory_" + param1.getName(), param2 != null ? param2 : 1.0F));
+            param0.process("soundCategory_" + var3.getName(), this.soundSourceVolumes.get(var3));
         }
 
         for(PlayerModelPart var4 : PlayerModelPart.values()) {
@@ -1088,7 +1097,6 @@ public class Options {
                 return;
             }
 
-            this.sourceVolumes.clear();
             CompoundTag var0 = new CompoundTag();
 
             try (BufferedReader var1 = Files.newReader(this.optionsFile, Charsets.UTF_8)) {
@@ -1282,15 +1290,6 @@ public class Options {
         }
 
         this.broadcastOptions();
-    }
-
-    public float getSoundSourceVolume(SoundSource param0) {
-        return this.sourceVolumes.getFloat(param0);
-    }
-
-    public void setSoundCategoryVolume(SoundSource param0, float param1) {
-        this.sourceVolumes.put(param0, param1);
-        this.minecraft.getSoundManager().updateSourceVolume(param0, param1);
     }
 
     public void broadcastOptions() {

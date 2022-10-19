@@ -9,20 +9,24 @@ import net.minecraft.world.level.Level;
 public abstract class AbstractCookingRecipe implements Recipe<Container> {
     protected final RecipeType<?> type;
     protected final ResourceLocation id;
+    private final CookingBookCategory category;
     protected final String group;
     protected final Ingredient ingredient;
     protected final ItemStack result;
     protected final float experience;
     protected final int cookingTime;
 
-    public AbstractCookingRecipe(RecipeType<?> param0, ResourceLocation param1, String param2, Ingredient param3, ItemStack param4, float param5, int param6) {
+    public AbstractCookingRecipe(
+        RecipeType<?> param0, ResourceLocation param1, String param2, CookingBookCategory param3, Ingredient param4, ItemStack param5, float param6, int param7
+    ) {
         this.type = param0;
+        this.category = param3;
         this.id = param1;
         this.group = param2;
-        this.ingredient = param3;
-        this.result = param4;
-        this.experience = param5;
-        this.cookingTime = param6;
+        this.ingredient = param4;
+        this.result = param5;
+        this.experience = param6;
+        this.cookingTime = param7;
     }
 
     @Override
@@ -73,5 +77,9 @@ public abstract class AbstractCookingRecipe implements Recipe<Container> {
     @Override
     public RecipeType<?> getType() {
         return this.type;
+    }
+
+    public CookingBookCategory category() {
+        return this.category;
     }
 }

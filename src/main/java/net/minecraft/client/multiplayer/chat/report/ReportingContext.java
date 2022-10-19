@@ -3,7 +3,6 @@ package net.minecraft.client.multiplayer.chat.report;
 import com.mojang.authlib.minecraft.UserApiService;
 import java.util.Objects;
 import net.minecraft.client.multiplayer.chat.ChatLog;
-import net.minecraft.client.multiplayer.chat.RollingMemoryChatLog;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,7 +11,7 @@ public record ReportingContext(AbuseReportSender sender, ReportEnvironment envir
     private static final int LOG_CAPACITY = 1024;
 
     public static ReportingContext create(ReportEnvironment param0, UserApiService param1) {
-        RollingMemoryChatLog var0 = new RollingMemoryChatLog(1024);
+        ChatLog var0 = new ChatLog(1024);
         AbuseReportSender var1 = AbuseReportSender.create(param0, param1);
         return new ReportingContext(var1, param0, var0);
     }

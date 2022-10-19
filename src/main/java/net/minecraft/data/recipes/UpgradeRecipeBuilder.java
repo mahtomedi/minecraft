@@ -17,19 +17,21 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 public class UpgradeRecipeBuilder {
     private final Ingredient base;
     private final Ingredient addition;
+    private final RecipeCategory category;
     private final Item result;
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
     private final RecipeSerializer<?> type;
 
-    public UpgradeRecipeBuilder(RecipeSerializer<?> param0, Ingredient param1, Ingredient param2, Item param3) {
+    public UpgradeRecipeBuilder(RecipeSerializer<?> param0, Ingredient param1, Ingredient param2, RecipeCategory param3, Item param4) {
+        this.category = param3;
         this.type = param0;
         this.base = param1;
         this.addition = param2;
-        this.result = param3;
+        this.result = param4;
     }
 
-    public static UpgradeRecipeBuilder smithing(Ingredient param0, Ingredient param1, Item param2) {
-        return new UpgradeRecipeBuilder(RecipeSerializer.SMITHING, param0, param1, param2);
+    public static UpgradeRecipeBuilder smithing(Ingredient param0, Ingredient param1, RecipeCategory param2, Item param3) {
+        return new UpgradeRecipeBuilder(RecipeSerializer.SMITHING, param0, param1, param2, param3);
     }
 
     public UpgradeRecipeBuilder unlocks(String param0, CriterionTriggerInstance param1) {
@@ -50,13 +52,7 @@ public class UpgradeRecipeBuilder {
             .requirements(RequirementsStrategy.OR);
         param0.accept(
             new UpgradeRecipeBuilder.Result(
-                param1,
-                this.type,
-                this.base,
-                this.addition,
-                this.result,
-                this.advancement,
-                new ResourceLocation(param1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + param1.getPath())
+                param1, this.type, this.base, this.addition, this.result, this.advancement, param1.withPrefix("recipes/" + this.category.getFolderName() + "/")
             )
         );
     }

@@ -20,11 +20,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 
-public class ShapedRecipeBuilder implements RecipeBuilder {
+public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements RecipeBuilder {
+    private final RecipeCategory category;
     private final Item result;
     private final int count;
     private final List<String> rows = Lists.newArrayList();
@@ -33,17 +35,18 @@ public class ShapedRecipeBuilder implements RecipeBuilder {
     @Nullable
     private String group;
 
-    public ShapedRecipeBuilder(ItemLike param0, int param1) {
-        this.result = param0.asItem();
-        this.count = param1;
+    public ShapedRecipeBuilder(RecipeCategory param0, ItemLike param1, int param2) {
+        this.category = param0;
+        this.result = param1.asItem();
+        this.count = param2;
     }
 
-    public static ShapedRecipeBuilder shaped(ItemLike param0) {
-        return shaped(param0, 1);
+    public static ShapedRecipeBuilder shaped(RecipeCategory param0, ItemLike param1) {
+        return shaped(param0, param1, 1);
     }
 
-    public static ShapedRecipeBuilder shaped(ItemLike param0, int param1) {
-        return new ShapedRecipeBuilder(param0, param1);
+    public static ShapedRecipeBuilder shaped(RecipeCategory param0, ItemLike param1, int param2) {
+        return new ShapedRecipeBuilder(param0, param1, param2);
     }
 
     public ShapedRecipeBuilder define(Character param0, TagKey<Item> param1) {
@@ -103,10 +106,11 @@ public class ShapedRecipeBuilder implements RecipeBuilder {
                 this.result,
                 this.count,
                 this.group == null ? "" : this.group,
+                determineBookCategory(this.category),
                 this.rows,
                 this.key,
                 this.advancement,
-                new ResourceLocation(param1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + param1.getPath())
+                param1.withPrefix("recipes/" + this.category.getFolderName() + "/")
             )
         );
     }
@@ -139,7 +143,7 @@ public class ShapedRecipeBuilder implements RecipeBuilder {
         }
     }
 
-    static class Result implements FinishedRecipe {
+    static class Result extends CraftingRecipeBuilder.CraftingResult {
         private final ResourceLocation id;
         private final Item result;
         private final int count;
@@ -154,23 +158,26 @@ public class ShapedRecipeBuilder implements RecipeBuilder {
             Item param1,
             int param2,
             String param3,
-            List<String> param4,
-            Map<Character, Ingredient> param5,
-            Advancement.Builder param6,
-            ResourceLocation param7
+            CraftingBookCategory param4,
+            List<String> param5,
+            Map<Character, Ingredient> param6,
+            Advancement.Builder param7,
+            ResourceLocation param8
         ) {
+            super(param4);
             this.id = param0;
             this.result = param1;
             this.count = param2;
             this.group = param3;
-            this.pattern = param4;
-            this.key = param5;
-            this.advancement = param6;
-            this.advancementId = param7;
+            this.pattern = param5;
+            this.key = param6;
+            this.advancement = param7;
+            this.advancementId = param8;
         }
 
         @Override
         public void serializeRecipeData(JsonObject param0) {
+            super.serializeRecipeData(param0);
             if (!this.group.isEmpty()) {
                 param0.addProperty("group", this.group);
             }

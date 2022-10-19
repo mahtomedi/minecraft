@@ -2,7 +2,6 @@ package com.mojang.blaze3d.platform;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -14,6 +13,7 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.SilentInitException;
+import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.PointerBuffer;
@@ -134,22 +134,14 @@ public final class Window implements AutoCloseable {
 
     }
 
-    public void setIcon(InputStream param0, InputStream param1) {
+    public void setIcon(IoSupplier<InputStream> param0, IoSupplier<InputStream> param1) {
         RenderSystem.assertInInitPhase();
 
         try (MemoryStack var0 = MemoryStack.stackPush()) {
-            if (param0 == null) {
-                throw new FileNotFoundException("icons/icon_16x16.png");
-            }
-
-            if (param1 == null) {
-                throw new FileNotFoundException("icons/icon_32x32.png");
-            }
-
             IntBuffer var1 = var0.mallocInt(1);
             IntBuffer var2 = var0.mallocInt(1);
             IntBuffer var3 = var0.mallocInt(1);
-            Buffer var4 = GLFWImage.mallocStack(2, var0);
+            Buffer var4 = GLFWImage.malloc(2, var0);
             ByteBuffer var5 = this.readIconPixels(param0, var1, var2, var3);
             if (var5 == null) {
                 throw new IllegalStateException("Could not load icon: " + STBImage.stbi_failure_reason());
@@ -161,6 +153,7 @@ public final class Window implements AutoCloseable {
             var4.pixels(var5);
             ByteBuffer var6 = this.readIconPixels(param1, var1, var2, var3);
             if (var6 == null) {
+                STBImage.stbi_image_free(var5);
                 throw new IllegalStateException("Could not load icon: " + STBImage.stbi_failure_reason());
             }
 
@@ -179,15 +172,15 @@ public final class Window implements AutoCloseable {
     }
 
     @Nullable
-    private ByteBuffer readIconPixels(InputStream param0, IntBuffer param1, IntBuffer param2, IntBuffer param3) throws IOException {
+    private ByteBuffer readIconPixels(IoSupplier<InputStream> param0, IntBuffer param1, IntBuffer param2, IntBuffer param3) throws IOException {
         RenderSystem.assertInInitPhase();
         ByteBuffer var0 = null;
 
-        ByteBuffer var6;
-        try {
-            var0 = TextureUtil.readResource(param0);
+        ByteBuffer var7;
+        try (InputStream var1 = param0.get()) {
+            var0 = TextureUtil.readResource(var1);
             var0.rewind();
-            var6 = STBImage.stbi_load_from_memory(var0, param1, param2, param3, 0);
+            var7 = STBImage.stbi_load_from_memory(var0, param1, param2, param3, 0);
         } finally {
             if (var0 != null) {
                 MemoryUtil.memFree(var0);
@@ -195,7 +188,7 @@ public final class Window implements AutoCloseable {
 
         }
 
-        return var6;
+        return var7;
     }
 
     public void setErrorSection(String param0) {

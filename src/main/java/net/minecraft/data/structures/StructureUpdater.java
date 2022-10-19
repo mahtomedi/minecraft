@@ -1,6 +1,8 @@
 package net.minecraft.data.structures;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -31,13 +33,13 @@ public class StructureUpdater implements SnbtToNbt.Filter {
     private static CompoundTag updateStructure(String param0, CompoundTag param1) {
         StructureTemplate var0 = new StructureTemplate();
         int var1 = param1.getInt("DataVersion");
-        int var2 = 3075;
-        if (var1 < 3075) {
-            LOGGER.warn("SNBT Too old, do not forget to update: {} < {}: {}", var1, 3075, param0);
+        int var2 = 3200;
+        if (var1 < 3200) {
+            LOGGER.warn("SNBT Too old, do not forget to update: {} < {}: {}", var1, 3200, param0);
         }
 
         CompoundTag var3 = NbtUtils.update(DataFixers.getDataFixer(), DataFixTypes.STRUCTURE, param1, var1);
-        var0.load(var3);
+        var0.load(HolderLookup.forRegistry(Registry.BLOCK), var3);
         return var0.save(new CompoundTag());
     }
 }

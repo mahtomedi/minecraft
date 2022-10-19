@@ -92,6 +92,7 @@ public abstract class ChunkGenerator {
     protected final BiomeSource biomeSource;
     private final Supplier<List<FeatureSorter.StepFeatureData>> featuresPerStep;
     protected final Optional<HolderSet<StructureSet>> structureOverrides;
+    private final Supplier<List<Holder<StructureSet>>> possibleStructureSets;
     private final Function<Holder<Biome>, BiomeGenerationSettings> generationSettingsGetter;
     private final Map<Structure, List<StructurePlacement>> placementsForStructure = new Object2ObjectOpenHashMap<>();
     private final Map<ConcentricRingsStructurePlacement, CompletableFuture<List<ChunkPos>>> ringPositions = new Object2ObjectArrayMap<>();
@@ -112,13 +113,27 @@ public abstract class ChunkGenerator {
         this.biomeSource = param2;
         this.generationSettingsGetter = param3;
         this.structureOverrides = param1;
+        this.possibleStructureSets = Suppliers.memoize(
+            () -> param1.map(HolderSet::stream)
+                    .orElseGet(() -> param0.holders().map(Holder::hackyErase))
+                    .filter(param0x -> this.hasBiomesForStructureSet(param0x.value()))
+                    .toList()
+        );
         this.featuresPerStep = Suppliers.memoize(
             () -> FeatureSorter.buildFeaturesPerStep(List.copyOf(param2.possibleBiomes()), param1x -> param3.apply(param1x).features(), true)
         );
     }
 
-    public Stream<Holder<StructureSet>> possibleStructureSets() {
-        return this.structureOverrides.isPresent() ? this.structureOverrides.get().stream() : this.structureSets.holders().map(Holder::hackyErase);
+    private boolean hasBiomesForStructureSet(StructureSet param0) {
+        Stream<Holder<Biome>> var0 = param0.structures().stream().flatMap(param0x -> {
+            Structure var0x = param0x.structure().value();
+            return var0x.biomes().stream();
+        });
+        return var0.anyMatch(this.biomeSource.possibleBiomes()::contains);
+    }
+
+    public List<Holder<StructureSet>> possibleStructureSets() {
+        return this.possibleStructureSets.get();
     }
 
     private void generatePositions(RandomState param0) {
@@ -146,62 +161,65 @@ public abstract class ChunkGenerator {
     }
 
     private CompletableFuture<List<ChunkPos>> generateRingPositions(Holder<StructureSet> param0, RandomState param1, ConcentricRingsStructurePlacement param2) {
-        return param2.count() == 0
-            ? CompletableFuture.completedFuture(List.of())
-            : CompletableFuture.supplyAsync(
-                Util.wrapThreadWithTaskName(
-                    "placement calculation",
-                    () -> {
-                        Stopwatch var0 = Stopwatch.createStarted(Util.TICKER);
-                        List<ChunkPos> var1x = new ArrayList();
-                        int var2x = param2.distance();
-                        int var3x = param2.count();
-                        int var4 = param2.spread();
-                        HolderSet<Biome> var5 = param2.preferredBiomes();
-                        RandomSource var6 = RandomSource.create();
-                        var6.setSeed(this instanceof FlatLevelSource ? 0L : param1.legacyLevelSeed());
-                        double var7 = var6.nextDouble() * Math.PI * 2.0;
-                        int var8 = 0;
-                        int var9 = 0;
-            
-                        for(int var10 = 0; var10 < var3x; ++var10) {
-                            double var11 = (double)(4 * var2x + var2x * var9 * 6) + (var6.nextDouble() - 0.5) * (double)var2x * 2.5;
-                            int var12 = (int)Math.round(Math.cos(var7) * var11);
-                            int var13 = (int)Math.round(Math.sin(var7) * var11);
-                            Pair<BlockPos, Holder<Biome>> var14 = this.biomeSource
+        if (param2.count() == 0) {
+            return CompletableFuture.completedFuture(List.of());
+        } else {
+            Stopwatch var0 = Stopwatch.createStarted(Util.TICKER);
+            int var1 = param2.distance();
+            int var2 = param2.count();
+            List<CompletableFuture<ChunkPos>> var3 = new ArrayList<>(var2);
+            int var4 = param2.spread();
+            HolderSet<Biome> var5 = param2.preferredBiomes();
+            RandomSource var6 = RandomSource.create();
+            var6.setSeed(this instanceof FlatLevelSource ? 0L : param1.legacyLevelSeed());
+            double var7 = var6.nextDouble() * Math.PI * 2.0;
+            int var8 = 0;
+            int var9 = 0;
+
+            for(int var10 = 0; var10 < var2; ++var10) {
+                double var11 = (double)(4 * var1 + var1 * var9 * 6) + (var6.nextDouble() - 0.5) * (double)var1 * 2.5;
+                int var12 = (int)Math.round(Math.cos(var7) * var11);
+                int var13 = (int)Math.round(Math.sin(var7) * var11);
+                RandomSource var14 = var6.fork();
+                var3.add(
+                    CompletableFuture.supplyAsync(
+                        () -> {
+                            Pair<BlockPos, Holder<Biome>> var0x = this.biomeSource
                                 .findBiomeHorizontal(
                                     SectionPos.sectionToBlockCoord(var12, 8),
                                     0,
                                     SectionPos.sectionToBlockCoord(var13, 8),
                                     112,
                                     var5::contains,
-                                    var6,
+                                    var14,
                                     param1.sampler()
                                 );
-                            if (var14 != null) {
-                                BlockPos var15 = var14.getFirst();
-                                var12 = SectionPos.blockToSectionCoord(var15.getX());
-                                var13 = SectionPos.blockToSectionCoord(var15.getZ());
+                            if (var0x != null) {
+                                BlockPos var1x = var0x.getFirst();
+                                return new ChunkPos(SectionPos.blockToSectionCoord(var1x.getX()), SectionPos.blockToSectionCoord(var1x.getZ()));
+                            } else {
+                                return new ChunkPos(var12, var13);
                             }
-            
-                            var1x.add(new ChunkPos(var12, var13));
-                            var7 += (Math.PI * 2) / (double)var4;
-                            if (++var8 == var4) {
-                                ++var9;
-                                var8 = 0;
-                                var4 += 2 * var4 / (var9 + 1);
-                                var4 = Math.min(var4, var3x - var10);
-                                var7 += var6.nextDouble() * Math.PI * 2.0;
-                            }
-                        }
-            
-                        double var16 = (double)var0.stop().elapsed(TimeUnit.MILLISECONDS) / 1000.0;
-                        LOGGER.debug("Calculation for {} took {}s", param0, var16);
-                        return var1x;
-                    }
-                ),
-                Util.backgroundExecutor()
-            );
+                        },
+                        Util.backgroundExecutor()
+                    )
+                );
+                var7 += (Math.PI * 2) / (double)var4;
+                if (++var8 == var4) {
+                    ++var9;
+                    var8 = 0;
+                    var4 += 2 * var4 / (var9 + 1);
+                    var4 = Math.min(var4, var2 - var10);
+                    var7 += var6.nextDouble() * Math.PI * 2.0;
+                }
+            }
+
+            return Util.sequence(var3).thenApply((Function<? super List<ChunkPos>, ? extends List<ChunkPos>>)(param2x -> {
+                double var0x = (double)var0.stop().elapsed(TimeUnit.MILLISECONDS) / 1000.0;
+                LOGGER.debug("Calculation for {} took {}s", param0, var0x);
+                return param2x;
+            }));
+        }
     }
 
     protected abstract Codec<? extends ChunkGenerator> codec();

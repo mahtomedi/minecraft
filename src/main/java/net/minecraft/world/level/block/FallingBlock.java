@@ -48,7 +48,7 @@ public class FallingBlock extends Block implements Fallable {
 
     public static boolean isFree(BlockState param0) {
         Material var0 = param0.getMaterial();
-        return param0.isAir() || param0.is(BlockTags.FIRE) || var0.isLiquid() || var0.isReplaceable();
+        return param0.isAir() || param0.is(BlockTags.FIRE) || var0.isLiquid() || param0.canBeReplaced();
     }
 
     @Override

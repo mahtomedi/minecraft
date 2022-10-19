@@ -58,6 +58,7 @@ public abstract class PathfinderMob extends Mob {
                     this.getDeltaMovement()
                         .add(Math.copySign(var2 * var2 * 0.4, var2), Math.copySign(var3 * var3 * 0.4, var3), Math.copySign(var4 * var4 * 0.4, var4))
                 );
+                this.checkSlowFallDistance();
             } else if (this.shouldStayCloseToLeashHolder()) {
                 this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
                 float var5 = 2.0F;

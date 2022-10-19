@@ -76,30 +76,30 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
         if (param1.isClientSide) {
             return var5 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         } else {
-            BlockEntity var6 = param1.getBlockEntity(param2);
-            if (!(var6 instanceof SignBlockEntity)) {
+            BlockEntity var7 = param1.getBlockEntity(param2);
+            if (!(var7 instanceof SignBlockEntity)) {
                 return InteractionResult.PASS;
             } else {
-                SignBlockEntity var7 = (SignBlockEntity)var6;
-                boolean var8 = var7.hasGlowingText();
-                if ((!var3 || !var8) && (!var4 || var8)) {
+                SignBlockEntity var6 = (SignBlockEntity)var7;
+                boolean var7 = var6.hasGlowingText();
+                if ((!var3 || !var7) && (!var4 || var7)) {
                     if (var5) {
-                        boolean var9;
+                        boolean var8;
                         if (var3) {
                             param1.playSound(null, param2, SoundEvents.GLOW_INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            var9 = var7.setHasGlowingText(true);
+                            var8 = var6.setHasGlowingText(true);
                             if (param3 instanceof ServerPlayer) {
                                 CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer)param3, param2, var0);
                             }
                         } else if (var4) {
                             param1.playSound(null, param2, SoundEvents.INK_SAC_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            var9 = var7.setHasGlowingText(false);
+                            var8 = var6.setHasGlowingText(false);
                         } else {
                             param1.playSound(null, param2, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                            var9 = var7.setColor(((DyeItem)var1).getDyeColor());
+                            var8 = var6.setColor(((DyeItem)var1).getDyeColor());
                         }
 
-                        if (var9) {
+                        if (var8) {
                             if (!param3.isCreative()) {
                                 var0.shrink(1);
                             }
@@ -108,7 +108,7 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
                         }
                     }
 
-                    return var7.executeClickCommands((ServerPlayer)param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+                    return var6.executeClickCommands((ServerPlayer)param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
                 } else {
                     return InteractionResult.PASS;
                 }
@@ -123,5 +123,16 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
 
     public WoodType type() {
         return this.type;
+    }
+
+    public static WoodType getWoodType(Block param0) {
+        WoodType var0;
+        if (param0 instanceof SignBlock) {
+            var0 = ((SignBlock)param0).type();
+        } else {
+            var0 = WoodType.OAK;
+        }
+
+        return var0;
     }
 }

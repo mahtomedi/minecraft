@@ -7,6 +7,7 @@ import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.monster.warden.WardenSpawnTracker;
 import net.minecraft.world.entity.player.Player;
 
 public class WardenSpawnTrackerCommand {
@@ -36,7 +37,7 @@ public class WardenSpawnTrackerCommand {
 
     private static int setWarningLevel(CommandSourceStack param0, Collection<? extends Player> param1, int param2) {
         for(Player var0 : param1) {
-            var0.getWardenSpawnTracker().setWarningLevel(param2);
+            var0.getWardenSpawnTracker().ifPresent(param1x -> param1x.setWarningLevel(param2));
         }
 
         if (param1.size() == 1) {
@@ -50,7 +51,7 @@ public class WardenSpawnTrackerCommand {
 
     private static int resetTracker(CommandSourceStack param0, Collection<? extends Player> param1) {
         for(Player var0 : param1) {
-            var0.getWardenSpawnTracker().reset();
+            var0.getWardenSpawnTracker().ifPresent(WardenSpawnTracker::reset);
         }
 
         if (param1.size() == 1) {

@@ -167,16 +167,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
 
     public static void handleFill(Level param0, BlockPos param1, boolean param2) {
         BlockState var0 = param0.getBlockState(param1);
-        param0.playLocalSound(
-            (double)param1.getX(),
-            (double)param1.getY(),
-            (double)param1.getZ(),
-            param2 ? SoundEvents.COMPOSTER_FILL_SUCCESS : SoundEvents.COMPOSTER_FILL,
-            SoundSource.BLOCKS,
-            1.0F,
-            1.0F,
-            false
-        );
+        param0.playLocalSound(param1, param2 ? SoundEvents.COMPOSTER_FILL_SUCCESS : SoundEvents.COMPOSTER_FILL, SoundSource.BLOCKS, 1.0F, 1.0F, false);
         double var1 = var0.getShape(param0, param1).max(Direction.Axis.Y, 0.5, 0.5) + 0.03125;
         double var2 = 0.13125F;
         double var3 = 0.7375F;

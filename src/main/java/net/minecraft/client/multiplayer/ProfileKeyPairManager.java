@@ -22,9 +22,9 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.network.chat.LocalChatSession;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
-import net.minecraft.util.Signer;
 import net.minecraft.world.entity.player.ProfileKeyPair;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,7 +37,7 @@ public class ProfileKeyPairManager {
     private static final Path PROFILE_KEY_PAIR_DIR = Path.of("profilekeys");
     private final UserApiService userApiService;
     private final Path profileKeyPairPath;
-    private CompletableFuture<Optional<ProfileKeyPairManager.Result>> keyPair;
+    private CompletableFuture<Optional<ProfileKeyPair>> keyPair;
 
     public ProfileKeyPairManager(UserApiService param0, UUID param1, Path param2) {
         this.userApiService = param0;
@@ -48,16 +48,13 @@ public class ProfileKeyPairManager {
             .thenCompose(this::readOrFetchProfileKeyPair);
     }
 
-    public CompletableFuture<Optional<ProfilePublicKey.Data>> preparePublicKey() {
-        this.keyPair = this.keyPair.thenCompose(param0 -> {
-            Optional<ProfileKeyPair> var0 = param0.map(ProfileKeyPairManager.Result::keyPair);
-            return this.readOrFetchProfileKeyPair(var0);
-        });
-        return this.keyPair.thenApply(param0 -> param0.map(param0x -> param0x.keyPair().publicKey().data()));
+    public CompletableFuture<LocalChatSession> prepareChatSession() {
+        this.keyPair = this.keyPair.thenCompose(this::readOrFetchProfileKeyPair);
+        return this.keyPair.thenApply(param0 -> LocalChatSession.create(param0.orElse(null)));
     }
 
-    private CompletableFuture<Optional<ProfileKeyPairManager.Result>> readOrFetchProfileKeyPair(Optional<ProfileKeyPair> param0x) {
-        return CompletableFuture.<Optional<ProfileKeyPair>>supplyAsync(() -> {
+    private CompletableFuture<Optional<ProfileKeyPair>> readOrFetchProfileKeyPair(Optional<ProfileKeyPair> param0x) {
+        return CompletableFuture.supplyAsync(() -> {
             if (param0x.isPresent() && !param0x.get().dueRefresh()) {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     return param0x;
@@ -75,7 +72,7 @@ public class ProfileKeyPairManager {
                 this.writeProfileKeyPair(null);
                 return param0x;
             }
-        }, Util.backgroundExecutor()).thenApply(param0xx -> param0xx.map(ProfileKeyPairManager.Result::new));
+        }, Util.backgroundExecutor());
     }
 
     private Optional<ProfileKeyPair> readProfileKeyPair() {
@@ -140,22 +137,6 @@ public class ProfileKeyPairManager {
             }
         } else {
             throw new CryptException(new MissingException());
-        }
-    }
-
-    @Nullable
-    public Signer signer() {
-        return this.keyPair.join().map(ProfileKeyPairManager.Result::signer).orElse(null);
-    }
-
-    public Optional<ProfilePublicKey> profilePublicKey() {
-        return this.keyPair.join().map(param0 -> param0.keyPair().publicKey());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static record Result(ProfileKeyPair keyPair, Signer signer) {
-        public Result(ProfileKeyPair param0) {
-            this(param0, Signer.from(param0.privateKey(), "SHA256withRSA"));
         }
     }
 }

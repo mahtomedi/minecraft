@@ -18,49 +18,57 @@ public class MipmapGenerator {
     private MipmapGenerator() {
     }
 
-    public static NativeImage[] generateMipLevels(NativeImage param0, int param1) {
-        NativeImage[] var0 = new NativeImage[param1 + 1];
-        var0[0] = param0;
-        if (param1 > 0) {
-            boolean var1 = false;
+    public static NativeImage[] generateMipLevels(NativeImage[] param0, int param1) {
+        if (param1 + 1 <= param0.length) {
+            return param0;
+        } else {
+            NativeImage[] var0 = new NativeImage[param1 + 1];
+            var0[0] = param0[0];
+            boolean var1 = hasTransparentPixel(var0[0]);
 
-            label51:
-            for(int var2 = 0; var2 < param0.getWidth(); ++var2) {
-                for(int var3 = 0; var3 < param0.getHeight(); ++var3) {
-                    if (param0.getPixelRGBA(var2, var3) >> 24 == 0) {
-                        var1 = true;
-                        break label51;
+            for(int var2 = 1; var2 <= param1; ++var2) {
+                if (var2 < param0.length) {
+                    var0[var2] = param0[var2];
+                } else {
+                    NativeImage var3 = var0[var2 - 1];
+                    NativeImage var4 = new NativeImage(var3.getWidth() >> 1, var3.getHeight() >> 1, false);
+                    int var5 = var4.getWidth();
+                    int var6 = var4.getHeight();
+
+                    for(int var7 = 0; var7 < var5; ++var7) {
+                        for(int var8 = 0; var8 < var6; ++var8) {
+                            var4.setPixelRGBA(
+                                var7,
+                                var8,
+                                alphaBlend(
+                                    var3.getPixelRGBA(var7 * 2 + 0, var8 * 2 + 0),
+                                    var3.getPixelRGBA(var7 * 2 + 1, var8 * 2 + 0),
+                                    var3.getPixelRGBA(var7 * 2 + 0, var8 * 2 + 1),
+                                    var3.getPixelRGBA(var7 * 2 + 1, var8 * 2 + 1),
+                                    var1
+                                )
+                            );
+                        }
                     }
+
+                    var0[var2] = var4;
                 }
             }
 
-            for(int var4 = 1; var4 <= param1; ++var4) {
-                NativeImage var5 = var0[var4 - 1];
-                NativeImage var6 = new NativeImage(var5.getWidth() >> 1, var5.getHeight() >> 1, false);
-                int var7 = var6.getWidth();
-                int var8 = var6.getHeight();
+            return var0;
+        }
+    }
 
-                for(int var9 = 0; var9 < var7; ++var9) {
-                    for(int var10 = 0; var10 < var8; ++var10) {
-                        var6.setPixelRGBA(
-                            var9,
-                            var10,
-                            alphaBlend(
-                                var5.getPixelRGBA(var9 * 2 + 0, var10 * 2 + 0),
-                                var5.getPixelRGBA(var9 * 2 + 1, var10 * 2 + 0),
-                                var5.getPixelRGBA(var9 * 2 + 0, var10 * 2 + 1),
-                                var5.getPixelRGBA(var9 * 2 + 1, var10 * 2 + 1),
-                                var1
-                            )
-                        );
-                    }
+    private static boolean hasTransparentPixel(NativeImage param0) {
+        for(int var0 = 0; var0 < param0.getWidth(); ++var0) {
+            for(int var1 = 0; var1 < param0.getHeight(); ++var1) {
+                if (param0.getPixelRGBA(var0, var1) >> 24 == 0) {
+                    return true;
                 }
-
-                var0[var4] = var6;
             }
         }
 
-        return var0;
+        return false;
     }
 
     private static int alphaBlend(int param0, int param1, int param2, int param3, boolean param4) {

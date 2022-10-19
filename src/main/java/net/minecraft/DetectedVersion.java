@@ -25,24 +25,21 @@ public class DetectedVersion implements WorldVersion {
     private final int resourcePackVersion;
     private final int dataPackVersion;
     private final Date buildTime;
-    private final String releaseTarget;
 
     private DetectedVersion() {
         this.id = UUID.randomUUID().toString().replaceAll("-", "");
-        this.name = "1.19.2";
-        this.stable = true;
-        this.worldVersion = new DataVersion(3120, "main");
+        this.name = "22w42a";
+        this.stable = false;
+        this.worldVersion = new DataVersion(3205, "main");
         this.protocolVersion = SharedConstants.getProtocolVersion();
-        this.resourcePackVersion = 9;
+        this.resourcePackVersion = 11;
         this.dataPackVersion = 10;
         this.buildTime = new Date();
-        this.releaseTarget = "1.19.2";
     }
 
     private DetectedVersion(JsonObject param0) {
         this.id = GsonHelper.getAsString(param0, "id");
         this.name = GsonHelper.getAsString(param0, "name");
-        this.releaseTarget = GsonHelper.getAsString(param0, "release_target");
         this.stable = GsonHelper.getAsBoolean(param0, "stable");
         this.worldVersion = new DataVersion(GsonHelper.getAsInt(param0, "world_version"), GsonHelper.getAsString(param0, "series_id", DataVersion.MAIN_SERIES));
         this.protocolVersion = GsonHelper.getAsInt(param0, "protocol_version");
@@ -80,11 +77,6 @@ public class DetectedVersion implements WorldVersion {
     @Override
     public String getName() {
         return this.name;
-    }
-
-    @Override
-    public String getReleaseTarget() {
-        return this.releaseTarget;
     }
 
     @Override

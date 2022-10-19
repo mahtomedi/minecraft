@@ -310,13 +310,14 @@ public class Cat extends TamableAnimal {
         return Mth.lerp(param0, this.relaxStateOneAmountO, this.relaxStateOneAmount);
     }
 
+    @Nullable
     public Cat getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Cat var0 = EntityType.CAT.create(param0);
-        if (param1 instanceof Cat) {
+        if (var0 != null && param1 instanceof Cat var1) {
             if (this.random.nextBoolean()) {
                 var0.setCatVariant(this.getCatVariant());
             } else {
-                var0.setCatVariant(((Cat)param1).getCatVariant());
+                var0.setCatVariant(var1.getCatVariant());
             }
 
             if (this.isTame()) {
@@ -325,7 +326,7 @@ public class Cat extends TamableAnimal {
                 if (this.random.nextBoolean()) {
                     var0.setCollarColor(this.getCollarColor());
                 } else {
-                    var0.setCollarColor(((Cat)param1).getCollarColor());
+                    var0.setCollarColor(var1.getCollarColor());
                 }
             }
         }
@@ -569,7 +570,7 @@ public class Cat extends TamableAnimal {
         private void giveMorningGift() {
             RandomSource var0 = this.cat.getRandom();
             BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-            var1.set(this.cat.blockPosition());
+            var1.set(this.cat.isLeashed() ? this.cat.getLeashHolder().blockPosition() : this.cat.blockPosition());
             this.cat
                 .randomTeleport(
                     (double)(var1.getX() + var0.nextInt(11) - 5),

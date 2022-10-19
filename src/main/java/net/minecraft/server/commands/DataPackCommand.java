@@ -5,6 +5,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.Collection;
@@ -17,6 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 
 public class DataPackCommand {
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PACK = new DynamicCommandExceptionType(
@@ -28,14 +31,24 @@ public class DataPackCommand {
     private static final DynamicCommandExceptionType ERROR_PACK_ALREADY_DISABLED = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.datapack.disable.failed", param0)
     );
+    private static final Dynamic2CommandExceptionType ERROR_PACK_FEATURES_NOT_ENABLED = new Dynamic2CommandExceptionType(
+        (param0, param1) -> Component.translatable("commands.datapack.enable.failed.no_flags", param0, param1)
+    );
     private static final SuggestionProvider<CommandSourceStack> SELECTED_PACKS = (param0, param1) -> SharedSuggestionProvider.suggest(
             param0.getSource().getServer().getPackRepository().getSelectedIds().stream().map(StringArgumentType::escapeIfRequired), param1
         );
     private static final SuggestionProvider<CommandSourceStack> UNSELECTED_PACKS = (param0, param1) -> {
         PackRepository var0 = param0.getSource().getServer().getPackRepository();
         Collection<String> var1 = var0.getSelectedIds();
+        FeatureFlagSet var2 = param0.getSource().enabledFeatures();
         return SharedSuggestionProvider.suggest(
-            var0.getAvailableIds().stream().filter(param1x -> !var1.contains(param1x)).map(StringArgumentType::escapeIfRequired), param1
+            var0.getAvailablePacks()
+                .stream()
+                .filter(param1x -> param1x.getRequestedFeatures().isSubsetOf(var2))
+                .map(Pack::getId)
+                .filter(param1x -> !var1.contains(param1x))
+                .map(StringArgumentType::escapeIfRequired),
+            param1
         );
     };
 
@@ -136,21 +149,22 @@ public class DataPackCommand {
     private static int listAvailablePacks(CommandSourceStack param0) {
         PackRepository var0 = param0.getServer().getPackRepository();
         var0.reload();
-        Collection<? extends Pack> var1 = var0.getSelectedPacks();
-        Collection<? extends Pack> var2 = var0.getAvailablePacks();
-        List<Pack> var3 = var2.stream().filter(param1 -> !var1.contains(param1)).collect(Collectors.toList());
-        if (var3.isEmpty()) {
+        Collection<Pack> var1 = var0.getSelectedPacks();
+        Collection<Pack> var2 = var0.getAvailablePacks();
+        FeatureFlagSet var3 = param0.enabledFeatures();
+        List<Pack> var4 = var2.stream().filter(param2 -> !var1.contains(param2) && param2.getRequestedFeatures().isSubsetOf(var3)).toList();
+        if (var4.isEmpty()) {
             param0.sendSuccess(Component.translatable("commands.datapack.list.available.none"), false);
         } else {
             param0.sendSuccess(
                 Component.translatable(
-                    "commands.datapack.list.available.success", var3.size(), ComponentUtils.formatList(var3, param0x -> param0x.getChatLink(false))
+                    "commands.datapack.list.available.success", var4.size(), ComponentUtils.formatList(var4, param0x -> param0x.getChatLink(false))
                 ),
                 false
             );
         }
 
-        return var3.size();
+        return var4.size();
     }
 
     private static int listEnabledPacks(CommandSourceStack param0) {
@@ -184,7 +198,13 @@ public class DataPackCommand {
             } else if (!param2 && !var3) {
                 throw ERROR_PACK_ALREADY_DISABLED.create(var0);
             } else {
-                return var2;
+                FeatureFlagSet var4 = param0.getSource().enabledFeatures();
+                FeatureFlagSet var5 = var2.getRequestedFeatures();
+                if (!var5.isSubsetOf(var4)) {
+                    throw ERROR_PACK_FEATURES_NOT_ENABLED.create(var0, FeatureFlags.printMissingFlags(var4, var5));
+                } else {
+                    return var2;
+                }
             }
         }
     }

@@ -10,8 +10,8 @@ import net.minecraft.world.item.WrittenBookItem;
 import net.minecraft.world.level.Level;
 
 public class BookCloningRecipe extends CustomRecipe {
-    public BookCloningRecipe(ResourceLocation param0) {
-        super(param0);
+    public BookCloningRecipe(ResourceLocation param0, CraftingBookCategory param1) {
+        super(param0, param1);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -616,23 +617,23 @@ public class StructureTemplate {
         return param0;
     }
 
-    public void load(CompoundTag param0) {
+    public void load(HolderLookup<Block> param0, CompoundTag param1) {
         this.palettes.clear();
         this.entityInfoList.clear();
-        ListTag var0 = param0.getList("size", 3);
+        ListTag var0 = param1.getList("size", 3);
         this.size = new Vec3i(var0.getInt(0), var0.getInt(1), var0.getInt(2));
-        ListTag var1 = param0.getList("blocks", 10);
-        if (param0.contains("palettes", 9)) {
-            ListTag var2 = param0.getList("palettes", 9);
+        ListTag var1 = param1.getList("blocks", 10);
+        if (param1.contains("palettes", 9)) {
+            ListTag var2 = param1.getList("palettes", 9);
 
             for(int var3 = 0; var3 < var2.size(); ++var3) {
-                this.loadPalette(var2.getList(var3), var1);
+                this.loadPalette(param0, var2.getList(var3), var1);
             }
         } else {
-            this.loadPalette(param0.getList("palette", 10), var1);
+            this.loadPalette(param0, param1.getList("palette", 10), var1);
         }
 
-        ListTag var4 = param0.getList("entities", 10);
+        ListTag var4 = param1.getList("entities", 10);
 
         for(int var5 = 0; var5 < var4.size(); ++var5) {
             CompoundTag var6 = var4.getCompound(var5);
@@ -648,19 +649,19 @@ public class StructureTemplate {
 
     }
 
-    private void loadPalette(ListTag param0, ListTag param1) {
+    private void loadPalette(HolderLookup<Block> param0, ListTag param1, ListTag param2) {
         StructureTemplate.SimplePalette var0 = new StructureTemplate.SimplePalette();
 
-        for(int var1 = 0; var1 < param0.size(); ++var1) {
-            var0.addMapping(NbtUtils.readBlockState(param0.getCompound(var1)), var1);
+        for(int var1 = 0; var1 < param1.size(); ++var1) {
+            var0.addMapping(NbtUtils.readBlockState(param0, param1.getCompound(var1)), var1);
         }
 
         List<StructureTemplate.StructureBlockInfo> var2 = Lists.newArrayList();
         List<StructureTemplate.StructureBlockInfo> var3 = Lists.newArrayList();
         List<StructureTemplate.StructureBlockInfo> var4 = Lists.newArrayList();
 
-        for(int var5 = 0; var5 < param1.size(); ++var5) {
-            CompoundTag var6 = param1.getCompound(var5);
+        for(int var5 = 0; var5 < param2.size(); ++var5) {
+            CompoundTag var6 = param2.getCompound(var5);
             ListTag var7 = var6.getList("pos", 3);
             BlockPos var8 = new BlockPos(var7.getInt(0), var7.getInt(1), var7.getInt(2));
             BlockState var9 = var0.stateFor(var6.getInt("state"));

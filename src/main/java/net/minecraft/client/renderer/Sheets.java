@@ -31,12 +31,14 @@ public class Sheets {
     public static final ResourceLocation BANNER_SHEET = new ResourceLocation("textures/atlas/banner_patterns.png");
     public static final ResourceLocation SHIELD_SHEET = new ResourceLocation("textures/atlas/shield_patterns.png");
     public static final ResourceLocation SIGN_SHEET = new ResourceLocation("textures/atlas/signs.png");
+    public static final ResourceLocation HANGING_SIGN_SHEET = new ResourceLocation("textures/atlas/hanging_signs.png");
     public static final ResourceLocation CHEST_SHEET = new ResourceLocation("textures/atlas/chest.png");
     private static final RenderType SHULKER_BOX_SHEET_TYPE = RenderType.entityCutoutNoCull(SHULKER_SHEET);
     private static final RenderType BED_SHEET_TYPE = RenderType.entitySolid(BED_SHEET);
     private static final RenderType BANNER_SHEET_TYPE = RenderType.entityNoOutline(BANNER_SHEET);
     private static final RenderType SHIELD_SHEET_TYPE = RenderType.entityNoOutline(SHIELD_SHEET);
     private static final RenderType SIGN_SHEET_TYPE = RenderType.entityCutoutNoCull(SIGN_SHEET);
+    private static final RenderType HANGING_SIGN_SHEET_TYPE = RenderType.entityCutoutNoCull(HANGING_SIGN_SHEET);
     private static final RenderType CHEST_SHEET_TYPE = RenderType.entityCutout(CHEST_SHEET);
     private static final RenderType SOLID_BLOCK_SHEET = RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS);
     private static final RenderType CUTOUT_BLOCK_SHEET = RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS);
@@ -64,6 +66,8 @@ public class Sheets {
         .map(param0 -> new Material(SHULKER_SHEET, new ResourceLocation("entity/shulker/shulker_" + param0)))
         .collect(ImmutableList.toImmutableList());
     public static final Map<WoodType, Material> SIGN_MATERIALS = WoodType.values().collect(Collectors.toMap(Function.identity(), Sheets::createSignMaterial));
+    public static final Map<WoodType, Material> HANGING_SIGN_MATERIALS = WoodType.values()
+        .collect(Collectors.toMap(Function.identity(), Sheets::createHangingSignMaterial));
     public static final Map<ResourceKey<BannerPattern>, Material> BANNER_MATERIALS = Registry.BANNER_PATTERN
         .registryKeySet()
         .stream()
@@ -107,6 +111,10 @@ public class Sheets {
         return SIGN_SHEET_TYPE;
     }
 
+    public static RenderType hangingSignSheet() {
+        return HANGING_SIGN_SHEET_TYPE;
+    }
+
     public static RenderType chestSheet() {
         return CHEST_SHEET_TYPE;
     }
@@ -133,6 +141,7 @@ public class Sheets {
         BANNER_MATERIALS.values().forEach(param0);
         SHIELD_MATERIALS.values().forEach(param0);
         SIGN_MATERIALS.values().forEach(param0);
+        HANGING_SIGN_MATERIALS.values().forEach(param0);
 
         for(Material var0 : BED_TEXTURES) {
             param0.accept(var0);
@@ -154,8 +163,16 @@ public class Sheets {
         return new Material(SIGN_SHEET, new ResourceLocation("entity/signs/" + param0.name()));
     }
 
+    private static Material createHangingSignMaterial(WoodType param0) {
+        return new Material(HANGING_SIGN_SHEET, new ResourceLocation("entity/signs/hanging/" + param0.name()));
+    }
+
     public static Material getSignMaterial(WoodType param0) {
         return SIGN_MATERIALS.get(param0);
+    }
+
+    public static Material getHangingSignMaterial(WoodType param0) {
+        return HANGING_SIGN_MATERIALS.get(param0);
     }
 
     private static Material createBannerMaterial(ResourceKey<BannerPattern> param0) {

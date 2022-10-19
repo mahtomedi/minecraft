@@ -83,6 +83,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     @Override
     protected void init() {
         super.init();
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
     }
@@ -229,7 +230,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             Pair<ResourceLocation, ResourceLocation> var8 = param1.getNoItemIcon();
             if (var8 != null) {
                 TextureAtlasSprite var9 = this.minecraft.getTextureAtlas(var8.getFirst()).apply(var8.getSecond());
-                RenderSystem.setShaderTexture(0, var9.atlas().location());
+                RenderSystem.setShaderTexture(0, var9.atlasLocation());
                 blit(param0, var0, var1, this.getBlitOffset(), 16, 16, var9);
                 var4 = true;
             }
@@ -614,6 +615,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     @Override
     public void removed() {
         if (this.minecraft.player != null) {
+            this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
             this.menu.removed(this.minecraft.player);
         }
     }

@@ -9,27 +9,30 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import javax.annotation.Nullable;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import org.slf4j.Logger;
 
 public class NbtToSnbt implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final DataGenerator generator;
+    private final Iterable<Path> inputFolders;
+    private final PackOutput output;
 
-    public NbtToSnbt(DataGenerator param0) {
-        this.generator = param0;
+    public NbtToSnbt(PackOutput param0, Collection<Path> param1) {
+        this.inputFolders = param1;
+        this.output = param0;
     }
 
     @Override
     public void run(CachedOutput param0) throws IOException {
-        Path var0 = this.generator.getOutputFolder();
+        Path var0 = this.output.getOutputFolder();
 
-        for(Path var1 : this.generator.getInputFolders()) {
+        for(Path var1 : this.inputFolders) {
             Files.walk(var1)
                 .filter(param0x -> param0x.toString().endsWith(".nbt"))
                 .forEach(param3 -> convertStructure(param0, param3, this.getName(var1, param3), var0));

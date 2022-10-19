@@ -33,13 +33,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
@@ -250,15 +250,25 @@ public class TitleScreen extends Screen {
 
     private void createDemoMenuOptions(int param0, int param1) {
         boolean var0 = this.checkDemoWorldPresence();
-        this.addRenderableWidget(new Button(this.width / 2 - 100, param0, 200, 20, Component.translatable("menu.playdemo"), param1x -> {
-            if (var0) {
-                this.minecraft.createWorldOpenFlows().loadLevel(this, "Demo_World");
-            } else {
-                RegistryAccess var0x = RegistryAccess.builtinCopy().freeze();
-                this.minecraft.createWorldOpenFlows().createFreshLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, var0x, WorldPresets.demoSettings(var0x));
-            }
-
-        }));
+        this.addRenderableWidget(
+            new Button(
+                this.width / 2 - 100,
+                param0,
+                200,
+                20,
+                Component.translatable("menu.playdemo"),
+                param1x -> {
+                    if (var0) {
+                        this.minecraft.createWorldOpenFlows().loadLevel(this, "Demo_World");
+                    } else {
+                        this.minecraft
+                            .createWorldOpenFlows()
+                            .createFreshLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, WorldOptions.DEMO_OPTIONS, WorldPresets::createNormalWorldDimensions);
+                    }
+        
+                }
+            )
+        );
         this.resetDemoButton = this.addRenderableWidget(
             new Button(
                 this.width / 2 - 100,

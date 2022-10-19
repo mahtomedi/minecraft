@@ -27,7 +27,6 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.SoundType;
@@ -154,13 +153,11 @@ public class Horse extends AbstractHorse {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        super.getAmbientSound();
         return SoundEvents.HORSE_AMBIENT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        super.getDeathSound();
         return SoundEvents.HORSE_DEATH;
     }
 
@@ -172,57 +169,33 @@ public class Horse extends AbstractHorse {
 
     @Override
     protected SoundEvent getHurtSound(DamageSource param0) {
-        super.getHurtSound(param0);
         return SoundEvents.HORSE_HURT;
     }
 
     @Override
     protected SoundEvent getAngrySound() {
-        super.getAngrySound();
         return SoundEvents.HORSE_ANGRY;
     }
 
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
-        ItemStack var0 = param0.getItemInHand(param1);
-        if (!this.isBaby()) {
-            if (this.isTamed() && param0.isSecondaryUseActive()) {
-                this.openCustomInventoryScreen(param0);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+        boolean var0 = !this.isBaby() && this.isTamed() && param0.isSecondaryUseActive();
+        if (!this.isVehicle() && !var0) {
+            ItemStack var1 = param0.getItemInHand(param1);
+            if (!var1.isEmpty()) {
+                if (this.isFood(var1)) {
+                    return this.fedFood(param0, var1);
+                }
+
+                if (!this.isTamed()) {
+                    this.makeMad();
+                    return InteractionResult.sidedSuccess(this.level.isClientSide);
+                }
             }
 
-            if (this.isVehicle()) {
-                return super.mobInteract(param0, param1);
-            }
-        }
-
-        if (!var0.isEmpty()) {
-            if (this.isFood(var0)) {
-                return this.fedFood(param0, var0);
-            }
-
-            InteractionResult var1 = var0.interactLivingEntity(param0, this, param1);
-            if (var1.consumesAction()) {
-                return var1;
-            }
-
-            if (!this.isTamed()) {
-                this.makeMad();
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
-            }
-
-            boolean var2 = !this.isBaby() && !this.isSaddled() && var0.is(Items.SADDLE);
-            if (this.isArmor(var0) || var2) {
-                this.openCustomInventoryScreen(param0);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
-            }
-        }
-
-        if (this.isBaby()) {
             return super.mobInteract(param0, param1);
         } else {
-            this.doPlayerRide(param0);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return super.mobInteract(param0, param1);
         }
     }
 
@@ -237,39 +210,46 @@ public class Horse extends AbstractHorse {
         }
     }
 
+    @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel param0, AgeableMob param1) {
-        AbstractHorse var0;
         if (param1 instanceof Donkey) {
-            var0 = EntityType.MULE.create(param0);
+            Mule var0 = EntityType.MULE.create(param0);
+            if (var0 != null) {
+                this.setOffspringAttributes(param1, var0);
+            }
+
+            return var0;
         } else {
             Horse var1 = (Horse)param1;
-            var0 = EntityType.HORSE.create(param0);
-            int var3 = this.random.nextInt(9);
-            Variant var4;
-            if (var3 < 4) {
-                var4 = this.getVariant();
-            } else if (var3 < 8) {
-                var4 = var1.getVariant();
-            } else {
-                var4 = Util.getRandom(Variant.values(), this.random);
+            Horse var2 = EntityType.HORSE.create(param0);
+            if (var2 != null) {
+                int var3 = this.random.nextInt(9);
+                Variant var4;
+                if (var3 < 4) {
+                    var4 = this.getVariant();
+                } else if (var3 < 8) {
+                    var4 = var1.getVariant();
+                } else {
+                    var4 = Util.getRandom(Variant.values(), this.random);
+                }
+
+                int var7 = this.random.nextInt(5);
+                Markings var8;
+                if (var7 < 2) {
+                    var8 = this.getMarkings();
+                } else if (var7 < 4) {
+                    var8 = var1.getMarkings();
+                } else {
+                    var8 = Util.getRandom(Markings.values(), this.random);
+                }
+
+                var2.setVariantAndMarkings(var4, var8);
+                this.setOffspringAttributes(param1, var2);
             }
 
-            int var7 = this.random.nextInt(5);
-            Markings var8;
-            if (var7 < 2) {
-                var8 = this.getMarkings();
-            } else if (var7 < 4) {
-                var8 = var1.getMarkings();
-            } else {
-                var8 = Util.getRandom(Markings.values(), this.random);
-            }
-
-            ((Horse)var0).setVariantAndMarkings(var4, var8);
+            return var2;
         }
-
-        this.setOffspringAttributes(param1, var0);
-        return var0;
     }
 
     @Override

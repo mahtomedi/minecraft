@@ -61,7 +61,7 @@ public class BitmapProvider implements GlyphProvider {
         private final int ascent;
 
         public Builder(ResourceLocation param0, int param1, int param2, List<int[]> param3) {
-            this.texture = new ResourceLocation(param0.getNamespace(), "textures/" + param0.getPath());
+            this.texture = param0.withPrefix("textures/");
             this.chars = param3;
             this.height = param1;
             this.ascent = param2;

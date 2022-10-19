@@ -295,9 +295,13 @@ public class Fox extends Animal {
             .add(Attributes.ATTACK_DAMAGE, 2.0);
     }
 
+    @Nullable
     public Fox getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         Fox var0 = EntityType.FOX.create(param0);
-        var0.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((Fox)param1).getFoxType());
+        if (var0 != null) {
+            var0.setFoxType(this.random.nextBoolean() ? this.getFoxType() : ((Fox)param1).getFoxType());
+        }
+
         return var0;
     }
 
@@ -709,10 +713,7 @@ public class Fox extends Animal {
             double var6 = var2 == 0.0 ? var1 * (double)((float)var4 / 6.0F) : var5 / var2;
 
             for(int var7 = 1; var7 < 4; ++var7) {
-                if (!param0.level
-                    .getBlockState(new BlockPos(param0.getX() + var6, param0.getY() + (double)var7, param0.getZ() + var5))
-                    .getMaterial()
-                    .isReplaceable()) {
+                if (!param0.level.getBlockState(new BlockPos(param0.getX() + var6, param0.getY() + (double)var7, param0.getZ() + var5)).canBeReplaced()) {
                     return false;
                 }
             }

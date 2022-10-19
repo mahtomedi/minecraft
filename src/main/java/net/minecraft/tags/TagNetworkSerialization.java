@@ -10,15 +10,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistrySynchronization;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.RegistryLayer;
 
 public class TagNetworkSerialization {
-    public static Map<ResourceKey<? extends Registry<?>>, TagNetworkSerialization.NetworkPayload> serializeTagsToNetwork(RegistryAccess param0) {
-        return param0.networkSafeRegistries()
+    public static Map<ResourceKey<? extends Registry<?>>, TagNetworkSerialization.NetworkPayload> serializeTagsToNetwork(
+        LayeredRegistryAccess<RegistryLayer> param0
+    ) {
+        return RegistrySynchronization.networkSafeRegistries(param0)
             .map(param0x -> Pair.of(param0x.key(), serializeToNetwork(param0x.value())))
             .filter(param0x -> !param0x.getSecond().isEmpty())
             .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
@@ -51,7 +55,7 @@ public class TagNetworkSerialization {
     ) {
         param2.tags.forEach((param3x, param4) -> {
             TagKey<T> var0x = TagKey.create(param0, param3x);
-            List<Holder<T>> var1x = param4.intStream().mapToObj(param1::getHolder).flatMap(Optional::stream).toList();
+            List<Holder<T>> var1x = param4.intStream().mapToObj(param1::getHolder).flatMap(Optional::stream).collect(Collectors.toUnmodifiableList());
             param3.accept(var0x, var1x);
         });
     }

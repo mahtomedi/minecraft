@@ -8,6 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -122,7 +123,9 @@ public class BlockModelGenerators {
         .put(BlockFamily.Variant.DOOR, BlockModelGenerators.BlockFamilyProvider::door)
         .put(BlockFamily.Variant.CHISELED, BlockModelGenerators.BlockFamilyProvider::fullBlockVariant)
         .put(BlockFamily.Variant.CRACKED, BlockModelGenerators.BlockFamilyProvider::fullBlockVariant)
+        .put(BlockFamily.Variant.CUSTOM_FENCE, BlockModelGenerators.BlockFamilyProvider::customFence)
         .put(BlockFamily.Variant.FENCE, BlockModelGenerators.BlockFamilyProvider::fence)
+        .put(BlockFamily.Variant.CUSTOM_FENCE_GATE, BlockModelGenerators.BlockFamilyProvider::customFenceGate)
         .put(BlockFamily.Variant.FENCE_GATE, BlockModelGenerators.BlockFamilyProvider::fenceGate)
         .put(BlockFamily.Variant.SIGN, BlockModelGenerators.BlockFamilyProvider::sign)
         .put(BlockFamily.Variant.SLAB, BlockModelGenerators.BlockFamilyProvider::slab)
@@ -502,6 +505,29 @@ public class BlockModelGenerators {
             );
     }
 
+    static BlockStateGenerator createCustomFence(
+        Block param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3, ResourceLocation param4, ResourceLocation param5
+    ) {
+        return MultiPartGenerator.multiPart(param0)
+            .with(Variant.variant().with(VariantProperties.MODEL, param1))
+            .with(
+                Condition.condition().term(BlockStateProperties.NORTH, true),
+                Variant.variant().with(VariantProperties.MODEL, param2).with(VariantProperties.UV_LOCK, false)
+            )
+            .with(
+                Condition.condition().term(BlockStateProperties.EAST, true),
+                Variant.variant().with(VariantProperties.MODEL, param3).with(VariantProperties.UV_LOCK, false)
+            )
+            .with(
+                Condition.condition().term(BlockStateProperties.SOUTH, true),
+                Variant.variant().with(VariantProperties.MODEL, param4).with(VariantProperties.UV_LOCK, false)
+            )
+            .with(
+                Condition.condition().term(BlockStateProperties.WEST, true),
+                Variant.variant().with(VariantProperties.MODEL, param5).with(VariantProperties.UV_LOCK, false)
+            );
+    }
+
     static BlockStateGenerator createFence(Block param0, ResourceLocation param1, ResourceLocation param2) {
         return MultiPartGenerator.multiPart(param0)
             .with(Variant.variant().with(VariantProperties.MODEL, param1))
@@ -587,8 +613,10 @@ public class BlockModelGenerators {
             );
     }
 
-    static BlockStateGenerator createFenceGate(Block param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3, ResourceLocation param4) {
-        return MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.UV_LOCK, true))
+    static BlockStateGenerator createFenceGate(
+        Block param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3, ResourceLocation param4, boolean param5
+    ) {
+        return MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.UV_LOCK, param5))
             .with(createHorizontalFacingDispatchAlt())
             .with(
                 PropertyDispatch.properties(BlockStateProperties.IN_WALL, BlockStateProperties.OPEN)
@@ -1185,6 +1213,15 @@ public class BlockModelGenerators {
     private BlockModelGenerators.BlockFamilyProvider family(Block param0) {
         TexturedModel var0 = this.texturedModels.getOrDefault(param0, TexturedModel.CUBE.get(param0));
         return new BlockModelGenerators.BlockFamilyProvider(var0.getMapping()).fullBlock(param0, var0.getTemplate());
+    }
+
+    public void createHangingSign(Block param0, Block param1, Block param2) {
+        TextureMapping var0 = TextureMapping.particle(param0);
+        ResourceLocation var1 = ModelTemplates.PARTICLE_ONLY.create(param1, var0, this.modelOutput);
+        this.blockStateOutput.accept(createSimpleBlock(param1, var1));
+        this.blockStateOutput.accept(createSimpleBlock(param2, var1));
+        this.createSimpleFlatItemModel(param1.asItem());
+        this.skipAutoItemBlock(param2);
     }
 
     void createDoor(Block param0) {
@@ -3794,6 +3831,32 @@ public class BlockModelGenerators {
         this.delegateItemModel(Items.SCULK_CATALYST, var3);
     }
 
+    private void createChiseledBookshelf() {
+        String var0 = "_stage";
+        Collection<Integer> var1 = BlockStateProperties.BOOKS_STORED.getPossibleValues();
+        List<ResourceLocation> var2 = var1.stream()
+            .map(
+                param0 -> {
+                    TextureMapping var0x = new TextureMapping()
+                        .put(TextureSlot.FRONT, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, "_stage" + param0))
+                        .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, "_side"))
+                        .put(TextureSlot.TOP, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, "_top"));
+                    return ModelTemplates.CHISELED_BOOKSHELF_BLOCK.createWithSuffix(Blocks.CHISELED_BOOKSHELF, "_stage" + param0, var0x, this.modelOutput);
+                }
+            )
+            .toList();
+        this.blockStateOutput
+            .accept(
+                MultiVariantGenerator.multiVariant(Blocks.CHISELED_BOOKSHELF)
+                    .with(createHorizontalFacingDispatch())
+                    .with(
+                        PropertyDispatch.property(BlockStateProperties.BOOKS_STORED)
+                            .generate(param1 -> Variant.variant().with(VariantProperties.MODEL, var2.get(param1)))
+                    )
+            );
+        this.delegateItemModel(Items.CHISELED_BOOKSHELF, var2.get(0));
+    }
+
     private void createMagmaBlock() {
         this.blockStateOutput
             .accept(
@@ -4075,6 +4138,7 @@ public class BlockModelGenerators {
         this.createWeightedPressurePlate(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.IRON_BLOCK);
         this.createAmethystClusters();
         this.createBookshelf();
+        this.createChiseledBookshelf();
         this.createBrewingStand();
         this.createCakeBlock();
         this.createCampfires(Blocks.CAMPFIRE, Blocks.SOUL_CAMPFIRE);
@@ -4494,39 +4558,49 @@ public class BlockModelGenerators {
         this.createStems(Blocks.PUMPKIN_STEM, Blocks.ATTACHED_PUMPKIN_STEM);
         this.woodProvider(Blocks.MANGROVE_LOG).logWithHorizontal(Blocks.MANGROVE_LOG).wood(Blocks.MANGROVE_WOOD);
         this.woodProvider(Blocks.STRIPPED_MANGROVE_LOG).logWithHorizontal(Blocks.STRIPPED_MANGROVE_LOG).wood(Blocks.STRIPPED_MANGROVE_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_MANGROVE_LOG, Blocks.MANGROVE_HANGING_SIGN, Blocks.MANGROVE_WALL_HANGING_SIGN);
         this.createTrivialBlock(Blocks.MANGROVE_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.ACACIA_LOG).logWithHorizontal(Blocks.ACACIA_LOG).wood(Blocks.ACACIA_WOOD);
         this.woodProvider(Blocks.STRIPPED_ACACIA_LOG).logWithHorizontal(Blocks.STRIPPED_ACACIA_LOG).wood(Blocks.STRIPPED_ACACIA_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_ACACIA_LOG, Blocks.ACACIA_HANGING_SIGN, Blocks.ACACIA_WALL_HANGING_SIGN);
         this.createPlant(Blocks.ACACIA_SAPLING, Blocks.POTTED_ACACIA_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.ACACIA_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.BIRCH_LOG).logWithHorizontal(Blocks.BIRCH_LOG).wood(Blocks.BIRCH_WOOD);
         this.woodProvider(Blocks.STRIPPED_BIRCH_LOG).logWithHorizontal(Blocks.STRIPPED_BIRCH_LOG).wood(Blocks.STRIPPED_BIRCH_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_BIRCH_LOG, Blocks.BIRCH_HANGING_SIGN, Blocks.BIRCH_WALL_HANGING_SIGN);
         this.createPlant(Blocks.BIRCH_SAPLING, Blocks.POTTED_BIRCH_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.BIRCH_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.OAK_LOG).logWithHorizontal(Blocks.OAK_LOG).wood(Blocks.OAK_WOOD);
         this.woodProvider(Blocks.STRIPPED_OAK_LOG).logWithHorizontal(Blocks.STRIPPED_OAK_LOG).wood(Blocks.STRIPPED_OAK_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_OAK_LOG, Blocks.OAK_HANGING_SIGN, Blocks.OAK_WALL_HANGING_SIGN);
         this.createPlant(Blocks.OAK_SAPLING, Blocks.POTTED_OAK_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.OAK_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.SPRUCE_LOG).logWithHorizontal(Blocks.SPRUCE_LOG).wood(Blocks.SPRUCE_WOOD);
         this.woodProvider(Blocks.STRIPPED_SPRUCE_LOG).logWithHorizontal(Blocks.STRIPPED_SPRUCE_LOG).wood(Blocks.STRIPPED_SPRUCE_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_SPRUCE_LOG, Blocks.SPRUCE_HANGING_SIGN, Blocks.SPRUCE_WALL_HANGING_SIGN);
         this.createPlant(Blocks.SPRUCE_SAPLING, Blocks.POTTED_SPRUCE_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.SPRUCE_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.DARK_OAK_LOG).logWithHorizontal(Blocks.DARK_OAK_LOG).wood(Blocks.DARK_OAK_WOOD);
         this.woodProvider(Blocks.STRIPPED_DARK_OAK_LOG).logWithHorizontal(Blocks.STRIPPED_DARK_OAK_LOG).wood(Blocks.STRIPPED_DARK_OAK_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_DARK_OAK_LOG, Blocks.DARK_OAK_HANGING_SIGN, Blocks.DARK_OAK_WALL_HANGING_SIGN);
         this.createPlant(Blocks.DARK_OAK_SAPLING, Blocks.POTTED_DARK_OAK_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.DARK_OAK_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.JUNGLE_LOG).logWithHorizontal(Blocks.JUNGLE_LOG).wood(Blocks.JUNGLE_WOOD);
         this.woodProvider(Blocks.STRIPPED_JUNGLE_LOG).logWithHorizontal(Blocks.STRIPPED_JUNGLE_LOG).wood(Blocks.STRIPPED_JUNGLE_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_JUNGLE_LOG, Blocks.JUNGLE_HANGING_SIGN, Blocks.JUNGLE_WALL_HANGING_SIGN);
         this.createPlant(Blocks.JUNGLE_SAPLING, Blocks.POTTED_JUNGLE_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.JUNGLE_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.CRIMSON_STEM).log(Blocks.CRIMSON_STEM).wood(Blocks.CRIMSON_HYPHAE);
         this.woodProvider(Blocks.STRIPPED_CRIMSON_STEM).log(Blocks.STRIPPED_CRIMSON_STEM).wood(Blocks.STRIPPED_CRIMSON_HYPHAE);
+        this.createHangingSign(Blocks.STRIPPED_CRIMSON_STEM, Blocks.CRIMSON_HANGING_SIGN, Blocks.CRIMSON_WALL_HANGING_SIGN);
         this.createPlant(Blocks.CRIMSON_FUNGUS, Blocks.POTTED_CRIMSON_FUNGUS, BlockModelGenerators.TintState.NOT_TINTED);
         this.createNetherRoots(Blocks.CRIMSON_ROOTS, Blocks.POTTED_CRIMSON_ROOTS);
         this.woodProvider(Blocks.WARPED_STEM).log(Blocks.WARPED_STEM).wood(Blocks.WARPED_HYPHAE);
         this.woodProvider(Blocks.STRIPPED_WARPED_STEM).log(Blocks.STRIPPED_WARPED_STEM).wood(Blocks.STRIPPED_WARPED_HYPHAE);
+        this.createHangingSign(Blocks.STRIPPED_WARPED_STEM, Blocks.WARPED_HANGING_SIGN, Blocks.WARPED_WALL_HANGING_SIGN);
         this.createPlant(Blocks.WARPED_FUNGUS, Blocks.POTTED_WARPED_FUNGUS, BlockModelGenerators.TintState.NOT_TINTED);
         this.createNetherRoots(Blocks.WARPED_ROOTS, Blocks.POTTED_WARPED_ROOTS);
+        this.createHangingSign(Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_HANGING_SIGN, Blocks.BAMBOO_WALL_HANGING_SIGN);
         this.createCrossBlock(Blocks.NETHER_SPROUTS, BlockModelGenerators.TintState.NOT_TINTED);
         this.createSimpleFlatItemModel(Items.NETHER_SPROUTS);
         this.createDoor(Blocks.IRON_DOOR);
@@ -4706,6 +4780,19 @@ public class BlockModelGenerators {
             return this;
         }
 
+        public BlockModelGenerators.BlockFamilyProvider customFence(Block param0) {
+            TextureMapping var0 = TextureMapping.customParticle(param0);
+            ResourceLocation var1 = ModelTemplates.CUSTOM_FENCE_POST.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var2 = ModelTemplates.CUSTOM_FENCE_SIDE_NORTH.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var3 = ModelTemplates.CUSTOM_FENCE_SIDE_EAST.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var4 = ModelTemplates.CUSTOM_FENCE_SIDE_SOUTH.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var5 = ModelTemplates.CUSTOM_FENCE_SIDE_WEST.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createCustomFence(param0, var1, var2, var3, var4, var5));
+            ResourceLocation var6 = ModelTemplates.CUSTOM_FENCE_INVENTORY.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            BlockModelGenerators.this.delegateItemModel(param0, var6);
+            return this;
+        }
+
         public BlockModelGenerators.BlockFamilyProvider fence(Block param0) {
             ResourceLocation var0 = ModelTemplates.FENCE_POST.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var1 = ModelTemplates.FENCE_SIDE.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
@@ -4715,12 +4802,22 @@ public class BlockModelGenerators {
             return this;
         }
 
+        public BlockModelGenerators.BlockFamilyProvider customFenceGate(Block param0) {
+            TextureMapping var0 = TextureMapping.customParticle(param0);
+            ResourceLocation var1 = ModelTemplates.CUSTOM_FENCE_GATE_OPEN.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var2 = ModelTemplates.CUSTOM_FENCE_GATE_CLOSED.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var3 = ModelTemplates.CUSTOM_FENCE_GATE_WALL_OPEN.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            ResourceLocation var4 = ModelTemplates.CUSTOM_FENCE_GATE_WALL_CLOSED.create(param0, var0, BlockModelGenerators.this.modelOutput);
+            BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createFenceGate(param0, var1, var2, var3, var4, false));
+            return this;
+        }
+
         public BlockModelGenerators.BlockFamilyProvider fenceGate(Block param0) {
             ResourceLocation var0 = ModelTemplates.FENCE_GATE_OPEN.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var1 = ModelTemplates.FENCE_GATE_CLOSED.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var2 = ModelTemplates.FENCE_GATE_WALL_OPEN.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var3 = ModelTemplates.FENCE_GATE_WALL_CLOSED.create(param0, this.mapping, BlockModelGenerators.this.modelOutput);
-            BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createFenceGate(param0, var0, var1, var2, var3));
+            BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createFenceGate(param0, var0, var1, var2, var3, true));
             return this;
         }
 

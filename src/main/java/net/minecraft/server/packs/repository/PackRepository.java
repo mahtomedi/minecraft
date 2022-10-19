@@ -14,21 +14,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.PackType;
+import net.minecraft.world.flag.FeatureFlagSet;
 
 public class PackRepository {
     private final Set<RepositorySource> sources;
     private Map<String, Pack> available = ImmutableMap.of();
     private List<Pack> selected = ImmutableList.of();
-    private final Pack.PackConstructor constructor;
 
-    public PackRepository(Pack.PackConstructor param0, RepositorySource... param1) {
-        this.constructor = param0;
-        this.sources = ImmutableSet.copyOf(param1);
-    }
-
-    public PackRepository(PackType param0, RepositorySource... param1) {
-        this((param1x, param2, param3, param4, param5, param6, param7) -> new Pack(param1x, param2, param3, param4, param5, param0, param6, param7), param1);
+    public PackRepository(RepositorySource... param0) {
+        this.sources = ImmutableSet.copyOf(param0);
     }
 
     public void reload() {
@@ -41,7 +35,7 @@ public class PackRepository {
         Map<String, Pack> var0 = Maps.newTreeMap();
 
         for(RepositorySource var1 : this.sources) {
-            var1.loadPacks(param1 -> var0.put(param1.getId(), param1), this.constructor);
+            var1.loadPacks(param1 -> var0.put(param1.getId(), param1));
         }
 
         return ImmutableMap.copyOf(var0);
@@ -77,6 +71,10 @@ public class PackRepository {
 
     public Collection<String> getSelectedIds() {
         return this.selected.stream().map(Pack::getId).collect(ImmutableSet.toImmutableSet());
+    }
+
+    public FeatureFlagSet getRequestedFeatureFlags() {
+        return this.getSelectedPacks().stream().map(Pack::getRequestedFeatures).reduce(FeatureFlagSet::join).orElse(FeatureFlagSet.of());
     }
 
     public Collection<Pack> getSelectedPacks() {

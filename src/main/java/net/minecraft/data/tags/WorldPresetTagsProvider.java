@@ -1,13 +1,13 @@
 package net.minecraft.data.tags;
 
 import net.minecraft.data.BuiltinRegistries;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.WorldPresetTags;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 
 public class WorldPresetTagsProvider extends TagsProvider<WorldPreset> {
-    public WorldPresetTagsProvider(DataGenerator param0) {
+    public WorldPresetTagsProvider(PackOutput param0) {
         super(param0, BuiltinRegistries.WORLD_PRESET);
     }
 

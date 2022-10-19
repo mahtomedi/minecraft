@@ -87,6 +87,10 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
         NeighborUpdater.executeShapeUpdate(this, param0, param1, param2, param3, param4, param5 - 1);
     }
 
+    default void playSound(@Nullable Player param0, BlockPos param1, SoundEvent param2, SoundSource param3) {
+        this.playSound(param0, param1, param2, param3, 1.0F, 1.0F);
+    }
+
     void playSound(@Nullable Player var1, BlockPos var2, SoundEvent var3, SoundSource var4, float var5, float var6);
 
     void addParticle(ParticleOptions var1, double var2, double var4, double var6, double var8, double var10, double var12);

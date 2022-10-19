@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Map.Entry;
 import net.minecraft.core.NonNullList;
@@ -29,14 +30,18 @@ public class ShapedRecipe implements CraftingRecipe {
     final ItemStack result;
     private final ResourceLocation id;
     final String group;
+    final CraftingBookCategory category;
 
-    public ShapedRecipe(ResourceLocation param0, String param1, int param2, int param3, NonNullList<Ingredient> param4, ItemStack param5) {
+    public ShapedRecipe(
+        ResourceLocation param0, String param1, CraftingBookCategory param2, int param3, int param4, NonNullList<Ingredient> param5, ItemStack param6
+    ) {
         this.id = param0;
         this.group = param1;
-        this.width = param2;
-        this.height = param3;
-        this.recipeItems = param4;
-        this.result = param5;
+        this.category = param2;
+        this.width = param3;
+        this.height = param4;
+        this.recipeItems = param5;
+        this.result = param6;
     }
 
     @Override
@@ -52,6 +57,11 @@ public class ShapedRecipe implements CraftingRecipe {
     @Override
     public String getGroup() {
         return this.group;
+    }
+
+    @Override
+    public CraftingBookCategory category() {
+        return this.category;
     }
 
     @Override
@@ -277,33 +287,38 @@ public class ShapedRecipe implements CraftingRecipe {
     public static class Serializer implements RecipeSerializer<ShapedRecipe> {
         public ShapedRecipe fromJson(ResourceLocation param0, JsonObject param1) {
             String var0 = GsonHelper.getAsString(param1, "group", "");
-            Map<String, Ingredient> var1 = ShapedRecipe.keyFromJson(GsonHelper.getAsJsonObject(param1, "key"));
-            String[] var2 = ShapedRecipe.shrink(ShapedRecipe.patternFromJson(GsonHelper.getAsJsonArray(param1, "pattern")));
-            int var3 = var2[0].length();
-            int var4 = var2.length;
-            NonNullList<Ingredient> var5 = ShapedRecipe.dissolvePattern(var2, var1, var3, var4);
-            ItemStack var6 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
-            return new ShapedRecipe(param0, var0, var3, var4, var5, var6);
+            CraftingBookCategory var1 = Objects.requireNonNullElse(
+                CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(param1, "category", null)), CraftingBookCategory.MISC
+            );
+            Map<String, Ingredient> var2 = ShapedRecipe.keyFromJson(GsonHelper.getAsJsonObject(param1, "key"));
+            String[] var3 = ShapedRecipe.shrink(ShapedRecipe.patternFromJson(GsonHelper.getAsJsonArray(param1, "pattern")));
+            int var4 = var3[0].length();
+            int var5 = var3.length;
+            NonNullList<Ingredient> var6 = ShapedRecipe.dissolvePattern(var3, var2, var4, var5);
+            ItemStack var7 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
+            return new ShapedRecipe(param0, var0, var1, var4, var5, var6, var7);
         }
 
         public ShapedRecipe fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
             int var0 = param1.readVarInt();
             int var1 = param1.readVarInt();
             String var2 = param1.readUtf();
-            NonNullList<Ingredient> var3 = NonNullList.withSize(var0 * var1, Ingredient.EMPTY);
+            CraftingBookCategory var3 = param1.readEnum(CraftingBookCategory.class);
+            NonNullList<Ingredient> var4 = NonNullList.withSize(var0 * var1, Ingredient.EMPTY);
 
-            for(int var4 = 0; var4 < var3.size(); ++var4) {
-                var3.set(var4, Ingredient.fromNetwork(param1));
+            for(int var5 = 0; var5 < var4.size(); ++var5) {
+                var4.set(var5, Ingredient.fromNetwork(param1));
             }
 
-            ItemStack var5 = param1.readItem();
-            return new ShapedRecipe(param0, var2, var0, var1, var3, var5);
+            ItemStack var6 = param1.readItem();
+            return new ShapedRecipe(param0, var2, var3, var0, var1, var4, var6);
         }
 
         public void toNetwork(FriendlyByteBuf param0, ShapedRecipe param1) {
             param0.writeVarInt(param1.width);
             param0.writeVarInt(param1.height);
             param0.writeUtf(param1.group);
+            param0.writeEnum(param1.category);
 
             for(Ingredient var0 : param1.recipeItems) {
                 var0.toNetwork(param0);

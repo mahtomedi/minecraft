@@ -150,9 +150,7 @@ public class FontSet implements AutoCloseable {
             }
         }
 
-        FontTexture var2x = new FontTexture(
-            new ResourceLocation(this.name.getNamespace(), this.name.getPath() + "/" + this.textures.size()), param0x.isColored()
-        );
+        FontTexture var2x = new FontTexture(this.name.withPath(param0xx -> param0xx + "/" + this.textures.size()), param0x.isColored());
         this.textures.add(var2x);
         this.textureManager.register(var2x.getName(), var2x);
         BakedGlyph var3 = var2x.add(param0x);

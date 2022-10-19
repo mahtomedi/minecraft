@@ -17,6 +17,7 @@ public interface ResourceMetadata {
             return Optional.empty();
         }
     };
+    IoSupplier<ResourceMetadata> EMPTY_SUPPLIER = () -> EMPTY;
 
     static ResourceMetadata fromJsonStream(InputStream param0) throws IOException {
         ResourceMetadata var3;

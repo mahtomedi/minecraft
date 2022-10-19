@@ -8,6 +8,7 @@ import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +27,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
@@ -52,14 +54,18 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
     };
     private final Map<ResourceLocation, WeighedSoundEvents> registry = Maps.newHashMap();
     private final SoundEngine soundEngine;
+    private final Map<ResourceLocation, Resource> soundCache = new HashMap<>();
 
-    public SoundManager(ResourceManager param0, Options param1) {
-        this.soundEngine = new SoundEngine(this, param1, param0);
+    public SoundManager(Options param0) {
+        this.soundEngine = new SoundEngine(this, param0, ResourceProvider.fromMap(this.soundCache));
     }
 
     protected SoundManager.Preparations prepare(ResourceManager param0, ProfilerFiller param1) {
         SoundManager.Preparations var0 = new SoundManager.Preparations();
         param1.startTick();
+        param1.push("list");
+        var0.listResources(param0);
+        param1.pop();
 
         for(String var1 : param0.getNamespaces()) {
             param1.push(var1);
@@ -74,7 +80,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
                         param1.popPush("register");
 
                         for(Entry<String, SoundEventRegistration> var6 : var5.entrySet()) {
-                            var0.handleRegistration(new ResourceLocation(var1, var6.getKey()), var6.getValue(), param0);
+                            var0.handleRegistration(new ResourceLocation(var1, var6.getKey()), var6.getValue());
                         }
 
                         param1.pop();
@@ -95,7 +101,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
     }
 
     protected void apply(SoundManager.Preparations param0, ResourceManager param1, ProfilerFiller param2) {
-        param0.apply(this.registry, this.soundEngine);
+        param0.apply(this.registry, this.soundCache, this.soundEngine);
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             for(ResourceLocation var0 : this.registry.keySet()) {
                 WeighedSoundEvents var1 = this.registry.get(var0);
@@ -120,7 +126,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         return this.soundEngine.getAvailableSoundDevices();
     }
 
-    static boolean validateSoundResource(Sound param0, ResourceLocation param1, ResourceManager param2) {
+    static boolean validateSoundResource(Sound param0, ResourceLocation param1, ResourceProvider param2) {
         ResourceLocation var0 = param0.getPath();
         if (param2.getResource(var0).isEmpty()) {
             LOGGER.warn("File {} does not exist, cannot add it to event {}", var0, param1);
@@ -214,8 +220,13 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
     @OnlyIn(Dist.CLIENT)
     protected static class Preparations {
         final Map<ResourceLocation, WeighedSoundEvents> registry = Maps.newHashMap();
+        private Map<ResourceLocation, Resource> soundCache = Map.of();
 
-        void handleRegistration(ResourceLocation param0, SoundEventRegistration param1, ResourceManager param2) {
+        void listResources(ResourceManager param0) {
+            this.soundCache = Sound.SOUND_LISTER.listMatchingResources(param0);
+        }
+
+        void handleRegistration(ResourceLocation param0, SoundEventRegistration param1) {
             WeighedSoundEvents var0 = this.registry.get(param0);
             boolean var1 = var0 == null;
             if (var1 || param1.isReplace()) {
@@ -227,38 +238,40 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
                 this.registry.put(param0, var0);
             }
 
-            for(final Sound var2 : param1.getSounds()) {
-                final ResourceLocation var3 = var2.getLocation();
-                Weighted<Sound> var5;
-                switch(var2.getType()) {
+            ResourceProvider var2 = ResourceProvider.fromMap(this.soundCache);
+
+            for(final Sound var3 : param1.getSounds()) {
+                final ResourceLocation var4 = var3.getLocation();
+                Weighted<Sound> var6;
+                switch(var3.getType()) {
                     case FILE:
-                        if (!SoundManager.validateSoundResource(var2, param0, param2)) {
+                        if (!SoundManager.validateSoundResource(var3, param0, var2)) {
                             continue;
                         }
 
-                        var5 = var2;
+                        var6 = var3;
                         break;
                     case SOUND_EVENT:
-                        var5 = new Weighted<Sound>() {
+                        var6 = new Weighted<Sound>() {
                             @Override
                             public int getWeight() {
-                                WeighedSoundEvents var0 = Preparations.this.registry.get(var3);
+                                WeighedSoundEvents var0 = Preparations.this.registry.get(var4);
                                 return var0 == null ? 0 : var0.getWeight();
                             }
 
                             public Sound getSound(RandomSource param0) {
-                                WeighedSoundEvents var0 = Preparations.this.registry.get(var3);
+                                WeighedSoundEvents var0 = Preparations.this.registry.get(var4);
                                 if (var0 == null) {
                                     return SoundManager.EMPTY_SOUND;
                                 } else {
                                     Sound var1 = var0.getSound(param0);
                                     return new Sound(
                                         var1.getLocation().toString(),
-                                        new MultipliedFloats(var1.getVolume(), var2.getVolume()),
-                                        new MultipliedFloats(var1.getPitch(), var2.getPitch()),
-                                        var2.getWeight(),
+                                        new MultipliedFloats(var1.getVolume(), var3.getVolume()),
+                                        new MultipliedFloats(var1.getPitch(), var3.getPitch()),
+                                        var3.getWeight(),
                                         Sound.Type.FILE,
-                                        var1.shouldStream() || var2.shouldStream(),
+                                        var1.shouldStream() || var3.shouldStream(),
                                         var1.shouldPreload(),
                                         var1.getAttenuationDistance()
                                     );
@@ -267,7 +280,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
 
                             @Override
                             public void preloadIfRequired(SoundEngine param0) {
-                                WeighedSoundEvents var0 = Preparations.this.registry.get(var3);
+                                WeighedSoundEvents var0 = Preparations.this.registry.get(var4);
                                 if (var0 != null) {
                                     var0.preloadIfRequired(param0);
                                 }
@@ -275,20 +288,22 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
                         };
                         break;
                     default:
-                        throw new IllegalStateException("Unknown SoundEventRegistration type: " + var2.getType());
+                        throw new IllegalStateException("Unknown SoundEventRegistration type: " + var3.getType());
                 }
 
-                var0.addSound(var5);
+                var0.addSound(var6);
             }
 
         }
 
-        public void apply(Map<ResourceLocation, WeighedSoundEvents> param0, SoundEngine param1) {
+        public void apply(Map<ResourceLocation, WeighedSoundEvents> param0, Map<ResourceLocation, Resource> param1, SoundEngine param2) {
             param0.clear();
+            param1.clear();
+            param1.putAll(this.soundCache);
 
             for(Entry<ResourceLocation, WeighedSoundEvents> var0 : this.registry.entrySet()) {
                 param0.put(var0.getKey(), var0.getValue());
-                var0.getValue().preloadIfRequired(param1);
+                var0.getValue().preloadIfRequired(param2);
             }
 
         }

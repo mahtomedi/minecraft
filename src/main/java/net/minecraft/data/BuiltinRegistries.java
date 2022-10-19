@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Lifecycle;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -46,7 +47,7 @@ public class BuiltinRegistries {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<ResourceLocation, Supplier<? extends Holder<?>>> LOADERS = Maps.newLinkedHashMap();
     private static final WritableRegistry<WritableRegistry<?>> WRITABLE_REGISTRY = new MappedRegistry<>(
-        ResourceKey.createRegistryKey(new ResourceLocation("root")), Lifecycle.experimental(), null
+        ResourceKey.createRegistryKey(new ResourceLocation("root")), Lifecycle.experimental()
     );
     public static final Registry<? extends Registry<?>> REGISTRY = WRITABLE_REGISTRY;
     public static final Registry<DimensionType> DIMENSION_TYPE = registerSimple(Registry.DIMENSION_TYPE_REGISTRY, DimensionTypes::bootstrap);
@@ -70,14 +71,13 @@ public class BuiltinRegistries {
         Registry.FLAT_LEVEL_GENERATOR_PRESET_REGISTRY, FlatLevelGeneratorPresets::bootstrap
     );
     public static final Registry<ChatType> CHAT_TYPE = registerSimple(Registry.CHAT_TYPE_REGISTRY, ChatType::bootstrap);
-    public static final RegistryAccess ACCESS = RegistryAccess.fromRegistryOfRegistries(REGISTRY);
 
     private static <T> Registry<T> registerSimple(ResourceKey<? extends Registry<T>> param0, BuiltinRegistries.RegistryBootstrap<T> param1) {
         return registerSimple(param0, Lifecycle.stable(), param1);
     }
 
     private static <T> Registry<T> registerSimple(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, BuiltinRegistries.RegistryBootstrap<T> param2) {
-        return internalRegister(param0, new MappedRegistry<>(param0, param1, null), param2, param1);
+        return internalRegister(param0, new MappedRegistry<>(param0, param1), param2, param1);
     }
 
     private static <T, R extends WritableRegistry<T>> R internalRegister(
@@ -87,6 +87,12 @@ public class BuiltinRegistries {
         LOADERS.put(var0, () -> param2.run(param1));
         WRITABLE_REGISTRY.register(param0, param1, param3);
         return param1;
+    }
+
+    public static RegistryAccess.Frozen createAccess() {
+        RegistryAccess.Frozen var0 = RegistryAccess.fromRegistryOfRegistries(Registry.REGISTRY);
+        RegistryAccess.Frozen var1 = RegistryAccess.fromRegistryOfRegistries(REGISTRY);
+        return new RegistryAccess.ImmutableRegistryAccess(Stream.concat(var0.registries(), var1.registries())).freeze();
     }
 
     public static <V extends T, T> Holder<V> registerExact(Registry<T> param0, String param1, V param2) {
@@ -110,12 +116,18 @@ public class BuiltinRegistries {
 
     static {
         LOADERS.forEach((param0, param1) -> {
-            if (!param1.get().isBound()) {
+            if (param1.get() == null) {
                 LOGGER.error("Unable to bootstrap registry '{}'", param0);
             }
 
         });
-        Registry.checkRegistry(WRITABLE_REGISTRY);
+        REGISTRY.freeze();
+
+        for(Registry<?> var0 : REGISTRY) {
+            var0.freeze();
+        }
+
+        Registry.checkRegistry(REGISTRY);
     }
 
     @FunctionalInterface

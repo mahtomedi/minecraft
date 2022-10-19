@@ -141,11 +141,13 @@ public class ThrownTrident extends AbstractArrow {
             BlockPos var8 = var0.blockPosition();
             if (this.level.canSeeSky(var8)) {
                 LightningBolt var9 = EntityType.LIGHTNING_BOLT.create(this.level);
-                var9.moveTo(Vec3.atBottomCenterOf(var8));
-                var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);
-                this.level.addFreshEntity(var9);
-                var5 = SoundEvents.TRIDENT_THUNDER;
-                var7 = 5.0F;
+                if (var9 != null) {
+                    var9.moveTo(Vec3.atBottomCenterOf(var8));
+                    var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);
+                    this.level.addFreshEntity(var9);
+                    var5 = SoundEvents.TRIDENT_THUNDER;
+                    var7 = 5.0F;
+                }
             }
         }
 

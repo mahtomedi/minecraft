@@ -5,14 +5,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.ClientRecipeBook;
@@ -35,7 +37,6 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.gui.components.toasts.RecipeToast;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.DemoIntroScreen;
@@ -50,7 +51,6 @@ import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
-import net.minecraft.client.gui.screens.multiplayer.ChatPreviewWarningScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
@@ -73,8 +73,10 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ArgumentSignatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Position;
 import net.minecraft.core.PositionImpl;
@@ -88,11 +90,16 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.chat.LastSeenMessagesTracker;
+import net.minecraft.network.chat.LocalChatSession;
 import net.minecraft.network.chat.MessageSignature;
+import net.minecraft.network.chat.MessageSignatureCache;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.RemoteChatSession;
+import net.minecraft.network.chat.SignableCommand;
+import net.minecraft.network.chat.SignedMessageBody;
 import net.minecraft.network.chat.SignedMessageChain;
+import net.minecraft.network.chat.SignedMessageLink;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -108,7 +115,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
-import net.minecraft.network.protocol.game.ClientboundChatPreviewPacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
@@ -122,6 +128,7 @@ import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundDeleteChatPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
+import net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
@@ -146,12 +153,12 @@ import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPingPacket;
 import net.minecraft.network.protocol.game.ClientboundPlaceGhostRecipePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerChatHeaderPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundRecipePacket;
@@ -174,7 +181,6 @@ import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
-import net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
@@ -201,11 +207,14 @@ import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateEnabledFeaturesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundChatAckPacket;
+import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
@@ -224,8 +233,10 @@ import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatsCounter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagNetworkSerialization;
+import net.minecraft.util.Crypt;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.SortedArraySet;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -245,14 +256,17 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
@@ -296,14 +310,21 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private static final Component GENERIC_DISCONNECT_MESSAGE = Component.translatable("disconnect.lost");
     private static final Component UNSECURE_SERVER_TOAST_TITLE = Component.translatable("multiplayer.unsecureserver.toast.title");
     private static final Component UNSERURE_SERVER_TOAST = Component.translatable("multiplayer.unsecureserver.toast");
-    private static final int UNACKNOWLEDGED_MESSAGES_THRESHOLD = 64;
+    private static final Component INVALID_PACKET = Component.translatable("multiplayer.disconnect.invalid_packet");
+    private static final Component CHAT_VALIDATION_FAILED_ERROR = Component.translatable("multiplayer.disconnect.chat_validation_failed");
+    private static final int PENDING_OFFSET_THRESHOLD = 64;
     private final Connection connection;
+    @Nullable
+    private final ServerData serverData;
     private final GameProfile localGameProfile;
     private final Screen callbackScreen;
     private final Minecraft minecraft;
     private ClientLevel level;
     private ClientLevel.ClientLevelData levelData;
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
+    private final SortedArraySet<PlayerInfo> listedPlayers = SortedArraySet.create(
+        Comparator.comparing(param0x -> param0x.getProfile().getName(), String::compareToIgnoreCase)
+    );
     private final ClientAdvancements advancements;
     private final ClientSuggestionProvider suggestionsProvider;
     private final DebugQueryHandler debugQueryHandler = new DebugQueryHandler(this);
@@ -314,21 +335,32 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final RecipeManager recipeManager = new RecipeManager();
     private final UUID id = UUID.randomUUID();
     private Set<ResourceKey<Level>> levels;
-    private RegistryAccess.Frozen registryAccess = RegistryAccess.BUILTIN.get();
+    private LayeredRegistryAccess<ClientRegistryLayer> registryAccess = ClientRegistryLayer.createRegistryAccess();
+    private FeatureFlagSet enabledFeatures = FeatureFlags.DEFAULT_FLAGS;
     private final ClientTelemetryManager telemetryManager;
-    private final SignedMessageChain.Encoder signedMessageEncoder = new SignedMessageChain().encoder();
-    private final LastSeenMessagesTracker lastSeenMessagesTracker = new LastSeenMessagesTracker(5);
-    private Optional<LastSeenMessages.Entry> lastUnacknowledgedReceivedMessage = Optional.empty();
-    private int unacknowledgedReceivedMessageCount;
+    private final SignedMessageChain.Encoder signedMessageEncoder;
+    private final LastSeenMessagesTracker lastSeenMessages = new LastSeenMessagesTracker(20);
+    private final MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
+    private final MessageSignature.Unpacker messageSignatureUnpacker = this.messageSignatureCache.unpacker();
 
-    public ClientPacketListener(Minecraft param0, Screen param1, Connection param2, GameProfile param3, ClientTelemetryManager param4) {
+    public ClientPacketListener(
+        Minecraft param0,
+        Screen param1,
+        Connection param2,
+        LocalChatSession param3,
+        @Nullable ServerData param4,
+        GameProfile param5,
+        ClientTelemetryManager param6
+    ) {
         this.minecraft = param0;
         this.callbackScreen = param1;
         this.connection = param2;
-        this.localGameProfile = param3;
+        this.serverData = param4;
+        this.localGameProfile = param5;
         this.advancements = new ClientAdvancements(param0);
         this.suggestionsProvider = new ClientSuggestionProvider(this, param0);
-        this.telemetryManager = param4;
+        this.telemetryManager = param6;
+        this.signedMessageEncoder = param3.createMessageEncoder(param5.getId());
     }
 
     public ClientSuggestionProvider getSuggestionsProvider() {
@@ -347,9 +379,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleLogin(ClientboundLoginPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gameMode = new MultiPlayerGameMode(this.minecraft, this);
-        this.registryAccess = param0.registryHolder();
+        this.registryAccess = this.registryAccess.replaceFrom(ClientRegistryLayer.REMOTE, param0.registryHolder());
         if (!this.connection.isMemoryConnection()) {
-            this.registryAccess.registries().forEach(param0x -> param0x.value().resetTags());
+            this.registryAccess.compositeAccess().registries().forEach(param0x -> param0x.value().resetTags());
         }
 
         List<ResourceKey<Level>> var0 = Lists.newArrayList(param0.levels());
@@ -357,6 +389,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.levels = Sets.newLinkedHashSet(var0);
         ResourceKey<Level> var1 = param0.dimension();
         Holder<DimensionType> var2 = this.registryAccess
+            .compositeAccess()
             .<DimensionType>registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
             .getHolderOrThrow(param0.dimensionType());
         this.serverChunkRadius = param0.chunkRadius();
@@ -490,7 +523,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             float var4 = (float)(param0.getyRot() * 360) / 256.0F;
             float var5 = (float)(param0.getxRot() * 360) / 256.0F;
             int var6 = param0.getEntityId();
-            RemotePlayer var7 = new RemotePlayer(this.minecraft.level, var0.getProfile(), var0.getProfilePublicKey());
+            RemotePlayer var7 = new RemotePlayer(this.minecraft.level, var0.getProfile());
             var7.setId(var6);
             var7.syncPacketPositionCodec(var1, var2, var3);
             var7.absMoveTo(var1, var2, var3, var4, var5);
@@ -586,10 +619,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var5 = var1.x();
             var6 = var0.getX() + param0.getX();
             var0.xOld += param0.getX();
+            var0.xo += param0.getX();
         } else {
             var5 = 0.0;
             var6 = param0.getX();
             var0.xOld = var6;
+            var0.xo = var6;
         }
 
         double var9;
@@ -598,10 +633,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var9 = var1.y();
             var10 = var0.getY() + param0.getY();
             var0.yOld += param0.getY();
+            var0.yo += param0.getY();
         } else {
             var9 = 0.0;
             var10 = param0.getY();
             var0.yOld = var10;
+            var0.yo = var10;
         }
 
         double var13;
@@ -610,49 +647,36 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var13 = var1.z();
             var14 = var0.getZ() + param0.getZ();
             var0.zOld += param0.getZ();
+            var0.zo += param0.getZ();
         } else {
             var13 = 0.0;
             var14 = param0.getZ();
             var0.zOld = var14;
+            var0.zo = var14;
         }
 
-        var0.setPosRaw(var6, var10, var14);
-        var0.xo = var6;
-        var0.yo = var10;
-        var0.zo = var14;
+        var0.setPos(var6, var10, var14);
         var0.setDeltaMovement(var5, var9, var13);
         float var17 = param0.getYRot();
         float var18 = param0.getXRot();
         if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT)) {
-            var18 += var0.getXRot();
+            var0.setXRot(var0.getXRot() + var18);
+            var0.xRotO += var18;
+        } else {
+            var0.setXRot(var18);
+            var0.xRotO = var18;
         }
 
         if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT)) {
-            var17 += var0.getYRot();
+            var0.setYRot(var0.getYRot() + var17);
+            var0.yRotO += var17;
+        } else {
+            var0.setYRot(var17);
+            var0.yRotO = var17;
         }
 
-        var0.absMoveTo(var6, var10, var14, var17, var18);
         this.connection.send(new ServerboundAcceptTeleportationPacket(param0.getId()));
         this.connection.send(new ServerboundMovePlayerPacket.PosRot(var0.getX(), var0.getY(), var0.getZ(), var0.getYRot(), var0.getXRot(), false));
-    }
-
-    @Override
-    public void handleChatPreview(ClientboundChatPreviewPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ChatScreen var0 = this.minecraft.gui.getChat().getFocusedChat();
-        if (var0 != null) {
-            var0.getChatPreview().handleResponse(param0.queryId(), param0.preview());
-        }
-
-    }
-
-    @Override
-    public void handleSetDisplayChatPreview(ClientboundSetDisplayChatPreviewPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ServerData var0 = this.minecraft.getCurrentServer();
-        if (var0 != null) {
-            var0.setChatPreviewEnabled(param0.enabled());
-        }
     }
 
     @Override
@@ -817,28 +841,53 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Optional<ChatType.Bound> var0 = param0.resolveChatType(this.registryAccess);
-        if (!var0.isPresent()) {
-            this.connection.disconnect(Component.translatable("multiplayer.disconnect.invalid_packet"));
+        Optional<SignedMessageBody> var0 = param0.body().unpack(this.messageSignatureUnpacker);
+        Optional<ChatType.Bound> var1 = param0.chatType().resolve(this.registryAccess.compositeAccess());
+        if (!var0.isEmpty() && !var1.isEmpty()) {
+            UUID var2 = param0.sender();
+            PlayerInfo var3 = this.getPlayerInfo(var2);
+            if (var3 != null && var3.getChatSession() != null) {
+                RemoteChatSession var4 = var3.getChatSession();
+                SignedMessageLink var5 = new SignedMessageLink(param0.index(), var2, var4.sessionId());
+                PlayerChatMessage var6 = new PlayerChatMessage(var5, param0.signature(), var0.get(), param0.unsignedContent(), param0.filterMask());
+                if (!var3.getMessageValidator().updateAndValidate(var6)) {
+                    this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
+                } else {
+                    this.minecraft.getChatListener().handlePlayerChatMessage(var6, var3.getProfile(), var1.get());
+                    this.messageSignatureCache.push(var6);
+                }
+            } else {
+                this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
+            }
         } else {
-            this.minecraft.getChatListener().handleChatMessage(param0.message(), var0.get());
+            this.connection.disconnect(INVALID_PACKET);
         }
     }
 
     @Override
-    public void handlePlayerChatHeader(ClientboundPlayerChatHeaderPacket param0) {
+    public void handleDisguisedChat(ClientboundDisguisedChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.getChatListener().handleChatHeader(param0.header(), param0.headerSignature(), param0.bodyDigest());
+        Optional<ChatType.Bound> var0 = param0.chatType().resolve(this.registryAccess.compositeAccess());
+        if (var0.isEmpty()) {
+            this.connection.disconnect(INVALID_PACKET);
+        } else {
+            this.minecraft.getChatListener().handleDisguisedChatMessage(param0.message(), var0.get());
+        }
     }
 
     @Override
     public void handleDeleteChat(ClientboundDeleteChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        MessageSignature var0 = param0.messageSignature();
-        if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue(var0)) {
-            this.minecraft.gui.getChat().deleteMessage(var0);
-        }
+        Optional<MessageSignature> var0 = param0.messageSignature().unpack(this.messageSignatureUnpacker);
+        if (var0.isEmpty()) {
+            this.connection.disconnect(INVALID_PACKET);
+        } else {
+            this.lastSeenMessages.ignorePending(var0.get());
+            if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue(var0.get())) {
+                this.minecraft.gui.getChat().deleteMessage(var0.get());
+            }
 
+        }
     }
 
     @Override
@@ -976,6 +1025,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         ResourceKey<Level> var0 = param0.getDimension();
         Holder<DimensionType> var1 = this.registryAccess
+            .compositeAccess()
             .<DimensionType>registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
             .getHolderOrThrow(param0.getDimensionType());
         LocalPlayer var2 = this.minecraft.player;
@@ -1089,7 +1139,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         } else {
             boolean var3 = false;
             if (this.minecraft.screen instanceof CreativeModeInventoryScreen var4) {
-                var3 = var4.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId();
+                var3 = var4.getSelectedTab() != CreativeModeTabs.TAB_INVENTORY.getId();
             }
 
             if (param0.getContainerId() == 0 && InventoryMenu.isHotbarSlot(var2)) {
@@ -1314,7 +1364,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleCommands(ClientboundCommandsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.commands = new CommandDispatcher<>(param0.getRoot(new CommandBuildContext(this.registryAccess)));
+        this.commands = new CommandDispatcher<>(param0.getRoot(new CommandBuildContext(this.registryAccess.compositeAccess(), this.enabledFeatures)));
     }
 
     @Override
@@ -1442,22 +1492,36 @@ public class ClientPacketListener implements ClientGamePacketListener {
             Blocks.rebuildCache();
         }
 
-        NonNullList<ItemStack> var0 = NonNullList.create();
+        this.rebuildCreativeScreenSearchData();
+    }
 
-        for(Item var1 : Registry.ITEM) {
-            var1.fillItemCategory(CreativeModeTab.TAB_SEARCH, var0);
+    @Override
+    public void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        this.enabledFeatures = FeatureFlags.REGISTRY.fromNames(param0.features());
+        this.rebuildCreativeScreenSearchData();
+    }
+
+    private void rebuildCreativeScreenSearchData() {
+        for(CreativeModeTab var0 : CreativeModeTabs.TABS) {
+            var0.invalidateDisplayListCache();
         }
 
-        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_NAMES, var0);
-        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_TAGS, var0);
+        NonNullList<ItemStack> var1 = NonNullList.create();
+        var1.addAll(CreativeModeTabs.TAB_SEARCH.getDisplayItems(this.enabledFeatures));
+        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_NAMES, var1);
+        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_TAGS, var1);
     }
 
     private <T> void updateTagsForRegistry(ResourceKey<? extends Registry<? extends T>> param0x, TagNetworkSerialization.NetworkPayload param1) {
         if (!param1.isEmpty()) {
-            Registry<T> var0x = this.registryAccess.<T>registry(param0x).orElseThrow(() -> new IllegalStateException("Unknown registry " + param0x));
+            Registry<T> var0 = this.registryAccess
+                .compositeAccess()
+                .<T>registry(param0x)
+                .orElseThrow(() -> new IllegalStateException("Unknown registry " + param0x));
             Map<TagKey<T>, List<Holder<T>>> var2 = new HashMap<>();
-            TagNetworkSerialization.deserializeTagsFromNetwork(param0x, var0x, param1, var2::put);
-            var0x.bindTags(var2);
+            TagNetworkSerialization.deserializeTagsFromNetwork(param0x, var0, param1, var2::put);
+            var0.bindTags(var2);
         }
     }
 
@@ -1560,30 +1624,23 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleServerData(ClientboundServerDataPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        ServerData var0 = this.minecraft.getCurrentServer();
-        if (var0 != null) {
-            param0.getMotd().ifPresent(param1 -> var0.motd = param1);
-            param0.getIconBase64().ifPresent(param1 -> {
+        if (this.serverData != null) {
+            param0.getMotd().ifPresent(param0x -> this.serverData.motd = param0x);
+            param0.getIconBase64().ifPresent(param0x -> {
                 try {
-                    var0.setIconB64(ServerData.parseFavicon(param1));
-                } catch (ParseException var3x) {
-                    LOGGER.error("Invalid server icon", (Throwable)var3x);
+                    this.serverData.setIconB64(ServerData.parseFavicon(param0x));
+                } catch (ParseException var3) {
+                    LOGGER.error("Invalid server icon", (Throwable)var3);
                 }
 
             });
-            var0.setPreviewsChat(param0.previewsChat());
-            var0.setEnforcesSecureChat(param0.enforcesSecureChat());
-            ServerList.saveSingleServer(var0);
+            this.serverData.setEnforcesSecureChat(param0.enforcesSecureChat());
+            ServerList.saveSingleServer(this.serverData);
             if (!param0.enforcesSecureChat()) {
-                SystemToast var1 = SystemToast.multiline(
+                SystemToast var0 = SystemToast.multiline(
                     this.minecraft, SystemToast.SystemToastIds.UNSECURE_SERVER_WARNING, UNSECURE_SERVER_TOAST_TITLE, UNSERURE_SERVER_TOAST
                 );
-                this.minecraft.getToasts().addToast(var1);
-            }
-
-            ServerData.ChatPreview var2 = var0.getChatPreview();
-            if (var2 != null && !var2.isAcknowledged()) {
-                this.minecraft.execute(() -> this.minecraft.setScreen(new ChatPreviewWarningScreen(this.minecraft.screen, var0)));
+                this.minecraft.getToasts().addToast(var0);
             }
 
         }
@@ -1637,42 +1694,85 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handlePlayerInfo(ClientboundPlayerInfoPacket param0) {
+    public void handlePlayerInfoRemove(ClientboundPlayerInfoRemovePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
 
-        for(ClientboundPlayerInfoPacket.PlayerUpdate var0 : param0.getEntries()) {
-            if (param0.getAction() == ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER) {
-                this.minecraft.getPlayerSocialManager().removePlayer(var0.getProfile().getId());
-                this.playerInfoMap.remove(var0.getProfile().getId());
-            } else {
-                PlayerInfo var1 = this.playerInfoMap.get(var0.getProfile().getId());
-                if (param0.getAction() == ClientboundPlayerInfoPacket.Action.ADD_PLAYER && var1 == null) {
-                    boolean var2 = Util.mapNullable(this.minecraft.getCurrentServer(), ServerData::enforcesSecureChat, false);
-                    var1 = new PlayerInfo(var0, this.minecraft.getServiceSignatureValidator(), var2);
-                    this.playerInfoMap.put(var1.getProfile().getId(), var1);
-                    this.minecraft.getPlayerSocialManager().addPlayer(var1);
-                }
+        for(UUID var0 : param0.profileIds()) {
+            this.minecraft.getPlayerSocialManager().removePlayer(var0);
+            PlayerInfo var1 = this.playerInfoMap.remove(var0);
+            if (var1 != null) {
+                this.listedPlayers.remove(var1);
+            }
+        }
 
-                if (var1 != null) {
-                    switch(param0.getAction()) {
-                        case ADD_PLAYER:
-                            var1.setGameMode(var0.getGameMode());
-                            var1.setLatency(var0.getLatency());
-                            var1.setTabListDisplayName(var0.getDisplayName());
-                            break;
-                        case UPDATE_GAME_MODE:
-                            var1.setGameMode(var0.getGameMode());
-                            break;
-                        case UPDATE_LATENCY:
-                            var1.setLatency(var0.getLatency());
-                            break;
-                        case UPDATE_DISPLAY_NAME:
-                            var1.setTabListDisplayName(var0.getDisplayName());
-                    }
+    }
+
+    @Override
+    public void handlePlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+
+        for(ClientboundPlayerInfoUpdatePacket.Entry var0 : param0.newEntries()) {
+            PlayerInfo var1 = new PlayerInfo(var0.profile());
+            if (this.playerInfoMap.putIfAbsent(var0.profileId(), var1) == null) {
+                this.minecraft.getPlayerSocialManager().addPlayer(var1);
+            }
+        }
+
+        for(ClientboundPlayerInfoUpdatePacket.Entry var2 : param0.entries()) {
+            PlayerInfo var3 = this.playerInfoMap.get(var2.profileId());
+            if (var3 == null) {
+                LOGGER.warn("Ignoring player info update for unknown player {}", var2.profileId());
+            } else {
+                for(ClientboundPlayerInfoUpdatePacket.Action var4 : param0.actions()) {
+                    this.applyPlayerInfoUpdate(var4, var2, var3);
                 }
             }
         }
 
+    }
+
+    private void applyPlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket.Action param0, ClientboundPlayerInfoUpdatePacket.Entry param1, PlayerInfo param2) {
+        switch(param0) {
+            case INITIALIZE_CHAT:
+                this.initializeChatSession(param1, param2);
+                break;
+            case UPDATE_GAME_MODE:
+                param2.setGameMode(param1.gameMode());
+                break;
+            case UPDATE_LISTED:
+                if (param1.listed()) {
+                    this.listedPlayers.add(param2);
+                } else {
+                    this.listedPlayers.remove(param2);
+                }
+                break;
+            case UPDATE_LATENCY:
+                param2.setLatency(param1.latency());
+                break;
+            case UPDATE_DISPLAY_NAME:
+                param2.setTabListDisplayName(param1.displayName());
+        }
+
+    }
+
+    private void initializeChatSession(ClientboundPlayerInfoUpdatePacket.Entry param0, PlayerInfo param1) {
+        RemoteChatSession var0 = this.validateChatSession(param0.chatSession(), param1.getProfile());
+        boolean var1 = this.serverData != null && this.serverData.enforcesSecureChat();
+        if (var1 && !var0.verifiable()) {
+            LOGGER.error("Received unverifiable chat session for player '{}', but Secure Chat is enforced", param1.getProfile().getName());
+            this.connection.disconnect(INVALID_PACKET);
+        } else {
+            param1.setChatSession(var0);
+        }
+    }
+
+    private RemoteChatSession validateChatSession(RemoteChatSession.Data param0, GameProfile param1) {
+        try {
+            return param0.validate(param1, this.minecraft.getServiceSignatureValidator(), ProfilePublicKey.EXPIRY_GRACE_PERIOD);
+        } catch (ProfilePublicKey.ValidationException var4) {
+            LOGGER.warn("Failed to validate profile key for player: '{}'", param1.getName(), var4);
+            return RemoteChatSession.UNVERIFIED;
+        }
     }
 
     @Override
@@ -1752,13 +1852,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
         } else {
             String var1 = param0.getHash();
             boolean var2 = param0.isRequired();
-            ServerData var3 = this.minecraft.getCurrentServer();
-            if (var3 != null && var3.getResourcePackStatus() == ServerData.ServerPackStatus.ENABLED) {
+            if (this.serverData != null && this.serverData.getResourcePackStatus() == ServerData.ServerPackStatus.ENABLED) {
                 this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                this.downloadCallback(this.minecraft.getClientPackSource().downloadAndSelectResourcePack(var0, var1, true));
-            } else if (var3 != null
-                && var3.getResourcePackStatus() != ServerData.ServerPackStatus.PROMPT
-                && (!var2 || var3.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
+                this.downloadCallback(this.minecraft.getDownloadedPackSource().downloadAndSelectResourcePack(var0, var1, true));
+            } else if (this.serverData != null
+                && this.serverData.getResourcePackStatus() != ServerData.ServerPackStatus.PROMPT
+                && (!var2 || this.serverData.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
                 this.send(ServerboundResourcePackPacket.Action.DECLINED);
                 if (var2) {
                     this.connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
@@ -1771,25 +1870,24 @@ public class ClientPacketListener implements ClientGamePacketListener {
                                     new ConfirmScreen(
                                         param3x -> {
                                             this.minecraft.setScreen(null);
-                                            ServerData var0x = this.minecraft.getCurrentServer();
                                             if (param3x) {
-                                                if (var0x != null) {
-                                                    var0x.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
+                                                if (this.serverData != null) {
+                                                    this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
                                                 }
                     
                                                 this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                                                this.downloadCallback(this.minecraft.getClientPackSource().downloadAndSelectResourcePack(var0, var1, true));
+                                                this.downloadCallback(this.minecraft.getDownloadedPackSource().downloadAndSelectResourcePack(var0, var1, true));
                                             } else {
                                                 this.send(ServerboundResourcePackPacket.Action.DECLINED);
                                                 if (var2) {
                                                     this.connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
-                                                } else if (var0x != null) {
-                                                    var0x.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
+                                                } else if (this.serverData != null) {
+                                                    this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
                                                 }
                                             }
                     
-                                            if (var0x != null) {
-                                                ServerList.saveSingleServer(var0x);
+                                            if (this.serverData != null) {
+                                                ServerList.saveSingleServer(this.serverData);
                                             }
                     
                                         },
@@ -1899,7 +1997,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 BlockPos var7 = var1.readBlockPos();
                 ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(var6, var7);
             } else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(var0)) {
-                DimensionType var8 = this.registryAccess.<DimensionType>registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY).get(var1.readResourceLocation());
+                DimensionType var8 = this.registryAccess
+                    .compositeAccess()
+                    .<DimensionType>registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY)
+                    .get(var1.readResourceLocation());
                 BoundingBox var9 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
                 int var10 = var1.readInt();
                 List<BoundingBox> var11 = Lists.newArrayList();
@@ -2369,6 +2470,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
         return this.connection;
     }
 
+    public Collection<PlayerInfo> getListedOnlinePlayers() {
+        return this.listedPlayers;
+    }
+
     public Collection<PlayerInfo> getOnlinePlayers() {
         return this.playerInfoMap.values();
     }
@@ -2422,32 +2527,68 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     public RegistryAccess registryAccess() {
-        return this.registryAccess;
-    }
-
-    public SignedMessageChain.Encoder signedMessageEncoder() {
-        return this.signedMessageEncoder;
-    }
-
-    public LastSeenMessages.Update generateMessageAcknowledgements() {
-        this.unacknowledgedReceivedMessageCount = 0;
-        return new LastSeenMessages.Update(this.lastSeenMessagesTracker.get(), this.lastUnacknowledgedReceivedMessage);
+        return this.registryAccess.compositeAccess();
     }
 
     public void markMessageAsProcessed(PlayerChatMessage param0, boolean param1) {
-        LastSeenMessages.Entry var0 = param0.toLastSeenEntry();
-        if (var0 != null) {
-            if (param1) {
-                this.lastSeenMessagesTracker.push(var0);
-                this.lastUnacknowledgedReceivedMessage = Optional.empty();
-            } else {
-                this.lastUnacknowledgedReceivedMessage = Optional.of(var0);
-            }
-
-            if (this.unacknowledgedReceivedMessageCount++ > 64) {
-                this.send(new ServerboundChatAckPacket(this.generateMessageAcknowledgements()));
-            }
-
+        MessageSignature var0 = param0.signature();
+        if (var0 != null && this.lastSeenMessages.addPending(var0, param1) && this.lastSeenMessages.offset() > 64) {
+            this.sendChatAcknowledgement();
         }
+
+    }
+
+    private void sendChatAcknowledgement() {
+        int var0 = this.lastSeenMessages.getAndClearOffset();
+        if (var0 > 0) {
+            this.send(new ServerboundChatAckPacket(var0));
+        }
+
+    }
+
+    public void sendChat(String param0) {
+        Instant var0 = Instant.now();
+        long var1 = Crypt.SaltSupplier.getLong();
+        LastSeenMessagesTracker.Update var2 = this.lastSeenMessages.generateAndApplyUpdate();
+        MessageSignature var3 = this.signedMessageEncoder.pack(new SignedMessageBody(param0, var0, var1, var2.lastSeen()));
+        this.send(new ServerboundChatPacket(param0, var0, var1, var3, var2.update()));
+    }
+
+    public void sendCommand(String param0) {
+        Instant var0 = Instant.now();
+        long var1 = Crypt.SaltSupplier.getLong();
+        LastSeenMessagesTracker.Update var2 = this.lastSeenMessages.generateAndApplyUpdate();
+        ArgumentSignatures var3 = ArgumentSignatures.signCommand(SignableCommand.of(this.parseCommand(param0)), param3 -> {
+            SignedMessageBody var0x = new SignedMessageBody(param3, var0, var1, var2.lastSeen());
+            return this.signedMessageEncoder.pack(var0x);
+        });
+        this.send(new ServerboundChatCommandPacket(param0, var0, var1, var3, var2.update()));
+    }
+
+    public boolean sendUnsignedCommand(String param0) {
+        if (SignableCommand.of(this.parseCommand(param0)).arguments().isEmpty()) {
+            LastSeenMessagesTracker.Update var0 = this.lastSeenMessages.generateAndApplyUpdate();
+            this.send(new ServerboundChatCommandPacket(param0, Instant.now(), 0L, ArgumentSignatures.EMPTY, var0.update()));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private ParseResults<SharedSuggestionProvider> parseCommand(String param0) {
+        return this.commands.parse(param0, this.suggestionsProvider);
+    }
+
+    @Nullable
+    public ServerData getServerData() {
+        return this.serverData;
+    }
+
+    public FeatureFlagSet enabledFeatures() {
+        return this.enabledFeatures;
+    }
+
+    public boolean isFeatureEnabled(FeatureFlagSet param0) {
+        return param0.isSubsetOf(this.enabledFeatures());
     }
 }

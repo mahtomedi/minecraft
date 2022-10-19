@@ -30,9 +30,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +60,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -216,6 +219,31 @@ public class FriendlyByteBuf extends ByteBuf {
             param0.accept(this);
         }
 
+    }
+
+    public <E extends Enum<E>> void writeEnumSet(EnumSet<E> param0, Class<E> param1) {
+        E[] var0 = param1.getEnumConstants();
+        BitSet var1 = new BitSet(var0.length);
+
+        for(int var2 = 0; var2 < var0.length; ++var2) {
+            var1.set(var2, param0.contains(var0[var2]));
+        }
+
+        this.writeFixedBitSet(var1, var0.length);
+    }
+
+    public <E extends Enum<E>> EnumSet<E> readEnumSet(Class<E> param0) {
+        E[] var0 = param0.getEnumConstants();
+        BitSet var1 = this.readFixedBitSet(var0.length);
+        EnumSet<E> var2 = EnumSet.noneOf(param0);
+
+        for(int var3 = 0; var3 < var0.length; ++var3) {
+            if (var1.get(var3)) {
+                var2.add(var0[var3]);
+            }
+        }
+
+        return var2;
     }
 
     public <T> void writeOptional(Optional<T> param0, FriendlyByteBuf.Writer<T> param1) {
@@ -672,22 +700,46 @@ public class FriendlyByteBuf extends ByteBuf {
         this.writeLongArray(param0.toLongArray());
     }
 
+    public BitSet readFixedBitSet(int param0) {
+        byte[] var0 = new byte[Mth.positiveCeilDiv(param0, 8)];
+        this.readBytes(var0);
+        return BitSet.valueOf(var0);
+    }
+
+    public void writeFixedBitSet(BitSet param0, int param1) {
+        if (param0.length() > param1) {
+            throw new EncoderException("BitSet is larger than expected size (" + param0.length() + ">" + param1 + ")");
+        } else {
+            byte[] var0 = param0.toByteArray();
+            this.writeBytes(Arrays.copyOf(var0, Mth.positiveCeilDiv(param1, 8)));
+        }
+    }
+
     public GameProfile readGameProfile() {
         UUID var0 = this.readUUID();
         String var1 = this.readUtf(16);
         GameProfile var2 = new GameProfile(var0, var1);
-        PropertyMap var3 = var2.getProperties();
-        this.readWithCount(param1 -> {
-            Property var0x = this.readProperty();
-            var3.put(var0x.getName(), var0x);
-        });
+        var2.getProperties().putAll(this.readGameProfileProperties());
         return var2;
     }
 
     public void writeGameProfile(GameProfile param0) {
         this.writeUUID(param0.getId());
         this.writeUtf(param0.getName());
-        this.writeCollection(param0.getProperties().values(), FriendlyByteBuf::writeProperty);
+        this.writeGameProfileProperties(param0.getProperties());
+    }
+
+    public PropertyMap readGameProfileProperties() {
+        PropertyMap var0 = new PropertyMap();
+        this.readWithCount(param1 -> {
+            Property var0x = this.readProperty();
+            var0.put(var0x.getName(), var0x);
+        });
+        return var0;
+    }
+
+    public void writeGameProfileProperties(PropertyMap param0) {
+        this.writeCollection(param0.values(), FriendlyByteBuf::writeProperty);
     }
 
     public Property readProperty() {

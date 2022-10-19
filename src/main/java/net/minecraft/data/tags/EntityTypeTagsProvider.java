@@ -1,12 +1,12 @@
 package net.minecraft.data.tags;
 
 import net.minecraft.core.Registry;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 
 public class EntityTypeTagsProvider extends TagsProvider<EntityType<?>> {
-    public EntityTypeTagsProvider(DataGenerator param0) {
+    public EntityTypeTagsProvider(PackOutput param0) {
         super(param0, Registry.ENTITY_TYPE);
     }
 

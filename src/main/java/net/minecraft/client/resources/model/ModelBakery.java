@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.math.Transformation;
@@ -25,6 +26,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -40,18 +43,14 @@ import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.block.model.multipart.MultiPart;
 import net.minecraft.client.renderer.block.model.multipart.Selector;
-import net.minecraft.client.renderer.blockentity.BellRenderer;
-import net.minecraft.client.renderer.blockentity.ConduitRenderer;
-import net.minecraft.client.renderer.blockentity.EnchantTableRenderer;
-import net.minecraft.client.renderer.texture.AtlasSet;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
@@ -61,8 +60,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -72,9 +69,9 @@ public class ModelBakery {
     public static final Material LAVA_FLOW = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/lava_flow"));
     public static final Material WATER_FLOW = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/water_flow"));
     public static final Material WATER_OVERLAY = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/water_overlay"));
-    public static final Material BANNER_BASE = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/banner_base"));
-    public static final Material SHIELD_BASE = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base"));
-    public static final Material NO_PATTERN_SHIELD = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base_nopattern"));
+    public static final Material BANNER_BASE = new Material(Sheets.BANNER_SHEET, new ResourceLocation("entity/banner_base"));
+    public static final Material SHIELD_BASE = new Material(Sheets.SHIELD_SHEET, new ResourceLocation("entity/shield_base"));
+    public static final Material NO_PATTERN_SHIELD = new Material(Sheets.SHIELD_SHEET, new ResourceLocation("entity/shield_base_nopattern"));
     public static final int DESTROY_STAGE_COUNT = 10;
     public static final List<ResourceLocation> DESTROY_STAGES = IntStream.range(0, 10)
         .mapToObj(param0 -> new ResourceLocation("block/destroy_stage_" + param0))
@@ -83,35 +80,6 @@ public class ModelBakery {
         .map(param0 -> new ResourceLocation("textures/" + param0.getPath() + ".png"))
         .collect(Collectors.toList());
     public static final List<RenderType> DESTROY_TYPES = BREAKING_LOCATIONS.stream().map(RenderType::crumbling).collect(Collectors.toList());
-    private static final Set<Material> UNREFERENCED_TEXTURES = Util.make(Sets.newHashSet(), param0 -> {
-        param0.add(WATER_FLOW);
-        param0.add(LAVA_FLOW);
-        param0.add(WATER_OVERLAY);
-        param0.add(FIRE_0);
-        param0.add(FIRE_1);
-        param0.add(BellRenderer.BELL_RESOURCE_LOCATION);
-        param0.add(ConduitRenderer.SHELL_TEXTURE);
-        param0.add(ConduitRenderer.ACTIVE_SHELL_TEXTURE);
-        param0.add(ConduitRenderer.WIND_TEXTURE);
-        param0.add(ConduitRenderer.VERTICAL_WIND_TEXTURE);
-        param0.add(ConduitRenderer.OPEN_EYE_TEXTURE);
-        param0.add(ConduitRenderer.CLOSED_EYE_TEXTURE);
-        param0.add(EnchantTableRenderer.BOOK_LOCATION);
-        param0.add(BANNER_BASE);
-        param0.add(SHIELD_BASE);
-        param0.add(NO_PATTERN_SHIELD);
-
-        for(ResourceLocation var0 : DESTROY_STAGES) {
-            param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, var0));
-        }
-
-        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET));
-        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE));
-        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS));
-        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS));
-        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD));
-        Sheets.getAllMaterials(param0::add);
-    });
     static final int SINGLETON_MODEL_GROUP = -1;
     private static final int INVISIBLE_MODEL_GROUP = 0;
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -119,8 +87,9 @@ public class ModelBakery {
     private static final String BUILTIN_SLASH_GENERATED = "builtin/generated";
     private static final String BUILTIN_BLOCK_ENTITY = "builtin/entity";
     private static final String MISSING_MODEL_NAME = "missing";
-    public static final ModelResourceLocation MISSING_MODEL_LOCATION = new ModelResourceLocation("builtin/missing", "missing");
-    private static final String MISSING_MODEL_LOCATION_STRING = MISSING_MODEL_LOCATION.toString();
+    public static final ModelResourceLocation MISSING_MODEL_LOCATION = ModelResourceLocation.vanilla("builtin/missing", "missing");
+    public static final FileToIdConverter BLOCKSTATE_LISTER = FileToIdConverter.json("blockstates");
+    public static final FileToIdConverter MODEL_LISTER = FileToIdConverter.json("models");
     @VisibleForTesting
     public static final String MISSING_MODEL_MESH = ("{    'textures': {       'particle': '"
             + MissingTextureAtlasSprite.getLocation().getPath()
@@ -140,110 +109,76 @@ public class ModelBakery {
     private static final StateDefinition<Block, BlockState> ITEM_FRAME_FAKE_DEFINITION = new StateDefinition.Builder<Block, BlockState>(Blocks.AIR)
         .add(BooleanProperty.create("map"))
         .create(Block::defaultBlockState, BlockState::new);
-    private static final ItemModelGenerator ITEM_MODEL_GENERATOR = new ItemModelGenerator();
+    static final ItemModelGenerator ITEM_MODEL_GENERATOR = new ItemModelGenerator();
     private static final Map<ResourceLocation, StateDefinition<Block, BlockState>> STATIC_DEFINITIONS = ImmutableMap.of(
         new ResourceLocation("item_frame"), ITEM_FRAME_FAKE_DEFINITION, new ResourceLocation("glow_item_frame"), ITEM_FRAME_FAKE_DEFINITION
     );
-    private final ResourceManager resourceManager;
-    @Nullable
-    private AtlasSet atlasSet;
     private final BlockColors blockColors;
+    private final Map<ResourceLocation, BlockModel> modelResources;
+    private final Map<ResourceLocation, List<ModelBakery.LoadedJson>> blockStateResources;
     private final Set<ResourceLocation> loadingStack = Sets.newHashSet();
     private final BlockModelDefinition.Context context = new BlockModelDefinition.Context();
     private final Map<ResourceLocation, UnbakedModel> unbakedCache = Maps.newHashMap();
-    private final Map<Triple<ResourceLocation, Transformation, Boolean>, BakedModel> bakedCache = Maps.newHashMap();
+    final Map<ModelBakery.BakedCacheKey, BakedModel> bakedCache = Maps.newHashMap();
     private final Map<ResourceLocation, UnbakedModel> topLevelModels = Maps.newHashMap();
     private final Map<ResourceLocation, BakedModel> bakedTopLevelModels = Maps.newHashMap();
-    private final Map<ResourceLocation, Pair<TextureAtlas, TextureAtlas.Preparations>> atlasPreparations;
     private int nextModelGroup = 1;
     private final Object2IntMap<BlockState> modelGroups = Util.make(new Object2IntOpenHashMap<>(), param0x -> param0x.defaultReturnValue(-1));
 
-    public ModelBakery(ResourceManager param0, BlockColors param1, ProfilerFiller param2, int param3) {
-        this.resourceManager = param0;
-        this.blockColors = param1;
-        param2.push("missing_model");
+    public ModelBakery(
+        BlockColors param0, ProfilerFiller param1, Map<ResourceLocation, BlockModel> param2, Map<ResourceLocation, List<ModelBakery.LoadedJson>> param3
+    ) {
+        this.blockColors = param0;
+        this.modelResources = param2;
+        this.blockStateResources = param3;
+        param1.push("missing_model");
 
         try {
             this.unbakedCache.put(MISSING_MODEL_LOCATION, this.loadBlockModel(MISSING_MODEL_LOCATION));
             this.loadTopLevel(MISSING_MODEL_LOCATION);
-        } catch (IOException var12) {
-            LOGGER.error("Error loading missing model, should never happen :(", (Throwable)var12);
-            throw new RuntimeException(var12);
+        } catch (IOException var7) {
+            LOGGER.error("Error loading missing model, should never happen :(", (Throwable)var7);
+            throw new RuntimeException(var7);
         }
 
-        param2.popPush("static_definitions");
+        param1.popPush("static_definitions");
         STATIC_DEFINITIONS.forEach(
             (param0x, param1x) -> param1x.getPossibleStates().forEach(param1xx -> this.loadTopLevel(BlockModelShaper.stateToModelLocation(param0x, param1xx)))
         );
-        param2.popPush("blocks");
+        param1.popPush("blocks");
 
         for(Block var1 : Registry.BLOCK) {
             var1.getStateDefinition().getPossibleStates().forEach(param0x -> this.loadTopLevel(BlockModelShaper.stateToModelLocation(param0x)));
         }
 
-        param2.popPush("items");
+        param1.popPush("items");
 
         for(ResourceLocation var2 : Registry.ITEM.keySet()) {
             this.loadTopLevel(new ModelResourceLocation(var2, "inventory"));
         }
 
-        param2.popPush("special");
-        this.loadTopLevel(new ModelResourceLocation("minecraft:trident_in_hand#inventory"));
-        this.loadTopLevel(new ModelResourceLocation("minecraft:spyglass_in_hand#inventory"));
-        param2.popPush("textures");
-        Set<Pair<String, String>> var3 = Sets.newLinkedHashSet();
-        Set<Material> var4 = this.topLevelModels
-            .values()
-            .stream()
-            .flatMap(param1x -> param1x.getMaterials(this::getModel, var3).stream())
-            .collect(Collectors.toSet());
-        var4.addAll(UNREFERENCED_TEXTURES);
-        var3.stream()
-            .filter(param0x -> !param0x.getSecond().equals(MISSING_MODEL_LOCATION_STRING))
-            .forEach(param0x -> LOGGER.warn("Unable to resolve texture reference: {} in {}", param0x.getFirst(), param0x.getSecond()));
-        Map<ResourceLocation, List<Material>> var5 = var4.stream().collect(Collectors.groupingBy(Material::atlasLocation));
-        param2.popPush("stitching");
-        this.atlasPreparations = Maps.newHashMap();
-
-        for(Entry<ResourceLocation, List<Material>> var6 : var5.entrySet()) {
-            TextureAtlas var7 = new TextureAtlas(var6.getKey());
-            TextureAtlas.Preparations var8 = var7.prepareToStitch(this.resourceManager, var6.getValue().stream().map(Material::texture), param2, param3);
-            this.atlasPreparations.put(var6.getKey(), Pair.of(var7, var8));
-        }
-
-        param2.pop();
+        param1.popPush("special");
+        this.loadTopLevel(ItemRenderer.TRIDENT_IN_HAND_MODEL);
+        this.loadTopLevel(ItemRenderer.SPYGLASS_IN_HAND_MODEL);
+        this.topLevelModels.values().forEach(param0x -> param0x.resolveParents(this::getModel));
+        param1.pop();
     }
 
-    public AtlasSet uploadTextures(TextureManager param0, ProfilerFiller param1) {
-        param1.push("atlas");
-
-        for(Pair<TextureAtlas, TextureAtlas.Preparations> var0 : this.atlasPreparations.values()) {
-            TextureAtlas var1 = var0.getFirst();
-            TextureAtlas.Preparations var2 = var0.getSecond();
-            var1.reload(var2);
-            param0.register(var1.location(), var1);
-            param0.bindForSetup(var1.location());
-            var1.updateFilter(var2);
-        }
-
-        this.atlasSet = new AtlasSet(this.atlasPreparations.values().stream().map(Pair::getFirst).collect(Collectors.toList()));
-        param1.popPush("baking");
-        this.topLevelModels.keySet().forEach(param0x -> {
-            BakedModel var0x = null;
+    public void bakeModels(BiFunction<ResourceLocation, Material, TextureAtlasSprite> param0) {
+        this.topLevelModels.keySet().forEach(param1 -> {
+            BakedModel var0 = null;
 
             try {
-                var0x = this.bake(param0x, BlockModelRotation.X0_Y0);
-            } catch (Exception var4x) {
-                LOGGER.warn("Unable to bake model: '{}': {}", param0x, var4x);
+                var0 = new ModelBakery.ModelBakerImpl(param0, param1).bake(param1, BlockModelRotation.X0_Y0);
+            } catch (Exception var5) {
+                LOGGER.warn("Unable to bake model: '{}': {}", param1, var5);
             }
 
-            if (var0x != null) {
-                this.bakedTopLevelModels.put(param0x, var0x);
+            if (var0 != null) {
+                this.bakedTopLevelModels.put(param1, var0);
             }
 
         });
-        param1.pop();
-        return this.atlasSet;
     }
 
     private static Predicate<BlockState> predicate(StateDefinition<Block, BlockState> param0, String param1) {
@@ -326,7 +261,7 @@ public class ModelBakery {
         } else {
             ModelResourceLocation var0 = (ModelResourceLocation)param0;
             if (Objects.equals(var0.getVariant(), "inventory")) {
-                ResourceLocation var1 = new ResourceLocation(param0.getNamespace(), "item/" + param0.getPath());
+                ResourceLocation var1 = param0.withPrefix("item/");
                 BlockModel var2 = this.loadBlockModel(var1);
                 this.cacheAndQueueDependencies(var0, var2);
                 this.unbakedCache.put(var1, var2);
@@ -340,32 +275,27 @@ public class ModelBakery {
                 Map<ModelResourceLocation, BlockState> var7 = Maps.newHashMap();
                 var6.forEach(param2 -> var7.put(BlockModelShaper.stateToModelLocation(var3, param2), param2));
                 Map<BlockState, Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>>> var8 = Maps.newHashMap();
-                ResourceLocation var9 = new ResourceLocation(param0.getNamespace(), "blockstates/" + param0.getPath() + ".json");
+                ResourceLocation var9 = BLOCKSTATE_LISTER.idToFile(param0);
                 UnbakedModel var10 = this.unbakedCache.get(MISSING_MODEL_LOCATION);
                 ModelBakery.ModelGroupKey var11 = new ModelBakery.ModelGroupKey(ImmutableList.of(var10), ImmutableList.of());
                 Pair<UnbakedModel, Supplier<ModelBakery.ModelGroupKey>> var12 = Pair.of(var10, () -> var11);
 
                 try {
-                    for(Pair<String, BlockModelDefinition> var14 : this.resourceManager
-                        .getResourceStack(var9)
+                    for(Pair<String, BlockModelDefinition> var14 : this.blockStateResources
+                        .getOrDefault(var9, List.of())
                         .stream()
                         .map(
                             param1 -> {
                                 try {
-                                    Pair var4x;
-                                    try (Reader var0x = param1.openAsReader()) {
-                                        var4x = Pair.of(param1.sourcePackId(), BlockModelDefinition.fromStream(this.context, var0x));
-                                    }
-        
-                                    return var4x;
-                                } catch (Exception var8x) {
+                                    return Pair.of(param1.source, BlockModelDefinition.fromJsonElement(this.context, param1.data));
+                                } catch (Exception var4x) {
                                     throw new ModelBakery.BlockStateDefinitionException(
                                         String.format(
                                             Locale.ROOT,
                                             "Exception loading blockstate definition: '%s' in resourcepack: '%s': %s",
                                             var9,
-                                            param1.sourcePackId(),
-                                            var8x.getMessage()
+                                            param1.source,
+                                            var4x.getMessage()
                                         )
                                     );
                                 }
@@ -485,60 +415,33 @@ public class ModelBakery {
         param0.forEach(param1 -> this.modelGroups.put(param1, var0));
     }
 
-    @Nullable
-    public BakedModel bake(ResourceLocation param0, ModelState param1) {
-        Triple<ResourceLocation, Transformation, Boolean> var0 = Triple.of(param0, param1.getRotation(), param1.isUvLocked());
-        if (this.bakedCache.containsKey(var0)) {
-            return this.bakedCache.get(var0);
-        } else if (this.atlasSet == null) {
-            throw new IllegalStateException("bake called too early");
-        } else {
-            UnbakedModel var1 = this.getModel(param0);
-            if (var1 instanceof BlockModel var2 && var2.getRootModel() == GENERATION_MARKER) {
-                return ITEM_MODEL_GENERATOR.generateBlockModel(this.atlasSet::getSprite, var2)
-                    .bake(this, var2, this.atlasSet::getSprite, param1, param0, false);
-            }
-
-            BakedModel var3 = var1.bake(this, this.atlasSet::getSprite, param1, param0);
-            this.bakedCache.put(var0, var3);
-            return var3;
-        }
-    }
-
     private BlockModel loadBlockModel(ResourceLocation param0) throws IOException {
-        Reader var0 = null;
-
-        BlockModel var4;
-        try {
-            String var1 = param0.getPath();
-            if (!"builtin/generated".equals(var1)) {
-                if ("builtin/entity".equals(var1)) {
-                    return BLOCK_ENTITY_MARKER;
-                }
-
-                if (var1.startsWith("builtin/")) {
-                    String var2 = var1.substring("builtin/".length());
-                    String var3 = BUILTIN_MODELS.get(var2);
-                    if (var3 == null) {
-                        throw new FileNotFoundException(param0.toString());
-                    }
-
-                    var0 = new StringReader(var3);
-                } else {
-                    var0 = this.resourceManager.openAsReader(new ResourceLocation(param0.getNamespace(), "models/" + param0.getPath() + ".json"));
-                }
-
-                var4 = BlockModel.fromStream(var0);
+        String var0 = param0.getPath();
+        if ("builtin/generated".equals(var0)) {
+            return GENERATION_MARKER;
+        } else if ("builtin/entity".equals(var0)) {
+            return BLOCK_ENTITY_MARKER;
+        } else if (var0.startsWith("builtin/")) {
+            String var1 = var0.substring("builtin/".length());
+            String var2 = BUILTIN_MODELS.get(var1);
+            if (var2 == null) {
+                throw new FileNotFoundException(param0.toString());
+            } else {
+                Reader var3 = new StringReader(var2);
+                BlockModel var4 = BlockModel.fromStream(var3);
                 var4.name = param0.toString();
                 return var4;
             }
-
-            var4 = GENERATION_MARKER;
-        } finally {
-            IOUtils.closeQuietly(var0);
+        } else {
+            ResourceLocation var5 = MODEL_LISTER.idToFile(param0);
+            BlockModel var6 = this.modelResources.get(var5);
+            if (var6 == null) {
+                throw new FileNotFoundException(var5.toString());
+            } else {
+                var6.name = param0.toString();
+                return var6;
+            }
         }
-
-        return var4;
     }
 
     public Map<ResourceLocation, BakedModel> getBakedTopLevelModels() {
@@ -550,9 +453,51 @@ public class ModelBakery {
     }
 
     @OnlyIn(Dist.CLIENT)
+    static record BakedCacheKey(ResourceLocation id, Transformation transformation, boolean isUvLocked) {
+    }
+
+    @OnlyIn(Dist.CLIENT)
     static class BlockStateDefinitionException extends RuntimeException {
         public BlockStateDefinitionException(String param0) {
             super(param0);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static record LoadedJson(String source, JsonElement data) {
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    class ModelBakerImpl implements ModelBaker {
+        private final Function<Material, TextureAtlasSprite> modelTextureGetter;
+
+        ModelBakerImpl(BiFunction<ResourceLocation, Material, TextureAtlasSprite> param0, ResourceLocation param1) {
+            this.modelTextureGetter = param2 -> param0.apply(param1, param2);
+        }
+
+        @Override
+        public UnbakedModel getModel(ResourceLocation param0) {
+            return ModelBakery.this.getModel(param0);
+        }
+
+        @Override
+        public BakedModel bake(ResourceLocation param0, ModelState param1) {
+            ModelBakery.BakedCacheKey var0 = new ModelBakery.BakedCacheKey(param0, param1.getRotation(), param1.isUvLocked());
+            BakedModel var1 = ModelBakery.this.bakedCache.get(var0);
+            if (var1 != null) {
+                return var1;
+            } else {
+                UnbakedModel var2 = this.getModel(param0);
+                if (var2 instanceof BlockModel var3 && var3.getRootModel() == ModelBakery.GENERATION_MARKER) {
+                    return ModelBakery.ITEM_MODEL_GENERATOR
+                        .generateBlockModel(this.modelTextureGetter, var3)
+                        .bake(this, var3, this.modelTextureGetter, param1, param0, false);
+                }
+
+                BakedModel var4 = var2.bake(this, this.modelTextureGetter, param1, param0);
+                ModelBakery.this.bakedCache.put(var0, var4);
+                return var4;
+            }
         }
     }
 

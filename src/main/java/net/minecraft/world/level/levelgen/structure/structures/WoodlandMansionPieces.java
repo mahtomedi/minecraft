@@ -1318,11 +1318,13 @@ public class WoodlandMansionPieces {
                 }
 
                 for(Mob var5 : var2) {
-                    var5.setPersistenceRequired();
-                    var5.moveTo(param1, 0.0F, 0.0F);
-                    var5.finalizeSpawn(param2, param2.getCurrentDifficultyAt(var5.blockPosition()), MobSpawnType.STRUCTURE, null, null);
-                    param2.addFreshEntityWithPassengers(var5);
-                    param2.setBlock(param1, Blocks.AIR.defaultBlockState(), 2);
+                    if (var5 != null) {
+                        var5.setPersistenceRequired();
+                        var5.moveTo(param1, 0.0F, 0.0F);
+                        var5.finalizeSpawn(param2, param2.getCurrentDifficultyAt(var5.blockPosition()), MobSpawnType.STRUCTURE, null, null);
+                        param2.addFreshEntityWithPassengers(var5);
+                        param2.setBlock(param1, Blocks.AIR.defaultBlockState(), 2);
+                    }
                 }
             }
 

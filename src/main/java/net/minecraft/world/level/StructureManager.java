@@ -18,7 +18,7 @@ import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.StructureAccess;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureCheck;
 import net.minecraft.world.level.levelgen.structure.StructureCheckResult;
@@ -27,12 +27,12 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 public class StructureManager {
     private final LevelAccessor level;
-    private final WorldGenSettings worldGenSettings;
+    private final WorldOptions worldOptions;
     private final StructureCheck structureCheck;
 
-    public StructureManager(LevelAccessor param0, WorldGenSettings param1, StructureCheck param2) {
+    public StructureManager(LevelAccessor param0, WorldOptions param1, StructureCheck param2) {
         this.level = param0;
-        this.worldGenSettings = param1;
+        this.worldOptions = param1;
         this.structureCheck = param2;
     }
 
@@ -40,7 +40,7 @@ public class StructureManager {
         if (param0.getLevel() != this.level) {
             throw new IllegalStateException("Using invalid structure manager (source level: " + param0.getLevel() + ", region: " + param0);
         } else {
-            return new StructureManager(param0, this.worldGenSettings, this.structureCheck);
+            return new StructureManager(param0, this.worldOptions, this.structureCheck);
         }
     }
 
@@ -90,7 +90,7 @@ public class StructureManager {
     }
 
     public boolean shouldGenerateStructures() {
-        return this.worldGenSettings.generateStructures();
+        return this.worldOptions.generateStructures();
     }
 
     public StructureStart getStructureAt(BlockPos param0, Structure param1) {

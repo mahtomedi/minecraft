@@ -20,6 +20,7 @@ public class RenderBuffers {
         put(param0, Sheets.bedSheet());
         put(param0, Sheets.shulkerBoxSheet());
         put(param0, Sheets.signSheet());
+        put(param0, Sheets.hangingSignSheet());
         put(param0, Sheets.chestSheet());
         put(param0, RenderType.translucentNoCrumbling());
         put(param0, RenderType.armorGlint());

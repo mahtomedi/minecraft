@@ -8,52 +8,44 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.OutgoingPlayerChatMessage;
+import net.minecraft.network.chat.OutgoingChatMessage;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.entity.Entity;
 
 public class MsgCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         LiteralCommandNode<CommandSourceStack> var0 = param0.register(
             Commands.literal("msg")
                 .then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("message", MessageArgument.message()).executes(param0x -> {
-                    MessageArgument.ChatMessage var0x = MessageArgument.getChatMessage(param0x, "message");
-        
-                    try {
-                        return sendMessage(param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), var0x);
-                    } catch (Exception var3) {
-                        var0x.consume(param0x.getSource());
-                        throw var3;
+                    Collection<ServerPlayer> var0x = EntityArgument.getPlayers(param0x, "targets");
+                    if (!var0x.isEmpty()) {
+                        MessageArgument.resolveChatMessage(param0x, "message", param2 -> sendMessage(param0x.getSource(), var0x, param2));
                     }
+        
+                    return var0x.size();
                 })))
         );
         param0.register(Commands.literal("tell").redirect(var0));
         param0.register(Commands.literal("w").redirect(var0));
     }
 
-    private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, MessageArgument.ChatMessage param2) {
+    private static void sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, PlayerChatMessage param2) {
         ChatType.Bound var0 = ChatType.bind(ChatType.MSG_COMMAND_INCOMING, param0);
-        param2.resolve(param0, param3 -> {
-            OutgoingPlayerChatMessage var0x = OutgoingPlayerChatMessage.create(param3);
-            boolean var1x = param3.isFullyFiltered();
-            Entity var2x = param0.getEntity();
-            boolean var3x = false;
+        OutgoingChatMessage var1 = OutgoingChatMessage.create(param2);
+        boolean var2 = false;
 
-            for(ServerPlayer var4 : param1) {
-                ChatType.Bound var5 = ChatType.bind(ChatType.MSG_COMMAND_OUTGOING, param0).withTargetName(var4.getDisplayName());
-                param0.sendChatMessage(var0x, false, var5);
-                boolean var6 = param0.shouldFilterMessageTo(var4);
-                var4.sendChatMessage(var0x, var6, var0);
-                var3x |= var1x && var6 && var4 != var2x;
-            }
+        for(ServerPlayer var3 : param1) {
+            ChatType.Bound var4 = ChatType.bind(ChatType.MSG_COMMAND_OUTGOING, param0).withTargetName(var3.getDisplayName());
+            param0.sendChatMessage(var1, false, var4);
+            boolean var5 = param0.shouldFilterMessageTo(var3);
+            var3.sendChatMessage(var1, var5, var0);
+            var2 |= var5 && param2.isFullyFiltered();
+        }
 
-            if (var3x) {
-                param0.sendSystemMessage(PlayerList.CHAT_FILTERED_FULL);
-            }
+        if (var2) {
+            param0.sendSystemMessage(PlayerList.CHAT_FILTERED_FULL);
+        }
 
-            var0x.sendHeadersToRemainingPlayers(param0.getServer().getPlayerList());
-        });
-        return param1.size();
     }
 }

@@ -86,7 +86,7 @@ public class TrueTypeGlyphProviderBuilder implements GlyphProviderBuilder {
 
         try {
             TrueTypeGlyphProvider var5;
-            try (InputStream var2 = param0.open(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
+            try (InputStream var2 = param0.open(this.location.withPrefix("font/"))) {
                 LOGGER.debug("Loading font {}", this.location);
                 var0 = STBTTFontinfo.malloc();
                 var1 = TextureUtil.readResource(var2);

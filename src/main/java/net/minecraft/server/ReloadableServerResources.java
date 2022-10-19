@@ -18,6 +18,7 @@ import net.minecraft.server.packs.resources.SimpleReloadInstance;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagManager;
 import net.minecraft.util.Unit;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.ItemModifierManager;
@@ -38,12 +39,12 @@ public class ReloadableServerResources {
     private final ServerAdvancementManager advancements = new ServerAdvancementManager(this.predicateManager);
     private final ServerFunctionLibrary functionLibrary;
 
-    public ReloadableServerResources(RegistryAccess.Frozen param0, Commands.CommandSelection param1, int param2) {
+    public ReloadableServerResources(RegistryAccess.Frozen param0, FeatureFlagSet param1, Commands.CommandSelection param2, int param3) {
         this.tagManager = new TagManager(param0);
-        this.commandBuildContext = new CommandBuildContext(param0);
-        this.commands = new Commands(param1, this.commandBuildContext);
+        this.commandBuildContext = new CommandBuildContext(param0, param1);
+        this.commands = new Commands(param2, this.commandBuildContext);
         this.commandBuildContext.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.CREATE_NEW);
-        this.functionLibrary = new ServerFunctionLibrary(param2, this.commands.getDispatcher());
+        this.functionLibrary = new ServerFunctionLibrary(param3, this.commands.getDispatcher());
     }
 
     public ServerFunctionLibrary getFunctionLibrary() {
@@ -79,10 +80,16 @@ public class ReloadableServerResources {
     }
 
     public static CompletableFuture<ReloadableServerResources> loadResources(
-        ResourceManager param0, RegistryAccess.Frozen param1, Commands.CommandSelection param2, int param3, Executor param4, Executor param5
+        ResourceManager param0,
+        RegistryAccess.Frozen param1,
+        FeatureFlagSet param2,
+        Commands.CommandSelection param3,
+        int param4,
+        Executor param5,
+        Executor param6
     ) {
-        ReloadableServerResources var0 = new ReloadableServerResources(param1, param2, param3);
-        return SimpleReloadInstance.create(param0, var0.listeners(), param4, param5, DATA_RELOAD_INITIAL_TASK, LOGGER.isDebugEnabled())
+        ReloadableServerResources var0 = new ReloadableServerResources(param1, param2, param3, param4);
+        return SimpleReloadInstance.create(param0, var0.listeners(), param5, param6, DATA_RELOAD_INITIAL_TASK, LOGGER.isDebugEnabled())
             .done()
             .whenComplete((param1x, param2x) -> var0.commandBuildContext.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.FAIL))
             .thenApply(param1x -> var0);

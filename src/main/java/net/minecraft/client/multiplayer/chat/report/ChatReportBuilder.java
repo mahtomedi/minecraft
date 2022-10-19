@@ -1,51 +1,28 @@
 package net.minecraft.client.multiplayer.chat.report;
 
+import com.google.common.collect.Lists;
 import com.mojang.authlib.minecraft.report.AbuseReport;
 import com.mojang.authlib.minecraft.report.AbuseReportLimits;
 import com.mojang.authlib.minecraft.report.ReportChatMessage;
-import com.mojang.authlib.minecraft.report.ReportChatMessageBody;
-import com.mojang.authlib.minecraft.report.ReportChatMessageContent;
-import com.mojang.authlib.minecraft.report.ReportChatMessageHeader;
 import com.mojang.authlib.minecraft.report.ReportEvidence;
 import com.mojang.authlib.minecraft.report.ReportedEntity;
-import com.mojang.authlib.minecraft.report.ReportChatMessageBody.LastSeenSignature;
 import com.mojang.datafixers.util.Either;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue;
-import it.unimi.dsi.fastutil.ints.IntCollection;
-import it.unimi.dsi.fastutil.ints.IntComparators;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntPriorityQueue;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.multiplayer.chat.ChatLog;
-import net.minecraft.client.multiplayer.chat.LoggedChatEvent;
 import net.minecraft.client.multiplayer.chat.LoggedChatMessage;
-import net.minecraft.client.multiplayer.chat.LoggedChatMessageLink;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.SignedMessageBody;
+import net.minecraft.network.chat.SignedMessageLink;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -136,153 +113,18 @@ public class ChatReportBuilder {
     }
 
     private ReportEvidence buildEvidence(ChatLog param0) {
-        Int2ObjectSortedMap<ReportChatMessage> var0 = new Int2ObjectRBTreeMap<>();
-        this.reportedMessages.forEach(param2 -> {
-            Int2ObjectMap<LoggedChatMessage.Player> var0x = collectReferencedContext(param0, param2, this.limits);
-            Set<UUID> var1x = new ObjectOpenHashSet();
-
-            for(Entry<LoggedChatMessage.Player> var2 : Int2ObjectMaps.fastIterable(var0x)) {
-                int var3 = var2.getIntKey();
-                LoggedChatMessage.Player var4 = var2.getValue();
-                var0.put(var3, this.buildReportedChatMessage(var3, var4));
-                var1x.add(var4.profileId());
-            }
-
-            for(UUID var5 : var1x) {
-                this.chainForPlayer(param0, var0x, var5).forEach(param1x -> {
-                    LoggedChatMessageLink var0xx = param1x.event();
-                    if (var0xx instanceof LoggedChatMessage.Player var1xx) {
-                        var0.putIfAbsent(param1x.id(), this.buildReportedChatMessage(param1x.id(), var1xx));
-                    } else {
-                        var0.putIfAbsent(param1x.id(), this.buildReportedChatHeader(var0xx));
-                    }
-
-                });
-            }
-
-        });
-        return new ReportEvidence(new ArrayList<>(var0.values()));
+        List<ReportChatMessage> var0 = new ArrayList<>();
+        ChatReportContextBuilder var1 = new ChatReportContextBuilder(this.limits.leadingContextMessageCount());
+        var1.collectAllContext(param0, this.reportedMessages, (param1, param2) -> var0.add(this.buildReportedChatMessage(param2, this.isReported(param1))));
+        return new ReportEvidence(Lists.reverse(var0));
     }
 
-    private Stream<ChatLog.Entry<LoggedChatMessageLink>> chainForPlayer(ChatLog param0, Int2ObjectMap<LoggedChatMessage.Player> param1, UUID param2) {
-        int var0 = Integer.MAX_VALUE;
-        int var1 = Integer.MIN_VALUE;
-
-        for(Entry<LoggedChatMessage.Player> var2 : Int2ObjectMaps.fastIterable(param1)) {
-            LoggedChatMessage.Player var3 = var2.getValue();
-            if (var3.profileId().equals(param2)) {
-                int var4 = var2.getIntKey();
-                var0 = Math.min(var0, var4);
-                var1 = Math.max(var1, var4);
-            }
-        }
-
-        return param0.selectBetween(var0, var1)
-            .entries()
-            .map(param0x -> param0x.tryCast(LoggedChatMessageLink.class))
-            .filter(Objects::nonNull)
-            .filter(param1x -> param1x.event().header().sender().equals(param2));
-    }
-
-    private static Int2ObjectMap<LoggedChatMessage.Player> collectReferencedContext(ChatLog param0, int param1, AbuseReportLimits param2) {
-        int var0 = param2.leadingContextMessageCount() + 1;
-        Int2ObjectMap<LoggedChatMessage.Player> var1 = new Int2ObjectOpenHashMap<>();
-        walkMessageReferenceGraph(param0, param1, (param2x, param3) -> {
-            var1.put(param2x, param3);
-            return var1.size() < var0;
-        });
-        trailingContext(param0, param1, param2.trailingContextMessageCount()).forEach(param1x -> var1.put(param1x.id(), param1x.event()));
-        return var1;
-    }
-
-    private static Stream<ChatLog.Entry<LoggedChatMessage.Player>> trailingContext(ChatLog param0, int param1, int param2) {
-        return param0.selectAfter(param0.after(param1))
-            .entries()
-            .map(param0x -> param0x.tryCast(LoggedChatMessage.Player.class))
-            .filter(Objects::nonNull)
-            .limit((long)param2);
-    }
-
-    private static void walkMessageReferenceGraph(ChatLog param0, int param1, ChatReportBuilder.ReferencedMessageVisitor param2) {
-        IntPriorityQueue var0 = new IntArrayPriorityQueue(IntComparators.OPPOSITE_COMPARATOR);
-        var0.enqueue(param1);
-        IntSet var1 = new IntOpenHashSet();
-        var1.add(param1);
-
-        while(!var0.isEmpty()) {
-            int var2 = var0.dequeueInt();
-            LoggedChatEvent var7 = param0.lookup(var2);
-            if (var7 instanceof LoggedChatMessage.Player var3) {
-                if (!param2.accept(var2, var3)) {
-                    break;
-                }
-
-                for(int var4 : messageReferences(param0, var2, var3.message())) {
-                    if (var1.add(var4)) {
-                        var0.enqueue(var4);
-                    }
-                }
-            }
-        }
-
-    }
-
-    private static IntCollection messageReferences(ChatLog param0, int param1, PlayerChatMessage param2) {
-        Set<MessageSignature> var0 = param2.signedBody()
-            .lastSeen()
-            .entries()
-            .stream()
-            .map(LastSeenMessages.Entry::lastSignature)
-            .collect(Collectors.toCollection(ObjectOpenHashSet::new));
-        MessageSignature var1 = param2.signedHeader().previousSignature();
-        if (var1 != null) {
-            var0.add(var1);
-        }
-
-        IntList var2 = new IntArrayList();
-        Iterator<ChatLog.Entry<LoggedChatEvent>> var3 = param0.selectBefore(param1).entries().iterator();
-
-        while(var3.hasNext() && !var0.isEmpty()) {
-            ChatLog.Entry<LoggedChatEvent> var4 = var3.next();
-            LoggedChatEvent var9 = var4.event();
-            if (var9 instanceof LoggedChatMessage.Player var5 && var0.remove(var5.headerSignature())) {
-                var2.add(var4.id());
-            }
-        }
-
-        return var2;
-    }
-
-    private ReportChatMessage buildReportedChatMessage(int param0, LoggedChatMessage.Player param1) {
-        PlayerChatMessage var0 = param1.message();
-        SignedMessageBody var1 = var0.signedBody();
-        Instant var2 = var0.timeStamp();
-        long var3 = var0.salt();
-        ByteBuffer var4 = var0.headerSignature().asByteBuffer();
-        ByteBuffer var5 = Util.mapNullable(var0.signedHeader().previousSignature(), MessageSignature::asByteBuffer);
-        ByteBuffer var6 = ByteBuffer.wrap(var1.hash().asBytes());
-        ReportChatMessageContent var7 = new ReportChatMessageContent(
-            var0.signedContent().plain(), var0.signedContent().isDecorated() ? encodeComponent(var0.signedContent().decorated()) : null
-        );
-        String var8 = var0.unsignedContent().map(ChatReportBuilder::encodeComponent).orElse(null);
-        List<LastSeenSignature> var9 = var1.lastSeen()
-            .entries()
-            .stream()
-            .map(param0x -> new LastSeenSignature(param0x.profileId(), param0x.lastSignature().asByteBuffer()))
-            .toList();
-        return new ReportChatMessage(
-            new ReportChatMessageHeader(var5, param1.profileId(), var6, var4), new ReportChatMessageBody(var2, var3, var9, var7), var8, this.isReported(param0)
-        );
-    }
-
-    private ReportChatMessage buildReportedChatHeader(LoggedChatMessageLink param0) {
-        ByteBuffer var0 = param0.headerSignature().asByteBuffer();
-        ByteBuffer var1 = Util.mapNullable(param0.header().previousSignature(), MessageSignature::asByteBuffer);
-        return new ReportChatMessage(new ReportChatMessageHeader(var1, param0.header().sender(), ByteBuffer.wrap(param0.bodyDigest()), var0), null, null, false);
-    }
-
-    private static String encodeComponent(Component param0x) {
-        return Component.Serializer.toStableJson(param0x);
+    private ReportChatMessage buildReportedChatMessage(LoggedChatMessage.Player param0, boolean param1) {
+        SignedMessageLink var0 = param0.message().link();
+        SignedMessageBody var1 = param0.message().signedBody();
+        List<ByteBuffer> var2 = var1.lastSeen().entries().stream().map(MessageSignature::asByteBuffer).toList();
+        ByteBuffer var3 = Util.mapNullable(param0.message().signature(), MessageSignature::asByteBuffer);
+        return new ReportChatMessage(var0.index(), var0.sender(), var0.sessionId(), var1.timeStamp(), var1.salt(), var2, var1.content(), var3, param1);
     }
 
     public ChatReportBuilder copy() {
@@ -307,11 +149,6 @@ public class ChatReportBuilder {
         public static final ChatReportBuilder.CannotBuildReason COMMENTS_TOO_LONG = new ChatReportBuilder.CannotBuildReason(
             Component.translatable("gui.chatReport.send.comments_too_long")
         );
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    interface ReferencedMessageVisitor {
-        boolean accept(int var1, LoggedChatMessage.Player var2);
     }
 
     @OnlyIn(Dist.CLIENT)

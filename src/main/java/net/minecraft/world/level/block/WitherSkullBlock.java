@@ -49,39 +49,28 @@ public class WitherSkullBlock extends SkullBlock {
             BlockState var0 = param2.getBlockState();
             boolean var1 = var0.is(Blocks.WITHER_SKELETON_SKULL) || var0.is(Blocks.WITHER_SKELETON_WALL_SKULL);
             if (var1 && param1.getY() >= param0.getMinBuildHeight() && param0.getDifficulty() != Difficulty.PEACEFUL) {
-                BlockPattern var2 = getOrCreateWitherFull();
-                BlockPattern.BlockPatternMatch var3 = var2.find(param0, param1);
-                if (var3 != null) {
-                    for(int var4 = 0; var4 < var2.getWidth(); ++var4) {
-                        for(int var5 = 0; var5 < var2.getHeight(); ++var5) {
-                            BlockInWorld var6 = var3.getBlock(var4, var5, 0);
-                            param0.setBlock(var6.getPos(), Blocks.AIR.defaultBlockState(), 2);
-                            param0.levelEvent(2001, var6.getPos(), Block.getId(var6.getState()));
+                BlockPattern.BlockPatternMatch var2 = getOrCreateWitherFull().find(param0, param1);
+                if (var2 != null) {
+                    WitherBoss var3 = EntityType.WITHER.create(param0);
+                    if (var3 != null) {
+                        CarvedPumpkinBlock.clearPatternBlocks(param0, var2);
+                        BlockPos var4 = var2.getBlock(1, 2, 0).getPos();
+                        var3.moveTo(
+                            (double)var4.getX() + 0.5,
+                            (double)var4.getY() + 0.55,
+                            (double)var4.getZ() + 0.5,
+                            var2.getForwards().getAxis() == Direction.Axis.X ? 0.0F : 90.0F,
+                            0.0F
+                        );
+                        var3.yBodyRot = var2.getForwards().getAxis() == Direction.Axis.X ? 0.0F : 90.0F;
+                        var3.makeInvulnerable();
+
+                        for(ServerPlayer var5 : param0.getEntitiesOfClass(ServerPlayer.class, var3.getBoundingBox().inflate(50.0))) {
+                            CriteriaTriggers.SUMMONED_ENTITY.trigger(var5, var3);
                         }
-                    }
 
-                    WitherBoss var7 = EntityType.WITHER.create(param0);
-                    BlockPos var8 = var3.getBlock(1, 2, 0).getPos();
-                    var7.moveTo(
-                        (double)var8.getX() + 0.5,
-                        (double)var8.getY() + 0.55,
-                        (double)var8.getZ() + 0.5,
-                        var3.getForwards().getAxis() == Direction.Axis.X ? 0.0F : 90.0F,
-                        0.0F
-                    );
-                    var7.yBodyRot = var3.getForwards().getAxis() == Direction.Axis.X ? 0.0F : 90.0F;
-                    var7.makeInvulnerable();
-
-                    for(ServerPlayer var9 : param0.getEntitiesOfClass(ServerPlayer.class, var7.getBoundingBox().inflate(50.0))) {
-                        CriteriaTriggers.SUMMONED_ENTITY.trigger(var9, var7);
-                    }
-
-                    param0.addFreshEntity(var7);
-
-                    for(int var10 = 0; var10 < var2.getWidth(); ++var10) {
-                        for(int var11 = 0; var11 < var2.getHeight(); ++var11) {
-                            param0.blockUpdated(var3.getBlock(var10, var11, 0).getPos(), Blocks.AIR);
-                        }
+                        param0.addFreshEntity(var3);
+                        CarvedPumpkinBlock.updatePatternBlocks(param0, var2);
                     }
 
                 }

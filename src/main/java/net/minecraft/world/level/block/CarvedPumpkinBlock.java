@@ -6,6 +6,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.SnowGolem;
@@ -56,52 +57,51 @@ public class CarvedPumpkinBlock extends HorizontalDirectionalBlock implements We
     private void trySpawnGolem(Level param0, BlockPos param1) {
         BlockPattern.BlockPatternMatch var0 = this.getOrCreateSnowGolemFull().find(param0, param1);
         if (var0 != null) {
-            for(int var1 = 0; var1 < this.getOrCreateSnowGolemFull().getHeight(); ++var1) {
-                BlockInWorld var2 = var0.getBlock(0, var1, 0);
+            SnowGolem var1 = EntityType.SNOW_GOLEM.create(param0);
+            if (var1 != null) {
+                spawnGolemInWorld(param0, var0, var1, var0.getBlock(0, 2, 0).getPos());
+            }
+        } else {
+            BlockPattern.BlockPatternMatch var2 = this.getOrCreateIronGolemFull().find(param0, param1);
+            if (var2 != null) {
+                IronGolem var3 = EntityType.IRON_GOLEM.create(param0);
+                if (var3 != null) {
+                    var3.setPlayerCreated(true);
+                    spawnGolemInWorld(param0, var2, var3, var2.getBlock(1, 2, 0).getPos());
+                }
+            }
+        }
+
+    }
+
+    private static void spawnGolemInWorld(Level param0, BlockPattern.BlockPatternMatch param1, Entity param2, BlockPos param3) {
+        clearPatternBlocks(param0, param1);
+        param2.moveTo((double)param3.getX() + 0.5, (double)param3.getY() + 0.05, (double)param3.getZ() + 0.5, 0.0F, 0.0F);
+        param0.addFreshEntity(param2);
+
+        for(ServerPlayer var0 : param0.getEntitiesOfClass(ServerPlayer.class, param2.getBoundingBox().inflate(5.0))) {
+            CriteriaTriggers.SUMMONED_ENTITY.trigger(var0, param2);
+        }
+
+        updatePatternBlocks(param0, param1);
+    }
+
+    public static void clearPatternBlocks(Level param0, BlockPattern.BlockPatternMatch param1) {
+        for(int var0 = 0; var0 < param1.getWidth(); ++var0) {
+            for(int var1 = 0; var1 < param1.getHeight(); ++var1) {
+                BlockInWorld var2 = param1.getBlock(var0, var1, 0);
                 param0.setBlock(var2.getPos(), Blocks.AIR.defaultBlockState(), 2);
                 param0.levelEvent(2001, var2.getPos(), Block.getId(var2.getState()));
             }
+        }
 
-            SnowGolem var3 = EntityType.SNOW_GOLEM.create(param0);
-            BlockPos var4 = var0.getBlock(0, 2, 0).getPos();
-            var3.moveTo((double)var4.getX() + 0.5, (double)var4.getY() + 0.05, (double)var4.getZ() + 0.5, 0.0F, 0.0F);
-            param0.addFreshEntity(var3);
+    }
 
-            for(ServerPlayer var5 : param0.getEntitiesOfClass(ServerPlayer.class, var3.getBoundingBox().inflate(5.0))) {
-                CriteriaTriggers.SUMMONED_ENTITY.trigger(var5, var3);
-            }
-
-            for(int var6 = 0; var6 < this.getOrCreateSnowGolemFull().getHeight(); ++var6) {
-                BlockInWorld var7 = var0.getBlock(0, var6, 0);
-                param0.blockUpdated(var7.getPos(), Blocks.AIR);
-            }
-        } else {
-            var0 = this.getOrCreateIronGolemFull().find(param0, param1);
-            if (var0 != null) {
-                for(int var8 = 0; var8 < this.getOrCreateIronGolemFull().getWidth(); ++var8) {
-                    for(int var9 = 0; var9 < this.getOrCreateIronGolemFull().getHeight(); ++var9) {
-                        BlockInWorld var10 = var0.getBlock(var8, var9, 0);
-                        param0.setBlock(var10.getPos(), Blocks.AIR.defaultBlockState(), 2);
-                        param0.levelEvent(2001, var10.getPos(), Block.getId(var10.getState()));
-                    }
-                }
-
-                BlockPos var11 = var0.getBlock(1, 2, 0).getPos();
-                IronGolem var12 = EntityType.IRON_GOLEM.create(param0);
-                var12.setPlayerCreated(true);
-                var12.moveTo((double)var11.getX() + 0.5, (double)var11.getY() + 0.05, (double)var11.getZ() + 0.5, 0.0F, 0.0F);
-                param0.addFreshEntity(var12);
-
-                for(ServerPlayer var13 : param0.getEntitiesOfClass(ServerPlayer.class, var12.getBoundingBox().inflate(5.0))) {
-                    CriteriaTriggers.SUMMONED_ENTITY.trigger(var13, var12);
-                }
-
-                for(int var14 = 0; var14 < this.getOrCreateIronGolemFull().getWidth(); ++var14) {
-                    for(int var15 = 0; var15 < this.getOrCreateIronGolemFull().getHeight(); ++var15) {
-                        BlockInWorld var16 = var0.getBlock(var14, var15, 0);
-                        param0.blockUpdated(var16.getPos(), Blocks.AIR);
-                    }
-                }
+    public static void updatePatternBlocks(Level param0, BlockPattern.BlockPatternMatch param1) {
+        for(int var0 = 0; var0 < param1.getWidth(); ++var0) {
+            for(int var1 = 0; var1 < param1.getHeight(); ++var1) {
+                BlockInWorld var2 = param1.getBlock(var0, var1, 0);
+                param0.blockUpdated(var2.getPos(), Blocks.AIR);
             }
         }
 

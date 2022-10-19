@@ -93,10 +93,12 @@ public class SwampHutPiece extends ScatteredFeaturePiece {
                 if (param4.isInside(var6)) {
                     this.spawnedWitch = true;
                     Witch var7 = EntityType.WITCH.create(param0.getLevel());
-                    var7.setPersistenceRequired();
-                    var7.moveTo((double)var6.getX() + 0.5, (double)var6.getY(), (double)var6.getZ() + 0.5, 0.0F, 0.0F);
-                    var7.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var6), MobSpawnType.STRUCTURE, null, null);
-                    param0.addFreshEntityWithPassengers(var7);
+                    if (var7 != null) {
+                        var7.setPersistenceRequired();
+                        var7.moveTo((double)var6.getX() + 0.5, (double)var6.getY(), (double)var6.getZ() + 0.5, 0.0F, 0.0F);
+                        var7.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var6), MobSpawnType.STRUCTURE, null, null);
+                        param0.addFreshEntityWithPassengers(var7);
+                    }
                 }
             }
 
@@ -110,10 +112,12 @@ public class SwampHutPiece extends ScatteredFeaturePiece {
             if (param1.isInside(var0)) {
                 this.spawnedCat = true;
                 Cat var1 = EntityType.CAT.create(param0.getLevel());
-                var1.setPersistenceRequired();
-                var1.moveTo((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5, 0.0F, 0.0F);
-                var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0), MobSpawnType.STRUCTURE, null, null);
-                param0.addFreshEntityWithPassengers(var1);
+                if (var1 != null) {
+                    var1.setPersistenceRequired();
+                    var1.moveTo((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5, 0.0F, 0.0F);
+                    var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0), MobSpawnType.STRUCTURE, null, null);
+                    param0.addFreshEntityWithPassengers(var1);
+                }
             }
         }
 

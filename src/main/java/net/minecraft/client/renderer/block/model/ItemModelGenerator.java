@@ -7,6 +7,7 @@ import com.mojang.math.Vector3f;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
@@ -31,7 +32,7 @@ public class ItemModelGenerator {
 
             Material var4 = param1.getMaterial(var3);
             var0.put(var3, Either.left(var4));
-            TextureAtlasSprite var5 = param0.apply(var4);
+            SpriteContents var5 = param0.apply(var4).contents();
             var1.addAll(this.processFrames(var2, var3, var5));
         }
 
@@ -41,7 +42,7 @@ public class ItemModelGenerator {
         return var6;
     }
 
-    private List<BlockElement> processFrames(int param0, String param1, TextureAtlasSprite param2) {
+    private List<BlockElement> processFrames(int param0, String param1, SpriteContents param2) {
         Map<Direction, BlockElementFace> var0 = Maps.newHashMap();
         var0.put(Direction.SOUTH, new BlockElementFace(null, param0, param1, new BlockFaceUV(new float[]{0.0F, 0.0F, 16.0F, 16.0F}, 0)));
         var0.put(Direction.NORTH, new BlockElementFace(null, param0, param1, new BlockFaceUV(new float[]{16.0F, 0.0F, 0.0F, 16.0F}, 0)));
@@ -51,9 +52,9 @@ public class ItemModelGenerator {
         return var1;
     }
 
-    private List<BlockElement> createSideElements(TextureAtlasSprite param0, String param1, int param2) {
-        float var0 = (float)param0.getWidth();
-        float var1 = (float)param0.getHeight();
+    private List<BlockElement> createSideElements(SpriteContents param0, String param1, int param2) {
+        float var0 = (float)param0.width();
+        float var1 = (float)param0.height();
         List<BlockElement> var2 = Lists.newArrayList();
 
         for(ItemModelGenerator.Span var3 : this.getSpans(param0)) {
@@ -139,9 +140,9 @@ public class ItemModelGenerator {
         return var2;
     }
 
-    private List<ItemModelGenerator.Span> getSpans(TextureAtlasSprite param0) {
-        int var0 = param0.getWidth();
-        int var1 = param0.getHeight();
+    private List<ItemModelGenerator.Span> getSpans(SpriteContents param0) {
+        int var0 = param0.width();
+        int var1 = param0.height();
         List<ItemModelGenerator.Span> var2 = Lists.newArrayList();
         param0.getUniqueFrames().forEach(param4 -> {
             for(int var0x = 0; var0x < var1; ++var0x) {
@@ -161,7 +162,7 @@ public class ItemModelGenerator {
     private void checkTransition(
         ItemModelGenerator.SpanFacing param0,
         List<ItemModelGenerator.Span> param1,
-        TextureAtlasSprite param2,
+        SpriteContents param2,
         int param3,
         int param4,
         int param5,
@@ -199,7 +200,7 @@ public class ItemModelGenerator {
 
     }
 
-    private boolean isTransparent(TextureAtlasSprite param0, int param1, int param2, int param3, int param4, int param5) {
+    private boolean isTransparent(SpriteContents param0, int param1, int param2, int param3, int param4, int param5) {
         return param2 >= 0 && param3 >= 0 && param2 < param4 && param3 < param5 ? param0.isTransparent(param1, param2, param3) : true;
     }
 

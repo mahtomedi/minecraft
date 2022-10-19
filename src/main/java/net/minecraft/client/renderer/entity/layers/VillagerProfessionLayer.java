@@ -75,7 +75,7 @@ public class VillagerProfessionLayer<T extends LivingEntity & VillagerDataHolder
     }
 
     private ResourceLocation getResourceLocation(String param0, ResourceLocation param1) {
-        return new ResourceLocation(param1.getNamespace(), "textures/entity/" + this.path + "/" + param0 + "/" + param1.getPath() + ".png");
+        return param1.withPath(param1x -> "textures/entity/" + this.path + "/" + param0 + "/" + param1x + ".png");
     }
 
     public <K> VillagerMetaDataSection.Hat getHatData(

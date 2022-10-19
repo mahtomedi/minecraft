@@ -3,6 +3,7 @@ package net.minecraft.world.level;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Abilities;
+import org.jetbrains.annotations.Contract;
 
 public enum GameType {
     SURVIVAL(0, "survival"),
@@ -90,7 +91,9 @@ public enum GameType {
         return byName(param0, SURVIVAL);
     }
 
-    public static GameType byName(String param0, GameType param1) {
+    @Nullable
+    @Contract("_,!null->!null;_,null->_")
+    public static GameType byName(String param0, @Nullable GameType param1) {
         for(GameType var0 : values()) {
             if (var0.name.equals(param0)) {
                 return var0;

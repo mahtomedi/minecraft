@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,12 +14,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.multiplayer.chat.ChatLog;
+import net.minecraft.client.multiplayer.chat.LoggedChatEvent;
+import net.minecraft.client.multiplayer.chat.LoggedChatMessage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -62,16 +67,15 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
         for(UUID var1 : param0) {
             PlayerInfo var2 = var0.getPlayerInfo(var1);
             if (var2 != null) {
-                UUID var3 = var2.getProfile().getId();
-                boolean var4 = var2.getProfilePublicKey() != null;
-                param1.put(var3, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var3, var2.getProfile().getName(), var2::getSkinLocation, var4));
+                boolean var3 = var2.hasVerifiableChat();
+                param1.put(var1, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var1, var2.getProfile().getName(), var2::getSkinLocation, var3));
             }
         }
 
     }
 
     private void updatePlayersFromChatLog(Map<UUID, PlayerEntry> param0, boolean param1) {
-        Collection<GameProfile> var0 = this.minecraft.getReportingContext().chatLog().selectAllDescending().reportableGameProfiles();
+        Collection<GameProfile> var0 = collectProfilesFromChatLog(this.minecraft.getReportingContext().chatLog());
         Iterator var4 = var0.iterator();
 
         while(true) {
@@ -106,6 +110,19 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
 
             var2.setHasRecentMessages(true);
         }
+    }
+
+    private static Collection<GameProfile> collectProfilesFromChatLog(ChatLog param0) {
+        Set<GameProfile> var0 = new ObjectLinkedOpenHashSet<>();
+
+        for(int var1 = param0.end(); var1 >= param0.start(); --var1) {
+            LoggedChatEvent var2 = param0.lookup(var1);
+            if (var2 instanceof LoggedChatMessage.Player var3 && var3.message().hasSignature()) {
+                var0.add(var3.profile());
+            }
+        }
+
+        return var0;
     }
 
     private void sortPlayerEntries() {
@@ -166,7 +183,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
 
         if ((param1 == SocialInteractionsScreen.Page.ALL || this.minecraft.getPlayerSocialManager().shouldHideMessageFrom(var0))
             && (Strings.isNullOrEmpty(this.filter) || param0.getProfile().getName().toLowerCase(Locale.ROOT).contains(this.filter))) {
-            boolean var2 = param0.getProfilePublicKey() != null;
+            boolean var2 = param0.hasVerifiableChat();
             PlayerEntry var3 = new PlayerEntry(
                 this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkinLocation, var2
             );

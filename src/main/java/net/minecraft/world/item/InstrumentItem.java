@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -16,6 +15,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -26,7 +26,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 
 public class InstrumentItem extends Item {
     private static final String TAG_INSTRUMENT = "instrument";
-    private TagKey<Instrument> instruments;
+    private final TagKey<Instrument> instruments;
 
     public InstrumentItem(Item.Properties param0, TagKey<Instrument> param1) {
         super(param0);
@@ -52,10 +52,7 @@ public class InstrumentItem extends Item {
 
     public static void setRandom(ItemStack param0, TagKey<Instrument> param1, RandomSource param2) {
         Optional<Holder<Instrument>> var0 = Registry.INSTRUMENT.getTag(param1).flatMap(param1x -> param1x.getRandomElement(param2));
-        if (var0.isPresent()) {
-            setSoundVariantId(param0, var0.get());
-        }
-
+        var0.ifPresent(param1x -> setSoundVariantId(param0, param1x));
     }
 
     private static void setSoundVariantId(ItemStack param0, Holder<Instrument> param1) {
@@ -64,24 +61,15 @@ public class InstrumentItem extends Item {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab param0, NonNullList<ItemStack> param1) {
-        if (this.allowedIn(param0)) {
-            for(Holder<Instrument> var0 : Registry.INSTRUMENT.getTagOrEmpty(this.instruments)) {
-                param1.add(create(Items.GOAT_HORN, var0));
-            }
-        }
-
-    }
-
-    @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        Optional<Holder<Instrument>> var1 = this.getInstrument(var0);
+        Optional<? extends Holder<Instrument>> var1 = this.getInstrument(var0);
         if (var1.isPresent()) {
             Instrument var2 = var1.get().value();
             param1.startUsingItem(param2);
             play(param0, param1, var2);
             param1.getCooldowns().addCooldown(this, var2.useDuration());
+            param1.awardStat(Stats.ITEM_USED.get(this));
             return InteractionResultHolder.consume(var0);
         } else {
             return InteractionResultHolder.fail(var0);
@@ -90,11 +78,11 @@ public class InstrumentItem extends Item {
 
     @Override
     public int getUseDuration(ItemStack param0) {
-        Optional<Holder<Instrument>> var0 = this.getInstrument(param0);
-        return var0.isPresent() ? var0.get().value().useDuration() : 0;
+        Optional<? extends Holder<Instrument>> var0 = this.getInstrument(param0);
+        return var0.<Integer>map(param0x -> param0x.value().useDuration()).orElse(0);
     }
 
-    private Optional<Holder<Instrument>> getInstrument(ItemStack param0) {
+    private Optional<? extends Holder<Instrument>> getInstrument(ItemStack param0) {
         CompoundTag var0 = param0.getTag();
         if (var0 != null) {
             ResourceLocation var1 = ResourceLocation.tryParse(var0.getString("instrument"));

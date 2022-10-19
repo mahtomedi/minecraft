@@ -27,7 +27,7 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -72,7 +72,7 @@ public class SoundEngine {
     private final List<TickableSoundInstance> queuedTickableSounds = Lists.newArrayList();
     private final List<Sound> preloadQueue = Lists.newArrayList();
 
-    public SoundEngine(SoundManager param0, Options param1, ResourceManager param2) {
+    public SoundEngine(SoundManager param0, Options param1, ResourceProvider param2) {
         this.soundManager = param0;
         this.options = param1;
         this.soundBuffers = new SoundBufferLibrary(param2);

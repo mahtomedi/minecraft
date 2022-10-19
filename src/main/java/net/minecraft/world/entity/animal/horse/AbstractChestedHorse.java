@@ -149,51 +149,39 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
 
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
-        ItemStack var0 = param0.getItemInHand(param1);
-        if (!this.isBaby()) {
-            if (this.isTamed() && param0.isSecondaryUseActive()) {
-                this.openCustomInventoryScreen(param0);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
-            }
-
-            if (this.isVehicle()) {
-                return super.mobInteract(param0, param1);
-            }
-        }
-
-        if (!var0.isEmpty()) {
-            if (this.isFood(var0)) {
-                return this.fedFood(param0, var0);
-            }
-
-            if (!this.isTamed()) {
-                this.makeMad();
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
-            }
-
-            if (!this.hasChest() && var0.is(Blocks.CHEST.asItem())) {
-                this.setChest(true);
-                this.playChestEquipsSound();
-                if (!param0.getAbilities().instabuild) {
-                    var0.shrink(1);
+        boolean var0 = !this.isBaby() && this.isTamed() && param0.isSecondaryUseActive();
+        if (!this.isVehicle() && !var0) {
+            ItemStack var1 = param0.getItemInHand(param1);
+            if (!var1.isEmpty()) {
+                if (this.isFood(var1)) {
+                    return this.fedFood(param0, var1);
                 }
 
-                this.createInventory();
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+                if (!this.isTamed()) {
+                    this.makeMad();
+                    return InteractionResult.sidedSuccess(this.level.isClientSide);
+                }
+
+                if (!this.hasChest() && var1.is(Items.CHEST)) {
+                    this.equipChest(param0, var1);
+                    return InteractionResult.sidedSuccess(this.level.isClientSide);
+                }
             }
 
-            if (!this.isBaby() && !this.isSaddled() && var0.is(Items.SADDLE)) {
-                this.openCustomInventoryScreen(param0);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
-            }
-        }
-
-        if (this.isBaby()) {
             return super.mobInteract(param0, param1);
         } else {
-            this.doPlayerRide(param0);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return super.mobInteract(param0, param1);
         }
+    }
+
+    private void equipChest(Player param0, ItemStack param1) {
+        this.setChest(true);
+        this.playChestEquipsSound();
+        if (!param0.getAbilities().instabuild) {
+            param1.shrink(1);
+        }
+
+        this.createInventory();
     }
 
     protected void playChestEquipsSound() {

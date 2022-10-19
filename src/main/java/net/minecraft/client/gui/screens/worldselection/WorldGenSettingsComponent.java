@@ -33,7 +33,9 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.WorldPresetTags;
+import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraftforge.api.distmarker.Dist;
@@ -69,7 +71,7 @@ public class WorldGenSettingsComponent implements Widget {
     }
 
     private static Optional<Holder<WorldPreset>> findPreset(WorldCreationContext param0, Optional<ResourceKey<WorldPreset>> param1) {
-        return param1.flatMap(param1x -> param0.registryAccess().<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolder(param1x));
+        return param1.flatMap(param1x -> param0.worldgenLoadContext().<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolder(param1x));
     }
 
     public void init(CreateWorldScreen param0, Minecraft param1, Font param2) {
@@ -77,12 +79,12 @@ public class WorldGenSettingsComponent implements Widget {
         this.width = param0.width;
         this.seedEdit = new EditBox(this.font, this.width / 2 - 100, 60, 200, 20, Component.translatable("selectWorld.enterSeed"));
         this.seedEdit.setValue(toString(this.seed));
-        this.seedEdit.setResponder(param0x -> this.seed = WorldGenSettings.parseSeed(this.seedEdit.getValue()));
+        this.seedEdit.setResponder(param0x -> this.seed = WorldOptions.parseSeed(this.seedEdit.getValue()));
         param0.addWidget(this.seedEdit);
         int var0 = this.width / 2 - 155;
         int var1 = this.width / 2 + 5;
         this.featuresButton = param0.addRenderableWidget(
-            CycleButton.onOffBuilder(this.settings.worldGenSettings().generateStructures())
+            CycleButton.onOffBuilder(this.settings.options().generateStructures())
                 .withCustomNarration(
                     param0x -> CommonComponents.joinForNarration(
                             param0x.createDefaultNarrationMessage(), Component.translatable("selectWorld.mapFeatures.info")
@@ -94,11 +96,11 @@ public class WorldGenSettingsComponent implements Widget {
                     150,
                     20,
                     Component.translatable("selectWorld.mapFeatures"),
-                    (param0x, param1x) -> this.updateSettings(WorldGenSettings::withStructuresToggled)
+                    (param0x, param1x) -> this.updateSettings(param1xx -> param1xx.withStructures(param1x))
                 )
         );
         this.featuresButton.visible = false;
-        Registry<WorldPreset> var2 = this.settings.registryAccess().registryOrThrow(Registry.WORLD_PRESET_REGISTRY);
+        Registry<WorldPreset> var2 = this.settings.worldgenLoadContext().registryOrThrow(Registry.WORLD_PRESET_REGISTRY);
         List<Holder<WorldPreset>> var3 = getNonEmptyList(var2, WorldPresetTags.NORMAL).orElseGet(() -> var2.holders().collect(Collectors.toUnmodifiableList()));
         List<Holder<WorldPreset>> var4 = getNonEmptyList(var2, WorldPresetTags.EXTENDED).orElse(var3);
         this.typeButton = param0.addRenderableWidget(
@@ -111,7 +113,7 @@ public class WorldGenSettingsComponent implements Widget {
                 )
                 .create(var1, 100, 150, 20, Component.translatable("selectWorld.mapType"), (param1x, param2x) -> {
                     this.preset = Optional.of(param2x);
-                    this.updateSettings(param1xx -> ((WorldPreset)param2x.value()).recreateWorldGenSettings(param1xx));
+                    this.updateSettings((param1xx, param2xx) -> ((WorldPreset)param2x.value()).createWorldDimensions());
                     param0.refreshWorldGenSettingsVisibility();
                 })
         );
@@ -134,14 +136,14 @@ public class WorldGenSettingsComponent implements Widget {
         }));
         this.customizeTypeButton.visible = false;
         this.bonusItemsButton = param0.addRenderableWidget(
-            CycleButton.onOffBuilder(this.settings.worldGenSettings().generateBonusChest() && !param0.hardCore)
+            CycleButton.onOffBuilder(this.settings.options().generateBonusChest() && !param0.hardCore)
                 .create(
                     var0,
                     151,
                     150,
                     20,
                     Component.translatable("selectWorld.bonusItems"),
-                    (param0x, param1x) -> this.updateSettings(WorldGenSettings::withBonusChestToggled)
+                    (param0x, param1x) -> this.updateSettings(param1xx -> param1xx.withBonusChest(param1x))
                 )
         );
         this.bonusItemsButton.visible = false;
@@ -155,7 +157,7 @@ public class WorldGenSettingsComponent implements Widget {
                 param2x -> {
                     String var0x = TinyFileDialogs.tinyfd_openFileDialog(SELECT_FILE_PROMPT.getString(), null, null, null, false);
                     if (var0x != null) {
-                        DynamicOps<JsonElement> var1x = RegistryOps.create(JsonOps.INSTANCE, this.settings.registryAccess());
+                        DynamicOps<JsonElement> var1x = RegistryOps.create(JsonOps.INSTANCE, this.settings.worldgenLoadContext());
         
                         DataResult<WorldGenSettings> var4x;
                         try (BufferedReader var2x = Files.newBufferedReader(Paths.get(var0x))) {
@@ -174,7 +176,11 @@ public class WorldGenSettingsComponent implements Widget {
                         } else {
                             Lifecycle var11 = var7x.lifecycle();
                             var7x.resultOrPartial(LOGGER::error)
-                                .ifPresent(param3 -> WorldOpenFlows.confirmWorldCreation(param1, param0, var11, () -> this.importSettings(param3)));
+                                .ifPresent(
+                                    param3 -> WorldOpenFlows.confirmWorldCreation(
+                                            param1, param0, var11, () -> this.importSettings(param3.options(), param3.dimensions())
+                                        )
+                                );
                         }
                     }
                 }
@@ -196,9 +202,9 @@ public class WorldGenSettingsComponent implements Widget {
         return param0x.unwrapKey().map(param0xx -> Component.translatable(param0xx.location().toLanguageKey("generator"))).orElse(CUSTOM_WORLD_DESCRIPTION);
     }
 
-    private void importSettings(WorldGenSettings param0) {
-        this.settings = this.settings.withSettings(param0);
-        this.preset = findPreset(this.settings, WorldPresets.fromSettings(param0));
+    private void importSettings(WorldOptions param0, WorldDimensions param1) {
+        this.settings = this.settings.withSettings(param0, param1);
+        this.preset = findPreset(this.settings, WorldPresets.fromSettings(param1.dimensions()));
         this.selectWorldTypeButton(true);
         this.seed = OptionalLong.of(param0.seed());
         this.seedEdit.setValue(toString(this.seed));
@@ -221,12 +227,12 @@ public class WorldGenSettingsComponent implements Widget {
 
     }
 
-    void updateSettings(WorldCreationContext.SimpleUpdater param0) {
-        this.settings = this.settings.withSettings(param0);
+    void updateSettings(WorldCreationContext.DimensionsUpdater param0) {
+        this.settings = this.settings.withDimensions(param0);
     }
 
-    void updateSettings(WorldCreationContext.Updater param0) {
-        this.settings = this.settings.withSettings(param0);
+    private void updateSettings(WorldCreationContext.OptionsModifier param0) {
+        this.settings = this.settings.withOptions(param0);
     }
 
     void updateSettings(WorldCreationContext param0) {
@@ -237,13 +243,22 @@ public class WorldGenSettingsComponent implements Widget {
         return param0.isPresent() ? Long.toString(param0.getAsLong()) : "";
     }
 
-    public WorldCreationContext createFinalSettings(boolean param0) {
-        OptionalLong var0 = WorldGenSettings.parseSeed(this.seedEdit.getValue());
-        return this.settings.withSettings(param2 -> param2.withSeed(param0, var0));
+    public WorldOptions createFinalOptions(boolean param0, boolean param1) {
+        OptionalLong var0 = WorldOptions.parseSeed(this.seedEdit.getValue());
+        WorldOptions var1 = this.settings.options();
+        if (param0 || param1) {
+            var1 = var1.withBonusChest(false);
+        }
+
+        if (param0) {
+            var1 = var1.withStructures(false);
+        }
+
+        return var1.withSeed(var0);
     }
 
     public boolean isDebug() {
-        return this.settings.worldGenSettings().isDebug();
+        return this.settings.selectedDimensions().isDebug();
     }
 
     public void setVisibility(boolean param0) {
@@ -279,7 +294,7 @@ public class WorldGenSettingsComponent implements Widget {
     }
 
     public RegistryAccess registryHolder() {
-        return this.settings.registryAccess();
+        return this.settings.worldgenLoadContext();
     }
 
     public void switchToHardcore() {
@@ -289,6 +304,6 @@ public class WorldGenSettingsComponent implements Widget {
 
     public void switchOutOfHardcode() {
         this.bonusItemsButton.active = true;
-        this.bonusItemsButton.setValue(this.settings.worldGenSettings().generateBonusChest());
+        this.bonusItemsButton.setValue(this.settings.options().generateBonusChest());
     }
 }

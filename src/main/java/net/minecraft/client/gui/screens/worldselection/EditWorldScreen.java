@@ -24,6 +24,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
@@ -123,11 +124,12 @@ public class EditWorldScreen extends Screen {
                 20,
                 Component.translatable("selectWorld.edit.export_worldgen_settings"),
                 param0 -> {
-                    DataResult<String> var3;
+                    DataResult<String> var4;
                     try (WorldStem var0x = this.minecraft.createWorldOpenFlows().loadWorldStem(this.levelAccess, false)) {
-                        DynamicOps<JsonElement> var1x = RegistryOps.create(JsonOps.INSTANCE, var0x.registryAccess());
-                        DataResult<JsonElement> var2x = WorldGenSettings.CODEC.encodeStart(var1x, var0x.worldData().worldGenSettings());
-                        var3 = var2x.flatMap(param0x -> {
+                        RegistryAccess.Frozen var1x = var0x.registries().compositeAccess();
+                        DynamicOps<JsonElement> var2x = RegistryOps.create(JsonOps.INSTANCE, var1x);
+                        DataResult<JsonElement> var3x = WorldGenSettings.encode(var2x, var0x.worldData().worldGenOptions(), var1x);
+                        var4 = var3x.flatMap(param0x -> {
                             Path var0x = this.levelAccess.getLevelPath(LevelResource.ROOT).resolve("worldgen_settings_export.json");
         
                             try (JsonWriter var2xx = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0x, StandardCharsets.UTF_8))) {
@@ -138,19 +140,19 @@ public class EditWorldScreen extends Screen {
         
                             return DataResult.success(var0x.toString());
                         });
-                    } catch (Exception var81) {
-                        LOGGER.warn("Could not parse level data", (Throwable)var81);
-                        var3 = DataResult.error("Could not parse level data: " + var81.getMessage());
+                    } catch (Exception var91) {
+                        LOGGER.warn("Could not parse level data", (Throwable)var91);
+                        var4 = DataResult.error("Could not parse level data: " + var91.getMessage());
                     }
         
-                    Component var7 = Component.literal(var3.get().map(Function.identity(), PartialResult::message));
-                    Component var8 = Component.translatable(
-                        var3.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
+                    Component var8 = Component.literal(var4.get().map(Function.identity(), PartialResult::message));
+                    Component var9 = Component.translatable(
+                        var4.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
                     );
-                    var3.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
+                    var4.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
                     this.minecraft
                         .getToasts()
-                        .addToast(SystemToast.multiline(this.minecraft, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var8, var7));
+                        .addToast(SystemToast.multiline(this.minecraft, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var9, var8));
                 }
             )
         );

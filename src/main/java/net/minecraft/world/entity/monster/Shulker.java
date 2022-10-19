@@ -45,6 +45,7 @@ import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -264,7 +265,9 @@ public class Shulker extends AbstractGolem implements Enemy {
     @Override
     public double getMyRidingOffset() {
         EntityType<?> var0 = this.getVehicle().getType();
-        return var0 != EntityType.BOAT && var0 != EntityType.MINECART ? super.getMyRidingOffset() : 0.1875 - this.getVehicle().getPassengersRidingOffset();
+        return !(this.getVehicle() instanceof Boat) && var0 != EntityType.MINECART
+            ? super.getMyRidingOffset()
+            : 0.1875 - this.getVehicle().getPassengersRidingOffset();
     }
 
     @Override
@@ -458,13 +461,16 @@ public class Shulker extends AbstractGolem implements Enemy {
             float var3 = (float)(var2 - 1) / 5.0F;
             if (!(this.level.random.nextFloat() < var3)) {
                 Shulker var4 = EntityType.SHULKER.create(this.level);
-                DyeColor var5 = this.getColor();
-                if (var5 != null) {
-                    var4.setColor(var5);
+                if (var4 != null) {
+                    DyeColor var5 = this.getColor();
+                    if (var5 != null) {
+                        var4.setColor(var5);
+                    }
+
+                    var4.moveTo(var0);
+                    this.level.addFreshEntity(var4);
                 }
 
-                var4.moveTo(var0);
-                this.level.addFreshEntity(var4);
             }
         }
     }

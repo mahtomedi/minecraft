@@ -3,6 +3,8 @@ package net.minecraft.world.level.block;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -38,8 +40,10 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
     protected static final VoxelShape NORTH_OPEN_AABB = Block.box(0.0, 0.0, 13.0, 16.0, 16.0, 16.0);
     protected static final VoxelShape BOTTOM_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 3.0, 16.0);
     protected static final VoxelShape TOP_AABB = Block.box(0.0, 13.0, 0.0, 16.0, 16.0, 16.0);
+    private final SoundEvent closeSound;
+    private final SoundEvent openSound;
 
-    protected TrapDoorBlock(BlockBehaviour.Properties param0) {
+    protected TrapDoorBlock(BlockBehaviour.Properties param0, SoundEvent param1, SoundEvent param2) {
         super(param0);
         this.registerDefaultState(
             this.stateDefinition
@@ -50,6 +54,8 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
                 .setValue(POWERED, Boolean.valueOf(false))
                 .setValue(WATERLOGGED, Boolean.valueOf(false))
         );
+        this.closeSound = param1;
+        this.openSound = param2;
     }
 
     @Override
@@ -102,14 +108,7 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
     }
 
     protected void playSound(@Nullable Player param0, Level param1, BlockPos param2, boolean param3) {
-        if (param3) {
-            int var0 = this.material == Material.METAL ? 1037 : 1007;
-            param1.levelEvent(param0, var0, param2, 0);
-        } else {
-            int var1 = this.material == Material.METAL ? 1036 : 1013;
-            param1.levelEvent(param0, var1, param2, 0);
-        }
-
+        param1.playSound(param0, param2, param3 ? this.openSound : this.closeSound, SoundSource.BLOCKS, 1.0F, param1.getRandom().nextFloat() * 0.1F + 0.9F);
         param1.gameEvent(param0, param3 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
     }
 

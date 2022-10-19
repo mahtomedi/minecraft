@@ -3,6 +3,7 @@ package net.minecraft.world.item;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,7 +18,7 @@ public class BannerItem extends StandingAndWallBlockItem {
     private static final String PATTERN_PREFIX = "block.minecraft.banner.";
 
     public BannerItem(Block param0, Block param1, Item.Properties param2) {
-        super(param0, param1, param2);
+        super(param0, param1, param2, Direction.DOWN);
         Validate.isInstanceOf(AbstractBannerBlock.class, param0);
         Validate.isInstanceOf(AbstractBannerBlock.class, param1);
     }

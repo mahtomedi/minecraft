@@ -13,6 +13,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import java.lang.reflect.Type;
+import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
@@ -27,25 +28,24 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
     public static final char NAMESPACE_SEPARATOR = ':';
     public static final String DEFAULT_NAMESPACE = "minecraft";
     public static final String REALMS_NAMESPACE = "realms";
-    protected final String namespace;
-    protected final String path;
+    private final String namespace;
+    private final String path;
 
-    protected ResourceLocation(String[] param0) {
-        this.namespace = StringUtils.isEmpty(param0[0]) ? "minecraft" : param0[0];
-        this.path = param0[1];
-        if (!isValidNamespace(this.namespace)) {
-            throw new ResourceLocationException("Non [a-z0-9_.-] character in namespace of location: " + this.namespace + ":" + this.path);
-        } else if (!isValidPath(this.path)) {
-            throw new ResourceLocationException("Non [a-z0-9/._-] character in path of location: " + this.namespace + ":" + this.path);
-        }
+    protected ResourceLocation(String param0, String param1, @Nullable ResourceLocation.Dummy param2) {
+        this.namespace = param0;
+        this.path = param1;
+    }
+
+    public ResourceLocation(String param0, String param1) {
+        this(assertValidNamespace(param0, param1), assertValidPath(param0, param1), null);
+    }
+
+    private ResourceLocation(String[] param0) {
+        this(param0[0], param0[1]);
     }
 
     public ResourceLocation(String param0) {
         this(decompose(param0, ':'));
-    }
-
-    public ResourceLocation(String param0, String param1) {
-        this(new String[]{param0, param1});
     }
 
     public static ResourceLocation of(String param0, char param1) {
@@ -74,7 +74,7 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         String[] var0 = new String[]{"minecraft", param0};
         int var1 = param0.indexOf(param1);
         if (var1 >= 0) {
-            var0[1] = param0.substring(var1 + 1, param0.length());
+            var0[1] = param0.substring(var1 + 1);
             if (var1 >= 1) {
                 var0[0] = param0.substring(0, var1);
             }
@@ -97,6 +97,18 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
 
     public String getNamespace() {
         return this.namespace;
+    }
+
+    public ResourceLocation withPath(String param0) {
+        return new ResourceLocation(this.namespace, assertValidPath(this.namespace, param0), null);
+    }
+
+    public ResourceLocation withPath(UnaryOperator<String> param0) {
+        return this.withPath(param0.apply(this.path));
+    }
+
+    public ResourceLocation withPrefix(String param0) {
+        return this.withPath(param0 + this.path);
     }
 
     @Override
@@ -193,6 +205,14 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         return true;
     }
 
+    private static String assertValidNamespace(String param0, String param1) {
+        if (!isValidNamespace(param0)) {
+            throw new ResourceLocationException("Non [a-z0-9_.-] character in namespace of location: " + param0 + ":" + param1);
+        } else {
+            return param0;
+        }
+    }
+
     public static boolean validPathChar(char param0) {
         return param0 == '_' || param0 == '-' || param0 >= 'a' && param0 <= 'z' || param0 >= '0' && param0 <= '9' || param0 == '/' || param0 == '.';
     }
@@ -204,6 +224,17 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
     public static boolean isValidResourceLocation(String param0) {
         String[] var0 = decompose(param0, ':');
         return isValidNamespace(StringUtils.isEmpty(var0[0]) ? "minecraft" : var0[0]) && isValidPath(var0[1]);
+    }
+
+    private static String assertValidPath(String param0, String param1) {
+        if (!isValidPath(param1)) {
+            throw new ResourceLocationException("Non [a-z0-9/._-] character in path of location: " + param0 + ":" + param1);
+        } else {
+            return param1;
+        }
+    }
+
+    protected interface Dummy {
     }
 
     public static class Serializer implements JsonDeserializer<ResourceLocation>, JsonSerializer<ResourceLocation> {

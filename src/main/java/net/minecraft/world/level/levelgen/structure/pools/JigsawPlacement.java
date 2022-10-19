@@ -70,7 +70,11 @@ public class JigsawPlacement {
                 ResourceLocation var9 = param2.get();
                 Optional<BlockPos> var10 = getRandomNamedJigsaw(var8, var9, param4, var6, var2, var4);
                 if (var10.isEmpty()) {
-                    LOGGER.error("No starting jigsaw {} found in start pool {}", var9, param1.unwrapKey().get().location());
+                    LOGGER.error(
+                        "No starting jigsaw {} found in start pool {}",
+                        var9,
+                        param1.unwrapKey().map(param0x -> param0x.location().toString()).orElse("<unregistered>")
+                    );
                     return Optional.empty();
                 }
 

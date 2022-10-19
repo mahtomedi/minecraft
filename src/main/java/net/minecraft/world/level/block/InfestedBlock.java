@@ -37,9 +37,12 @@ public class InfestedBlock extends Block {
 
     private void spawnInfestation(ServerLevel param0, BlockPos param1) {
         Silverfish var0 = EntityType.SILVERFISH.create(param0);
-        var0.moveTo((double)param1.getX() + 0.5, (double)param1.getY(), (double)param1.getZ() + 0.5, 0.0F, 0.0F);
-        param0.addFreshEntity(var0);
-        var0.spawnAnim();
+        if (var0 != null) {
+            var0.moveTo((double)param1.getX() + 0.5, (double)param1.getY(), (double)param1.getZ() + 0.5, 0.0F, 0.0F);
+            param0.addFreshEntity(var0);
+            var0.spawnAnim();
+        }
+
     }
 
     @Override

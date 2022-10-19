@@ -10,33 +10,44 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.SharedConstants;
 import net.minecraft.WorldVersion;
-import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.data.advancements.packs.VanillaAdvancementProvider;
 import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
 import net.minecraft.data.info.CommandsReport;
 import net.minecraft.data.info.RegistryDumpReport;
-import net.minecraft.data.info.WorldgenRegistryDumpReport;
-import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.packs.UpdateOneTwentyLootTableProvider;
+import net.minecraft.data.loot.packs.VanillaLootTableProvider;
+import net.minecraft.data.metadata.PackMetadataGenerator;
 import net.minecraft.data.models.ModelProvider;
-import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.packs.BundleRecipeProvider;
+import net.minecraft.data.recipes.packs.UpdateOneTwentyRecipeProvider;
+import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.data.structures.SnbtToNbt;
 import net.minecraft.data.structures.StructureUpdater;
 import net.minecraft.data.tags.BannerPatternTagsProvider;
 import net.minecraft.data.tags.BiomeTagsProvider;
-import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.CatVariantTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.data.tags.FlatLevelGeneratorPresetTagsProvider;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.data.tags.GameEventTagsProvider;
 import net.minecraft.data.tags.InstrumentTagsProvider;
-import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.PaintingVariantTagsProvider;
 import net.minecraft.data.tags.PoiTypeTagsProvider;
 import net.minecraft.data.tags.StructureTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyBlockTagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyItemTagsProvider;
+import net.minecraft.data.tags.VanillaBlockTagsProvider;
+import net.minecraft.data.tags.VanillaItemTagsProvider;
 import net.minecraft.data.tags.WorldPresetTagsProvider;
+import net.minecraft.data.worldgen.BuiltinRegistriesDatapackGenerator;
+import net.minecraft.network.chat.Component;
 import net.minecraft.obfuscate.DontObfuscate;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.level.block.Block;
 
 public class Main {
     @DontObfuscate
@@ -89,33 +100,52 @@ public class Main {
         WorldVersion param7,
         boolean param8
     ) {
-        DataGenerator var0 = new DataGenerator(param0, param1, param7, param8);
-        var0.addProvider(param2 || param3, new SnbtToNbt(var0).addFilter(new StructureUpdater()));
-        var0.addProvider(param2, new ModelProvider(var0));
-        var0.addProvider(param3, new AdvancementProvider(var0));
-        var0.addProvider(param3, new LootTableProvider(var0));
-        var0.addProvider(param3, new RecipeProvider(var0));
-        BlockTagsProvider var1 = new BlockTagsProvider(var0);
-        var0.addProvider(param3, var1);
-        var0.addProvider(param3, new ItemTagsProvider(var0, var1));
-        var0.addProvider(param3, new BannerPatternTagsProvider(var0));
-        var0.addProvider(param3, new BiomeTagsProvider(var0));
-        var0.addProvider(param3, new CatVariantTagsProvider(var0));
-        var0.addProvider(param3, new EntityTypeTagsProvider(var0));
-        var0.addProvider(param3, new FlatLevelGeneratorPresetTagsProvider(var0));
-        var0.addProvider(param3, new FluidTagsProvider(var0));
-        var0.addProvider(param3, new GameEventTagsProvider(var0));
-        var0.addProvider(param3, new InstrumentTagsProvider(var0));
-        var0.addProvider(param3, new PaintingVariantTagsProvider(var0));
-        var0.addProvider(param3, new PoiTypeTagsProvider(var0));
-        var0.addProvider(param3, new StructureTagsProvider(var0));
-        var0.addProvider(param3, new WorldPresetTagsProvider(var0));
-        var0.addProvider(param4, new NbtToSnbt(var0));
-        var0.addProvider(param5, new BiomeParametersDumpReport(var0));
-        var0.addProvider(param5, new BlockListReport(var0));
-        var0.addProvider(param5, new CommandsReport(var0));
-        var0.addProvider(param5, new RegistryDumpReport(var0));
-        var0.addProvider(param5, new WorldgenRegistryDumpReport(var0));
+        DataGenerator var0 = new DataGenerator(param0, param7, param8);
+        PackOutput var1 = var0.getVanillaPackOutput();
+        var0.addProvider(param2 || param3, new SnbtToNbt(var1, param1).addFilter(new StructureUpdater()));
+        var0.addProvider(param2, new ModelProvider(var1));
+        var0.addProvider(param3, new BuiltinRegistriesDatapackGenerator(var1));
+        var0.addProvider(param3, VanillaAdvancementProvider.create(var1));
+        var0.addProvider(param3, VanillaLootTableProvider.create(var1));
+        var0.addProvider(param3, new VanillaRecipeProvider(var1));
+        TagsProvider<Block> var2 = new VanillaBlockTagsProvider(var1);
+        var0.addProvider(param3, var2);
+        var0.addProvider(param3, new VanillaItemTagsProvider(var1, var2));
+        var0.addProvider(param3, new BannerPatternTagsProvider(var1));
+        var0.addProvider(param3, new BiomeTagsProvider(var1));
+        var0.addProvider(param3, new CatVariantTagsProvider(var1));
+        var0.addProvider(param3, new EntityTypeTagsProvider(var1));
+        var0.addProvider(param3, new FlatLevelGeneratorPresetTagsProvider(var1));
+        var0.addProvider(param3, new FluidTagsProvider(var1));
+        var0.addProvider(param3, new GameEventTagsProvider(var1));
+        var0.addProvider(param3, new InstrumentTagsProvider(var1));
+        var0.addProvider(param3, new PaintingVariantTagsProvider(var1));
+        var0.addProvider(param3, new PoiTypeTagsProvider(var1));
+        var0.addProvider(param3, new StructureTagsProvider(var1));
+        var0.addProvider(param3, new WorldPresetTagsProvider(var1));
+        var0.addProvider(param4, new NbtToSnbt(var1, param1));
+        var0.addProvider(param5, new BiomeParametersDumpReport(var1));
+        var0.addProvider(param5, new BlockListReport(var1));
+        var0.addProvider(param5, new CommandsReport(var1));
+        var0.addProvider(param5, new RegistryDumpReport(var1));
+        PackOutput var3 = var0.createBuiltinDatapackOutput("bundle");
+        var0.addProvider(param3, new BundleRecipeProvider(var3));
+        var0.addProvider(
+            param3,
+            PackMetadataGenerator.forFeaturePack(var3, "bundle", Component.translatable("dataPack.bundle.description"), FeatureFlagSet.of(FeatureFlags.BUNDLE))
+        );
+        PackOutput var4 = var0.createBuiltinDatapackOutput("update_1_20");
+        var0.addProvider(param3, new UpdateOneTwentyRecipeProvider(var4));
+        UpdateOneTwentyBlockTagsProvider var5 = new UpdateOneTwentyBlockTagsProvider(var4);
+        var0.addProvider(param3, var5);
+        var0.addProvider(param3, new UpdateOneTwentyItemTagsProvider(var4, var5));
+        var0.addProvider(param3, UpdateOneTwentyLootTableProvider.create(var4));
+        var0.addProvider(
+            param3,
+            PackMetadataGenerator.forFeaturePack(
+                var4, "update_1_20", Component.translatable("dataPack.update_1_20.description"), FeatureFlagSet.of(FeatureFlags.UPDATE_1_20)
+            )
+        );
         return var0;
     }
 }

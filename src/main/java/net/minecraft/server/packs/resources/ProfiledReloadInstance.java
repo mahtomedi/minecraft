@@ -45,15 +45,15 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
 
     private List<ProfiledReloadInstance.State> finish(List<ProfiledReloadInstance.State> param0x) {
         this.total.stop();
-        int var0 = 0;
+        long var0 = 0L;
         LOGGER.info("Resource reload finished after {} ms", this.total.elapsed(TimeUnit.MILLISECONDS));
 
         for(ProfiledReloadInstance.State var1 : param0x) {
             ProfileResults var2 = var1.preparationResult;
             ProfileResults var3 = var1.reloadResult;
-            int var4 = (int)((double)var1.preparationNanos.get() / 1000000.0);
-            int var5 = (int)((double)var1.reloadNanos.get() / 1000000.0);
-            int var6 = var4 + var5;
+            long var4 = TimeUnit.NANOSECONDS.toMillis(var1.preparationNanos.get());
+            long var5 = TimeUnit.NANOSECONDS.toMillis(var1.reloadNanos.get());
+            long var6 = var4 + var5;
             String var7 = var1.name;
             LOGGER.info("{} took approximately {} ms ({} ms preparing, {} ms applying)", var7, var6, var4, var5);
             var0 += var5;

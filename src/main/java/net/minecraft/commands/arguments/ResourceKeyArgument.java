@@ -22,16 +22,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
-    private static final DynamicCommandExceptionType ERROR_UNKNOWN_ATTRIBUTE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("attribute.unknown", param0)
-    );
     private static final DynamicCommandExceptionType ERROR_INVALID_FEATURE = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.place.feature.invalid", param0)
     );
@@ -51,7 +47,7 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
         return new ResourceKeyArgument<>(param0);
     }
 
-    private static <T> ResourceKey<T> getRegistryType(
+    private static <T> ResourceKey<T> getRegistryKey(
         CommandContext<CommandSourceStack> param0, String param1, ResourceKey<Registry<T>> param2, DynamicCommandExceptionType param3
     ) throws CommandSyntaxException {
         ResourceKey<?> var0 = param0.getArgument(param1, ResourceKey.class);
@@ -63,28 +59,23 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
         return param0.getSource().getServer().registryAccess().registryOrThrow(param1);
     }
 
-    private static <T> Holder<T> getRegistryKeyType(
+    private static <T> Holder.Reference<T> resolveKey(
         CommandContext<CommandSourceStack> param0, String param1, ResourceKey<Registry<T>> param2, DynamicCommandExceptionType param3
     ) throws CommandSyntaxException {
-        ResourceKey<T> var0 = getRegistryType(param0, param1, param2, param3);
+        ResourceKey<T> var0 = getRegistryKey(param0, param1, param2, param3);
         return getRegistry(param0, param2).getHolder(var0).orElseThrow(() -> param3.create(var0.location()));
     }
 
-    public static Attribute getAttribute(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        ResourceKey<Attribute> var0 = getRegistryType(param0, param1, Registry.ATTRIBUTE_REGISTRY, ERROR_UNKNOWN_ATTRIBUTE);
-        return getRegistry(param0, Registry.ATTRIBUTE_REGISTRY).getOptional(var0).orElseThrow(() -> ERROR_UNKNOWN_ATTRIBUTE.create(var0.location()));
+    public static Holder.Reference<ConfiguredFeature<?, ?>> getConfiguredFeature(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        return resolveKey(param0, param1, Registry.CONFIGURED_FEATURE_REGISTRY, ERROR_INVALID_FEATURE);
     }
 
-    public static Holder<ConfiguredFeature<?, ?>> getConfiguredFeature(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return getRegistryKeyType(param0, param1, Registry.CONFIGURED_FEATURE_REGISTRY, ERROR_INVALID_FEATURE);
+    public static Holder.Reference<Structure> getStructure(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        return resolveKey(param0, param1, Registry.STRUCTURE_REGISTRY, ERROR_INVALID_STRUCTURE);
     }
 
-    public static Holder<Structure> getStructure(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return getRegistryKeyType(param0, param1, Registry.STRUCTURE_REGISTRY, ERROR_INVALID_STRUCTURE);
-    }
-
-    public static Holder<StructureTemplatePool> getStructureTemplatePool(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return getRegistryKeyType(param0, param1, Registry.TEMPLATE_POOL_REGISTRY, ERROR_INVALID_TEMPLATE_POOL);
+    public static Holder.Reference<StructureTemplatePool> getStructureTemplatePool(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        return resolveKey(param0, param1, Registry.TEMPLATE_POOL_REGISTRY, ERROR_INVALID_TEMPLATE_POOL);
     }
 
     public ResourceKey<T> parse(StringReader param0) throws CommandSyntaxException {
@@ -106,7 +97,7 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
     }
 
     public static class Info<T> implements ArgumentTypeInfo<ResourceKeyArgument<T>, ResourceKeyArgument.Info<T>.Template> {
-        public void serializeToNetwork(ResourceKeyArgument.Info.Template param0, FriendlyByteBuf param1) {
+        public void serializeToNetwork(ResourceKeyArgument.Info<T>.Template param0, FriendlyByteBuf param1) {
             param1.writeResourceLocation(param0.registryKey.location());
         }
 
@@ -115,7 +106,7 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
             return new ResourceKeyArgument.Info.Template(ResourceKey.createRegistryKey(var0));
         }
 
-        public void serializeToJson(ResourceKeyArgument.Info.Template param0, JsonObject param1) {
+        public void serializeToJson(ResourceKeyArgument.Info<T>.Template param0, JsonObject param1) {
             param1.addProperty("registry", param0.registryKey.location().toString());
         }
 

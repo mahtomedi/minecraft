@@ -10,8 +10,6 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedArgument;
-import com.mojang.brigadier.context.ParsedCommandNode;
-import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.context.SuggestionContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestion;
@@ -368,45 +366,6 @@ public class CommandSuggestions {
 
     public String getNarrationMessage() {
         return this.suggestions != null ? "\n" + this.suggestions.getNarrationMessage() : "";
-    }
-
-    @Nullable
-    public CommandNode<SharedSuggestionProvider> getNodeAt(int param0) {
-        return this.currentParse != null ? getNodeAt(param0, this.currentParse.getContext()) : null;
-    }
-
-    @Nullable
-    public ParseResults<SharedSuggestionProvider> getCurrentContext() {
-        return this.currentParse;
-    }
-
-    @Nullable
-    private static <S> CommandNode<S> getNodeAt(int param0, CommandContextBuilder<S> param1) {
-        StringRange var0 = param1.getRange();
-        if (param0 < var0.getStart()) {
-            return null;
-        } else {
-            List<ParsedCommandNode<S>> var1 = param1.getNodes();
-            if (param0 <= var0.getEnd()) {
-                for(ParsedCommandNode<S> var2 : var1) {
-                    StringRange var3 = var2.getRange();
-                    if (param0 >= var3.getStart() && param0 <= var3.getEnd()) {
-                        return var2.getNode();
-                    }
-                }
-            } else {
-                if (param1.getChild() != null) {
-                    return getNodeAt(param0, param1.getChild());
-                }
-
-                if (!var1.isEmpty()) {
-                    ParsedCommandNode<S> var4 = var1.get(var1.size() - 1);
-                    return var4.getNode();
-                }
-            }
-
-            return param1.getRootNode();
-        }
     }
 
     @OnlyIn(Dist.CLIENT)

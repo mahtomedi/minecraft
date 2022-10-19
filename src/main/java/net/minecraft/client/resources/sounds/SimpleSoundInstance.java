@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -52,9 +53,19 @@ public class SimpleSoundInstance extends AbstractSoundInstance {
         );
     }
 
-    public static SimpleSoundInstance forRecord(SoundEvent param0, double param1, double param2, double param3) {
+    public static SimpleSoundInstance forRecord(SoundEvent param0, Vec3 param1) {
         return new SimpleSoundInstance(
-            param0, SoundSource.RECORDS, 4.0F, 1.0F, SoundInstance.createUnseededRandom(), false, 0, SoundInstance.Attenuation.LINEAR, param1, param2, param3
+            param0,
+            SoundSource.RECORDS,
+            4.0F,
+            1.0F,
+            SoundInstance.createUnseededRandom(),
+            false,
+            0,
+            SoundInstance.Attenuation.LINEAR,
+            param1.x,
+            param1.y,
+            param1.z
         );
     }
 

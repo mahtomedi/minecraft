@@ -407,25 +407,26 @@ public class Zombie extends Monster {
     @Override
     public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
         boolean var0 = super.wasKilled(param0, param1);
-        if ((param0.getDifficulty() == Difficulty.NORMAL || param0.getDifficulty() == Difficulty.HARD) && param1 instanceof Villager) {
+        if ((param0.getDifficulty() == Difficulty.NORMAL || param0.getDifficulty() == Difficulty.HARD) && param1 instanceof Villager var1) {
             if (param0.getDifficulty() != Difficulty.HARD && this.random.nextBoolean()) {
                 return var0;
             }
 
-            Villager var1 = (Villager)param1;
             ZombieVillager var2 = var1.convertTo(EntityType.ZOMBIE_VILLAGER, false);
-            var2.finalizeSpawn(
-                param0, param0.getCurrentDifficultyAt(var2.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
-            );
-            var2.setVillagerData(var1.getVillagerData());
-            var2.setGossips(var1.getGossips().store(NbtOps.INSTANCE).getValue());
-            var2.setTradeOffers(var1.getOffers().createTag());
-            var2.setVillagerXp(var1.getVillagerXp());
-            if (!this.isSilent()) {
-                param0.levelEvent(null, 1026, this.blockPosition(), 0);
-            }
+            if (var2 != null) {
+                var2.finalizeSpawn(
+                    param0, param0.getCurrentDifficultyAt(var2.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
+                );
+                var2.setVillagerData(var1.getVillagerData());
+                var2.setGossips(var1.getGossips().store(NbtOps.INSTANCE).getValue());
+                var2.setTradeOffers(var1.getOffers().createTag());
+                var2.setVillagerXp(var1.getVillagerXp());
+                if (!this.isSilent()) {
+                    param0.levelEvent(null, 1026, this.blockPosition(), 0);
+                }
 
-            var0 = false;
+                var0 = false;
+            }
         }
 
         return var0;
@@ -474,11 +475,13 @@ public class Zombie extends Monster {
                         }
                     } else if ((double)var0.nextFloat() < 0.05) {
                         Chicken var5 = EntityType.CHICKEN.create(this.level);
-                        var5.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                        var5.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
-                        var5.setChickenJockey(true);
-                        this.startRiding(var5);
-                        param0.addFreshEntity(var5);
+                        if (var5 != null) {
+                            var5.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                            var5.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
+                            var5.setChickenJockey(true);
+                            this.startRiding(var5);
+                            param0.addFreshEntity(var5);
+                        }
                     }
                 }
             }

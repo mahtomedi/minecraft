@@ -52,7 +52,7 @@ public class ChunkStatus {
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4, param5, param6, param7, param8, param9) -> {
             if (!param8.getStatus().isOrAfter(param0)) {
-                if (param2.getServer().getWorldData().worldGenSettings().generateStructures()) {
+                if (param2.getServer().getWorldData().worldGenOptions().generateStructures()) {
                     param3.createStructures(
                         param2.registryAccess(), param2.getChunkSource().randomState(), param2.structureManager(), param8, param4, param2.getSeed()
                     );

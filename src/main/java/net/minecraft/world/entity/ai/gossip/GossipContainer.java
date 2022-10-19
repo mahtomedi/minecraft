@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.VisibleForDebug;
 
@@ -262,7 +263,7 @@ public class GossipContainer {
                     .group(
                         param0.get("Target").read(UUIDUtil.CODEC),
                         param0.get("Type").asString().map(GossipType::byId),
-                        param0.get("Value").asNumber().map(Number::intValue)
+                        param0.get("Value").read(ExtraCodecs.POSITIVE_INT)
                     )
                     .apply(DataResult.instance(), GossipContainer.GossipEntry::new)
             );

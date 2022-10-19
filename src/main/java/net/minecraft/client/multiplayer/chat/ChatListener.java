@@ -5,20 +5,17 @@ import com.mojang.authlib.GameProfile;
 import java.time.Instant;
 import java.util.Deque;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FilterMask;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.chat.MessageSigner;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.network.chat.SignedMessageHeader;
-import net.minecraft.network.chat.SignedMessageValidator;
 import net.minecraft.util.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class ChatListener {
-    private static final Component CHAT_VALIDATION_FAILED_ERROR = Component.translatable("multiplayer.disconnect.chat_validation_failed");
     private final Minecraft minecraft;
     private final Deque<ChatListener.Message> delayedMessageQueue = Queues.newArrayDeque();
     private long messageDelay;
@@ -64,132 +60,72 @@ public class ChatListener {
     }
 
     public long queueSize() {
-        return this.delayedMessageQueue.stream().filter(ChatListener.Message::isVisible).count();
+        return (long)this.delayedMessageQueue.size();
     }
 
     public void clearQueue() {
-        this.delayedMessageQueue.forEach(param0 -> {
-            param0.remove();
-            param0.accept();
-        });
+        this.delayedMessageQueue.forEach(ChatListener.Message::accept);
         this.delayedMessageQueue.clear();
     }
 
     public boolean removeFromDelayedMessageQueue(MessageSignature param0) {
-        for(ChatListener.Message var0 : this.delayedMessageQueue) {
-            if (var0.removeIfSignatureMatches(param0)) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.delayedMessageQueue.removeIf(param1 -> param0.equals(param1.signature()));
     }
 
     private boolean willDelayMessages() {
         return this.messageDelay > 0L && Util.getMillis() < this.previousMessageTime + this.messageDelay;
     }
 
-    private void handleMessage(ChatListener.Message param0) {
+    private void handleMessage(@Nullable MessageSignature param0, BooleanSupplier param1) {
         if (this.willDelayMessages()) {
-            this.delayedMessageQueue.add(param0);
+            this.delayedMessageQueue.add(new ChatListener.Message(param0, param1));
         } else {
-            param0.accept();
+            param1.getAsBoolean();
         }
 
     }
 
-    public void handleChatMessage(final PlayerChatMessage param0, final ChatType.Bound param1) {
-        final boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
-        final PlayerChatMessage var1 = var0 ? param0.removeUnsignedContent() : param0;
-        final Component var2 = param1.decorate(var1.serverContent());
-        MessageSigner var3 = param0.signer();
-        if (!var3.isSystem()) {
-            final PlayerInfo var4 = this.resolveSenderPlayer(var3.profileId());
-            final Instant var5 = Instant.now();
-            this.handleMessage(new ChatListener.Message() {
-                private boolean removed;
+    public void handlePlayerChatMessage(PlayerChatMessage param0, GameProfile param1, ChatType.Bound param2) {
+        boolean var0 = this.minecraft.options.onlyShowSecureChat().get();
+        PlayerChatMessage var1 = var0 ? param0.removeUnsignedContent() : param0;
+        Component var2 = param2.decorate(var1.decoratedContent());
+        Instant var3 = Instant.now();
+        this.handleMessage(param0.signature(), () -> {
+            boolean var0x = this.showMessageToPlayer(param2, param0, var2, param1, var0, var3);
+            ClientPacketListener var1x = this.minecraft.getConnection();
+            if (var1x != null) {
+                var1x.markMessageAsProcessed(param0, var0x);
+            }
 
-                @Override
-                public boolean accept() {
-                    if (this.removed) {
-                        byte[] var0 = param0.signedBody().hash().asBytes();
-                        ChatListener.this.processPlayerChatHeader(param0.signedHeader(), param0.headerSignature(), var0);
-                        return false;
-                    } else {
-                        return ChatListener.this.processPlayerChatMessage(param1, param0, var2, var4, var0, var5);
-                    }
-                }
-
-                @Override
-                public boolean removeIfSignatureMatches(MessageSignature param0x) {
-                    if (param0.headerSignature().equals(param0)) {
-                        this.removed = true;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-
-                @Override
-                public void remove() {
-                    this.removed = true;
-                }
-
-                @Override
-                public boolean isVisible() {
-                    return !this.removed;
-                }
-            });
-        } else {
-            this.handleMessage(new ChatListener.Message() {
-                @Override
-                public boolean accept() {
-                    return ChatListener.this.processNonPlayerChatMessage(param1, var1, var2);
-                }
-
-                @Override
-                public boolean isVisible() {
-                    return true;
-                }
-            });
-        }
-
+            return var0x;
+        });
     }
 
-    public void handleChatHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-        this.handleMessage(() -> this.processPlayerChatHeader(param0, param1, param2));
-    }
-
-    boolean processPlayerChatMessage(
-        ChatType.Bound param0, PlayerChatMessage param1, Component param2, @Nullable PlayerInfo param3, boolean param4, Instant param5
-    ) {
-        boolean var0 = this.showMessageToPlayer(param0, param1, param2, param3, param4, param5);
-        ClientPacketListener var1 = this.minecraft.getConnection();
-        if (var1 != null) {
-            var1.markMessageAsProcessed(param1, var0);
-        }
-
-        return var0;
-    }
-
-    private boolean showMessageToPlayer(
-        ChatType.Bound param0, PlayerChatMessage param1, Component param2, @Nullable PlayerInfo param3, boolean param4, Instant param5
-    ) {
-        ChatTrustLevel var0 = this.evaluateTrustLevel(param1, param2, param3, param5);
-        if (var0 == ChatTrustLevel.BROKEN_CHAIN) {
-            this.onChatChainBroken();
+    public void handleDisguisedChatMessage(Component param0, ChatType.Bound param1) {
+        Instant var0 = Instant.now();
+        this.handleMessage(null, () -> {
+            Component var0x = param1.decorate(param0);
+            this.minecraft.gui.getChat().addMessage(var0x);
+            this.narrateChatMessage(param1, param0);
+            this.logSystemMessage(var0x, var0);
+            this.previousMessageTime = Util.getMillis();
             return true;
-        } else if (param4 && var0.isNotSecure()) {
+        });
+    }
+
+    private boolean showMessageToPlayer(ChatType.Bound param0, PlayerChatMessage param1, Component param2, GameProfile param3, boolean param4, Instant param5) {
+        ChatTrustLevel var0 = this.evaluateTrustLevel(param1, param2, param5);
+        if (param4 && var0.isNotSecure()) {
             return false;
-        } else if (!this.minecraft.isBlocked(param1.signer().profileId()) && !param1.isFullyFiltered()) {
+        } else if (!this.minecraft.isBlocked(param1.sender()) && !param1.isFullyFiltered()) {
             GuiMessageTag var1 = var0.createTag(param1);
-            MessageSignature var2 = param1.headerSignature();
+            MessageSignature var2 = param1.signature();
             FilterMask var3 = param1.filterMask();
             if (var3.isEmpty()) {
                 this.minecraft.gui.getChat().addMessage(param2, var2, var1);
-                this.narrateChatMessage(param0, param1.serverContent());
+                this.narrateChatMessage(param0, param1.decoratedContent());
             } else {
-                Component var4 = var3.apply(param1.signedContent());
+                Component var4 = var3.applyWithFormatting(param1.signedContent());
                 if (var4 != null) {
                     this.minecraft.gui.getChat().addMessage(param0.decorate(var4), var2, var1);
                     this.narrateChatMessage(param0, var4);
@@ -204,70 +140,22 @@ public class ChatListener {
         }
     }
 
-    boolean processNonPlayerChatMessage(ChatType.Bound param0, PlayerChatMessage param1, Component param2) {
-        this.minecraft.gui.getChat().addMessage(param2);
-        this.narrateChatMessage(param0, param1.serverContent());
-        this.logSystemMessage(param2, param1.timeStamp());
-        this.previousMessageTime = Util.getMillis();
-        return true;
-    }
-
-    boolean processPlayerChatHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-        PlayerInfo var0 = this.resolveSenderPlayer(param0.sender());
-        if (var0 != null) {
-            SignedMessageValidator.State var1 = var0.getMessageValidator().validateHeader(param0, param1, param2);
-            if (var1 == SignedMessageValidator.State.BROKEN_CHAIN) {
-                this.onChatChainBroken();
-                return true;
-            }
-        }
-
-        this.logPlayerHeader(param0, param1, param2);
-        return false;
-    }
-
-    private void onChatChainBroken() {
-        ClientPacketListener var0 = this.minecraft.getConnection();
-        if (var0 != null) {
-            var0.getConnection().disconnect(CHAT_VALIDATION_FAILED_ERROR);
-        }
-
-    }
-
     private void narrateChatMessage(ChatType.Bound param0, Component param1) {
         this.minecraft.getNarrator().sayChatNow(() -> param0.decorateNarration(param1));
     }
 
-    private ChatTrustLevel evaluateTrustLevel(PlayerChatMessage param0, Component param1, @Nullable PlayerInfo param2, Instant param3) {
-        return this.isSenderLocalPlayer(param0.signer().profileId()) ? ChatTrustLevel.SECURE : ChatTrustLevel.evaluate(param0, param1, param2, param3);
+    private ChatTrustLevel evaluateTrustLevel(PlayerChatMessage param0, Component param1, Instant param2) {
+        return this.isSenderLocalPlayer(param0.sender()) ? ChatTrustLevel.SECURE : ChatTrustLevel.evaluate(param0, param1, param2);
     }
 
-    private void logPlayerMessage(PlayerChatMessage param0, ChatType.Bound param1, @Nullable PlayerInfo param2, ChatTrustLevel param3) {
-        GameProfile var0;
-        if (param2 != null) {
-            var0 = param2.getProfile();
-        } else {
-            var0 = new GameProfile(param0.signer().profileId(), param1.name().getString());
-        }
-
-        ChatLog var2 = this.minecraft.getReportingContext().chatLog();
-        var2.push(LoggedChatMessage.player(var0, param1.name(), param0, param3));
+    private void logPlayerMessage(PlayerChatMessage param0, ChatType.Bound param1, GameProfile param2, ChatTrustLevel param3) {
+        ChatLog var0 = this.minecraft.getReportingContext().chatLog();
+        var0.push(LoggedChatMessage.player(param2, param1.name(), param0, param3));
     }
 
     private void logSystemMessage(Component param0, Instant param1) {
         ChatLog var0 = this.minecraft.getReportingContext().chatLog();
         var0.push(LoggedChatMessage.system(param0, param1));
-    }
-
-    private void logPlayerHeader(SignedMessageHeader param0, MessageSignature param1, byte[] param2) {
-        ChatLog var0 = this.minecraft.getReportingContext().chatLog();
-        var0.push(LoggedChatMessageLink.header(param0, param1, param2));
-    }
-
-    @Nullable
-    private PlayerInfo resolveSenderPlayer(UUID param0) {
-        ClientPacketListener var0 = this.minecraft.getConnection();
-        return var0 != null ? var0.getPlayerInfo(param0) : null;
     }
 
     public void handleSystemMessage(Component param0, boolean param1) {
@@ -299,18 +187,9 @@ public class ChatListener {
     }
 
     @OnlyIn(Dist.CLIENT)
-    interface Message {
-        default boolean removeIfSignatureMatches(MessageSignature param0) {
-            return false;
-        }
-
-        default void remove() {
-        }
-
-        boolean accept();
-
-        default boolean isVisible() {
-            return false;
+    static record Message(@Nullable MessageSignature signature, BooleanSupplier handler) {
+        public boolean accept() {
+            return this.handler.getAsBoolean();
         }
     }
 }

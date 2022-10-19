@@ -1,24 +1,17 @@
 package net.minecraft.client.multiplayer;
 
-import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ServerData {
-    private static final Logger LOGGER = LogUtils.getLogger();
     public String name;
     public String ip;
     public Component status;
@@ -32,9 +25,6 @@ public class ServerData {
     @Nullable
     private String iconB64;
     private boolean lan;
-    @Nullable
-    private ServerData.ChatPreview chatPreview;
-    private boolean chatPreviewEnabled = true;
     private boolean enforcesSecureChat;
 
     public ServerData(String param0, String param1, boolean param2) {
@@ -55,10 +45,6 @@ public class ServerData {
             var0.putBoolean("acceptTextures", true);
         } else if (this.packStatus == ServerData.ServerPackStatus.DISABLED) {
             var0.putBoolean("acceptTextures", false);
-        }
-
-        if (this.chatPreview != null) {
-            ServerData.ChatPreview.CODEC.encodeStart(NbtOps.INSTANCE, this.chatPreview).result().ifPresent(param1 -> var0.put("chatPreview", param1));
         }
 
         return var0;
@@ -88,13 +74,6 @@ public class ServerData {
             var0.setResourcePackStatus(ServerData.ServerPackStatus.PROMPT);
         }
 
-        if (param0.contains("chatPreview", 10)) {
-            ServerData.ChatPreview.CODEC
-                .parse(NbtOps.INSTANCE, param0.getCompound("chatPreview"))
-                .resultOrPartial(LOGGER::error)
-                .ifPresent(param1 -> var0.chatPreview = param1);
-        }
-
         return var0;
     }
 
@@ -119,28 +98,6 @@ public class ServerData {
         return this.lan;
     }
 
-    public void setPreviewsChat(boolean param0) {
-        if (param0 && this.chatPreview == null) {
-            this.chatPreview = new ServerData.ChatPreview(false, false);
-        } else if (!param0 && this.chatPreview != null) {
-            this.chatPreview = null;
-        }
-
-    }
-
-    @Nullable
-    public ServerData.ChatPreview getChatPreview() {
-        return this.chatPreview;
-    }
-
-    public void setChatPreviewEnabled(boolean param0) {
-        this.chatPreviewEnabled = param0;
-    }
-
-    public boolean previewsChat() {
-        return this.chatPreviewEnabled && this.chatPreview != null;
-    }
-
     public void setEnforcesSecureChat(boolean param0) {
         this.enforcesSecureChat = param0;
     }
@@ -159,47 +116,7 @@ public class ServerData {
         this.copyNameIconFrom(param0);
         this.setResourcePackStatus(param0.getResourcePackStatus());
         this.lan = param0.lan;
-        this.chatPreview = Util.mapNullable(param0.chatPreview, ServerData.ChatPreview::copy);
         this.enforcesSecureChat = param0.enforcesSecureChat;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class ChatPreview {
-        public static final Codec<ServerData.ChatPreview> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(
-                        Codec.BOOL.optionalFieldOf("acknowledged", Boolean.valueOf(false)).forGetter(param0x -> param0x.acknowledged),
-                        Codec.BOOL.optionalFieldOf("toastShown", Boolean.valueOf(false)).forGetter(param0x -> param0x.toastShown)
-                    )
-                    .apply(param0, ServerData.ChatPreview::new)
-        );
-        private boolean acknowledged;
-        private boolean toastShown;
-
-        ChatPreview(boolean param0, boolean param1) {
-            this.acknowledged = param0;
-            this.toastShown = param1;
-        }
-
-        public void acknowledge() {
-            this.acknowledged = true;
-        }
-
-        public boolean showToast() {
-            if (!this.toastShown) {
-                this.toastShown = true;
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public boolean isAcknowledged() {
-            return this.acknowledged;
-        }
-
-        private ServerData.ChatPreview copy() {
-            return new ServerData.ChatPreview(this.acknowledged, this.toastShown);
-        }
     }
 
     @OnlyIn(Dist.CLIENT)

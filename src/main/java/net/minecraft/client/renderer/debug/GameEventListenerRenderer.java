@@ -198,7 +198,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
         }
 
         @Override
-        public boolean handleGameEvent(ServerLevel param0, GameEvent.Message param1) {
+        public boolean handleGameEvent(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3) {
             return false;
         }
     }

@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Collection;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -20,12 +21,12 @@ import net.minecraft.world.phys.Vec3;
 public class ParticleCommand {
     private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.particle.failed"));
 
-    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+    public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
         param0.register(
             Commands.literal("particle")
                 .requires(param0x -> param0x.hasPermission(2))
                 .then(
-                    Commands.argument("name", ParticleArgument.particle())
+                    Commands.argument("name", ParticleArgument.particle(param1))
                         .executes(
                             param0x -> sendParticles(
                                     param0x.getSource(),

@@ -14,6 +14,9 @@ import net.minecraft.client.model.BeeModel;
 import net.minecraft.client.model.BlazeModel;
 import net.minecraft.client.model.BoatModel;
 import net.minecraft.client.model.BookModel;
+import net.minecraft.client.model.CamelModel;
+import net.minecraft.client.model.ChestBoatModel;
+import net.minecraft.client.model.ChestRaftModel;
 import net.minecraft.client.model.ChestedHorseModel;
 import net.minecraft.client.model.ChickenModel;
 import net.minecraft.client.model.CodModel;
@@ -52,6 +55,7 @@ import net.minecraft.client.model.PufferfishBigModel;
 import net.minecraft.client.model.PufferfishMidModel;
 import net.minecraft.client.model.PufferfishSmallModel;
 import net.minecraft.client.model.RabbitModel;
+import net.minecraft.client.model.RaftModel;
 import net.minecraft.client.model.RavagerModel;
 import net.minecraft.client.model.SalmonModel;
 import net.minecraft.client.model.SheepFurModel;
@@ -87,6 +91,7 @@ import net.minecraft.client.renderer.blockentity.BedRenderer;
 import net.minecraft.client.renderer.blockentity.BellRenderer;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.blockentity.ConduitRenderer;
+import net.minecraft.client.renderer.blockentity.HangingSignRenderer;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.entity.EndCrystalRenderer;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
@@ -138,6 +143,7 @@ public class LayerDefinitions {
         var0.put(ModelLayers.BOOK, BookModel.createBodyLayer());
         var0.put(ModelLayers.CAT, var10);
         var0.put(ModelLayers.CAT_COLLAR, LayerDefinition.create(OcelotModel.createBodyMesh(new CubeDeformation(0.01F)), 64, 32));
+        var0.put(ModelLayers.CAMEL, CamelModel.createBodyLayer());
         var0.put(ModelLayers.CAVE_SPIDER, var18);
         var0.put(ModelLayers.CHEST, ChestRenderer.createSingleBodyLayer());
         var0.put(ModelLayers.DOUBLE_CHEST_LEFT, ChestRenderer.createDoubleBodyLeftLayer());
@@ -282,22 +288,31 @@ public class LayerDefinitions {
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN, var11);
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN_INNER_ARMOR, var4);
         var0.put(ModelLayers.ZOMBIFIED_PIGLIN_OUTER_ARMOR, var3);
-        LayerDefinition var19 = BoatModel.createBodyModel(false);
-        LayerDefinition var20 = BoatModel.createBodyModel(true);
+        LayerDefinition var19 = BoatModel.createBodyModel();
+        LayerDefinition var20 = ChestBoatModel.createBodyModel();
+        LayerDefinition var21 = RaftModel.createBodyModel();
+        LayerDefinition var22 = ChestRaftModel.createBodyModel();
 
-        for(Boat.Type var21 : Boat.Type.values()) {
-            var0.put(ModelLayers.createBoatModelName(var21), var19);
-            var0.put(ModelLayers.createChestBoatModelName(var21), var20);
+        for(Boat.Type var23 : Boat.Type.values()) {
+            if (var23 == Boat.Type.BAMBOO) {
+                var0.put(ModelLayers.createBoatModelName(var23), var21);
+                var0.put(ModelLayers.createChestBoatModelName(var23), var22);
+            } else {
+                var0.put(ModelLayers.createBoatModelName(var23), var19);
+                var0.put(ModelLayers.createChestBoatModelName(var23), var20);
+            }
         }
 
-        LayerDefinition var22 = SignRenderer.createSignLayer();
-        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createSignModelName(param2), var22));
-        ImmutableMap<ModelLayerLocation, LayerDefinition> var23 = var0.build();
-        List<ModelLayerLocation> var24 = ModelLayers.getKnownLocations().filter(param1 -> !var23.containsKey(param1)).collect(Collectors.toList());
-        if (!var24.isEmpty()) {
-            throw new IllegalStateException("Missing layer definitions: " + var24);
+        LayerDefinition var24 = SignRenderer.createSignLayer();
+        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createSignModelName(param2), var24));
+        LayerDefinition var25 = HangingSignRenderer.createHangingSignLayer();
+        WoodType.values().forEach(param2 -> var0.put(ModelLayers.createHangingSignModelName(param2), var25));
+        ImmutableMap<ModelLayerLocation, LayerDefinition> var26 = var0.build();
+        List<ModelLayerLocation> var27 = ModelLayers.getKnownLocations().filter(param1 -> !var26.containsKey(param1)).collect(Collectors.toList());
+        if (!var27.isEmpty()) {
+            throw new IllegalStateException("Missing layer definitions: " + var27);
         } else {
-            return var23;
+            return var26;
         }
     }
 }

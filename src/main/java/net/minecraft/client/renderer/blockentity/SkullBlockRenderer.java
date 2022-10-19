@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.WallSkullBlock;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -64,11 +65,12 @@ public class SkullBlockRenderer implements BlockEntityRenderer<SkullBlockEntity>
         BlockState var1 = param0.getBlockState();
         boolean var2 = var1.getBlock() instanceof WallSkullBlock;
         Direction var3 = var2 ? var1.getValue(WallSkullBlock.FACING) : null;
-        float var4 = 22.5F * (float)(var2 ? (2 + var3.get2DDataValue()) * 4 : var1.getValue(SkullBlock.ROTATION));
-        SkullBlock.Type var5 = ((AbstractSkullBlock)var1.getBlock()).getType();
-        SkullModelBase var6 = this.modelByType.get(var5);
-        RenderType var7 = getRenderType(var5, param0.getOwnerProfile());
-        renderSkull(var3, var4, var0, param2, param3, param4, var6, var7);
+        int var4 = var2 ? RotationSegment.convertToSegment(var3) : var1.getValue(SkullBlock.ROTATION);
+        float var5 = RotationSegment.convertToDegrees(var4);
+        SkullBlock.Type var6 = ((AbstractSkullBlock)var1.getBlock()).getType();
+        SkullModelBase var7 = this.modelByType.get(var6);
+        RenderType var8 = getRenderType(var6, param0.getOwnerProfile());
+        renderSkull(var3, var5, var0, param2, param3, param4, var7, var8);
     }
 
     public static void renderSkull(

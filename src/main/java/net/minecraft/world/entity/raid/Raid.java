@@ -502,6 +502,10 @@ public class Raid {
 
             for(int var7 = 0; var7 < var5; ++var7) {
                 Raider var8 = var4.entityType.create(this.level);
+                if (var8 == null) {
+                    break;
+                }
+
                 if (!var0 && var8.canBeLeader()) {
                     var8.setPatrolLeader(true);
                     this.setLeader(var1, var8);

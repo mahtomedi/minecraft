@@ -2,6 +2,7 @@ package net.minecraft.client.resources.model;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,40 +13,26 @@ public class ModelResourceLocation extends ResourceLocation {
     static final char VARIANT_SEPARATOR = '#';
     private final String variant;
 
-    protected ModelResourceLocation(String[] param0) {
-        super(param0);
-        this.variant = param0[2].toLowerCase(Locale.ROOT);
+    private ModelResourceLocation(String param0, String param1, String param2, @Nullable ResourceLocation.Dummy param3) {
+        super(param0, param1, param3);
+        this.variant = param2;
     }
 
     public ModelResourceLocation(String param0, String param1, String param2) {
-        this(new String[]{param0, param1, param2});
-    }
-
-    public ModelResourceLocation(String param0) {
-        this(decompose(param0));
+        super(param0, param1);
+        this.variant = lowercaseVariant(param2);
     }
 
     public ModelResourceLocation(ResourceLocation param0, String param1) {
-        this(param0.toString(), param1);
+        this(param0.getNamespace(), param0.getPath(), lowercaseVariant(param1), null);
     }
 
-    public ModelResourceLocation(String param0, String param1) {
-        this(decompose(param0 + "#" + param1));
+    public static ModelResourceLocation vanilla(String param0, String param1) {
+        return new ModelResourceLocation("minecraft", param0, param1);
     }
 
-    protected static String[] decompose(String param0) {
-        String[] var0 = new String[]{null, param0, ""};
-        int var1 = param0.indexOf(35);
-        String var2 = param0;
-        if (var1 >= 0) {
-            var0[2] = param0.substring(var1 + 1, param0.length());
-            if (var1 > 1) {
-                var2 = param0.substring(0, var1);
-            }
-        }
-
-        System.arraycopy(ResourceLocation.decompose(var2, ':'), 0, var0, 0, 2);
-        return var0;
+    private static String lowercaseVariant(String param0) {
+        return param0.toLowerCase(Locale.ROOT);
     }
 
     public String getVariant() {

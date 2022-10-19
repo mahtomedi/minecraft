@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagBuilder;
@@ -27,17 +27,17 @@ import org.slf4j.Logger;
 
 public abstract class TagsProvider<T> implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
-    protected final DataGenerator.PathProvider pathProvider;
+    protected final PackOutput.PathProvider pathProvider;
     protected final Registry<T> registry;
     private final Map<ResourceLocation, TagBuilder> builders = Maps.newLinkedHashMap();
 
-    protected TagsProvider(DataGenerator param0, Registry<T> param1) {
-        this.pathProvider = param0.createPathProvider(DataGenerator.Target.DATA_PACK, TagManager.getTagDir(param1.key()));
+    protected TagsProvider(PackOutput param0, Registry<T> param1) {
+        this.pathProvider = param0.createPathProvider(PackOutput.Target.DATA_PACK, TagManager.getTagDir(param1.key()));
         this.registry = param1;
     }
 
     @Override
-    public final String getName() {
+    public String getName() {
         return "Tags for " + this.registry.key().location();
     }
 

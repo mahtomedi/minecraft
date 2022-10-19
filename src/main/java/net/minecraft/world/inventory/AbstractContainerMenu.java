@@ -25,6 +25,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -408,8 +409,7 @@ public abstract class AbstractContainerMenu {
                 ItemStack var16 = var15.getItem();
                 ItemStack var17 = this.getCarried();
                 param3.updateTutorialInventoryAction(var17, var15.getItem(), var12);
-                if (!var17.overrideStackedOnOther(var15, var12, param3)
-                    && !var16.overrideOtherStackedOnMe(var17, var15, var12, param3, this.createCarriedSlotAccess())) {
+                if (!this.tryItemClickBehaviourOverride(param3, var12, var15, var16, var17)) {
                     if (var16.isEmpty()) {
                         if (!var17.isEmpty()) {
                             int var18 = var12 == ClickAction.PRIMARY ? var17.getCount() : 1;
@@ -514,6 +514,15 @@ public abstract class AbstractContainerMenu {
             }
         }
 
+    }
+
+    private boolean tryItemClickBehaviourOverride(Player param0, ClickAction param1, Slot param2, ItemStack param3, ItemStack param4) {
+        FeatureFlagSet var0 = param0.getLevel().enabledFeatures();
+        if (param4.isItemEnabled(var0) && param4.overrideStackedOnOther(param2, param1, param0)) {
+            return true;
+        } else {
+            return param3.isItemEnabled(var0) && param3.overrideOtherStackedOnMe(param4, param2, param1, param0, this.createCarriedSlotAccess());
+        }
     }
 
     private SlotAccess createCarriedSlotAccess() {

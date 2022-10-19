@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -47,13 +48,26 @@ public class AttributeMap {
         return this.attributes.computeIfAbsent(param0, param0x -> this.supplier.createInstance(this::onAttributeModified, param0x));
     }
 
+    @Nullable
+    public AttributeInstance getInstance(Holder<Attribute> param0) {
+        return this.getInstance(param0.value());
+    }
+
     public boolean hasAttribute(Attribute param0) {
         return this.attributes.get(param0) != null || this.supplier.hasAttribute(param0);
+    }
+
+    public boolean hasAttribute(Holder<Attribute> param0) {
+        return this.hasAttribute(param0.value());
     }
 
     public boolean hasModifier(Attribute param0, UUID param1) {
         AttributeInstance var0 = this.attributes.get(param0);
         return var0 != null ? var0.getModifier(param1) != null : this.supplier.hasModifier(param0, param1);
+    }
+
+    public boolean hasModifier(Holder<Attribute> param0, UUID param1) {
+        return this.hasModifier(param0.value(), param1);
     }
 
     public double getValue(Attribute param0) {
@@ -69,6 +83,10 @@ public class AttributeMap {
     public double getModifierValue(Attribute param0, UUID param1) {
         AttributeInstance var0 = this.attributes.get(param0);
         return var0 != null ? var0.getModifier(param1).getAmount() : this.supplier.getModifierValue(param0, param1);
+    }
+
+    public double getModifierValue(Holder<Attribute> param0, UUID param1) {
+        return this.getModifierValue(param0.value(), param1);
     }
 
     public void removeAttributeModifiers(Multimap<Attribute, AttributeModifier> param0) {

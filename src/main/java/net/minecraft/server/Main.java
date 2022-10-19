@@ -12,7 +12,6 @@ import java.io.File;
 import java.net.Proxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import joptsimple.OptionParser;
@@ -23,6 +22,7 @@ import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -33,20 +33,20 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
 import net.minecraft.util.worldupdate.WorldUpgrader;
-import net.minecraft.world.level.DataPackConfig;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldDimensions;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -131,41 +131,58 @@ public class Main {
                 LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
             }
 
-            PackRepository var28 = new PackRepository(
-                PackType.SERVER_DATA,
-                new ServerPacksSource(),
-                new FolderRepositorySource(var25.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
-            );
+            PackRepository var28 = ServerPacksSource.createPackRepository(var25.getLevelPath(LevelResource.DATAPACK_DIR));
 
-            WorldStem var32;
+            WorldStem var30;
             try {
-                DataPackConfig var29 = Objects.requireNonNullElse(var25.getDataPacks(), DataPackConfig.DEFAULT);
-                WorldLoader.PackConfig var30 = new WorldLoader.PackConfig(var28, var29, var27);
-                WorldLoader.InitConfig var31 = new WorldLoader.InitConfig(
-                    var30, Commands.CommandSelection.DEDICATED, var18.getProperties().functionPermissionLevel
-                );
-                var32 = Util.<WorldStem>blockUntilDone(param6 -> WorldStem.load(var31, (param5x, param6x) -> {
-                        RegistryAccess.Writable var0x = RegistryAccess.builtinCopy();
-                        DynamicOps<Tag> var1x = RegistryOps.createAndLoad(NbtOps.INSTANCE, var0x, param5x);
-                        WorldData var2x = var25.getDataTag(var1x, param6x, var0x.allElementsLifecycle());
-                        if (var2x != null) {
-                            return Pair.of(var2x, var0x.freeze());
-                        } else {
-                            LevelSettings var3x;
-                            WorldGenSettings var4x;
-                            if (var16.has(var3)) {
-                                var3x = MinecraftServer.DEMO_SETTINGS;
-                                var4x = WorldPresets.demoSettings(var0x);
-                            } else {
-                                DedicatedServerProperties var5x = var18.getProperties();
-                                var3x = new LevelSettings(var5x.levelName, var5x.gamemode, var5x.hardcore, var5x.difficulty, false, new GameRules(), param6x);
-                                var4x = var16.has(var4) ? var5x.getWorldGenSettings(var0x).withBonusChest() : var5x.getWorldGenSettings(var0x);
-                            }
-
-                            PrimaryLevelData var13x = new PrimaryLevelData(var3x, var4x, Lifecycle.stable());
-                            return Pair.of(var13x, var0x.freeze());
-                        }
-                    }, Util.backgroundExecutor(), param6)).get();
+                WorldLoader.InitConfig var29 = loadOrCreateConfig(var18.getProperties(), var25, var27, var28);
+                var30 = Util.<WorldStem>blockUntilDone(
+                        param6 -> WorldLoader.load(
+                                var29,
+                                param5x -> {
+                                    Registry<LevelStem> var0x = param5x.datapackDimensions().registryOrThrow(Registry.LEVEL_STEM_REGISTRY);
+                                    DynamicOps<Tag> var1x = RegistryOps.create(NbtOps.INSTANCE, param5x.datapackWorldgen());
+                                    Pair<WorldData, WorldDimensions.Complete> var2x = var25.getDataTag(
+                                        var1x, param5x.dataConfiguration(), var0x, param5x.datapackWorldgen().allElementsLifecycle()
+                                    );
+                                    if (var2x != null) {
+                                        return new WorldLoader.DataLoadOutput<>(var2x.getFirst(), var2x.getSecond().dimensionsRegistryAccess());
+                                    } else {
+                                        LevelSettings var3x;
+                                        WorldOptions var4x;
+                                        WorldDimensions var5x;
+                                        if (var16.has(var3)) {
+                                            var3x = MinecraftServer.DEMO_SETTINGS;
+                                            var4x = WorldOptions.DEMO_OPTIONS;
+                                            var5x = WorldPresets.createNormalWorldDimensions(param5x.datapackWorldgen());
+                                        } else {
+                                            DedicatedServerProperties var6x = var18.getProperties();
+                                            var3x = new LevelSettings(
+                                                var6x.levelName,
+                                                var6x.gamemode,
+                                                var6x.hardcore,
+                                                var6x.difficulty,
+                                                false,
+                                                new GameRules(),
+                                                param5x.dataConfiguration()
+                                            );
+                                            var4x = var16.has(var4) ? var6x.worldOptions.withBonusChest(true) : var6x.worldOptions;
+                                            var5x = var6x.createDimensions(param5x.datapackWorldgen());
+                                        }
+            
+                                        WorldDimensions.Complete var14x = var5x.bake(var0x);
+                                        Lifecycle var11x = var14x.lifecycle().add(param5x.datapackWorldgen().allElementsLifecycle());
+                                        return new WorldLoader.DataLoadOutput<>(
+                                            new PrimaryLevelData(var3x, var4x, var14x.specialWorldProperty(), var11x), var14x.dimensionsRegistryAccess()
+                                        );
+                                    }
+                                },
+                                WorldStem::new,
+                                Util.backgroundExecutor(),
+                                param6
+                            )
+                    )
+                    .get();
             } catch (Exception var351) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
@@ -174,18 +191,17 @@ public class Main {
                 return;
             }
 
-            RegistryAccess.Frozen var35 = var32.registryAccess();
-            var18.getProperties().getWorldGenSettings(var35);
-            WorldData var36 = var32.worldData();
+            RegistryAccess.Frozen var33 = var30.registries().compositeAccess();
             if (var16.has(var5)) {
-                forceUpgrade(var25, DataFixers.getDataFixer(), var16.has(var6), () -> true, var36.worldGenSettings());
+                forceUpgrade(var25, DataFixers.getDataFixer(), var16.has(var6), () -> true, var33.registryOrThrow(Registry.LEVEL_STEM_REGISTRY));
             }
 
-            var25.saveDataTag(var35, var36);
-            final DedicatedServer var37 = MinecraftServer.spin(
+            WorldData var34 = var30.worldData();
+            var25.saveDataTag(var33, var34);
+            final DedicatedServer var35 = MinecraftServer.spin(
                 param12 -> {
                     DedicatedServer var0x = new DedicatedServer(
-                        param12, var25, var28, var32, var18, DataFixers.getDataFixer(), var22, LoggerChunkProgressListener::new
+                        param12, var25, var28, var30, var18, DataFixers.getDataFixer(), var22, LoggerChunkProgressListener::new
                     );
                     var0x.setSingleplayerProfile(var16.has(var9) ? new GameProfile(null, var16.valueOf(var9)) : null);
                     var0x.setPort(var16.valueOf(var12));
@@ -199,22 +215,40 @@ public class Main {
                     return var0x;
                 }
             );
-            Thread var38 = new Thread("Server Shutdown Thread") {
+            Thread var36 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var37.halt(true);
+                    var35.halt(true);
                 }
             };
-            var38.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var38);
+            var36.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var36);
         } catch (Exception var361) {
             LOGGER.error(LogUtils.FATAL_MARKER, "Failed to start the minecraft server", (Throwable)var361);
         }
 
     }
 
+    private static WorldLoader.InitConfig loadOrCreateConfig(
+        DedicatedServerProperties param0, LevelStorageSource.LevelStorageAccess param1, boolean param2, PackRepository param3
+    ) {
+        WorldDataConfiguration var0 = param1.getDataConfiguration();
+        WorldDataConfiguration var2;
+        boolean var1;
+        if (var0 != null) {
+            var1 = false;
+            var2 = var0;
+        } else {
+            var1 = true;
+            var2 = new WorldDataConfiguration(param0.initialDataPackConfiguration, FeatureFlags.DEFAULT_FLAGS);
+        }
+
+        WorldLoader.PackConfig var5 = new WorldLoader.PackConfig(param3, var2, param2, var1);
+        return new WorldLoader.InitConfig(var5, Commands.CommandSelection.DEDICATED, param0.functionPermissionLevel);
+    }
+
     private static void forceUpgrade(
-        LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3, WorldGenSettings param4
+        LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3, Registry<LevelStem> param4
     ) {
         LOGGER.info("Forcing world upgrade!");
         WorldUpgrader var0 = new WorldUpgrader(param0, param1, param4, param2);

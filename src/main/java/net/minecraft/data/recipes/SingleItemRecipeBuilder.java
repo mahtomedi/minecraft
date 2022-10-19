@@ -16,6 +16,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 
 public class SingleItemRecipeBuilder implements RecipeBuilder {
+    private final RecipeCategory category;
     private final Item result;
     private final Ingredient ingredient;
     private final int count;
@@ -24,19 +25,20 @@ public class SingleItemRecipeBuilder implements RecipeBuilder {
     private String group;
     private final RecipeSerializer<?> type;
 
-    public SingleItemRecipeBuilder(RecipeSerializer<?> param0, Ingredient param1, ItemLike param2, int param3) {
-        this.type = param0;
-        this.result = param2.asItem();
-        this.ingredient = param1;
-        this.count = param3;
+    public SingleItemRecipeBuilder(RecipeCategory param0, RecipeSerializer<?> param1, Ingredient param2, ItemLike param3, int param4) {
+        this.category = param0;
+        this.type = param1;
+        this.result = param3.asItem();
+        this.ingredient = param2;
+        this.count = param4;
     }
 
-    public static SingleItemRecipeBuilder stonecutting(Ingredient param0, ItemLike param1) {
-        return new SingleItemRecipeBuilder(RecipeSerializer.STONECUTTER, param0, param1, 1);
+    public static SingleItemRecipeBuilder stonecutting(Ingredient param0, RecipeCategory param1, ItemLike param2) {
+        return new SingleItemRecipeBuilder(param1, RecipeSerializer.STONECUTTER, param0, param2, 1);
     }
 
-    public static SingleItemRecipeBuilder stonecutting(Ingredient param0, ItemLike param1, int param2) {
-        return new SingleItemRecipeBuilder(RecipeSerializer.STONECUTTER, param0, param1, param2);
+    public static SingleItemRecipeBuilder stonecutting(Ingredient param0, RecipeCategory param1, ItemLike param2, int param3) {
+        return new SingleItemRecipeBuilder(param1, RecipeSerializer.STONECUTTER, param0, param2, param3);
     }
 
     public SingleItemRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
@@ -71,7 +73,7 @@ public class SingleItemRecipeBuilder implements RecipeBuilder {
                 this.result,
                 this.count,
                 this.advancement,
-                new ResourceLocation(param1.getNamespace(), "recipes/" + this.result.getItemCategory().getRecipeFolderName() + "/" + param1.getPath())
+                param1.withPrefix("recipes/" + this.category.getFolderName() + "/")
             )
         );
     }

@@ -77,6 +77,10 @@ public class GameTestHelper {
         return var2;
     }
 
+    public ItemEntity spawnItem(Item param0, BlockPos param1) {
+        return this.spawnItem(param0, (float)param1.getX(), (float)param1.getY(), (float)param1.getZ());
+    }
+
     public <E extends Entity> E spawn(EntityType<E> param0, BlockPos param1) {
         return this.spawn(param0, Vec3.atBottomCenterOf(param1));
     }
@@ -84,14 +88,18 @@ public class GameTestHelper {
     public <E extends Entity> E spawn(EntityType<E> param0, Vec3 param1) {
         ServerLevel var0 = this.getLevel();
         E var1 = param0.create(var0);
-        if (var1 instanceof Mob) {
-            ((Mob)var1).setPersistenceRequired();
-        }
+        if (var1 == null) {
+            throw new NullPointerException("Failed to create entity " + param0.builtInRegistryHolder().key().location());
+        } else {
+            if (var1 instanceof Mob var2) {
+                var2.setPersistenceRequired();
+            }
 
-        Vec3 var2 = this.absoluteVec(param1);
-        var1.moveTo(var2.x, var2.y, var2.z, var1.getYRot(), var1.getXRot());
-        var0.addFreshEntity(var1);
-        return var1;
+            Vec3 var3 = this.absoluteVec(param1);
+            var1.moveTo(var3.x, var3.y, var3.z, var1.getYRot(), var1.getXRot());
+            var0.addFreshEntity(var1);
+            return var1;
+        }
     }
 
     public <E extends Entity> E spawn(EntityType<E> param0, int param1, int param2, int param3) {
@@ -142,9 +150,13 @@ public class GameTestHelper {
     }
 
     public void useBlock(BlockPos param0) {
+        this.useBlock(param0, this.makeMockPlayer());
+    }
+
+    public void useBlock(BlockPos param0, Player param1) {
         BlockPos var0 = this.absolutePos(param0);
         BlockState var1 = this.getLevel().getBlockState(var0);
-        var1.use(this.getLevel(), this.makeMockPlayer(), InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(var0), Direction.NORTH, var0, true));
+        var1.use(this.getLevel(), param1, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(var0), Direction.NORTH, var0, true));
     }
 
     public LivingEntity makeAboutToDrown(LivingEntity param0) {
@@ -153,8 +165,8 @@ public class GameTestHelper {
         return param0;
     }
 
-    public Player makeMockPlayer() {
-        return new Player(this.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player"), null) {
+    public Player makeMockSurvivalPlayer() {
+        return new Player(this.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -162,6 +174,25 @@ public class GameTestHelper {
 
             @Override
             public boolean isCreative() {
+                return false;
+            }
+        };
+    }
+
+    public Player makeMockPlayer() {
+        return new Player(this.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return true;
+            }
+
+            @Override
+            public boolean isLocalPlayer() {
                 return true;
             }
         };
@@ -246,11 +277,13 @@ public class GameTestHelper {
     }
 
     public <T extends Comparable<T>> void assertBlockProperty(BlockPos param0, Property<T> param1, T param2) {
-        this.assertBlockState(
-            param0,
-            param2x -> param2x.hasProperty(param1) && param2x.<T>getValue(param1).equals(param2),
-            () -> "Expected property " + param1.getName() + " to be " + param2
-        );
+        BlockState var0 = this.getBlockState(param0);
+        boolean var1 = var0.hasProperty(param1);
+        if (!var1 || !var0.<T>getValue(param1).equals(param2)) {
+            String var2 = var1 ? "was %s".formatted(var0.<T>getValue(param1)) : "property %s is missing".formatted(param1.getName());
+            String var3 = "Expected property %s to be %s, %s".formatted(param1.getName(), param2, var2);
+            throw new GameTestAssertPosException(var3, this.absolutePos(param0), param0, this.testInfo.getTick());
+        }
     }
 
     public <T extends Comparable<T>> void assertBlockProperty(BlockPos param0, Property<T> param1, Predicate<T> param2, String param3) {
@@ -280,6 +313,15 @@ public class GameTestHelper {
         List<? extends Entity> var1 = this.getLevel().getEntities(param0, new AABB(var0), Entity::isAlive);
         if (var1.isEmpty()) {
             throw new GameTestAssertPosException("Expected " + param0.toShortString(), var0, param1, this.testInfo.getTick());
+        }
+    }
+
+    public void assertEntityPresent(EntityType<?> param0, Vec3 param1, Vec3 param2) {
+        List<? extends Entity> var0 = this.getLevel().getEntities(param0, new AABB(param1, param2), Entity::isAlive);
+        if (var0.isEmpty()) {
+            throw new GameTestAssertPosException(
+                "Expected " + param0.toShortString() + " between ", new BlockPos(param1), new BlockPos(param2), this.testInfo.getTick()
+            );
         }
     }
 
@@ -589,6 +631,17 @@ public class GameTestHelper {
     public Vec3 absoluteVec(Vec3 param0) {
         Vec3 var0 = Vec3.atLowerCornerOf(this.testInfo.getStructureBlockPos());
         return StructureTemplate.transform(var0.add(param0), Mirror.NONE, this.testInfo.getRotation(), this.testInfo.getStructureBlockPos());
+    }
+
+    public Vec3 relativeVec(Vec3 param0) {
+        Vec3 var0 = Vec3.atLowerCornerOf(this.testInfo.getStructureBlockPos());
+        return StructureTemplate.transform(param0.subtract(var0), Mirror.NONE, this.testInfo.getRotation(), this.testInfo.getStructureBlockPos());
+    }
+
+    public void assertTrue(boolean param0, String param1) {
+        if (!param0) {
+            throw new GameTestAssertException(param1);
+        }
     }
 
     public long getTick() {

@@ -26,7 +26,6 @@ public class ServerStatus {
     private ServerStatus.Version version;
     @Nullable
     private String favicon;
-    private boolean previewsChat;
     private boolean enforcesSecureChat;
 
     @Nullable
@@ -63,14 +62,6 @@ public class ServerStatus {
     @Nullable
     public String getFavicon() {
         return this.favicon;
-    }
-
-    public void setPreviewsChat(boolean param0) {
-        this.previewsChat = param0;
-    }
-
-    public boolean previewsChat() {
-        return this.previewsChat;
     }
 
     public void setEnforcesSecureChat(boolean param0) {
@@ -175,10 +166,6 @@ public class ServerStatus {
                 var1.setFavicon(GsonHelper.getAsString(var0, "favicon"));
             }
 
-            if (var0.has("previewsChat")) {
-                var1.setPreviewsChat(GsonHelper.getAsBoolean(var0, "previewsChat"));
-            }
-
             if (var0.has("enforcesSecureChat")) {
                 var1.setEnforcesSecureChat(GsonHelper.getAsBoolean(var0, "enforcesSecureChat"));
             }
@@ -188,7 +175,6 @@ public class ServerStatus {
 
         public JsonElement serialize(ServerStatus param0, Type param1, JsonSerializationContext param2) {
             JsonObject var0 = new JsonObject();
-            var0.addProperty("previewsChat", param0.previewsChat());
             var0.addProperty("enforcesSecureChat", param0.enforcesSecureChat());
             if (param0.getDescription() != null) {
                 var0.add("description", param2.serialize(param0.getDescription()));

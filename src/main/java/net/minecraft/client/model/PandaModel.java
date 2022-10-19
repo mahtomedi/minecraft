@@ -77,7 +77,7 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
 
         if (var1) {
             if (var2 < 15) {
-                this.head.xRot = (float) (-Math.PI / 4) * (float)var2 / 14.0F;
+                this.head.xRot = ((float) (-Math.PI / 4)) * (float)var2 / 14.0F;
             } else if (var2 < 20) {
                 float var5 = (float)((var2 - 15) / 5);
                 this.head.xRot = (float) (-Math.PI / 4) + (float) (Math.PI / 4) * var5;

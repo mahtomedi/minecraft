@@ -141,7 +141,10 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
         super.readAdditionalSaveData(param0);
         this.setBaby(param0.getBoolean("IsBaby"));
         this.setCannotHunt(param0.getBoolean("CannotHunt"));
-        this.inventory.fromTag(param0.getList("Inventory", 10));
+        if (param0.contains("Inventory", 10)) {
+            this.inventory.fromTag(param0.getList("Inventory", 10));
+        }
+
     }
 
     @VisibleForDebug

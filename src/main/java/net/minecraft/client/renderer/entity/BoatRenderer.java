@@ -9,8 +9,14 @@ import com.mojang.math.Vector3f;
 import java.util.Map;
 import java.util.stream.Stream;
 import net.minecraft.client.model.BoatModel;
+import net.minecraft.client.model.ChestBoatModel;
+import net.minecraft.client.model.ChestRaftModel;
+import net.minecraft.client.model.ListModel;
+import net.minecraft.client.model.RaftModel;
+import net.minecraft.client.model.WaterPatchModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -22,7 +28,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BoatRenderer extends EntityRenderer<Boat> {
-    private final Map<Boat.Type, Pair<ResourceLocation, BoatModel>> boatResources;
+    private final Map<Boat.Type, Pair<ResourceLocation, ListModel<Boat>>> boatResources;
 
     public BoatRenderer(EntityRendererProvider.Context param0, boolean param1) {
         super(param0);
@@ -36,9 +42,14 @@ public class BoatRenderer extends EntityRenderer<Boat> {
             );
     }
 
-    private BoatModel createBoatModel(EntityRendererProvider.Context param0, Boat.Type param1, boolean param2) {
+    private ListModel<Boat> createBoatModel(EntityRendererProvider.Context param0, Boat.Type param1, boolean param2) {
         ModelLayerLocation var0 = param2 ? ModelLayers.createChestBoatModelName(param1) : ModelLayers.createBoatModelName(param1);
-        return new BoatModel(param0.bakeLayer(var0), param2);
+        ModelPart var1 = param0.bakeLayer(var0);
+        if (param1 == Boat.Type.BAMBOO) {
+            return (ListModel<Boat>)(param2 ? new ChestRaftModel(var1) : new RaftModel(var1));
+        } else {
+            return (ListModel<Boat>)(param2 ? new ChestBoatModel(var1) : new BoatModel(var1));
+        }
     }
 
     private static String getTextureLocation(Boat.Type param0, boolean param1) {
@@ -64,9 +75,9 @@ public class BoatRenderer extends EntityRenderer<Boat> {
             param3.mulPose(new Quaternion(new Vector3f(1.0F, 0.0F, 1.0F), param0.getBubbleAngle(param2), true));
         }
 
-        Pair<ResourceLocation, BoatModel> var3 = this.boatResources.get(param0.getBoatType());
+        Pair<ResourceLocation, ListModel<Boat>> var3 = this.boatResources.get(param0.getBoatType());
         ResourceLocation var4 = var3.getFirst();
-        BoatModel var5 = var3.getSecond();
+        ListModel<Boat> var5 = var3.getSecond();
         param3.scale(-1.0F, -1.0F, 1.0F);
         param3.mulPose(Vector3f.YP.rotationDegrees(90.0F));
         var5.setupAnim(param0, param2, 0.0F, -0.1F, 0.0F, 0.0F);
@@ -74,7 +85,9 @@ public class BoatRenderer extends EntityRenderer<Boat> {
         var5.renderToBuffer(param3, var6, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         if (!param0.isUnderWater()) {
             VertexConsumer var7 = param4.getBuffer(RenderType.waterMask());
-            var5.waterPatch().render(param3, var7, param5, OverlayTexture.NO_OVERLAY);
+            if (var5 instanceof WaterPatchModel var8) {
+                var8.waterPatch().render(param3, var7, param5, OverlayTexture.NO_OVERLAY);
+            }
         }
 
         param3.popPose();

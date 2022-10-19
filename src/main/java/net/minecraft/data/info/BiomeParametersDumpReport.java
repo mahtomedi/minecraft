@@ -10,9 +10,10 @@ import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -23,13 +24,13 @@ public class BiomeParametersDumpReport implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Path topPath;
 
-    public BiomeParametersDumpReport(DataGenerator param0) {
-        this.topPath = param0.getOutputFolder(DataGenerator.Target.REPORTS).resolve("biome_parameters");
+    public BiomeParametersDumpReport(PackOutput param0) {
+        this.topPath = param0.getOutputFolder(PackOutput.Target.REPORTS).resolve("biome_parameters");
     }
 
     @Override
     public void run(CachedOutput param0) {
-        RegistryAccess.Frozen var0 = RegistryAccess.BUILTIN.get();
+        RegistryAccess var0 = BuiltinRegistries.createAccess();
         DynamicOps<JsonElement> var1 = RegistryOps.create(JsonOps.INSTANCE, var0);
         Registry<Biome> var2 = var0.registryOrThrow(Registry.BIOME_REGISTRY);
         MultiNoiseBiomeSource.Preset.getPresets().forEach(param3 -> {

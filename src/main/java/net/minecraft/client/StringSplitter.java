@@ -1,13 +1,10 @@
 package net.minecraft.client;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.ImmutableList.Builder;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.FormattedText;
@@ -143,12 +140,6 @@ public class StringSplitter {
                 }
             }
         }, param2).orElse(param0);
-    }
-
-    public List<StringSplitter.Span> findSpans(FormattedCharSequence param0, Predicate<Style> param1) {
-        StringSplitter.SpanBuilder var0 = new StringSplitter.SpanBuilder(param1);
-        param0.accept(var0);
-        return var0.build();
     }
 
     public int findLineBreak(String param0, int param1, Style param2) {
@@ -440,57 +431,6 @@ public class StringSplitter {
     @OnlyIn(Dist.CLIENT)
     public interface LinePosConsumer {
         void accept(Style var1, int var2, int var3);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static record Span(float left, float right) {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    class SpanBuilder implements FormattedCharSink {
-        private final Predicate<Style> predicate;
-        private float cursor;
-        private final Builder<StringSplitter.Span> spans = ImmutableList.builder();
-        private float spanStart;
-        private boolean buildingSpan;
-
-        SpanBuilder(Predicate<Style> param0) {
-            this.predicate = param0;
-        }
-
-        @Override
-        public boolean accept(int param0, Style param1, int param2) {
-            boolean var0 = this.predicate.test(param1);
-            if (this.buildingSpan != var0) {
-                if (var0) {
-                    this.startSpan();
-                } else {
-                    this.endSpan();
-                }
-            }
-
-            this.cursor += StringSplitter.this.widthProvider.getWidth(param2, param1);
-            return true;
-        }
-
-        private void startSpan() {
-            this.buildingSpan = true;
-            this.spanStart = this.cursor;
-        }
-
-        private void endSpan() {
-            float var0 = this.cursor;
-            this.spans.add(new StringSplitter.Span(this.spanStart, var0));
-            this.buildingSpan = false;
-        }
-
-        public List<StringSplitter.Span> build() {
-            if (this.buildingSpan) {
-                this.endSpan();
-            }
-
-            return this.spans.build();
-        }
     }
 
     @OnlyIn(Dist.CLIENT)

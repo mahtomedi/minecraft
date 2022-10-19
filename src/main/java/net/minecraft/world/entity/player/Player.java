@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Dynamic;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -148,7 +146,6 @@ public abstract class Player extends LivingEntity {
     public final InventoryMenu inventoryMenu;
     public AbstractContainerMenu containerMenu;
     protected FoodData foodData = new FoodData();
-    protected WardenSpawnTracker wardenSpawnTracker = new WardenSpawnTracker(0, 0, 0);
     protected int jumpTriggerTime;
     public float oBob;
     public float bob;
@@ -169,8 +166,6 @@ public abstract class Player extends LivingEntity {
     protected final float defaultFlySpeed = 0.02F;
     private int lastLevelUpTime;
     private final GameProfile gameProfile;
-    @Nullable
-    private final ProfilePublicKey profilePublicKey;
     private boolean reducedDebugInfo;
     private ItemStack lastItemInMainHand = ItemStack.EMPTY;
     private final ItemCooldowns cooldowns = this.createItemCooldowns();
@@ -178,11 +173,10 @@ public abstract class Player extends LivingEntity {
     @Nullable
     public FishingHook fishing;
 
-    public Player(Level param0, BlockPos param1, float param2, GameProfile param3, @Nullable ProfilePublicKey param4) {
+    public Player(Level param0, BlockPos param1, float param2, GameProfile param3) {
         super(EntityType.PLAYER, param0);
         this.setUUID(UUIDUtil.getOrCreatePlayerUUID(param3));
         this.gameProfile = param3;
-        this.profilePublicKey = param4;
         this.inventoryMenu = new InventoryMenu(this.inventory, !param0.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
         this.moveTo((double)param1.getX() + 0.5, (double)(param1.getY() + 1), (double)param1.getZ() + 0.5, param2, 0.0F);
@@ -261,7 +255,6 @@ public abstract class Player extends LivingEntity {
         this.moveCloak();
         if (!this.level.isClientSide) {
             this.foodData.tick(this);
-            this.wardenSpawnTracker.tick();
             this.awardStat(Stats.PLAY_TIME);
             this.awardStat(Stats.TOTAL_WORLD_TIME);
             if (this.isAlive()) {
@@ -780,13 +773,6 @@ public abstract class Player extends LivingEntity {
 
         this.setScore(param0.getInt("Score"));
         this.foodData.readAdditionalSaveData(param0);
-        if (param0.contains("warden_spawn_tracker", 10)) {
-            WardenSpawnTracker.CODEC
-                .parse(new Dynamic<>(NbtOps.INSTANCE, param0.get("warden_spawn_tracker")))
-                .resultOrPartial(LOGGER::error)
-                .ifPresent(param0x -> this.wardenSpawnTracker = param0x);
-        }
-
         this.abilities.loadSaveData(param0);
         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)this.abilities.getWalkingSpeed());
         if (param0.contains("EnderItems", 9)) {
@@ -820,10 +806,6 @@ public abstract class Player extends LivingEntity {
         param0.putInt("XpSeed", this.enchantmentSeed);
         param0.putInt("Score", this.getScore());
         this.foodData.addAdditionalSaveData(param0);
-        WardenSpawnTracker.CODEC
-            .encodeStart(NbtOps.INSTANCE, this.wardenSpawnTracker)
-            .resultOrPartial(LOGGER::error)
-            .ifPresent(param1 -> param0.put("warden_spawn_tracker", param1));
         this.abilities.addSaveData(param0);
         param0.put("EnderItems", this.enderChestInventory.createTag());
         if (!this.getShoulderEntityLeft().isEmpty()) {
@@ -978,6 +960,10 @@ public abstract class Player extends LivingEntity {
     @Override
     protected boolean onSoulSpeedBlock() {
         return !this.abilities.flying && super.onSoulSpeedBlock();
+    }
+
+    public boolean isTextFilteringEnabled() {
+        return false;
     }
 
     public void openTextEdit(SignBlockEntity param0) {
@@ -1364,11 +1350,6 @@ public abstract class Player extends LivingEntity {
         return this.gameProfile;
     }
 
-    @Nullable
-    public ProfilePublicKey getProfilePublicKey() {
-        return this.profilePublicKey;
-    }
-
     public Inventory getInventory() {
         return this.inventory;
     }
@@ -1407,9 +1388,9 @@ public abstract class Player extends LivingEntity {
     public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, float param2, boolean param3, boolean param4) {
         BlockState var0 = param0.getBlockState(param1);
         Block var1 = var0.getBlock();
-        if (var1 instanceof RespawnAnchorBlock && var0.getValue(RespawnAnchorBlock.CHARGE) > 0 && RespawnAnchorBlock.canSetSpawn(param0)) {
+        if (var1 instanceof RespawnAnchorBlock && (param3 || var0.getValue(RespawnAnchorBlock.CHARGE) > 0) && RespawnAnchorBlock.canSetSpawn(param0)) {
             Optional<Vec3> var2 = RespawnAnchorBlock.findStandUpPosition(EntityType.PLAYER, param0, param1);
-            if (!param4 && var2.isPresent()) {
+            if (!param3 && !param4 && var2.isPresent()) {
                 param0.setBlock(param1, var0.setValue(RespawnAnchorBlock.CHARGE, Integer.valueOf(var0.getValue(RespawnAnchorBlock.CHARGE) - 1)), 3);
             }
 
@@ -1616,11 +1597,6 @@ public abstract class Player extends LivingEntity {
         }
     }
 
-    @Override
-    public ChatSender asChatSender() {
-        return new ChatSender(this.getGameProfile().getId(), this.getProfilePublicKey());
-    }
-
     public boolean tryToStartFallFlying() {
         if (!this.onGround && !this.isFallFlying() && !this.isInWater() && !this.hasEffect(MobEffects.LEVITATION)) {
             ItemStack var0 = this.getItemBySlot(EquipmentSlot.CHEST);
@@ -1741,8 +1717,8 @@ public abstract class Player extends LivingEntity {
         }
     }
 
-    public WardenSpawnTracker getWardenSpawnTracker() {
-        return this.wardenSpawnTracker;
+    public Optional<WardenSpawnTracker> getWardenSpawnTracker() {
+        return Optional.empty();
     }
 
     public FoodData getFoodData() {

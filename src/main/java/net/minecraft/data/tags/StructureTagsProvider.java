@@ -1,13 +1,13 @@
 package net.minecraft.data.tags;
 
 import net.minecraft.data.BuiltinRegistries;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
 public class StructureTagsProvider extends TagsProvider<Structure> {
-    public StructureTagsProvider(DataGenerator param0) {
+    public StructureTagsProvider(PackOutput param0) {
         super(param0, BuiltinRegistries.STRUCTURES);
     }
 

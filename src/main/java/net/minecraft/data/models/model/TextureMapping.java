@@ -147,11 +147,25 @@ public class TextureMapping {
     }
 
     public static TextureMapping logColumn(Block param0) {
-        return new TextureMapping().put(TextureSlot.SIDE, getBlockTexture(param0)).put(TextureSlot.END, getBlockTexture(param0, "_top"));
+        return new TextureMapping()
+            .put(TextureSlot.SIDE, getBlockTexture(param0))
+            .put(TextureSlot.END, getBlockTexture(param0, "_top"))
+            .put(TextureSlot.PARTICLE, getBlockTexture(param0));
     }
 
     public static TextureMapping column(ResourceLocation param0, ResourceLocation param1) {
         return new TextureMapping().put(TextureSlot.SIDE, param0).put(TextureSlot.END, param1);
+    }
+
+    public static TextureMapping fence(Block param0) {
+        return new TextureMapping()
+            .put(TextureSlot.TEXTURE, getBlockTexture(param0))
+            .put(TextureSlot.SIDE, getBlockTexture(param0, "_side"))
+            .put(TextureSlot.TOP, getBlockTexture(param0, "_top"));
+    }
+
+    public static TextureMapping customParticle(Block param0) {
+        return new TextureMapping().put(TextureSlot.TEXTURE, getBlockTexture(param0)).put(TextureSlot.PARTICLE, getBlockTexture(param0, "_particle"));
     }
 
     public static TextureMapping cubeBottomTop(Block param0) {
@@ -172,7 +186,11 @@ public class TextureMapping {
 
     public static TextureMapping columnWithWall(Block param0) {
         ResourceLocation var0 = getBlockTexture(param0);
-        return new TextureMapping().put(TextureSlot.WALL, var0).put(TextureSlot.SIDE, var0).put(TextureSlot.END, getBlockTexture(param0, "_top"));
+        return new TextureMapping()
+            .put(TextureSlot.TEXTURE, var0)
+            .put(TextureSlot.WALL, var0)
+            .put(TextureSlot.SIDE, var0)
+            .put(TextureSlot.END, getBlockTexture(param0, "_top"));
     }
 
     public static TextureMapping door(ResourceLocation param0, ResourceLocation param1) {
@@ -317,21 +335,21 @@ public class TextureMapping {
 
     public static ResourceLocation getBlockTexture(Block param0) {
         ResourceLocation var0 = Registry.BLOCK.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "block/" + var0.getPath());
+        return var0.withPrefix("block/");
     }
 
     public static ResourceLocation getBlockTexture(Block param0, String param1) {
         ResourceLocation var0 = Registry.BLOCK.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "block/" + var0.getPath() + param1);
+        return var0.withPath(param1x -> "block/" + param1x + param1);
     }
 
     public static ResourceLocation getItemTexture(Item param0) {
         ResourceLocation var0 = Registry.ITEM.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "item/" + var0.getPath());
+        return var0.withPrefix("item/");
     }
 
     public static ResourceLocation getItemTexture(Item param0, String param1) {
         ResourceLocation var0 = Registry.ITEM.getKey(param0);
-        return new ResourceLocation(var0.getNamespace(), "item/" + var0.getPath() + param1);
+        return var0.withPath(param1x -> "item/" + param1x + param1);
     }
 }

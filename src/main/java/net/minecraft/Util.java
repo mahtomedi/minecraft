@@ -215,12 +215,6 @@ public class Util {
         });
     }
 
-    public static <T> CompletableFuture<T> failedFuture(Throwable param0) {
-        CompletableFuture<T> var0 = new CompletableFuture<>();
-        var0.completeExceptionally(param0);
-        return var0;
-    }
-
     public static void throwAsRuntime(Throwable param0) {
         throw param0 instanceof RuntimeException ? (RuntimeException)param0 : new RuntimeException(param0);
     }

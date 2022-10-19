@@ -603,6 +603,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         return 0.4F;
     }
 
+    @Nullable
     public Bee getBreedOffspring(ServerLevel param0, AgeableMob param1) {
         return EntityType.BEE.create(param0);
     }

@@ -182,24 +182,27 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
         Executor param4,
         Executor param5
     ) {
-        return CompletableFuture.allOf(TitleScreen.preloadResources(this, param4), this.preload(AbstractWidget.WIDGETS_LOCATION, param4))
+        CompletableFuture<Void> var0 = new CompletableFuture<>();
+        CompletableFuture.allOf(TitleScreen.preloadResources(this, param4), this.preload(AbstractWidget.WIDGETS_LOCATION, param4))
             .thenCompose(param0::wait)
-            .thenAcceptAsync(param2x -> {
+            .thenAcceptAsync(param3x -> {
                 MissingTextureAtlasSprite.getTexture();
                 RealmsMainScreen.updateTeaserImages(this.resourceManager);
-                Iterator<Entry<ResourceLocation, AbstractTexture>> var0 = this.byPath.entrySet().iterator();
+                Iterator<Entry<ResourceLocation, AbstractTexture>> var0x = this.byPath.entrySet().iterator();
     
-                while(var0.hasNext()) {
-                    Entry<ResourceLocation, AbstractTexture> var1x = var0.next();
+                while(var0x.hasNext()) {
+                    Entry<ResourceLocation, AbstractTexture> var1x = var0x.next();
                     ResourceLocation var2x = (ResourceLocation)var1x.getKey();
                     AbstractTexture var3x = (AbstractTexture)var1x.getValue();
                     if (var3x == MissingTextureAtlasSprite.getTexture() && !var2x.equals(MissingTextureAtlasSprite.getLocation())) {
-                        var0.remove();
+                        var0x.remove();
                     } else {
                         var3x.reset(this, param1, var2x, param5);
                     }
                 }
     
+                Minecraft.getInstance().tell(() -> var0.complete(null));
             }, param0x -> RenderSystem.recordRenderCall(param0x::run));
+        return var0;
     }
 }

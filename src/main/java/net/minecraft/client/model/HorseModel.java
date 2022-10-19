@@ -247,7 +247,7 @@ public class HorseModel<T extends AbstractHorse> extends AgeableListModel<T> {
         this.leftFrontLeg.z = -6.0F * var6 - 10.0F * var7;
         this.rightFrontLeg.y = this.leftFrontLeg.y;
         this.rightFrontLeg.z = this.leftFrontLeg.z;
-        float var17 = ((float) (-Math.PI / 3) + var16) * var6 + var13 * var7;
+        float var17 = (((float) (-Math.PI / 3)) + var16) * var6 + var13 * var7;
         float var18 = ((float) (-Math.PI / 3) - var16) * var6 - var13 * var7;
         this.leftHindLeg.xRot = var15 - var12 * 0.5F * param2 * var7;
         this.rightHindLeg.xRot = var15 + var12 * 0.5F * param2 * var7;

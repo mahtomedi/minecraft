@@ -25,6 +25,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -55,6 +56,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -95,6 +97,7 @@ public final class ItemStack {
     private static final String TAG_CAN_DESTROY_BLOCK_LIST = "CanDestroy";
     private static final String TAG_CAN_PLACE_ON_BLOCK_LIST = "CanPlaceOn";
     private static final String TAG_HIDE_FLAGS = "HideFlags";
+    private static final Component DISABLED_ITEM_TOOLTIP = Component.translatable("item.disabled").withStyle(ChatFormatting.RED);
     private static final int DONT_HIDE_TOOLTIP = 0;
     private static final Style LORE_STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_PURPLE).withItalic(true);
     private int count;
@@ -179,6 +182,10 @@ public final class ItemStack {
         } else {
             return this.count <= 0;
         }
+    }
+
+    public boolean isItemEnabled(FeatureFlagSet param0) {
+        return this.isEmpty() || this.getItem().isEnabled(param0);
     }
 
     public ItemStack split(int param0) {
@@ -774,6 +781,10 @@ public final class ItemStack {
             }
         }
 
+        if (param0 != null && !this.getItem().isEnabled(param0.getLevel().enabledFeatures())) {
+            var0.add(DISABLED_ITEM_TOOLTIP);
+        }
+
         return var0;
     }
 
@@ -802,7 +813,7 @@ public final class ItemStack {
 
     private static Collection<Component> expandBlockState(String param0) {
         try {
-            return BlockStateParser.parseForTesting(Registry.BLOCK, param0, true)
+            return BlockStateParser.parseForTesting(HolderLookup.forRegistry(Registry.BLOCK), param0, true)
                 .map(
                     param0x -> Lists.newArrayList(param0x.blockState().getBlock().getName().withStyle(ChatFormatting.DARK_GRAY)),
                     param0x -> param0x.tag()

@@ -25,6 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -32,25 +33,23 @@ import org.slf4j.Logger;
 
 public class TagLoader<T> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String PATH_SUFFIX = ".json";
-    private static final int PATH_SUFFIX_LENGTH = ".json".length();
-    final Function<ResourceLocation, Optional<T>> idToValue;
+    final Function<ResourceLocation, Optional<? extends T>> idToValue;
     private final String directory;
 
-    public TagLoader(Function<ResourceLocation, Optional<T>> param0, String param1) {
+    public TagLoader(Function<ResourceLocation, Optional<? extends T>> param0, String param1) {
         this.idToValue = param0;
         this.directory = param1;
     }
 
     public Map<ResourceLocation, List<TagLoader.EntryWithSource>> load(ResourceManager param0) {
         Map<ResourceLocation, List<TagLoader.EntryWithSource>> var0 = Maps.newHashMap();
+        FileToIdConverter var1 = FileToIdConverter.json(this.directory);
 
-        for(Entry<ResourceLocation, List<Resource>> var1 : param0.listResourceStacks(this.directory, param0x -> param0x.getPath().endsWith(".json")).entrySet()) {
-            ResourceLocation var2 = var1.getKey();
-            String var3 = var2.getPath();
-            ResourceLocation var4 = new ResourceLocation(var2.getNamespace(), var3.substring(this.directory.length() + 1, var3.length() - PATH_SUFFIX_LENGTH));
+        for(Entry<ResourceLocation, List<Resource>> var2 : var1.listMatchingResourceStacks(param0).entrySet()) {
+            ResourceLocation var3 = var2.getKey();
+            ResourceLocation var4 = var1.fileToId(var3);
 
-            for(Resource var5 : var1.getValue()) {
+            for(Resource var5 : var2.getValue()) {
                 try (Reader var6 = var5.openAsReader()) {
                     JsonElement var7 = JsonParser.parseReader(var6);
                     List<TagLoader.EntryWithSource> var8 = var0.computeIfAbsent(var4, param0x -> new ArrayList());
@@ -62,7 +61,7 @@ public class TagLoader<T> {
                     String var10 = var5.sourcePackId();
                     var9.entries().forEach(param2 -> var8.add(new TagLoader.EntryWithSource(param2, var10)));
                 } catch (Exception var17) {
-                    LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var4, var2, var5.sourcePackId(), var17);
+                    LOGGER.error("Couldn't read tag list {} from {} in data pack {}", var4, var3, var5.sourcePackId(), var17);
                 }
             }
         }

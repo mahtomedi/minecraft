@@ -19,6 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.providers.GlyphProviderBuilderType;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -35,6 +36,7 @@ public class FontManager implements AutoCloseable {
     static final Logger LOGGER = LogUtils.getLogger();
     private static final String FONTS_PATH = "fonts.json";
     public static final ResourceLocation MISSING_FONT = new ResourceLocation("minecraft", "missing");
+    static final FileToIdConverter FONT_DEFINITIONS = FileToIdConverter.json("font");
     private final FontSet missingFontSet;
     final Map<ResourceLocation, FontSet> fontSets = Maps.newHashMap();
     final TextureManager textureManager;
@@ -45,32 +47,31 @@ public class FontManager implements AutoCloseable {
             Gson var0 = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
             Map<ResourceLocation, List<GlyphProvider>> var1 = Maps.newHashMap();
 
-            for(Entry<ResourceLocation, List<Resource>> var2 : param0.listResourceStacks("font", param0x -> param0x.getPath().endsWith(".json")).entrySet()) {
+            for(Entry<ResourceLocation, List<Resource>> var2 : FontManager.FONT_DEFINITIONS.listMatchingResourceStacks(param0).entrySet()) {
                 ResourceLocation var3 = var2.getKey();
-                String var4 = var3.getPath();
-                ResourceLocation var5 = new ResourceLocation(var3.getNamespace(), var4.substring("font/".length(), var4.length() - ".json".length()));
-                List<GlyphProvider> var6 = var1.computeIfAbsent(var5, param0x -> Lists.newArrayList(new AllMissingGlyphProvider()));
-                param1.push(var5::toString);
+                ResourceLocation var4 = FontManager.FONT_DEFINITIONS.fileToId(var3);
+                List<GlyphProvider> var5 = var1.computeIfAbsent(var4, param0x -> Lists.newArrayList(new AllMissingGlyphProvider()));
+                param1.push(var4::toString);
 
-                for(Resource var7 : var2.getValue()) {
-                    param1.push(var7.sourcePackId());
+                for(Resource var6 : var2.getValue()) {
+                    param1.push(var6.sourcePackId());
 
-                    try (Reader var8 = var7.openAsReader()) {
+                    try (Reader var7 = var6.openAsReader()) {
                         try {
                             param1.push("reading");
-                            JsonArray var9 = GsonHelper.getAsJsonArray(GsonHelper.fromJson(var0, var8, JsonObject.class), "providers");
+                            JsonArray var8 = GsonHelper.getAsJsonArray(GsonHelper.fromJson(var0, var7, JsonObject.class), "providers");
                             param1.popPush("parsing");
 
-                            for(int var10 = var9.size() - 1; var10 >= 0; --var10) {
-                                JsonObject var11 = GsonHelper.convertToJsonObject(var9.get(var10), "providers[" + var10 + "]");
-                                String var12 = GsonHelper.getAsString(var11, "type");
-                                GlyphProviderBuilderType var13 = GlyphProviderBuilderType.byName(var12);
+                            for(int var9 = var8.size() - 1; var9 >= 0; --var9) {
+                                JsonObject var10 = GsonHelper.convertToJsonObject(var8.get(var9), "providers[" + var9 + "]");
+                                String var11 = GsonHelper.getAsString(var10, "type");
+                                GlyphProviderBuilderType var12 = GlyphProviderBuilderType.byName(var11);
 
                                 try {
-                                    param1.push(var12);
-                                    GlyphProvider var14 = var13.create(var11).create(param0);
-                                    if (var14 != null) {
-                                        var6.add(var14);
+                                    param1.push(var11);
+                                    GlyphProvider var13 = var12.create(var10).create(param0);
+                                    if (var13 != null) {
+                                        var5.add(var13);
                                     }
                                 } finally {
                                     param1.pop();
@@ -79,23 +80,23 @@ public class FontManager implements AutoCloseable {
                         } finally {
                             param1.pop();
                         }
-                    } catch (Exception var36) {
-                        FontManager.LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", var5, "fonts.json", var7.sourcePackId(), var36);
+                    } catch (Exception var35) {
+                        FontManager.LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", var4, "fonts.json", var6.sourcePackId(), var35);
                     }
 
                     param1.pop();
                 }
 
                 param1.push("caching");
-                IntSet var16 = new IntOpenHashSet();
+                IntSet var15 = new IntOpenHashSet();
 
-                for(GlyphProvider var17 : var6) {
-                    var16.addAll(var17.getSupportedGlyphs());
+                for(GlyphProvider var16 : var5) {
+                    var15.addAll(var16.getSupportedGlyphs());
                 }
 
-                var16.forEach(param1x -> {
+                var15.forEach(param1x -> {
                     if (param1x != 32) {
-                        for(GlyphProvider var0x : Lists.reverse(var6)) {
+                        for(GlyphProvider var0x : Lists.reverse(var5)) {
                             if (var0x.getGlyph(param1x) != null) {
                                 break;
                             }

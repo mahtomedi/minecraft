@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -201,7 +202,7 @@ public class EnderMan extends Monster implements NeutralMob {
         super.readAdditionalSaveData(param0);
         BlockState var0 = null;
         if (param0.contains("carriedBlockState", 10)) {
-            var0 = NbtUtils.readBlockState(param0.getCompound("carriedBlockState"));
+            var0 = NbtUtils.readBlockState(this.level.holderLookup(Registry.BLOCK_REGISTRY), param0.getCompound("carriedBlockState"));
             if (var0.isAir()) {
                 var0 = null;
             }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,5 +22,9 @@ public interface ResourceProvider {
 
     default BufferedReader openAsReader(ResourceLocation param0) throws IOException {
         return this.getResourceOrThrow(param0).openAsReader();
+    }
+
+    static ResourceProvider fromMap(Map<ResourceLocation, Resource> param0) {
+        return param1 -> Optional.ofNullable(param0.get(param1));
     }
 }

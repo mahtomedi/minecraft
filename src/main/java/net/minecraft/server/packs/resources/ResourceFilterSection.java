@@ -1,35 +1,21 @@
 package net.minecraft.server.packs.resources;
 
-import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.util.ExtraCodecs;
-import org.slf4j.Logger;
 
 public class ResourceFilterSection {
-    static final Logger LOGGER = LogUtils.getLogger();
-    static final Codec<ResourceFilterSection> CODEC = RecordCodecBuilder.create(
+    private static final Codec<ResourceFilterSection> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(Codec.list(ResourceFilterSection.ResourceLocationPattern.CODEC).fieldOf("block").forGetter(param0x -> param0x.blockList))
                 .apply(param0, ResourceFilterSection::new)
     );
-    public static final MetadataSectionSerializer<ResourceFilterSection> SERIALIZER = new MetadataSectionSerializer<ResourceFilterSection>() {
-        @Override
-        public String getMetadataSectionName() {
-            return "filter";
-        }
-
-        public ResourceFilterSection fromJson(JsonObject param0) {
-            return ResourceFilterSection.CODEC.parse(JsonOps.INSTANCE, param0).getOrThrow(false, ResourceFilterSection.LOGGER::error);
-        }
-    };
+    public static final MetadataSectionType<ResourceFilterSection> TYPE = MetadataSectionType.fromCodec("filter", CODEC);
     private final List<ResourceFilterSection.ResourceLocationPattern> blockList;
 
     public ResourceFilterSection(List<ResourceFilterSection.ResourceLocationPattern> param0) {

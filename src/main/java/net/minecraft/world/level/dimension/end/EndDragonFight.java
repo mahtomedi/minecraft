@@ -258,9 +258,10 @@ public class EndDragonFight {
                 this.respawnStage = null;
                 this.dragonKilled = false;
                 EnderDragon var0 = this.createNewDragon();
-
-                for(ServerPlayer var1 : this.dragonEvent.getPlayers()) {
-                    CriteriaTriggers.SUMMONED_ENTITY.trigger(var1, var0);
+                if (var0 != null) {
+                    for(ServerPlayer var1 : this.dragonEvent.getPlayers()) {
+                        CriteriaTriggers.SUMMONED_ENTITY.trigger(var1, var0);
+                    }
                 }
             } else {
                 this.respawnStage = param0;
@@ -417,13 +418,17 @@ public class EndDragonFight {
         var0.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), this.portalLocation);
     }
 
+    @Nullable
     private EnderDragon createNewDragon() {
         this.level.getChunkAt(new BlockPos(0, 128, 0));
         EnderDragon var0 = EntityType.ENDER_DRAGON.create(this.level);
-        var0.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
-        var0.moveTo(0.0, 128.0, 0.0, this.level.random.nextFloat() * 360.0F, 0.0F);
-        this.level.addFreshEntity(var0);
-        this.dragonUUID = var0.getUUID();
+        if (var0 != null) {
+            var0.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
+            var0.moveTo(0.0, 128.0, 0.0, this.level.random.nextFloat() * 360.0F, 0.0F);
+            this.level.addFreshEntity(var0);
+            this.dragonUUID = var0.getUUID();
+        }
+
         return var0;
     }
 

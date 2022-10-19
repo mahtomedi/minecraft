@@ -20,6 +20,7 @@ import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -32,9 +33,7 @@ import org.slf4j.Logger;
 
 public class ServerFunctionLibrary implements PreparableReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String FILE_EXTENSION = ".mcfunction";
-    private static final int PATH_PREFIX_LENGTH = "functions/".length();
-    private static final int PATH_SUFFIX_LENGTH = ".mcfunction".length();
+    private static final FileToIdConverter LISTER = new FileToIdConverter("functions", ".mcfunction");
     private volatile Map<ResourceLocation, CommandFunction> functions = ImmutableMap.of();
     private final TagLoader<CommandFunction> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions");
     private volatile Map<ResourceLocation, Collection<CommandFunction>> tags = Map.of();
@@ -75,7 +74,7 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
             () -> this.tagsLoader.load(param1), param4
         );
         CompletableFuture<Map<ResourceLocation, CompletableFuture<CommandFunction>>> var1 = CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(
-                () -> param1.listResources("functions", param0x -> param0x.getPath().endsWith(".mcfunction")), param4
+                () -> LISTER.listMatchingResources(param1), param4
             )
             .thenCompose(
                 param1x -> {
@@ -86,18 +85,15 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         
                     for(Entry<ResourceLocation, Resource> var2x : param1x.entrySet()) {
                         ResourceLocation var3x = (ResourceLocation)var2x.getKey();
-                        String var4x = var3x.getPath();
-                        ResourceLocation var5x = new ResourceLocation(
-                            var3x.getNamespace(), var4x.substring(PATH_PREFIX_LENGTH, var4x.length() - PATH_SUFFIX_LENGTH)
-                        );
-                        var0x.put(var5x, CompletableFuture.supplyAsync(() -> {
+                        ResourceLocation var4x = LISTER.fileToId(var3x);
+                        var0x.put(var4x, CompletableFuture.supplyAsync(() -> {
                             List<String> var0xx = readLines((Resource)var2x.getValue());
-                            return CommandFunction.fromLines(var5x, this.dispatcher, var1x, var0xx);
+                            return CommandFunction.fromLines(var4x, this.dispatcher, var1x, var0xx);
                         }, param4));
                     }
         
-                    CompletableFuture<?>[] var6 = var0x.values().toArray(new CompletableFuture[0]);
-                    return CompletableFuture.allOf(var6).handle((param1xx, param2x) -> var0x);
+                    CompletableFuture<?>[] var5 = var0x.values().toArray(new CompletableFuture[0]);
+                    return CompletableFuture.allOf(var5).handle((param1xx, param2x) -> var0x);
                 }
             );
         return var0.thenCombine(var1, Pair::of).thenCompose(param0::wait).thenAcceptAsync(param0x -> {
