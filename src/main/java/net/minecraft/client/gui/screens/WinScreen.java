@@ -256,7 +256,7 @@ public class WinScreen extends Screen {
         int var1 = this.height + 50;
         float var2 = -this.scroll;
         param0.pushPose();
-        param0.translate(0.0, (double)var2, 0.0);
+        param0.translate(0.0F, var2, 0.0F);
         RenderSystem.setShaderTexture(0, LOGO_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
@@ -273,7 +273,7 @@ public class WinScreen extends Screen {
             if (var4 == this.lines.size() - 1) {
                 float var5 = (float)var3 + var2 - (float)(this.height / 2 - 6);
                 if (var5 < 0.0F) {
-                    param0.translate(0.0, (double)(-var5), 0.0);
+                    param0.translate(0.0F, -var5, 0.0F);
                 }
             }
 

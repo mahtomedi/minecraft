@@ -2,9 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.List;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -15,6 +13,8 @@ import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class BeaconRenderer implements BlockEntityRenderer<BeaconBlockEntity> {
@@ -64,7 +64,7 @@ public class BeaconRenderer implements BlockEntityRenderer<BeaconBlockEntity> {
         float var5 = param8[1];
         float var6 = param8[2];
         param0.pushPose();
-        param0.mulPose(Vector3f.YP.rotationDegrees(var1 * 2.25F - 45.0F));
+        param0.mulPose(Axis.YP.rotationDegrees(var1 * 2.25F - 45.0F));
         float var7 = 0.0F;
         float var10 = 0.0F;
         float var11 = -param9;

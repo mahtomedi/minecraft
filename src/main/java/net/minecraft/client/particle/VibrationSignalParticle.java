@@ -1,8 +1,6 @@
 package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.client.Camera;
@@ -13,6 +11,8 @@ import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class VibrationSignalParticle extends TextureSheetParticle {
@@ -43,66 +43,55 @@ public class VibrationSignalParticle extends TextureSheetParticle {
     public void render(VertexConsumer param0, Camera param1, float param2) {
         float var0 = Mth.sin(((float)this.age + param2 - (float) (Math.PI * 2)) * 0.05F) * 2.0F;
         float var1 = Mth.lerp(param2, this.rotO, this.rot);
-        float var2 = Mth.lerp(param2, this.pitchO, this.pitch) + ((float) (Math.PI / 2));
-        this.renderSignal(param0, param1, param2, param3 -> {
-            param3.mul(Vector3f.YP.rotation(var1));
-            param3.mul(Vector3f.XP.rotation(-var2));
-            param3.mul(Vector3f.YP.rotation(var0));
-        });
-        this.renderSignal(param0, param1, param2, param3 -> {
-            param3.mul(Vector3f.YP.rotation((float) -Math.PI + var1));
-            param3.mul(Vector3f.XP.rotation(var2));
-            param3.mul(Vector3f.YP.rotation(var0));
-        });
+        float var2 = Mth.lerp(param2, this.pitchO, this.pitch) + (float) (Math.PI / 2);
+        this.renderSignal(param0, param1, param2, param3 -> param3.rotateY(var1).rotateX(-var2).rotateY(var0));
+        this.renderSignal(param0, param1, param2, param3 -> param3.rotateY((float) -Math.PI + var1).rotateX(var2).rotateY(var0));
     }
 
-    private void renderSignal(VertexConsumer param0, Camera param1, float param2, Consumer<Quaternion> param3) {
+    private void renderSignal(VertexConsumer param0, Camera param1, float param2, Consumer<Quaternionf> param3) {
         Vec3 var0 = param1.getPosition();
         float var1 = (float)(Mth.lerp((double)param2, this.xo, this.x) - var0.x());
         float var2 = (float)(Mth.lerp((double)param2, this.yo, this.y) - var0.y());
         float var3 = (float)(Mth.lerp((double)param2, this.zo, this.z) - var0.z());
-        Vector3f var4 = new Vector3f(0.5F, 0.5F, 0.5F);
-        var4.normalize();
-        Quaternion var5 = new Quaternion(var4, 0.0F, true);
+        Vector3f var4 = new Vector3f(0.5F, 0.5F, 0.5F).normalize();
+        Quaternionf var5 = new Quaternionf().setAngleAxis(0.0F, var4.x(), var4.y(), var4.z());
         param3.accept(var5);
-        Vector3f var6 = new Vector3f(-1.0F, -1.0F, 0.0F);
-        var6.transform(var5);
-        Vector3f[] var7 = new Vector3f[]{
+        Vector3f[] var6 = new Vector3f[]{
             new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)
         };
-        float var8 = this.getQuadSize(param2);
+        float var7 = this.getQuadSize(param2);
 
-        for(int var9 = 0; var9 < 4; ++var9) {
-            Vector3f var10 = var7[var9];
-            var10.transform(var5);
-            var10.mul(var8);
-            var10.add(var1, var2, var3);
+        for(int var8 = 0; var8 < 4; ++var8) {
+            Vector3f var9 = var6[var8];
+            var9.rotate(var5);
+            var9.mul(var7);
+            var9.add(var1, var2, var3);
         }
 
-        float var11 = this.getU0();
-        float var12 = this.getU1();
-        float var13 = this.getV0();
-        float var14 = this.getV1();
-        int var15 = this.getLightColor(param2);
-        param0.vertex((double)var7[0].x(), (double)var7[0].y(), (double)var7[0].z())
-            .uv(var12, var14)
-            .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var15)
-            .endVertex();
-        param0.vertex((double)var7[1].x(), (double)var7[1].y(), (double)var7[1].z())
-            .uv(var12, var13)
-            .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var15)
-            .endVertex();
-        param0.vertex((double)var7[2].x(), (double)var7[2].y(), (double)var7[2].z())
+        float var10 = this.getU0();
+        float var11 = this.getU1();
+        float var12 = this.getV0();
+        float var13 = this.getV1();
+        int var14 = this.getLightColor(param2);
+        param0.vertex((double)var6[0].x(), (double)var6[0].y(), (double)var6[0].z())
             .uv(var11, var13)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var15)
+            .uv2(var14)
             .endVertex();
-        param0.vertex((double)var7[3].x(), (double)var7[3].y(), (double)var7[3].z())
-            .uv(var11, var14)
+        param0.vertex((double)var6[1].x(), (double)var6[1].y(), (double)var6[1].z())
+            .uv(var11, var12)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var15)
+            .uv2(var14)
+            .endVertex();
+        param0.vertex((double)var6[2].x(), (double)var6[2].y(), (double)var6[2].z())
+            .uv(var10, var12)
+            .color(this.rCol, this.gCol, this.bCol, this.alpha)
+            .uv2(var14)
+            .endVertex();
+        param0.vertex((double)var6[3].x(), (double)var6[3].y(), (double)var6[3].z())
+            .uv(var10, var13)
+            .color(this.rCol, this.gCol, this.bCol, this.alpha)
+            .uv2(var14)
             .endVertex();
     }
 

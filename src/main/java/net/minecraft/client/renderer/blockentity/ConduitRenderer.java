@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,6 +20,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.ConduitBlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class ConduitRenderer implements BlockEntityRenderer<ConduitBlockEntity> {
@@ -80,8 +81,8 @@ public class ConduitRenderer implements BlockEntityRenderer<ConduitBlockEntity> 
             float var1 = param0.getActiveRotation(0.0F);
             VertexConsumer var2 = SHELL_TEXTURE.buffer(param3, RenderType::entitySolid);
             param2.pushPose();
-            param2.translate(0.5, 0.5, 0.5);
-            param2.mulPose(Vector3f.YP.rotationDegrees(var1));
+            param2.translate(0.5F, 0.5F, 0.5F);
+            param2.mulPose(new Quaternionf().rotationY(var1 * (float) (Math.PI / 180.0)));
             this.shell.render(param2, var2, param4, param5);
             param2.popPose();
         } else {
@@ -89,39 +90,35 @@ public class ConduitRenderer implements BlockEntityRenderer<ConduitBlockEntity> 
             float var4 = Mth.sin(var0 * 0.1F) / 2.0F + 0.5F;
             var4 = var4 * var4 + var4;
             param2.pushPose();
-            param2.translate(0.5, (double)(0.3F + var4 * 0.2F), 0.5);
-            Vector3f var5 = new Vector3f(0.5F, 1.0F, 0.5F);
-            var5.normalize();
-            param2.mulPose(var5.rotationDegrees(var3));
+            param2.translate(0.5F, 0.3F + var4 * 0.2F, 0.5F);
+            Vector3f var5 = new Vector3f(0.5F, 1.0F, 0.5F).normalize();
+            param2.mulPose(new Quaternionf().rotationAxis(var3 * (float) (Math.PI / 180.0), var5));
             this.cage.render(param2, ACTIVE_SHELL_TEXTURE.buffer(param3, RenderType::entityCutoutNoCull), param4, param5);
             param2.popPose();
             int var6 = param0.tickCount / 66 % 3;
             param2.pushPose();
-            param2.translate(0.5, 0.5, 0.5);
+            param2.translate(0.5F, 0.5F, 0.5F);
             if (var6 == 1) {
-                param2.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+                param2.mulPose(new Quaternionf().rotationX((float) (Math.PI / 2)));
             } else if (var6 == 2) {
-                param2.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+                param2.mulPose(new Quaternionf().rotationZ((float) (Math.PI / 2)));
             }
 
             VertexConsumer var7 = (var6 == 1 ? VERTICAL_WIND_TEXTURE : WIND_TEXTURE).buffer(param3, RenderType::entityCutoutNoCull);
             this.wind.render(param2, var7, param4, param5);
             param2.popPose();
             param2.pushPose();
-            param2.translate(0.5, 0.5, 0.5);
+            param2.translate(0.5F, 0.5F, 0.5F);
             param2.scale(0.875F, 0.875F, 0.875F);
-            param2.mulPose(Vector3f.XP.rotationDegrees(180.0F));
-            param2.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            param2.mulPose(new Quaternionf().rotationXYZ((float) Math.PI, 0.0F, (float) Math.PI));
             this.wind.render(param2, var7, param4, param5);
             param2.popPose();
             Camera var8 = this.renderer.camera;
             param2.pushPose();
-            param2.translate(0.5, (double)(0.3F + var4 * 0.2F), 0.5);
+            param2.translate(0.5F, 0.3F + var4 * 0.2F, 0.5F);
             param2.scale(0.5F, 0.5F, 0.5F);
             float var9 = -var8.getYRot();
-            param2.mulPose(Vector3f.YP.rotationDegrees(var9));
-            param2.mulPose(Vector3f.XP.rotationDegrees(var8.getXRot()));
-            param2.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            param2.mulPose(new Quaternionf().rotationYXZ(var9 * (float) (Math.PI / 180.0), var8.getXRot() * (float) (Math.PI / 180.0), (float) Math.PI));
             float var10 = 1.3333334F;
             param2.scale(1.3333334F, 1.3333334F, 1.3333334F);
             this.eye

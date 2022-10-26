@@ -5,7 +5,6 @@ import com.mojang.realmsclient.dto.RealmsServer;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,7 +15,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.LocalChatSession;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,16 +38,15 @@ public class RealmsConnect {
         var0.setConnectedToRealms(true);
         var0.prepareForMultiplayer();
         var0.getNarrator().sayNow(Component.translatable("mco.connect.success"));
-        final CompletableFuture<LocalChatSession> var1 = var0.getProfileKeyPairManager().prepareChatSession();
-        final String var2 = param1.getHost();
-        final int var3 = param1.getPort();
+        final String var1 = param1.getHost();
+        final int var2 = param1.getPort();
         (new Thread("Realms-connect-task") {
                 @Override
                 public void run() {
                     InetSocketAddress var0 = null;
     
                     try {
-                        var0 = new InetSocketAddress(var2, var3);
+                        var0 = new InetSocketAddress(var1, var2);
                         if (RealmsConnect.this.aborted) {
                             return;
                         }
@@ -59,11 +56,10 @@ public class RealmsConnect {
                             return;
                         }
     
-                        LocalChatSession var1 = var1.join();
                         RealmsConnect.this.connection
                             .setListener(
                                 new ClientHandshakePacketListenerImpl(
-                                    RealmsConnect.this.connection, var0, var1, param0.toServerData(var2), RealmsConnect.this.onlineScreen, param0xx -> {
+                                    RealmsConnect.this.connection, var0, param0.toServerData(var1), RealmsConnect.this.onlineScreen, param0xx -> {
                                     }
                                 )
                             );
@@ -71,32 +67,32 @@ public class RealmsConnect {
                             return;
                         }
     
-                        RealmsConnect.this.connection.send(new ClientIntentionPacket(var2, var3, ConnectionProtocol.LOGIN));
+                        RealmsConnect.this.connection.send(new ClientIntentionPacket(var1, var2, ConnectionProtocol.LOGIN));
                         if (RealmsConnect.this.aborted) {
                             return;
                         }
     
-                        String var2 = var0.getUser().getName();
-                        UUID var3 = var0.getUser().getProfileId();
-                        RealmsConnect.this.connection.send(new ServerboundHelloPacket(var2, var1.asRemote().asData(), Optional.ofNullable(var3)));
+                        String var1 = var0.getUser().getName();
+                        UUID var2 = var0.getUser().getProfileId();
+                        RealmsConnect.this.connection.send(new ServerboundHelloPacket(var1, Optional.ofNullable(var2)));
                         var0.updateReportEnvironment(ReportEnvironment.realm(param0));
-                    } catch (Exception var51) {
+                    } catch (Exception var5) {
                         var0.getDownloadedPackSource().clearServerPack();
                         if (RealmsConnect.this.aborted) {
                             return;
                         }
     
-                        RealmsConnect.LOGGER.error("Couldn't connect to world", (Throwable)var51);
-                        String var5 = var51.toString();
+                        RealmsConnect.LOGGER.error("Couldn't connect to world", (Throwable)var5);
+                        String var4 = var5.toString();
                         if (var0 != null) {
-                            String var6 = var0 + ":" + var3;
-                            var5 = var5.replaceAll(var6, "");
+                            String var5 = var0 + ":" + var2;
+                            var4 = var4.replaceAll(var5, "");
                         }
     
-                        DisconnectedRealmsScreen var7 = new DisconnectedRealmsScreen(
-                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var5)
+                        DisconnectedRealmsScreen var6 = new DisconnectedRealmsScreen(
+                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var4)
                         );
-                        var0.execute(() -> var0.setScreen(var7));
+                        var0.execute(() -> var0.setScreen(var6));
                     }
     
                 }

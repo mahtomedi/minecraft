@@ -5,10 +5,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
-public class BadRespawnPointDamage extends DamageSource {
-    protected BadRespawnPointDamage() {
-        super("badRespawnPoint");
+public class BadRespawnPointDamage extends PointDamageSource {
+    protected BadRespawnPointDamage(Vec3 param0) {
+        super("badRespawnPoint", param0);
         this.setScalesWithDifficulty();
         this.setExplosion();
     }

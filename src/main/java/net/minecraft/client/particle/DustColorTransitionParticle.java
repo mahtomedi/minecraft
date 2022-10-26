@@ -1,12 +1,13 @@
 package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 @OnlyIn(Dist.CLIENT)
 public class DustColorTransitionParticle extends DustParticleBase<DustColorTransitionOptions> {
@@ -36,8 +37,7 @@ public class DustColorTransitionParticle extends DustParticleBase<DustColorTrans
 
     private void lerpColors(float param0) {
         float var0 = ((float)this.age + param0) / ((float)this.lifetime + 1.0F);
-        Vector3f var1 = this.fromColor.copy();
-        var1.lerp(this.toColor, var0);
+        Vector3f var1 = new Vector3f((Vector3fc)this.fromColor).lerp(this.toColor, var0);
         this.rCol = var1.x();
         this.gCol = var1.y();
         this.bCol = var1.z();

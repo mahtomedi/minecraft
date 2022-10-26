@@ -91,21 +91,23 @@ public class RealmsBackupScreen extends RealmsScreen {
             }
         }).start();
         this.downloadButton = this.addRenderableWidget(
-            new Button(this.width - 135, row(1), 120, 20, Component.translatable("mco.backup.button.download"), param0 -> this.downloadClicked())
+            Button.builder(Component.translatable("mco.backup.button.download"), param0 -> this.downloadClicked())
+                .bounds(this.width - 135, row(1), 120, 20)
+                .build()
         );
         this.restoreButton = this.addRenderableWidget(
-            new Button(
-                this.width - 135, row(3), 120, 20, Component.translatable("mco.backup.button.restore"), param0 -> this.restoreClicked(this.selectedBackup)
-            )
+            Button.builder(Component.translatable("mco.backup.button.restore"), param0 -> this.restoreClicked(this.selectedBackup))
+                .bounds(this.width - 135, row(3), 120, 20)
+                .build()
         );
-        this.changesButton = this.addRenderableWidget(
-            new Button(this.width - 135, row(5), 120, 20, Component.translatable("mco.backup.changes.tooltip"), param0 -> {
-                this.minecraft.setScreen(new RealmsBackupInfoScreen(this, this.backups.get(this.selectedBackup)));
-                this.selectedBackup = -1;
-            })
-        );
+        this.changesButton = this.addRenderableWidget(Button.builder(Component.translatable("mco.backup.changes.tooltip"), param0 -> {
+            this.minecraft.setScreen(new RealmsBackupInfoScreen(this, this.backups.get(this.selectedBackup)));
+            this.selectedBackup = -1;
+        }).bounds(this.width - 135, row(5), 120, 20).build());
         this.addRenderableWidget(
-            new Button(this.width - 100, this.height - 35, 85, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
+            Button.builder(CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
+                .bounds(this.width - 100, this.height - 35, 85, 20)
+                .build()
         );
         this.addWidget(this.backupObjectSelectionList);
         this.magicalSpecialHackyFocus(this.backupObjectSelectionList);

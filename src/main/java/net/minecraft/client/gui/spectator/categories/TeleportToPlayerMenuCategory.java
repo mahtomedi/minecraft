@@ -1,11 +1,9 @@
 package net.minecraft.client.gui.spectator.categories;
 
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -22,24 +20,21 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TeleportToPlayerMenuCategory implements SpectatorMenuCategory, SpectatorMenuItem {
-    private static final Ordering<PlayerInfo> PROFILE_ORDER = Ordering.from(
-        (param0, param1) -> ComparisonChain.start().compare(param0.getProfile().getId(), param1.getProfile().getId()).result()
-    );
+    private static final Comparator<PlayerInfo> PROFILE_ORDER = Comparator.comparing(param0 -> param0.getProfile().getId());
     private static final Component TELEPORT_TEXT = Component.translatable("spectatorMenu.teleport");
     private static final Component TELEPORT_PROMPT = Component.translatable("spectatorMenu.teleport.prompt");
-    private final List<SpectatorMenuItem> items = Lists.newArrayList();
+    private final List<SpectatorMenuItem> items;
 
     public TeleportToPlayerMenuCategory() {
-        this(PROFILE_ORDER.sortedCopy(Minecraft.getInstance().getConnection().getListedOnlinePlayers()));
+        this(Minecraft.getInstance().getConnection().getListedOnlinePlayers());
     }
 
     public TeleportToPlayerMenuCategory(Collection<PlayerInfo> param0) {
-        for(PlayerInfo var0 : PROFILE_ORDER.sortedCopy(param0)) {
-            if (var0.getGameMode() != GameType.SPECTATOR) {
-                this.items.add(new PlayerMenuItem(var0.getProfile()));
-            }
-        }
-
+        this.items = param0.stream()
+            .filter(param0x -> param0x.getGameMode() != GameType.SPECTATOR)
+            .sorted(PROFILE_ORDER)
+            .map(param0x -> new PlayerMenuItem(param0x.getProfile()))
+            .toList();
     }
 
     @Override

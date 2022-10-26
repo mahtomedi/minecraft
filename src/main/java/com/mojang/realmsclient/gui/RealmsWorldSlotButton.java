@@ -37,7 +37,7 @@ public class RealmsWorldSlotButton extends Button {
     public RealmsWorldSlotButton(
         int param0, int param1, int param2, int param3, Supplier<RealmsServer> param4, Consumer<Component> param5, int param6, Button.OnPress param7
     ) {
-        super(param0, param1, param2, param3, CommonComponents.EMPTY, param7);
+        super(param0, param1, param2, param3, CommonComponents.EMPTY, param7, NO_TOOLTIP, DEFAULT_NARRATION);
         this.serverDataProvider = param4;
         this.slotIndex = param6;
         this.toolTipSetter = param5;
@@ -131,8 +131,8 @@ public class RealmsWorldSlotButton extends Button {
         if (this.state != null) {
             this.drawSlotFrame(
                 param0,
-                this.x,
-                this.y,
+                this.getX(),
+                this.getY(),
                 param1,
                 param2,
                 this.state.isCurrentlyActiveSlot,

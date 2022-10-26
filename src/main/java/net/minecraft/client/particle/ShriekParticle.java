@@ -1,10 +1,7 @@
 package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import java.util.function.Consumer;
-import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ShriekParticleOption;
@@ -12,10 +9,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class ShriekParticle extends TextureSheetParticle {
-    private static final Vector3f ROTATION_VECTOR = Util.make(new Vector3f(0.5F, 0.5F, 0.5F), Vector3f::normalize);
+    private static final Vector3f ROTATION_VECTOR = new Vector3f(0.5F, 0.5F, 0.5F).normalize();
     private static final Vector3f TRANSFORM_VECTOR = new Vector3f(-1.0F, -1.0F, 0.0F);
     private static final float MAGICAL_X_ROT = 1.0472F;
     private int delay;
@@ -40,25 +39,19 @@ public class ShriekParticle extends TextureSheetParticle {
     public void render(VertexConsumer param0, Camera param1, float param2) {
         if (this.delay <= 0) {
             this.alpha = 1.0F - Mth.clamp(((float)this.age + param2) / (float)this.lifetime, 0.0F, 1.0F);
-            this.renderRotatedParticle(param0, param1, param2, param0x -> {
-                param0x.mul(Vector3f.YP.rotation(0.0F));
-                param0x.mul(Vector3f.XP.rotation(-1.0472F));
-            });
-            this.renderRotatedParticle(param0, param1, param2, param0x -> {
-                param0x.mul(Vector3f.YP.rotation((float) -Math.PI));
-                param0x.mul(Vector3f.XP.rotation(1.0472F));
-            });
+            this.renderRotatedParticle(param0, param1, param2, param0x -> param0x.mul(new Quaternionf().rotationX(-1.0472F)));
+            this.renderRotatedParticle(param0, param1, param2, param0x -> param0x.mul(new Quaternionf().rotationYXZ((float) -Math.PI, 1.0472F, 0.0F)));
         }
     }
 
-    private void renderRotatedParticle(VertexConsumer param0, Camera param1, float param2, Consumer<Quaternion> param3) {
+    private void renderRotatedParticle(VertexConsumer param0, Camera param1, float param2, Consumer<Quaternionf> param3) {
         Vec3 var0 = param1.getPosition();
         float var1 = (float)(Mth.lerp((double)param2, this.xo, this.x) - var0.x());
         float var2 = (float)(Mth.lerp((double)param2, this.yo, this.y) - var0.y());
         float var3 = (float)(Mth.lerp((double)param2, this.zo, this.z) - var0.z());
-        Quaternion var4 = new Quaternion(ROTATION_VECTOR, 0.0F, true);
+        Quaternionf var4 = new Quaternionf().setAngleAxis(0.0F, ROTATION_VECTOR.x(), ROTATION_VECTOR.y(), ROTATION_VECTOR.z());
         param3.accept(var4);
-        TRANSFORM_VECTOR.transform(var4);
+        var4.transform(TRANSFORM_VECTOR);
         Vector3f[] var5 = new Vector3f[]{
             new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)
         };
@@ -66,7 +59,7 @@ public class ShriekParticle extends TextureSheetParticle {
 
         for(int var7 = 0; var7 < 4; ++var7) {
             Vector3f var8 = var5[var7];
-            var8.transform(var4);
+            var8.rotate(var4);
             var8.mul(var6);
             var8.add(var1, var2, var3);
         }

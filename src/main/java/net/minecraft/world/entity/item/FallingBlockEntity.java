@@ -237,10 +237,10 @@ public class FallingBlockEntity extends Entity {
                 DamageSource var3;
                 if (this.blockState.getBlock() instanceof Fallable var1) {
                     var2 = var1.getHurtsEntitySelector();
-                    var3 = var1.getFallDamageSource();
+                    var3 = var1.getFallDamageSource(this);
                 } else {
                     var2 = EntitySelector.NO_SPECTATORS;
-                    var3 = DamageSource.FALLING_BLOCK;
+                    var3 = DamageSource.fallingBlock(this);
                 }
 
                 float var6 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);

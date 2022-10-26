@@ -2,9 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,6 +18,8 @@ import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class PaintingRenderer extends EntityRenderer<Painting> {
@@ -29,7 +29,7 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
 
     public void render(Painting param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
-        param3.mulPose(Vector3f.YP.rotationDegrees(180.0F - param1));
+        param3.mulPose(Axis.YP.rotationDegrees(180.0F - param1));
         PaintingVariant var0 = param0.getVariant().value();
         float var1 = 0.0625F;
         param3.scale(0.0625F, 0.0625F, 0.0625F);

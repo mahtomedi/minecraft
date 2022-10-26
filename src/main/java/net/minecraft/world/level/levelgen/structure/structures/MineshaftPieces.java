@@ -401,34 +401,34 @@ public class MineshaftPieces {
                             this.hasPlacedSpider = true;
                             param0.setBlock(var10, Blocks.SPAWNER.defaultBlockState(), 2);
                             BlockEntity var11 = param0.getBlockEntity(var10);
-                            if (var11 instanceof SpawnerBlockEntity) {
-                                ((SpawnerBlockEntity)var11).getSpawner().setEntityId(EntityType.CAVE_SPIDER);
+                            if (var11 instanceof SpawnerBlockEntity var12) {
+                                var12.setEntityId(EntityType.CAVE_SPIDER, param3);
                             }
                         }
                     }
                 }
 
-                for(int var12 = 0; var12 <= 2; ++var12) {
-                    for(int var13 = 0; var13 <= var4; ++var13) {
-                        this.setPlanksBlock(param0, param4, var5, var12, -1, var13);
+                for(int var13 = 0; var13 <= 2; ++var13) {
+                    for(int var14 = 0; var14 <= var4; ++var14) {
+                        this.setPlanksBlock(param0, param4, var5, var13, -1, var14);
                     }
                 }
 
-                int var14 = 2;
+                int var15 = 2;
                 this.placeDoubleLowerOrUpperSupport(param0, param4, 0, -1, 2);
                 if (this.numSections > 1) {
-                    int var15 = var4 - 2;
-                    this.placeDoubleLowerOrUpperSupport(param0, param4, 0, -1, var15);
+                    int var16 = var4 - 2;
+                    this.placeDoubleLowerOrUpperSupport(param0, param4, 0, -1, var16);
                 }
 
                 if (this.hasRails) {
-                    BlockState var16 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH);
+                    BlockState var17 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH);
 
-                    for(int var17 = 0; var17 <= var4; ++var17) {
-                        BlockState var18 = this.getBlock(param0, 1, -1, var17, param4);
-                        if (!var18.isAir() && var18.isSolidRender(param0, this.getWorldPos(1, -1, var17))) {
-                            float var19 = this.isInterior(param0, 1, 0, var17, param4) ? 0.7F : 0.9F;
-                            this.maybeGenerateBlock(param0, param4, param3, var19, 1, 0, var17, var16);
+                    for(int var18 = 0; var18 <= var4; ++var18) {
+                        BlockState var19 = this.getBlock(param0, 1, -1, var18, param4);
+                        if (!var19.isAir() && var19.isSolidRender(param0, this.getWorldPos(1, -1, var18))) {
+                            float var20 = this.isInterior(param0, 1, 0, var18, param4) ? 0.7F : 0.9F;
+                            this.maybeGenerateBlock(param0, param4, param3, var20, 1, 0, var18, var17);
                         }
                     }
                 }

@@ -40,7 +40,9 @@ public abstract class SimpleOptionsSubScreen extends OptionsSubScreen {
 
     protected void createFooter() {
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
+                .bounds(this.width / 2 - 100, this.height - 27, 200, 20)
+                .build()
         );
     }
 

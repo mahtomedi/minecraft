@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
@@ -108,11 +108,11 @@ public class BedRenderer implements BlockEntityRenderer<BedBlockEntity> {
         PoseStack param0, MultiBufferSource param1, ModelPart param2, Direction param3, Material param4, int param5, int param6, boolean param7
     ) {
         param0.pushPose();
-        param0.translate(0.0, 0.5625, param7 ? -1.0 : 0.0);
-        param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-        param0.translate(0.5, 0.5, 0.5);
-        param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F + param3.toYRot()));
-        param0.translate(-0.5, -0.5, -0.5);
+        param0.translate(0.0F, 0.5625F, param7 ? -1.0F : 0.0F);
+        param0.mulPose(Axis.XP.rotationDegrees(90.0F));
+        param0.translate(0.5F, 0.5F, 0.5F);
+        param0.mulPose(Axis.ZP.rotationDegrees(180.0F + param3.toYRot()));
+        param0.translate(-0.5F, -0.5F, -0.5F);
         VertexConsumer var0 = param4.buffer(param1, RenderType::entitySolid);
         param2.render(param0, var0, param5, param6);
         param0.popPose();

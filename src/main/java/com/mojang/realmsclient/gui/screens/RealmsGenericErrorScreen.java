@@ -60,7 +60,9 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
     @Override
     public void init() {
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 52, 200, 20, Component.literal("Ok"), param0 -> this.minecraft.setScreen(this.nextScreen))
+            Button.builder(Component.literal("Ok"), param0 -> this.minecraft.setScreen(this.nextScreen))
+                .bounds(this.width / 2 - 100, this.height - 52, 200, 20)
+                .build()
         );
         this.line2Split = MultiLineLabel.create(this.font, this.lines.getSecond(), this.width * 3 / 4);
     }

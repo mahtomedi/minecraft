@@ -21,7 +21,7 @@ public class BlockRotProcessor extends StructureProcessor {
                 )
                 .apply(param0, BlockRotProcessor::new)
     );
-    private Optional<HolderSet<Block>> rottableBlocks;
+    private final Optional<HolderSet<Block>> rottableBlocks;
     private final float integrity;
 
     public BlockRotProcessor(TagKey<Block> param0, float param1) {

@@ -794,10 +794,10 @@ public class StrongholdPieces {
             this.generateBox(param0, param4, 0, 0, 0, 10, 7, 15, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.GRATES, 4, 1, 0);
             int var0 = 6;
-            this.generateBox(param0, param4, 1, var0, 1, 1, var0, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param4, 9, var0, 1, 9, var0, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param4, 2, var0, 1, 8, var0, 2, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param4, 2, var0, 14, 8, var0, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 1, 6, 1, 1, 6, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 9, 6, 1, 9, 6, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 2, 6, 1, 8, 6, 2, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 2, 6, 14, 8, 6, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateBox(param0, param4, 1, 1, 1, 2, 1, 4, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateBox(param0, param4, 8, 1, 1, 9, 1, 4, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateBox(param0, param4, 1, 1, 1, 1, 1, 3, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
@@ -876,8 +876,8 @@ public class StrongholdPieces {
                     this.hasPlacedSpawner = true;
                     param0.setBlock(var15, Blocks.SPAWNER.defaultBlockState(), 2);
                     BlockEntity var16 = param0.getBlockEntity(var15);
-                    if (var16 instanceof SpawnerBlockEntity) {
-                        ((SpawnerBlockEntity)var16).getSpawner().setEntityId(EntityType.SILVERFISH);
+                    if (var16 instanceof SpawnerBlockEntity var17) {
+                        var17.setEntityId(EntityType.SILVERFISH, param3);
                     }
                 }
             }

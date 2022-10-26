@@ -33,27 +33,19 @@ public class BackupConfirmScreen extends Screen {
         this.message = MultiLineLabel.create(this.font, this.description, this.width - 50);
         int var0 = (this.message.getLineCount() + 1) * 9;
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 155,
-                100 + var0,
-                150,
-                20,
-                Component.translatable("selectWorld.backupJoinConfirmButton"),
-                param0 -> this.listener.proceed(true, this.eraseCache.selected())
-            )
+            Button.builder(Component.translatable("selectWorld.backupJoinConfirmButton"), param0 -> this.listener.proceed(true, this.eraseCache.selected()))
+                .bounds(this.width / 2 - 155, 100 + var0, 150, 20)
+                .build()
         );
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 155 + 160,
-                100 + var0,
-                150,
-                20,
-                Component.translatable("selectWorld.backupJoinSkipButton"),
-                param0 -> this.listener.proceed(false, this.eraseCache.selected())
-            )
+            Button.builder(Component.translatable("selectWorld.backupJoinSkipButton"), param0 -> this.listener.proceed(false, this.eraseCache.selected()))
+                .bounds(this.width / 2 - 155 + 160, 100 + var0, 150, 20)
+                .build()
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 - 155 + 80, 124 + var0, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
+                .bounds(this.width / 2 - 155 + 80, 124 + var0, 150, 20)
+                .build()
         );
         this.eraseCache = new Checkbox(this.width / 2 - 155 + 80, 76 + var0, 150, 20, Component.translatable("selectWorld.backupEraseCache"), false);
         if (this.promptForCacheErase) {

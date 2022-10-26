@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractScrollWidget extends AbstractWidget implements Widget, GuiEventListener {
+public abstract class AbstractScrollWidget extends AbstractWidget implements Renderable, GuiEventListener {
     private static final int BORDER_COLOR_FOCUSED = -1;
     private static final int BORDER_COLOR = -6250336;
     private static final int BACKGROUND_COLOR = -16777216;
@@ -33,10 +33,10 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Wid
         } else {
             boolean var0 = this.withinContentAreaPoint(param0, param1);
             boolean var1 = this.scrollbarVisible()
-                && param0 >= (double)(this.x + this.width)
-                && param0 <= (double)(this.x + this.width + 8)
-                && param1 >= (double)this.y
-                && param1 < (double)(this.y + this.height);
+                && param0 >= (double)(this.getX() + this.width)
+                && param0 <= (double)(this.getX() + this.width + 8)
+                && param1 >= (double)this.getY()
+                && param1 < (double)(this.getY() + this.height);
             this.setFocused(var0 || var1);
             if (var1 && param2 == 0) {
                 this.scrolling = true;
@@ -59,9 +59,9 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Wid
     @Override
     public boolean mouseDragged(double param0, double param1, int param2, double param3, double param4) {
         if (this.visible && this.isFocused() && this.scrolling) {
-            if (param1 < (double)this.y) {
+            if (param1 < (double)this.getY()) {
                 this.setScrollAmount(0.0);
-            } else if (param1 > (double)(this.y + this.height)) {
+            } else if (param1 > (double)(this.getY() + this.height)) {
                 this.setScrollAmount((double)this.getMaxScrollAmount());
             } else {
                 int var0 = this.getScrollBarHeight();
@@ -89,7 +89,7 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Wid
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         if (this.visible) {
             this.renderBackground(param0);
-            enableScissor(this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1);
+            enableScissor(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1);
             param0.pushPose();
             param0.translate(0.0, -this.scrollAmount, 0.0);
             this.renderContents(param0, param1, param2, param3);
@@ -136,15 +136,15 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Wid
 
     private void renderBackground(PoseStack param0) {
         int var0 = this.isFocused() ? -1 : -6250336;
-        fill(param0, this.x, this.y, this.x + this.width, this.y + this.height, var0);
-        fill(param0, this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1, -16777216);
+        fill(param0, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, var0);
+        fill(param0, this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, -16777216);
     }
 
     private void renderScrollBar() {
         int var0 = this.getScrollBarHeight();
-        int var1 = this.x + this.width;
-        int var2 = this.x + this.width + 8;
-        int var3 = Math.max(this.y, (int)this.scrollAmount * (this.height - var0) / this.getMaxScrollAmount() + this.y);
+        int var1 = this.getX() + this.width;
+        int var2 = this.getX() + this.width + 8;
+        int var3 = Math.max(this.getY(), (int)this.scrollAmount * (this.height - var0) / this.getMaxScrollAmount() + this.getY());
         int var4 = var3 + var0;
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         Tesselator var5 = Tesselator.getInstance();
@@ -162,11 +162,14 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Wid
     }
 
     protected boolean withinContentAreaTopBottom(int param0, int param1) {
-        return (double)param1 - this.scrollAmount >= (double)this.y && (double)param0 - this.scrollAmount <= (double)(this.y + this.height);
+        return (double)param1 - this.scrollAmount >= (double)this.getY() && (double)param0 - this.scrollAmount <= (double)(this.getY() + this.height);
     }
 
     protected boolean withinContentAreaPoint(double param0, double param1) {
-        return param0 >= (double)this.x && param0 < (double)(this.x + this.width) && param1 >= (double)this.y && param1 < (double)(this.y + this.height);
+        return param0 >= (double)this.getX()
+            && param0 < (double)(this.getX() + this.width)
+            && param1 >= (double)this.getY()
+            && param1 < (double)(this.getY() + this.height);
     }
 
     protected abstract int getInnerHeight();

@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.CowModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -36,27 +36,27 @@ public class MushroomCowMushroomLayer<T extends MushroomCow> extends RenderLayer
                 int var3 = LivingEntityRenderer.getOverlayCoords(param3, 0.0F);
                 BakedModel var4 = this.blockRenderer.getBlockModel(var2);
                 param0.pushPose();
-                param0.translate(0.2F, -0.35F, 0.5);
-                param0.mulPose(Vector3f.YP.rotationDegrees(-48.0F));
+                param0.translate(0.2F, -0.35F, 0.5F);
+                param0.mulPose(Axis.YP.rotationDegrees(-48.0F));
                 param0.scale(-1.0F, -1.0F, 1.0F);
-                param0.translate(-0.5, -0.5, -0.5);
+                param0.translate(-0.5F, -0.5F, -0.5F);
                 this.renderMushroomBlock(param0, param1, param2, var1, var2, var3, var4);
                 param0.popPose();
                 param0.pushPose();
-                param0.translate(0.2F, -0.35F, 0.5);
-                param0.mulPose(Vector3f.YP.rotationDegrees(42.0F));
-                param0.translate(0.1F, 0.0, -0.6F);
-                param0.mulPose(Vector3f.YP.rotationDegrees(-48.0F));
+                param0.translate(0.2F, -0.35F, 0.5F);
+                param0.mulPose(Axis.YP.rotationDegrees(42.0F));
+                param0.translate(0.1F, 0.0F, -0.6F);
+                param0.mulPose(Axis.YP.rotationDegrees(-48.0F));
                 param0.scale(-1.0F, -1.0F, 1.0F);
-                param0.translate(-0.5, -0.5, -0.5);
+                param0.translate(-0.5F, -0.5F, -0.5F);
                 this.renderMushroomBlock(param0, param1, param2, var1, var2, var3, var4);
                 param0.popPose();
                 param0.pushPose();
                 this.getParentModel().getHead().translateAndRotate(param0);
-                param0.translate(0.0, -0.7F, -0.2F);
-                param0.mulPose(Vector3f.YP.rotationDegrees(-78.0F));
+                param0.translate(0.0F, -0.7F, -0.2F);
+                param0.mulPose(Axis.YP.rotationDegrees(-78.0F));
                 param0.scale(-1.0F, -1.0F, 1.0F);
-                param0.translate(-0.5, -0.5, -0.5);
+                param0.translate(-0.5F, -0.5F, -0.5F);
                 this.renderMushroomBlock(param0, param1, param2, var1, var2, var3, var4);
                 param0.popPose();
             }

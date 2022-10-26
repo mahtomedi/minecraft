@@ -2,8 +2,8 @@ package net.minecraft.data.info;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
@@ -23,7 +23,7 @@ public class BlockListReport implements DataProvider {
     }
 
     @Override
-    public void run(CachedOutput param0) throws IOException {
+    public CompletableFuture<?> run(CachedOutput param0) {
         JsonObject var0 = new JsonObject();
 
         for(Block var1 : Registry.BLOCK) {
@@ -73,11 +73,11 @@ public class BlockListReport implements DataProvider {
         }
 
         Path var14 = this.output.getOutputFolder(PackOutput.Target.REPORTS).resolve("blocks.json");
-        DataProvider.saveStable(param0, var0, var14);
+        return DataProvider.saveStable(param0, var0, var14);
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "Block List";
     }
 }

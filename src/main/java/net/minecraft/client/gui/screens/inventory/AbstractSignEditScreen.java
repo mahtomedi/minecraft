@@ -9,8 +9,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import java.util.stream.IntStream;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
@@ -27,6 +25,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSignEditScreen extends Screen {
@@ -54,7 +54,9 @@ public abstract class AbstractSignEditScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 4 + 120, 200, 20, CommonComponents.GUI_DONE, param0 -> this.onDone()));
+        this.addRenderableWidget(
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 100, this.height / 4 + 120, 200, 20).build()
+        );
         this.sign.setEditable(false);
         this.signField = new TextFieldHelper(
             () -> this.messages[this.line],
@@ -134,7 +136,7 @@ public abstract class AbstractSignEditScreen extends Screen {
     protected abstract Vector3f getSignTextScale();
 
     protected void offsetSign(PoseStack param0, BlockState param1) {
-        param0.translate((double)((float)this.width / 2.0F), 90.0, 50.0);
+        param0.translate((float)this.width / 2.0F, 90.0F, 50.0F);
     }
 
     private void renderSign(PoseStack param0) {
@@ -150,7 +152,7 @@ public abstract class AbstractSignEditScreen extends Screen {
     }
 
     private void renderSignText(PoseStack param0, MultiBufferSource.BufferSource param1) {
-        param0.translate(0.0, 0.0, 4.0);
+        param0.translate(0.0F, 0.0F, 4.0F);
         Vector3f var0 = this.getSignTextScale();
         param0.scale(var0.x(), var0.y(), var0.z());
         int var1 = this.sign.getColor().getTextColor();

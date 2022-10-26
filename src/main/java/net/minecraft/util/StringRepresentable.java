@@ -48,8 +48,8 @@ public interface StringRepresentable {
 
     @Deprecated
     public static class EnumCodec<E extends Enum<E> & StringRepresentable> implements Codec<E> {
-        private Codec<E> codec;
-        private Function<String, E> resolver;
+        private final Codec<E> codec;
+        private final Function<String, E> resolver;
 
         public EnumCodec(E[] param0, Function<String, E> param1) {
             this.codec = ExtraCodecs.orCompressed(

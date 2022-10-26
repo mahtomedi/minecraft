@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.BookModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -26,9 +26,9 @@ public class EnchantTableRenderer implements BlockEntityRenderer<EnchantmentTabl
 
     public void render(EnchantmentTableBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         param2.pushPose();
-        param2.translate(0.5, 0.75, 0.5);
+        param2.translate(0.5F, 0.75F, 0.5F);
         float var0 = (float)param0.time + param1;
-        param2.translate(0.0, (double)(0.1F + Mth.sin(var0 * 0.1F) * 0.01F), 0.0);
+        param2.translate(0.0F, 0.1F + Mth.sin(var0 * 0.1F) * 0.01F, 0.0F);
         float var1 = param0.rot - param0.oRot;
 
         while(var1 >= (float) Math.PI) {
@@ -40,8 +40,8 @@ public class EnchantTableRenderer implements BlockEntityRenderer<EnchantmentTabl
         }
 
         float var2 = param0.oRot + var1 * param1;
-        param2.mulPose(Vector3f.YP.rotation(-var2));
-        param2.mulPose(Vector3f.ZP.rotationDegrees(80.0F));
+        param2.mulPose(Axis.YP.rotation(-var2));
+        param2.mulPose(Axis.ZP.rotationDegrees(80.0F));
         float var3 = Mth.lerp(param1, param0.oFlip, param0.flip);
         float var4 = Mth.frac(var3 + 0.25F) * 1.6F - 0.3F;
         float var5 = Mth.frac(var3 + 0.75F) * 1.6F - 0.3F;

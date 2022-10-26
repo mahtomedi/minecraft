@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.FoxModel;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -31,31 +31,29 @@ public class FoxHeldItemLayer extends RenderLayer<Fox, FoxModel<Fox>> {
         if (var1) {
             float var2 = 0.75F;
             param0.scale(0.75F, 0.75F, 0.75F);
-            param0.translate(0.0, 0.5, 0.209375F);
+            param0.translate(0.0F, 0.5F, 0.209375F);
         }
 
-        param0.translate(
-            (double)(this.getParentModel().head.x / 16.0F), (double)(this.getParentModel().head.y / 16.0F), (double)(this.getParentModel().head.z / 16.0F)
-        );
+        param0.translate(this.getParentModel().head.x / 16.0F, this.getParentModel().head.y / 16.0F, this.getParentModel().head.z / 16.0F);
         float var3 = param3.getHeadRollAngle(param6);
-        param0.mulPose(Vector3f.ZP.rotation(var3));
-        param0.mulPose(Vector3f.YP.rotationDegrees(param8));
-        param0.mulPose(Vector3f.XP.rotationDegrees(param9));
+        param0.mulPose(Axis.ZP.rotation(var3));
+        param0.mulPose(Axis.YP.rotationDegrees(param8));
+        param0.mulPose(Axis.XP.rotationDegrees(param9));
         if (param3.isBaby()) {
             if (var0) {
                 param0.translate(0.4F, 0.26F, 0.15F);
             } else {
-                param0.translate(0.06F, 0.26F, -0.5);
+                param0.translate(0.06F, 0.26F, -0.5F);
             }
         } else if (var0) {
             param0.translate(0.46F, 0.26F, 0.22F);
         } else {
-            param0.translate(0.06F, 0.27F, -0.5);
+            param0.translate(0.06F, 0.27F, -0.5F);
         }
 
-        param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+        param0.mulPose(Axis.XP.rotationDegrees(90.0F));
         if (var0) {
-            param0.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+            param0.mulPose(Axis.ZP.rotationDegrees(90.0F));
         }
 
         ItemStack var4 = param3.getItemBySlot(EquipmentSlot.MAINHAND);

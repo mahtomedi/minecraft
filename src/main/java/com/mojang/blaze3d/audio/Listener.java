@@ -1,9 +1,9 @@
 package com.mojang.blaze3d.audio;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 import org.lwjgl.openal.AL10;
 
 @OnlyIn(Dist.CLIENT)
@@ -35,6 +35,6 @@ public class Listener {
 
     public void reset() {
         this.setListenerPosition(Vec3.ZERO);
-        this.setListenerOrientation(Vector3f.ZN, Vector3f.YP);
+        this.setListenerOrientation(new Vector3f(0.0F, 0.0F, -1.0F), new Vector3f(0.0F, 1.0F, 0.0F));
     }
 }

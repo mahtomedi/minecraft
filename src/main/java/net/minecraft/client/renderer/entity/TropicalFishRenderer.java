@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.ColorableHierarchicalModel;
 import net.minecraft.client.model.TropicalFishModelA;
 import net.minecraft.client.model.TropicalFishModelB;
@@ -41,10 +41,10 @@ public class TropicalFishRenderer extends MobRenderer<TropicalFish, ColorableHie
     protected void setupRotations(TropicalFish param0, PoseStack param1, float param2, float param3, float param4) {
         super.setupRotations(param0, param1, param2, param3, param4);
         float var0 = 4.3F * Mth.sin(0.6F * param2);
-        param1.mulPose(Vector3f.YP.rotationDegrees(var0));
+        param1.mulPose(Axis.YP.rotationDegrees(var0));
         if (!param0.isInWater()) {
-            param1.translate(0.2F, 0.1F, 0.0);
-            param1.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+            param1.translate(0.2F, 0.1F, 0.0F);
+            param1.mulPose(Axis.ZP.rotationDegrees(90.0F));
         }
 
     }

@@ -125,6 +125,7 @@ public class CamelModel<T extends Camel> extends HierarchicalModel<T> {
         float var0 = Math.min((float)param0.getDeltaMovement().lengthSqr() * 75.0F, 2.0F);
         this.animate(param0.walkAnimationState, CamelAnimation.CAMEL_WALK, param3, var0);
         this.animate(param0.sitAnimationState, CamelAnimation.CAMEL_SIT, param3, 1.0F);
+        this.animate(param0.sitPoseAnimationState, CamelAnimation.CAMEL_SIT_POSE, param3, 1.0F);
         this.animate(param0.sitUpAnimationState, CamelAnimation.CAMEL_STANDUP, param3, 1.0F);
         this.animate(param0.idleAnimationState, CamelAnimation.CAMEL_IDLE, param3, 1.0F);
         this.animate(param0.dashAnimationState, CamelAnimation.CAMEL_DASH, param3, 1.0F);
@@ -164,7 +165,7 @@ public class CamelModel<T extends Camel> extends HierarchicalModel<T> {
             float var1 = 1.1F;
             param0.pushPose();
             param0.scale(0.45454544F, 0.41322312F, 0.45454544F);
-            param0.translate(0.0, 2.0625, 0.0);
+            param0.translate(0.0F, 2.0625F, 0.0F);
             this.root().render(param0, param1, param2, param3, param4, param5, param6, param7);
             param0.popPose();
         } else {

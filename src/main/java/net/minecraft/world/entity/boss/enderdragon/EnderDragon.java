@@ -871,7 +871,7 @@ public class EnderDragon extends Mob implements Enemy {
         }
 
         if (param0 == this.nearestCrystal) {
-            this.hurt(this.head, DamageSource.explosion(var0), 10.0F);
+            this.hurt(this.head, DamageSource.explosion(param0, var0), 10.0F);
         }
 
         this.phaseManager.getCurrentPhase().onCrystalDestroyed(param0, param1, param2, var0);

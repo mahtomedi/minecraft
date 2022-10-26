@@ -28,7 +28,7 @@ public class SlimeRenderer extends MobRenderer<Slime, SlimeModel<Slime>> {
     protected void scale(Slime param0, PoseStack param1, float param2) {
         float var0 = 0.999F;
         param1.scale(0.999F, 0.999F, 0.999F);
-        param1.translate(0.0, 0.001F, 0.0);
+        param1.translate(0.0F, 0.001F, 0.0F);
         float var1 = (float)param0.getSize();
         float var2 = Mth.lerp(param2, param0.oSquish, param0.squish) / (var1 * 0.5F + 1.0F);
         float var3 = 1.0F / (var2 + 1.0F);

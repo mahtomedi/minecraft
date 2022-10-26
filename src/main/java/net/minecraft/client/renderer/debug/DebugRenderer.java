@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -25,6 +24,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class DebugRenderer {
@@ -178,8 +178,8 @@ public class DebugRenderer {
             double var5 = var1.getPosition().z;
             PoseStack var6 = RenderSystem.getModelViewStack();
             var6.pushPose();
-            var6.translate((double)((float)(param1 - var3)), (double)((float)(param2 - var4) + 0.07F), (double)((float)(param3 - var5)));
-            var6.mulPoseMatrix(new Matrix4f(var1.rotation()));
+            var6.translate((float)(param1 - var3), (float)(param2 - var4) + 0.07F, (float)(param3 - var5));
+            var6.mulPoseMatrix(new Matrix4f().rotation(var1.rotation()));
             var6.scale(param5, -param5, param5);
             RenderSystem.enableTexture();
             if (param8) {

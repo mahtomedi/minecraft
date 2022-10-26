@@ -39,7 +39,7 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerM
                 float var8 = Mth.lerp(var5, var4.minX, var4.maxX) / 16.0F;
                 float var9 = Mth.lerp(var6, var4.minY, var4.maxY) / 16.0F;
                 float var10 = Mth.lerp(var7, var4.minZ, var4.maxZ) / 16.0F;
-                param0.translate((double)var8, (double)var9, (double)var10);
+                param0.translate(var8, var9, var10);
                 var5 = -1.0F * (var5 * 2.0F - 1.0F);
                 var6 = -1.0F * (var6 * 2.0F - 1.0F);
                 var7 = -1.0F * (var7 * 2.0F - 1.0F);

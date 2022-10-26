@@ -242,7 +242,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         @Override
         protected void renderIcon(PoseStack param0) {
             RenderSystem.setShaderTexture(0, this.sprite.atlasLocation());
-            blit(param0, this.x + 2, this.y + 2, this.getBlitOffset(), 18, 18, this.sprite);
+            blit(param0, this.getX() + 2, this.getY() + 2, this.getBlitOffset(), 18, 18, this.sprite);
         }
 
         @Override
@@ -284,7 +284,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
                 var1 += this.width * 3;
             }
 
-            this.blit(param0, this.x, this.y, var1, 219, this.width, this.height);
+            this.blit(param0, this.getX(), this.getY(), var1, 219, this.width, this.height);
             this.renderIcon(param0);
         }
 
@@ -322,7 +322,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         protected void renderIcon(PoseStack param0) {
-            this.blit(param0, this.x + 2, this.y + 2, this.iconX, this.iconY, 18, 18);
+            this.blit(param0, this.getX() + 2, this.getY() + 2, this.iconX, this.iconY, 18, 18);
         }
 
         @Override

@@ -2,9 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.GuardianModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -20,6 +18,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
@@ -68,7 +68,7 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
             float var3 = var2 * 0.5F % 1.0F;
             float var4 = param0.getEyeHeight();
             param3.pushPose();
-            param3.translate(0.0, (double)var4, 0.0);
+            param3.translate(0.0F, var4, 0.0F);
             Vec3 var5 = this.getPosition(var0, (double)var0.getBbHeight() * 0.5, param2);
             Vec3 var6 = this.getPosition(param0, (double)var4, param2);
             Vec3 var7 = var5.subtract(var6);
@@ -76,8 +76,8 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
             var7 = var7.normalize();
             float var9 = (float)Math.acos(var7.y);
             float var10 = (float)Math.atan2(var7.z, var7.x);
-            param3.mulPose(Vector3f.YP.rotationDegrees(((float) (Math.PI / 2) - var10) * (180.0F / (float)Math.PI)));
-            param3.mulPose(Vector3f.XP.rotationDegrees(var9 * (180.0F / (float)Math.PI)));
+            param3.mulPose(Axis.YP.rotationDegrees(((float) (Math.PI / 2) - var10) * (180.0F / (float)Math.PI)));
+            param3.mulPose(Axis.XP.rotationDegrees(var9 * (180.0F / (float)Math.PI)));
             int var11 = 1;
             float var12 = var2 * 0.05F * -1.5F;
             float var13 = var1 * var1;

@@ -2,6 +2,7 @@ package com.mojang.math;
 
 import java.util.Arrays;
 import net.minecraft.Util;
+import org.joml.Matrix3f;
 
 public enum SymmetricGroup3 {
     P123(0, 1, 2),
@@ -33,9 +34,9 @@ public enum SymmetricGroup3 {
     private SymmetricGroup3(int param0, int param1, int param2) {
         this.permutation = new int[]{param0, param1, param2};
         this.transformation = new Matrix3f();
-        this.transformation.set(0, this.permutation(0), 1.0F);
-        this.transformation.set(1, this.permutation(1), 1.0F);
-        this.transformation.set(2, this.permutation(2), 1.0F);
+        this.transformation.set(this.permutation(0), 0, 1.0F);
+        this.transformation.set(this.permutation(1), 1, 1.0F);
+        this.transformation.set(this.permutation(2), 2, 1.0F);
     }
 
     public SymmetricGroup3 compose(SymmetricGroup3 param0) {

@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 import java.security.PublicKey;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.SignatureValidator;
 
 public record ProfilePublicKey(ProfilePublicKey.Data data) {
-    public static final Component MISSING_PROFILE_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.missing_public_key");
     public static final Component EXPIRED_PROFILE_PUBLIC_KEY = Component.translatable("multiplayer.disconnect.expired_public_key");
     private static final Component INVALID_SIGNATURE = Component.translatable("multiplayer.disconnect.invalid_public_key_signature");
     public static final Duration EXPIRY_GRACE_PERIOD = Duration.ofHours(8L);
@@ -75,6 +75,16 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
 
         public boolean hasExpired(Duration param0) {
             return this.expiresAt.plus(param0).isBefore(Instant.now());
+        }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (!(param0 instanceof ProfilePublicKey.Data)) {
+                return false;
+            } else {
+                ProfilePublicKey.Data var0 = (ProfilePublicKey.Data)param0;
+                return this.expiresAt.equals(var0.expiresAt) && this.key.equals(var0.key) && Arrays.equals(this.keySignature, var0.keySignature);
+            }
         }
     }
 

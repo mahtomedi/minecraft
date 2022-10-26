@@ -12,7 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -259,7 +259,7 @@ public class Gui extends GuiComponent {
 
                 if (var11 > 8) {
                     param0.pushPose();
-                    param0.translate((double)(this.screenWidth / 2), (double)(this.screenHeight - 68), 0.0);
+                    param0.translate((float)(this.screenWidth / 2), (float)(this.screenHeight - 68), 0.0F);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     int var12 = 16777215;
@@ -294,7 +294,7 @@ public class Gui extends GuiComponent {
                 var16 = Mth.clamp(var16, 0, 255);
                 if (var16 > 8) {
                     param0.pushPose();
-                    param0.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), 0.0);
+                    param0.translate((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), 0.0F);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     param0.pushPose();
@@ -375,9 +375,9 @@ public class Gui extends GuiComponent {
                     Camera var1 = this.minecraft.gameRenderer.getMainCamera();
                     PoseStack var2 = RenderSystem.getModelViewStack();
                     var2.pushPose();
-                    var2.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), (double)this.getBlitOffset());
-                    var2.mulPose(Vector3f.XN.rotationDegrees(var1.getXRot()));
-                    var2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot()));
+                    var2.translate((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), (float)this.getBlitOffset());
+                    var2.mulPose(Axis.XN.rotationDegrees(var1.getXRot()));
+                    var2.mulPose(Axis.YP.rotationDegrees(var1.getYRot()));
                     var2.scale(-1.0F, -1.0F, -1.0F);
                     RenderSystem.applyModelViewMatrix();
                     RenderSystem.renderCrosshair(10);
@@ -1096,9 +1096,9 @@ public class Gui extends GuiComponent {
             if (var1 > 0.0F) {
                 float var2 = 1.0F + var1 / 5.0F;
                 var0.pushPose();
-                var0.translate((double)(param0 + 8), (double)(param1 + 12), 0.0);
+                var0.translate((float)(param0 + 8), (float)(param1 + 12), 0.0F);
                 var0.scale(1.0F / var2, (var2 + 1.0F) / 2.0F, 1.0F);
-                var0.translate((double)(-(param0 + 8)), (double)(-(param1 + 12)), 0.0);
+                var0.translate((float)(-(param0 + 8)), (float)(-(param1 + 12)), 0.0F);
                 RenderSystem.applyModelViewMatrix();
             }
 

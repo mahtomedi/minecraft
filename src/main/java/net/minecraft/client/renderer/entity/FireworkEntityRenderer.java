@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -23,11 +23,11 @@ public class FireworkEntityRenderer extends EntityRenderer<FireworkRocketEntity>
     public void render(FireworkRocketEntity param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
         param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
-        param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        param3.mulPose(Axis.YP.rotationDegrees(180.0F));
         if (param0.isShotAtAngle()) {
-            param3.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-            param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-            param3.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+            param3.mulPose(Axis.ZP.rotationDegrees(180.0F));
+            param3.mulPose(Axis.YP.rotationDegrees(180.0F));
+            param3.mulPose(Axis.XP.rotationDegrees(90.0F));
         }
 
         this.itemRenderer

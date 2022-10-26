@@ -16,9 +16,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +75,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -824,7 +825,7 @@ public class GameRenderer implements AutoCloseable {
             float var1 = (float)var0.hurtTime - param1;
             if (var0.isDeadOrDying()) {
                 float var2 = Math.min((float)var0.deathTime + param1, 20.0F);
-                param0.mulPose(Vector3f.ZP.rotationDegrees(40.0F - 8000.0F / (var2 + 200.0F)));
+                param0.mulPose(Axis.ZP.rotationDegrees(40.0F - 8000.0F / (var2 + 200.0F)));
             }
 
             if (var1 < 0.0F) {
@@ -834,9 +835,9 @@ public class GameRenderer implements AutoCloseable {
             var1 /= (float)var0.hurtDuration;
             var1 = Mth.sin(var1 * var1 * var1 * var1 * (float) Math.PI);
             float var3 = var0.hurtDir;
-            param0.mulPose(Vector3f.YP.rotationDegrees(-var3));
-            param0.mulPose(Vector3f.ZP.rotationDegrees(-var1 * 14.0F));
-            param0.mulPose(Vector3f.YP.rotationDegrees(var3));
+            param0.mulPose(Axis.YP.rotationDegrees(-var3));
+            param0.mulPose(Axis.ZP.rotationDegrees(-var1 * 14.0F));
+            param0.mulPose(Axis.YP.rotationDegrees(var3));
         }
 
     }
@@ -847,9 +848,9 @@ public class GameRenderer implements AutoCloseable {
             float var1 = var0.walkDist - var0.walkDistO;
             float var2 = -(var0.walkDist + var1 * param1);
             float var3 = Mth.lerp(param1, var0.oBob, var0.bob);
-            param0.translate((double)(Mth.sin(var2 * (float) Math.PI) * var3 * 0.5F), (double)(-Math.abs(Mth.cos(var2 * (float) Math.PI) * var3)), 0.0);
-            param0.mulPose(Vector3f.ZP.rotationDegrees(Mth.sin(var2 * (float) Math.PI) * var3 * 3.0F));
-            param0.mulPose(Vector3f.XP.rotationDegrees(Math.abs(Mth.cos(var2 * (float) Math.PI - 0.2F) * var3) * 5.0F));
+            param0.translate(Mth.sin(var2 * (float) Math.PI) * var3 * 0.5F, -Math.abs(Mth.cos(var2 * (float) Math.PI) * var3), 0.0F);
+            param0.mulPose(Axis.ZP.rotationDegrees(Mth.sin(var2 * (float) Math.PI) * var3 * 3.0F));
+            param0.mulPose(Axis.XP.rotationDegrees(Math.abs(Mth.cos(var2 * (float) Math.PI - 0.2F) * var3) * 5.0F));
         }
     }
 
@@ -866,18 +867,16 @@ public class GameRenderer implements AutoCloseable {
     private void renderItemInHand(PoseStack param0, Camera param1, float param2) {
         if (!this.panoramicMode) {
             this.resetProjectionMatrix(this.getProjectionMatrix(this.getFov(param1, param2, false)));
-            PoseStack.Pose var0 = param0.last();
-            var0.pose().setIdentity();
-            var0.normal().setIdentity();
+            param0.setIdentity();
             param0.pushPose();
             this.bobHurt(param0, param2);
             if (this.minecraft.options.bobView().get()) {
                 this.bobView(param0, param2);
             }
 
-            boolean var1 = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
+            boolean var0 = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
             if (this.minecraft.options.getCameraType().isFirstPerson()
-                && !var1
+                && !var0
                 && !this.minecraft.options.hideGui
                 && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
                 this.lightTexture.turnOnLightLayer();
@@ -893,7 +892,7 @@ public class GameRenderer implements AutoCloseable {
             }
 
             param0.popPose();
-            if (this.minecraft.options.getCameraType().isFirstPerson() && !var1) {
+            if (this.minecraft.options.getCameraType().isFirstPerson() && !var0) {
                 ScreenEffectRenderer.renderScreenEffect(this.minecraft, param0);
                 this.bobHurt(param0, param2);
             }
@@ -911,18 +910,22 @@ public class GameRenderer implements AutoCloseable {
 
     public Matrix4f getProjectionMatrix(double param0) {
         PoseStack var0 = new PoseStack();
-        var0.last().pose().setIdentity();
+        var0.last().pose().identity();
         if (this.zoom != 1.0F) {
-            var0.translate((double)this.zoomX, (double)(-this.zoomY), 0.0);
+            var0.translate(this.zoomX, -this.zoomY, 0.0F);
             var0.scale(this.zoom, this.zoom, 1.0F);
         }
 
         var0.last()
             .pose()
-            .multiply(
-                Matrix4f.perspective(
-                    param0, (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(), 0.05F, this.getDepthFar()
-                )
+            .mul(
+                new Matrix4f()
+                    .setPerspective(
+                        (float)(param0 * (float) (Math.PI / 180.0)),
+                        (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(),
+                        0.05F,
+                        this.getDepthFar()
+                    )
             );
         return var0.last().pose();
     }
@@ -977,13 +980,14 @@ public class GameRenderer implements AutoCloseable {
 
             Window var2 = this.minecraft.getWindow();
             RenderSystem.clear(256, Minecraft.ON_OSX);
-            Matrix4f var3 = Matrix4f.orthographic(
-                0.0F, (float)((double)var2.getWidth() / var2.getGuiScale()), 0.0F, (float)((double)var2.getHeight() / var2.getGuiScale()), 1000.0F, 3000.0F
-            );
+            Matrix4f var3 = new Matrix4f()
+                .setOrtho(
+                    0.0F, (float)((double)var2.getWidth() / var2.getGuiScale()), (float)((double)var2.getHeight() / var2.getGuiScale()), 0.0F, 1000.0F, 3000.0F
+                );
             RenderSystem.setProjectionMatrix(var3);
             PoseStack var4 = RenderSystem.getModelViewStack();
             var4.setIdentity();
-            var4.translate(0.0, 0.0, -2000.0);
+            var4.translate(0.0F, 0.0F, -2000.0F);
             RenderSystem.applyModelViewMatrix();
             Lighting.setupFor3DItems();
             PoseStack var5 = new PoseStack();
@@ -1153,7 +1157,7 @@ public class GameRenderer implements AutoCloseable {
         this.renderDistance = (float)(this.minecraft.options.getEffectiveRenderDistance() * 16);
         PoseStack var2 = new PoseStack();
         double var3 = this.getFov(var1, param0, true);
-        var2.last().pose().multiply(this.getProjectionMatrix(var3));
+        var2.mulPoseMatrix(this.getProjectionMatrix(var3));
         this.bobHurt(var2, param0);
         if (this.minecraft.options.bobView().get()) {
             this.bobView(var2, param0);
@@ -1165,7 +1169,7 @@ public class GameRenderer implements AutoCloseable {
             int var6 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
             float var7 = 5.0F / (var5 * var5 + 5.0F) - var5 * 0.04F;
             var7 *= var7;
-            Vector3f var8 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
+            Axis var8 = Axis.of(new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F));
             var2.mulPose(var8.rotationDegrees(((float)this.tick + param0) * (float)var6));
             var2.scale(1.0F / var7, 1.0F, 1.0F);
             float var9 = -((float)this.tick + param0) * (float)var6;
@@ -1181,13 +1185,10 @@ public class GameRenderer implements AutoCloseable {
             this.minecraft.options.getCameraType().isMirrored(),
             param0
         );
-        param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));
-        param2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot() + 180.0F));
-        Matrix3f var11 = param2.last().normal().copy();
-        if (var11.invert()) {
-            RenderSystem.setInverseViewRotationMatrix(var11);
-        }
-
+        param2.mulPose(Axis.XP.rotationDegrees(var1.getXRot()));
+        param2.mulPose(Axis.YP.rotationDegrees(var1.getYRot() + 180.0F));
+        Matrix3f var11 = new Matrix3f(param2.last().normal()).invert();
+        RenderSystem.setInverseViewRotationMatrix(var11);
         this.minecraft
             .levelRenderer
             .prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var3, (double)this.minecraft.options.fov().get().intValue())));
@@ -1233,16 +1234,12 @@ public class GameRenderer implements AutoCloseable {
             RenderSystem.disableCull();
             PoseStack var8 = new PoseStack();
             var8.pushPose();
-            var8.translate(
-                (double)((float)(param0 / 2) + var6 * Mth.abs(Mth.sin(var5 * 2.0F))),
-                (double)((float)(param1 / 2) + var7 * Mth.abs(Mth.sin(var5 * 2.0F))),
-                -50.0
-            );
+            var8.translate((float)(param0 / 2) + var6 * Mth.abs(Mth.sin(var5 * 2.0F)), (float)(param1 / 2) + var7 * Mth.abs(Mth.sin(var5 * 2.0F)), -50.0F);
             float var9 = 50.0F + 175.0F * Mth.sin(var5);
             var8.scale(var9, -var9, var9);
-            var8.mulPose(Vector3f.YP.rotationDegrees(900.0F * Mth.abs(Mth.sin(var5))));
-            var8.mulPose(Vector3f.XP.rotationDegrees(6.0F * Mth.cos(var1 * 8.0F)));
-            var8.mulPose(Vector3f.ZP.rotationDegrees(6.0F * Mth.cos(var1 * 8.0F)));
+            var8.mulPose(Axis.YP.rotationDegrees(900.0F * Mth.abs(Mth.sin(var5))));
+            var8.mulPose(Axis.XP.rotationDegrees(6.0F * Mth.cos(var1 * 8.0F)));
+            var8.mulPose(Axis.ZP.rotationDegrees(6.0F * Mth.cos(var1 * 8.0F)));
             MultiBufferSource.BufferSource var10 = this.renderBuffers.bufferSource();
             this.minecraft
                 .getItemRenderer()

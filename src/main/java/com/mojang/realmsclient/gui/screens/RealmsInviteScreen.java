@@ -49,10 +49,14 @@ public class RealmsInviteScreen extends RealmsScreen {
         this.addWidget(this.profileName);
         this.setInitialFocus(this.profileName);
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, row(10), 200, 20, Component.translatable("mco.configure.world.buttons.invite"), param0 -> this.onInvite())
+            Button.builder(Component.translatable("mco.configure.world.buttons.invite"), param0 -> this.onInvite())
+                .bounds(this.width / 2 - 100, row(10), 200, 20)
+                .build()
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
+                .bounds(this.width / 2 - 100, row(12), 200, 20)
+                .build()
         );
     }
 

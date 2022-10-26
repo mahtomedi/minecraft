@@ -23,10 +23,10 @@ public class ClampedNormalFloat extends FloatProvider {
                     : DataResult.success(param0),
             Function.identity()
         );
-    private float mean;
-    private float deviation;
-    private float min;
-    private float max;
+    private final float mean;
+    private final float deviation;
+    private final float min;
+    private final float max;
 
     public static ClampedNormalFloat of(float param0, float param1, float param2, float param3) {
         return new ClampedNormalFloat(param0, param1, param2, param3);

@@ -27,7 +27,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -228,30 +228,30 @@ public class CreateWorldScreen extends Screen {
                 })
         );
         this.dataPacksButton = this.addRenderableWidget(
-            new Button(var1, 151, 150, 20, Component.translatable("selectWorld.dataPacks"), param0 -> this.openDataPackSelectionScreen())
+            Button.builder(Component.translatable("selectWorld.dataPacks"), param0 -> this.openDataPackSelectionScreen()).bounds(var1, 151, 150, 20).build()
         );
         this.gameRulesButton = this.addRenderableWidget(
-            new Button(
-                var0,
-                185,
-                150,
-                20,
-                Component.translatable("selectWorld.gameRules"),
-                param0 -> this.minecraft.setScreen(new EditGameRulesScreen(this.gameRules.copy(), param0x -> {
-                        this.minecraft.setScreen(this);
-                        param0x.ifPresent(param0xx -> this.gameRules = param0xx);
-                    }))
-            )
+            Button.builder(
+                    Component.translatable("selectWorld.gameRules"),
+                    param0 -> this.minecraft.setScreen(new EditGameRulesScreen(this.gameRules.copy(), param0x -> {
+                            this.minecraft.setScreen(this);
+                            param0x.ifPresent(param0xx -> this.gameRules = param0xx);
+                        }))
+                )
+                .bounds(var0, 185, 150, 20)
+                .build()
         );
         this.worldGenSettingsComponent.init(this, this.minecraft, this.font);
         this.moreOptionsButton = this.addRenderableWidget(
-            new Button(var1, 185, 150, 20, Component.translatable("selectWorld.moreWorldOptions"), param0 -> this.toggleWorldGenSettingsVisibility())
+            Button.builder(Component.translatable("selectWorld.moreWorldOptions"), param0 -> this.toggleWorldGenSettingsVisibility())
+                .bounds(var1, 185, 150, 20)
+                .build()
         );
         this.createButton = this.addRenderableWidget(
-            new Button(var0, this.height - 28, 150, 20, Component.translatable("selectWorld.create"), param0 -> this.onCreate())
+            Button.builder(Component.translatable("selectWorld.create"), param0 -> this.onCreate()).bounds(var0, this.height - 28, 150, 20).build()
         );
         this.createButton.active = !this.initName.isEmpty();
-        this.addRenderableWidget(new Button(var1, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.popScreen()));
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.popScreen()).bounds(var1, this.height - 28, 150, 20).build());
         this.refreshWorldGenSettingsVisibility();
         this.setInitialFocus(this.nameEdit);
         this.setGameMode(this.gameMode);
@@ -462,7 +462,7 @@ public class CreateWorldScreen extends Screen {
     }
 
     @Override
-    protected <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T param0) {
+    protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T param0) {
         return super.addRenderableWidget(param0);
     }
 

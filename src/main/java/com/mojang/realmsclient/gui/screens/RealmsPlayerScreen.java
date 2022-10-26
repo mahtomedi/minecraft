@@ -76,44 +76,30 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         this.addRenderableWidget(
-            new Button(
-                this.column2X,
-                row(1),
-                this.columnWidth + 10,
-                20,
-                Component.translatable("mco.configure.world.buttons.invite"),
-                param0 -> this.minecraft.setScreen(new RealmsInviteScreen(this.lastScreen, this, this.serverData))
-            )
+            Button.builder(
+                    Component.translatable("mco.configure.world.buttons.invite"),
+                    param0 -> this.minecraft.setScreen(new RealmsInviteScreen(this.lastScreen, this, this.serverData))
+                )
+                .bounds(this.column2X, row(1), this.columnWidth + 10, 20)
+                .build()
         );
         this.removeButton = this.addRenderableWidget(
-            new Button(
-                this.column2X,
-                row(7),
-                this.columnWidth + 10,
-                20,
-                Component.translatable("mco.configure.world.invites.remove.tooltip"),
-                param0 -> this.uninvite(this.player)
-            )
+            Button.builder(Component.translatable("mco.configure.world.invites.remove.tooltip"), param0 -> this.uninvite(this.player))
+                .bounds(this.column2X, row(7), this.columnWidth + 10, 20)
+                .build()
         );
-        this.opdeopButton = this.addRenderableWidget(
-            new Button(this.column2X, row(9), this.columnWidth + 10, 20, Component.translatable("mco.configure.world.invites.ops.tooltip"), param0 -> {
-                if (this.serverData.players.get(this.player).isOperator()) {
-                    this.deop(this.player);
-                } else {
-                    this.op(this.player);
-                }
-    
-            })
-        );
+        this.opdeopButton = this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.invites.ops.tooltip"), param0 -> {
+            if (this.serverData.players.get(this.player).isOperator()) {
+                this.deop(this.player);
+            } else {
+                this.op(this.player);
+            }
+
+        }).bounds(this.column2X, row(9), this.columnWidth + 10, 20).build());
         this.addRenderableWidget(
-            new Button(
-                this.column2X + this.columnWidth / 2 + 2,
-                row(12),
-                this.columnWidth / 2 + 10 - 2,
-                20,
-                CommonComponents.GUI_BACK,
-                param0 -> this.backButtonClicked()
-            )
+            Button.builder(CommonComponents.GUI_BACK, param0 -> this.backButtonClicked())
+                .bounds(this.column2X + this.columnWidth / 2 + 2, row(12), this.columnWidth / 2 + 10 - 2, 20)
+                .build()
         );
         this.updateButtonStates();
     }

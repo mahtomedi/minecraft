@@ -6,7 +6,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import java.util.Map;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
@@ -31,10 +30,11 @@ public class PlayerInfo {
     private Component tabListDisplayName;
     @Nullable
     private RemoteChatSession chatSession;
-    private SignedMessageValidator messageValidator = SignedMessageValidator.REJECT_ALL;
+    private SignedMessageValidator messageValidator;
 
-    public PlayerInfo(GameProfile param0) {
+    public PlayerInfo(GameProfile param0, boolean param1) {
         this.profile = param0;
+        this.messageValidator = fallbackMessageValidator(param1);
     }
 
     public GameProfile getProfile() {
@@ -51,12 +51,21 @@ public class PlayerInfo {
     }
 
     public boolean hasVerifiableChat() {
-        return this.chatSession != null && this.chatSession.verifiable();
+        return this.chatSession != null;
     }
 
-    protected void setChatSession(@Nullable RemoteChatSession param0) {
+    protected void setChatSession(RemoteChatSession param0) {
         this.chatSession = param0;
-        this.messageValidator = Util.mapNullable(param0, RemoteChatSession::createMessageValidator, SignedMessageValidator.REJECT_ALL);
+        this.messageValidator = param0.createMessageValidator();
+    }
+
+    protected void clearChatSession(boolean param0) {
+        this.chatSession = null;
+        this.messageValidator = fallbackMessageValidator(param0);
+    }
+
+    private static SignedMessageValidator fallbackMessageValidator(boolean param0) {
+        return param0 ? SignedMessageValidator.REJECT_ALL : SignedMessageValidator.ACCEPT_UNSIGNED;
     }
 
     public GameType getGameMode() {

@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.Fluids;
 
 public class DoublePlantBlock extends BushBlock {
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
@@ -101,9 +102,7 @@ public class DoublePlantBlock extends BushBlock {
             BlockPos var1 = param1.below();
             BlockState var2 = param0.getBlockState(var1);
             if (var2.is(param2.getBlock()) && var2.getValue(HALF) == DoubleBlockHalf.LOWER) {
-                BlockState var3 = var2.hasProperty(BlockStateProperties.WATERLOGGED) && var2.getValue(BlockStateProperties.WATERLOGGED)
-                    ? Blocks.WATER.defaultBlockState()
-                    : Blocks.AIR.defaultBlockState();
+                BlockState var3 = var2.getFluidState().is(Fluids.WATER) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
                 param0.setBlock(var1, var3, 35);
                 param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             }

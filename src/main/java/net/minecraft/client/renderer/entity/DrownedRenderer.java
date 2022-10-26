@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.DrownedOuterLayer;
@@ -35,7 +35,7 @@ public class DrownedRenderer extends AbstractZombieRenderer<Drowned, DrownedMode
         super.setupRotations(param0, param1, param2, param3, param4);
         float var0 = param0.getSwimAmount(param4);
         if (var0 > 0.0F) {
-            param1.mulPose(Vector3f.XP.rotationDegrees(Mth.lerp(var0, param0.getXRot(), -10.0F - param0.getXRot())));
+            param1.mulPose(Axis.XP.rotationDegrees(Mth.lerp(var0, param0.getXRot(), -10.0F - param0.getXRot())));
         }
 
     }

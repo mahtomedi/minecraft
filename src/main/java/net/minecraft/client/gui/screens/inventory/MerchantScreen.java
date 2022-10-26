@@ -306,7 +306,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
         final int index;
 
         public TradeOfferButton(int param0, int param1, int param2, Button.OnPress param3) {
-            super(param0, param1, 89, 20, CommonComponents.EMPTY, param3);
+            super(param0, param1, 89, 20, CommonComponents.EMPTY, param3, NO_TOOLTIP, DEFAULT_NARRATION);
             this.index = param2;
             this.visible = false;
         }
@@ -318,15 +318,15 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
         @Override
         public void renderToolTip(PoseStack param0, int param1, int param2) {
             if (this.isHovered && MerchantScreen.this.menu.getOffers().size() > this.index + MerchantScreen.this.scrollOff) {
-                if (param1 < this.x + 20) {
+                if (param1 < this.getX() + 20) {
                     ItemStack var0 = MerchantScreen.this.menu.getOffers().get(this.index + MerchantScreen.this.scrollOff).getCostA();
                     MerchantScreen.this.renderTooltip(param0, var0, param1, param2);
-                } else if (param1 < this.x + 50 && param1 > this.x + 30) {
+                } else if (param1 < this.getX() + 50 && param1 > this.getX() + 30) {
                     ItemStack var1 = MerchantScreen.this.menu.getOffers().get(this.index + MerchantScreen.this.scrollOff).getCostB();
                     if (!var1.isEmpty()) {
                         MerchantScreen.this.renderTooltip(param0, var1, param1, param2);
                     }
-                } else if (param1 > this.x + 65) {
+                } else if (param1 > this.getX() + 65) {
                     ItemStack var2 = MerchantScreen.this.menu.getOffers().get(this.index + MerchantScreen.this.scrollOff).getResult();
                     MerchantScreen.this.renderTooltip(param0, var2, param1, param2);
                 }

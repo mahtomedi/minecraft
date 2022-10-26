@@ -1,9 +1,5 @@
 package com.mojang.blaze3d.vertex;
 
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -11,6 +7,10 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.util.FastColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 @OnlyIn(Dist.CLIENT)
@@ -85,9 +85,8 @@ public interface VertexConsumer {
         int[] var1 = new int[]{param6[0], param6[1], param6[2], param6[3]};
         int[] var2 = param1.getVertices();
         Vec3i var3 = param1.getDirection().getNormal();
-        Vector3f var4 = new Vector3f((float)var3.getX(), (float)var3.getY(), (float)var3.getZ());
-        Matrix4f var5 = param0.pose();
-        var4.transform(param0.normal());
+        Matrix4f var4 = param0.pose();
+        Vector3f var5 = param0.normal().transform(new Vector3f((float)var3.getX(), (float)var3.getY(), (float)var3.getZ()));
         int var6 = 8;
         int var7 = var2.length / 8;
 
@@ -120,23 +119,20 @@ public interface VertexConsumer {
                 int var24 = var1[var11];
                 float var25 = var9.getFloat(16);
                 float var26 = var9.getFloat(20);
-                Vector4f var27 = new Vector4f(var12, var13, var14, 1.0F);
-                var27.transform(var5);
-                this.vertex(var27.x(), var27.y(), var27.z(), var18, var19, var20, 1.0F, var25, var26, param7, var24, var4.x(), var4.y(), var4.z());
+                Vector4f var27 = var4.transform(new Vector4f(var12, var13, var14, 1.0F));
+                this.vertex(var27.x(), var27.y(), var27.z(), var18, var19, var20, 1.0F, var25, var26, param7, var24, var5.x(), var5.y(), var5.z());
             }
         }
 
     }
 
     default VertexConsumer vertex(Matrix4f param0, float param1, float param2, float param3) {
-        Vector4f var0 = new Vector4f(param1, param2, param3, 1.0F);
-        var0.transform(param0);
+        Vector4f var0 = param0.transform(new Vector4f(param1, param2, param3, 1.0F));
         return this.vertex((double)var0.x(), (double)var0.y(), (double)var0.z());
     }
 
     default VertexConsumer normal(Matrix3f param0, float param1, float param2, float param3) {
-        Vector3f var0 = new Vector3f(param1, param2, param3);
-        var0.transform(param0);
+        Vector3f var0 = param0.transform(new Vector3f(param1, param2, param3));
         return this.normal(var0.x(), var0.y(), var0.z());
     }
 }

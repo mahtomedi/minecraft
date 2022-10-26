@@ -118,6 +118,11 @@ public class CeilingHangingSignBlock extends SignBlock {
     }
 
     @Override
+    public VoxelShape getBlockSupportShape(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return this.getShape(param0, param1, param2, CollisionContext.empty());
+    }
+
+    @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         return param1 == Direction.UP && !this.canSurvive(param0, param3, param4)
             ? Blocks.AIR.defaultBlockState()

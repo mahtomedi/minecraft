@@ -94,4 +94,6 @@ public interface ServerGamePacketListener extends ServerPacketListener {
     void handleChangeDifficulty(ServerboundChangeDifficultyPacket var1);
 
     void handleLockDifficulty(ServerboundLockDifficultyPacket var1);
+
+    void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket var1);
 }

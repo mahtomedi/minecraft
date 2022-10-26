@@ -81,22 +81,24 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
     public void initButtons() {
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 120, this.height - 52, 80, 20, Component.translatable("stat.generalButton"), param0 -> this.setActiveList(this.statsList)
-            )
+            Button.builder(Component.translatable("stat.generalButton"), param0 -> this.setActiveList(this.statsList))
+                .bounds(this.width / 2 - 120, this.height - 52, 80, 20)
+                .build()
         );
         Button var0 = this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 40, this.height - 52, 80, 20, Component.translatable("stat.itemsButton"), param0 -> this.setActiveList(this.itemStatsList)
-            )
+            Button.builder(Component.translatable("stat.itemsButton"), param0 -> this.setActiveList(this.itemStatsList))
+                .bounds(this.width / 2 - 40, this.height - 52, 80, 20)
+                .build()
         );
         Button var1 = this.addRenderableWidget(
-            new Button(
-                this.width / 2 + 40, this.height - 52, 80, 20, Component.translatable("stat.mobsButton"), param0 -> this.setActiveList(this.mobsStatsList)
-            )
+            Button.builder(Component.translatable("stat.mobsButton"), param0 -> this.setActiveList(this.mobsStatsList))
+                .bounds(this.width / 2 + 40, this.height - 52, 80, 20)
+                .build()
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 28, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))
+                .bounds(this.width / 2 - 100, this.height - 28, 200, 20)
+                .build()
         );
         if (this.itemStatsList.children().isEmpty()) {
             var0.active = false;
@@ -397,7 +399,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 int var2 = StatsScreen.this.font.width(param1);
                 this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
                 param0.pushPose();
-                param0.translate(0.0, 0.0, 400.0);
+                param0.translate(0.0F, 0.0F, 400.0F);
                 StatsScreen.this.font.drawShadow(param0, param1, (float)var0, (float)var1, -1);
                 param0.popPose();
             }

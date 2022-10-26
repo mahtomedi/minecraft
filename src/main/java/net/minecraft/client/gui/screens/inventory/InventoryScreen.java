@@ -3,8 +3,6 @@ package net.minecraft.client.gui.screens.inventory;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
@@ -21,6 +19,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
 
 @OnlyIn(Dist.CLIENT)
 public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMenu> implements RecipeUpdateListener {
@@ -107,14 +106,14 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         float var1 = (float)Math.atan((double)(param4 / 40.0F));
         PoseStack var2 = RenderSystem.getModelViewStack();
         var2.pushPose();
-        var2.translate((double)param0, (double)param1, 1050.0);
+        var2.translate((float)param0, (float)param1, 1050.0F);
         var2.scale(1.0F, 1.0F, -1.0F);
         RenderSystem.applyModelViewMatrix();
         PoseStack var3 = new PoseStack();
-        var3.translate(0.0, 0.0, 1000.0);
+        var3.translate(0.0F, 0.0F, 1000.0F);
         var3.scale((float)param2, (float)param2, (float)param2);
-        Quaternion var4 = Vector3f.ZP.rotationDegrees(180.0F);
-        Quaternion var5 = Vector3f.XP.rotationDegrees(var1 * 20.0F);
+        Quaternionf var4 = new Quaternionf().rotateZ((float) Math.PI);
+        Quaternionf var5 = new Quaternionf().rotateX(var1 * 20.0F * (float) (Math.PI / 180.0));
         var4.mul(var5);
         var3.mulPose(var4);
         float var6 = param5.yBodyRot;
@@ -129,7 +128,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         param5.yHeadRotO = param5.getYRot();
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher var11 = Minecraft.getInstance().getEntityRenderDispatcher();
-        var5.conj();
+        var5.conjugate();
         var11.overrideCameraOrientation(var5);
         var11.setRenderShadow(false);
         MultiBufferSource.BufferSource var12 = Minecraft.getInstance().renderBuffers().bufferSource();

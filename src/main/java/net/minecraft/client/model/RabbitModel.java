@@ -114,13 +114,13 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
             float var0 = 1.5F;
             param0.pushPose();
             param0.scale(0.56666666F, 0.56666666F, 0.56666666F);
-            param0.translate(0.0, 1.375, 0.125);
+            param0.translate(0.0F, 1.375F, 0.125F);
             ImmutableList.of(this.head, this.leftEar, this.rightEar, this.nose)
                 .forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
             param0.popPose();
             param0.pushPose();
             param0.scale(0.4F, 0.4F, 0.4F);
-            param0.translate(0.0, 2.25, 0.0);
+            param0.translate(0.0F, 2.25F, 0.0F);
             ImmutableList.of(
                     this.leftRearFoot, this.rightRearFoot, this.leftHaunch, this.rightHaunch, this.body, this.leftFrontLeg, this.rightFrontLeg, this.tail
                 )
@@ -129,7 +129,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
         } else {
             param0.pushPose();
             param0.scale(0.6F, 0.6F, 0.6F);
-            param0.translate(0.0, 1.0, 0.0);
+            param0.translate(0.0F, 1.0F, 0.0F);
             ImmutableList.of(
                     this.leftRearFoot,
                     this.rightRearFoot,

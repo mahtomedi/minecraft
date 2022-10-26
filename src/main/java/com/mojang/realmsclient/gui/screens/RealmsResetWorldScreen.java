@@ -81,7 +81,9 @@ public class RealmsResetWorldScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.addRenderableWidget(new Button(this.width / 2 - 40, row(14) - 10, 80, 20, this.buttonTitle, param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addRenderableWidget(
+            Button.builder(this.buttonTitle, param0 -> this.minecraft.setScreen(this.lastScreen)).bounds(this.width / 2 - 40, row(14) - 10, 80, 20).build()
+        );
         (new Thread("Realms-reset-world-fetcher") {
             @Override
             public void run() {
@@ -288,14 +290,14 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         private final ResourceLocation image;
 
         public FrameButton(int param0, int param1, Component param2, ResourceLocation param3, Button.OnPress param4) {
-            super(param0, param1, 60, 72, param2, param4);
+            super(param0, param1, 60, 72, param2, param4, NO_TOOLTIP, DEFAULT_NARRATION);
             this.image = param3;
         }
 
         @Override
         public void renderButton(PoseStack param0, int param1, int param2, float param3) {
             RealmsResetWorldScreen.this.drawFrame(
-                param0, this.x, this.y, this.getMessage(), this.image, this.isHoveredOrFocused(), this.isMouseOver((double)param1, (double)param2)
+                param0, this.getX(), this.getY(), this.getMessage(), this.image, this.isHoveredOrFocused(), this.isMouseOver((double)param1, (double)param2)
             );
         }
     }

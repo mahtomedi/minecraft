@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.block.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
-import com.mojang.math.Vector3f;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -13,6 +12,7 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemModelGenerator {

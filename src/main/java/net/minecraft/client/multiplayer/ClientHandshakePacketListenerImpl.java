@@ -1,6 +1,5 @@
 package net.minecraft.client.multiplayer;
 
-import com.google.common.primitives.Longs;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
@@ -23,7 +22,6 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.LocalChatSession;
 import net.minecraft.network.protocol.login.ClientLoginPacketListener;
 import net.minecraft.network.protocol.login.ClientboundCustomQueryPacket;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
@@ -36,8 +34,6 @@ import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.HttpUtil;
-import net.minecraft.util.SignatureUpdater;
-import net.minecraft.util.Signer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -46,7 +42,6 @@ import org.slf4j.Logger;
 public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListener {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Minecraft minecraft;
-    private final LocalChatSession chatSession;
     @Nullable
     private final ServerData serverData;
     @Nullable
@@ -56,14 +51,13 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
     private GameProfile localGameProfile;
 
     public ClientHandshakePacketListenerImpl(
-        Connection param0, Minecraft param1, LocalChatSession param2, @Nullable ServerData param3, @Nullable Screen param4, Consumer<Component> param5
+        Connection param0, Minecraft param1, @Nullable ServerData param2, @Nullable Screen param3, Consumer<Component> param4
     ) {
         this.connection = param0;
         this.minecraft = param1;
-        this.chatSession = param2;
-        this.serverData = param3;
-        this.parent = param4;
-        this.updateStatus = param5;
+        this.serverData = param2;
+        this.parent = param3;
+        this.updateStatus = param4;
     }
 
     @Override
@@ -71,27 +65,17 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
         Cipher var3;
         Cipher var4;
         String var2;
-        ServerboundKeyPacket var7;
+        ServerboundKeyPacket var6;
         try {
             SecretKey var0 = Crypt.generateSecretKey();
             PublicKey var1 = param0.getPublicKey();
             var2 = new BigInteger(Crypt.digestData(param0.getServerId(), var1, var0)).toString(16);
             var3 = Crypt.getCipher(2, var0);
             var4 = Crypt.getCipher(1, var0);
-            byte[] var5 = param0.getNonce();
-            Signer var6 = this.chatSession.createSigner();
-            if (var6 == null) {
-                var7 = new ServerboundKeyPacket(var0, var1, var5);
-            } else {
-                long var8 = Crypt.SaltSupplier.getLong();
-                byte[] var9 = var6.sign((SignatureUpdater)(param2 -> {
-                    param2.update(var5);
-                    param2.update(Longs.toByteArray(var8));
-                }));
-                var7 = new ServerboundKeyPacket(var0, var1, var8, var9);
-            }
-        } catch (Exception var131) {
-            throw new IllegalStateException("Protocol error", var131);
+            byte[] var5 = param0.getChallenge();
+            var6 = new ServerboundKeyPacket(var0, var1, var5);
+        } catch (Exception var91) {
+            throw new IllegalStateException("Protocol error", var91);
         }
 
         this.updateStatus.accept(Component.translatable("connect.authorizing"));
@@ -107,7 +91,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             }
 
             this.updateStatus.accept(Component.translatable("connect.encrypting"));
-            this.connection.send(var7, PacketSendListener.thenRun(() -> this.connection.setEncryptionKey(var3, var4)));
+            this.connection.send(var6, PacketSendListener.thenRun(() -> this.connection.setEncryptionKey(var3, var4)));
         });
     }
 
@@ -141,13 +125,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
         this.connection
             .setListener(
                 new ClientPacketListener(
-                    this.minecraft,
-                    this.parent,
-                    this.connection,
-                    this.chatSession,
-                    this.serverData,
-                    this.localGameProfile,
-                    this.minecraft.createTelemetryManager()
+                    this.minecraft, this.parent, this.connection, this.serverData, this.localGameProfile, this.minecraft.createTelemetryManager()
                 )
             );
     }

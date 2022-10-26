@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
@@ -72,6 +74,10 @@ public class SpawnerBlockEntity extends BlockEntity {
     @Override
     public boolean onlyOpCanSetNbt() {
         return true;
+    }
+
+    public void setEntityId(EntityType<?> param0, RandomSource param1) {
+        this.spawner.setEntityId(param0, this.level, param1, this.worldPosition);
     }
 
     public BaseSpawner getSpawner() {

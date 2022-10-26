@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.net.InetSocketAddress;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import net.minecraft.DefaultUncaughtExceptionHandler;
@@ -22,7 +21,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.LocalChatSession;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraftforge.api.distmarker.Dist;
@@ -57,9 +55,8 @@ public class ConnectScreen extends Screen {
     }
 
     private void connect(final Minecraft param0, final ServerAddress param1, @Nullable final ServerData param2) {
-        final CompletableFuture<LocalChatSession> var0 = param0.getProfileKeyPairManager().prepareChatSession();
         LOGGER.info("Connecting to {}, {}", param1.getHost(), param1.getPort());
-        Thread var1 = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+        Thread var0 = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
             @Override
             public void run() {
                 InetSocketAddress var0 = null;
@@ -85,41 +82,36 @@ public class ConnectScreen extends Screen {
 
                     var0 = var1.get();
                     ConnectScreen.this.connection = Connection.connectToServer(var0, param0.options.useNativeTransport());
-                    LocalChatSession var2 = var0.join();
                     ConnectScreen.this.connection
                         .setListener(
                             new ClientHandshakePacketListenerImpl(
-                                ConnectScreen.this.connection, param0, var2, param2, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
+                                ConnectScreen.this.connection, param0, param2, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
                             )
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
                     ConnectScreen.this.connection
-                        .send(
-                            new ServerboundHelloPacket(
-                                param0.getUser().getName(), var2.asRemote().asData(), Optional.ofNullable(param0.getUser().getProfileId())
-                            )
-                        );
+                        .send(new ServerboundHelloPacket(param0.getUser().getName(), Optional.ofNullable(param0.getUser().getProfileId())));
                 } catch (Exception var61) {
                     if (ConnectScreen.this.aborted) {
                         return;
                     }
 
-                    Throwable var5x = var61.getCause();
-                    Exception var5;
-                    if (var5x instanceof Exception var4) {
-                        var5 = var4;
+                    Throwable var51 = var61.getCause();
+                    Exception var4;
+                    if (var51 instanceof Exception var3) {
+                        var4 = var3;
                     } else {
-                        var5 = var61;
+                        var4 = var61;
                     }
 
                     ConnectScreen.LOGGER.error("Couldn't connect to server", (Throwable)var61);
-                    String var7 = var0 == null
-                        ? var5.getMessage()
-                        : var5.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
+                    String var6 = var0 == null
+                        ? var4.getMessage()
+                        : var4.getMessage().replaceAll(var0.getHostName() + ":" + var0.getPort(), "").replaceAll(var0.toString(), "");
                     param0.execute(
                         () -> param0.setScreen(
                                 new DisconnectedScreen(
-                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var7)
+                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var6)
                                 )
                             )
                     );
@@ -127,8 +119,8 @@ public class ConnectScreen extends Screen {
 
             }
         };
-        var1.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        var1.start();
+        var0.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        var0.start();
     }
 
     private void updateStatus(Component param0) {
@@ -154,14 +146,14 @@ public class ConnectScreen extends Screen {
 
     @Override
     protected void init() {
-        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, param0 -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, param0 -> {
             this.aborted = true;
             if (this.connection != null) {
                 this.connection.disconnect(Component.translatable("connect.aborted"));
             }
 
             this.minecraft.setScreen(this.parent);
-        }));
+        }).bounds(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20).build());
     }
 
     @Override

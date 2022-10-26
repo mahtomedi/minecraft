@@ -31,7 +31,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class EditBox extends AbstractWidget implements Widget, GuiEventListener {
+public class EditBox extends AbstractWidget implements Renderable, GuiEventListener {
     public static final int BACKWARDS = -1;
     public static final int FORWARDS = 1;
     private static final int CURSOR_INSERT_WIDTH = 1;
@@ -354,16 +354,16 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
         if (!this.isVisible()) {
             return false;
         } else {
-            boolean var0 = param0 >= (double)this.x
-                && param0 < (double)(this.x + this.width)
-                && param1 >= (double)this.y
-                && param1 < (double)(this.y + this.height);
+            boolean var0 = param0 >= (double)this.getX()
+                && param0 < (double)(this.getX() + this.width)
+                && param1 >= (double)this.getY()
+                && param1 < (double)(this.getY() + this.height);
             if (this.canLoseFocus) {
                 this.setFocus(var0);
             }
 
             if (this.isFocused() && var0 && param2 == 0) {
-                int var1 = Mth.floor(param0) - this.x;
+                int var1 = Mth.floor(param0) - this.getX();
                 if (this.bordered) {
                     var1 -= 4;
                 }
@@ -386,8 +386,8 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
         if (this.isVisible()) {
             if (this.isBordered()) {
                 int var0 = this.isFocused() ? -1 : -6250336;
-                fill(param0, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, var0);
-                fill(param0, this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
+                fill(param0, this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, var0);
+                fill(param0, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, -16777216);
             }
 
             int var1 = this.isEditable ? this.textColor : this.textColorUneditable;
@@ -396,8 +396,8 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
             String var4 = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
             boolean var5 = var2 >= 0 && var2 <= var4.length();
             boolean var6 = this.isFocused() && this.frame / 6 % 2 == 0 && var5;
-            int var7 = this.bordered ? this.x + 4 : this.x;
-            int var8 = this.bordered ? this.y + (this.height - 8) / 2 : this.y;
+            int var7 = this.bordered ? this.getX() + 4 : this.getX();
+            int var8 = this.bordered ? this.getY() + (this.height - 8) / 2 : this.getY();
             int var9 = var7;
             if (var3 > var4.length()) {
                 var3 = var4.length();
@@ -454,12 +454,12 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
             param3 = var1;
         }
 
-        if (param2 > this.x + this.width) {
-            param2 = this.x + this.width;
+        if (param2 > this.getX() + this.width) {
+            param2 = this.getX() + this.width;
         }
 
-        if (param0 > this.x + this.width) {
-            param0 = this.x + this.width;
+        if (param0 > this.getX() + this.width) {
+            param0 = this.getX() + this.width;
         }
 
         Tesselator var2 = Tesselator.getInstance();
@@ -521,10 +521,10 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
     @Override
     public boolean isMouseOver(double param0, double param1) {
         return this.visible
-            && param0 >= (double)this.x
-            && param0 < (double)(this.x + this.width)
-            && param1 >= (double)this.y
-            && param1 < (double)(this.y + this.height);
+            && param0 >= (double)this.getX()
+            && param0 < (double)(this.getX() + this.width)
+            && param1 >= (double)this.getY()
+            && param1 < (double)(this.getY() + this.height);
     }
 
     @Override
@@ -590,11 +590,7 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
     }
 
     public int getScreenX(int param0) {
-        return param0 > this.value.length() ? this.x : this.x + this.font.width(this.value.substring(0, param0));
-    }
-
-    public void setX(int param0) {
-        this.x = param0;
+        return param0 > this.value.length() ? this.getX() : this.getX() + this.font.width(this.value.substring(0, param0));
     }
 
     @Override

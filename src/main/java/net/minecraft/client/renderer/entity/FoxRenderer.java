@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.FoxModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.layers.FoxHeldItemLayer;
@@ -27,7 +27,7 @@ public class FoxRenderer extends MobRenderer<Fox, FoxModel<Fox>> {
         super.setupRotations(param0, param1, param2, param3, param4);
         if (param0.isPouncing() || param0.isFaceplanted()) {
             float var0 = -Mth.lerp(param4, param0.xRotO, param0.getXRot());
-            param1.mulPose(Vector3f.XP.rotationDegrees(var0));
+            param1.mulPose(Axis.XP.rotationDegrees(var0));
         }
 
     }

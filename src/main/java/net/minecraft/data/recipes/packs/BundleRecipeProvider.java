@@ -24,9 +24,4 @@ public class BundleRecipeProvider extends RecipeProvider {
             .unlockedBy("has_string", has(Items.STRING))
             .save(param0);
     }
-
-    @Override
-    public String getName() {
-        return "Bundle Recipes";
-    }
 }

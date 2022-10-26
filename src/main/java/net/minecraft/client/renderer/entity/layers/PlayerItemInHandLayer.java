@@ -50,7 +50,7 @@ public class PlayerItemInHandLayer<T extends Player, M extends EntityModel<T> & 
         var0.xRot = var1;
         CustomHeadLayer.translateToHead(param3, false);
         boolean var2 = param2 == HumanoidArm.LEFT;
-        param3.translate((double)((var2 ? -2.5F : 2.5F) / 16.0F), -0.0625, 0.0);
+        param3.translate((var2 ? -2.5F : 2.5F) / 16.0F, -0.0625F, 0.0F);
         this.itemInHandRenderer.renderItem(param0, param1, ItemTransforms.TransformType.HEAD, false, param3, param4, param5);
         param3.popPose();
     }

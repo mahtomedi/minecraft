@@ -490,7 +490,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.put("Inventory", this.inventory.createTag());
+        this.writeInventoryToTag(param0);
         VibrationListener.codec(this.vibrationListenerConfig)
             .encodeStart(NbtOps.INSTANCE, this.dynamicVibrationListener.getListener())
             .resultOrPartial(LOGGER::error)
@@ -502,10 +502,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        if (param0.contains("Inventory", 10)) {
-            this.inventory.fromTag(param0.getList("Inventory", 10));
-        }
-
+        this.readInventoryFromTag(param0);
         if (param0.contains("listener", 10)) {
             VibrationListener.codec(this.vibrationListenerConfig)
                 .parse(new Dynamic<>(NbtOps.INSTANCE, param0.getCompound("listener")))

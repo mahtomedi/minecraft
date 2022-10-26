@@ -1271,15 +1271,15 @@ public class NetherFortressPieces {
                     this.hasPlacedSpawner = true;
                     param0.setBlock(var2, Blocks.SPAWNER.defaultBlockState(), 2);
                     BlockEntity var3 = param0.getBlockEntity(var2);
-                    if (var3 instanceof SpawnerBlockEntity) {
-                        ((SpawnerBlockEntity)var3).getSpawner().setEntityId(EntityType.BLAZE);
+                    if (var3 instanceof SpawnerBlockEntity var4) {
+                        var4.setEntityId(EntityType.BLAZE, param3);
                     }
                 }
             }
 
-            for(int var4 = 0; var4 <= 6; ++var4) {
-                for(int var5 = 0; var5 <= 6; ++var5) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, var5, param4);
+            for(int var5 = 0; var5 <= 6; ++var5) {
+                for(int var6 = 0; var6 <= 6; ++var6) {
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var5, -1, var6, param4);
                 }
             }
 

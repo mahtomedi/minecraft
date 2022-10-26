@@ -168,6 +168,11 @@ public class GameTestServer extends MinecraftServer {
     }
 
     @Override
+    public void waitUntilNextTick() {
+        this.runAllTasks();
+    }
+
+    @Override
     public SystemReport fillServerSystemReport(SystemReport param0) {
         param0.setDetail("Type", "Game test server");
         return param0;

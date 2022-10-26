@@ -23,8 +23,8 @@ public class ClampedInt extends IntProvider {
             Function.identity()
         );
     private final IntProvider source;
-    private int minInclusive;
-    private int maxInclusive;
+    private final int minInclusive;
+    private final int maxInclusive;
 
     public static ClampedInt of(IntProvider param0, int param1, int param2) {
         return new ClampedInt(param0, param1, param2);

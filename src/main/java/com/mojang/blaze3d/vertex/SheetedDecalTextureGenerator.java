@@ -1,12 +1,12 @@
 package com.mojang.blaze3d.vertex;
 
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 @OnlyIn(Dist.CLIENT)
 public class SheetedDecalTextureGenerator extends DefaultedVertexConsumer {
@@ -25,10 +25,8 @@ public class SheetedDecalTextureGenerator extends DefaultedVertexConsumer {
 
     public SheetedDecalTextureGenerator(VertexConsumer param0, Matrix4f param1, Matrix3f param2) {
         this.delegate = param0;
-        this.cameraInversePose = param1.copy();
-        this.cameraInversePose.invert();
-        this.normalInversePose = param2.copy();
-        this.normalInversePose.invert();
+        this.cameraInversePose = new Matrix4f(param1).invert();
+        this.normalInversePose = new Matrix3f(param2).invert();
         this.resetState();
     }
 
@@ -46,14 +44,12 @@ public class SheetedDecalTextureGenerator extends DefaultedVertexConsumer {
 
     @Override
     public void endVertex() {
-        Vector3f var0 = new Vector3f(this.nx, this.ny, this.nz);
-        var0.transform(this.normalInversePose);
+        Vector3f var0 = this.normalInversePose.transform(new Vector3f(this.nx, this.ny, this.nz));
         Direction var1 = Direction.getNearest(var0.x(), var0.y(), var0.z());
-        Vector4f var2 = new Vector4f(this.x, this.y, this.z, 1.0F);
-        var2.transform(this.cameraInversePose);
-        var2.transform(Vector3f.YP.rotationDegrees(180.0F));
-        var2.transform(Vector3f.XP.rotationDegrees(-90.0F));
-        var2.transform(var1.getRotation());
+        Vector4f var2 = this.cameraInversePose.transform(new Vector4f(this.x, this.y, this.z, 1.0F));
+        var2.rotateY((float) Math.PI);
+        var2.rotateX((float) (-Math.PI / 2));
+        var2.rotate(var1.getRotation());
         float var3 = -var2.x();
         float var4 = -var2.y();
         this.delegate

@@ -89,11 +89,11 @@ public class RealmsUploadScreen extends RealmsScreen {
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.backButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_BACK, param0 -> this.onBack())
+            Button.builder(CommonComponents.GUI_BACK, param0 -> this.onBack()).bounds(this.width / 2 - 100, this.height - 42, 200, 20).build()
         );
         this.backButton.visible = false;
         this.cancelButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height - 42, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel())
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.onCancel()).bounds(this.width / 2 - 100, this.height - 42, 200, 20).build()
         );
         if (!this.uploadStarted) {
             if (this.lastScreen.slot == -1) {

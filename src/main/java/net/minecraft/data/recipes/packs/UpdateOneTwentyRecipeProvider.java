@@ -24,11 +24,12 @@ public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
         mosaicBuilder(param0, RecipeCategory.DECORATIONS, Blocks.BAMBOO_MOSAIC, Blocks.BAMBOO_SLAB);
         woodenBoat(param0, Items.BAMBOO_RAFT, Blocks.BAMBOO_PLANKS);
         chestBoat(param0, Items.BAMBOO_CHEST_RAFT, Items.BAMBOO_RAFT);
-        hangingSign(param0, Items.ACACIA_HANGING_SIGN, Blocks.STRIPPED_OAK_LOG);
-        hangingSign(param0, Items.DARK_OAK_HANGING_SIGN, Blocks.STRIPPED_DARK_OAK_LOG);
-        hangingSign(param0, Items.JUNGLE_HANGING_SIGN, Blocks.STRIPPED_JUNGLE_LOG);
         hangingSign(param0, Items.OAK_HANGING_SIGN, Blocks.STRIPPED_OAK_LOG);
         hangingSign(param0, Items.SPRUCE_HANGING_SIGN, Blocks.STRIPPED_SPRUCE_LOG);
+        hangingSign(param0, Items.BIRCH_HANGING_SIGN, Blocks.STRIPPED_BIRCH_LOG);
+        hangingSign(param0, Items.JUNGLE_HANGING_SIGN, Blocks.STRIPPED_JUNGLE_LOG);
+        hangingSign(param0, Items.ACACIA_HANGING_SIGN, Blocks.STRIPPED_ACACIA_LOG);
+        hangingSign(param0, Items.DARK_OAK_HANGING_SIGN, Blocks.STRIPPED_DARK_OAK_LOG);
         hangingSign(param0, Items.MANGROVE_HANGING_SIGN, Blocks.STRIPPED_MANGROVE_LOG);
         hangingSign(param0, Items.BAMBOO_HANGING_SIGN, Blocks.BAMBOO_PLANKS, 2);
         hangingSign(param0, Items.CRIMSON_HANGING_SIGN, Blocks.STRIPPED_CRIMSON_STEM);
@@ -41,10 +42,5 @@ public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
             .pattern("###")
             .unlockedBy("has_book", has(Items.BOOK))
             .save(param0);
-    }
-
-    @Override
-    public String getName() {
-        return "Update 1.20 Recipes";
     }
 }

@@ -23,13 +23,13 @@ public class Realms32bitWarningScreen extends WarningScreen {
 
     @Override
     protected void initButtons(int param0) {
-        this.addRenderableWidget(new Button(this.width / 2 - 75, 100 + param0, 150, 20, CommonComponents.GUI_DONE, param0x -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0x -> {
             if (this.stopShowing.selected()) {
                 this.minecraft.options.skipRealms32bitWarning = true;
                 this.minecraft.options.save();
             }
 
             this.minecraft.setScreen(this.previous);
-        }));
+        }).bounds(this.width / 2 - 75, 100 + param0, 150, 20).build());
     }
 }

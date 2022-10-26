@@ -1,7 +1,6 @@
 package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.math.Vector3f;
 import java.util.Map;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -15,6 +14,7 @@ import net.minecraft.world.entity.LerpingModel;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class AxolotlModel<T extends Axolotl & LerpingModel> extends AgeableListModel<T> {

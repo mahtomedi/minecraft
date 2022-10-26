@@ -2,10 +2,6 @@ package net.minecraft.client.model.geom;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -14,6 +10,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.joml.Vector4f;
 
 @OnlyIn(Dist.CLIENT)
 public final class ModelPart {
@@ -146,17 +148,9 @@ public final class ModelPart {
     }
 
     public void translateAndRotate(PoseStack param0) {
-        param0.translate((double)(this.x / 16.0F), (double)(this.y / 16.0F), (double)(this.z / 16.0F));
-        if (this.zRot != 0.0F) {
-            param0.mulPose(Vector3f.ZP.rotation(this.zRot));
-        }
-
-        if (this.yRot != 0.0F) {
-            param0.mulPose(Vector3f.YP.rotation(this.yRot));
-        }
-
-        if (this.xRot != 0.0F) {
-            param0.mulPose(Vector3f.XP.rotation(this.xRot));
+        param0.translate(this.x / 16.0F, this.y / 16.0F, this.z / 16.0F);
+        if (this.xRot != 0.0F || this.yRot != 0.0F || this.zRot != 0.0F) {
+            param0.mulPose(new Quaternionf().rotationZYX(this.zRot, this.yRot, this.xRot));
         }
 
         if (this.xScale != 1.0F || this.yScale != 1.0F || this.zScale != 1.0F) {
@@ -292,8 +286,7 @@ public final class ModelPart {
             Matrix3f var1 = param0.normal();
 
             for(ModelPart.Polygon var2 : this.polygons) {
-                Vector3f var3 = var2.normal.copy();
-                var3.transform(var1);
+                Vector3f var3 = var1.transform(new Vector3f((Vector3fc)var2.normal));
                 float var4 = var3.x();
                 float var5 = var3.y();
                 float var6 = var3.z();
@@ -302,8 +295,7 @@ public final class ModelPart {
                     float var8 = var7.pos.x() / 16.0F;
                     float var9 = var7.pos.y() / 16.0F;
                     float var10 = var7.pos.z() / 16.0F;
-                    Vector4f var11 = new Vector4f(var8, var9, var10, 1.0F);
-                    var11.transform(var0);
+                    Vector4f var11 = var0.transform(new Vector4f(var8, var9, var10, 1.0F));
                     param1.vertex(var11.x(), var11.y(), var11.z(), param4, param5, param6, param7, var7.u, var7.v, param3, param2, var4, var5, var6);
                 }
             }

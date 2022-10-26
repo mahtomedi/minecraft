@@ -35,10 +35,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerTabOverlay extends GuiComponent {
-    private static final Comparator<PlayerInfo> PLAYER_COMPARATOR = Comparator.comparing(
-            PlayerInfo::getGameMode, Comparator.comparing(param0 -> param0 != GameType.SPECTATOR)
+    private static final Comparator<PlayerInfo> PLAYER_COMPARATOR = Comparator.<PlayerInfo>comparingInt(
+            param0 -> param0.getGameMode() == GameType.SPECTATOR ? 1 : 0
         )
-        .thenComparing(param0 -> Util.mapNullable(param0.getTeam(), PlayerTeam::getName, ""));
+        .thenComparing(param0 -> Util.mapNullable(param0.getTeam(), PlayerTeam::getName, ""))
+        .thenComparing(param0 -> param0.getProfile().getName(), String::compareToIgnoreCase);
     public static final int MAX_ROWS_PER_COL = 20;
     public static final int HEART_EMPTY_CONTAINER = 16;
     public static final int HEART_EMPTY_CONTAINER_BLINKING = 25;

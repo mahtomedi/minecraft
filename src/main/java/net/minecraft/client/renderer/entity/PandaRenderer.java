@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.client.model.PandaModel;
@@ -46,42 +46,42 @@ public class PandaRenderer extends MobRenderer<Panda, PandaModel<Panda>> {
                 float var4 = (float)(90 * var0) / 7.0F;
                 float var5 = (float)(90 * var1) / 7.0F;
                 float var6 = this.getAngle(var4, var5, var1, param4, 8.0F);
-                param1.translate(0.0, (double)((var3 + 0.2F) * (var6 / 90.0F)), 0.0);
-                param1.mulPose(Vector3f.XP.rotationDegrees(-var6));
+                param1.translate(0.0F, (var3 + 0.2F) * (var6 / 90.0F), 0.0F);
+                param1.mulPose(Axis.XP.rotationDegrees(-var6));
             } else if (var0 < 16) {
                 float var7 = ((float)var0 - 8.0F) / 7.0F;
                 float var8 = 90.0F + 90.0F * var7;
                 float var9 = 90.0F + 90.0F * ((float)var1 - 8.0F) / 7.0F;
                 float var10 = this.getAngle(var8, var9, var1, param4, 16.0F);
-                param1.translate(0.0, (double)(var3 + 0.2F + (var3 - 0.2F) * (var10 - 90.0F) / 90.0F), 0.0);
-                param1.mulPose(Vector3f.XP.rotationDegrees(-var10));
+                param1.translate(0.0F, var3 + 0.2F + (var3 - 0.2F) * (var10 - 90.0F) / 90.0F, 0.0F);
+                param1.mulPose(Axis.XP.rotationDegrees(-var10));
             } else if ((float)var0 < 24.0F) {
                 float var11 = ((float)var0 - 16.0F) / 7.0F;
                 float var12 = 180.0F + 90.0F * var11;
                 float var13 = 180.0F + 90.0F * ((float)var1 - 16.0F) / 7.0F;
                 float var14 = this.getAngle(var12, var13, var1, param4, 24.0F);
-                param1.translate(0.0, (double)(var3 + var3 * (270.0F - var14) / 90.0F), 0.0);
-                param1.mulPose(Vector3f.XP.rotationDegrees(-var14));
+                param1.translate(0.0F, var3 + var3 * (270.0F - var14) / 90.0F, 0.0F);
+                param1.mulPose(Axis.XP.rotationDegrees(-var14));
             } else if (var0 < 32) {
                 float var15 = ((float)var0 - 24.0F) / 7.0F;
                 float var16 = 270.0F + 90.0F * var15;
                 float var17 = 270.0F + 90.0F * ((float)var1 - 24.0F) / 7.0F;
                 float var18 = this.getAngle(var16, var17, var1, param4, 32.0F);
-                param1.translate(0.0, (double)(var3 * ((360.0F - var18) / 90.0F)), 0.0);
-                param1.mulPose(Vector3f.XP.rotationDegrees(-var18));
+                param1.translate(0.0F, var3 * ((360.0F - var18) / 90.0F), 0.0F);
+                param1.mulPose(Axis.XP.rotationDegrees(-var18));
             }
         }
 
         float var19 = param0.getSitAmount(param4);
         if (var19 > 0.0F) {
-            param1.translate(0.0, (double)(0.8F * var19), 0.0);
-            param1.mulPose(Vector3f.XP.rotationDegrees(Mth.lerp(var19, param0.getXRot(), param0.getXRot() + 90.0F)));
-            param1.translate(0.0, (double)(-1.0F * var19), 0.0);
+            param1.translate(0.0F, 0.8F * var19, 0.0F);
+            param1.mulPose(Axis.XP.rotationDegrees(Mth.lerp(var19, param0.getXRot(), param0.getXRot() + 90.0F)));
+            param1.translate(0.0F, -1.0F * var19, 0.0F);
             if (param0.isScared()) {
                 float var20 = (float)(Math.cos((double)param0.tickCount * 1.25) * Math.PI * 0.05F);
-                param1.mulPose(Vector3f.YP.rotationDegrees(var20));
+                param1.mulPose(Axis.YP.rotationDegrees(var20));
                 if (param0.isBaby()) {
-                    param1.translate(0.0, 0.8F, 0.55F);
+                    param1.translate(0.0F, 0.8F, 0.55F);
                 }
             }
         }
@@ -89,8 +89,8 @@ public class PandaRenderer extends MobRenderer<Panda, PandaModel<Panda>> {
         float var21 = param0.getLieOnBackAmount(param4);
         if (var21 > 0.0F) {
             float var22 = param0.isBaby() ? 0.5F : 1.3F;
-            param1.translate(0.0, (double)(var22 * var21), 0.0);
-            param1.mulPose(Vector3f.XP.rotationDegrees(Mth.lerp(var21, param0.getXRot(), param0.getXRot() + 180.0F)));
+            param1.translate(0.0F, var22 * var21, 0.0F);
+            param1.mulPose(Axis.XP.rotationDegrees(Mth.lerp(var21, param0.getXRot(), param0.getXRot() + 180.0F)));
         }
 
     }

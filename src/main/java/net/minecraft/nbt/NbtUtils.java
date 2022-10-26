@@ -545,7 +545,7 @@ public final class NbtUtils {
             param0.put("palettes", var4);
         }
 
-        if (param0.contains("entities", 10)) {
+        if (param0.contains("entities", 9)) {
             ListTag var6 = param0.getList("entities", 10);
             ListTag var7 = var6.stream()
                 .map(CompoundTag.class::cast)

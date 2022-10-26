@@ -39,11 +39,6 @@ public class StateSwitchingButton extends AbstractWidget {
         return this.isStateTriggered;
     }
 
-    public void setPosition(int param0, int param1) {
-        this.x = param0;
-        this.y = param1;
-    }
-
     @Override
     public void updateNarration(NarrationElementOutput param0) {
         this.defaultButtonNarrationText(param0);
@@ -64,7 +59,7 @@ public class StateSwitchingButton extends AbstractWidget {
             var1 += this.yDiffTex;
         }
 
-        this.blit(param0, this.x, this.y, var0, var1, this.width, this.height);
+        this.blit(param0, this.getX(), this.getY(), var0, var1, this.width, this.height);
         RenderSystem.enableDepthTest();
     }
 }

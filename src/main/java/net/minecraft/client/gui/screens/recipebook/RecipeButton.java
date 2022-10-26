@@ -59,11 +59,6 @@ public class RecipeButton extends AbstractWidget {
         return this.collection;
     }
 
-    public void setPosition(int param0, int param1) {
-        this.x = param0;
-        this.y = param1;
-    }
-
     @Override
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         if (!Screen.hasControlDown()) {
@@ -88,24 +83,24 @@ public class RecipeButton extends AbstractWidget {
         if (var3) {
             float var5 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
             var4.pushPose();
-            var4.translate((double)(this.x + 8), (double)(this.y + 12), 0.0);
+            var4.translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
             var4.scale(var5, var5, 1.0F);
-            var4.translate((double)(-(this.x + 8)), (double)(-(this.y + 12)), 0.0);
+            var4.translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
             RenderSystem.applyModelViewMatrix();
             this.animationTime -= param3;
         }
 
-        this.blit(param0, this.x, this.y, var1, var2, this.width, this.height);
+        this.blit(param0, this.getX(), this.getY(), var1, var2, this.width, this.height);
         List<Recipe<?>> var6 = this.getOrderedRecipes();
         this.currentIndex = Mth.floor(this.time / 30.0F) % var6.size();
         ItemStack var7 = var6.get(this.currentIndex).getResultItem();
         int var8 = 4;
         if (this.collection.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
-            var0.getItemRenderer().renderAndDecorateItem(var7, this.x + var8 + 1, this.y + var8 + 1, 0, 10);
+            var0.getItemRenderer().renderAndDecorateItem(var7, this.getX() + var8 + 1, this.getY() + var8 + 1, 0, 10);
             --var8;
         }
 
-        var0.getItemRenderer().renderAndDecorateFakeItem(var7, this.x + var8, this.y + var8);
+        var0.getItemRenderer().renderAndDecorateFakeItem(var7, this.getX() + var8, this.getY() + var8);
         if (var3) {
             var4.popPose();
             RenderSystem.applyModelViewMatrix();

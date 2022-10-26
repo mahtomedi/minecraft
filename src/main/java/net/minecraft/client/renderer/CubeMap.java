@@ -6,8 +6,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.client.Minecraft;
@@ -15,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class CubeMap {
@@ -31,13 +31,13 @@ public class CubeMap {
     public void render(Minecraft param0, float param1, float param2, float param3) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        Matrix4f var2 = Matrix4f.perspective(85.0, (float)param0.getWindow().getWidth() / (float)param0.getWindow().getHeight(), 0.05F, 10.0F);
+        Matrix4f var2 = new Matrix4f().setPerspective(1.4835298F, (float)param0.getWindow().getWidth() / (float)param0.getWindow().getHeight(), 0.05F, 10.0F);
         RenderSystem.backupProjectionMatrix();
         RenderSystem.setProjectionMatrix(var2);
         PoseStack var3 = RenderSystem.getModelViewStack();
         var3.pushPose();
         var3.setIdentity();
-        var3.mulPose(Vector3f.XP.rotationDegrees(180.0F));
+        var3.mulPose(Axis.XP.rotationDegrees(180.0F));
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -52,9 +52,9 @@ public class CubeMap {
             float var6 = ((float)(var5 % 2) / 2.0F - 0.5F) / 256.0F;
             float var7 = ((float)(var5 / 2) / 2.0F - 0.5F) / 256.0F;
             float var8 = 0.0F;
-            var3.translate((double)var6, (double)var7, 0.0);
-            var3.mulPose(Vector3f.XP.rotationDegrees(param1));
-            var3.mulPose(Vector3f.YP.rotationDegrees(param2));
+            var3.translate(var6, var7, 0.0F);
+            var3.mulPose(Axis.XP.rotationDegrees(param1));
+            var3.mulPose(Axis.YP.rotationDegrees(param2));
             RenderSystem.applyModelViewMatrix();
 
             for(int var9 = 0; var9 < 6; ++var9) {

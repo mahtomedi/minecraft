@@ -1,8 +1,12 @@
 package net.minecraft.core;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.Lifecycle;
+import com.mojang.util.UUIDTypeAdapter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +17,13 @@ import net.minecraft.Util;
 public final class UUIDUtil {
     public static final Codec<UUID> CODEC = Codec.INT_STREAM
         .comapFlatMap(param0 -> Util.fixedSize(param0, 4).map(UUIDUtil::uuidFromIntArray), param0 -> Arrays.stream(uuidToIntArray(param0)));
+    public static Codec<UUID> AUTHLIB_CODEC = Codec.either(CODEC, Codec.STRING.comapFlatMap(param0 -> {
+        try {
+            return DataResult.success(UUIDTypeAdapter.fromString(param0), Lifecycle.stable());
+        } catch (IllegalArgumentException var2) {
+            return DataResult.error("Invalid UUID " + param0 + ": " + var2.getMessage());
+        }
+    }, UUIDTypeAdapter::fromUUID)).xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::right);
     public static final int UUID_BYTES = 16;
     private static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
 

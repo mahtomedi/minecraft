@@ -66,7 +66,4 @@ public record PlacedFeature(Holder<ConfiguredFeature<?, ?>> feature, List<Placem
     public String toString() {
         return "Placed " + this.feature;
     }
-
-    static record test(int a) {
-    }
 }

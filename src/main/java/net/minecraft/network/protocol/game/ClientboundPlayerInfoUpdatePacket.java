@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.RemoteChatSession;
@@ -97,8 +98,8 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
             param0.writeGameProfileProperties(param1.profile().getProperties());
         }),
         INITIALIZE_CHAT(
-            (param0, param1) -> param0.chatSession = RemoteChatSession.Data.read(param1),
-            (param0, param1) -> RemoteChatSession.Data.write(param0, param1.chatSession())
+            (param0, param1) -> param0.chatSession = param1.readNullable(RemoteChatSession.Data::read),
+            (param0, param1) -> param0.writeNullable(param1.chatSession, RemoteChatSession.Data::write)
         ),
         UPDATE_GAME_MODE(
             (param0, param1) -> param0.gameMode = GameType.byId(param1.readVarInt()), (param0, param1) -> param0.writeVarInt(param1.gameMode().getId())
@@ -134,7 +135,7 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
         int latency,
         GameType gameMode,
         @Nullable Component displayName,
-        RemoteChatSession.Data chatSession
+        @Nullable RemoteChatSession.Data chatSession
     ) {
         Entry(ServerPlayer param0) {
             this(
@@ -144,7 +145,7 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
                 param0.latency,
                 param0.gameMode.getGameModeForPlayer(),
                 param0.getTabListDisplayName(),
-                param0.getChatSession().asData()
+                Util.mapNullable(param0.getChatSession(), RemoteChatSession::asData)
             );
         }
     }
@@ -157,6 +158,7 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
         GameType gameMode = GameType.DEFAULT_MODE;
         @Nullable
         Component displayName;
+        @Nullable
         RemoteChatSession.Data chatSession;
 
         EntryBuilder(UUID param0) {

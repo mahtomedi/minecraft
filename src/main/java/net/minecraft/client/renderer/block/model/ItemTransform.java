@@ -7,12 +7,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import java.lang.reflect.Type;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemTransform {
@@ -22,9 +24,9 @@ public class ItemTransform {
     public final Vector3f scale;
 
     public ItemTransform(Vector3f param0, Vector3f param1, Vector3f param2) {
-        this.rotation = param0.copy();
-        this.translation = param1.copy();
-        this.scale = param2.copy();
+        this.rotation = new Vector3f((Vector3fc)param0);
+        this.translation = new Vector3f((Vector3fc)param1);
+        this.scale = new Vector3f((Vector3fc)param2);
     }
 
     public void apply(boolean param0, PoseStack param1) {
@@ -38,8 +40,8 @@ public class ItemTransform {
             }
 
             int var3 = param0 ? -1 : 1;
-            param1.translate((double)((float)var3 * this.translation.x()), (double)this.translation.y(), (double)this.translation.z());
-            param1.mulPose(new Quaternion(var0, var1, var2, true));
+            param1.translate((float)var3 * this.translation.x(), this.translation.y(), this.translation.z());
+            param1.mulPose(new Quaternionf().rotationXYZ(var0 * (float) (Math.PI / 180.0), var1 * (float) (Math.PI / 180.0), var2 * (float) (Math.PI / 180.0)));
             param1.scale(this.scale.x(), this.scale.y(), this.scale.z());
         }
     }
@@ -76,9 +78,9 @@ public class ItemTransform {
             Vector3f var1 = this.getVector3f(var0, "rotation", DEFAULT_ROTATION);
             Vector3f var2 = this.getVector3f(var0, "translation", DEFAULT_TRANSLATION);
             var2.mul(0.0625F);
-            var2.clamp(-5.0F, 5.0F);
+            var2.set(Mth.clamp(var2.x, -5.0F, 5.0F), Mth.clamp(var2.y, -5.0F, 5.0F), Mth.clamp(var2.z, -5.0F, 5.0F));
             Vector3f var3 = this.getVector3f(var0, "scale", DEFAULT_SCALE);
-            var3.clamp(-4.0F, 4.0F);
+            var3.set(Mth.clamp(var3.x, -4.0F, 4.0F), Mth.clamp(var3.y, -4.0F, 4.0F), Mth.clamp(var3.z, -4.0F, 4.0F));
             return new ItemTransform(var1, var2, var3);
         }
 

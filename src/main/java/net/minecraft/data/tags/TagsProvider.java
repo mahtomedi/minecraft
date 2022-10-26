@@ -4,12 +4,12 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.Registry;
@@ -37,45 +37,46 @@ public abstract class TagsProvider<T> implements DataProvider {
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "Tags for " + this.registry.key().location();
     }
 
     protected abstract void addTags();
 
     @Override
-    public void run(CachedOutput param0) {
+    public CompletableFuture<?> run(CachedOutput param0) {
         this.builders.clear();
         this.addTags();
-        this.builders
-            .forEach(
-                (param1, param2) -> {
-                    List<TagEntry> var0 = param2.build();
-                    List<TagEntry> var1x = var0.stream()
-                        .filter(param0x -> !param0x.verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
-                        .toList();
-                    if (!var1x.isEmpty()) {
-                        throw new IllegalArgumentException(
-                            String.format(
-                                Locale.ROOT,
-                                "Couldn't define tag %s as it is missing following references: %s",
-                                param1,
-                                var1x.stream().map(Objects::toString).collect(Collectors.joining(","))
-                            )
-                        );
-                    } else {
-                        JsonElement var2 = TagFile.CODEC.encodeStart(JsonOps.INSTANCE, new TagFile(var0, false)).getOrThrow(false, LOGGER::error);
-                        Path var3 = this.pathProvider.json(param1);
-        
-                        try {
-                            DataProvider.saveStable(param0, var2, var3);
-                        } catch (IOException var9) {
-                            LOGGER.error("Couldn't save tags to {}", var3, var9);
+        return CompletableFuture.allOf(
+            this.builders
+                .entrySet()
+                .stream()
+                .map(
+                    param1 -> {
+                        ResourceLocation var0 = param1.getKey();
+                        TagBuilder var1x = param1.getValue();
+                        List<TagEntry> var2 = var1x.build();
+                        List<TagEntry> var3 = var2.stream()
+                            .filter(param0x -> !param0x.verifyIfPresent(this.registry::containsKey, this.builders::containsKey))
+                            .toList();
+                        if (!var3.isEmpty()) {
+                            throw new IllegalArgumentException(
+                                String.format(
+                                    Locale.ROOT,
+                                    "Couldn't define tag %s as it is missing following references: %s",
+                                    var0,
+                                    var3.stream().map(Objects::toString).collect(Collectors.joining(","))
+                                )
+                            );
+                        } else {
+                            JsonElement var4 = TagFile.CODEC.encodeStart(JsonOps.INSTANCE, new TagFile(var2, false)).getOrThrow(false, LOGGER::error);
+                            Path var5 = this.pathProvider.json(var0);
+                            return DataProvider.saveStable(param0, var4, var5);
                         }
-        
                     }
-                }
-            );
+                )
+                .toArray(param0x -> new CompletableFuture[param0x])
+        );
     }
 
     protected TagsProvider.TagAppender<T> tag(TagKey<T> param0) {

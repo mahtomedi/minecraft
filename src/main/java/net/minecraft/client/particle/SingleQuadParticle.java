@@ -1,14 +1,14 @@
 package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class SingleQuadParticle extends Particle {
@@ -28,53 +28,50 @@ public abstract class SingleQuadParticle extends Particle {
         float var1 = (float)(Mth.lerp((double)param2, this.xo, this.x) - var0.x());
         float var2 = (float)(Mth.lerp((double)param2, this.yo, this.y) - var0.y());
         float var3 = (float)(Mth.lerp((double)param2, this.zo, this.z) - var0.z());
-        Quaternion var4;
+        Quaternionf var4;
         if (this.roll == 0.0F) {
             var4 = param1.rotation();
         } else {
-            var4 = new Quaternion(param1.rotation());
-            float var6 = Mth.lerp(param2, this.oRoll, this.roll);
-            var4.mul(Vector3f.ZP.rotation(var6));
+            var4 = new Quaternionf(param1.rotation());
+            var4.rotateZ(Mth.lerp(param2, this.oRoll, this.roll));
         }
 
-        Vector3f var7 = new Vector3f(-1.0F, -1.0F, 0.0F);
-        var7.transform(var4);
-        Vector3f[] var8 = new Vector3f[]{
+        Vector3f[] var6 = new Vector3f[]{
             new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)
         };
-        float var9 = this.getQuadSize(param2);
+        float var7 = this.getQuadSize(param2);
 
-        for(int var10 = 0; var10 < 4; ++var10) {
-            Vector3f var11 = var8[var10];
-            var11.transform(var4);
-            var11.mul(var9);
-            var11.add(var1, var2, var3);
+        for(int var8 = 0; var8 < 4; ++var8) {
+            Vector3f var9 = var6[var8];
+            var9.rotate(var4);
+            var9.mul(var7);
+            var9.add(var1, var2, var3);
         }
 
-        float var12 = this.getU0();
-        float var13 = this.getU1();
-        float var14 = this.getV0();
-        float var15 = this.getV1();
-        int var16 = this.getLightColor(param2);
-        param0.vertex((double)var8[0].x(), (double)var8[0].y(), (double)var8[0].z())
-            .uv(var13, var15)
+        float var10 = this.getU0();
+        float var11 = this.getU1();
+        float var12 = this.getV0();
+        float var13 = this.getV1();
+        int var14 = this.getLightColor(param2);
+        param0.vertex((double)var6[0].x(), (double)var6[0].y(), (double)var6[0].z())
+            .uv(var11, var13)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var16)
+            .uv2(var14)
             .endVertex();
-        param0.vertex((double)var8[1].x(), (double)var8[1].y(), (double)var8[1].z())
-            .uv(var13, var14)
+        param0.vertex((double)var6[1].x(), (double)var6[1].y(), (double)var6[1].z())
+            .uv(var11, var12)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var16)
+            .uv2(var14)
             .endVertex();
-        param0.vertex((double)var8[2].x(), (double)var8[2].y(), (double)var8[2].z())
-            .uv(var12, var14)
+        param0.vertex((double)var6[2].x(), (double)var6[2].y(), (double)var6[2].z())
+            .uv(var10, var12)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var16)
+            .uv2(var14)
             .endVertex();
-        param0.vertex((double)var8[3].x(), (double)var8[3].y(), (double)var8[3].z())
-            .uv(var12, var15)
+        param0.vertex((double)var6[3].x(), (double)var6[3].y(), (double)var6[3].z())
+            .uv(var10, var13)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var16)
+            .uv2(var14)
             .endVertex();
     }
 

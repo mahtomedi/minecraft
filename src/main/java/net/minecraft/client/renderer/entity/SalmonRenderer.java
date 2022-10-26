@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.SalmonModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
@@ -32,11 +32,11 @@ public class SalmonRenderer extends MobRenderer<Salmon, SalmonModel<Salmon>> {
         }
 
         float var2 = var0 * 4.3F * Mth.sin(var1 * 0.6F * param2);
-        param1.mulPose(Vector3f.YP.rotationDegrees(var2));
-        param1.translate(0.0, 0.0, -0.4F);
+        param1.mulPose(Axis.YP.rotationDegrees(var2));
+        param1.translate(0.0F, 0.0F, -0.4F);
         if (!param0.isInWater()) {
-            param1.translate(0.2F, 0.1F, 0.0);
-            param1.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+            param1.translate(0.2F, 0.1F, 0.0F);
+            param1.mulPose(Axis.ZP.rotationDegrees(90.0F));
         }
 
     }

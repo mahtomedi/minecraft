@@ -21,11 +21,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -137,6 +133,10 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3d;
+import org.joml.Vector4f;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -1153,8 +1153,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
     private void captureFrustum(Matrix4f param0, Matrix4f param1, double param2, double param3, double param4, Frustum param5) {
         this.capturedFrustum = param5;
-        Matrix4f var0 = param1.copy();
-        var0.multiply(param0);
+        Matrix4f var0 = new Matrix4f(param1);
+        var0.mul(param0);
         var0.invert();
         this.frustumPos.x = param2;
         this.frustumPos.y = param3;
@@ -1169,8 +1169,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.frustumPoints[7] = new Vector4f(-1.0F, 1.0F, 1.0F, 1.0F);
 
         for(int var1 = 0; var1 < 8; ++var1) {
-            this.frustumPoints[var1].transform(var0);
-            this.frustumPoints[var1].perspectiveDivide();
+            var0.transform(this.frustumPoints[var1]);
+            this.frustumPoints[var1].div(this.frustumPoints[var1].w());
         }
 
     }
@@ -1615,7 +1615,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         if (var10 != null) {
-            var10.set(Vector3f.ZERO);
+            var10.set(0.0F, 0.0F, 0.0F);
         }
 
         var7.clear();
@@ -1750,9 +1750,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             PoseStack var21 = RenderSystem.getModelViewStack();
             var21.pushPose();
             var21.translate(
-                (double)((float)(this.frustumPos.x - param0.getPosition().x)),
-                (double)((float)(this.frustumPos.y - param0.getPosition().y)),
-                (double)((float)(this.frustumPos.z - param0.getPosition().z))
+                (float)(this.frustumPos.x - param0.getPosition().x),
+                (float)(this.frustumPos.y - param0.getPosition().y),
+                (float)(this.frustumPos.z - param0.getPosition().z)
             );
             RenderSystem.applyModelViewMatrix();
             RenderSystem.depthMask(true);
@@ -1874,23 +1874,23 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         for(int var2 = 0; var2 < 6; ++var2) {
             param0.pushPose();
             if (var2 == 1) {
-                param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+                param0.mulPose(Axis.XP.rotationDegrees(90.0F));
             }
 
             if (var2 == 2) {
-                param0.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+                param0.mulPose(Axis.XP.rotationDegrees(-90.0F));
             }
 
             if (var2 == 3) {
-                param0.mulPose(Vector3f.XP.rotationDegrees(180.0F));
+                param0.mulPose(Axis.XP.rotationDegrees(180.0F));
             }
 
             if (var2 == 4) {
-                param0.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+                param0.mulPose(Axis.ZP.rotationDegrees(90.0F));
             }
 
             if (var2 == 5) {
-                param0.mulPose(Vector3f.ZP.rotationDegrees(-90.0F));
+                param0.mulPose(Axis.ZP.rotationDegrees(-90.0F));
             }
 
             Matrix4f var3 = param0.last().pose();
@@ -1937,10 +1937,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         RenderSystem.disableTexture();
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                         param0.pushPose();
-                        param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+                        param0.mulPose(Axis.XP.rotationDegrees(90.0F));
                         float var8 = Mth.sin(this.level.getSunAngle(param2)) < 0.0F ? 180.0F : 0.0F;
-                        param0.mulPose(Vector3f.ZP.rotationDegrees(var8));
-                        param0.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+                        param0.mulPose(Axis.ZP.rotationDegrees(var8));
+                        param0.mulPose(Axis.ZP.rotationDegrees(90.0F));
                         float var9 = var7[0];
                         float var10 = var7[1];
                         float var11 = var7[2];
@@ -1967,8 +1967,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     param0.pushPose();
                     float var18 = 1.0F - this.level.getRainLevel(param2);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var18);
-                    param0.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
-                    param0.mulPose(Vector3f.XP.rotationDegrees(this.level.getTimeOfDay(param2) * 360.0F));
+                    param0.mulPose(Axis.YP.rotationDegrees(-90.0F));
+                    param0.mulPose(Axis.XP.rotationDegrees(this.level.getTimeOfDay(param2) * 360.0F));
                     Matrix4f var19 = param0.last().pose();
                     float var20 = 30.0F;
                     RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -2013,7 +2013,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     double var29 = this.minecraft.player.getEyePosition(param2).y - this.level.getLevelData().getHorizonHeight(this.level);
                     if (var29 < 0.0) {
                         param0.pushPose();
-                        param0.translate(0.0, 12.0, 0.0);
+                        param0.translate(0.0F, 12.0F, 0.0F);
                         this.darkBuffer.bind();
                         this.darkBuffer.drawWithShader(param0.last().pose(), param1, var6);
                         VertexBuffer.unbind();
@@ -2104,7 +2104,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             FogRenderer.levelFogColor();
             param0.pushPose();
             param0.scale(12.0F, 1.0F, 12.0F);
-            param0.translate((double)(-var8), (double)var9, (double)(-var10));
+            param0.translate(-var8, var9, -var10);
             if (this.cloudBuffer != null) {
                 this.cloudBuffer.bind();
                 int var17 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;

@@ -17,7 +17,7 @@ public class PageButton extends Button {
     private final boolean playTurnSound;
 
     public PageButton(int param0, int param1, boolean param2, Button.OnPress param3, boolean param4) {
-        super(param0, param1, 23, 13, CommonComponents.EMPTY, param3);
+        super(param0, param1, 23, 13, CommonComponents.EMPTY, param3, NO_TOOLTIP, DEFAULT_NARRATION);
         this.isForward = param2;
         this.playTurnSound = param4;
     }
@@ -37,7 +37,7 @@ public class PageButton extends Button {
             var1 += 13;
         }
 
-        this.blit(param0, this.x, this.y, var0, var1, 23, 13);
+        this.blit(param0, this.getX(), this.getY(), var0, var1, 23, 13);
     }
 
     @Override

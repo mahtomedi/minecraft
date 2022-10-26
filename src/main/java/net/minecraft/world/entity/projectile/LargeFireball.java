@@ -30,7 +30,7 @@ public class LargeFireball extends Fireball {
             boolean var0 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
             this.level
                 .explode(
-                    null,
+                    this,
                     this.getX(),
                     this.getY(),
                     this.getZ(),

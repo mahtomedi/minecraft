@@ -21,12 +21,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractWidget extends GuiComponent implements Widget, GuiEventListener, NarratableEntry {
+public abstract class AbstractWidget extends GuiComponent implements Renderable, GuiEventListener, NarratableEntry {
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     protected int width;
     protected int height;
-    public int x;
-    public int y;
+    private int x;
+    private int y;
     private Component message;
     protected boolean isHovered;
     public boolean active = true;
@@ -60,7 +60,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.visible) {
-            this.isHovered = param1 >= this.x && param2 >= this.y && param1 < this.x + this.width && param2 < this.y + this.height;
+            this.isHovered = param1 >= this.getX() && param2 >= this.getY() && param1 < this.getX() + this.width && param2 < this.getY() + this.height;
             this.renderButton(param0, param1, param2, param3);
         }
     }
@@ -83,11 +83,13 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        this.blit(param0, this.x, this.y, 0, 46 + var2 * 20, this.width / 2, this.height);
-        this.blit(param0, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);
+        this.blit(param0, this.getX(), this.getY(), 0, 46 + var2 * 20, this.width / 2, this.height);
+        this.blit(param0, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);
         this.renderBg(param0, var0, param1, param2);
         int var3 = this.active ? 16777215 : 10526880;
-        drawCenteredString(param0, var1, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24);
+        drawCenteredString(
+            param0, var1, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24
+        );
     }
 
     protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
@@ -147,10 +149,10 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     protected boolean clicked(double param0, double param1) {
         return this.active
             && this.visible
-            && param0 >= (double)this.x
-            && param1 >= (double)this.y
-            && param0 < (double)(this.x + this.width)
-            && param1 < (double)(this.y + this.height);
+            && param0 >= (double)this.getX()
+            && param1 >= (double)this.getY()
+            && param0 < (double)(this.getX() + this.width)
+            && param1 < (double)(this.getY() + this.height);
     }
 
     public boolean isHoveredOrFocused() {
@@ -175,10 +177,10 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     public boolean isMouseOver(double param0, double param1) {
         return this.active
             && this.visible
-            && param0 >= (double)this.x
-            && param1 >= (double)this.y
-            && param0 < (double)(this.x + this.width)
-            && param1 < (double)(this.y + this.height);
+            && param0 >= (double)this.getX()
+            && param1 >= (double)this.getY()
+            && param0 < (double)(this.getX() + this.width)
+            && param1 < (double)(this.getY() + this.height);
     }
 
     public void renderToolTip(PoseStack param0, int param1, int param2) {
@@ -240,5 +242,26 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
             }
         }
 
+    }
+
+    public int getX() {
+        return this.x;
+    }
+
+    public void setX(int param0) {
+        this.x = param0;
+    }
+
+    public void setPosition(int param0, int param1) {
+        this.setX(param0);
+        this.setY(param1);
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
+    public void setY(int param0) {
+        this.y = param0;
     }
 }

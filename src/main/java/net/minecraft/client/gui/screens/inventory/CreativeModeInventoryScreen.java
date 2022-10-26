@@ -747,22 +747,23 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         Hotbar var2 = var1.get(param1);
         if (param2) {
             for(int var3 = 0; var3 < Inventory.getSelectionSize(); ++var3) {
-                ItemStack var4 = var2.get(var3).copy();
-                var0.getInventory().setItem(var3, var4);
-                param0.gameMode.handleCreativeModeItemAdd(var4, 36 + var3);
+                ItemStack var4 = var2.get(var3);
+                ItemStack var5 = var4.isItemEnabled(var0.level.enabledFeatures()) ? var4.copy() : ItemStack.EMPTY;
+                var0.getInventory().setItem(var3, var5);
+                param0.gameMode.handleCreativeModeItemAdd(var5, 36 + var3);
             }
 
             var0.inventoryMenu.broadcastChanges();
         } else if (param3) {
-            for(int var5 = 0; var5 < Inventory.getSelectionSize(); ++var5) {
-                var2.set(var5, var0.getInventory().getItem(var5).copy());
+            for(int var6 = 0; var6 < Inventory.getSelectionSize(); ++var6) {
+                var2.set(var6, var0.getInventory().getItem(var6).copy());
             }
 
-            Component var6 = param0.options.keyHotbarSlots[param1].getTranslatedKeyMessage();
-            Component var7 = param0.options.keyLoadHotbarActivator.getTranslatedKeyMessage();
-            Component var8 = Component.translatable("inventory.hotbarSaved", var7, var6);
-            param0.gui.setOverlayMessage(var8, false);
-            param0.getNarrator().sayNow(var8);
+            Component var7 = param0.options.keyHotbarSlots[param1].getTranslatedKeyMessage();
+            Component var8 = param0.options.keyLoadHotbarActivator.getTranslatedKeyMessage();
+            Component var9 = Component.translatable("inventory.hotbarSaved", var8, var7);
+            param0.gui.setOverlayMessage(var9, false);
+            param0.getNarrator().sayNow(var9);
             var1.save();
         }
 
@@ -776,10 +777,11 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
         @Override
         public boolean mayPickup(Player param0) {
-            if (super.mayPickup(param0) && this.hasItem()) {
-                return this.getItem().getTagElement("CustomCreativeLock") == null;
+            ItemStack var0 = this.getItem();
+            if (super.mayPickup(param0) && !var0.isEmpty()) {
+                return var0.isItemEnabled(param0.level.enabledFeatures()) && var0.getTagElement("CustomCreativeLock") == null;
             } else {
-                return !this.hasItem();
+                return var0.isEmpty();
             }
         }
     }

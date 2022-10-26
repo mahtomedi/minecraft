@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
     private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
-    private ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
+    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
         protected void onOpen(Level param0, BlockPos param1, BlockState param2) {
             BarrelBlockEntity.this.playSound(param2, SoundEvents.BARREL_OPEN);

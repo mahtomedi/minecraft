@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -19,8 +19,8 @@ public record VibrationInfo(GameEvent gameEvent, float distance, Vec3 pos, @Null
                     Registry.GAME_EVENT.byNameCodec().fieldOf("game_event").forGetter(VibrationInfo::gameEvent),
                     Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("distance").forGetter(VibrationInfo::distance),
                     Vec3.CODEC.fieldOf("pos").forGetter(VibrationInfo::pos),
-                    ExtraCodecs.UUID.optionalFieldOf("source").forGetter(param0x -> Optional.ofNullable(param0x.uuid())),
-                    ExtraCodecs.UUID.optionalFieldOf("projectile_owner").forGetter(param0x -> Optional.ofNullable(param0x.projectileOwnerUuid()))
+                    UUIDUtil.CODEC.optionalFieldOf("source").forGetter(param0x -> Optional.ofNullable(param0x.uuid())),
+                    UUIDUtil.CODEC.optionalFieldOf("projectile_owner").forGetter(param0x -> Optional.ofNullable(param0x.projectileOwnerUuid()))
                 )
                 .apply(
                     param0, (param0x, param1, param2, param3, param4) -> new VibrationInfo(param0x, param1, param2, param3.orElse(null), param4.orElse(null))

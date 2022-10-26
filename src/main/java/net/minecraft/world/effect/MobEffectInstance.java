@@ -25,7 +25,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     private boolean showIcon;
     @Nullable
     private MobEffectInstance hiddenEffect;
-    private Optional<MobEffectInstance.FactorData> factorData;
+    private final Optional<MobEffectInstance.FactorData> factorData;
 
     public MobEffectInstance(MobEffect param0) {
         this(param0, 0, 0);

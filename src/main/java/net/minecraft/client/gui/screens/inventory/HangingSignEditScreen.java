@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +9,7 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class HangingSignEditScreen extends AbstractSignEditScreen {
@@ -25,12 +25,12 @@ public class HangingSignEditScreen extends AbstractSignEditScreen {
 
     @Override
     protected void offsetSign(PoseStack param0, BlockState param1) {
-        param0.translate((double)((float)this.width / 2.0F), 125.0, 50.0);
+        param0.translate((float)this.width / 2.0F, 125.0F, 50.0F);
     }
 
     @Override
     protected void renderSignBackground(PoseStack param0, MultiBufferSource.BufferSource param1, BlockState param2) {
-        param0.translate(0.0, -13.0, 0.0);
+        param0.translate(0.0F, -13.0F, 0.0F);
         RenderSystem.setShaderTexture(0, this.texture);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         param0.scale(4.0F, 4.0F, 1.0F);

@@ -50,24 +50,22 @@ public class ReportReasonSelectionScreen extends Screen {
         ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Util.mapNullable(this.currentlySelectedReason, this.reasonSelectionList::findEntry);
         this.reasonSelectionList.setSelected(var0);
         int var1 = this.width / 2 - 150 - 5;
-        this.addRenderableWidget(
-            new Button(var1, this.buttonTop(), 150, 20, READ_INFO_LABEL, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-                    if (param0x) {
-                        Util.getPlatform().openUri("https://aka.ms/aboutjavareporting");
-                    }
-    
-                    this.minecraft.setScreen(this);
-                }, "https://aka.ms/aboutjavareporting", true)))
-        );
+        this.addRenderableWidget(Button.builder(READ_INFO_LABEL, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
+                if (param0x) {
+                    Util.getPlatform().openUri("https://aka.ms/aboutjavareporting");
+                }
+
+                this.minecraft.setScreen(this);
+            }, "https://aka.ms/aboutjavareporting", true))).bounds(var1, this.buttonTop(), 150, 20).build());
         int var2 = this.width / 2 + 5;
-        this.addRenderableWidget(new Button(var2, this.buttonTop(), 150, 20, CommonComponents.GUI_DONE, param0 -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0 -> {
             ReportReasonSelectionScreen.ReasonSelectionList.Entry var0x = this.reasonSelectionList.getSelected();
             if (var0x != null) {
                 this.onSelectedReason.accept(var0x.getReason());
             }
 
             this.minecraft.setScreen(this.lastScreen);
-        }));
+        }).bounds(var2, this.buttonTop(), 150, 20).build());
         super.init();
     }
 

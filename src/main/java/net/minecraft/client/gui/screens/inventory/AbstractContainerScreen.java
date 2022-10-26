@@ -97,7 +97,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         super.render(param0, param1, param2, param3);
         PoseStack var2 = RenderSystem.getModelViewStack();
         var2.pushPose();
-        var2.translate((double)var0, (double)var1, 0.0);
+        var2.translate((float)var0, (float)var1, 0.0F);
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.hoveredSlot = null;
@@ -174,7 +174,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
     private void renderFloatingItem(ItemStack param0, int param1, int param2, String param3) {
         PoseStack var0 = RenderSystem.getModelViewStack();
-        var0.translate(0.0, 0.0, 32.0);
+        var0.translate(0.0F, 0.0F, 32.0F);
         RenderSystem.applyModelViewMatrix();
         this.setBlitOffset(200);
         this.itemRenderer.blitOffset = 200.0F;

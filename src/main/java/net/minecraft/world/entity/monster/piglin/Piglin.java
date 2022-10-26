@@ -133,7 +133,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
             param0.putBoolean("CannotHunt", true);
         }
 
-        param0.put("Inventory", this.inventory.createTag());
+        this.writeInventoryToTag(param0);
     }
 
     @Override
@@ -141,10 +141,7 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
         super.readAdditionalSaveData(param0);
         this.setBaby(param0.getBoolean("IsBaby"));
         this.setCannotHunt(param0.getBoolean("CannotHunt"));
-        if (param0.contains("Inventory", 10)) {
-            this.inventory.fromTag(param0.getList("Inventory", 10));
-        }
-
+        this.readInventoryFromTag(param0);
     }
 
     @VisibleForDebug

@@ -388,11 +388,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (this.isAlive() && (this.isInWaterRainOrBubble() || this.isInPowderSnow)) {
-            if (!this.level.isClientSide && this.wasOnFire) {
-                this.playEntityOnFireExtinguishedSound();
-            }
-
-            this.clearFire();
+            this.extinguishFire();
         }
 
         if (this.hurtTime > 0) {
@@ -568,7 +564,7 @@ public abstract class LivingEntity extends Entity {
 
     protected void tickDeath() {
         ++this.deathTime;
-        if (this.deathTime == 20 && !this.level.isClientSide()) {
+        if (this.deathTime >= 20 && !this.level.isClientSide()) {
             this.level.broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);
         }
@@ -1077,8 +1073,8 @@ public abstract class LivingEntity extends Entity {
                 param1 = 0.0F;
                 if (!param0.isProjectile()) {
                     Entity var3 = param0.getDirectEntity();
-                    if (var3 instanceof LivingEntity) {
-                        this.blockUsingShield((LivingEntity)var3);
+                    if (var3 instanceof LivingEntity var4) {
+                        this.blockUsingShield(var4);
                     }
                 }
 
@@ -1086,7 +1082,7 @@ public abstract class LivingEntity extends Entity {
             }
 
             this.animationSpeed = 1.5F;
-            boolean var4 = true;
+            boolean var5 = true;
             if ((float)this.invulnerableTime > 10.0F) {
                 if (param1 <= this.lastHurt) {
                     return false;
@@ -1094,7 +1090,7 @@ public abstract class LivingEntity extends Entity {
 
                 this.actuallyHurt(param0, param1 - this.lastHurt);
                 this.lastHurt = param1;
-                var4 = false;
+                var5 = false;
             } else {
                 this.lastHurt = param1;
                 this.invulnerableTime = 20;
@@ -1109,62 +1105,62 @@ public abstract class LivingEntity extends Entity {
             }
 
             this.hurtDir = 0.0F;
-            Entity var5 = param0.getEntity();
-            if (var5 != null) {
-                if (var5 instanceof LivingEntity && !param0.isNoAggro()) {
-                    this.setLastHurtByMob((LivingEntity)var5);
+            Entity var6 = param0.getEntity();
+            if (var6 != null) {
+                if (var6 instanceof LivingEntity && !param0.isNoAggro()) {
+                    this.setLastHurtByMob((LivingEntity)var6);
                 }
 
-                if (var5 instanceof Player) {
+                if (var6 instanceof Player) {
                     this.lastHurtByPlayerTime = 100;
-                    this.lastHurtByPlayer = (Player)var5;
-                } else if (var5 instanceof Wolf var6 && var6.isTame()) {
+                    this.lastHurtByPlayer = (Player)var6;
+                } else if (var6 instanceof Wolf var7 && var7.isTame()) {
                     this.lastHurtByPlayerTime = 100;
-                    LivingEntity var7 = var6.getOwner();
-                    if (var7 != null && var7.getType() == EntityType.PLAYER) {
-                        this.lastHurtByPlayer = (Player)var7;
+                    LivingEntity var8 = var7.getOwner();
+                    if (var8 != null && var8.getType() == EntityType.PLAYER) {
+                        this.lastHurtByPlayer = (Player)var8;
                     } else {
                         this.lastHurtByPlayer = null;
                     }
                 }
             }
 
-            if (var4) {
+            if (var5) {
                 if (var1) {
                     this.level.broadcastEntityEvent(this, (byte)29);
                 } else if (param0 instanceof EntityDamageSource && ((EntityDamageSource)param0).isThorns()) {
                     this.level.broadcastEntityEvent(this, (byte)33);
                 } else {
-                    byte var8;
+                    byte var9;
                     if (param0 == DamageSource.DROWN) {
-                        var8 = 36;
+                        var9 = 36;
                     } else if (param0.isFire()) {
-                        var8 = 37;
+                        var9 = 37;
                     } else if (param0 == DamageSource.SWEET_BERRY_BUSH) {
-                        var8 = 44;
+                        var9 = 44;
                     } else if (param0 == DamageSource.FREEZE) {
-                        var8 = 57;
+                        var9 = 57;
                     } else {
-                        var8 = 2;
+                        var9 = 2;
                     }
 
-                    this.level.broadcastEntityEvent(this, var8);
+                    this.level.broadcastEntityEvent(this, var9);
                 }
 
                 if (param0 != DamageSource.DROWN && (!var1 || param1 > 0.0F)) {
                     this.markHurt();
                 }
 
-                if (var5 != null) {
-                    double var13 = var5.getX() - this.getX();
+                if (var6 != null) {
+                    double var14 = var6.getX() - this.getX();
 
-                    double var14;
-                    for(var14 = var5.getZ() - this.getZ(); var13 * var13 + var14 * var14 < 1.0E-4; var14 = (Math.random() - Math.random()) * 0.01) {
-                        var13 = (Math.random() - Math.random()) * 0.01;
+                    double var15;
+                    for(var15 = var6.getZ() - this.getZ(); var14 * var14 + var15 * var15 < 1.0E-4; var15 = (Math.random() - Math.random()) * 0.01) {
+                        var14 = (Math.random() - Math.random()) * 0.01;
                     }
 
-                    this.hurtDir = (float)(Mth.atan2(var14, var13) * 180.0F / (float)Math.PI - (double)this.getYRot());
-                    this.knockback(0.4F, var13, var14);
+                    this.hurtDir = (float)(Mth.atan2(var15, var14) * 180.0F / (float)Math.PI - (double)this.getYRot());
+                    this.knockback(0.4F, var14, var15);
                 } else {
                     this.hurtDir = (float)((int)(Math.random() * 2.0) * 180);
                 }
@@ -1172,19 +1168,19 @@ public abstract class LivingEntity extends Entity {
 
             if (this.isDeadOrDying()) {
                 if (!this.checkTotemDeathProtection(param0)) {
-                    SoundEvent var15 = this.getDeathSound();
-                    if (var4 && var15 != null) {
-                        this.playSound(var15, this.getSoundVolume(), this.getVoicePitch());
+                    SoundEvent var16 = this.getDeathSound();
+                    if (var5 && var16 != null) {
+                        this.playSound(var16, this.getSoundVolume(), this.getVoicePitch());
                     }
 
                     this.die(param0);
                 }
-            } else if (var4) {
+            } else if (var5) {
                 this.playHurtSound(param0);
             }
 
-            boolean var16 = !var1 || param1 > 0.0F;
-            if (var16) {
+            boolean var17 = !var1 || param1 > 0.0F;
+            if (var17) {
                 this.lastDamageSource = param0;
                 this.lastDamageStamp = this.level.getGameTime();
             }
@@ -1196,11 +1192,11 @@ public abstract class LivingEntity extends Entity {
                 }
             }
 
-            if (var5 instanceof ServerPlayer) {
-                CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)var5, this, param0, var0, param1, var1);
+            if (var6 instanceof ServerPlayer) {
+                CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)var6, this, param0, var0, param1, var1);
             }
 
-            return var16;
+            return var17;
         }
     }
 

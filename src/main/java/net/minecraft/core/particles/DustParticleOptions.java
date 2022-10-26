@@ -2,18 +2,19 @@ package net.minecraft.core.particles;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class DustParticleOptions extends DustParticleOptionsBase {
-    public static final Vector3f REDSTONE_PARTICLE_COLOR = new Vector3f(Vec3.fromRGB24(16711680));
+    public static final Vector3f REDSTONE_PARTICLE_COLOR = Vec3.fromRGB24(16711680).toVector3f();
     public static final DustParticleOptions REDSTONE = new DustParticleOptions(REDSTONE_PARTICLE_COLOR, 1.0F);
     public static final Codec<DustParticleOptions> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Vector3f.CODEC.fieldOf("color").forGetter(param0x -> param0x.color), Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale)
+                    ExtraCodecs.VECTOR3F.fieldOf("color").forGetter(param0x -> param0x.color), Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale)
                 )
                 .apply(param0, DustParticleOptions::new)
     );

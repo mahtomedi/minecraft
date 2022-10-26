@@ -9,7 +9,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 public class VanillaLootTableProvider {
     public static LootTableProvider create(PackOutput param0) {
         return new LootTableProvider(
-            "Vanilla Loot Tables",
             param0,
             BuiltInLootTables.all(),
             List.of(

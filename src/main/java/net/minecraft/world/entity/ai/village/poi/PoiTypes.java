@@ -3,7 +3,6 @@ package net.minecraft.world.entity.ai.village.poi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -67,7 +66,6 @@ public class PoiTypes {
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
         .collect(ImmutableSet.toImmutableSet());
     private static final Map<BlockState, Holder<PoiType>> TYPE_BY_STATE = Maps.newHashMap();
-    protected static final Set<BlockState> ALL_STATES = new ObjectOpenHashSet<>(TYPE_BY_STATE.keySet());
 
     private static Set<BlockState> getBlockStates(Block param0) {
         return ImmutableSet.copyOf(param0.getStateDefinition().getPossibleStates());
@@ -99,6 +97,10 @@ public class PoiTypes {
 
     public static Optional<Holder<PoiType>> forState(BlockState param0) {
         return Optional.ofNullable(TYPE_BY_STATE.get(param0));
+    }
+
+    public static boolean hasPoi(BlockState param0) {
+        return TYPE_BY_STATE.containsKey(param0);
     }
 
     public static PoiType bootstrap(Registry<PoiType> param0) {

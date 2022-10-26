@@ -3,12 +3,11 @@ package net.minecraft.data.recipes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -38,10 +37,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import org.slf4j.Logger;
 
 public abstract class RecipeProvider implements DataProvider {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final PackOutput.PathProvider recipePathProvider;
     private final PackOutput.PathProvider advancementPathProvider;
     private static final Map<BlockFamily.Variant, BiFunction<ItemLike, ItemLike, RecipeBuilder>> SHAPE_BUILDERS = ImmutableMap.<BlockFamily.Variant, BiFunction<ItemLike, ItemLike, RecipeBuilder>>builder(
@@ -70,42 +67,26 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     @Override
-    public void run(CachedOutput param0) {
+    public CompletableFuture<?> run(CachedOutput param0) {
         Set<ResourceLocation> var0 = Sets.newHashSet();
-        this.buildRecipes(param2 -> {
-            if (!var0.add(param2.getId())) {
-                throw new IllegalStateException("Duplicate recipe " + param2.getId());
+        List<CompletableFuture<?>> var1 = new ArrayList<>();
+        this.buildRecipes(param3 -> {
+            if (!var0.add(param3.getId())) {
+                throw new IllegalStateException("Duplicate recipe " + param3.getId());
             } else {
-                saveRecipe(param0, param2.serializeRecipe(), this.recipePathProvider.json(param2.getId()));
-                JsonObject var0x = param2.serializeAdvancement();
+                var1.add(DataProvider.saveStable(param0, param3.serializeRecipe(), this.recipePathProvider.json(param3.getId())));
+                JsonObject var0x = param3.serializeAdvancement();
                 if (var0x != null) {
-                    saveAdvancement(param0, var0x, this.advancementPathProvider.json(param2.getAdvancementId()));
+                    var1.add(DataProvider.saveStable(param0, var0x, this.advancementPathProvider.json(param3.getAdvancementId())));
                 }
 
             }
         });
+        return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
-    protected void buildAdvancement(CachedOutput param0, ResourceLocation param1, Advancement.Builder param2) {
-        saveAdvancement(param0, param2.serializeToJson(), this.advancementPathProvider.json(param1));
-    }
-
-    private static void saveRecipe(CachedOutput param0, JsonObject param1, Path param2) {
-        try {
-            DataProvider.saveStable(param0, param1, param2);
-        } catch (IOException var4) {
-            LOGGER.error("Couldn't save recipe {}", param2, var4);
-        }
-
-    }
-
-    private static void saveAdvancement(CachedOutput param0, JsonObject param1, Path param2) {
-        try {
-            DataProvider.saveStable(param0, param1, param2);
-        } catch (IOException var4) {
-            LOGGER.error("Couldn't save recipe advancement {}", param2, var4);
-        }
-
+    protected CompletableFuture<?> buildAdvancement(CachedOutput param0, ResourceLocation param1, Advancement.Builder param2) {
+        return DataProvider.saveStable(param0, param2.serializeToJson(), this.advancementPathProvider.json(param1));
     }
 
     protected abstract void buildRecipes(Consumer<FinishedRecipe> var1);
@@ -620,5 +601,10 @@ public abstract class RecipeProvider implements DataProvider {
 
     protected static String getBlastingRecipeName(ItemLike param0) {
         return getItemName(param0) + "_from_blasting";
+    }
+
+    @Override
+    public final String getName() {
+        return "Recipes";
     }
 }

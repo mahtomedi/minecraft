@@ -43,6 +43,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private boolean hasRecentMessages;
     private final boolean reportingEnabled;
     private final boolean playerReportable;
+    private final boolean hasDraftReport;
     @Nullable
     private Button hideButton;
     @Nullable
@@ -84,6 +85,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         ReportingContext var0 = param0.getReportingContext();
         this.reportingEnabled = var0.sender().isEnabled();
         this.playerReportable = param5;
+        this.hasDraftReport = var0.hasDraftReportFor(param2);
         final Component var1 = Component.translatable("gui.socialInteractions.narration.hide", param3);
         final Component var2 = Component.translatable("gui.socialInteractions.narration.show", param3);
         this.hideTooltip = param0.font.split(HIDE_TEXT_TOOLTIP, 150);
@@ -93,35 +95,26 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         boolean var4 = param0.getChatStatus().isChatAllowed(param0.isLocalServer());
         boolean var5 = !param0.player.getUUID().equals(param2);
         if (var5 && var4 && !var3.isBlocked(param2)) {
-            this.reportButton = new ImageButton(
-                0,
-                0,
-                20,
-                20,
-                0,
-                0,
-                20,
-                REPORT_BUTTON_LOCATION,
-                64,
-                64,
-                param3x -> param0.setScreen(new ChatReportScreen(param0.screen, var0, param2)),
-                new Button.OnTooltip() {
-                    @Override
-                    public void onTooltip(Button param0x, PoseStack param1x, int param2, int param3) {
-                        PlayerEntry.this.tooltipHoverTime += param0.getDeltaFrameTime();
-                        if (PlayerEntry.this.tooltipHoverTime >= 10.0F) {
-                            param1.setPostRenderRunnable(() -> PlayerEntry.postRenderTooltip(param1, param1, PlayerEntry.this.reportTooltip, param2, param3));
-                        }
-    
+            this.reportButton = new ImageButton(0, 0, 20, 20, 0, 0, 20, REPORT_BUTTON_LOCATION, 64, 64, param4x -> {
+                if (var0.draftReportHandled(param0, param1, false)) {
+                    param0.setScreen(new ChatReportScreen(param1, var0, param2));
+                }
+
+            }, new Button.OnTooltip() {
+                @Override
+                public void onTooltip(Button param0x, PoseStack param1x, int param2, int param3) {
+                    PlayerEntry.this.tooltipHoverTime += param0.getDeltaFrameTime();
+                    if (PlayerEntry.this.tooltipHoverTime >= 10.0F) {
+                        param1.setPostRenderRunnable(() -> PlayerEntry.postRenderTooltip(param1, param1, PlayerEntry.this.reportTooltip, param2, param3));
                     }
-    
-                    @Override
-                    public void narrateTooltip(Consumer<Component> param0x) {
-                        param0.accept(PlayerEntry.this.getReportButtonText(true));
-                    }
-                },
-                Component.translatable("gui.socialInteractions.report")
-            ) {
+
+                }
+
+                @Override
+                public void narrateTooltip(Consumer<Component> param0x) {
+                    param0.accept(PlayerEntry.this.getReportButtonText(true));
+                }
+            }, Component.translatable("gui.socialInteractions.report")) {
                 @Override
                 protected MutableComponent createNarrationMessage() {
                     return PlayerEntry.this.getEntryNarationMessage(super.createNarrationMessage());
@@ -220,18 +213,24 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
 
         if (this.hideButton != null && this.showButton != null && this.reportButton != null) {
             float var6 = this.tooltipHoverTime;
-            this.hideButton.x = param3 + (param4 - this.hideButton.getWidth() - 4) - 20 - 4;
-            this.hideButton.y = param2 + (param5 - this.hideButton.getHeight()) / 2;
+            this.hideButton.setX(param3 + (param4 - this.hideButton.getWidth() - 4) - 20 - 4);
+            this.hideButton.setY(param2 + (param5 - this.hideButton.getHeight()) / 2);
             this.hideButton.render(param0, param6, param7, param9);
-            this.showButton.x = param3 + (param4 - this.showButton.getWidth() - 4) - 20 - 4;
-            this.showButton.y = param2 + (param5 - this.showButton.getHeight()) / 2;
+            this.showButton.setX(param3 + (param4 - this.showButton.getWidth() - 4) - 20 - 4);
+            this.showButton.setY(param2 + (param5 - this.showButton.getHeight()) / 2);
             this.showButton.render(param0, param6, param7, param9);
-            this.reportButton.x = param3 + (param4 - this.showButton.getWidth() - 4);
-            this.reportButton.y = param2 + (param5 - this.showButton.getHeight()) / 2;
+            this.reportButton.setX(param3 + (param4 - this.showButton.getWidth() - 4));
+            this.reportButton.setY(param2 + (param5 - this.showButton.getHeight()) / 2);
             this.reportButton.render(param0, param6, param7, param9);
             if (var6 == this.tooltipHoverTime) {
                 this.tooltipHoverTime = 0.0F;
             }
+        }
+
+        if (this.hasDraftReport && this.reportButton != null) {
+            RenderSystem.setShaderTexture(0, AbstractWidget.WIDGETS_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            GuiComponent.blit(param0, this.reportButton.getX() + 5, this.reportButton.getY() + 1, 182.0F, 24.0F, 15, 15, 256, 256);
         }
 
     }

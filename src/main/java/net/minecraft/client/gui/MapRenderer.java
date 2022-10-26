@@ -2,8 +2,7 @@ package net.minecraft.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class MapRenderer implements AutoCloseable {
@@ -120,10 +120,10 @@ public class MapRenderer implements AutoCloseable {
             for(MapDecoration var6 : this.data.getDecorations()) {
                 if (!param2 || var6.renderOnFrame()) {
                     param0.pushPose();
-                    param0.translate((double)(0.0F + (float)var6.getX() / 2.0F + 64.0F), (double)(0.0F + (float)var6.getY() / 2.0F + 64.0F), -0.02F);
-                    param0.mulPose(Vector3f.ZP.rotationDegrees((float)(var6.getRot() * 360) / 16.0F));
+                    param0.translate(0.0F + (float)var6.getX() / 2.0F + 64.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F, -0.02F);
+                    param0.mulPose(Axis.ZP.rotationDegrees((float)(var6.getRot() * 360) / 16.0F));
                     param0.scale(4.0F, 4.0F, 3.0F);
-                    param0.translate(-0.125, 0.125, 0.0);
+                    param0.translate(-0.125F, 0.125F, 0.0F);
                     byte var7 = var6.getImage();
                     float var8 = (float)(var7 % 16 + 0) / 16.0F;
                     float var9 = (float)(var7 / 16 + 0) / 16.0F;
@@ -144,12 +144,10 @@ public class MapRenderer implements AutoCloseable {
                         float var18 = Mth.clamp(25.0F / var17, 0.0F, 6.0F / 9.0F);
                         param0.pushPose();
                         param0.translate(
-                            (double)(0.0F + (float)var6.getX() / 2.0F + 64.0F - var17 * var18 / 2.0F),
-                            (double)(0.0F + (float)var6.getY() / 2.0F + 64.0F + 4.0F),
-                            -0.025F
+                            0.0F + (float)var6.getX() / 2.0F + 64.0F - var17 * var18 / 2.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F + 4.0F, -0.025F
                         );
                         param0.scale(var18, var18, 1.0F);
-                        param0.translate(0.0, 0.0, -0.1F);
+                        param0.translate(0.0F, 0.0F, -0.1F);
                         var15.drawInBatch(var16, 0.0F, 0.0F, -1, false, param0.last().pose(), param1, false, Integer.MIN_VALUE, param3);
                         param0.popPose();
                     }

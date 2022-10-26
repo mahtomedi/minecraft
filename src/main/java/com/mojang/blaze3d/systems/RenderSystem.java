@@ -10,9 +10,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -34,6 +31,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.TimeSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallbackI;
 import org.slf4j.Logger;
@@ -70,10 +70,10 @@ public class RenderSystem {
         param0.accept(param1 + 2);
         param0.accept(param1 + 1);
     });
-    private static Matrix3f inverseViewRotationMatrix = new Matrix3f();
+    private static Matrix3f inverseViewRotationMatrix = new Matrix3f().zero();
     private static Matrix4f projectionMatrix = new Matrix4f();
     private static Matrix4f savedProjectionMatrix = new Matrix4f();
-    private static PoseStack modelViewStack = new PoseStack();
+    private static final PoseStack modelViewStack = new PoseStack();
     private static Matrix4f modelViewMatrix = new Matrix4f();
     private static Matrix4f textureMatrix = new Matrix4f();
     private static final int[] shaderTextures = new int[12];
@@ -561,10 +561,10 @@ public class RenderSystem {
         GlStateManager._clearDepth(1.0);
         GlStateManager._enableDepthTest();
         GlStateManager._depthFunc(515);
-        projectionMatrix.setIdentity();
-        savedProjectionMatrix.setIdentity();
-        modelViewMatrix.setIdentity();
-        textureMatrix.setIdentity();
+        projectionMatrix.identity();
+        savedProjectionMatrix.identity();
+        modelViewMatrix.identity();
+        textureMatrix.identity();
         GlStateManager._viewport(param0, param1, param2, param3);
     }
 
@@ -818,7 +818,7 @@ public class RenderSystem {
     }
 
     public static void setProjectionMatrix(Matrix4f param0) {
-        Matrix4f var0 = param0.copy();
+        Matrix4f var0 = new Matrix4f(param0);
         if (!isOnRenderThread()) {
             recordRenderCall(() -> projectionMatrix = var0);
         } else {
@@ -828,7 +828,7 @@ public class RenderSystem {
     }
 
     public static void setInverseViewRotationMatrix(Matrix3f param0) {
-        Matrix3f var0 = param0.copy();
+        Matrix3f var0 = new Matrix3f(param0);
         if (!isOnRenderThread()) {
             recordRenderCall(() -> inverseViewRotationMatrix = var0);
         } else {
@@ -838,7 +838,7 @@ public class RenderSystem {
     }
 
     public static void setTextureMatrix(Matrix4f param0) {
-        Matrix4f var0 = param0.copy();
+        Matrix4f var0 = new Matrix4f(param0);
         if (!isOnRenderThread()) {
             recordRenderCall(() -> textureMatrix = var0);
         } else {
@@ -849,15 +849,15 @@ public class RenderSystem {
 
     public static void resetTextureMatrix() {
         if (!isOnRenderThread()) {
-            recordRenderCall(() -> textureMatrix.setIdentity());
+            recordRenderCall(() -> textureMatrix.identity());
         } else {
-            textureMatrix.setIdentity();
+            textureMatrix.identity();
         }
 
     }
 
     public static void applyModelViewMatrix() {
-        Matrix4f var0 = modelViewStack.last().pose().copy();
+        Matrix4f var0 = new Matrix4f(modelViewStack.last().pose());
         if (!isOnRenderThread()) {
             recordRenderCall(() -> modelViewMatrix = var0);
         } else {
@@ -939,13 +939,6 @@ public class RenderSystem {
     public static float getShaderGameTime() {
         assertOnRenderThread();
         return shaderGameTime;
-    }
-
-    static {
-        projectionMatrix.setIdentity();
-        savedProjectionMatrix.setIdentity();
-        modelViewMatrix.setIdentity();
-        textureMatrix.setIdentity();
     }
 
     @OnlyIn(Dist.CLIENT)

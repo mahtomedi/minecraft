@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -61,15 +61,15 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         WoodType var2 = SignBlock.getWoodType(var0.getBlock());
         SignRenderer.SignModel var3 = this.signModels.get(var2);
         if (var0.getBlock() instanceof StandingSignBlock) {
-            param2.translate(0.5, 0.5, 0.5);
+            param2.translate(0.5F, 0.5F, 0.5F);
             float var4 = -RotationSegment.convertToDegrees(var0.getValue(StandingSignBlock.ROTATION));
-            param2.mulPose(Vector3f.YP.rotationDegrees(var4));
+            param2.mulPose(Axis.YP.rotationDegrees(var4));
             var3.stick.visible = true;
         } else {
-            param2.translate(0.5, 0.5, 0.5);
+            param2.translate(0.5F, 0.5F, 0.5F);
             float var5 = -var0.getValue(WallSignBlock.FACING).toYRot();
-            param2.mulPose(Vector3f.YP.rotationDegrees(var5));
-            param2.translate(0.0, -0.3125, -0.4375);
+            param2.mulPose(Axis.YP.rotationDegrees(var5));
+            param2.translate(0.0F, -0.3125F, -0.4375F);
             var3.stick.visible = false;
         }
 

@@ -86,7 +86,7 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
             this.renderMap(param0, param1, param2, var0 + 86, var1 + 16, 0.34F);
             RenderSystem.setShaderTexture(0, BG_LOCATION);
             param0.pushPose();
-            param0.translate(0.0, 0.0, 1.0);
+            param0.translate(0.0F, 0.0F, 1.0F);
             this.blit(param0, var0 + 67, var1 + 13 + 16, this.imageWidth, 132, 50, 66);
             this.renderMap(param0, param1, param2, var0 + 70, var1 + 32, 0.34F);
             param0.popPose();
@@ -95,7 +95,7 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
             this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
             RenderSystem.setShaderTexture(0, BG_LOCATION);
             param0.pushPose();
-            param0.translate(0.0, 0.0, 1.0);
+            param0.translate(0.0F, 0.0F, 1.0F);
             this.blit(param0, var0 + 66, var1 + 12, 0, this.imageHeight, 66, 66);
             param0.popPose();
         } else {
@@ -108,7 +108,7 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
     private void renderMap(PoseStack param0, @Nullable Integer param1, @Nullable MapItemSavedData param2, int param3, int param4, float param5) {
         if (param1 != null && param2 != null) {
             param0.pushPose();
-            param0.translate((double)param3, (double)param4, 1.0);
+            param0.translate((float)param3, (float)param4, 1.0F);
             param0.scale(param5, param5, 1.0F);
             MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             this.minecraft.gameRenderer.getMapRenderer().render(param0, var0, param1, param2, true, 15728880);

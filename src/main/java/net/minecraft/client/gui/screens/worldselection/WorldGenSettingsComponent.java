@@ -22,7 +22,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -44,7 +44,7 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class WorldGenSettingsComponent implements Widget {
+public class WorldGenSettingsComponent implements Renderable {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component CUSTOM_WORLD_DESCRIPTION = Component.translatable("generator.custom");
     private static final Component AMPLIFIED_HELP_TEXT = Component.translatable("generator.minecraft.amplified.info");
@@ -120,20 +120,18 @@ public class WorldGenSettingsComponent implements Widget {
         this.preset.ifPresent(this.typeButton::setValue);
         this.typeButton.visible = false;
         this.customWorldDummyButton = param0.addRenderableWidget(
-            new Button(
-                var1, 100, 150, 20, CommonComponents.optionNameValue(Component.translatable("selectWorld.mapType"), CUSTOM_WORLD_DESCRIPTION), param0x -> {
-                }
-            )
+            Button.builder(CommonComponents.optionNameValue(Component.translatable("selectWorld.mapType"), CUSTOM_WORLD_DESCRIPTION), param0x -> {
+            }).bounds(var1, 100, 150, 20).build()
         );
         this.customWorldDummyButton.active = false;
         this.customWorldDummyButton.visible = false;
-        this.customizeTypeButton = param0.addRenderableWidget(new Button(var1, 120, 150, 20, Component.translatable("selectWorld.customizeType"), param2x -> {
+        this.customizeTypeButton = param0.addRenderableWidget(Button.builder(Component.translatable("selectWorld.customizeType"), param2x -> {
             PresetEditor var0x = PresetEditor.EDITORS.get(this.preset.flatMap(Holder::unwrapKey));
             if (var0x != null) {
                 param1.setScreen(var0x.createEditScreen(param0, this.settings));
             }
 
-        }));
+        }).bounds(var1, 120, 150, 20).build());
         this.customizeTypeButton.visible = false;
         this.bonusItemsButton = param0.addRenderableWidget(
             CycleButton.onOffBuilder(this.settings.options().generateBonusChest() && !param0.hardCore)
@@ -148,43 +146,41 @@ public class WorldGenSettingsComponent implements Widget {
         );
         this.bonusItemsButton.visible = false;
         this.importSettingsButton = param0.addRenderableWidget(
-            new Button(
-                var0,
-                185,
-                150,
-                20,
-                Component.translatable("selectWorld.import_worldgen_settings"),
-                param2x -> {
-                    String var0x = TinyFileDialogs.tinyfd_openFileDialog(SELECT_FILE_PROMPT.getString(), null, null, null, false);
-                    if (var0x != null) {
-                        DynamicOps<JsonElement> var1x = RegistryOps.create(JsonOps.INSTANCE, this.settings.worldgenLoadContext());
-        
-                        DataResult<WorldGenSettings> var4x;
-                        try (BufferedReader var2x = Files.newBufferedReader(Paths.get(var0x))) {
-                            JsonElement var3x = JsonParser.parseReader(var2x);
-                            var7x = WorldGenSettings.CODEC.parse(var1x, var3x);
-                        } catch (Exception var12) {
-                            var7x = DataResult.error("Failed to parse file: " + var12.getMessage());
-                        }
-        
-                        if (var7x.error().isPresent()) {
-                            Component var8 = Component.translatable("selectWorld.import_worldgen_settings.failure");
-                            String var9 = ((PartialResult)var7x.error().get()).message();
-                            LOGGER.error("Error parsing world settings: {}", var9);
-                            Component var10 = Component.literal(var9);
-                            param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var8, var10));
-                        } else {
-                            Lifecycle var11 = var7x.lifecycle();
-                            var7x.resultOrPartial(LOGGER::error)
-                                .ifPresent(
-                                    param3 -> WorldOpenFlows.confirmWorldCreation(
-                                            param1, param0, var11, () -> this.importSettings(param3.options(), param3.dimensions())
-                                        )
-                                );
+            Button.builder(
+                    Component.translatable("selectWorld.import_worldgen_settings"),
+                    param2x -> {
+                        String var0x = TinyFileDialogs.tinyfd_openFileDialog(SELECT_FILE_PROMPT.getString(), null, null, null, false);
+                        if (var0x != null) {
+                            DynamicOps<JsonElement> var1x = RegistryOps.create(JsonOps.INSTANCE, this.settings.worldgenLoadContext());
+            
+                            DataResult<WorldGenSettings> var4x;
+                            try (BufferedReader var2x = Files.newBufferedReader(Paths.get(var0x))) {
+                                JsonElement var3x = JsonParser.parseReader(var2x);
+                                var7x = WorldGenSettings.CODEC.parse(var1x, var3x);
+                            } catch (Exception var12) {
+                                var7x = DataResult.error("Failed to parse file: " + var12.getMessage());
+                            }
+            
+                            if (var7x.error().isPresent()) {
+                                Component var8 = Component.translatable("selectWorld.import_worldgen_settings.failure");
+                                String var9 = ((PartialResult)var7x.error().get()).message();
+                                LOGGER.error("Error parsing world settings: {}", var9);
+                                Component var10 = Component.literal(var9);
+                                param1.getToasts().addToast(SystemToast.multiline(param1, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var8, var10));
+                            } else {
+                                Lifecycle var11 = var7x.lifecycle();
+                                var7x.resultOrPartial(LOGGER::error)
+                                    .ifPresent(
+                                        param3 -> WorldOpenFlows.confirmWorldCreation(
+                                                param1, param0, var11, () -> this.importSettings(param3.options(), param3.dimensions())
+                                            )
+                                    );
+                            }
                         }
                     }
-                }
-            )
+                )
+                .bounds(var0, 185, 150, 20)
+                .build()
         );
         this.importSettingsButton.visible = false;
         this.amplifiedWorldInfo = MultiLineLabel.create(param2, AMPLIFIED_HELP_TEXT, this.typeButton.getWidth());
@@ -222,7 +218,7 @@ public class WorldGenSettingsComponent implements Widget {
 
         this.seedEdit.render(param0, param1, param2, param3);
         if (this.preset.filter(WorldGenSettingsComponent::isAmplified).isPresent()) {
-            this.amplifiedWorldInfo.renderLeftAligned(param0, this.typeButton.x + 2, this.typeButton.y + 22, 9, 10526880);
+            this.amplifiedWorldInfo.renderLeftAligned(param0, this.typeButton.getX() + 2, this.typeButton.getY() + 22, 9, 10526880);
         }
 
     }

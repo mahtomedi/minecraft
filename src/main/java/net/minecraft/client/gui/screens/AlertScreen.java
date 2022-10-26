@@ -42,7 +42,7 @@ public class AlertScreen extends Screen {
         int var0 = this.message.getLineCount() * 9;
         int var1 = Mth.clamp(90 + var0 + 12, this.height / 6 + 96, this.height - 24);
         int var2 = 150;
-        this.addRenderableWidget(new Button((this.width - 150) / 2, var1, 150, 20, this.okButton, param0 -> this.callback.run()));
+        this.addRenderableWidget(Button.builder(this.okButton, param0 -> this.callback.run()).bounds((this.width - 150) / 2, var1, 150, 20).build());
     }
 
     @Override

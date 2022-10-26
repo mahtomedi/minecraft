@@ -2,9 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -13,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.DragonFireball;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
@@ -31,7 +31,7 @@ public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
         param3.pushPose();
         param3.scale(2.0F, 2.0F, 2.0F);
         param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
-        param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        param3.mulPose(Axis.YP.rotationDegrees(180.0F));
         PoseStack.Pose var0 = param3.last();
         Matrix4f var1 = var0.pose();
         Matrix3f var2 = var0.normal();

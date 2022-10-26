@@ -8,11 +8,11 @@ import net.minecraft.world.item.ItemStack;
 
 public class IndirectEntityDamageSource extends EntityDamageSource {
     @Nullable
-    private final Entity owner;
+    private final Entity cause;
 
     public IndirectEntityDamageSource(String param0, Entity param1, @Nullable Entity param2) {
         super(param0, param1);
-        this.owner = param2;
+        this.cause = param2;
     }
 
     @Nullable
@@ -24,17 +24,20 @@ public class IndirectEntityDamageSource extends EntityDamageSource {
     @Nullable
     @Override
     public Entity getEntity() {
-        return this.owner;
+        return this.cause;
     }
 
     @Override
     public Component getLocalizedDeathMessage(LivingEntity param0) {
-        Component var0 = this.owner == null ? this.entity.getDisplayName() : this.owner.getDisplayName();
-        ItemStack var1 = this.owner instanceof LivingEntity ? ((LivingEntity)this.owner).getMainHandItem() : ItemStack.EMPTY;
-        String var2 = "death.attack." + this.msgId;
-        String var3 = var2 + ".item";
-        return !var1.isEmpty() && var1.hasCustomHoverName()
-            ? Component.translatable(var3, param0.getDisplayName(), var0, var1.getDisplayName())
-            : Component.translatable(var2, param0.getDisplayName(), var0);
+        Component var0 = this.cause == null ? this.entity.getDisplayName() : this.cause.getDisplayName();
+        Entity var4 = this.cause;
+        ItemStack var2 = var4 instanceof LivingEntity var1 ? var1.getMainHandItem() : ItemStack.EMPTY;
+        String var3 = "death.attack." + this.msgId;
+        if (!var2.isEmpty() && var2.hasCustomHoverName()) {
+            String var4x = var3 + ".item";
+            return Component.translatable(var4x, param0.getDisplayName(), var0, var2.getDisplayName());
+        } else {
+            return Component.translatable(var3, param0.getDisplayName(), var0);
+        }
     }
 }

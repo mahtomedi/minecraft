@@ -1,7 +1,7 @@
 package net.minecraft.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -101,7 +101,7 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
             float var9 = param0.getSpinningProgress(var2);
             float var10 = Mth.cos(var7) * 14.0F * (float) (Math.PI / 180.0);
             float var11 = Mth.cos(var7) * 30.0F * (float) (Math.PI / 180.0);
-            this.root.yRot = param0.isSpinning() ? ((float) (Math.PI * 4)) * var9 : this.root.yRot;
+            this.root.yRot = param0.isSpinning() ? (float) (Math.PI * 4) * var9 : this.root.yRot;
             this.root.zRot = var8 * (1.0F - var9);
             this.head.yRot = var11 * (1.0F - var9);
             this.head.zRot = var10 * (1.0F - var9);
@@ -120,7 +120,7 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
         this.right_arm.xRot = var12;
         this.left_arm.xRot = var12;
         float var13 = var5 * (1.0F - var6);
-        float var14 = 0.43633232F - Mth.cos(var3 + ((float) (Math.PI * 3.0 / 2.0))) * (float) Math.PI * 0.075F * var13;
+        float var14 = 0.43633232F - Mth.cos(var3 + (float) (Math.PI * 3.0 / 2.0)) * (float) Math.PI * 0.075F * var13;
         this.left_arm.zRot = -var14;
         this.right_arm.zRot = var14;
         this.right_arm.yRot = 0.27925268F * var6;
@@ -133,9 +133,9 @@ public class AllayModel extends HierarchicalModel<Allay> implements ArmedModel {
         float var1 = 3.0F;
         this.root.translateAndRotate(param1);
         this.body.translateAndRotate(param1);
-        param1.translate(0.0, 0.0625, 0.1875);
-        param1.mulPose(Vector3f.XP.rotation(this.right_arm.xRot));
+        param1.translate(0.0F, 0.0625F, 0.1875F);
+        param1.mulPose(Axis.XP.rotation(this.right_arm.xRot));
         param1.scale(0.7F, 0.7F, 0.7F);
-        param1.translate(0.0625, 0.0, 0.0);
+        param1.translate(0.0625F, 0.0F, 0.0F);
     }
 }

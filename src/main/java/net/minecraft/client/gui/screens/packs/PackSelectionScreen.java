@@ -90,17 +90,12 @@ public class PackSelectionScreen extends Screen {
     @Override
     protected void init() {
         this.doneButton = this.addRenderableWidget(
-            new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onClose())
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onClose()).bounds(this.width / 2 + 4, this.height - 48, 150, 20).build()
         );
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 154,
-                this.height - 48,
-                150,
-                20,
-                Component.translatable("pack.openFolder"),
-                param0 -> Util.getPlatform().openUri(this.packDir.toUri()),
-                new Button.OnTooltip() {
+            Button.builder(Component.translatable("pack.openFolder"), param0 -> Util.getPlatform().openUri(this.packDir.toUri()))
+                .bounds(this.width / 2 - 154, this.height - 48, 150, 20)
+                .tooltip(new Button.OnTooltip() {
                     @Override
                     public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
                         PackSelectionScreen.this.renderTooltip(param1, PackSelectionScreen.DIRECTORY_BUTTON_TOOLTIP, param2, param3);
@@ -110,8 +105,8 @@ public class PackSelectionScreen extends Screen {
                     public void narrateTooltip(Consumer<Component> param0) {
                         param0.accept(PackSelectionScreen.DIRECTORY_BUTTON_TOOLTIP);
                     }
-                }
-            )
+                })
+                .build()
         );
         this.availablePackList = new TransferableSelectionList(this.minecraft, 200, this.height, Component.translatable("pack.available.title"));
         this.availablePackList.setLeftPos(this.width / 2 - 4 - 200);

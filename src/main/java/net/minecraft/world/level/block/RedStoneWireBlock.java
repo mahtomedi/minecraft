@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.math.Vector3f;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -447,7 +446,7 @@ public class RedStoneWireBlock extends Block {
             double var4 = 0.5 + (double)(0.4375F * (float)param4.getStepY()) + (double)(var2 * (float)param5.getStepY());
             double var5 = 0.5 + (double)(0.4375F * (float)param4.getStepZ()) + (double)(var2 * (float)param5.getStepZ());
             param0.addParticle(
-                new DustParticleOptions(new Vector3f(param3), 1.0F),
+                new DustParticleOptions(param3.toVector3f(), 1.0F),
                 (double)param2.getX() + var3,
                 (double)param2.getY() + var4,
                 (double)param2.getZ() + var5,

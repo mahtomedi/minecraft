@@ -35,7 +35,7 @@ public class PistonHeadRenderer implements BlockEntityRenderer<PistonMovingBlock
             if (!var2.isAir()) {
                 ModelBlockRenderer.enableCaching();
                 param2.pushPose();
-                param2.translate((double)param0.getXOff(param1), (double)param0.getYOff(param1), (double)param0.getZOff(param1));
+                param2.translate(param0.getXOff(param1), param0.getYOff(param1), param0.getZOff(param1));
                 if (var2.is(Blocks.PISTON_HEAD) && param0.getProgress(param1) <= 4.0F) {
                     var2 = var2.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(param0.getProgress(param1) <= 0.5F));
                     this.renderBlock(var1, var2, param2, param3, var0, false, param5);

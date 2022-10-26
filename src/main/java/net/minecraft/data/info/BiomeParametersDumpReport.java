@@ -5,9 +5,9 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Encoder;
 import com.mojang.serialization.JsonOps;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.BuiltinRegistries;
@@ -29,27 +29,20 @@ public class BiomeParametersDumpReport implements DataProvider {
     }
 
     @Override
-    public void run(CachedOutput param0) {
+    public CompletableFuture<?> run(CachedOutput param0) {
         RegistryAccess var0 = BuiltinRegistries.createAccess();
         DynamicOps<JsonElement> var1 = RegistryOps.create(JsonOps.INSTANCE, var0);
         Registry<Biome> var2 = var0.registryOrThrow(Registry.BIOME_REGISTRY);
-        MultiNoiseBiomeSource.Preset.getPresets().forEach(param3 -> {
+        return CompletableFuture.allOf(MultiNoiseBiomeSource.Preset.getPresets().map(param3 -> {
             MultiNoiseBiomeSource var0x = param3.getSecond().biomeSource(var2, false);
-            dumpValue(this.createPath(param3.getFirst()), param0, var1, MultiNoiseBiomeSource.CODEC, var0x);
-        });
+            return dumpValue(this.createPath(param3.getFirst()), param0, var1, MultiNoiseBiomeSource.CODEC, var0x);
+        }).toArray(param0x -> new CompletableFuture[param0x]));
     }
 
-    private static <E> void dumpValue(Path param0, CachedOutput param1, DynamicOps<JsonElement> param2, Encoder<E> param3, E param4) {
-        try {
-            Optional<JsonElement> var0 = param3.encodeStart(param2, param4)
-                .resultOrPartial(param1x -> LOGGER.error("Couldn't serialize element {}: {}", param0, param1x));
-            if (var0.isPresent()) {
-                DataProvider.saveStable(param1, var0.get(), param0);
-            }
-        } catch (IOException var6) {
-            LOGGER.error("Couldn't save element {}", param0, var6);
-        }
-
+    private static <E> CompletableFuture<?> dumpValue(Path param0, CachedOutput param1, DynamicOps<JsonElement> param2, Encoder<E> param3, E param4) {
+        Optional<JsonElement> var0 = param3.encodeStart(param2, param4)
+            .resultOrPartial(param1x -> LOGGER.error("Couldn't serialize element {}: {}", param0, param1x));
+        return var0.isPresent() ? DataProvider.saveStable(param1, var0.get(), param0) : CompletableFuture.completedFuture(null);
     }
 
     private Path createPath(ResourceLocation param0) {
@@ -57,7 +50,7 @@ public class BiomeParametersDumpReport implements DataProvider {
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "Biome Parameters";
     }
 }

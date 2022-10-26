@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
@@ -26,7 +26,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiEventListener {
+public class OverlayRecipeComponent extends GuiComponent implements Renderable, GuiEventListener {
     static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
     private static final int MAX_ROW = 4;
     private static final int MAX_ROW_LARGE = 5;
@@ -138,7 +138,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
             param0.pushPose();
-            param0.translate(0.0, 0.0, 170.0);
+            param0.translate(0.0F, 0.0F, 170.0F);
             int var0 = this.recipeButtons.size() <= 16 ? 4 : 5;
             int var1 = Math.min(this.recipeButtons.size(), var0);
             int var2 = Mth.ceil((float)this.recipeButtons.size() / (float)var0);
@@ -277,10 +277,10 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
                 var1 += 26;
             }
 
-            this.blit(param0, this.x, this.y, var0, var1, this.width, this.height);
+            this.blit(param0, this.getX(), this.getY(), var0, var1, this.width, this.height);
             PoseStack var2 = RenderSystem.getModelViewStack();
             var2.pushPose();
-            var2.translate((double)(this.x + 2), (double)(this.y + 2), 125.0);
+            var2.translate((double)(this.getX() + 2), (double)(this.getY() + 2), 125.0);
 
             for(OverlayRecipeComponent.OverlayRecipeButton.Pos var3 : this.ingredientPos) {
                 var2.pushPose();

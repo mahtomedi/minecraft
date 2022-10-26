@@ -2,8 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -21,6 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
 
 @OnlyIn(Dist.CLIENT)
 public class EndCrystalRenderer extends EntityRenderer<EndCrystal> {
@@ -58,24 +58,24 @@ public class EndCrystalRenderer extends EntityRenderer<EndCrystal> {
         VertexConsumer var2 = param4.getBuffer(RENDER_TYPE);
         param3.pushPose();
         param3.scale(2.0F, 2.0F, 2.0F);
-        param3.translate(0.0, -0.5, 0.0);
+        param3.translate(0.0F, -0.5F, 0.0F);
         int var3 = OverlayTexture.NO_OVERLAY;
         if (param0.showsBottom()) {
             this.base.render(param3, var2, param5, var3);
         }
 
-        param3.mulPose(Vector3f.YP.rotationDegrees(var1));
-        param3.translate(0.0, (double)(1.5F + var0 / 2.0F), 0.0);
-        param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
+        param3.mulPose(Axis.YP.rotationDegrees(var1));
+        param3.translate(0.0F, 1.5F + var0 / 2.0F, 0.0F);
+        param3.mulPose(new Quaternionf().setAngleAxis((float) (Math.PI / 3), SIN_45, 0.0F, SIN_45));
         this.glass.render(param3, var2, param5, var3);
         float var4 = 0.875F;
         param3.scale(0.875F, 0.875F, 0.875F);
-        param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
-        param3.mulPose(Vector3f.YP.rotationDegrees(var1));
+        param3.mulPose(new Quaternionf().setAngleAxis((float) (Math.PI / 3), SIN_45, 0.0F, SIN_45));
+        param3.mulPose(Axis.YP.rotationDegrees(var1));
         this.glass.render(param3, var2, param5, var3);
         param3.scale(0.875F, 0.875F, 0.875F);
-        param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
-        param3.mulPose(Vector3f.YP.rotationDegrees(var1));
+        param3.mulPose(new Quaternionf().setAngleAxis((float) (Math.PI / 3), SIN_45, 0.0F, SIN_45));
+        param3.mulPose(Axis.YP.rotationDegrees(var1));
         this.cube.render(param3, var2, param5, var3);
         param3.popPose();
         param3.popPose();
@@ -87,7 +87,7 @@ public class EndCrystalRenderer extends EntityRenderer<EndCrystal> {
             float var9 = (float)((double)var6 - param0.getX());
             float var10 = (float)((double)var7 - param0.getY());
             float var11 = (float)((double)var8 - param0.getZ());
-            param3.translate((double)var9, (double)var10, (double)var11);
+            param3.translate(var9, var10, var11);
             EnderDragonRenderer.renderCrystalBeams(-var9, -var10 + var0, -var11, param2, param0.time, param3, param4, param5);
         }
 

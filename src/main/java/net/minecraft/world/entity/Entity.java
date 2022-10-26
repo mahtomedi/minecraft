@@ -711,6 +711,14 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
     }
 
+    public void extinguishFire() {
+        if (!this.level.isClientSide && this.wasOnFire) {
+            this.playEntityOnFireExtinguishedSound();
+        }
+
+        this.clearFire();
+    }
+
     protected void processFlappingMovement() {
         if (this.isFlapping()) {
             this.onFlap();
@@ -1084,9 +1092,13 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     void updateInWaterStateAndDoWaterCurrentPushing() {
-        if (this.getVehicle() instanceof Boat) {
+        Entity var2 = this.getVehicle();
+        if (var2 instanceof Boat var0 && !var0.isUnderWater()) {
             this.wasTouchingWater = false;
-        } else if (this.updateFluidHeightAndDoFluidPushing(FluidTags.WATER, 0.014)) {
+            return;
+        }
+
+        if (this.updateFluidHeightAndDoFluidPushing(FluidTags.WATER, 0.014)) {
             if (!this.wasTouchingWater && !this.firstTick) {
                 this.doWaterSplashEffect();
             }
@@ -2552,6 +2564,14 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.refreshDimensions();
         }
 
+    }
+
+    @Deprecated
+    protected void fixupDimensions() {
+        Pose var0 = this.getPose();
+        EntityDimensions var1 = this.getDimensions(var0);
+        this.dimensions = var1;
+        this.eyeHeight = this.getEyeHeight(var0, var1);
     }
 
     public void refreshDimensions() {

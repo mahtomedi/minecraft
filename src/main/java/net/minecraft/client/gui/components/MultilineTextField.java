@@ -20,7 +20,7 @@ public class MultilineTextField {
     private static final int LINE_SEEK_PIXEL_BIAS = 2;
     private final Font font;
     private final List<MultilineTextField.StringView> displayLines = Lists.newArrayList();
-    private String value = "";
+    private String value;
     private int cursor;
     private int selectCursor;
     private boolean selecting;
@@ -34,6 +34,7 @@ public class MultilineTextField {
     public MultilineTextField(Font param0, int param1) {
         this.font = param0;
         this.width = param1;
+        this.setValue("");
     }
 
     public int characterLimit() {

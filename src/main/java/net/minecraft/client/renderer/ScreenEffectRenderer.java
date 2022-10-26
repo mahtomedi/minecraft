@@ -7,8 +7,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -22,6 +21,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenEffectRenderer {
@@ -147,8 +147,8 @@ public class ScreenEffectRenderer {
             float var17 = -0.5F;
             float var18 = 0.5F;
             float var19 = -0.5F;
-            param1.translate((double)((float)(-(var14 * 2 - 1)) * 0.24F), -0.3F, 0.0);
-            param1.mulPose(Vector3f.YP.rotationDegrees((float)(var14 * 2 - 1) * 10.0F));
+            param1.translate((float)(-(var14 * 2 - 1)) * 0.24F, -0.3F, 0.0F);
+            param1.mulPose(Axis.YP.rotationDegrees((float)(var14 * 2 - 1) * 10.0F));
             Matrix4f var20 = param1.last().pose();
             var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
             var0.vertex(var20, -0.5F, -0.5F, -0.5F).color(1.0F, 1.0F, 1.0F, 0.9F).uv(var10, var12).endVertex();

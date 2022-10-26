@@ -39,13 +39,15 @@ public class RealmsSettingsScreen extends RealmsScreen {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         int var0 = this.width / 2 - 106;
         this.doneButton = this.addRenderableWidget(
-            new Button(var0 - 2, row(12), 106, 20, Component.translatable("mco.configure.world.buttons.done"), param0 -> this.save())
+            Button.builder(Component.translatable("mco.configure.world.buttons.done"), param0 -> this.save()).bounds(var0 - 2, row(12), 106, 20).build()
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 + 2, row(12), 106, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.configureWorldScreen))
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.configureWorldScreen))
+                .bounds(this.width / 2 + 2, row(12), 106, 20)
+                .build()
         );
         String var1 = this.serverData.state == RealmsServer.State.OPEN ? "mco.configure.world.buttons.close" : "mco.configure.world.buttons.open";
-        Button var2 = new Button(this.width / 2 - 53, row(0), 106, 20, Component.translatable(var1), param0 -> {
+        Button var2 = Button.builder(Component.translatable(var1), param0 -> {
             if (this.serverData.state == RealmsServer.State.OPEN) {
                 Component var0x = Component.translatable("mco.configure.world.close.question.line1");
                 Component var1x = Component.translatable("mco.configure.world.close.question.line2");
@@ -61,7 +63,7 @@ public class RealmsSettingsScreen extends RealmsScreen {
                 this.configureWorldScreen.openTheWorld(false, this);
             }
 
-        });
+        }).bounds(this.width / 2 - 53, row(0), 106, 20).build();
         this.addRenderableWidget(var2);
         this.nameEdit = new EditBox(this.minecraft.font, var0, row(4), 212, 20, null, Component.translatable("mco.configure.world.name"));
         this.nameEdit.setMaxLength(32);

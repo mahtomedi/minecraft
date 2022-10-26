@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,7 +39,7 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
             ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
             if (!var0.is(Items.ELYTRA)) {
                 param0.pushPose();
-                param0.translate(0.0, 0.0, 0.125);
+                param0.translate(0.0F, 0.0F, 0.125F);
                 double var1 = Mth.lerp((double)param6, param3.xCloakO, param3.xCloak) - Mth.lerp((double)param6, param3.xo, param3.getX());
                 double var2 = Mth.lerp((double)param6, param3.yCloakO, param3.yCloak) - Mth.lerp((double)param6, param3.yo, param3.getY());
                 double var3 = Mth.lerp((double)param6, param3.zCloakO, param3.zCloak) - Mth.lerp((double)param6, param3.zo, param3.getZ());
@@ -62,9 +62,9 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
                     var7 += 25.0F;
                 }
 
-                param0.mulPose(Vector3f.XP.rotationDegrees(6.0F + var8 / 2.0F + var7));
-                param0.mulPose(Vector3f.ZP.rotationDegrees(var9 / 2.0F));
-                param0.mulPose(Vector3f.YP.rotationDegrees(180.0F - var9 / 2.0F));
+                param0.mulPose(Axis.XP.rotationDegrees(6.0F + var8 / 2.0F + var7));
+                param0.mulPose(Axis.ZP.rotationDegrees(var9 / 2.0F));
+                param0.mulPose(Axis.YP.rotationDegrees(180.0F - var9 / 2.0F));
                 VertexConsumer var11 = param1.getBuffer(RenderType.entitySolid(param3.getCloakTextureLocation()));
                 this.getParentModel().renderCloak(param0, var11, param2, OverlayTexture.NO_OVERLAY);
                 param0.popPose();

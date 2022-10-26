@@ -48,9 +48,9 @@ public class RecipeBookTabButton extends StateSwitchingButton {
         if (this.animationTime > 0.0F) {
             float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
             param0.pushPose();
-            param0.translate((double)(this.x + 8), (double)(this.y + 12), 0.0);
+            param0.translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
             param0.scale(1.0F, var0, 1.0F);
-            param0.translate((double)(-(this.x + 8)), (double)(-(this.y + 12)), 0.0);
+            param0.translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
         }
 
         Minecraft var1 = Minecraft.getInstance();
@@ -67,13 +67,13 @@ public class RecipeBookTabButton extends StateSwitchingButton {
             var3 += this.yDiffTex;
         }
 
-        int var4 = this.x;
+        int var4 = this.getX();
         if (this.isStateTriggered) {
             var4 -= 2;
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        this.blit(param0, var4, this.y, var2, var3, this.width, this.height);
+        this.blit(param0, var4, this.getY(), var2, var3, this.width, this.height);
         RenderSystem.enableDepthTest();
         this.renderIcon(var1.getItemRenderer());
         if (this.animationTime > 0.0F) {
@@ -87,10 +87,10 @@ public class RecipeBookTabButton extends StateSwitchingButton {
         List<ItemStack> var0 = this.category.getIconItems();
         int var1 = this.isStateTriggered ? -2 : 0;
         if (var0.size() == 1) {
-            param0.renderAndDecorateFakeItem(var0.get(0), this.x + 9 + var1, this.y + 5);
+            param0.renderAndDecorateFakeItem(var0.get(0), this.getX() + 9 + var1, this.getY() + 5);
         } else if (var0.size() == 2) {
-            param0.renderAndDecorateFakeItem(var0.get(0), this.x + 3 + var1, this.y + 5);
-            param0.renderAndDecorateFakeItem(var0.get(1), this.x + 14 + var1, this.y + 5);
+            param0.renderAndDecorateFakeItem(var0.get(0), this.getX() + 3 + var1, this.getY() + 5);
+            param0.renderAndDecorateFakeItem(var0.get(1), this.getX() + 14 + var1, this.getY() + 5);
         }
 
     }

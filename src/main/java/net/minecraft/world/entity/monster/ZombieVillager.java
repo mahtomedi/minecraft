@@ -112,7 +112,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             this.tradeOffers = param0.getCompound("Offers");
         }
 
-        if (param0.contains("Gossips", 10)) {
+        if (param0.contains("Gossips", 9)) {
             this.gossips = param0.getList("Gossips", 10);
         }
 

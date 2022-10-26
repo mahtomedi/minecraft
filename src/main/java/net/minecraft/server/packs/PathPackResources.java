@@ -107,8 +107,9 @@ public class PathPackResources extends AbstractPackResources {
                     LOGGER.warn("Ignored non-lowercase namespace: {} in {}", var4, this.root);
                 }
             }
-        } catch (IOException var10) {
-            LOGGER.error("Failed to list path {}", var1, var10);
+        } catch (NoSuchFileException var10) {
+        } catch (IOException var11) {
+            LOGGER.error("Failed to list path {}", var1, var11);
         }
 
         return var0;

@@ -3,11 +3,11 @@ package net.minecraft.data.models;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
-import com.mojang.logging.LogUtils;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,10 +22,8 @@ import net.minecraft.data.models.model.ModelLocationUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import org.slf4j.Logger;
 
 public class ModelProvider implements DataProvider {
-    private static final Logger LOGGER = LogUtils.getLogger();
     private final PackOutput.PathProvider blockStatePathProvider;
     private final PackOutput.PathProvider modelPathProvider;
 
@@ -35,7 +33,7 @@ public class ModelProvider implements DataProvider {
     }
 
     @Override
-    public void run(CachedOutput param0) {
+    public CompletableFuture<?> run(CachedOutput param0) {
         Map<Block, BlockStateGenerator> var0 = Maps.newHashMap();
         Consumer<BlockStateGenerator> var1 = param1 -> {
             Block var0x = param1.getBlock();
@@ -73,26 +71,23 @@ public class ModelProvider implements DataProvider {
                 }
 
             });
-            this.saveCollection(param0, var0, param0x -> this.blockStatePathProvider.json(param0x.builtInRegistryHolder().key().location()));
-            this.saveCollection(param0, var2, this.modelPathProvider::json);
+            return CompletableFuture.allOf(
+                this.saveCollection(param0, var0, param0x -> this.blockStatePathProvider.json(param0x.builtInRegistryHolder().key().location())),
+                this.saveCollection(param0, var2, this.modelPathProvider::json)
+            );
         }
     }
 
-    private <T> void saveCollection(CachedOutput param0, Map<T, ? extends Supplier<JsonElement>> param1, Function<T, Path> param2) {
-        param1.forEach((param2x, param3) -> {
-            Path var0 = param2.apply(param2x);
-
-            try {
-                DataProvider.saveStable(param0, param3.get(), var0);
-            } catch (Exception var6) {
-                LOGGER.error("Couldn't save {}", var0, var6);
-            }
-
-        });
+    private <T> CompletableFuture<?> saveCollection(CachedOutput param0, Map<T, ? extends Supplier<JsonElement>> param1, Function<T, Path> param2) {
+        return CompletableFuture.allOf(param1.entrySet().stream().map(param2x -> {
+            Path var0 = param2.apply(param2x.getKey());
+            JsonElement var1x = param2x.getValue().get();
+            return DataProvider.saveStable(param0, var1x, var0);
+        }).toArray(param0x -> new CompletableFuture[param0x]));
     }
 
     @Override
-    public String getName() {
-        return "Block State Definitions";
+    public final String getName() {
+        return "Model Definitions";
     }
 }

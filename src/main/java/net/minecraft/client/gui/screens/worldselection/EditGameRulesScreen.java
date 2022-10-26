@@ -56,12 +56,14 @@ public class EditGameRulesScreen extends Screen {
         this.rules = new EditGameRulesScreen.RuleList(this.gameRules);
         this.addWidget(this.rules);
         this.addRenderableWidget(
-            new Button(this.width / 2 - 155 + 160, this.height - 29, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.exitCallback.accept(Optional.empty()))
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.exitCallback.accept(Optional.empty()))
+                .bounds(this.width / 2 - 155 + 160, this.height - 29, 150, 20)
+                .build()
         );
         this.doneButton = this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 155, this.height - 29, 150, 20, CommonComponents.GUI_DONE, param0 -> this.exitCallback.accept(Optional.of(this.gameRules))
-            )
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.exitCallback.accept(Optional.of(this.gameRules)))
+                .bounds(this.width / 2 - 155, this.height - 29, 150, 20)
+                .build()
         );
     }
 
@@ -121,8 +123,8 @@ public class EditGameRulesScreen extends Screen {
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderLabel(param0, param2, param3);
-            this.checkbox.x = param3 + param4 - 45;
-            this.checkbox.y = param2;
+            this.checkbox.setX(param3 + param4 - 45);
+            this.checkbox.setY(param2);
             this.checkbox.render(param0, param6, param7, param9);
         }
     }
@@ -223,8 +225,8 @@ public class EditGameRulesScreen extends Screen {
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderLabel(param0, param2, param3);
-            this.input.x = param3 + param4 - 44;
-            this.input.y = param2;
+            this.input.setX(param3 + param4 - 44);
+            this.input.setY(param2);
             this.input.render(param0, param6, param7, param9);
         }
     }

@@ -3,7 +3,7 @@ package net.minecraft.client.renderer.blockentity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.Map;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -62,12 +62,12 @@ public class HangingSignRenderer extends SignRenderer {
         param2.translate(0.5, 0.9375, 0.5);
         if (var4) {
             float var5 = -RotationSegment.convertToDegrees(var0.getValue(CeilingHangingSignBlock.ROTATION));
-            param2.mulPose(Vector3f.YP.rotationDegrees(var5));
+            param2.mulPose(Axis.YP.rotationDegrees(var5));
         } else {
-            param2.mulPose(Vector3f.YP.rotationDegrees(this.getSignAngle(var0, var3)));
+            param2.mulPose(Axis.YP.rotationDegrees(this.getSignAngle(var0, var3)));
         }
 
-        param2.translate(0.0, -0.3125, 0.0);
+        param2.translate(0.0F, -0.3125F, 0.0F);
         var2.evaluateVisibleParts(var0);
         float var6 = 1.0F;
         this.renderSign(param2, param3, param4, param5, 1.0F, var1, var2);

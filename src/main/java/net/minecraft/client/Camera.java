@@ -1,7 +1,5 @@
 package net.minecraft.client;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,6 +17,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class Camera {
@@ -32,7 +32,7 @@ public class Camera {
     private final Vector3f left = new Vector3f(1.0F, 0.0F, 0.0F);
     private float xRot;
     private float yRot;
-    private final Quaternion rotation = new Quaternion(0.0F, 0.0F, 0.0F, 1.0F);
+    private final Quaternionf rotation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
     private boolean detached;
     private float eyeHeight;
     private float eyeHeightOld;
@@ -107,15 +107,10 @@ public class Camera {
     protected void setRotation(float param0, float param1) {
         this.xRot = param1;
         this.yRot = param0;
-        this.rotation.set(0.0F, 0.0F, 0.0F, 1.0F);
-        this.rotation.mul(Vector3f.YP.rotationDegrees(-param0));
-        this.rotation.mul(Vector3f.XP.rotationDegrees(param1));
-        this.forwards.set(0.0F, 0.0F, 1.0F);
-        this.forwards.transform(this.rotation);
-        this.up.set(0.0F, 1.0F, 0.0F);
-        this.up.transform(this.rotation);
-        this.left.set(1.0F, 0.0F, 0.0F);
-        this.left.transform(this.rotation);
+        this.rotation.rotationYXZ(-param0 * (float) (Math.PI / 180.0), param1 * (float) (Math.PI / 180.0), 0.0F);
+        this.forwards.set(0.0F, 0.0F, 1.0F).rotate(this.rotation);
+        this.up.set(0.0F, 1.0F, 0.0F).rotate(this.rotation);
+        this.left.set(1.0F, 0.0F, 0.0F).rotate(this.rotation);
     }
 
     protected void setPosition(double param0, double param1, double param2) {
@@ -143,7 +138,7 @@ public class Camera {
         return this.yRot;
     }
 
-    public Quaternion rotation() {
+    public Quaternionf rotation() {
         return this.rotation;
     }
 

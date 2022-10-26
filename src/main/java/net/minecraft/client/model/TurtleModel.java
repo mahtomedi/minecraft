@@ -100,7 +100,7 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
         boolean var0 = this.eggBelly.visible;
         if (var0) {
             param0.pushPose();
-            param0.translate(0.0, -0.08F, 0.0);
+            param0.translate(0.0F, -0.08F, 0.0F);
         }
 
         super.renderToBuffer(param0, param1, param2, param3, param4, param5, param6, param7);

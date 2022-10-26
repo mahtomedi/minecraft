@@ -1,5 +1,9 @@
 package net.minecraft.client.multiplayer.chat;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -9,8 +13,35 @@ public class ChatLog {
     private final LoggedChatEvent[] buffer;
     private int nextId;
 
+    public static Codec<ChatLog> codec(int param0) {
+        return Codec.list(LoggedChatEvent.CODEC)
+            .comapFlatMap(
+                param1 -> param1.size() > param0
+                        ? DataResult.error(
+                            "Expected: a buffer of size less than or equal to " + param0 + " but: " + param1.size() + " is greater than " + param0
+                        )
+                        : DataResult.success(new ChatLog(param0, param1)),
+                ChatLog::loggedChatEvents
+            );
+    }
+
     public ChatLog(int param0) {
         this.buffer = new LoggedChatEvent[param0];
+    }
+
+    private ChatLog(int param0, List<LoggedChatEvent> param1) {
+        this.buffer = param1.toArray(param1x -> new LoggedChatEvent[param0]);
+        this.nextId = param1.size();
+    }
+
+    private List<LoggedChatEvent> loggedChatEvents() {
+        List<LoggedChatEvent> var0 = new ArrayList<>(this.size());
+
+        for(int var1 = this.start(); var1 <= this.end(); ++var1) {
+            var0.add(this.lookup(var1));
+        }
+
+        return var0;
     }
 
     public void push(LoggedChatEvent param0) {
@@ -32,5 +63,9 @@ public class ChatLog {
 
     public int end() {
         return this.nextId - 1;
+    }
+
+    private int size() {
+        return this.end() - this.start() + 1;
     }
 }

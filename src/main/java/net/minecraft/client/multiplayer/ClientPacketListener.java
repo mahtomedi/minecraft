@@ -8,6 +8,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -15,7 +16,6 @@ import java.time.Instant;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -87,6 +87,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -215,6 +216,7 @@ import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundChatAckPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
+import net.minecraft.network.protocol.game.ServerboundChatSessionUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
@@ -236,7 +238,6 @@ import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.SortedArraySet;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -256,6 +257,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.ProfileKeyPair;
 import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -305,7 +307,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class ClientPacketListener implements ClientGamePacketListener {
+public class ClientPacketListener implements TickablePacketListener, ClientGamePacketListener {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component GENERIC_DISCONNECT_MESSAGE = Component.translatable("disconnect.lost");
     private static final Component UNSECURE_SERVER_TOAST_TITLE = Component.translatable("multiplayer.unsecureserver.toast.title");
@@ -322,9 +324,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private ClientLevel level;
     private ClientLevel.ClientLevelData levelData;
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
-    private final SortedArraySet<PlayerInfo> listedPlayers = SortedArraySet.create(
-        Comparator.comparing(param0x -> param0x.getProfile().getName(), String::compareToIgnoreCase)
-    );
+    private final Set<PlayerInfo> listedPlayers = new ReferenceOpenHashSet<>();
     private final ClientAdvancements advancements;
     private final ClientSuggestionProvider suggestionsProvider;
     private final DebugQueryHandler debugQueryHandler = new DebugQueryHandler(this);
@@ -338,29 +338,23 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private LayeredRegistryAccess<ClientRegistryLayer> registryAccess = ClientRegistryLayer.createRegistryAccess();
     private FeatureFlagSet enabledFeatures = FeatureFlags.DEFAULT_FLAGS;
     private final ClientTelemetryManager telemetryManager;
-    private final SignedMessageChain.Encoder signedMessageEncoder;
-    private final LastSeenMessagesTracker lastSeenMessages = new LastSeenMessagesTracker(20);
-    private final MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
-    private final MessageSignature.Unpacker messageSignatureUnpacker = this.messageSignatureCache.unpacker();
+    @Nullable
+    private LocalChatSession chatSession;
+    private SignedMessageChain.Encoder signedMessageEncoder = SignedMessageChain.Encoder.UNSIGNED;
+    private LastSeenMessagesTracker lastSeenMessages = new LastSeenMessagesTracker(20);
+    private MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
 
     public ClientPacketListener(
-        Minecraft param0,
-        Screen param1,
-        Connection param2,
-        LocalChatSession param3,
-        @Nullable ServerData param4,
-        GameProfile param5,
-        ClientTelemetryManager param6
+        Minecraft param0, Screen param1, Connection param2, @Nullable ServerData param3, GameProfile param4, ClientTelemetryManager param5
     ) {
         this.minecraft = param0;
         this.callbackScreen = param1;
         this.connection = param2;
-        this.serverData = param4;
-        this.localGameProfile = param5;
+        this.serverData = param3;
+        this.localGameProfile = param4;
         this.advancements = new ClientAdvancements(param0);
         this.suggestionsProvider = new ClientSuggestionProvider(this, param0);
-        this.telemetryManager = param6;
-        this.signedMessageEncoder = param3.createMessageEncoder(param5.getId());
+        this.telemetryManager = param5;
     }
 
     public ClientSuggestionProvider getSuggestionsProvider() {
@@ -440,6 +434,12 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     ServerboundCustomPayloadPacket.BRAND, new FriendlyByteBuf(Unpooled.buffer()).writeUtf(ClientBrandRetriever.getClientModName())
                 )
             );
+        this.lastSeenMessages = new LastSeenMessagesTracker(20);
+        this.messageSignatureCache = MessageSignatureCache.createDefault();
+        this.minecraft
+            .getProfileKeyPairManager()
+            .prepareKeyPair()
+            .thenAcceptAsync(param0x -> param0x.ifPresent(param0xx -> this.setChatSession(LocalChatSession.create(param0xx))), this.minecraft);
         this.minecraft.getGame().onStartGameSession();
         this.telemetryManager.onPlayerInfoReceived(param0.gameType(), param0.hardcore());
     }
@@ -503,9 +503,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleSetEntityData(ClientboundSetEntityDataPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Entity var0 = this.level.getEntity(param0.getId());
-        if (var0 != null && param0.getUnpackedData() != null) {
-            var0.getEntityData().assignValues(param0.getUnpackedData());
+        Entity var0 = this.level.getEntity(param0.id());
+        if (var0 != null) {
+            var0.getEntityData().assignValues(param0.packedItems());
         }
 
     }
@@ -841,23 +841,29 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handlePlayerChat(ClientboundPlayerChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Optional<SignedMessageBody> var0 = param0.body().unpack(this.messageSignatureUnpacker);
+        Optional<SignedMessageBody> var0 = param0.body().unpack(this.messageSignatureCache);
         Optional<ChatType.Bound> var1 = param0.chatType().resolve(this.registryAccess.compositeAccess());
         if (!var0.isEmpty() && !var1.isEmpty()) {
             UUID var2 = param0.sender();
             PlayerInfo var3 = this.getPlayerInfo(var2);
-            if (var3 != null && var3.getChatSession() != null) {
+            if (var3 == null) {
+                this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
+            } else {
                 RemoteChatSession var4 = var3.getChatSession();
-                SignedMessageLink var5 = new SignedMessageLink(param0.index(), var2, var4.sessionId());
-                PlayerChatMessage var6 = new PlayerChatMessage(var5, param0.signature(), var0.get(), param0.unsignedContent(), param0.filterMask());
-                if (!var3.getMessageValidator().updateAndValidate(var6)) {
+                SignedMessageLink var5;
+                if (var4 != null) {
+                    var5 = new SignedMessageLink(param0.index(), var2, var4.sessionId());
+                } else {
+                    var5 = SignedMessageLink.unsigned(var2);
+                }
+
+                PlayerChatMessage var7 = new PlayerChatMessage(var5, param0.signature(), var0.get(), param0.unsignedContent(), param0.filterMask());
+                if (!var3.getMessageValidator().updateAndValidate(var7)) {
                     this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
                 } else {
-                    this.minecraft.getChatListener().handlePlayerChatMessage(var6, var3.getProfile(), var1.get());
-                    this.messageSignatureCache.push(var6);
+                    this.minecraft.getChatListener().handlePlayerChatMessage(var7, var3.getProfile(), var1.get());
+                    this.messageSignatureCache.push(var7);
                 }
-            } else {
-                this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
             }
         } else {
             this.connection.disconnect(INVALID_PACKET);
@@ -878,7 +884,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleDeleteChat(ClientboundDeleteChatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Optional<MessageSignature> var0 = param0.messageSignature().unpack(this.messageSignatureUnpacker);
+        Optional<MessageSignature> var0 = param0.messageSignature().unpack(this.messageSignatureCache);
         if (var0.isEmpty()) {
             this.connection.disconnect(INVALID_PACKET);
         } else {
@@ -1069,7 +1075,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         }
 
         this.minecraft.cameraEntity = var10;
-        var10.getEntityData().assignValues(var2.getEntityData().getAll());
+        var10.getEntityData().assignValues(var2.getEntityData().getNonDefaultValues());
         if (param0.shouldKeepAllPlayerData()) {
             var10.getAttributes().assignValues(var2.getAttributes());
         }
@@ -1712,7 +1718,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
 
         for(ClientboundPlayerInfoUpdatePacket.Entry var0 : param0.newEntries()) {
-            PlayerInfo var1 = new PlayerInfo(var0.profile());
+            PlayerInfo var1 = new PlayerInfo(var0.profile(), this.enforcesSecureChat());
             if (this.playerInfoMap.putIfAbsent(var0.profileId(), var1) == null) {
                 this.minecraft.getPlayerSocialManager().addPlayer(var1);
             }
@@ -1756,23 +1762,24 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     private void initializeChatSession(ClientboundPlayerInfoUpdatePacket.Entry param0, PlayerInfo param1) {
-        RemoteChatSession var0 = this.validateChatSession(param0.chatSession(), param1.getProfile());
-        boolean var1 = this.serverData != null && this.serverData.enforcesSecureChat();
-        if (var1 && !var0.verifiable()) {
-            LOGGER.error("Received unverifiable chat session for player '{}', but Secure Chat is enforced", param1.getProfile().getName());
-            this.connection.disconnect(INVALID_PACKET);
+        GameProfile var0 = param1.getProfile();
+        RemoteChatSession.Data var1 = param0.chatSession();
+        if (var1 != null) {
+            try {
+                RemoteChatSession var2 = var1.validate(var0, this.minecraft.getServiceSignatureValidator(), ProfilePublicKey.EXPIRY_GRACE_PERIOD);
+                param1.setChatSession(var2);
+            } catch (ProfilePublicKey.ValidationException var6) {
+                LOGGER.error("Failed to validate profile key for player: '{}'", var0.getName(), var6);
+                this.connection.disconnect(var6.getComponent());
+            }
         } else {
-            param1.setChatSession(var0);
+            param1.clearChatSession(this.enforcesSecureChat());
         }
+
     }
 
-    private RemoteChatSession validateChatSession(RemoteChatSession.Data param0, GameProfile param1) {
-        try {
-            return param0.validate(param1, this.minecraft.getServiceSignatureValidator(), ProfilePublicKey.EXPIRY_GRACE_PERIOD);
-        } catch (ProfilePublicKey.ValidationException var4) {
-            LOGGER.warn("Failed to validate profile key for player: '{}'", param1.getName(), var4);
-            return RemoteChatSession.UNVERIFIED;
-        }
+    private boolean enforcesSecureChat() {
+        return this.serverData != null && this.serverData.enforcesSecureChat();
     }
 
     @Override
@@ -2577,6 +2584,27 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     private ParseResults<SharedSuggestionProvider> parseCommand(String param0) {
         return this.commands.parse(param0, this.suggestionsProvider);
+    }
+
+    @Override
+    public void tick() {
+        ProfileKeyPairManager var0 = this.minecraft.getProfileKeyPairManager();
+        if (var0.shouldRefreshKeyPair()) {
+            var0.prepareKeyPair().thenAcceptAsync(param0 -> param0.ifPresent(this::refreshKeyPair), this.minecraft);
+        }
+
+    }
+
+    private void refreshKeyPair(ProfileKeyPair param0) {
+        if (this.chatSession == null || !this.chatSession.keyPair().equals(param0)) {
+            this.setChatSession(LocalChatSession.create(param0));
+        }
+    }
+
+    private void setChatSession(LocalChatSession param0) {
+        this.chatSession = param0;
+        this.signedMessageEncoder = param0.createMessageEncoder(this.localGameProfile.getId());
+        this.send(new ServerboundChatSessionUpdatePacket(param0.asRemote().asData()));
     }
 
     @Nullable

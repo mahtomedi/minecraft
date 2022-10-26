@@ -1,15 +1,14 @@
 package net.minecraft.client.resources.model;
 
 import com.mojang.math.OctahedralGroup;
-import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
 
 @OnlyIn(Dist.CLIENT)
 public enum BlockModelRotation implements ModelState {
@@ -43,8 +42,7 @@ public enum BlockModelRotation implements ModelState {
 
     private BlockModelRotation(int param0, int param1) {
         this.index = getIndex(param0, param1);
-        Quaternion param2 = Vector3f.YP.rotationDegrees((float)(-param1));
-        param2.mul(Vector3f.XP.rotationDegrees((float)(-param0)));
+        Quaternionf param2 = new Quaternionf().rotateYXZ((float)(-param1) * (float) (Math.PI / 180.0), (float)(-param0) * (float) (Math.PI / 180.0), 0.0F);
         OctahedralGroup param3 = OctahedralGroup.IDENTITY;
 
         for(int var0 = 0; var0 < param1; var0 += 90) {

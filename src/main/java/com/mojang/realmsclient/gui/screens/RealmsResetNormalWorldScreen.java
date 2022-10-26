@@ -59,16 +59,14 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
                 )
         );
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 102,
-                row(12),
-                97,
-                20,
-                this.buttonTitle,
-                param0 -> this.callback.accept(new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures))
-            )
+            Button.builder(
+                    this.buttonTitle,
+                    param0 -> this.callback.accept(new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures))
+                )
+                .bounds(this.width / 2 - 102, row(12), 97, 20)
+                .build()
         );
-        this.addRenderableWidget(new Button(this.width / 2 + 8, row(12), 97, 20, CommonComponents.GUI_BACK, param0 -> this.onClose()));
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).bounds(this.width / 2 + 8, row(12), 97, 20).build());
     }
 
     @Override

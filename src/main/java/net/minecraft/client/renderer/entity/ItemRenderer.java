@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import com.mojang.math.MatrixUtil;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -133,7 +134,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             }
 
             param7.getTransforms().getTransform(param1).apply(param2, param3);
-            param3.translate(-0.5, -0.5, -0.5);
+            param3.translate(-0.5F, -0.5F, -0.5F);
             if (!param7.isCustomRenderer() && (!param0.is(Items.TRIDENT) || var0)) {
                 boolean var2;
                 if (param1 != ItemTransforms.TransformType.GUI && !param1.firstPerson() && param0.getItem() instanceof BlockItem) {
@@ -149,9 +150,9 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                     param3.pushPose();
                     PoseStack.Pose var5 = param3.last();
                     if (param1 == ItemTransforms.TransformType.GUI) {
-                        var5.pose().multiply(0.5F);
+                        MatrixUtil.mulComponentWise(var5.pose(), 0.5F);
                     } else if (param1.firstPerson()) {
-                        var5.pose().multiply(0.75F);
+                        MatrixUtil.mulComponentWise(var5.pose(), 0.75F);
                     }
 
                     if (var2) {
@@ -279,8 +280,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         PoseStack var0 = RenderSystem.getModelViewStack();
         var0.pushPose();
-        var0.translate((double)param1, (double)param2, (double)(100.0F + this.blitOffset));
-        var0.translate(8.0, 8.0, 0.0);
+        var0.translate((float)param1, (float)param2, 100.0F + this.blitOffset);
+        var0.translate(8.0F, 8.0F, 0.0F);
         var0.scale(1.0F, -1.0F, 1.0F);
         var0.scale(16.0F, 16.0F, 16.0F);
         RenderSystem.applyModelViewMatrix();
@@ -356,7 +357,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             PoseStack var0 = new PoseStack();
             if (param1.getCount() != 1 || param4 != null) {
                 String var1 = param4 == null ? String.valueOf(param1.getCount()) : param4;
-                var0.translate(0.0, 0.0, (double)(this.blitOffset + 200.0F));
+                var0.translate(0.0F, 0.0F, this.blitOffset + 200.0F);
                 MultiBufferSource.BufferSource var2 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                 param0.drawInBatch(
                     var1, (float)(param2 + 19 - 2 - param0.width(var1)), (float)(param3 + 6 + 3), 16777215, true, var0.last().pose(), var2, false, 0, 15728880

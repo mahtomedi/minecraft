@@ -29,13 +29,10 @@ public class DamageSource {
     public static final DamageSource GENERIC = new DamageSource("generic").bypassArmor();
     public static final DamageSource MAGIC = new DamageSource("magic").bypassArmor().setMagic();
     public static final DamageSource WITHER = new DamageSource("wither").bypassArmor();
-    public static final DamageSource ANVIL = new DamageSource("anvil").damageHelmet();
-    public static final DamageSource FALLING_BLOCK = new DamageSource("fallingBlock").damageHelmet();
     public static final DamageSource DRAGON_BREATH = new DamageSource("dragonBreath").bypassArmor();
     public static final DamageSource DRY_OUT = new DamageSource("dryout");
     public static final DamageSource SWEET_BERRY_BUSH = new DamageSource("sweetBerryBush");
     public static final DamageSource FREEZE = new DamageSource("freeze").bypassArmor();
-    public static final DamageSource FALLING_STALACTITE = new DamageSource("fallingStalactite").damageHelmet();
     public static final DamageSource STALAGMITE = new DamageSource("stalagmite").bypassArmor().setIsFall();
     private boolean damageHelmet;
     private boolean bypassArmor;
@@ -51,6 +48,18 @@ public class DamageSource {
     private boolean isFall;
     private boolean noAggro;
     public final String msgId;
+
+    public static DamageSource fallingBlock(Entity param0) {
+        return new EntityDamageSource("fallingBlock", param0).damageHelmet();
+    }
+
+    public static DamageSource anvil(Entity param0) {
+        return new EntityDamageSource("anvil", param0).damageHelmet();
+    }
+
+    public static DamageSource fallingStalactite(Entity param0) {
+        return new EntityDamageSource("fallingStalactite", param0).damageHelmet();
+    }
 
     public static DamageSource sting(LivingEntity param0) {
         return new EntityDamageSource("sting", param0);
@@ -103,21 +112,25 @@ public class DamageSource {
     }
 
     public static DamageSource explosion(@Nullable Explosion param0) {
-        return explosion(param0 != null ? param0.getSourceMob() : null);
+        return param0 != null ? explosion(param0.getDirectSourceEntity(), param0.getIndirectSourceEntity()) : explosion(null, null);
     }
 
-    public static DamageSource explosion(@Nullable LivingEntity param0) {
-        return param0 != null
-            ? new EntityDamageSource("explosion.player", param0).setScalesWithDifficulty().setExplosion()
-            : new DamageSource("explosion").setScalesWithDifficulty().setExplosion();
+    public static DamageSource explosion(@Nullable Entity param0, @Nullable Entity param1) {
+        if (param1 != null && param0 != null) {
+            return new IndirectEntityDamageSource("explosion.player", param0, param1).setScalesWithDifficulty().setExplosion();
+        } else {
+            return param0 != null
+                ? new EntityDamageSource("explosion.player", param0).setScalesWithDifficulty().setExplosion()
+                : new DamageSource("explosion").setScalesWithDifficulty().setExplosion();
+        }
     }
 
     public static DamageSource sonicBoom(Entity param0) {
         return new EntityDamageSource("sonic_boom", param0).bypassArmor().bypassEnchantments().setMagic();
     }
 
-    public static DamageSource badRespawnPointExplosion() {
-        return new BadRespawnPointDamage();
+    public static DamageSource badRespawnPointExplosion(Vec3 param0) {
+        return new BadRespawnPointDamage(param0);
     }
 
     @Override

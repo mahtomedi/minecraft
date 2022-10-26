@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -160,7 +160,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
                 super.renderNameTag(
                     param0, Component.literal(Integer.toString(var3.getScore())).append(" ").append(var2.getDisplayName()), param2, param3, param4
                 );
-                param2.translate(0.0, (double)(9.0F * 1.15F * 0.025F), 0.0);
+                param2.translate(0.0F, 9.0F * 1.15F * 0.025F, 0.0F);
             }
         }
 
@@ -196,7 +196,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             float var1 = (float)param0.getFallFlyingTicks() + param4;
             float var2 = Mth.clamp(var1 * var1 / 100.0F, 0.0F, 1.0F);
             if (!param0.isAutoSpinAttack()) {
-                param1.mulPose(Vector3f.XP.rotationDegrees(var2 * (-90.0F - param0.getXRot())));
+                param1.mulPose(Axis.XP.rotationDegrees(var2 * (-90.0F - param0.getXRot())));
             }
 
             Vec3 var3 = param0.getViewVector(param4);
@@ -206,15 +206,15 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             if (var5 > 0.0 && var6 > 0.0) {
                 double var7 = (var4.x * var3.x + var4.z * var3.z) / Math.sqrt(var5 * var6);
                 double var8 = var4.x * var3.z - var4.z * var3.x;
-                param1.mulPose(Vector3f.YP.rotation((float)(Math.signum(var8) * Math.acos(var7))));
+                param1.mulPose(Axis.YP.rotation((float)(Math.signum(var8) * Math.acos(var7))));
             }
         } else if (var0 > 0.0F) {
             super.setupRotations(param0, param1, param2, param3, param4);
             float var9 = param0.isInWater() ? -90.0F - param0.getXRot() : -90.0F;
             float var10 = Mth.lerp(var0, 0.0F, var9);
-            param1.mulPose(Vector3f.XP.rotationDegrees(var10));
+            param1.mulPose(Axis.XP.rotationDegrees(var10));
             if (param0.isVisuallySwimming()) {
-                param1.translate(0.0, -1.0, 0.3F);
+                param1.translate(0.0F, -1.0F, 0.3F);
             }
         } else {
             super.setupRotations(param0, param1, param2, param3, param4);

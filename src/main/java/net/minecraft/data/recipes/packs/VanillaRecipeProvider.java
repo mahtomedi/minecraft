@@ -1,6 +1,7 @@
 package net.minecraft.data.recipes.packs;
 
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -45,12 +46,14 @@ public class VanillaRecipeProvider extends RecipeProvider {
     }
 
     @Override
-    public void run(CachedOutput param0) {
-        super.run(param0);
-        this.buildAdvancement(
-            param0,
-            RecipeBuilder.ROOT_RECIPE_ADVANCEMENT,
-            Advancement.Builder.advancement().addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
+    public CompletableFuture<?> run(CachedOutput param0) {
+        return CompletableFuture.allOf(
+            super.run(param0),
+            this.buildAdvancement(
+                param0,
+                RecipeBuilder.ROOT_RECIPE_ADVANCEMENT,
+                Advancement.Builder.advancement().addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
+            )
         );
     }
 
@@ -2614,10 +2617,5 @@ public class VanillaRecipeProvider extends RecipeProvider {
         netheriteSmithing(param0, Items.DIAMOND_PICKAXE, RecipeCategory.TOOLS, Items.NETHERITE_PICKAXE);
         netheriteSmithing(param0, Items.DIAMOND_HOE, RecipeCategory.TOOLS, Items.NETHERITE_HOE);
         netheriteSmithing(param0, Items.DIAMOND_SHOVEL, RecipeCategory.TOOLS, Items.NETHERITE_SHOVEL);
-    }
-
-    @Override
-    public String getName() {
-        return "Vanilla Recipes";
     }
 }

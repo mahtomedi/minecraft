@@ -265,7 +265,7 @@ public class Explosion {
 
         if (var0) {
             ObjectArrayList<Pair<ItemStack, BlockPos>> var1 = new ObjectArrayList<>();
-            boolean var2 = this.getSourceMob() instanceof Player;
+            boolean var2 = this.getIndirectSourceEntity() instanceof Player;
             Util.shuffle(this.toBlow, this.level.random);
 
             for(BlockPos var3 : this.toBlow) {
@@ -343,23 +343,35 @@ public class Explosion {
     }
 
     @Nullable
-    public LivingEntity getSourceMob() {
+    public LivingEntity getIndirectSourceEntity() {
         if (this.source == null) {
             return null;
-        } else if (this.source instanceof PrimedTnt) {
-            return ((PrimedTnt)this.source).getOwner();
-        } else if (this.source instanceof LivingEntity) {
-            return (LivingEntity)this.source;
         } else {
-            if (this.source instanceof Projectile) {
-                Entity var0 = ((Projectile)this.source).getOwner();
-                if (var0 instanceof LivingEntity) {
-                    return (LivingEntity)var0;
+            Entity var3 = this.source;
+            if (var3 instanceof PrimedTnt var0) {
+                return var0.getOwner();
+            } else {
+                var3 = this.source;
+                if (var3 instanceof LivingEntity var1) {
+                    return var1;
+                } else {
+                    var3 = this.source;
+                    if (var3 instanceof Projectile var2) {
+                        var3 = var2.getOwner();
+                        if (var3 instanceof LivingEntity) {
+                            return (LivingEntity)var3;
+                        }
+                    }
+
+                    return null;
                 }
             }
-
-            return null;
         }
+    }
+
+    @Nullable
+    public Entity getDirectSourceEntity() {
+        return this.source;
     }
 
     public void clearToBlow() {

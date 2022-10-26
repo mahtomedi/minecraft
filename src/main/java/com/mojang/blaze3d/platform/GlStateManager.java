@@ -3,9 +3,6 @@ package com.mojang.blaze3d.platform;
 import com.google.common.base.Charsets;
 import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -15,6 +12,9 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -420,31 +420,20 @@ public class GlStateManager {
 
     public static void setupLevelDiffuseLighting(Vector3f param0, Vector3f param1, Matrix4f param2) {
         RenderSystem.assertOnRenderThread();
-        Vector4f var0 = new Vector4f(param0);
-        var0.transform(param2);
-        Vector4f var1 = new Vector4f(param1);
-        var1.transform(param2);
-        RenderSystem.setShaderLights(new Vector3f(var0), new Vector3f(var1));
+        Vector4f var0 = param2.transform(new Vector4f(param0, 1.0F));
+        Vector4f var1 = param2.transform(new Vector4f(param1, 1.0F));
+        RenderSystem.setShaderLights(new Vector3f(var0.x(), var0.y(), var0.z()), new Vector3f(var1.x(), var1.y(), var1.z()));
     }
 
     public static void setupGuiFlatDiffuseLighting(Vector3f param0, Vector3f param1) {
         RenderSystem.assertOnRenderThread();
-        Matrix4f var0 = new Matrix4f();
-        var0.setIdentity();
-        var0.multiply(Matrix4f.createScaleMatrix(1.0F, -1.0F, 1.0F));
-        var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
-        var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
+        Matrix4f var0 = new Matrix4f().scaling(1.0F, -1.0F, 1.0F).rotateY((float) (-Math.PI / 8)).rotateX((float) (Math.PI * 3.0 / 4.0));
         setupLevelDiffuseLighting(param0, param1, var0);
     }
 
     public static void setupGui3DDiffuseLighting(Vector3f param0, Vector3f param1) {
         RenderSystem.assertOnRenderThread();
-        Matrix4f var0 = new Matrix4f();
-        var0.setIdentity();
-        var0.multiply(Vector3f.YP.rotationDegrees(62.0F));
-        var0.multiply(Vector3f.XP.rotationDegrees(185.5F));
-        var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
-        var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
+        Matrix4f var0 = new Matrix4f().rotationYXZ(1.0821041F, 3.2375858F, 0.0F).rotateYXZ((float) (-Math.PI / 8), (float) (Math.PI * 3.0 / 4.0), 0.0F);
         setupLevelDiffuseLighting(param0, param1, var0);
     }
 

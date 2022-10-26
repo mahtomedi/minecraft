@@ -235,9 +235,13 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
         }
 
         this.addRenderableWidget(
-            new Button(this.column1X, row(13), this.columnWidth, 20, Component.translatable("mco.configure.world.buttons.done"), param0 -> this.saveSettings())
+            Button.builder(Component.translatable("mco.configure.world.buttons.done"), param0 -> this.saveSettings())
+                .bounds(this.column1X, row(13), this.columnWidth, 20)
+                .build()
         );
-        this.addRenderableWidget(new Button(var0, row(13), this.columnWidth, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
+        this.addRenderableWidget(
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)).bounds(var0, row(13), this.columnWidth, 20).build()
+        );
         this.addWidget(this.nameEdit);
     }
 

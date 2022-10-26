@@ -63,104 +63,111 @@ public class EditWorldScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        Button var0 = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 0 + 5, 200, 20, Component.translatable("selectWorld.edit.resetIcon"), param0 -> {
-                this.levelAccess.getIconFile().ifPresent(param0x -> FileUtils.deleteQuietly(param0x.toFile()));
-                param0.active = false;
-            })
+        Button var0 = this.addRenderableWidget(Button.builder(Component.translatable("selectWorld.edit.resetIcon"), param0 -> {
+            this.levelAccess.getIconFile().ifPresent(param0x -> FileUtils.deleteQuietly(param0x.toFile()));
+            param0.active = false;
+        }).bounds(this.width / 2 - 100, this.height / 4 + 0 + 5, 200, 20).build());
+        this.addRenderableWidget(
+            Button.builder(
+                    Component.translatable("selectWorld.edit.openFolder"),
+                    param0 -> Util.getPlatform().openFile(this.levelAccess.getLevelPath(LevelResource.ROOT).toFile())
+                )
+                .bounds(this.width / 2 - 100, this.height / 4 + 24 + 5, 200, 20)
+                .build()
+        );
+        this.addRenderableWidget(Button.builder(Component.translatable("selectWorld.edit.backup"), param0 -> {
+            boolean var0x = makeBackupAndShowToast(this.levelAccess);
+            this.callback.accept(!var0x);
+        }).bounds(this.width / 2 - 100, this.height / 4 + 48 + 5, 200, 20).build());
+        this.addRenderableWidget(Button.builder(Component.translatable("selectWorld.edit.backupFolder"), param0 -> {
+            LevelStorageSource var0x = this.minecraft.getLevelSource();
+            Path var1x = var0x.getBackupPath();
+
+            try {
+                Files.createDirectories(Files.exists(var1x) ? var1x.toRealPath() : var1x);
+            } catch (IOException var5) {
+                throw new RuntimeException(var5);
+            }
+
+            Util.getPlatform().openFile(var1x.toFile());
+        }).bounds(this.width / 2 - 100, this.height / 4 + 72 + 5, 200, 20).build());
+        this.addRenderableWidget(
+            Button.builder(
+                    Component.translatable("selectWorld.edit.optimize"),
+                    param0 -> this.minecraft
+                            .setScreen(
+                                new BackupConfirmScreen(
+                                    this,
+                                    (param0x, param1) -> {
+                                        if (param0x) {
+                                            makeBackupAndShowToast(this.levelAccess);
+                                        }
+                        
+                                        this.minecraft
+                                            .setScreen(
+                                                OptimizeWorldScreen.create(
+                                                    this.minecraft, this.callback, this.minecraft.getFixerUpper(), this.levelAccess, param1
+                                                )
+                                            );
+                                    },
+                                    Component.translatable("optimizeWorld.confirm.title"),
+                                    Component.translatable("optimizeWorld.confirm.description"),
+                                    true
+                                )
+                            )
+                )
+                .bounds(this.width / 2 - 100, this.height / 4 + 96 + 5, 200, 20)
+                .build()
         );
         this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 100,
-                this.height / 4 + 24 + 5,
-                200,
-                20,
-                Component.translatable("selectWorld.edit.openFolder"),
-                param0 -> Util.getPlatform().openFile(this.levelAccess.getLevelPath(LevelResource.ROOT).toFile())
-            )
-        );
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 48 + 5, 200, 20, Component.translatable("selectWorld.edit.backup"), param0 -> {
-                boolean var0x = makeBackupAndShowToast(this.levelAccess);
-                this.callback.accept(!var0x);
-            })
-        );
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 72 + 5, 200, 20, Component.translatable("selectWorld.edit.backupFolder"), param0 -> {
-                LevelStorageSource var0x = this.minecraft.getLevelSource();
-                Path var1x = var0x.getBackupPath();
-    
-                try {
-                    Files.createDirectories(Files.exists(var1x) ? var1x.toRealPath() : var1x);
-                } catch (IOException var5) {
-                    throw new RuntimeException(var5);
-                }
-    
-                Util.getPlatform().openFile(var1x.toFile());
-            })
-        );
-        this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 100,
-                this.height / 4 + 96 + 5,
-                200,
-                20,
-                Component.translatable("selectWorld.edit.optimize"),
-                param0 -> this.minecraft.setScreen(new BackupConfirmScreen(this, (param0x, param1) -> {
-                        if (param0x) {
-                            makeBackupAndShowToast(this.levelAccess);
+            Button.builder(
+                    Component.translatable("selectWorld.edit.export_worldgen_settings"),
+                    param0 -> {
+                        DataResult<String> var4;
+                        try (WorldStem var0x = this.minecraft.createWorldOpenFlows().loadWorldStem(this.levelAccess, false)) {
+                            RegistryAccess.Frozen var1x = var0x.registries().compositeAccess();
+                            DynamicOps<JsonElement> var2x = RegistryOps.create(JsonOps.INSTANCE, var1x);
+                            DataResult<JsonElement> var3x = WorldGenSettings.encode(var2x, var0x.worldData().worldGenOptions(), var1x);
+                            var4 = var3x.flatMap(param0x -> {
+                                Path var0x = this.levelAccess.getLevelPath(LevelResource.ROOT).resolve("worldgen_settings_export.json");
+            
+                                try (JsonWriter var2xx = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0x, StandardCharsets.UTF_8))) {
+                                    WORLD_GEN_SETTINGS_GSON.toJson(param0x, var2xx);
+                                } catch (JsonIOException | IOException var8x) {
+                                    return DataResult.error("Error writing file: " + var8x.getMessage());
+                                }
+            
+                                return DataResult.success(var0x.toString());
+                            });
+                        } catch (Exception var91) {
+                            LOGGER.warn("Could not parse level data", (Throwable)var91);
+                            var4 = DataResult.error("Could not parse level data: " + var91.getMessage());
                         }
-        
+            
+                        Component var8 = Component.literal(var4.get().map(Function.identity(), PartialResult::message));
+                        Component var9 = Component.translatable(
+                            var4.result().isPresent()
+                                ? "selectWorld.edit.export_worldgen_settings.success"
+                                : "selectWorld.edit.export_worldgen_settings.failure"
+                        );
+                        var4.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
                         this.minecraft
-                            .setScreen(OptimizeWorldScreen.create(this.minecraft, this.callback, this.minecraft.getFixerUpper(), this.levelAccess, param1));
-                    }, Component.translatable("optimizeWorld.confirm.title"), Component.translatable("optimizeWorld.confirm.description"), true))
-            )
-        );
-        this.addRenderableWidget(
-            new Button(
-                this.width / 2 - 100,
-                this.height / 4 + 120 + 5,
-                200,
-                20,
-                Component.translatable("selectWorld.edit.export_worldgen_settings"),
-                param0 -> {
-                    DataResult<String> var4;
-                    try (WorldStem var0x = this.minecraft.createWorldOpenFlows().loadWorldStem(this.levelAccess, false)) {
-                        RegistryAccess.Frozen var1x = var0x.registries().compositeAccess();
-                        DynamicOps<JsonElement> var2x = RegistryOps.create(JsonOps.INSTANCE, var1x);
-                        DataResult<JsonElement> var3x = WorldGenSettings.encode(var2x, var0x.worldData().worldGenOptions(), var1x);
-                        var4 = var3x.flatMap(param0x -> {
-                            Path var0x = this.levelAccess.getLevelPath(LevelResource.ROOT).resolve("worldgen_settings_export.json");
-        
-                            try (JsonWriter var2xx = WORLD_GEN_SETTINGS_GSON.newJsonWriter(Files.newBufferedWriter(var0x, StandardCharsets.UTF_8))) {
-                                WORLD_GEN_SETTINGS_GSON.toJson(param0x, var2xx);
-                            } catch (JsonIOException | IOException var8x) {
-                                return DataResult.error("Error writing file: " + var8x.getMessage());
-                            }
-        
-                            return DataResult.success(var0x.toString());
-                        });
-                    } catch (Exception var91) {
-                        LOGGER.warn("Could not parse level data", (Throwable)var91);
-                        var4 = DataResult.error("Could not parse level data: " + var91.getMessage());
+                            .getToasts()
+                            .addToast(SystemToast.multiline(this.minecraft, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var9, var8));
                     }
-        
-                    Component var8 = Component.literal(var4.get().map(Function.identity(), PartialResult::message));
-                    Component var9 = Component.translatable(
-                        var4.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
-                    );
-                    var4.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
-                    this.minecraft
-                        .getToasts()
-                        .addToast(SystemToast.multiline(this.minecraft, SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var9, var8));
-                }
-            )
+                )
+                .bounds(this.width / 2 - 100, this.height / 4 + 120 + 5, 200, 20)
+                .build()
         );
         this.renameButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20, Component.translatable("selectWorld.edit.save"), param0 -> this.onRename())
+            Button.builder(Component.translatable("selectWorld.edit.save"), param0 -> this.onRename())
+                .bounds(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20)
+                .build()
         );
         this.addRenderableWidget(
-            new Button(this.width / 2 + 2, this.height / 4 + 144 + 5, 98, 20, CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
+                .bounds(this.width / 2 + 2, this.height / 4 + 144 + 5, 98, 20)
+                .build()
         );
         var0.active = this.levelAccess.getIconFile().filter(param0 -> Files.isRegularFile(param0)).isPresent();
         LevelSummary var1 = this.levelAccess.getSummary();

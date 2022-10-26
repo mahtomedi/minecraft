@@ -49,7 +49,7 @@ public class PufferfishRenderer extends MobRenderer<Pufferfish, EntityModel<Puff
     }
 
     protected void setupRotations(Pufferfish param0, PoseStack param1, float param2, float param3, float param4) {
-        param1.translate(0.0, (double)(Mth.cos(param2 * 0.05F) * 0.08F), 0.0);
+        param1.translate(0.0F, Mth.cos(param2 * 0.05F) * 0.08F, 0.0F);
         super.setupRotations(param0, param1, param2, param3, param4);
     }
 }

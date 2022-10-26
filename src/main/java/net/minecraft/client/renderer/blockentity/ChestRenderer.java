@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import java.util.Calendar;
@@ -107,9 +107,9 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> implements Bl
             boolean var6 = var3 != ChestType.SINGLE;
             param2.pushPose();
             float var7 = var2.getValue(ChestBlock.FACING).toYRot();
-            param2.translate(0.5, 0.5, 0.5);
-            param2.mulPose(Vector3f.YP.rotationDegrees(-var7));
-            param2.translate(-0.5, -0.5, -0.5);
+            param2.translate(0.5F, 0.5F, 0.5F);
+            param2.mulPose(Axis.YP.rotationDegrees(-var7));
+            param2.translate(-0.5F, -0.5F, -0.5F);
             DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> var8;
             if (var1) {
                 var8 = var5.combine(var2, var0, param0.getBlockPos(), true);

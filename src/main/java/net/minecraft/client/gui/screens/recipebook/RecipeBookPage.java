@@ -162,7 +162,15 @@ public class RecipeBookPage {
                         this.lastClickedRecipeCollection = var0.getCollection();
                     } else if (param2 == 1 && !this.overlay.isVisible() && !var0.isOnlyOption()) {
                         this.overlay
-                            .init(this.minecraft, var0.getCollection(), var0.x, var0.y, param3 + param5 / 2, param4 + 13 + param6 / 2, (float)var0.getWidth());
+                            .init(
+                                this.minecraft,
+                                var0.getCollection(),
+                                var0.getX(),
+                                var0.getY(),
+                                param3 + param5 / 2,
+                                param4 + 13 + param6 / 2,
+                                (float)var0.getWidth()
+                            );
                     }
 
                     return true;

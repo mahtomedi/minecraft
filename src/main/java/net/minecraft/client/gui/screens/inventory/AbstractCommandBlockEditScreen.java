@@ -44,10 +44,10 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.doneButton = this.addRenderableWidget(
-            new Button(this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onDone())
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20).build()
         );
         this.cancelButton = this.addRenderableWidget(
-            new Button(this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onClose())
+            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.onClose()).bounds(this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20).build()
         );
         boolean var0 = this.getCommandBlock().isTrackOutput();
         this.outputButton = this.addRenderableWidget(

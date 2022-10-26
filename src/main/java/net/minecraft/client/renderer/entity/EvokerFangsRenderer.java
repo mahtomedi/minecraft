@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.EvokerFangsModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -31,7 +31,7 @@ public class EvokerFangsRenderer extends EntityRenderer<EvokerFangs> {
             }
 
             param3.pushPose();
-            param3.mulPose(Vector3f.YP.rotationDegrees(90.0F - param0.getYRot()));
+            param3.mulPose(Axis.YP.rotationDegrees(90.0F - param0.getYRot()));
             param3.scale(-var1, -var1, var1);
             float var2 = 0.03125F;
             param3.translate(0.0, -0.626, 0.0);

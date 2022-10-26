@@ -23,16 +23,18 @@ public class SafetyScreen extends WarningScreen {
 
     @Override
     protected void initButtons(int param0) {
-        this.addRenderableWidget(new Button(this.width / 2 - 155, 100 + param0, 150, 20, CommonComponents.GUI_PROCEED, param0x -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_PROCEED, param0x -> {
             if (this.stopShowing.selected()) {
                 this.minecraft.options.skipMultiplayerWarning = true;
                 this.minecraft.options.save();
             }
 
             this.minecraft.setScreen(new JoinMultiplayerScreen(this.previous));
-        }));
+        }).bounds(this.width / 2 - 155, 100 + param0, 150, 20).build());
         this.addRenderableWidget(
-            new Button(this.width / 2 - 155 + 160, 100 + param0, 150, 20, CommonComponents.GUI_BACK, param0x -> this.minecraft.setScreen(this.previous))
+            Button.builder(CommonComponents.GUI_BACK, param0x -> this.minecraft.setScreen(this.previous))
+                .bounds(this.width / 2 - 155 + 160, 100 + param0, 150, 20)
+                .build()
         );
     }
 }

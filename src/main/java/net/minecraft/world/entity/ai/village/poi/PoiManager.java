@@ -213,7 +213,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     private static boolean mayHavePoi(LevelChunkSection param0) {
-        return param0.maybeHas(PoiTypes.ALL_STATES::contains);
+        return param0.maybeHas(PoiTypes::hasPoi);
     }
 
     private void updateFromSection(LevelChunkSection param0, SectionPos param1, BiConsumer<BlockPos, Holder<PoiType>> param2) {

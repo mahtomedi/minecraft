@@ -297,8 +297,8 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
     }
 
     @Override
-    public DamageSource getFallDamageSource() {
-        return DamageSource.FALLING_STALACTITE;
+    public DamageSource getFallDamageSource(Entity param0) {
+        return DamageSource.fallingStalactite(param0);
     }
 
     @Override

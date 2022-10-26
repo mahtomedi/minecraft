@@ -1,16 +1,19 @@
 package net.minecraft.network.chat;
 
 import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.SignatureUpdater;
 import net.minecraft.util.SignatureValidator;
 
 public record MessageSignature(byte[] bytes) {
+    public static final Codec<MessageSignature> CODEC = ExtraCodecs.BASE64_STRING.xmap(MessageSignature::new, MessageSignature::bytes);
     public static final int BYTES = 256;
 
     public MessageSignature(byte[] param0) {
@@ -59,7 +62,7 @@ public record MessageSignature(byte[] bytes) {
         return Base64.getEncoder().encodeToString(this.bytes);
     }
 
-    public MessageSignature.Packed pack(MessageSignature.Packer param0) {
+    public MessageSignature.Packed pack(MessageSignatureCache param0) {
         int var0 = param0.pack(this);
         return var0 != -1 ? new MessageSignature.Packed(var0) : new MessageSignature.Packed(this);
     }
@@ -88,19 +91,8 @@ public record MessageSignature(byte[] bytes) {
 
         }
 
-        public Optional<MessageSignature> unpack(MessageSignature.Unpacker param0) {
+        public Optional<MessageSignature> unpack(MessageSignatureCache param0) {
             return this.fullSignature != null ? Optional.of(this.fullSignature) : Optional.ofNullable(param0.unpack(this.id));
         }
-    }
-
-    public interface Packer {
-        int NOT_FOUND = -1;
-
-        int pack(MessageSignature var1);
-    }
-
-    public interface Unpacker {
-        @Nullable
-        MessageSignature unpack(int var1);
     }
 }

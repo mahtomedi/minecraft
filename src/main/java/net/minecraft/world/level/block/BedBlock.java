@@ -91,17 +91,8 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                     param1.removeBlock(var0, false);
                 }
 
-                param1.explode(
-                    null,
-                    DamageSource.badRespawnPointExplosion(),
-                    null,
-                    (double)param2.getX() + 0.5,
-                    (double)param2.getY() + 0.5,
-                    (double)param2.getZ() + 0.5,
-                    5.0F,
-                    true,
-                    Explosion.BlockInteraction.DESTROY
-                );
+                Vec3 var1 = param2.getCenter();
+                param1.explode(null, DamageSource.badRespawnPointExplosion(var1), null, var1, 5.0F, true, Explosion.BlockInteraction.DESTROY);
                 return InteractionResult.SUCCESS;
             } else if (param0.getValue(OCCUPIED)) {
                 if (!this.kickVillagerOutOfBed(param1, param2)) {

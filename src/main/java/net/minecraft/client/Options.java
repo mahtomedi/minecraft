@@ -1068,6 +1068,7 @@ public class Options {
         param0.process("showAutosaveIndicator", this.showAutosaveIndicator);
         param0.process("allowServerListing", this.allowServerListing);
         param0.process("onlyShowSecureChat", this.onlyShowSecureChat);
+        param0.process("panoramaScrollSpeed", this.panoramaSpeed);
 
         for(KeyMapping var0 : this.keyMappings) {
             String var1 = var0.saveString();

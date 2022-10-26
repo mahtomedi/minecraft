@@ -212,45 +212,50 @@ public class ServerEntity {
         Packet<ClientGamePacketListener> var0 = this.entity.getAddEntityPacket();
         this.yHeadRotp = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
         param0.accept(var0);
-        if (!this.entity.getEntityData().isEmpty()) {
-            param0.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.entity.getEntityData(), true));
+        SynchedEntityData var1 = this.entity.getEntityData();
+        if (!var1.isEmpty()) {
+            List<SynchedEntityData.DataValue<?>> var2 = var1.getNonDefaultValues();
+            var1.clearDirty();
+            if (var2 != null) {
+                param0.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), var2));
+            }
         }
 
-        boolean var1 = this.trackDelta;
+        boolean var3 = this.trackDelta;
         if (this.entity instanceof LivingEntity) {
-            Collection<AttributeInstance> var2 = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
-            if (!var2.isEmpty()) {
-                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
+            Collection<AttributeInstance> var4 = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
+            if (!var4.isEmpty()) {
+                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var4));
             }
 
             if (((LivingEntity)this.entity).isFallFlying()) {
-                var1 = true;
+                var3 = true;
             }
         }
 
         this.ap = this.entity.getDeltaMovement();
-        if (var1 && !(this.entity instanceof LivingEntity)) {
+        if (var3 && !(this.entity instanceof LivingEntity)) {
             param0.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
         }
 
         if (this.entity instanceof LivingEntity) {
-            List<Pair<EquipmentSlot, ItemStack>> var3 = Lists.newArrayList();
+            List<Pair<EquipmentSlot, ItemStack>> var5 = Lists.newArrayList();
 
-            for(EquipmentSlot var4 : EquipmentSlot.values()) {
-                ItemStack var5 = ((LivingEntity)this.entity).getItemBySlot(var4);
-                if (!var5.isEmpty()) {
-                    var3.add(Pair.of(var4, var5.copy()));
+            for(EquipmentSlot var6 : EquipmentSlot.values()) {
+                ItemStack var7 = ((LivingEntity)this.entity).getItemBySlot(var6);
+                if (!var7.isEmpty()) {
+                    var5.add(Pair.of(var6, var7.copy()));
                 }
             }
 
-            if (!var3.isEmpty()) {
-                param0.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var3));
+            if (!var5.isEmpty()) {
+                param0.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var5));
             }
         }
 
-        if (this.entity instanceof LivingEntity var6) {
-            for(MobEffectInstance var7 : var6.getActiveEffects()) {
-                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
+        if (this.entity instanceof LivingEntity var8) {
+            for(MobEffectInstance var9 : var8.getActiveEffects()) {
+                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var9));
             }
         }
 
@@ -262,25 +267,26 @@ public class ServerEntity {
             param0.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
         }
 
-        if (this.entity instanceof Mob var8 && var8.isLeashed()) {
-            param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
+        if (this.entity instanceof Mob var10 && var10.isLeashed()) {
+            param0.accept(new ClientboundSetEntityLinkPacket(var10, var10.getLeashHolder()));
         }
 
     }
 
     private void sendDirtyEntityData() {
         SynchedEntityData var0 = this.entity.getEntityData();
-        if (var0.isDirty()) {
-            this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), var0, false));
+        List<SynchedEntityData.DataValue<?>> var1 = var0.packDirty();
+        if (var1 != null) {
+            this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), var1));
         }
 
         if (this.entity instanceof LivingEntity) {
-            Set<AttributeInstance> var1 = ((LivingEntity)this.entity).getAttributes().getDirtyAttributes();
-            if (!var1.isEmpty()) {
-                this.broadcastAndSend(new ClientboundUpdateAttributesPacket(this.entity.getId(), var1));
+            Set<AttributeInstance> var2 = ((LivingEntity)this.entity).getAttributes().getDirtyAttributes();
+            if (!var2.isEmpty()) {
+                this.broadcastAndSend(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
             }
 
-            var1.clear();
+            var2.clear();
         }
 
     }

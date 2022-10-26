@@ -1,57 +1,49 @@
 package net.minecraft.data.advancements;
 
-import com.mojang.logging.LogUtils;
-import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import org.slf4j.Logger;
 
 public class AdvancementProvider implements DataProvider {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private final String name;
     private final PackOutput.PathProvider pathProvider;
     private final List<AdvancementSubProvider> subProviders;
 
-    public AdvancementProvider(String param0, PackOutput param1, List<AdvancementSubProvider> param2) {
-        this.name = param0;
-        this.pathProvider = param1.createPathProvider(PackOutput.Target.DATA_PACK, "advancements");
-        this.subProviders = param2;
+    public AdvancementProvider(PackOutput param0, List<AdvancementSubProvider> param1) {
+        this.pathProvider = param0.createPathProvider(PackOutput.Target.DATA_PACK, "advancements");
+        this.subProviders = param1;
     }
 
     @Override
-    public void run(CachedOutput param0) {
+    public CompletableFuture<?> run(CachedOutput param0) {
         Set<ResourceLocation> var0 = new HashSet<>();
-        Consumer<Advancement> var1 = param2 -> {
-            if (!var0.add(param2.getId())) {
-                throw new IllegalStateException("Duplicate advancement " + param2.getId());
+        List<CompletableFuture<?>> var1 = new ArrayList<>();
+        Consumer<Advancement> var2 = param3 -> {
+            if (!var0.add(param3.getId())) {
+                throw new IllegalStateException("Duplicate advancement " + param3.getId());
             } else {
-                Path var0x = this.pathProvider.json(param2.getId());
-
-                try {
-                    DataProvider.saveStable(param0, param2.deconstruct().serializeToJson(), var0x);
-                } catch (IOException var6) {
-                    LOGGER.error("Couldn't save advancement {}", var0x, var6);
-                }
-
+                Path var0x = this.pathProvider.json(param3.getId());
+                var1.add(DataProvider.saveStable(param0, param3.deconstruct().serializeToJson(), var0x));
             }
         };
 
-        for(AdvancementSubProvider var2 : this.subProviders) {
-            var2.generate(var1);
+        for(AdvancementSubProvider var3 : this.subProviders) {
+            var3.generate(var2);
         }
 
+        return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
     @Override
-    public String getName() {
-        return this.name;
+    public final String getName() {
+        return "Advancements";
     }
 }

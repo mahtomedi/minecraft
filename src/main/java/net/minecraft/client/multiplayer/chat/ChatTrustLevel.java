@@ -1,5 +1,6 @@
 package net.minecraft.client.multiplayer.chat;
 
+import com.mojang.serialization.Codec;
 import java.time.Instant;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -7,14 +8,22 @@ import net.minecraft.client.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public enum ChatTrustLevel {
-    SECURE,
-    MODIFIED,
-    NOT_SECURE;
+public enum ChatTrustLevel implements StringRepresentable {
+    SECURE("secure"),
+    MODIFIED("modified"),
+    NOT_SECURE("not_secure");
+
+    public static final Codec<ChatTrustLevel> CODEC = StringRepresentable.fromEnum(ChatTrustLevel::values);
+    private final String serializedName;
+
+    private ChatTrustLevel(String param0) {
+        this.serializedName = param0;
+    }
 
     public static ChatTrustLevel evaluate(PlayerChatMessage param0, Component param1, Instant param2) {
         if (!param0.hasSignature() || param0.hasExpiredClient(param2)) {
@@ -52,5 +61,10 @@ public enum ChatTrustLevel {
             case NOT_SECURE -> GuiMessageTag.chatNotSecure();
             default -> null;
         };
+    }
+
+    @Override
+    public String getSerializedName() {
+        return this.serializedName;
     }
 }

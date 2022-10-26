@@ -85,10 +85,10 @@ public class SkullBlockRenderer implements BlockEntityRenderer<SkullBlockEntity>
     ) {
         param3.pushPose();
         if (param0 == null) {
-            param3.translate(0.5, 0.0, 0.5);
+            param3.translate(0.5F, 0.0F, 0.5F);
         } else {
             float var0 = 0.25F;
-            param3.translate((double)(0.5F - (float)param0.getStepX() * 0.25F), 0.25, (double)(0.5F - (float)param0.getStepZ() * 0.25F));
+            param3.translate(0.5F - (float)param0.getStepX() * 0.25F, 0.25F, 0.5F - (float)param0.getStepZ() * 0.25F);
         }
 
         param3.scale(-1.0F, -1.0F, 1.0F);

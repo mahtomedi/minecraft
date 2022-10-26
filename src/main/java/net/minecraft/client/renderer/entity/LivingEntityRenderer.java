@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -87,7 +87,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             Direction var6 = param0.getBedOrientation();
             if (var6 != null) {
                 float var7 = param0.getEyeHeight(Pose.STANDING) - 0.1F;
-                param3.translate((double)((float)(-var6.getStepX()) * var7), 0.0, (double)((float)(-var6.getStepZ()) * var7));
+                param3.translate((float)(-var6.getStepX()) * var7, 0.0F, (float)(-var6.getStepZ()) * var7);
             }
         }
 
@@ -95,7 +95,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         this.setupRotations(param0, param3, var8, var0, param2);
         param3.scale(-1.0F, -1.0F, 1.0F);
         this.scale(param0, param3, param2);
-        param3.translate(0.0, -1.501F, 0.0);
+        param3.translate(0.0F, -1.501F, 0.0F);
         float var9 = 0.0F;
         float var10 = 0.0F;
         if (!param0.isPassenger() && param0.isAlive()) {
@@ -178,7 +178,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         }
 
         if (!param0.hasPose(Pose.SLEEPING)) {
-            param1.mulPose(Vector3f.YP.rotationDegrees(180.0F - param3));
+            param1.mulPose(Axis.YP.rotationDegrees(180.0F - param3));
         }
 
         if (param0.deathTime > 0) {
@@ -188,19 +188,19 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
                 var0 = 1.0F;
             }
 
-            param1.mulPose(Vector3f.ZP.rotationDegrees(var0 * this.getFlipDegrees(param0)));
+            param1.mulPose(Axis.ZP.rotationDegrees(var0 * this.getFlipDegrees(param0)));
         } else if (param0.isAutoSpinAttack()) {
-            param1.mulPose(Vector3f.XP.rotationDegrees(-90.0F - param0.getXRot()));
-            param1.mulPose(Vector3f.YP.rotationDegrees(((float)param0.tickCount + param4) * -75.0F));
+            param1.mulPose(Axis.XP.rotationDegrees(-90.0F - param0.getXRot()));
+            param1.mulPose(Axis.YP.rotationDegrees(((float)param0.tickCount + param4) * -75.0F));
         } else if (param0.hasPose(Pose.SLEEPING)) {
             Direction var1 = param0.getBedOrientation();
             float var2 = var1 != null ? sleepDirectionToRotation(var1) : param3;
-            param1.mulPose(Vector3f.YP.rotationDegrees(var2));
-            param1.mulPose(Vector3f.ZP.rotationDegrees(this.getFlipDegrees(param0)));
-            param1.mulPose(Vector3f.YP.rotationDegrees(270.0F));
+            param1.mulPose(Axis.YP.rotationDegrees(var2));
+            param1.mulPose(Axis.ZP.rotationDegrees(this.getFlipDegrees(param0)));
+            param1.mulPose(Axis.YP.rotationDegrees(270.0F));
         } else if (isEntityUpsideDown(param0)) {
-            param1.translate(0.0, (double)(param0.getBbHeight() + 0.1F), 0.0);
-            param1.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            param1.translate(0.0F, param0.getBbHeight() + 0.1F, 0.0F);
+            param1.mulPose(Axis.ZP.rotationDegrees(180.0F));
         }
 
     }
