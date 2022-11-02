@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -51,43 +52,36 @@ public class ChiseledBookShelfBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             } else {
                 ItemStack var2x = param3.getItemInHand(param4);
-                return var2x.is(ItemTags.BOOKSHELF_BOOKS)
-                    ? tryAddBook(param0, param1, param2, param3, var0, var2x)
-                    : tryRemoveBook(param0, param1, param2, param3, var0);
+                return var2x.is(ItemTags.BOOKSHELF_BOOKS) ? tryAddBook(param1, param2, param3, var0, var2x) : tryRemoveBook(param1, param2, param3, var0);
             }
         } else {
             return InteractionResult.PASS;
         }
     }
 
-    private static InteractionResult tryRemoveBook(BlockState param0, Level param1, BlockPos param2, Player param3, ChiseledBookShelfBlockEntity param4) {
-        if (!param4.isEmpty()) {
-            ItemStack var0 = param4.removeBook();
-            param1.playSound(null, param2, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
-            int var1 = param4.bookCount();
-            param1.setBlock(param2, param0.setValue(BOOKS_STORED, Integer.valueOf(var1)).setValue(LAST_INTERACTION_BOOK_SLOT, Integer.valueOf(var1 + 1)), 3);
-            param1.gameEvent(param3, GameEvent.BLOCK_CHANGE, param2);
-            if (!param3.getInventory().add(var0)) {
-                param3.drop(var0, false);
+    private static InteractionResult tryRemoveBook(Level param0, BlockPos param1, Player param2, ChiseledBookShelfBlockEntity param3) {
+        if (!param3.isEmpty()) {
+            ItemStack var0 = param3.removeBook();
+            param0.playSound(null, param1, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            param0.gameEvent(param2, GameEvent.BLOCK_CHANGE, param1);
+            if (!param2.getInventory().add(var0)) {
+                param2.drop(var0, false);
             }
         }
 
         return InteractionResult.CONSUME;
     }
 
-    private static InteractionResult tryAddBook(
-        BlockState param0, Level param1, BlockPos param2, Player param3, ChiseledBookShelfBlockEntity param4, ItemStack param5
-    ) {
-        if (!param4.isFull()) {
-            param4.addBook(param5.split(1));
-            param1.playSound(null, param2, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
-            if (param3.isCreative()) {
-                param5.grow(1);
+    private static InteractionResult tryAddBook(Level param0, BlockPos param1, Player param2, ChiseledBookShelfBlockEntity param3, ItemStack param4) {
+        if (param3.addBook(param4.split(1))) {
+            param0.playSound(null, param1, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            if (param2.isCreative()) {
+                param4.grow(1);
             }
 
-            int var0 = param4.bookCount();
-            param1.setBlock(param2, param0.setValue(BOOKS_STORED, Integer.valueOf(var0)).setValue(LAST_INTERACTION_BOOK_SLOT, Integer.valueOf(var0)), 3);
-            param1.gameEvent(param3, GameEvent.BLOCK_CHANGE, param2);
+            param0.gameEvent(param2, GameEvent.BLOCK_CHANGE, param1);
+        } else {
+            param4.grow(1);
         }
 
         return InteractionResult.CONSUME;
@@ -109,10 +103,8 @@ public class ChiseledBookShelfBlock extends BaseEntityBlock {
         if (!param0.is(param3.getBlock())) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof ChiseledBookShelfBlockEntity var1) {
-                for(ItemStack var2 = var1.removeBook(); !var2.isEmpty(); var2 = var1.removeBook()) {
-                    Containers.dropItemStack(param1, (double)param2.getX(), (double)param2.getY(), (double)param2.getZ(), var2);
-                }
-
+                List<ItemStack> var2 = var1.removeAllBooksWithoutBlockStateUpdate();
+                var2.forEach(param2x -> Containers.dropItemStack(param1, (double)param2.getX(), (double)param2.getY(), (double)param2.getZ(), param2x));
                 param1.updateNeighbourForOutputSignal(param2, this);
             }
 

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.minecraft.CrashReport;
@@ -87,7 +88,9 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
             for(Entry<ResourceLocation, TextureAtlasSprite> var2 : param1.entrySet().stream().sorted(Entry.comparingByKey()).toList()) {
                 TextureAtlasSprite var3 = var2.getValue();
                 var1.write(
-                    String.format("%s\tx=%d\ty=%d\tw=%d\th=%d%n", var2.getKey(), var3.getX(), var3.getY(), var3.contents().width(), var3.contents().height())
+                    String.format(
+                        Locale.ROOT, "%s\tx=%d\ty=%d\tw=%d\th=%d%n", var2.getKey(), var3.getX(), var3.getY(), var3.contents().width(), var3.contents().height()
+                    )
                 );
             }
         } catch (IOException var9) {

@@ -7,7 +7,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
@@ -46,34 +44,24 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     public static final Codec<NoiseBasedChunkGenerator> CODEC = RecordCodecBuilder.create(
-        param0 -> commonCodec(param0)
-                .and(
-                    param0.group(
-                        RegistryOps.retrieveRegistry(Registry.NOISE_REGISTRY).forGetter(param0x -> param0x.noises),
-                        BiomeSource.CODEC.fieldOf("biome_source").forGetter(param0x -> param0x.biomeSource),
-                        NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(param0x -> param0x.settings)
-                    )
+        param0 -> param0.group(
+                    BiomeSource.CODEC.fieldOf("biome_source").forGetter(param0x -> param0x.biomeSource),
+                    NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(param0x -> param0x.settings)
                 )
                 .apply(param0, param0.stable(NoiseBasedChunkGenerator::new))
     );
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
-    private final Registry<NormalNoise.NoiseParameters> noises;
     private final Holder<NoiseGeneratorSettings> settings;
     private final Supplier<Aquifer.FluidPicker> globalFluidPicker;
 
-    public NoiseBasedChunkGenerator(
-        Registry<StructureSet> param0, Registry<NormalNoise.NoiseParameters> param1, BiomeSource param2, Holder<NoiseGeneratorSettings> param3
-    ) {
-        super(param0, Optional.empty(), param2);
-        this.noises = param1;
-        this.settings = param3;
-        this.globalFluidPicker = Suppliers.memoize(() -> createFluidPicker(param3.value()));
+    public NoiseBasedChunkGenerator(BiomeSource param0, Holder<NoiseGeneratorSettings> param1) {
+        super(param0);
+        this.settings = param1;
+        this.globalFluidPicker = Suppliers.memoize(() -> createFluidPicker(param1.value()));
     }
 
     private static Aquifer.FluidPicker createFluidPicker(NoiseGeneratorSettings param0) {
@@ -85,12 +73,10 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> createBiomes(
-        Registry<Biome> param0, Executor param1, RandomState param2, Blender param3, StructureManager param4, ChunkAccess param5
-    ) {
+    public CompletableFuture<ChunkAccess> createBiomes(Executor param0, RandomState param1, Blender param2, StructureManager param3, ChunkAccess param4) {
         return CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("init_biomes", () -> {
-            this.doCreateBiomes(param3, param2, param4, param5);
-            return param5;
+            this.doCreateBiomes(param2, param1, param3, param4);
+            return param4;
         }), Util.backgroundExecutor());
     }
 

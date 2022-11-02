@@ -31,6 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WalkNodeEvaluator extends NodeEvaluator {
     public static final double SPACE_BETWEEN_WALL_POSTS = 0.5;
+    private static final double DEFAULT_MOB_JUMP_HEIGHT = 1.125;
     protected float oldWaterCost;
     private final Long2ObjectMap<BlockPathTypes> pathTypesByPosCache = new Long2ObjectOpenHashMap<>();
     private final Object2BooleanMap<AABB> collisionCache = new Object2BooleanOpenHashMap<>();
@@ -242,7 +243,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         Node var0 = null;
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
         double var2 = this.getFloorLevel(var1.set(param0, param1, param2));
-        if (var2 - param4 > 1.125) {
+        if (var2 - param4 > this.getMobJumpHeight()) {
             return null;
         } else {
             BlockPathTypes var3 = this.getCachedBlockType(this.mob, param0, param1, param2);
@@ -259,7 +260,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             if (var3 != BlockPathTypes.WALKABLE && (!this.isAmphibious() || var3 != BlockPathTypes.WATER)) {
                 if ((var0 == null || var0.costMalus < 0.0F)
                     && param3 > 0
-                    && var3 != BlockPathTypes.FENCE
+                    && (var3 != BlockPathTypes.FENCE || this.canWalkOverFences())
                     && var3 != BlockPathTypes.UNPASSABLE_RAIL
                     && var3 != BlockPathTypes.TRAPDOOR
                     && var3 != BlockPathTypes.POWDER_SNOW) {
@@ -322,7 +323,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     }
                 }
 
-                if (doesBlockHavePartialCollision(var3)) {
+                if (doesBlockHavePartialCollision(var3) && var0 == null) {
                     var0 = this.getNode(param0, param1, param2);
                     if (var0 != null) {
                         var0.closed = true;
@@ -336,6 +337,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 return var0;
             }
         }
+    }
+
+    private double getMobJumpHeight() {
+        return Math.max(1.125, (double)this.mob.maxUpStep);
     }
 
     @Nullable

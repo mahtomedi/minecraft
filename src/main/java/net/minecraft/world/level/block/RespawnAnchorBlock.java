@@ -143,7 +143,7 @@ public class RespawnAnchorBlock extends Block {
             }
         };
         Vec3 var3 = param2.getCenter();
-        param1.explode(null, DamageSource.badRespawnPointExplosion(var3), var2, var3, 5.0F, true, Explosion.BlockInteraction.DESTROY);
+        param1.explode(null, DamageSource.badRespawnPointExplosion(var3), var2, var3, 5.0F, true, Level.ExplosionInteraction.BLOCK);
     }
 
     public static boolean canSetSpawn(Level param0) {

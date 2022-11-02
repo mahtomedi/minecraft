@@ -42,6 +42,7 @@ public class FolderRepositorySource implements RepositorySource {
             Files.createDirectories(this.folder);
             discoverPacks(
                 this.folder,
+                false,
                 (param1, param2) -> {
                     String var0x = nameFromPath(param1);
                     Pack var1x = Pack.readMetaAndCreate(
@@ -59,12 +60,12 @@ public class FolderRepositorySource implements RepositorySource {
 
     }
 
-    public static void discoverPacks(Path param0, BiConsumer<Path, Pack.ResourcesSupplier> param1) throws IOException {
+    public static void discoverPacks(Path param0, boolean param1, BiConsumer<Path, Pack.ResourcesSupplier> param2) throws IOException {
         try (DirectoryStream<Path> var0 = Files.newDirectoryStream(param0)) {
             for(Path var1 : var0) {
-                Pack.ResourcesSupplier var2 = detectPackResources(var1);
+                Pack.ResourcesSupplier var2 = detectPackResources(var1, param1);
                 if (var2 != null) {
-                    param1.accept(var1, var2);
+                    param2.accept(var1, var2);
                 }
             }
         }
@@ -72,25 +73,25 @@ public class FolderRepositorySource implements RepositorySource {
     }
 
     @Nullable
-    public static Pack.ResourcesSupplier detectPackResources(Path param0) {
+    public static Pack.ResourcesSupplier detectPackResources(Path param0, boolean param1) {
         BasicFileAttributes var0;
         try {
             var0 = Files.readAttributes(param0, BasicFileAttributes.class);
-        } catch (NoSuchFileException var41) {
+        } catch (NoSuchFileException var51) {
             return null;
-        } catch (IOException var51) {
-            LOGGER.warn("Failed to read properties of '{}', ignoring", param0, var51);
+        } catch (IOException var6) {
+            LOGGER.warn("Failed to read properties of '{}', ignoring", param0, var6);
             return null;
         }
 
         if (var0.isDirectory() && Files.isRegularFile(param0.resolve("pack.mcmeta"))) {
-            return param1 -> new PathPackResources(param1, param0);
+            return param2 -> new PathPackResources(param2, param0, param1);
         } else {
             if (var0.isRegularFile() && param0.getFileName().toString().endsWith(".zip")) {
                 FileSystem var4 = param0.getFileSystem();
                 if (var4 == FileSystems.getDefault() || var4 instanceof LinkFileSystem) {
                     File var5 = param0.toFile();
-                    return param1 -> new FilePackResources(param1, var5);
+                    return param2 -> new FilePackResources(param2, var5, param1);
                 }
             }
 

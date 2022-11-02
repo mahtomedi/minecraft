@@ -199,6 +199,7 @@ public class LocalPlayer extends AbstractClientPlayer {
                 Entity var0 = this.getRootVehicle();
                 if (var0 != this && var0.isControlledByLocalInstance()) {
                     this.connection.send(new ServerboundMoveVehiclePacket(var0));
+                    this.sendIsSprintingIfNeeded();
                 }
             } else {
                 this.sendPosition();
@@ -222,6 +223,59 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     private void sendPosition() {
+        this.sendIsSprintingIfNeeded();
+        boolean var0 = this.isShiftKeyDown();
+        if (var0 != this.wasShiftKeyDown) {
+            ServerboundPlayerCommandPacket.Action var1 = var0
+                ? ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY
+                : ServerboundPlayerCommandPacket.Action.RELEASE_SHIFT_KEY;
+            this.connection.send(new ServerboundPlayerCommandPacket(this, var1));
+            this.wasShiftKeyDown = var0;
+        }
+
+        if (this.isControlledCamera()) {
+            double var2 = this.getX() - this.xLast;
+            double var3 = this.getY() - this.yLast1;
+            double var4 = this.getZ() - this.zLast;
+            double var5 = (double)(this.getYRot() - this.yRotLast);
+            double var6 = (double)(this.getXRot() - this.xRotLast);
+            ++this.positionReminder;
+            boolean var7 = Mth.lengthSquared(var2, var3, var4) > Mth.square(2.0E-4) || this.positionReminder >= 20;
+            boolean var8 = var5 != 0.0 || var6 != 0.0;
+            if (this.isPassenger()) {
+                Vec3 var9 = this.getDeltaMovement();
+                this.connection.send(new ServerboundMovePlayerPacket.PosRot(var9.x, -999.0, var9.z, this.getYRot(), this.getXRot(), this.onGround));
+                var7 = false;
+            } else if (var7 && var8) {
+                this.connection
+                    .send(new ServerboundMovePlayerPacket.PosRot(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot(), this.onGround));
+            } else if (var7) {
+                this.connection.send(new ServerboundMovePlayerPacket.Pos(this.getX(), this.getY(), this.getZ(), this.onGround));
+            } else if (var8) {
+                this.connection.send(new ServerboundMovePlayerPacket.Rot(this.getYRot(), this.getXRot(), this.onGround));
+            } else if (this.lastOnGround != this.onGround) {
+                this.connection.send(new ServerboundMovePlayerPacket.StatusOnly(this.onGround));
+            }
+
+            if (var7) {
+                this.xLast = this.getX();
+                this.yLast1 = this.getY();
+                this.zLast = this.getZ();
+                this.positionReminder = 0;
+            }
+
+            if (var8) {
+                this.yRotLast = this.getYRot();
+                this.xRotLast = this.getXRot();
+            }
+
+            this.lastOnGround = this.onGround;
+            this.autoJumpEnabled = this.minecraft.options.autoJump().get();
+        }
+
+    }
+
+    private void sendIsSprintingIfNeeded() {
         boolean var0 = this.isSprinting();
         if (var0 != this.wasSprinting) {
             ServerboundPlayerCommandPacket.Action var1 = var0
@@ -229,55 +283,6 @@ public class LocalPlayer extends AbstractClientPlayer {
                 : ServerboundPlayerCommandPacket.Action.STOP_SPRINTING;
             this.connection.send(new ServerboundPlayerCommandPacket(this, var1));
             this.wasSprinting = var0;
-        }
-
-        boolean var2 = this.isShiftKeyDown();
-        if (var2 != this.wasShiftKeyDown) {
-            ServerboundPlayerCommandPacket.Action var3 = var2
-                ? ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY
-                : ServerboundPlayerCommandPacket.Action.RELEASE_SHIFT_KEY;
-            this.connection.send(new ServerboundPlayerCommandPacket(this, var3));
-            this.wasShiftKeyDown = var2;
-        }
-
-        if (this.isControlledCamera()) {
-            double var4 = this.getX() - this.xLast;
-            double var5 = this.getY() - this.yLast1;
-            double var6 = this.getZ() - this.zLast;
-            double var7 = (double)(this.getYRot() - this.yRotLast);
-            double var8 = (double)(this.getXRot() - this.xRotLast);
-            ++this.positionReminder;
-            boolean var9 = Mth.lengthSquared(var4, var5, var6) > Mth.square(2.0E-4) || this.positionReminder >= 20;
-            boolean var10 = var7 != 0.0 || var8 != 0.0;
-            if (this.isPassenger()) {
-                Vec3 var11 = this.getDeltaMovement();
-                this.connection.send(new ServerboundMovePlayerPacket.PosRot(var11.x, -999.0, var11.z, this.getYRot(), this.getXRot(), this.onGround));
-                var9 = false;
-            } else if (var9 && var10) {
-                this.connection
-                    .send(new ServerboundMovePlayerPacket.PosRot(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot(), this.onGround));
-            } else if (var9) {
-                this.connection.send(new ServerboundMovePlayerPacket.Pos(this.getX(), this.getY(), this.getZ(), this.onGround));
-            } else if (var10) {
-                this.connection.send(new ServerboundMovePlayerPacket.Rot(this.getYRot(), this.getXRot(), this.onGround));
-            } else if (this.lastOnGround != this.onGround) {
-                this.connection.send(new ServerboundMovePlayerPacket.StatusOnly(this.onGround));
-            }
-
-            if (var9) {
-                this.xLast = this.getX();
-                this.yLast1 = this.getY();
-                this.zLast = this.getZ();
-                this.positionReminder = 0;
-            }
-
-            if (var10) {
-                this.yRotLast = this.getYRot();
-                this.xRotLast = this.getXRot();
-            }
-
-            this.lastOnGround = this.onGround;
-            this.autoJumpEnabled = this.minecraft.options.autoJump().get();
         }
 
     }
@@ -709,7 +714,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             this.sprintTriggerTime = 0;
         }
 
-        boolean var5 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.getAbilities().mayfly;
+        boolean var5 = this.hasEnoughFoodToStartSprinting();
         if ((this.onGround || this.isUnderWater() || this.isPassenger() && this.getVehicle().isOnGround())
             && !var1
             && !var2
@@ -1062,6 +1067,10 @@ public class LocalPlayer extends AbstractClientPlayer {
     private boolean hasEnoughImpulseToStartSprinting() {
         double var0 = 0.8;
         return this.isUnderWater() ? this.input.hasForwardImpulse() : (double)this.input.forwardImpulse >= 0.8;
+    }
+
+    private boolean hasEnoughFoodToStartSprinting() {
+        return this.isPassenger() || (float)this.getFoodData().getFoodLevel() > 6.0F || this.getAbilities().mayfly;
     }
 
     public float getWaterVision() {

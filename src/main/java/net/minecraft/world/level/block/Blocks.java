@@ -585,7 +585,7 @@ public class Blocks {
                 .sound(SoundType.GRASS)
                 .lightLevel(param0 -> 1)
                 .hasPostProcess(Blocks::always),
-            () -> TreeFeatures.HUGE_BROWN_MUSHROOM
+            TreeFeatures.HUGE_BROWN_MUSHROOM
         )
     );
     public static final Block RED_MUSHROOM = register(
@@ -597,7 +597,7 @@ public class Blocks {
                 .instabreak()
                 .sound(SoundType.GRASS)
                 .hasPostProcess(Blocks::always),
-            () -> TreeFeatures.HUGE_RED_MUSHROOM
+            TreeFeatures.HUGE_RED_MUSHROOM
         )
     );
     public static final Block GOLD_BLOCK = register(
@@ -3599,7 +3599,7 @@ public class Blocks {
         "warped_fungus",
         new FungusBlock(
             BlockBehaviour.Properties.of(Material.PLANT, MaterialColor.COLOR_CYAN).instabreak().noCollission().sound(SoundType.FUNGUS),
-            () -> TreeFeatures.WARPED_FUNGUS_PLANTED
+            TreeFeatures.WARPED_FUNGUS_PLANTED
         )
     );
     public static final Block WARPED_WART_BLOCK = register(
@@ -3650,7 +3650,7 @@ public class Blocks {
         "crimson_fungus",
         new FungusBlock(
             BlockBehaviour.Properties.of(Material.PLANT, MaterialColor.NETHER).instabreak().noCollission().sound(SoundType.FUNGUS),
-            () -> TreeFeatures.CRIMSON_FUNGUS_PLANTED
+            TreeFeatures.CRIMSON_FUNGUS_PLANTED
         )
     );
     public static final Block SHROOMLIGHT = register(

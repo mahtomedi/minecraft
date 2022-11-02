@@ -70,6 +70,11 @@ public final class ServerAddress {
     }
 
     @Override
+    public String toString() {
+        return this.hostAndPort.toString();
+    }
+
+    @Override
     public boolean equals(Object param0) {
         if (this == param0) {
             return true;

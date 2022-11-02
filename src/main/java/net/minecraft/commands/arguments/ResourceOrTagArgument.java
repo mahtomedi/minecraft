@@ -89,8 +89,8 @@ public class ResourceOrTagArgument<T> implements ArgumentType<ResourceOrTagArgum
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        SharedSuggestionProvider.suggestResource(this.registryLookup.listTags().map(TagKey::location), param1, "#");
-        return SharedSuggestionProvider.suggestResource(this.registryLookup.listElements().map(ResourceKey::location), param1);
+        SharedSuggestionProvider.suggestResource(this.registryLookup.listTagIds().map(TagKey::location), param1, "#");
+        return SharedSuggestionProvider.suggestResource(this.registryLookup.listElementIds().map(ResourceKey::location), param1);
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
@@ -83,8 +82,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         }
     }
 
-    @Override
-    public Holder<T> registerMapping(int param0, ResourceKey<T> param1, T param2, Lifecycle param3) {
+    public Holder.Reference<T> registerMapping(int param0, ResourceKey<T> param1, T param2, Lifecycle param3) {
         this.validateWrite(param1);
         Validate.notNull(param1);
         Validate.notNull(param2);
@@ -105,7 +103,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
 
             var0.bindKey(param1);
         } else {
-            var0 = this.byKey.computeIfAbsent(param1, param0x -> Holder.Reference.createStandAlone(this, param0x));
+            var0 = this.byKey.computeIfAbsent(param1, param0x -> Holder.Reference.createStandAlone(this.holderOwner(), param0x));
         }
 
         this.byKey.put(param1, var0);
@@ -125,7 +123,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public Holder<T> register(ResourceKey<T> param0, T param1, Lifecycle param2) {
+    public Holder.Reference<T> register(ResourceKey<T> param0, T param1, Lifecycle param2) {
         return this.registerMapping(this.nextId, param0, param1, param2);
     }
 
@@ -168,35 +166,15 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return Optional.ofNullable(this.byKey.get(param0));
     }
 
-    @Override
-    public Holder.Reference<T> getOrCreateHolderOrThrow(ResourceKey<T> param0) {
+    Holder.Reference<T> getOrCreateHolderOrThrow(ResourceKey<T> param0) {
         return this.byKey.computeIfAbsent(param0, param0x -> {
             if (this.unregisteredIntrusiveHolders != null) {
                 throw new IllegalStateException("This registry can't create new holders without value");
             } else {
                 this.validateWrite(param0x);
-                return Holder.Reference.createStandAlone(this, param0x);
+                return Holder.Reference.createStandAlone(this.holderOwner(), param0x);
             }
         });
-    }
-
-    @Override
-    public DataResult<Holder.Reference<T>> getOrCreateHolder(ResourceKey<T> param0) {
-        Holder.Reference<T> var0 = this.byKey.get(param0);
-        if (var0 == null) {
-            if (this.unregisteredIntrusiveHolders != null) {
-                return DataResult.error("This registry can't create new holders without value (requested key: " + param0 + ")");
-            }
-
-            if (this.frozen) {
-                return DataResult.error("Registry is already frozen (requested key: " + param0 + ")");
-            }
-
-            var0 = Holder.Reference.createStandAlone(this, param0);
-            this.byKey.put(param0, var0);
-        }
-
-        return DataResult.success(var0);
     }
 
     @Override
@@ -275,7 +253,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     private HolderSet.Named<T> createTag(TagKey<T> param0) {
-        return new HolderSet.Named<>(this, param0);
+        return new HolderSet.Named<>(this.holderOwner(), param0);
     }
 
     @Override
@@ -289,8 +267,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public Optional<Holder<T>> getRandom(RandomSource param0) {
-        return Util.getRandomSafe(this.holdersInOrder(), param0).map(Holder::hackyErase);
+    public Optional<Holder.Reference<T>> getRandom(RandomSource param0) {
+        return Util.getRandomSafe(this.holdersInOrder(), param0);
     }
 
     @Override
@@ -339,7 +317,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
             throw new IllegalStateException("This registry can't create intrusive holders");
         } else {
             this.validateWrite();
-            return this.unregisteredIntrusiveHolders.computeIfAbsent(param0, param0x -> Holder.Reference.createIntrusive(this, param0x));
+            return this.unregisteredIntrusiveHolders.computeIfAbsent(param0, param0x -> Holder.Reference.createIntrusive(this.asLookup(), param0x));
         }
     }
 
@@ -354,7 +332,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         this.byKey.values().forEach(param1 -> var0.put(param1, new ArrayList<>()));
         param0.forEach((param1, param2) -> {
             for(Holder<T> var0x : param2) {
-                if (!var0x.isValidInRegistry(this)) {
+                if (!var0x.canSerializeIn(this.asLookup())) {
                     throw new IllegalStateException("Can't create named set " + param1 + " containing value " + var0x + " from outside registry " + this);
                 }
 
@@ -386,5 +364,31 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     public void resetTags() {
         this.tags.values().forEach(param0 -> param0.bind(List.of()));
         this.byKey.values().forEach(param0 -> param0.bindTags(Set.of()));
+    }
+
+    @Override
+    public HolderGetter<T> createRegistrationLookup() {
+        this.validateWrite();
+        return new HolderGetter<T>() {
+            @Override
+            public Optional<Holder.Reference<T>> get(ResourceKey<T> param0) {
+                return Optional.of(this.getOrThrow(param0));
+            }
+
+            @Override
+            public Holder.Reference<T> getOrThrow(ResourceKey<T> param0) {
+                return MappedRegistry.this.getOrCreateHolderOrThrow(param0);
+            }
+
+            @Override
+            public Optional<HolderSet.Named<T>> get(TagKey<T> param0) {
+                return Optional.of(this.getOrThrow(param0));
+            }
+
+            @Override
+            public HolderSet.Named<T> getOrThrow(TagKey<T> param0) {
+                return MappedRegistry.this.getOrCreateTag(param0);
+            }
+        };
     }
 }

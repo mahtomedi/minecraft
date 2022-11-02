@@ -57,12 +57,8 @@ public class Explosion {
     private final ObjectArrayList<BlockPos> toBlow = new ObjectArrayList<>();
     private final Map<Player, Vec3> hitPlayers = Maps.newHashMap();
 
-    public Explosion(Level param0, @Nullable Entity param1, double param2, double param3, double param4, float param5) {
-        this(param0, param1, param2, param3, param4, param5, false, Explosion.BlockInteraction.DESTROY);
-    }
-
     public Explosion(Level param0, @Nullable Entity param1, double param2, double param3, double param4, float param5, List<BlockPos> param6) {
-        this(param0, param1, param2, param3, param4, param5, false, Explosion.BlockInteraction.DESTROY, param6);
+        this(param0, param1, param2, param3, param4, param5, false, Explosion.BlockInteraction.DESTROY_WITH_DECAY, param6);
     }
 
     public Explosion(
@@ -254,7 +250,7 @@ public class Explosion {
                 );
         }
 
-        boolean var0 = this.blockInteraction != Explosion.BlockInteraction.NONE;
+        boolean var0 = this.interactsWithBlocks();
         if (param0) {
             if (!(this.radius < 2.0F) && var0) {
                 this.level.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x, this.y, this.z, 1.0, 0.0, 0.0);
@@ -284,7 +280,7 @@ public class Explosion {
                                 .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
                                 .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var8x)
                                 .withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);
-                            if (this.blockInteraction == Explosion.BlockInteraction.DESTROY) {
+                            if (this.blockInteraction == Explosion.BlockInteraction.DESTROY_WITH_DECAY) {
                                 var9.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
                             }
 
@@ -314,6 +310,10 @@ public class Explosion {
             }
         }
 
+    }
+
+    public boolean interactsWithBlocks() {
+        return this.blockInteraction != Explosion.BlockInteraction.KEEP;
     }
 
     private static void addBlockDrops(ObjectArrayList<Pair<ItemStack, BlockPos>> param0, ItemStack param1, BlockPos param2) {
@@ -383,8 +383,8 @@ public class Explosion {
     }
 
     public static enum BlockInteraction {
-        NONE,
-        BREAK,
-        DESTROY;
+        KEEP,
+        DESTROY,
+        DESTROY_WITH_DECAY;
     }
 }

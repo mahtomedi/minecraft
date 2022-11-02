@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -28,13 +27,13 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
 
     boolean contains(Holder<T> var1);
 
-    boolean isValidInRegistry(Registry<T> var1);
+    boolean canSerializeIn(HolderOwner<T> var1);
 
     Optional<TagKey<T>> unwrapKey();
 
     @Deprecated
     @VisibleForTesting
-    static <T> HolderSet.Named<T> emptyNamed(Registry<T> param0, TagKey<T> param1) {
+    static <T> HolderSet.Named<T> emptyNamed(HolderOwner<T> param0, TagKey<T> param1) {
         return new HolderSet.Named<>(param0, param1);
     }
 
@@ -108,7 +107,6 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
             return this.contents().spliterator();
         }
 
-        @NotNull
         @Override
         public Iterator<Holder<T>> iterator() {
             return this.contents().iterator();
@@ -130,18 +128,18 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
         }
 
         @Override
-        public boolean isValidInRegistry(Registry<T> param0) {
+        public boolean canSerializeIn(HolderOwner<T> param0) {
             return true;
         }
     }
 
     public static class Named<T> extends HolderSet.ListBacked<T> {
-        private final Registry<T> registry;
+        private final HolderOwner<T> owner;
         private final TagKey<T> key;
         private List<Holder<T>> contents = List.of();
 
-        Named(Registry<T> param0, TagKey<T> param1) {
-            this.registry = param0;
+        Named(HolderOwner<T> param0, TagKey<T> param1) {
+            this.owner = param0;
             this.key = param1;
         }
 
@@ -179,8 +177,8 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
         }
 
         @Override
-        public boolean isValidInRegistry(Registry<T> param0) {
-            return this.registry == param0;
+        public boolean canSerializeIn(HolderOwner<T> param0) {
+            return this.owner.canSerializeIn(param0);
         }
     }
 }

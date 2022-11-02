@@ -472,12 +472,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return this.shouldTickBlocksAt(ChunkPos.asLong(param0));
     }
 
-    public Explosion explode(@Nullable Entity param0, double param1, double param2, double param3, float param4, Explosion.BlockInteraction param5) {
+    public Explosion explode(@Nullable Entity param0, double param1, double param2, double param3, float param4, Level.ExplosionInteraction param5) {
         return this.explode(param0, null, null, param1, param2, param3, param4, false, param5);
     }
 
     public Explosion explode(
-        @Nullable Entity param0, double param1, double param2, double param3, float param4, boolean param5, Explosion.BlockInteraction param6
+        @Nullable Entity param0, double param1, double param2, double param3, float param4, boolean param5, Level.ExplosionInteraction param6
     ) {
         return this.explode(param0, null, null, param1, param2, param3, param4, param5, param6);
     }
@@ -489,7 +489,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         Vec3 param3,
         float param4,
         boolean param5,
-        Explosion.BlockInteraction param6
+        Level.ExplosionInteraction param6
     ) {
         return this.explode(param0, param1, param2, param3.x(), param3.y(), param3.z(), param4, param5, param6);
     }
@@ -503,12 +503,39 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         double param5,
         float param6,
         boolean param7,
-        Explosion.BlockInteraction param8
+        Level.ExplosionInteraction param8
     ) {
-        Explosion var0 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, param8);
-        var0.explode();
-        var0.finalizeExplosion(true);
-        return var0;
+        return this.explode(param0, param1, param2, param3, param4, param5, param6, param7, param8, true);
+    }
+
+    public Explosion explode(
+        @Nullable Entity param0,
+        @Nullable DamageSource param1,
+        @Nullable ExplosionDamageCalculator param2,
+        double param3,
+        double param4,
+        double param5,
+        float param6,
+        boolean param7,
+        Level.ExplosionInteraction param8,
+        boolean param9
+    ) {
+        Explosion.BlockInteraction var0 = switch(param8) {
+            case NONE -> Explosion.BlockInteraction.KEEP;
+            case BLOCK -> this.getDestroyType(GameRules.RULE_BLOCK_EXPLOSION_DROP_DECAY);
+            case MOB -> this.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
+            ? this.getDestroyType(GameRules.RULE_MOB_EXPLOSION_DROP_DECAY)
+            : Explosion.BlockInteraction.KEEP;
+            case TNT -> this.getDestroyType(GameRules.RULE_TNT_EXPLOSION_DROP_DECAY);
+        };
+        Explosion var1 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, var0);
+        var1.explode();
+        var1.finalizeExplosion(param9);
+        return var1;
+    }
+
+    private Explosion.BlockInteraction getDestroyType(GameRules.Key<GameRules.BooleanValue> param0) {
+        return this.getGameRules().getBoolean(param0) ? Explosion.BlockInteraction.DESTROY_WITH_DECAY : Explosion.BlockInteraction.DESTROY;
     }
 
     public abstract String gatherChunkSourceStats();
@@ -965,5 +992,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     @Override
     public long nextSubTickCount() {
         return (long)(this.subTickCount++);
+    }
+
+    public static enum ExplosionInteraction {
+        NONE,
+        BLOCK,
+        MOB,
+        TNT;
     }
 }

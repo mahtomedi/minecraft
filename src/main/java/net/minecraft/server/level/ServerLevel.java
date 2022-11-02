@@ -109,6 +109,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -226,7 +227,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
             this.entityManager::updateChunkStatus,
             () -> param0.overworld().getDataStorage()
         );
-        var0.ensureStructuresGenerated(this.chunkSource.randomState());
+        this.chunkSource.getGeneratorState().ensureStructuresGenerated();
         this.portalForcer = new PortalForcer(this);
         this.updateSkyBrightness();
         this.prepareWeather();
@@ -449,37 +450,46 @@ public class ServerLevel extends Level implements WorldGenLevel {
             }
 
             if (var1) {
-                if (var12.shouldSnow(this, var10)) {
-                    this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
+                int var13 = this.getGameRules().getInt(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT);
+                if (var12.shouldSnow(this, var10) && var13 > 0) {
+                    BlockState var14 = this.getBlockState(var10);
+                    if (var14.is(Blocks.SNOW)) {
+                        int var15 = var14.getValue(SnowLayerBlock.LAYERS);
+                        if (var15 < Math.min(var13, 8)) {
+                            this.setBlockAndUpdate(var10, var14.setValue(SnowLayerBlock.LAYERS, Integer.valueOf(var15 + 1)));
+                        }
+                    } else {
+                        this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
+                    }
                 }
 
-                BlockState var13 = this.getBlockState(var11);
-                Biome.Precipitation var14 = var12.getPrecipitation();
-                if (var14 == Biome.Precipitation.RAIN && var12.coldEnoughToSnow(var11)) {
-                    var14 = Biome.Precipitation.SNOW;
+                BlockState var16 = this.getBlockState(var11);
+                Biome.Precipitation var17 = var12.getPrecipitation();
+                if (var17 == Biome.Precipitation.RAIN && var12.coldEnoughToSnow(var11)) {
+                    var17 = Biome.Precipitation.SNOW;
                 }
 
-                var13.getBlock().handlePrecipitation(var13, this, var11, var14);
+                var16.getBlock().handlePrecipitation(var16, this, var11, var17);
             }
         }
 
         var4.popPush("tickBlocks");
         if (param1 > 0) {
-            for(LevelChunkSection var15 : param0.getSections()) {
-                if (var15.isRandomlyTicking()) {
-                    int var16 = var15.bottomBlockY();
+            for(LevelChunkSection var18 : param0.getSections()) {
+                if (var18.isRandomlyTicking()) {
+                    int var19 = var18.bottomBlockY();
 
-                    for(int var17 = 0; var17 < param1; ++var17) {
-                        BlockPos var18 = this.getBlockRandomPos(var2, var16, var3, 15);
+                    for(int var20 = 0; var20 < param1; ++var20) {
+                        BlockPos var21 = this.getBlockRandomPos(var2, var19, var3, 15);
                         var4.push("randomTick");
-                        BlockState var19 = var15.getBlockState(var18.getX() - var2, var18.getY() - var16, var18.getZ() - var3);
-                        if (var19.isRandomlyTicking()) {
-                            var19.randomTick(this, var18, this.random);
+                        BlockState var22 = var18.getBlockState(var21.getX() - var2, var21.getY() - var19, var21.getZ() - var3);
+                        if (var22.isRandomlyTicking()) {
+                            var22.randomTick(this, var21, this.random);
                         }
 
-                        FluidState var20 = var19.getFluidState();
-                        if (var20.isRandomlyTicking()) {
-                            var20.randomTick(this, var18, this.random);
+                        FluidState var23 = var22.getFluidState();
+                        if (var23.isRandomlyTicking()) {
+                            var23.randomTick(this, var21, this.random);
                         }
 
                         var4.pop();
@@ -895,7 +905,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     @Override
     public void globalLevelEvent(int param0, BlockPos param1, int param2) {
-        this.server.getPlayerList().broadcastAll(new ClientboundLevelEventPacket(param0, param1, param2, true));
+        if (this.getGameRules().getBoolean(GameRules.RULE_GLOBAL_SOUND_EVENTS)) {
+            this.server.getPlayerList().broadcastAll(new ClientboundLevelEventPacket(param0, param1, param2, true));
+        } else {
+            this.levelEvent(null, param0, param1, param2);
+        }
+
     }
 
     @Override
@@ -994,12 +1009,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
         double param5,
         float param6,
         boolean param7,
-        Explosion.BlockInteraction param8
+        Level.ExplosionInteraction param8
     ) {
-        Explosion var0 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, param8);
-        var0.explode();
-        var0.finalizeExplosion(false);
-        if (param8 == Explosion.BlockInteraction.NONE) {
+        Explosion var0 = this.explode(param0, param1, param2, param3, param4, param5, param6, param7, param8, false);
+        if (!var0.interactsWithBlocks()) {
             var0.clearToBlow();
         }
 

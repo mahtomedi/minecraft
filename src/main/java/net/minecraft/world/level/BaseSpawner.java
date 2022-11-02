@@ -25,6 +25,7 @@ import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 
 public abstract class BaseSpawner {
+    public static final String SPAWN_DATA_TAG = "SpawnData";
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int EVENT_SPAWN = 1;
     private int spawnDelay = 20;
@@ -55,7 +56,7 @@ public abstract class BaseSpawner {
     public void clientTick(Level param0, BlockPos param1) {
         if (!this.isNearPlayer(param0, param1)) {
             this.oSpin = this.spin;
-        } else {
+        } else if (this.displayEntity != null) {
             RandomSource var0 = param0.getRandom();
             double var1 = (double)param1.getX() + var0.nextDouble();
             double var2 = (double)param1.getY() + var0.nextDouble();
@@ -255,8 +256,12 @@ public abstract class BaseSpawner {
     public Entity getOrCreateDisplayEntity(Level param0, RandomSource param1, BlockPos param2) {
         if (this.displayEntity == null) {
             CompoundTag var0 = this.getOrCreateNextSpawnData(param0, param1, param2).getEntityToSpawn();
+            if (!var0.contains("id", 8)) {
+                return null;
+            }
+
             this.displayEntity = EntityType.loadEntityRecursive(var0, param0, Function.identity());
-            if (var0.size() == 1 && var0.contains("id", 8) && this.displayEntity instanceof Mob) {
+            if (var0.size() == 1 && this.displayEntity instanceof Mob) {
             }
         }
 

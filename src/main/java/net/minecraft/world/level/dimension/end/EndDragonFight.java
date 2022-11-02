@@ -16,6 +16,7 @@ import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.features.EndFeatures;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -402,7 +403,11 @@ public class EndDragonFight {
 
     private void spawnNewGateway(BlockPos param0) {
         this.level.levelEvent(3000, param0, 0);
-        EndFeatures.END_GATEWAY_DELAYED.value().place(this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), param0);
+        this.level
+            .registryAccess()
+            .registry(Registry.CONFIGURED_FEATURE_REGISTRY)
+            .flatMap(param0x -> param0x.getHolder(EndFeatures.END_GATEWAY_DELAYED))
+            .ifPresent(param1 -> param1.value().place(this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), param0));
     }
 
     private void spawnExitPortal(boolean param0) {

@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -24,8 +23,8 @@ public class BlockRotProcessor extends StructureProcessor {
     private final Optional<HolderSet<Block>> rottableBlocks;
     private final float integrity;
 
-    public BlockRotProcessor(TagKey<Block> param0, float param1) {
-        this(Optional.of(Registry.BLOCK.getOrCreateTag(param0)), param1);
+    public BlockRotProcessor(HolderSet<Block> param0, float param1) {
+        this(Optional.of(param0), param1);
     }
 
     public BlockRotProcessor(float param0) {

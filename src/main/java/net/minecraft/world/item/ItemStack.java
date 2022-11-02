@@ -25,7 +25,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -403,6 +402,12 @@ public final class ItemStack {
 
             return var0;
         }
+    }
+
+    public ItemStack copyWithCount(int param0) {
+        ItemStack var0 = this.copy();
+        var0.setCount(param0);
+        return var0;
     }
 
     public static boolean tagMatches(ItemStack param0, ItemStack param1) {
@@ -813,7 +818,7 @@ public final class ItemStack {
 
     private static Collection<Component> expandBlockState(String param0) {
         try {
-            return BlockStateParser.parseForTesting(HolderLookup.forRegistry(Registry.BLOCK), param0, true)
+            return BlockStateParser.parseForTesting(Registry.BLOCK.asLookup(), param0, true)
                 .map(
                     param0x -> Lists.newArrayList(param0x.blockState().getBlock().getName().withStyle(ChatFormatting.DARK_GRAY)),
                     param0x -> param0x.tag()

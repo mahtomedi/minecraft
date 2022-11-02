@@ -48,7 +48,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.WitherSkull;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -258,10 +257,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
             int var0 = this.getInvulnerableTicks() - 1;
             this.bossEvent.setProgress(1.0F - (float)var0 / 220.0F);
             if (var0 <= 0) {
-                Explosion.BlockInteraction var1 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
-                    ? Explosion.BlockInteraction.DESTROY
-                    : Explosion.BlockInteraction.NONE;
-                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 7.0F, false, var1);
+                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 7.0F, false, Level.ExplosionInteraction.MOB);
                 if (!this.isSilent()) {
                     this.level.globalLevelEvent(1023, this.blockPosition(), 0);
                 }
@@ -275,36 +271,36 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
         } else {
             super.customServerAiStep();
 
-            for(int var2 = 1; var2 < 3; ++var2) {
-                if (this.tickCount >= this.nextHeadUpdate[var2 - 1]) {
-                    this.nextHeadUpdate[var2 - 1] = this.tickCount + 10 + this.random.nextInt(10);
+            for(int var1 = 1; var1 < 3; ++var1) {
+                if (this.tickCount >= this.nextHeadUpdate[var1 - 1]) {
+                    this.nextHeadUpdate[var1 - 1] = this.tickCount + 10 + this.random.nextInt(10);
                     if ((this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD)
-                        && this.idleHeadUpdates[var2 - 1]++ > 15) {
-                        float var3 = 10.0F;
-                        float var4 = 5.0F;
-                        double var5 = Mth.nextDouble(this.random, this.getX() - 10.0, this.getX() + 10.0);
-                        double var6 = Mth.nextDouble(this.random, this.getY() - 5.0, this.getY() + 5.0);
-                        double var7 = Mth.nextDouble(this.random, this.getZ() - 10.0, this.getZ() + 10.0);
-                        this.performRangedAttack(var2 + 1, var5, var6, var7, true);
-                        this.idleHeadUpdates[var2 - 1] = 0;
+                        && this.idleHeadUpdates[var1 - 1]++ > 15) {
+                        float var2 = 10.0F;
+                        float var3 = 5.0F;
+                        double var4 = Mth.nextDouble(this.random, this.getX() - 10.0, this.getX() + 10.0);
+                        double var5 = Mth.nextDouble(this.random, this.getY() - 5.0, this.getY() + 5.0);
+                        double var6 = Mth.nextDouble(this.random, this.getZ() - 10.0, this.getZ() + 10.0);
+                        this.performRangedAttack(var1 + 1, var4, var5, var6, true);
+                        this.idleHeadUpdates[var1 - 1] = 0;
                     }
 
-                    int var8 = this.getAlternativeTarget(var2);
-                    if (var8 > 0) {
-                        LivingEntity var9 = (LivingEntity)this.level.getEntity(var8);
-                        if (var9 != null && this.canAttack(var9) && !(this.distanceToSqr(var9) > 900.0) && this.hasLineOfSight(var9)) {
-                            this.performRangedAttack(var2 + 1, var9);
-                            this.nextHeadUpdate[var2 - 1] = this.tickCount + 40 + this.random.nextInt(20);
-                            this.idleHeadUpdates[var2 - 1] = 0;
+                    int var7 = this.getAlternativeTarget(var1);
+                    if (var7 > 0) {
+                        LivingEntity var8 = (LivingEntity)this.level.getEntity(var7);
+                        if (var8 != null && this.canAttack(var8) && !(this.distanceToSqr(var8) > 900.0) && this.hasLineOfSight(var8)) {
+                            this.performRangedAttack(var1 + 1, var8);
+                            this.nextHeadUpdate[var1 - 1] = this.tickCount + 40 + this.random.nextInt(20);
+                            this.idleHeadUpdates[var1 - 1] = 0;
                         } else {
-                            this.setAlternativeTarget(var2, 0);
+                            this.setAlternativeTarget(var1, 0);
                         }
                     } else {
-                        List<LivingEntity> var10 = this.level
+                        List<LivingEntity> var9 = this.level
                             .getNearbyEntities(LivingEntity.class, TARGETING_CONDITIONS, this, this.getBoundingBox().inflate(20.0, 8.0, 20.0));
-                        if (!var10.isEmpty()) {
-                            LivingEntity var11 = var10.get(this.random.nextInt(var10.size()));
-                            this.setAlternativeTarget(var2, var11.getId());
+                        if (!var9.isEmpty()) {
+                            LivingEntity var10 = var9.get(this.random.nextInt(var9.size()));
+                            this.setAlternativeTarget(var1, var10.getId());
                         }
                     }
                 }
@@ -319,27 +315,27 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
             if (this.destroyBlocksTick > 0) {
                 --this.destroyBlocksTick;
                 if (this.destroyBlocksTick == 0 && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                    int var12 = Mth.floor(this.getY());
-                    int var13 = Mth.floor(this.getX());
-                    int var14 = Mth.floor(this.getZ());
-                    boolean var15 = false;
+                    int var11 = Mth.floor(this.getY());
+                    int var12 = Mth.floor(this.getX());
+                    int var13 = Mth.floor(this.getZ());
+                    boolean var14 = false;
 
-                    for(int var16 = -1; var16 <= 1; ++var16) {
-                        for(int var17 = -1; var17 <= 1; ++var17) {
-                            for(int var18 = 0; var18 <= 3; ++var18) {
-                                int var19 = var13 + var16;
-                                int var20 = var12 + var18;
-                                int var21 = var14 + var17;
-                                BlockPos var22 = new BlockPos(var19, var20, var21);
-                                BlockState var23 = this.level.getBlockState(var22);
-                                if (canDestroy(var23)) {
-                                    var15 = this.level.destroyBlock(var22, true, this) || var15;
+                    for(int var15 = -1; var15 <= 1; ++var15) {
+                        for(int var16 = -1; var16 <= 1; ++var16) {
+                            for(int var17 = 0; var17 <= 3; ++var17) {
+                                int var18 = var12 + var15;
+                                int var19 = var11 + var17;
+                                int var20 = var13 + var16;
+                                BlockPos var21 = new BlockPos(var18, var19, var20);
+                                BlockState var22 = this.level.getBlockState(var21);
+                                if (canDestroy(var22)) {
+                                    var14 = this.level.destroyBlock(var21, true, this) || var14;
                                 }
                             }
                         }
                     }
 
-                    if (var15) {
+                    if (var14) {
                         this.level.levelEvent(null, 1022, this.blockPosition(), 0);
                     }
                 }

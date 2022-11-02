@@ -333,7 +333,7 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.DARK_OAK_SLAB, 5, 20);
         var0.setFlammable(Blocks.MANGROVE_SLAB, 5, 20);
         var0.setFlammable(Blocks.BAMBOO_SLAB, 5, 20);
-        var0.setFlammable(Blocks.BAMBOO_MOSAIC_STAIRS, 5, 20);
+        var0.setFlammable(Blocks.BAMBOO_MOSAIC_SLAB, 5, 20);
         var0.setFlammable(Blocks.OAK_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.SPRUCE_FENCE_GATE, 5, 20);
         var0.setFlammable(Blocks.BIRCH_FENCE_GATE, 5, 20);

@@ -14,7 +14,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
-import net.minecraft.data.worldgen.ProcessorLists;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.StructureManager;
@@ -61,10 +60,6 @@ public class SinglePoolElement extends StructurePoolElement {
         super(param2);
         this.template = param0;
         this.processors = param1;
-    }
-
-    public SinglePoolElement(StructureTemplate param0) {
-        this(Either.right(param0), ProcessorLists.EMPTY, StructureTemplatePool.Projection.RIGID);
     }
 
     @Override

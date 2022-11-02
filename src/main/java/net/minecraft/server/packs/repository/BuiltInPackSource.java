@@ -71,6 +71,7 @@ public abstract class BuiltInPackSource implements RepositorySource {
             try {
                 FolderRepositorySource.discoverPacks(
                     param0,
+                    true,
                     (param1x, param2) -> param1.accept(pathToId(param1x), param1xx -> this.createBuiltinPack(param1xx, param2, this.getPackTitle(param1xx)))
                 );
             } catch (IOException var4) {

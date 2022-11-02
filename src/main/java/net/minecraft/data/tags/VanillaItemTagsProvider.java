@@ -1,5 +1,7 @@
 package net.minecraft.data.tags;
 
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -7,12 +9,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
 public class VanillaItemTagsProvider extends ItemTagsProvider {
-    public VanillaItemTagsProvider(PackOutput param0, TagsProvider<Block> param1) {
-        super(param0, param1);
+    public VanillaItemTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1, TagsProvider<Block> param2) {
+        super(param0, param1, param2);
     }
 
     @Override
-    protected void addTags() {
+    protected void addTags(HolderLookup.Provider param0) {
         this.copy(BlockTags.WOOL, ItemTags.WOOL);
         this.copy(BlockTags.PLANKS, ItemTags.PLANKS);
         this.copy(BlockTags.STRIPPED_LOGS, ItemTags.STRIPPED_LOGS);
@@ -24,6 +26,7 @@ public class VanillaItemTagsProvider extends ItemTagsProvider {
         this.copy(BlockTags.WOODEN_STAIRS, ItemTags.WOODEN_STAIRS);
         this.copy(BlockTags.WOODEN_SLABS, ItemTags.WOODEN_SLABS);
         this.copy(BlockTags.WOODEN_FENCES, ItemTags.WOODEN_FENCES);
+        this.copy(BlockTags.FENCE_GATES, ItemTags.FENCE_GATES);
         this.copy(BlockTags.WOODEN_PRESSURE_PLATES, ItemTags.WOODEN_PRESSURE_PLATES);
         this.copy(BlockTags.DOORS, ItemTags.DOORS);
         this.copy(BlockTags.SAPLINGS, ItemTags.SAPLINGS);
@@ -185,9 +188,7 @@ public class VanillaItemTagsProvider extends ItemTagsProvider {
                 Items.CRIMSON_DOOR,
                 Items.WARPED_DOOR,
                 Items.CRIMSON_SIGN,
-                Items.WARPED_SIGN,
-                Items.WARPED_HANGING_SIGN,
-                Items.CRIMSON_HANGING_SIGN
+                Items.WARPED_SIGN
             );
         this.tag(ItemTags.STONE_TOOL_MATERIALS).add(Items.COBBLESTONE, Items.BLACKSTONE, Items.COBBLED_DEEPSLATE);
         this.tag(ItemTags.STONE_CRAFTING_MATERIALS).add(Items.COBBLESTONE, Items.BLACKSTONE, Items.COBBLED_DEEPSLATE);

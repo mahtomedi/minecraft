@@ -2,15 +2,17 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.features.NetherFeatures;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.lighting.LayerLightEngine;
 
 public class NyliumBlock extends Block implements BonemealableBlock {
@@ -34,7 +36,7 @@ public class NyliumBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(BlockGetter param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
         return param0.getBlockState(param1.above()).isAir();
     }
 
@@ -48,15 +50,27 @@ public class NyliumBlock extends Block implements BonemealableBlock {
         BlockState var0 = param0.getBlockState(param2);
         BlockPos var1 = param2.above();
         ChunkGenerator var2 = param0.getChunkSource().getGenerator();
+        Registry<ConfiguredFeature<?, ?>> var3 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
         if (var0.is(Blocks.CRIMSON_NYLIUM)) {
-            NetherFeatures.CRIMSON_FOREST_VEGETATION_BONEMEAL.value().place(param0, var2, param1, var1);
+            this.place(var3, NetherFeatures.CRIMSON_FOREST_VEGETATION_BONEMEAL, param0, var2, param1, var1);
         } else if (var0.is(Blocks.WARPED_NYLIUM)) {
-            NetherFeatures.WARPED_FOREST_VEGETATION_BONEMEAL.value().place(param0, var2, param1, var1);
-            NetherFeatures.NETHER_SPROUTS_BONEMEAL.value().place(param0, var2, param1, var1);
+            this.place(var3, NetherFeatures.WARPED_FOREST_VEGETATION_BONEMEAL, param0, var2, param1, var1);
+            this.place(var3, NetherFeatures.NETHER_SPROUTS_BONEMEAL, param0, var2, param1, var1);
             if (param1.nextInt(8) == 0) {
-                NetherFeatures.TWISTING_VINES_BONEMEAL.value().place(param0, var2, param1, var1);
+                this.place(var3, NetherFeatures.TWISTING_VINES_BONEMEAL, param0, var2, param1, var1);
             }
         }
 
+    }
+
+    private void place(
+        Registry<ConfiguredFeature<?, ?>> param0,
+        ResourceKey<ConfiguredFeature<?, ?>> param1,
+        ServerLevel param2,
+        ChunkGenerator param3,
+        RandomSource param4,
+        BlockPos param5
+    ) {
+        param0.getHolder(param1).ifPresent(param4x -> param4x.value().place(param2, param3, param4, param5));
     }
 }

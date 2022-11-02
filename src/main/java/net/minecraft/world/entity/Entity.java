@@ -947,10 +947,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
-        if (!param1.getMaterial().isLiquid()) {
-            BlockState var0 = this.level.getBlockState(param0.above());
-            SoundType var1 = var0.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS) ? var0.getSoundType() : param1.getSoundType();
-            this.playSound(var1.getStepSound(), var1.getVolume() * 0.15F, var1.getPitch());
+        BlockState var0 = this.level.getBlockState(param0.above());
+        boolean var1 = var0.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS);
+        if (var1 || !param1.getMaterial().isLiquid()) {
+            SoundType var2 = var1 ? var0.getSoundType() : param1.getSoundType();
+            this.playSound(var2.getStepSound(), var2.getVolume() * 0.15F, var2.getPitch());
         }
     }
 

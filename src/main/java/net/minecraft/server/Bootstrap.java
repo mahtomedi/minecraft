@@ -2,20 +2,16 @@ package net.minecraft.server;
 
 import com.mojang.logging.LogUtils;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.selector.options.EntitySelectorOptions;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -28,8 +24,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.levelgen.placement.BiomeFilter;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import org.slf4j.Logger;
 
 public class Bootstrap {
@@ -119,34 +113,9 @@ public class Bootstrap {
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             getMissingTranslations().forEach(param0 -> LOGGER.error("Missing translations: {}", param0));
             Commands.validate();
-            validateThatAllBiomeFeaturesHaveBiomeFilter();
         }
 
         DefaultAttributes.validate();
-    }
-
-    private static void validateThatAllBiomeFeaturesHaveBiomeFilter() {
-        BuiltinRegistries.BIOME
-            .stream()
-            .forEach(
-                param0 -> {
-                    List<HolderSet<PlacedFeature>> var0 = param0.getGenerationSettings().features();
-                    var0.stream()
-                        .flatMap(HolderSet::stream)
-                        .forEach(
-                            param0x -> {
-                                if (!((PlacedFeature)param0x.value()).placement().contains(BiomeFilter.biome())) {
-                                    Util.logAndPauseIfInIde(
-                                        "Placed feature "
-                                            + BuiltinRegistries.PLACED_FEATURE.getResourceKey((PlacedFeature)param0x.value())
-                                            + " is missing BiomeFilter.biome()"
-                                    );
-                                }
-                
-                            }
-                        );
-                }
-            );
     }
 
     private static void wrapStreams() {

@@ -1,18 +1,20 @@
 package net.minecraft.data.tags;
 
-import net.minecraft.data.BuiltinRegistries;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.WorldPresetTags;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 
 public class WorldPresetTagsProvider extends TagsProvider<WorldPreset> {
-    public WorldPresetTagsProvider(PackOutput param0) {
-        super(param0, BuiltinRegistries.WORLD_PRESET);
+    public WorldPresetTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
+        super(param0, Registry.WORLD_PRESET_REGISTRY, param1);
     }
 
     @Override
-    protected void addTags() {
+    protected void addTags(HolderLookup.Provider param0) {
         this.tag(WorldPresetTags.NORMAL)
             .add(WorldPresets.NORMAL)
             .add(WorldPresets.FLAT)

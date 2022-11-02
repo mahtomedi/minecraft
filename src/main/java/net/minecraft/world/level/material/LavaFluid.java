@@ -188,8 +188,8 @@ public abstract class LavaFluid extends FlowingFluid {
     }
 
     @Override
-    protected boolean canConvertToSource() {
-        return false;
+    protected boolean canConvertToSource(Level param0) {
+        return param0.getGameRules().getBoolean(GameRules.RULE_LAVA_SOURCE_CONVERSION);
     }
 
     @Override

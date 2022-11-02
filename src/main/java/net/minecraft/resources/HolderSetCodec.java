@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
@@ -47,12 +49,12 @@ public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
     @Override
     public <T> DataResult<Pair<HolderSet<E>, T>> decode(DynamicOps<T> param0, T param1) {
         if (param0 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            Optional<HolderGetter<E>> var1 = var0.getter(this.registryKey);
             if (var1.isPresent()) {
-                Registry<E> var2 = var1.get();
+                HolderGetter<E> var2 = var1.get();
                 return this.registryAwareCodec
                     .decode(param0, param1)
-                    .map(param1x -> param1x.mapFirst(param1xx -> param1xx.map(var2::getOrCreateTag, HolderSet::direct)));
+                    .map(param1x -> param1x.mapFirst(param1xx -> param1xx.map(var2::getOrThrow, HolderSet::direct)));
             }
         }
 
@@ -61,9 +63,9 @@ public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
 
     public <T> DataResult<T> encode(HolderSet<E> param0, DynamicOps<T> param1, T param2) {
         if (param1 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            Optional<HolderOwner<E>> var1 = var0.owner(this.registryKey);
             if (var1.isPresent()) {
-                if (!param0.isValidInRegistry(var1.get())) {
+                if (!param0.canSerializeIn(var1.get())) {
                     return DataResult.error("HolderSet " + param0 + " is not valid in current registry set");
                 }
 

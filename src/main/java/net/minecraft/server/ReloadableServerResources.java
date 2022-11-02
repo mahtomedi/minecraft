@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 public class ReloadableServerResources {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final CompletableFuture<Unit> DATA_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
-    private final CommandBuildContext commandBuildContext;
+    private final CommandBuildContext.Configurable commandBuildContext;
     private final Commands commands;
     private final RecipeManager recipes = new RecipeManager();
     private final TagManager tagManager;
@@ -41,7 +41,7 @@ public class ReloadableServerResources {
 
     public ReloadableServerResources(RegistryAccess.Frozen param0, FeatureFlagSet param1, Commands.CommandSelection param2, int param3) {
         this.tagManager = new TagManager(param0);
-        this.commandBuildContext = new CommandBuildContext(param0, param1);
+        this.commandBuildContext = CommandBuildContext.configurable(param0, param1);
         this.commands = new Commands(param2, this.commandBuildContext);
         this.commandBuildContext.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.CREATE_NEW);
         this.functionLibrary = new ServerFunctionLibrary(param3, this.commands.getDispatcher());

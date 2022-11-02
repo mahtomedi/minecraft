@@ -27,7 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
@@ -40,7 +39,6 @@ import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
 import org.slf4j.Logger;
 
 public class DedicatedServerProperties extends Settings<DedicatedServerProperties> {
@@ -106,7 +104,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         super(param0);
         String var0 = this.get("level-seed", "");
         boolean var1 = this.get("generate-structures", true);
-        long var2 = WorldOptions.parseSeed(var0).orElse(RandomSource.create().nextLong());
+        long var2 = WorldOptions.parseSeedOrElseRandom(var0);
         this.worldOptions = new WorldOptions(var2, var1, false);
         this.worldDimensionData = new DedicatedServerProperties.WorldDimensionData(
             this.get("generator-settings", param0x -> GsonHelper.parse(!param0x.isEmpty() ? param0x : "{}"), new JsonObject()),
@@ -225,8 +223,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
                     .parse(new Dynamic<>(var4, this.generatorSettings()))
                     .resultOrPartial(DedicatedServerProperties.LOGGER::error);
                 if (var5.isPresent()) {
-                    Registry<StructureSet> var6 = param0.registryOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-                    return var3.replaceOverworldGenerator(param0, new FlatLevelSource(var6, var5.get()));
+                    return var3.replaceOverworldGenerator(param0, new FlatLevelSource(var5.get()));
                 }
             }
 

@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
@@ -97,7 +96,7 @@ public class EndCrystal extends Entity {
                 this.remove(Entity.RemovalReason.KILLED);
                 if (!param0.isExplosion()) {
                     DamageSource var0 = param0.getEntity() != null ? DamageSource.explosion(this, param0.getEntity()) : null;
-                    this.level.explode(this, var0, null, this.getX(), this.getY(), this.getZ(), 6.0F, false, Explosion.BlockInteraction.DESTROY);
+                    this.level.explode(this, var0, null, this.getX(), this.getY(), this.getZ(), 6.0F, false, Level.ExplosionInteraction.BLOCK);
                 }
 
                 this.onDestroyedBy(param0);

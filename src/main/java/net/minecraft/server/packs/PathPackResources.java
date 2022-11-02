@@ -25,8 +25,8 @@ public class PathPackResources extends AbstractPackResources {
     private static final Joiner PATH_JOINER = Joiner.on("/");
     private final Path root;
 
-    public PathPackResources(String param0, Path param1) {
-        super(param0);
+    public PathPackResources(String param0, Path param1, boolean param2) {
+        super(param0, param2);
         this.root = param1;
     }
 

@@ -73,6 +73,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private boolean hasClickedOutside;
     private final Set<TagKey<Item>> visibleTags = new HashSet<>();
     private final FeatureFlagSet enabledFeatures;
+    private Set<ItemStack> searchTabDisplayList = Set.of();
 
     public CreativeModeInventoryScreen(Player param0, FeatureFlagSet param1) {
         super(new CreativeModeInventoryScreen.ItemPickerMenu(param0), param0.getInventory(), CommonComponents.EMPTY);
@@ -340,7 +341,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         this.visibleTags.clear();
         String var0 = this.searchBox.getValue();
         if (var0.isEmpty()) {
-            this.menu.items.addAll(CreativeModeTabs.TAB_SEARCH.getDisplayItems(this.enabledFeatures));
+            this.menu.items.addAll(this.searchTabDisplayList);
         } else {
             SearchTree<ItemStack> var1;
             if (var0.startsWith("#")) {
@@ -453,8 +454,10 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                     this.menu.items.addAll(var3);
                 }
             }
-        } else if (param0 != CreativeModeTabs.TAB_SEARCH) {
-            this.menu.items.addAll(param0.getDisplayItems(this.enabledFeatures));
+        } else if (param0 == CreativeModeTabs.TAB_SEARCH) {
+            this.searchTabDisplayList = CreativeModeTabs.TAB_SEARCH.getDisplayItems(this.enabledFeatures, this.minecraft.player.canUseGameMasterBlocks());
+        } else {
+            this.menu.items.addAll(param0.getDisplayItems(this.enabledFeatures, this.minecraft.player.canUseGameMasterBlocks()));
         }
 
         if (param0 == CreativeModeTabs.TAB_INVENTORY) {
@@ -610,7 +613,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             int var2 = 1;
 
             for(CreativeModeTab var3 : CreativeModeTabs.TABS) {
-                if (var3 != CreativeModeTabs.TAB_SEARCH && var3.contains(this.enabledFeatures, param1)) {
+                if (var3 != CreativeModeTabs.TAB_SEARCH && var3.contains(this.enabledFeatures, param1, this.minecraft.player.canUseGameMasterBlocks())) {
                     var1.add(var2++, var3.getDisplayName().copy().withStyle(ChatFormatting.BLUE));
                 }
             }

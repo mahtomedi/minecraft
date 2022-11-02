@@ -3,6 +3,8 @@ package net.minecraft.world.level.block.grower;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -13,25 +15,30 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public abstract class AbstractTreeGrower {
     @Nullable
-    protected abstract Holder<? extends ConfiguredFeature<?, ?>> getConfiguredFeature(RandomSource var1, boolean var2);
+    protected abstract ResourceKey<ConfiguredFeature<?, ?>> getConfiguredFeature(RandomSource var1, boolean var2);
 
     public boolean growTree(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, RandomSource param4) {
-        Holder<? extends ConfiguredFeature<?, ?>> var0 = this.getConfiguredFeature(param4, this.hasFlowers(param0, param2));
+        ResourceKey<ConfiguredFeature<?, ?>> var0 = this.getConfiguredFeature(param4, this.hasFlowers(param0, param2));
         if (var0 == null) {
             return false;
         } else {
-            ConfiguredFeature<?, ?> var1 = var0.value();
-            BlockState var2 = param0.getFluidState(param2).createLegacyBlock();
-            param0.setBlock(param2, var2, 4);
-            if (var1.place(param0, param1, param4, param2)) {
-                if (param0.getBlockState(param2) == var2) {
-                    param0.sendBlockUpdated(param2, param3, var2, 2);
-                }
-
-                return true;
-            } else {
-                param0.setBlock(param2, param3, 4);
+            Holder<ConfiguredFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).getHolder(var0).orElse(null);
+            if (var1 == null) {
                 return false;
+            } else {
+                ConfiguredFeature<?, ?> var2 = var1.value();
+                BlockState var3 = param0.getFluidState(param2).createLegacyBlock();
+                param0.setBlock(param2, var3, 4);
+                if (var2.place(param0, param1, param4, param2)) {
+                    if (param0.getBlockState(param2) == var3) {
+                        param0.sendBlockUpdated(param2, param3, var3, 2);
+                    }
+
+                    return true;
+                } else {
+                    param0.setBlock(param2, param3, 4);
+                    return false;
+                }
             }
         }
     }

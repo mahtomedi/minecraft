@@ -1,6 +1,9 @@
 package net.minecraft.data.tags;
 
-import net.minecraft.data.BuiltinRegistries;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
@@ -8,12 +11,12 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 
 public class BiomeTagsProvider extends TagsProvider<Biome> {
-    public BiomeTagsProvider(PackOutput param0) {
-        super(param0, BuiltinRegistries.BIOME);
+    public BiomeTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
+        super(param0, Registry.BIOME_REGISTRY, param1);
     }
 
     @Override
-    protected void addTags() {
+    protected void addTags(HolderLookup.Provider param0) {
         this.tag(BiomeTags.IS_DEEP_OCEAN).add(Biomes.DEEP_FROZEN_OCEAN).add(Biomes.DEEP_COLD_OCEAN).add(Biomes.DEEP_OCEAN).add(Biomes.DEEP_LUKEWARM_OCEAN);
         this.tag(BiomeTags.IS_OCEAN)
             .addTag(BiomeTags.IS_DEEP_OCEAN)
@@ -37,10 +40,11 @@ public class BiomeTagsProvider extends TagsProvider<Biome> {
             .add(Biomes.DARK_FOREST)
             .add(Biomes.GROVE);
         this.tag(BiomeTags.IS_SAVANNA).add(Biomes.SAVANNA).add(Biomes.SAVANNA_PLATEAU).add(Biomes.WINDSWEPT_SAVANNA);
-        TagsProvider.TagAppender<Biome> var0 = this.tag(BiomeTags.IS_NETHER);
-        MultiNoiseBiomeSource.Preset.NETHER.possibleBiomes().forEach(param1 -> var0.add(param1));
-        TagsProvider.TagAppender<Biome> var1 = this.tag(BiomeTags.IS_OVERWORLD);
-        MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes().forEach(param1 -> var1.add(param1));
+        HolderGetter<Biome> var0 = param0.lookupOrThrow(Registry.BIOME_REGISTRY);
+        TagsProvider.TagAppender<Biome> var1 = this.tag(BiomeTags.IS_NETHER);
+        MultiNoiseBiomeSource.Preset.NETHER.possibleBiomes(var0).forEach(var1::add);
+        TagsProvider.TagAppender<Biome> var2 = this.tag(BiomeTags.IS_OVERWORLD);
+        MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes(var0).forEach(var2::add);
         this.tag(BiomeTags.IS_END).add(Biomes.THE_END).add(Biomes.END_HIGHLANDS).add(Biomes.END_MIDLANDS).add(Biomes.SMALL_END_ISLANDS).add(Biomes.END_BARRENS);
         this.tag(BiomeTags.HAS_BURIED_TREASURE).addTag(BiomeTags.IS_BEACH);
         this.tag(BiomeTags.HAS_DESERT_PYRAMID).add(Biomes.DESERT);

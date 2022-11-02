@@ -328,7 +328,7 @@ public class PiglinAi {
         } else if (isFood(var0) && !hasEatenRecently(param0)) {
             eat(param0);
         } else {
-            boolean var2 = param0.equipItemIfPossible(var0);
+            boolean var2 = !param0.equipItemIfPossible(var0).equals(ItemStack.EMPTY);
             if (!var2) {
                 putInInventory(param0, var0);
             }
@@ -363,13 +363,13 @@ public class PiglinAi {
             if (param1 && var1) {
                 throwItems(param0, getBarterResponseItems(param0));
             } else if (!var1) {
-                boolean var2 = param0.equipItemIfPossible(var0);
+                boolean var2 = !param0.equipItemIfPossible(var0).isEmpty();
                 if (!var2) {
                     putInInventory(param0, var0);
                 }
             }
         } else {
-            boolean var3 = param0.equipItemIfPossible(var0);
+            boolean var3 = !param0.equipItemIfPossible(var0).isEmpty();
             if (!var3) {
                 ItemStack var4 = param0.getMainHandItem();
                 if (isLovedItem(var4)) {

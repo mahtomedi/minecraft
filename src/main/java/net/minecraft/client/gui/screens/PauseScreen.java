@@ -124,7 +124,7 @@ public class PauseScreen extends Screen {
 
         ++var5;
         Component var8 = this.minecraft.isLocalServer() ? Component.translatable("menu.returnToMenu") : Component.translatable("menu.disconnect");
-        var2.addChild(Button.builder(var8, param0 -> {
+        this.disconnectButton = var2.addChild(Button.builder(var8, param0 -> {
             if (this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, true)) {
                 boolean var0x = this.minecraft.isLocalServer();
                 boolean var1x = this.minecraft.isConnectedToRealms();

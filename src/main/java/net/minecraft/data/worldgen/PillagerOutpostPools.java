@@ -3,34 +3,38 @@ package net.minecraft.data.worldgen;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 
 public class PillagerOutpostPools {
-    public static final Holder<StructureTemplatePool> START = Pools.register(
-        new StructureTemplatePool(
-            new ResourceLocation("pillager_outpost/base_plates"),
-            new ResourceLocation("empty"),
-            ImmutableList.of(Pair.of(StructurePoolElement.legacy("pillager_outpost/base_plate"), 1)),
-            StructureTemplatePool.Projection.RIGID
-        )
-    );
+    public static final ResourceKey<StructureTemplatePool> START = Pools.createKey("pillager_outpost/base_plates");
 
-    public static void bootstrap() {
-    }
-
-    static {
-        Pools.register(
+    public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
+        HolderGetter<StructureProcessorList> var0 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        Holder<StructureProcessorList> var1 = var0.getOrThrow(ProcessorLists.OUTPOST_ROT);
+        HolderGetter<StructureTemplatePool> var2 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        Holder<StructureTemplatePool> var3 = var2.getOrThrow(Pools.EMPTY);
+        param0.register(
+            START,
             new StructureTemplatePool(
-                new ResourceLocation("pillager_outpost/towers"),
-                new ResourceLocation("empty"),
+                var3, ImmutableList.of(Pair.of(StructurePoolElement.legacy("pillager_outpost/base_plate"), 1)), StructureTemplatePool.Projection.RIGID
+            )
+        );
+        Pools.register(
+            param0,
+            "pillager_outpost/towers",
+            new StructureTemplatePool(
+                var3,
                 ImmutableList.of(
                     Pair.of(
                         StructurePoolElement.list(
                             ImmutableList.of(
                                 StructurePoolElement.legacy("pillager_outpost/watchtower"),
-                                StructurePoolElement.legacy("pillager_outpost/watchtower_overgrown", ProcessorLists.OUTPOST_ROT)
+                                StructurePoolElement.legacy("pillager_outpost/watchtower_overgrown", var1)
                             )
                         ),
                         1
@@ -40,17 +44,19 @@ public class PillagerOutpostPools {
             )
         );
         Pools.register(
+            param0,
+            "pillager_outpost/feature_plates",
             new StructureTemplatePool(
-                new ResourceLocation("pillager_outpost/feature_plates"),
-                new ResourceLocation("empty"),
+                var3,
                 ImmutableList.of(Pair.of(StructurePoolElement.legacy("pillager_outpost/feature_plate"), 1)),
                 StructureTemplatePool.Projection.TERRAIN_MATCHING
             )
         );
         Pools.register(
+            param0,
+            "pillager_outpost/features",
             new StructureTemplatePool(
-                new ResourceLocation("pillager_outpost/features"),
-                new ResourceLocation("empty"),
+                var3,
                 ImmutableList.of(
                     Pair.of(StructurePoolElement.legacy("pillager_outpost/feature_cage1"), 1),
                     Pair.of(StructurePoolElement.legacy("pillager_outpost/feature_cage2"), 1),

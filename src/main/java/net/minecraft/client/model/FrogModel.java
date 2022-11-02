@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FrogModel<T extends Frog> extends HierarchicalModel<T> {
-    private static final float WALK_ANIMATION_SPEED_FACTOR = 200.0F;
+    private static final float WALK_ANIMATION_SPEED_FACTOR = 9000.0F;
     public static final float MAX_WALK_ANIMATION_SPEED = 8.0F;
     private final ModelPart root;
     private final ModelPart body;
@@ -98,7 +98,7 @@ public class FrogModel<T extends Frog> extends HierarchicalModel<T> {
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
-        float var0 = Math.min((float)param0.getDeltaMovement().lengthSqr() * 200.0F, 8.0F);
+        float var0 = Math.min((float)param0.getDeltaMovement().horizontalDistanceSqr() * 9000.0F, 8.0F);
         this.animate(param0.jumpAnimationState, FrogAnimation.FROG_JUMP, param3);
         this.animate(param0.croakAnimationState, FrogAnimation.FROG_CROAK, param3);
         this.animate(param0.tongueAnimationState, FrogAnimation.FROG_TONGUE, param3);

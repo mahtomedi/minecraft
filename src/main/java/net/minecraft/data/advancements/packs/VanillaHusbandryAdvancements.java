@@ -27,6 +27,7 @@ import net.minecraft.advancements.critereon.PlacedBlockTrigger;
 import net.minecraft.advancements.critereon.PlayerInteractTrigger;
 import net.minecraft.advancements.critereon.StartRidingTrigger;
 import net.minecraft.advancements.critereon.TameAnimalTrigger;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
@@ -113,7 +114,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
     };
 
     @Override
-    public void generate(Consumer<Advancement> param0) {
+    public void generate(HolderLookup.Provider param0, Consumer<Advancement> param1) {
         Advancement var0 = Advancement.Builder.advancement()
             .display(
                 Blocks.HAY_BLOCK,
@@ -126,7 +127,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("consumed_item", ConsumeItemTrigger.TriggerInstance.usedItem())
-            .save(param0, "husbandry/root");
+            .save(param1, "husbandry/root");
         Advancement var1 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -145,7 +146,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .addCriterion("melon_stem", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.MELON_STEM))
             .addCriterion("beetroots", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.BEETROOTS))
             .addCriterion("nether_wart", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.NETHER_WART))
-            .save(param0, "husbandry/plant_seed");
+            .save(param1, "husbandry/plant_seed");
         Advancement var2 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -160,7 +161,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             )
             .requirements(RequirementsStrategy.OR)
             .addCriterion("bred", BredAnimalsTrigger.TriggerInstance.bredAnimals())
-            .save(param0, "husbandry/breed_an_animal");
+            .save(param1, "husbandry/breed_an_animal");
         this.addFood(Advancement.Builder.advancement())
             .parent(var1)
             .display(
@@ -174,7 +175,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 false
             )
             .rewards(AdvancementRewards.Builder.experience(100))
-            .save(param0, "husbandry/balanced_diet");
+            .save(param1, "husbandry/balanced_diet");
         Advancement.Builder.advancement()
             .parent(var1)
             .display(
@@ -189,7 +190,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             )
             .rewards(AdvancementRewards.Builder.experience(100))
             .addCriterion("netherite_hoe", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_HOE))
-            .save(param0, "husbandry/obtain_netherite_hoe");
+            .save(param1, "husbandry/obtain_netherite_hoe");
         Advancement var3 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -203,7 +204,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("tamed_animal", TameAnimalTrigger.TriggerInstance.tamedAnimal())
-            .save(param0, "husbandry/tame_an_animal");
+            .save(param1, "husbandry/tame_an_animal");
         this.addBreedable(Advancement.Builder.advancement())
             .parent(var2)
             .display(
@@ -217,7 +218,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 false
             )
             .rewards(AdvancementRewards.Builder.experience(100))
-            .save(param0, "husbandry/bred_all_animals");
+            .save(param1, "husbandry/bred_all_animals");
         Advancement var4 = this.addFish(Advancement.Builder.advancement())
             .parent(var0)
             .requirements(RequirementsStrategy.OR)
@@ -231,7 +232,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/fishy_business");
+            .save(param1, "husbandry/fishy_business");
         Advancement var5 = this.addFishBuckets(Advancement.Builder.advancement())
             .parent(var4)
             .requirements(RequirementsStrategy.OR)
@@ -245,7 +246,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/tactical_fishing");
+            .save(param1, "husbandry/tactical_fishing");
         Advancement var6 = Advancement.Builder.advancement()
             .parent(var5)
             .requirements(RequirementsStrategy.OR)
@@ -263,7 +264,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/axolotl_in_a_bucket");
+            .save(param1, "husbandry/axolotl_in_a_bucket");
         Advancement.Builder.advancement()
             .parent(var6)
             .addCriterion(
@@ -279,7 +280,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/kill_axolotl_target");
+            .save(param1, "husbandry/kill_axolotl_target");
         this.addCatVariants(Advancement.Builder.advancement())
             .parent(var3)
             .display(
@@ -293,7 +294,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 false
             )
             .rewards(AdvancementRewards.Builder.experience(50))
-            .save(param0, "husbandry/complete_catalogue");
+            .save(param1, "husbandry/complete_catalogue");
         Advancement var7 = Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
@@ -313,7 +314,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/safely_harvest_honey");
+            .save(param1, "husbandry/safely_harvest_honey");
         Advancement var8 = Advancement.Builder.advancement()
             .parent(var7)
             .display(
@@ -333,7 +334,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     ItemPredicate.Builder.item().of(Items.HONEYCOMB)
                 )
             )
-            .save(param0, "husbandry/wax_on");
+            .save(param1, "husbandry/wax_on");
         Advancement.Builder.advancement()
             .parent(var8)
             .display(
@@ -353,7 +354,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     ItemPredicate.Builder.item().of(WAX_SCRAPING_TOOLS)
                 )
             )
-            .save(param0, "husbandry/wax_off");
+            .save(param1, "husbandry/wax_off");
         Advancement var9 = Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
@@ -370,7 +371,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/tadpole_in_a_bucket");
+            .save(param1, "husbandry/tadpole_in_a_bucket");
         Advancement var10 = this.addLeashedFrogVariants(Advancement.Builder.advancement())
             .parent(var9)
             .display(
@@ -383,7 +384,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/leash_all_frog_variants");
+            .save(param1, "husbandry/leash_all_frog_variants");
         Advancement.Builder.advancement()
             .parent(var10)
             .display(
@@ -399,7 +400,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "froglights", InventoryChangeTrigger.TriggerInstance.hasItems(Items.OCHRE_FROGLIGHT, Items.PEARLESCENT_FROGLIGHT, Items.VERDANT_FROGLIGHT)
             )
-            .save(param0, "husbandry/froglights");
+            .save(param1, "husbandry/froglights");
         Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
@@ -420,7 +421,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .save(param0, "husbandry/silk_touch_nest");
+            .save(param1, "husbandry/silk_touch_nest");
         Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -445,7 +446,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                         )
                 )
             )
-            .save(param0, "husbandry/ride_a_boat_with_a_goat");
+            .save(param1, "husbandry/ride_a_boat_with_a_goat");
         Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -465,7 +466,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     ItemPredicate.Builder.item().of(Items.GLOW_INK_SAC)
                 )
             )
-            .save(param0, "husbandry/make_a_sign_glow");
+            .save(param1, "husbandry/make_a_sign_glow");
         Advancement var11 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -486,7 +487,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     EntityPredicate.Composite.wrap(EntityPredicate.Builder.entity().of(EntityType.ALLAY).build())
                 )
             )
-            .save(param0, "husbandry/allay_deliver_item_to_player");
+            .save(param1, "husbandry/allay_deliver_item_to_player");
         Advancement.Builder.advancement()
             .parent(var11)
             .display(
@@ -506,7 +507,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     ItemPredicate.Builder.item().of(Items.CAKE)
                 )
             )
-            .save(param0, "husbandry/allay_deliver_cake_to_note_block");
+            .save(param1, "husbandry/allay_deliver_cake_to_note_block");
     }
 
     private Advancement.Builder addLeashedFrogVariants(Advancement.Builder param0) {

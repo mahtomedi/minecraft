@@ -59,7 +59,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
 
     public static Registry<LevelStem> withOverworld(Registry<DimensionType> param0, Registry<LevelStem> param1, ChunkGenerator param2) {
         LevelStem var0 = param1.get(LevelStem.OVERWORLD);
-        Holder<DimensionType> var1 = (Holder<DimensionType>)(var0 == null ? param0.getOrCreateHolderOrThrow(BuiltinDimensionTypes.OVERWORLD) : var0.type());
+        Holder<DimensionType> var1 = (Holder<DimensionType>)(var0 == null ? param0.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD) : var0.type());
         return withOverworld(param1, var1, param2);
     }
 

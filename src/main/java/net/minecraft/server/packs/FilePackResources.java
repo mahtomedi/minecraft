@@ -28,8 +28,8 @@ public class FilePackResources extends AbstractPackResources {
     private ZipFile zipFile;
     private boolean failedToLoad;
 
-    public FilePackResources(String param0, File param1) {
-        super(param0);
+    public FilePackResources(String param0, File param1, boolean param2) {
+        super(param0, param2);
         this.file = param1;
     }
 

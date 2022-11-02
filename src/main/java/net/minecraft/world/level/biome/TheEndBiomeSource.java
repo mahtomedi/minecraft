@@ -4,15 +4,21 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.QuartPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
 public class TheEndBiomeSource extends BiomeSource {
     public static final Codec<TheEndBiomeSource> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(RegistryOps.retrieveRegistry(Registry.BIOME_REGISTRY).forGetter(param0x -> null))
+        param0 -> param0.group(
+                    RegistryOps.retrieveElement(Biomes.THE_END),
+                    RegistryOps.retrieveElement(Biomes.END_HIGHLANDS),
+                    RegistryOps.retrieveElement(Biomes.END_MIDLANDS),
+                    RegistryOps.retrieveElement(Biomes.SMALL_END_ISLANDS),
+                    RegistryOps.retrieveElement(Biomes.END_BARRENS)
+                )
                 .apply(param0, param0.stable(TheEndBiomeSource::new))
     );
     private final Holder<Biome> end;
@@ -21,13 +27,13 @@ public class TheEndBiomeSource extends BiomeSource {
     private final Holder<Biome> islands;
     private final Holder<Biome> barrens;
 
-    public TheEndBiomeSource(Registry<Biome> param0) {
-        this(
-            param0.getOrCreateHolderOrThrow(Biomes.THE_END),
-            param0.getOrCreateHolderOrThrow(Biomes.END_HIGHLANDS),
-            param0.getOrCreateHolderOrThrow(Biomes.END_MIDLANDS),
-            param0.getOrCreateHolderOrThrow(Biomes.SMALL_END_ISLANDS),
-            param0.getOrCreateHolderOrThrow(Biomes.END_BARRENS)
+    public static TheEndBiomeSource create(HolderGetter<Biome> param0) {
+        return new TheEndBiomeSource(
+            param0.getOrThrow(Biomes.THE_END),
+            param0.getOrThrow(Biomes.END_HIGHLANDS),
+            param0.getOrThrow(Biomes.END_MIDLANDS),
+            param0.getOrThrow(Biomes.SMALL_END_ISLANDS),
+            param0.getOrThrow(Biomes.END_BARRENS)
         );
     }
 

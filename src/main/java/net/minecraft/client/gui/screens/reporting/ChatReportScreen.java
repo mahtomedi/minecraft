@@ -301,15 +301,15 @@ public class ChatReportScreen extends Screen {
         @Override
         protected void initButtons(int param0) {
             int var0 = 150;
-            this.addRenderableWidget(Button.builder(RETURN, param0x -> this.onClose()).bounds(this.width / 2 - 245, 100 + param0, 150, 20).build());
+            this.addRenderableWidget(Button.builder(RETURN, param0x -> this.onClose()).bounds(this.width / 2 - 155, 100 + param0, 150, 20).build());
             this.addRenderableWidget(Button.builder(DRAFT, param0x -> {
                 ChatReportScreen.this.saveDraft();
                 this.minecraft.setScreen(ChatReportScreen.this.lastScreen);
-            }).bounds(this.width / 2 - 75, 100 + param0, 150, 20).build());
+            }).bounds(this.width / 2 + 5, 100 + param0, 150, 20).build());
             this.addRenderableWidget(Button.builder(DISCARD, param0x -> {
                 ChatReportScreen.this.clearDraft();
                 this.minecraft.setScreen(ChatReportScreen.this.lastScreen);
-            }).bounds(this.width / 2 + 95, 100 + param0, 150, 20).build());
+            }).bounds(this.width / 2 - 75, 130 + param0, 150, 20).build());
         }
 
         @Override

@@ -7,6 +7,8 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.util.Optional;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
 
 public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
@@ -22,9 +24,9 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
 
     public <T> DataResult<T> encode(Holder<E> param0, DynamicOps<T> param1, T param2) {
         if (param1 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            Optional<HolderOwner<E>> var1 = var0.owner(this.registryKey);
             if (var1.isPresent()) {
-                if (!param0.isValidInRegistry(var1.get())) {
+                if (!param0.canSerializeIn(var1.get())) {
                     return DataResult.error("Element " + param0 + " is not valid in current registry set");
                 }
 
@@ -42,13 +44,21 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
     @Override
     public <T> DataResult<Pair<Holder<E>, T>> decode(DynamicOps<T> param0, T param1) {
         if (param0 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            Optional<HolderGetter<E>> var1 = var0.getter(this.registryKey);
             if (var1.isPresent()) {
-                return ResourceLocation.CODEC.decode(param0, param1).flatMap(param1x -> {
-                    ResourceLocation var0x = param1x.getFirst();
-                    DataResult<? extends Holder<E>> var1x = var1.get().getOrCreateHolder(ResourceKey.create(this.registryKey, var0x));
-                    return var1x.<Pair<Holder<E>, T>>map(param1xx -> Pair.of(param1xx, (T)param1x.getSecond())).setLifecycle(Lifecycle.stable());
-                });
+                return ResourceLocation.CODEC
+                    .decode(param0, param1)
+                    .flatMap(
+                        param1x -> {
+                            ResourceLocation var0x = param1x.getFirst();
+                            return var1.get()
+                                .get(ResourceKey.create(this.registryKey, var0x))
+                                .map(DataResult::success)
+                                .orElseGet(() -> DataResult.error("Failed to get element " + var0x))
+                                .<Pair<? super Holder.Reference<E>, T>>map(param1xx -> Pair.of(param1xx, (T)param1x.getSecond()))
+                                .setLifecycle(Lifecycle.stable());
+                        }
+                    );
             }
         }
 

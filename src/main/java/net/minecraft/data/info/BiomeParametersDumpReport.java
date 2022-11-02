@@ -8,9 +8,9 @@ import com.mojang.serialization.JsonOps;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -23,20 +23,23 @@ import org.slf4j.Logger;
 public class BiomeParametersDumpReport implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Path topPath;
+    private final CompletableFuture<HolderLookup.Provider> registries;
 
-    public BiomeParametersDumpReport(PackOutput param0) {
+    public BiomeParametersDumpReport(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
         this.topPath = param0.getOutputFolder(PackOutput.Target.REPORTS).resolve("biome_parameters");
+        this.registries = param1;
     }
 
     @Override
     public CompletableFuture<?> run(CachedOutput param0) {
-        RegistryAccess var0 = BuiltinRegistries.createAccess();
-        DynamicOps<JsonElement> var1 = RegistryOps.create(JsonOps.INSTANCE, var0);
-        Registry<Biome> var2 = var0.registryOrThrow(Registry.BIOME_REGISTRY);
-        return CompletableFuture.allOf(MultiNoiseBiomeSource.Preset.getPresets().map(param3 -> {
-            MultiNoiseBiomeSource var0x = param3.getSecond().biomeSource(var2, false);
-            return dumpValue(this.createPath(param3.getFirst()), param0, var1, MultiNoiseBiomeSource.CODEC, var0x);
-        }).toArray(param0x -> new CompletableFuture[param0x]));
+        return this.registries.thenCompose(param1 -> {
+            DynamicOps<JsonElement> var0 = RegistryOps.create(JsonOps.INSTANCE, param1);
+            HolderGetter<Biome> var1x = param1.lookupOrThrow(Registry.BIOME_REGISTRY);
+            return CompletableFuture.allOf(MultiNoiseBiomeSource.Preset.getPresets().map(param3 -> {
+                MultiNoiseBiomeSource var0x = param3.getSecond().biomeSource(var1x, false);
+                return dumpValue(this.createPath(param3.getFirst()), param0, var0, MultiNoiseBiomeSource.CODEC, var0x);
+            }).toArray(param0x -> new CompletableFuture[param0x]));
+        });
     }
 
     private static <E> CompletableFuture<?> dumpValue(Path param0, CachedOutput param1, DynamicOps<JsonElement> param2, Encoder<E> param3, E param4) {

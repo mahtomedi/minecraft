@@ -1,18 +1,18 @@
 package net.minecraft.data.worldgen;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class NoiseData {
-    public static Holder<NormalNoise.NoiseParameters> bootstrap(Registry<NormalNoise.NoiseParameters> param0) {
+    @Deprecated
+    public static final NormalNoise.NoiseParameters DEFAULT_SHIFT = new NormalNoise.NoiseParameters(-3, 1.0, 1.0, 1.0, 0.0);
+
+    public static void bootstrap(BootstapContext<NormalNoise.NoiseParameters> param0) {
         registerBiomeNoises(param0, 0, Noises.TEMPERATURE, Noises.VEGETATION, Noises.CONTINENTALNESS, Noises.EROSION);
         registerBiomeNoises(param0, -2, Noises.TEMPERATURE_LARGE, Noises.VEGETATION_LARGE, Noises.CONTINENTALNESS_LARGE, Noises.EROSION_LARGE);
         register(param0, Noises.RIDGE, -7, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0);
-        register(param0, Noises.SHIFT, -3, 1.0, 1.0, 1.0, 0.0);
+        param0.register(Noises.SHIFT, DEFAULT_SHIFT);
         register(param0, Noises.AQUIFER_BARRIER, -3, 1.0);
         register(param0, Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS, -7, 1.0);
         register(param0, Noises.AQUIFER_LAVA, -1, 1.0);
@@ -62,11 +62,11 @@ public class NoiseData {
         register(param0, Noises.PATCH, -5, 1.0, 0.0, 0.0, 0.0, 0.0, 0.013333333333333334);
         register(param0, Noises.NETHERRACK, -3, 1.0, 0.0, 0.0, 0.35);
         register(param0, Noises.NETHER_WART, -3, 1.0, 0.0, 0.0, 0.9);
-        return register(param0, Noises.NETHER_STATE_SELECTOR, -4, 1.0);
+        register(param0, Noises.NETHER_STATE_SELECTOR, -4, 1.0);
     }
 
     private static void registerBiomeNoises(
-        Registry<NormalNoise.NoiseParameters> param0,
+        BootstapContext<NormalNoise.NoiseParameters> param0,
         int param1,
         ResourceKey<NormalNoise.NoiseParameters> param2,
         ResourceKey<NormalNoise.NoiseParameters> param3,
@@ -79,9 +79,9 @@ public class NoiseData {
         register(param0, param5, -9 + param1, 1.0, 1.0, 0.0, 1.0, 1.0);
     }
 
-    private static Holder<NormalNoise.NoiseParameters> register(
-        Registry<NormalNoise.NoiseParameters> param0, ResourceKey<NormalNoise.NoiseParameters> param1, int param2, double param3, double... param4
+    private static void register(
+        BootstapContext<NormalNoise.NoiseParameters> param0, ResourceKey<NormalNoise.NoiseParameters> param1, int param2, double param3, double... param4
     ) {
-        return BuiltinRegistries.register(param0, param1, new NormalNoise.NoiseParameters(param2, param3, param4));
+        param0.register(param1, new NormalNoise.NoiseParameters(param2, param3, param4));
     }
 }

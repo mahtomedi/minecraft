@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import net.minecraft.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
@@ -55,10 +55,10 @@ public class StructureTemplateManager {
     private ResourceManager resourceManager;
     private final Path generatedDir;
     private final List<StructureTemplateManager.Source> sources;
-    private final HolderLookup<Block> blockLookup;
+    private final HolderGetter<Block> blockLookup;
     private static final FileToIdConverter LISTER = new FileToIdConverter("structures", ".nbt");
 
-    public StructureTemplateManager(ResourceManager param0, LevelStorageSource.LevelStorageAccess param1, DataFixer param2, HolderLookup<Block> param3) {
+    public StructureTemplateManager(ResourceManager param0, LevelStorageSource.LevelStorageAccess param1, DataFixer param2, HolderGetter<Block> param3) {
         this.resourceManager = param0;
         this.fixerUpper = param2;
         this.generatedDir = param1.getLevelPath(LevelResource.GENERATED_DIR).normalize();

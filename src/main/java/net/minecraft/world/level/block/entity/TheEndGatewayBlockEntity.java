@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.features.EndFeatures;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -203,9 +204,13 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
         LevelChunk var1 = getChunk(param0, var0);
         BlockPos var2 = findValidSpawnInChunk(var1);
         if (var2 == null) {
-            var2 = new BlockPos(var0.x + 0.5, 75.0, var0.z + 0.5);
-            LOGGER.debug("Failed to find a suitable block to teleport to, spawning an island on {}", var2);
-            EndFeatures.END_ISLAND.value().place(param0, param0.getChunkSource().getGenerator(), RandomSource.create(var2.asLong()), var2);
+            BlockPos var3 = new BlockPos(var0.x + 0.5, 75.0, var0.z + 0.5);
+            LOGGER.debug("Failed to find a suitable block to teleport to, spawning an island on {}", var3);
+            param0.registryAccess()
+                .registry(Registry.CONFIGURED_FEATURE_REGISTRY)
+                .flatMap(param0x -> param0x.getHolder(EndFeatures.END_ISLAND))
+                .ifPresent(param2 -> param2.value().place(param0, param0.getChunkSource().getGenerator(), RandomSource.create(var3.asLong()), var3));
+            var2 = var3;
         } else {
             LOGGER.debug("Found suitable block to teleport to: {}", var2);
         }

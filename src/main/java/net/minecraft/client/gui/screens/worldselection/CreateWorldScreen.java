@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -131,9 +130,7 @@ public class CreateWorldScreen extends Screen {
         );
         param0.managedBlock(var2::isDone);
         param0.setScreen(
-            new CreateWorldScreen(
-                param1, WorldDataConfiguration.DEFAULT, new WorldGenSettingsComponent(var2.join(), Optional.of(WorldPresets.NORMAL), OptionalLong.empty())
-            )
+            new CreateWorldScreen(param1, WorldDataConfiguration.DEFAULT, new WorldGenSettingsComponent(var2.join(), Optional.of(WorldPresets.NORMAL)))
         );
     }
 
@@ -141,7 +138,7 @@ public class CreateWorldScreen extends Screen {
         CreateWorldScreen var0 = new CreateWorldScreen(
             param0,
             param2.dataConfiguration(),
-            new WorldGenSettingsComponent(param2, WorldPresets.fromSettings(param2.selectedDimensions().dimensions()), OptionalLong.of(param2.options().seed()))
+            new WorldGenSettingsComponent(param2, WorldPresets.fromSettings(param2.selectedDimensions().dimensions()), param2.options().seed())
         );
         var0.initName = param1.levelName();
         var0.commands = param1.allowCommands();

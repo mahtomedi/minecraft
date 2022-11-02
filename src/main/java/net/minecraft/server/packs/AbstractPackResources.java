@@ -16,9 +16,11 @@ import org.slf4j.Logger;
 public abstract class AbstractPackResources implements PackResources {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final String name;
+    private final boolean isBuiltin;
 
-    protected AbstractPackResources(String param0) {
+    protected AbstractPackResources(String param0, boolean param1) {
         this.name = param0;
+        this.isBuiltin = param1;
     }
 
     @Nullable
@@ -62,5 +64,10 @@ public abstract class AbstractPackResources implements PackResources {
     @Override
     public String packId() {
         return this.name;
+    }
+
+    @Override
+    public boolean isBuiltin() {
+        return this.isBuiltin;
     }
 }

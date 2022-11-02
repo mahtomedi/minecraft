@@ -77,7 +77,6 @@ import net.minecraft.commands.arguments.ArgumentSignatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.LayeredRegistryAccess;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.Position;
 import net.minecraft.core.PositionImpl;
 import net.minecraft.core.Registry;
@@ -267,7 +266,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MerchantMenu;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -1370,7 +1368,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     @Override
     public void handleCommands(ClientboundCommandsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.commands = new CommandDispatcher<>(param0.getRoot(new CommandBuildContext(this.registryAccess.compositeAccess(), this.enabledFeatures)));
+        this.commands = new CommandDispatcher<>(param0.getRoot(CommandBuildContext.simple(this.registryAccess.compositeAccess(), this.enabledFeatures)));
     }
 
     @Override
@@ -1498,25 +1496,13 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             Blocks.rebuildCache();
         }
 
-        this.rebuildCreativeScreenSearchData();
+        CreativeModeTabs.TAB_SEARCH.invalidateSearchTree();
     }
 
     @Override
     public void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.enabledFeatures = FeatureFlags.REGISTRY.fromNames(param0.features());
-        this.rebuildCreativeScreenSearchData();
-    }
-
-    private void rebuildCreativeScreenSearchData() {
-        for(CreativeModeTab var0 : CreativeModeTabs.TABS) {
-            var0.invalidateDisplayListCache();
-        }
-
-        NonNullList<ItemStack> var1 = NonNullList.create();
-        var1.addAll(CreativeModeTabs.TAB_SEARCH.getDisplayItems(this.enabledFeatures));
-        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_NAMES, var1);
-        this.minecraft.populateSearchTree(SearchRegistry.CREATIVE_TAGS, var1);
     }
 
     private <T> void updateTagsForRegistry(ResourceKey<? extends Registry<? extends T>> param0x, TagNetworkSerialization.NetworkPayload param1) {

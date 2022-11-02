@@ -1,14 +1,14 @@
 {
-    "id": "22w43a",
-    "name": "22w43a",
-    "world_version": 3206,
+    "id": "22w44a",
+    "name": "22w44a",
+    "world_version": 3207,
     "series_id": "main",
-    "protocol_version": 1073741929,
+    "protocol_version": 1073741930,
     "pack_version": {
         "resource": 11,
         "data": 10
     },
-    "build_time": "2022-10-26T11:54:09+00:00",
+    "build_time": "2022-11-02T13:13:52+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
     "stable": false

@@ -40,6 +40,10 @@ public enum EquipmentSlot {
         return this.name;
     }
 
+    public boolean isArmor() {
+        return this.type == EquipmentSlot.Type.ARMOR;
+    }
+
     public static EquipmentSlot byName(String param0) {
         for(EquipmentSlot var0 : values()) {
             if (var0.getName().equals(param0)) {

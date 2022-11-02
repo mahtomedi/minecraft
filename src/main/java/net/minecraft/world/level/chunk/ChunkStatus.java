@@ -53,9 +53,7 @@ public class ChunkStatus {
         (param0, param1, param2, param3, param4, param5, param6, param7, param8, param9) -> {
             if (!param8.getStatus().isOrAfter(param0)) {
                 if (param2.getServer().getWorldData().worldGenOptions().generateStructures()) {
-                    param3.createStructures(
-                        param2.registryAccess(), param2.getChunkSource().randomState(), param2.structureManager(), param8, param4, param2.getSeed()
-                    );
+                    param3.createStructures(param2.registryAccess(), param2.getChunkSource().getGeneratorState(), param2.structureManager(), param8, param4);
                 }
     
                 if (param8 instanceof ProtoChunk var0) {
@@ -97,12 +95,7 @@ public class ChunkStatus {
             } else {
                 WorldGenRegion var0 = new WorldGenRegion(param2, param7, param0, -1);
                 return param3.createBiomes(
-                        param2.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY),
-                        param1,
-                        param2.getChunkSource().randomState(),
-                        Blender.of(var0),
-                        param2.structureManager().forWorldGenRegion(var0),
-                        param8
+                        param1, param2.getChunkSource().randomState(), Blender.of(var0), param2.structureManager().forWorldGenRegion(var0), param8
                     )
                     .thenApply(param1x -> {
                         if (param1x instanceof ProtoChunk) {

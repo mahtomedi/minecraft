@@ -10,7 +10,7 @@ import net.minecraft.util.RandomSource;
 
 public class DefaultedRegistry<T> extends MappedRegistry<T> {
     private final ResourceLocation defaultKey;
-    private Holder<T> defaultValue;
+    private Holder.Reference<T> defaultValue;
 
     public DefaultedRegistry(String param0, ResourceKey<? extends Registry<T>> param1, Lifecycle param2, boolean param3) {
         super(param1, param2, param3);
@@ -18,8 +18,8 @@ public class DefaultedRegistry<T> extends MappedRegistry<T> {
     }
 
     @Override
-    public Holder<T> registerMapping(int param0, ResourceKey<T> param1, T param2, Lifecycle param3) {
-        Holder<T> var0 = super.registerMapping(param0, param1, param2, param3);
+    public Holder.Reference<T> registerMapping(int param0, ResourceKey<T> param1, T param2, Lifecycle param3) {
+        Holder.Reference<T> var0 = super.registerMapping(param0, param1, param2, param3);
         if (this.defaultKey.equals(param1.location())) {
             this.defaultValue = var0;
         }
@@ -60,7 +60,7 @@ public class DefaultedRegistry<T> extends MappedRegistry<T> {
     }
 
     @Override
-    public Optional<Holder<T>> getRandom(RandomSource param0) {
+    public Optional<Holder.Reference<T>> getRandom(RandomSource param0) {
         return super.getRandom(param0).or(() -> Optional.of(this.defaultValue));
     }
 

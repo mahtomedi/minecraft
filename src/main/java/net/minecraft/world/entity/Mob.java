@@ -534,16 +534,20 @@ public abstract class Mob extends LivingEntity {
 
     protected void pickUpItem(ItemEntity param0) {
         ItemStack var0 = param0.getItem();
-        if (this.equipItemIfPossible(var0)) {
+        ItemStack var1 = this.equipItemIfPossible(var0.copy());
+        if (!var1.isEmpty()) {
             this.onItemPickup(param0);
-            this.take(param0, var0.getCount());
-            param0.discard();
+            this.take(param0, var1.getCount());
+            var0.shrink(var1.getCount());
+            if (var0.isEmpty()) {
+                param0.discard();
+            }
         }
 
     }
 
-    public boolean equipItemIfPossible(ItemStack param0) {
-        EquipmentSlot var0 = getEquipmentSlotForItem(param0);
+    public ItemStack equipItemIfPossible(ItemStack param0) {
+        EquipmentSlot var0 = this.getEquipmentSlotForItemStack(param0);
         ItemStack var1 = this.getItemBySlot(var0);
         boolean var2 = this.canReplaceCurrentItem(param0, var1);
         if (var2 && this.canHoldItem(param0)) {
@@ -552,11 +556,23 @@ public abstract class Mob extends LivingEntity {
                 this.spawnAtLocation(var1);
             }
 
-            this.setItemSlotAndDropWhenKilled(var0, param0);
-            return true;
+            if (var0.isArmor() && param0.getCount() > 1) {
+                ItemStack var4 = param0.copyWithCount(1);
+                this.setItemSlotAndDropWhenKilled(var0, var4);
+                return var4;
+            } else {
+                this.setItemSlotAndDropWhenKilled(var0, param0);
+                return param0;
+            }
         } else {
-            return false;
+            return ItemStack.EMPTY;
         }
+    }
+
+    private EquipmentSlot getEquipmentSlotForItemStack(ItemStack param0) {
+        EquipmentSlot var0 = getEquipmentSlotForItem(param0);
+        boolean var1 = this.getItemBySlot(var0).isEmpty();
+        return var0.isArmor() && !var1 ? EquipmentSlot.MAINHAND : var0;
     }
 
     protected void setItemSlotAndDropWhenKilled(EquipmentSlot param0, ItemStack param1) {

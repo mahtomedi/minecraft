@@ -5,10 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -35,34 +34,28 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
         return ResourceKey.create(Registry.CHAT_TYPE_REGISTRY, new ResourceLocation(param0));
     }
 
-    public static Holder<ChatType> bootstrap(Registry<ChatType> param0) {
-        BuiltinRegistries.register(param0, CHAT, new ChatType(DEFAULT_CHAT_DECORATION, ChatTypeDecoration.withSender("chat.type.text.narrate")));
-        BuiltinRegistries.register(
-            param0, SAY_COMMAND, new ChatType(ChatTypeDecoration.withSender("chat.type.announcement"), ChatTypeDecoration.withSender("chat.type.text.narrate"))
+    public static void bootstrap(BootstapContext<ChatType> param0) {
+        param0.register(CHAT, new ChatType(DEFAULT_CHAT_DECORATION, ChatTypeDecoration.withSender("chat.type.text.narrate")));
+        param0.register(
+            SAY_COMMAND, new ChatType(ChatTypeDecoration.withSender("chat.type.announcement"), ChatTypeDecoration.withSender("chat.type.text.narrate"))
         );
-        BuiltinRegistries.register(
-            param0,
+        param0.register(
             MSG_COMMAND_INCOMING,
             new ChatType(ChatTypeDecoration.incomingDirectMessage("commands.message.display.incoming"), ChatTypeDecoration.withSender("chat.type.text.narrate"))
         );
-        BuiltinRegistries.register(
-            param0,
+        param0.register(
             MSG_COMMAND_OUTGOING,
             new ChatType(ChatTypeDecoration.outgoingDirectMessage("commands.message.display.outgoing"), ChatTypeDecoration.withSender("chat.type.text.narrate"))
         );
-        BuiltinRegistries.register(
-            param0,
+        param0.register(
             TEAM_MSG_COMMAND_INCOMING,
             new ChatType(ChatTypeDecoration.teamMessage("chat.type.team.text"), ChatTypeDecoration.withSender("chat.type.text.narrate"))
         );
-        BuiltinRegistries.register(
-            param0,
+        param0.register(
             TEAM_MSG_COMMAND_OUTGOING,
             new ChatType(ChatTypeDecoration.teamMessage("chat.type.team.sent"), ChatTypeDecoration.withSender("chat.type.text.narrate"))
         );
-        return BuiltinRegistries.register(
-            param0, EMOTE_COMMAND, new ChatType(ChatTypeDecoration.withSender("chat.type.emote"), ChatTypeDecoration.withSender("chat.type.emote"))
-        );
+        param0.register(EMOTE_COMMAND, new ChatType(ChatTypeDecoration.withSender("chat.type.emote"), ChatTypeDecoration.withSender("chat.type.emote")));
     }
 
     public static ChatType.Bound bind(ResourceKey<ChatType> param0, Entity param1) {

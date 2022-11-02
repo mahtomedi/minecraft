@@ -14,10 +14,11 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -67,10 +68,9 @@ public class RegistryDataLoader {
 
     public static RegistryAccess.Frozen load(ResourceManager param0, RegistryAccess param1, List<RegistryDataLoader.RegistryData<?>> param2) {
         Map<ResourceKey<?>, Exception> var0 = new HashMap<>();
-        List<Pair<Registry<?>, RegistryDataLoader.Loader>> var1 = param2.stream().map(param1x -> param1x.create(Lifecycle.stable(), var0)).toList();
-        RegistryAccess var2 = new RegistryAccess.ImmutableRegistryAccess(var1.stream().map(Pair::getFirst).toList());
-        RegistryAccess var3 = new RegistryAccess.ImmutableRegistryAccess(Stream.concat(param1.registries(), var2.registries()));
-        var1.forEach(param2x -> param2x.getSecond().load(param0, var3));
+        List<Pair<WritableRegistry<?>, RegistryDataLoader.Loader>> var1 = param2.stream().map(param1x -> param1x.create(Lifecycle.stable(), var0)).toList();
+        RegistryOps.RegistryInfoLookup var2 = createContext(param1, var1);
+        var1.forEach(param2x -> param2x.getSecond().load(param0, var2));
         var1.forEach(param1x -> {
             Registry<?> var0x = param1x.getFirst();
 
@@ -85,8 +85,28 @@ public class RegistryDataLoader {
             logErrors(var0);
             throw new IllegalStateException("Failed to load registries due to above errors");
         } else {
-            return var2.freeze();
+            return new RegistryAccess.ImmutableRegistryAccess(var1.stream().map(Pair::getFirst).toList()).freeze();
         }
+    }
+
+    private static RegistryOps.RegistryInfoLookup createContext(RegistryAccess param0, List<Pair<WritableRegistry<?>, RegistryDataLoader.Loader>> param1) {
+        final Map<ResourceKey<? extends Registry<?>>, RegistryOps.RegistryInfo<?>> var0 = new HashMap<>();
+        param0.registries().forEach(param1x -> var0.put(param1x.key(), createInfoForContextRegistry(param1x.value())));
+        param1.forEach(param1x -> var0.put(param1x.getFirst().key(), createInfoForNewRegistry(param1x.getFirst())));
+        return new RegistryOps.RegistryInfoLookup() {
+            @Override
+            public <T> Optional<RegistryOps.RegistryInfo<T>> lookup(ResourceKey<? extends Registry<? extends T>> param0) {
+                return Optional.ofNullable((RegistryOps.RegistryInfo<T>)var0.get(param0));
+            }
+        };
+    }
+
+    private static <T> RegistryOps.RegistryInfo<T> createInfoForNewRegistry(WritableRegistry<T> param0) {
+        return new RegistryOps.RegistryInfo<>(param0.asLookup(), param0.createRegistrationLookup(), param0.elementsLifecycle());
+    }
+
+    private static <T> RegistryOps.RegistryInfo<T> createInfoForContextRegistry(Registry<T> param0) {
+        return new RegistryOps.RegistryInfo<>(param0.asLookup(), param0.asTagAddingLookup(), param0.elementsLifecycle());
     }
 
     private static void logErrors(Map<ResourceKey<?>, Exception> param0) {
@@ -111,7 +131,7 @@ public class RegistryDataLoader {
     }
 
     static <E> void loadRegistryContents(
-        RegistryAccess param0,
+        RegistryOps.RegistryInfoLookup param0,
         ResourceManager param1,
         ResourceKey<? extends Registry<E>> param2,
         WritableRegistry<E> param3,
@@ -134,18 +154,18 @@ public class RegistryDataLoader {
                 });
                 param3.register(var5, var10, var6.isBuiltin() ? Lifecycle.stable() : var9.lifecycle());
             } catch (Exception var20) {
-                param5.put(var5, new IllegalStateException("Failed to parse %s from pack %s".formatted(var4, var6.sourcePackId()), var20));
+                param5.put(var5, new IllegalStateException(String.format(Locale.ROOT, "Failed to parse %s from pack %s", var4, var6.sourcePackId()), var20));
             }
         }
 
     }
 
     interface Loader {
-        void load(ResourceManager var1, RegistryAccess var2);
+        void load(ResourceManager var1, RegistryOps.RegistryInfoLookup var2);
     }
 
     public static record RegistryData<T>(ResourceKey<? extends Registry<T>> key, Codec<T> elementCodec) {
-        public Pair<Registry<?>, RegistryDataLoader.Loader> create(Lifecycle param0, Map<ResourceKey<?>, Exception> param1) {
+        Pair<WritableRegistry<?>, RegistryDataLoader.Loader> create(Lifecycle param0, Map<ResourceKey<?>, Exception> param1) {
             WritableRegistry<T> var0 = new MappedRegistry<>(this.key, param0);
             RegistryDataLoader.Loader var1 = (param2, param3) -> RegistryDataLoader.loadRegistryContents(
                     param3, param2, this.key, var0, this.elementCodec, param1

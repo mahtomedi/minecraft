@@ -21,7 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.CollisionGetter;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
@@ -92,7 +91,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 }
 
                 Vec3 var1 = param2.getCenter();
-                param1.explode(null, DamageSource.badRespawnPointExplosion(var1), null, var1, 5.0F, true, Explosion.BlockInteraction.DESTROY);
+                param1.explode(null, DamageSource.badRespawnPointExplosion(var1), null, var1, 5.0F, true, Level.ExplosionInteraction.BLOCK);
                 return InteractionResult.SUCCESS;
             } else if (param0.getValue(OCCUPIED)) {
                 if (!this.kickVillagerOutOfBed(param1, param2)) {

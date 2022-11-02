@@ -14,6 +14,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import com.mojang.logging.LogUtils;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -25,7 +26,10 @@ import net.minecraft.Util;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.ArgumentUtils;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
@@ -34,6 +38,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.commands.AdvancementCommands;
 import net.minecraft.server.commands.AttributeCommand;
 import net.minecraft.server.commands.BanIpCommands;
@@ -106,8 +111,8 @@ import net.minecraft.server.commands.WhitelistCommand;
 import net.minecraft.server.commands.WorldBorderCommand;
 import net.minecraft.server.commands.data.DataCommands;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
-import net.minecraft.world.flag.FeatureFlags;
 import org.slf4j.Logger;
 
 public class Commands {
@@ -358,9 +363,29 @@ public class Commands {
         }
     }
 
+    public static CommandBuildContext createValidationContext(final HolderLookup.Provider param0) {
+        return new CommandBuildContext() {
+            @Override
+            public <T> HolderLookup<T> holderLookup(ResourceKey<? extends Registry<T>> param0x) {
+                final HolderLookup.RegistryLookup<T> var0 = param0.lookupOrThrow(param0);
+                return new HolderLookup.Delegate<T>(var0) {
+                    @Override
+                    public Optional<HolderSet.Named<T>> get(TagKey<T> param0x) {
+                        return Optional.of(this.getOrThrow(param0));
+                    }
+
+                    @Override
+                    public HolderSet.Named<T> getOrThrow(TagKey<T> param0x) {
+                        Optional<HolderSet.Named<T>> var0 = var0.get(param0);
+                        return var0.orElseGet(() -> HolderSet.emptyNamed(var0, param0));
+                    }
+                };
+            }
+        };
+    }
+
     public static void validate() {
-        CommandBuildContext var0 = new CommandBuildContext(BuiltinRegistries.createAccess(), FeatureFlags.REGISTRY.allFlags());
-        var0.missingTagAccessPolicy(CommandBuildContext.MissingTagAccessPolicy.RETURN_EMPTY);
+        CommandBuildContext var0 = createValidationContext(VanillaRegistries.createLookup());
         CommandDispatcher<CommandSourceStack> var1 = new Commands(Commands.CommandSelection.ALL, var0).getDispatcher();
         RootCommandNode<CommandSourceStack> var2 = var1.getRoot();
         var1.findAmbiguities(

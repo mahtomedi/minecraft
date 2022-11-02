@@ -339,11 +339,11 @@ public class BlockStateParser {
     }
 
     private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0) {
-        return SharedSuggestionProvider.suggestResource(this.blocks.listTags().map(TagKey::location), param0, String.valueOf('#'));
+        return SharedSuggestionProvider.suggestResource(this.blocks.listTagIds().map(TagKey::location), param0, String.valueOf('#'));
     }
 
     private CompletableFuture<Suggestions> suggestItem(SuggestionsBuilder param0) {
-        return SharedSuggestionProvider.suggestResource(this.blocks.listElements().map(ResourceKey::location), param0);
+        return SharedSuggestionProvider.suggestResource(this.blocks.listElementIds().map(ResourceKey::location), param0);
     }
 
     private CompletableFuture<Suggestions> suggestBlockIdOrTag(SuggestionsBuilder param0) {

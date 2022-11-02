@@ -32,14 +32,10 @@ public interface Holder<T> {
 
     Holder.Kind kind();
 
-    boolean isValidInRegistry(Registry<T> var1);
+    boolean canSerializeIn(HolderOwner<T> var1);
 
     static <T> Holder<T> direct(T param0) {
         return new Holder.Direct<>(param0);
-    }
-
-    static <T> Holder<T> hackyErase(Holder<? extends T> param0) {
-        return param0;
     }
 
     public static record Direct<T>(T value) implements Holder<T> {
@@ -89,7 +85,7 @@ public interface Holder<T> {
         }
 
         @Override
-        public boolean isValidInRegistry(Registry<T> param0) {
+        public boolean canSerializeIn(HolderOwner<T> param0) {
             return true;
         }
 
@@ -105,7 +101,7 @@ public interface Holder<T> {
     }
 
     public static class Reference<T> implements Holder<T> {
-        private final Registry<T> registry;
+        private final HolderOwner<T> owner;
         private Set<TagKey<T>> tags = Set.of();
         private final Holder.Reference.Type type;
         @Nullable
@@ -113,25 +109,25 @@ public interface Holder<T> {
         @Nullable
         private T value;
 
-        private Reference(Holder.Reference.Type param0, Registry<T> param1, @Nullable ResourceKey<T> param2, @Nullable T param3) {
-            this.registry = param1;
+        private Reference(Holder.Reference.Type param0, HolderOwner<T> param1, @Nullable ResourceKey<T> param2, @Nullable T param3) {
+            this.owner = param1;
             this.type = param0;
             this.key = param2;
             this.value = param3;
         }
 
-        public static <T> Holder.Reference<T> createStandAlone(Registry<T> param0, ResourceKey<T> param1) {
+        public static <T> Holder.Reference<T> createStandAlone(HolderOwner<T> param0, ResourceKey<T> param1) {
             return new Holder.Reference<>(Holder.Reference.Type.STAND_ALONE, param0, param1, (T)null);
         }
 
         @Deprecated
-        public static <T> Holder.Reference<T> createIntrusive(Registry<T> param0, @Nullable T param1) {
+        public static <T> Holder.Reference<T> createIntrusive(HolderOwner<T> param0, @Nullable T param1) {
             return new Holder.Reference<>(Holder.Reference.Type.INTRUSIVE, param0, null, param1);
         }
 
         public ResourceKey<T> key() {
             if (this.key == null) {
-                throw new IllegalStateException("Trying to access unbound value '" + this.value + "' from registry " + this.registry);
+                throw new IllegalStateException("Trying to access unbound value '" + this.value + "' from registry " + this.owner);
             } else {
                 return this.key;
             }
@@ -140,7 +136,7 @@ public interface Holder<T> {
         @Override
         public T value() {
             if (this.value == null) {
-                throw new IllegalStateException("Trying to access unbound value '" + this.key + "' from registry " + this.registry);
+                throw new IllegalStateException("Trying to access unbound value '" + this.key + "' from registry " + this.owner);
             } else {
                 return this.value;
             }
@@ -167,8 +163,8 @@ public interface Holder<T> {
         }
 
         @Override
-        public boolean isValidInRegistry(Registry<T> param0) {
-            return this.registry == param0;
+        public boolean canSerializeIn(HolderOwner<T> param0) {
+            return this.owner.canSerializeIn(param0);
         }
 
         @Override
@@ -189,17 +185,6 @@ public interface Holder<T> {
         @Override
         public boolean isBound() {
             return this.key != null && this.value != null;
-        }
-
-        void bind(ResourceKey<T> param0, T param1) {
-            if (this.key != null && param0 != this.key) {
-                throw new IllegalStateException("Can't change holder key: existing=" + this.key + ", new=" + param0);
-            } else if (this.type == Holder.Reference.Type.INTRUSIVE && this.value != param1) {
-                throw new IllegalStateException("Can't change holder " + param0 + " value: existing=" + this.value + ", new=" + param1);
-            } else {
-                this.key = param0;
-                this.value = param1;
-            }
         }
 
         void bindKey(ResourceKey<T> param0) {

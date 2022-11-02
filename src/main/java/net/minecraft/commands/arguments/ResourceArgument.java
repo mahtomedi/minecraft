@@ -105,7 +105,7 @@ public class ResourceArgument<T> implements ArgumentType<Holder.Reference<T>> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        return SharedSuggestionProvider.suggestResource(this.registryLookup.listElements().map(ResourceKey::location), param1);
+        return SharedSuggestionProvider.suggestResource(this.registryLookup.listElementIds().map(ResourceKey::location), param1);
     }
 
     @Override

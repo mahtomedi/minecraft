@@ -7,6 +7,8 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import java.util.Optional;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
 
 public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
@@ -30,9 +32,9 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
 
     public <T> DataResult<T> encode(Holder<E> param0, DynamicOps<T> param1, T param2) {
         if (param1 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            Optional<HolderOwner<E>> var1 = var0.owner(this.registryKey);
             if (var1.isPresent()) {
-                if (!param0.isValidInRegistry(var1.get())) {
+                if (!param0.canSerializeIn(var1.get())) {
                     return DataResult.error("Element " + param0 + " is not valid in current registry set");
                 }
 
@@ -50,11 +52,11 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
     @Override
     public <T> DataResult<Pair<Holder<E>, T>> decode(DynamicOps<T> param0, T param1) {
         if (param0 instanceof RegistryOps var0) {
-            Optional<? extends Registry<E>> var1 = var0.registry(this.registryKey);
+            Optional<HolderGetter<E>> var1 = var0.getter(this.registryKey);
             if (var1.isEmpty()) {
                 return DataResult.error("Registry does not exist: " + this.registryKey);
             } else {
-                Registry<E> var2 = var1.get();
+                HolderGetter<E> var2 = var1.get();
                 DataResult<Pair<ResourceLocation, T>> var3 = ResourceLocation.CODEC.decode(param0, param1);
                 if (var3.result().isEmpty()) {
                     return !this.allowInline
@@ -63,8 +65,11 @@ public final class RegistryFileCodec<E> implements Codec<Holder<E>> {
                 } else {
                     Pair<ResourceLocation, T> var4 = var3.result().get();
                     ResourceKey<E> var5 = ResourceKey.create(this.registryKey, var4.getFirst());
-                    DataResult<? extends Holder<E>> var6 = var2.getOrCreateHolder(var5);
-                    return var6.<Pair<Holder<E>, T>>map(param1x -> Pair.of(param1x, var4.getSecond())).setLifecycle(Lifecycle.stable());
+                    return var2.get(var5)
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error("Failed to get element " + var5))
+                        .<Pair<? super Holder.Reference<E>, T>>map(param1x -> Pair.of(param1x, var4.getSecond()))
+                        .setLifecycle(Lifecycle.stable());
                 }
             }
         } else {

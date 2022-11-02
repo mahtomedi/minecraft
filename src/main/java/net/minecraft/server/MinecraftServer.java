@@ -55,7 +55,7 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -140,7 +140,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.PatrolSpawner;
 import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.minecraft.world.level.levelgen.WorldOptions;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.CommandStorage;
 import net.minecraft.world.level.storage.DerivedLevelData;
@@ -287,7 +286,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.playerDataStorage = param1.createPlayerStorage();
             this.fixerUpper = param5;
             this.functionManager = new ServerFunctionManager(this, this.resources.managers.getFunctionLibrary());
-            HolderLookup<Block> var0 = HolderLookup.forRegistry(this.registries.compositeAccess().registryOrThrow(Registry.BLOCK_REGISTRY))
+            HolderGetter<Block> var0 = this.registries
+                .compositeAccess()
+                .<Block>registryOrThrow(Registry.BLOCK_REGISTRY)
+                .asLookup()
                 .filterFeatures(this.worldData.enabledFeatures());
             this.structureTemplateManager = new StructureTemplateManager(param3.resourceManager(), param1, param5, var0);
             this.serverThread = param0;
@@ -427,8 +429,13 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
 
             if (param2) {
-                ConfiguredFeature<?, ?> var12 = MiscOverworldFeatures.BONUS_CHEST.value();
-                var12.place(param0, var0.getGenerator(), param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()));
+                param0.registryAccess()
+                    .registry(Registry.CONFIGURED_FEATURE_REGISTRY)
+                    .flatMap(param0x -> param0x.getHolder(MiscOverworldFeatures.BONUS_CHEST))
+                    .ifPresent(
+                        param3x -> param3x.value()
+                                .place(param0, var0.getGenerator(), param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()))
+                    );
             }
 
         }

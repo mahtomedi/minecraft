@@ -1,8 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.function.Supplier;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -18,11 +20,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class MushroomBlock extends BushBlock implements BonemealableBlock {
     protected static final float AABB_OFFSET = 3.0F;
     protected static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
-    private final Supplier<Holder<? extends ConfiguredFeature<?, ?>>> featureSupplier;
+    private final ResourceKey<ConfiguredFeature<?, ?>> feature;
 
-    public MushroomBlock(BlockBehaviour.Properties param0, Supplier<Holder<? extends ConfiguredFeature<?, ?>>> param1) {
+    public MushroomBlock(BlockBehaviour.Properties param0, ResourceKey<ConfiguredFeature<?, ?>> param1) {
         super(param0);
-        this.featureSupplier = param1;
+        this.feature = param1;
     }
 
     @Override
@@ -78,17 +80,24 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     }
 
     public boolean growMushroom(ServerLevel param0, BlockPos param1, BlockState param2, RandomSource param3) {
-        param0.removeBlock(param1, false);
-        if (this.featureSupplier.get().value().place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
-            return true;
-        } else {
-            param0.setBlock(param1, param2, 3);
+        Optional<? extends Holder<ConfiguredFeature<?, ?>>> var0 = param0.registryAccess()
+            .registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY)
+            .getHolder(this.feature);
+        if (var0.isEmpty()) {
             return false;
+        } else {
+            param0.removeBlock(param1, false);
+            if (var0.get().value().place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
+                return true;
+            } else {
+                param0.setBlock(param1, param2, 3);
+                return false;
+            }
         }
     }
 
     @Override
-    public boolean isValidBonemealTarget(BlockGetter param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
         return true;
     }
 

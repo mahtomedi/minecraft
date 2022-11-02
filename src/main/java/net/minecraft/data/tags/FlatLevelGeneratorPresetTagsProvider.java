@@ -1,18 +1,20 @@
 package net.minecraft.data.tags;
 
-import net.minecraft.data.BuiltinRegistries;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.FlatLevelGeneratorPresetTags;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorPreset;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorPresets;
 
 public class FlatLevelGeneratorPresetTagsProvider extends TagsProvider<FlatLevelGeneratorPreset> {
-    public FlatLevelGeneratorPresetTagsProvider(PackOutput param0) {
-        super(param0, BuiltinRegistries.FLAT_LEVEL_GENERATOR_PRESET);
+    public FlatLevelGeneratorPresetTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
+        super(param0, Registry.FLAT_LEVEL_GENERATOR_PRESET_REGISTRY, param1);
     }
 
     @Override
-    protected void addTags() {
+    protected void addTags(HolderLookup.Provider param0) {
         this.tag(FlatLevelGeneratorPresetTags.VISIBLE)
             .add(FlatLevelGeneratorPresets.CLASSIC_FLAT)
             .add(FlatLevelGeneratorPresets.TUNNELERS_DREAM)

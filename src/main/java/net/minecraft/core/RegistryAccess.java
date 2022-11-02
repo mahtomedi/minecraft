@@ -13,11 +13,16 @@ import java.util.stream.Stream;
 import net.minecraft.resources.ResourceKey;
 import org.slf4j.Logger;
 
-public interface RegistryAccess {
+public interface RegistryAccess extends HolderLookup.Provider {
     Logger LOGGER = LogUtils.getLogger();
     RegistryAccess.Frozen EMPTY = new RegistryAccess.ImmutableRegistryAccess(Map.of()).freeze();
 
     <E> Optional<Registry<E>> registry(ResourceKey<? extends Registry<? extends E>> var1);
+
+    @Override
+    default <T> Optional<HolderLookup.RegistryLookup<T>> lookup(ResourceKey<? extends Registry<? extends T>> param0) {
+        return this.registry(param0).map(Registry::asLookup);
+    }
 
     default <E> Registry<E> registryOrThrow(ResourceKey<? extends Registry<? extends E>> param0) {
         return this.registry(param0).orElseThrow(() -> new IllegalStateException("Missing registry: " + param0));

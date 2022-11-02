@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -617,7 +617,7 @@ public class StructureTemplate {
         return param0;
     }
 
-    public void load(HolderLookup<Block> param0, CompoundTag param1) {
+    public void load(HolderGetter<Block> param0, CompoundTag param1) {
         this.palettes.clear();
         this.entityInfoList.clear();
         ListTag var0 = param1.getList("size", 3);
@@ -649,7 +649,7 @@ public class StructureTemplate {
 
     }
 
-    private void loadPalette(HolderLookup<Block> param0, ListTag param1, ListTag param2) {
+    private void loadPalette(HolderGetter<Block> param0, ListTag param1, ListTag param2) {
         StructureTemplate.SimplePalette var0 = new StructureTemplate.SimplePalette();
 
         for(int var1 = 0; var1 < param1.size(); ++var1) {

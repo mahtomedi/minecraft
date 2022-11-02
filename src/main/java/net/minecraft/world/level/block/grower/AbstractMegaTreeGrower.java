@@ -3,6 +3,8 @@ package net.minecraft.world.level.block.grower;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
@@ -27,27 +29,32 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     }
 
     @Nullable
-    protected abstract Holder<? extends ConfiguredFeature<?, ?>> getConfiguredMegaFeature(RandomSource var1);
+    protected abstract ResourceKey<ConfiguredFeature<?, ?>> getConfiguredMegaFeature(RandomSource var1);
 
     public boolean placeMega(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, RandomSource param4, int param5, int param6) {
-        Holder<? extends ConfiguredFeature<?, ?>> var0 = this.getConfiguredMegaFeature(param4);
+        ResourceKey<ConfiguredFeature<?, ?>> var0 = this.getConfiguredMegaFeature(param4);
         if (var0 == null) {
             return false;
         } else {
-            ConfiguredFeature<?, ?> var1 = var0.value();
-            BlockState var2 = Blocks.AIR.defaultBlockState();
-            param0.setBlock(param2.offset(param5, 0, param6), var2, 4);
-            param0.setBlock(param2.offset(param5 + 1, 0, param6), var2, 4);
-            param0.setBlock(param2.offset(param5, 0, param6 + 1), var2, 4);
-            param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var2, 4);
-            if (var1.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
-                return true;
-            } else {
-                param0.setBlock(param2.offset(param5, 0, param6), param3, 4);
-                param0.setBlock(param2.offset(param5 + 1, 0, param6), param3, 4);
-                param0.setBlock(param2.offset(param5, 0, param6 + 1), param3, 4);
-                param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), param3, 4);
+            Holder<ConfiguredFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).getHolder(var0).orElse(null);
+            if (var1 == null) {
                 return false;
+            } else {
+                ConfiguredFeature<?, ?> var2 = var1.value();
+                BlockState var3 = Blocks.AIR.defaultBlockState();
+                param0.setBlock(param2.offset(param5, 0, param6), var3, 4);
+                param0.setBlock(param2.offset(param5 + 1, 0, param6), var3, 4);
+                param0.setBlock(param2.offset(param5, 0, param6 + 1), var3, 4);
+                param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var3, 4);
+                if (var2.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
+                    return true;
+                } else {
+                    param0.setBlock(param2.offset(param5, 0, param6), param3, 4);
+                    param0.setBlock(param2.offset(param5 + 1, 0, param6), param3, 4);
+                    param0.setBlock(param2.offset(param5, 0, param6 + 1), param3, 4);
+                    param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), param3, 4);
+                    return false;
+                }
             }
         }
     }

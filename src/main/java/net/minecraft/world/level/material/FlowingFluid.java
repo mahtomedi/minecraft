@@ -113,7 +113,7 @@ public abstract class FlowingFluid extends Fluid {
         }
     }
 
-    protected void spread(LevelAccessor param0, BlockPos param1, FluidState param2) {
+    protected void spread(Level param0, BlockPos param1, FluidState param2) {
         if (!param2.isEmpty()) {
             BlockState var0 = param0.getBlockState(param1);
             BlockPos var1 = param1.below();
@@ -131,7 +131,7 @@ public abstract class FlowingFluid extends Fluid {
         }
     }
 
-    private void spreadToSides(LevelAccessor param0, BlockPos param1, FluidState param2, BlockState param3) {
+    private void spreadToSides(Level param0, BlockPos param1, FluidState param2, BlockState param3) {
         int var0 = param2.getAmount() - this.getDropOff(param0);
         if (param2.getValue(FALLING)) {
             var0 = 7;
@@ -153,7 +153,7 @@ public abstract class FlowingFluid extends Fluid {
         }
     }
 
-    protected FluidState getNewLiquid(LevelReader param0, BlockPos param1, BlockState param2) {
+    protected FluidState getNewLiquid(Level param0, BlockPos param1, BlockState param2) {
         int var0 = 0;
         int var1 = 0;
 
@@ -170,7 +170,7 @@ public abstract class FlowingFluid extends Fluid {
             }
         }
 
-        if (this.canConvertToSource() && var1 >= 2) {
+        if (this.canConvertToSource(param0) && var1 >= 2) {
             BlockState var6 = param0.getBlockState(param1.below());
             FluidState var7 = var6.getFluidState();
             if (var6.getMaterial().isSolid() || this.isSourceBlockOfThisType(var7)) {
@@ -234,7 +234,7 @@ public abstract class FlowingFluid extends Fluid {
         return this.getSource().defaultFluidState().setValue(FALLING, Boolean.valueOf(param0));
     }
 
-    protected abstract boolean canConvertToSource();
+    protected abstract boolean canConvertToSource(Level var1);
 
     protected void spreadTo(LevelAccessor param0, BlockPos param1, BlockState param2, Direction param3, FluidState param4) {
         if (param2.getBlock() instanceof LiquidBlockContainer) {
@@ -338,7 +338,7 @@ public abstract class FlowingFluid extends Fluid {
         return var0;
     }
 
-    protected Map<Direction, FluidState> getSpread(LevelReader param0, BlockPos param1, BlockState param2) {
+    protected Map<Direction, FluidState> getSpread(Level param0, BlockPos param1, BlockState param2) {
         int var0 = 1000;
         Map<Direction, FluidState> var1 = Maps.newEnumMap(Direction.class);
         Short2ObjectMap<Pair<BlockState, FluidState>> var2 = new Short2ObjectOpenHashMap<>();

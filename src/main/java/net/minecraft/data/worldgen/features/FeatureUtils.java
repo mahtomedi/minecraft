@@ -1,13 +1,13 @@
 package net.minecraft.data.worldgen.features;
 
 import java.util.List;
-import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
-import net.minecraft.util.RandomSource;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -18,19 +18,16 @@ import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConf
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class FeatureUtils {
-    public static Holder<? extends ConfiguredFeature<?, ?>> bootstrap(Registry<ConfiguredFeature<?, ?>> param0) {
-        List<Holder<? extends ConfiguredFeature<?, ?>>> var0 = List.of(
-            AquaticFeatures.KELP,
-            CaveFeatures.MOSS_PATCH_BONEMEAL,
-            EndFeatures.CHORUS_PLANT,
-            MiscOverworldFeatures.SPRING_LAVA_OVERWORLD,
-            NetherFeatures.BASALT_BLOBS,
-            OreFeatures.ORE_ANCIENT_DEBRIS_LARGE,
-            PileFeatures.PILE_HAY,
-            TreeFeatures.AZALEA_TREE,
-            VegetationFeatures.TREES_OLD_GROWTH_PINE_TAIGA
-        );
-        return Util.getRandom(var0, RandomSource.create());
+    public static void bootstrap(BootstapContext<ConfiguredFeature<?, ?>> param0) {
+        AquaticFeatures.bootstrap(param0);
+        CaveFeatures.bootstrap(param0);
+        EndFeatures.bootstrap(param0);
+        MiscOverworldFeatures.bootstrap(param0);
+        NetherFeatures.bootstrap(param0);
+        OreFeatures.bootstrap(param0);
+        PileFeatures.bootstrap(param0);
+        TreeFeatures.bootstrap(param0);
+        VegetationFeatures.bootstrap(param0);
     }
 
     private static BlockPredicate simplePatchPredicate(List<Block> param0) {
@@ -64,11 +61,19 @@ public class FeatureUtils {
         return simplePatchConfiguration(param0, param1, List.of(), 96);
     }
 
-    public static Holder<ConfiguredFeature<NoneFeatureConfiguration, ?>> register(String param0, Feature<NoneFeatureConfiguration> param1) {
-        return register(param0, param1, FeatureConfiguration.NONE);
+    public static ResourceKey<ConfiguredFeature<?, ?>> createKey(String param0) {
+        return ResourceKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, new ResourceLocation(param0));
     }
 
-    public static <FC extends FeatureConfiguration, F extends Feature<FC>> Holder<ConfiguredFeature<FC, ?>> register(String param0, F param1, FC param2) {
-        return BuiltinRegistries.registerExact(BuiltinRegistries.CONFIGURED_FEATURE, param0, new ConfiguredFeature<>(param1, param2));
+    public static void register(
+        BootstapContext<ConfiguredFeature<?, ?>> param0, ResourceKey<ConfiguredFeature<?, ?>> param1, Feature<NoneFeatureConfiguration> param2
+    ) {
+        register(param0, param1, param2, FeatureConfiguration.NONE);
+    }
+
+    public static <FC extends FeatureConfiguration, F extends Feature<FC>> void register(
+        BootstapContext<ConfiguredFeature<?, ?>> param0, ResourceKey<ConfiguredFeature<?, ?>> param1, F param2, FC param3
+    ) {
+        param0.register(param1, new ConfiguredFeature(param2, param3));
     }
 }

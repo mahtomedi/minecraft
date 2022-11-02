@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.WorldVersion;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.advancements.packs.VanillaAdvancementProvider;
 import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
@@ -22,6 +26,8 @@ import net.minecraft.data.models.ModelProvider;
 import net.minecraft.data.recipes.packs.BundleRecipeProvider;
 import net.minecraft.data.recipes.packs.UpdateOneTwentyRecipeProvider;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
+import net.minecraft.data.registries.RegistriesDatapackGenerator;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.data.structures.SnbtToNbt;
 import net.minecraft.data.structures.StructureUpdater;
@@ -42,7 +48,6 @@ import net.minecraft.data.tags.UpdateOneTwentyItemTagsProvider;
 import net.minecraft.data.tags.VanillaBlockTagsProvider;
 import net.minecraft.data.tags.VanillaItemTagsProvider;
 import net.minecraft.data.tags.WorldPresetTagsProvider;
-import net.minecraft.data.worldgen.BuiltinRegistriesDatapackGenerator;
 import net.minecraft.network.chat.Component;
 import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -89,6 +94,12 @@ public class Main {
         }
     }
 
+    private static <T extends DataProvider> DataProvider.Factory<T> bindRegistries(
+        BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> param0, CompletableFuture<HolderLookup.Provider> param1
+    ) {
+        return param2 -> param0.apply(param2, param1);
+    }
+
     public static DataGenerator createStandardGenerator(
         Path param0,
         Collection<Path> param1,
@@ -103,47 +114,48 @@ public class Main {
         DataGenerator var0 = new DataGenerator(param0, param7, param8);
         DataGenerator.PackGenerator var1 = var0.getVanillaPack(param2 || param3);
         var1.addProvider(param1x -> new SnbtToNbt(param1x, param1).addFilter(new StructureUpdater()));
-        var1 = var0.getVanillaPack(param2);
-        var1.addProvider(ModelProvider::new);
-        var1 = var0.getVanillaPack(param3);
-        var1.addProvider(BuiltinRegistriesDatapackGenerator::new);
-        var1.addProvider(VanillaAdvancementProvider::create);
-        var1.addProvider(VanillaLootTableProvider::create);
-        var1.addProvider(VanillaRecipeProvider::new);
-        TagsProvider<Block> var4 = var1.addProvider(VanillaBlockTagsProvider::new);
-        var1.addProvider(param1x -> new VanillaItemTagsProvider(param1x, var4));
-        var1.addProvider(BannerPatternTagsProvider::new);
-        var1.addProvider(BiomeTagsProvider::new);
-        var1.addProvider(CatVariantTagsProvider::new);
-        var1.addProvider(EntityTypeTagsProvider::new);
-        var1.addProvider(FlatLevelGeneratorPresetTagsProvider::new);
-        var1.addProvider(FluidTagsProvider::new);
-        var1.addProvider(GameEventTagsProvider::new);
-        var1.addProvider(InstrumentTagsProvider::new);
-        var1.addProvider(PaintingVariantTagsProvider::new);
-        var1.addProvider(PoiTypeTagsProvider::new);
-        var1.addProvider(StructureTagsProvider::new);
-        var1.addProvider(WorldPresetTagsProvider::new);
-        var1 = var0.getVanillaPack(param4);
-        var1.addProvider(param1x -> new NbtToSnbt(param1x, param1));
-        var1 = var0.getVanillaPack(param5);
-        var1.addProvider(BiomeParametersDumpReport::new);
-        var1.addProvider(BlockListReport::new);
-        var1.addProvider(CommandsReport::new);
-        var1.addProvider(RegistryDumpReport::new);
-        var1 = var0.getBuiltinDatapack(param3, "bundle");
-        var1.addProvider(BundleRecipeProvider::new);
-        var1.addProvider(
+        CompletableFuture<HolderLookup.Provider> var2 = CompletableFuture.supplyAsync(VanillaRegistries::createLookup, Util.backgroundExecutor());
+        DataGenerator.PackGenerator var3 = var0.getVanillaPack(param2);
+        var3.addProvider(ModelProvider::new);
+        var3 = var0.getVanillaPack(param3);
+        var3.addProvider(bindRegistries(RegistriesDatapackGenerator::new, var2));
+        var3.addProvider(bindRegistries(VanillaAdvancementProvider::create, var2));
+        var3.addProvider(VanillaLootTableProvider::create);
+        var3.addProvider(VanillaRecipeProvider::new);
+        TagsProvider<Block> var5 = var3.addProvider(bindRegistries(VanillaBlockTagsProvider::new, var2));
+        var3.addProvider(param2x -> new VanillaItemTagsProvider(param2x, var2, var5));
+        var3.addProvider(bindRegistries(BannerPatternTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(BiomeTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(CatVariantTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(EntityTypeTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(FlatLevelGeneratorPresetTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(FluidTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(GameEventTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(InstrumentTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(PaintingVariantTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(PoiTypeTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(StructureTagsProvider::new, var2));
+        var3.addProvider(bindRegistries(WorldPresetTagsProvider::new, var2));
+        var3 = var0.getVanillaPack(param4);
+        var3.addProvider(param1x -> new NbtToSnbt(param1x, param1));
+        var3 = var0.getVanillaPack(param5);
+        var3.addProvider(bindRegistries(BiomeParametersDumpReport::new, var2));
+        var3.addProvider(BlockListReport::new);
+        var3.addProvider(bindRegistries(CommandsReport::new, var2));
+        var3.addProvider(RegistryDumpReport::new);
+        var3 = var0.getBuiltinDatapack(param3, "bundle");
+        var3.addProvider(BundleRecipeProvider::new);
+        var3.addProvider(
             param0x -> PackMetadataGenerator.forFeaturePack(
                     param0x, Component.translatable("dataPack.bundle.description"), FeatureFlagSet.of(FeatureFlags.BUNDLE)
                 )
         );
-        var1 = var0.getBuiltinDatapack(param3, "update_1_20");
-        var1.addProvider(UpdateOneTwentyRecipeProvider::new);
-        var4 = var1.addProvider(UpdateOneTwentyBlockTagsProvider::new);
-        var1.addProvider(param1x -> new UpdateOneTwentyItemTagsProvider(param1x, var4));
-        var1.addProvider(UpdateOneTwentyLootTableProvider::create);
-        var1.addProvider(
+        var3 = var0.getBuiltinDatapack(param3, "update_1_20");
+        var3.addProvider(UpdateOneTwentyRecipeProvider::new);
+        var5 = var3.addProvider(bindRegistries(UpdateOneTwentyBlockTagsProvider::new, var2));
+        var3.addProvider(param2x -> new UpdateOneTwentyItemTagsProvider(param2x, var2, var5));
+        var3.addProvider(UpdateOneTwentyLootTableProvider::create);
+        var3.addProvider(
             param0x -> PackMetadataGenerator.forFeaturePack(
                     param0x, Component.translatable("dataPack.update_1_20.description"), FeatureFlagSet.of(FeatureFlags.UPDATE_1_20)
                 )

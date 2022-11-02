@@ -15,6 +15,7 @@ import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,7 @@ import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 
 public class VanillaTheEndAdvancements implements AdvancementSubProvider {
     @Override
-    public void generate(Consumer<Advancement> param0) {
+    public void generate(HolderLookup.Provider param0, Consumer<Advancement> param1) {
         Advancement var0 = Advancement.Builder.advancement()
             .display(
                 Blocks.END_STONE,
@@ -39,7 +40,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("entered_end", ChangeDimensionTrigger.TriggerInstance.changedDimensionTo(Level.END))
-            .save(param0, "end/root");
+            .save(param1, "end/root");
         Advancement var1 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -53,7 +54,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("killed_dragon", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(EntityType.ENDER_DRAGON)))
-            .save(param0, "end/kill_dragon");
+            .save(param1, "end/kill_dragon");
         Advancement var2 = Advancement.Builder.advancement()
             .parent(var1)
             .display(
@@ -67,7 +68,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("entered_end_gateway", EnterBlockTrigger.TriggerInstance.entersBlock(Blocks.END_GATEWAY))
-            .save(param0, "end/enter_end_gateway");
+            .save(param1, "end/enter_end_gateway");
         Advancement.Builder.advancement()
             .parent(var1)
             .display(
@@ -81,7 +82,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("summoned_dragon", SummonedEntityTrigger.TriggerInstance.summonedEntity(EntityPredicate.Builder.entity().of(EntityType.ENDER_DRAGON)))
-            .save(param0, "end/respawn_dragon");
+            .save(param1, "end/respawn_dragon");
         Advancement var3 = Advancement.Builder.advancement()
             .parent(var2)
             .display(
@@ -95,7 +96,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("in_city", PlayerTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.END_CITY)))
-            .save(param0, "end/find_end_city");
+            .save(param1, "end/find_end_city");
         Advancement.Builder.advancement()
             .parent(var1)
             .display(
@@ -109,7 +110,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("dragon_breath", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DRAGON_BREATH))
-            .save(param0, "end/dragon_breath");
+            .save(param1, "end/dragon_breath");
         Advancement.Builder.advancement()
             .parent(var3)
             .display(
@@ -124,7 +125,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
             )
             .rewards(AdvancementRewards.Builder.experience(50))
             .addCriterion("levitated", LevitationTrigger.TriggerInstance.levitated(DistancePredicate.vertical(MinMaxBounds.Doubles.atLeast(50.0))))
-            .save(param0, "end/levitate");
+            .save(param1, "end/levitate");
         Advancement.Builder.advancement()
             .parent(var3)
             .display(
@@ -138,7 +139,7 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("elytra", InventoryChangeTrigger.TriggerInstance.hasItems(Items.ELYTRA))
-            .save(param0, "end/elytra");
+            .save(param1, "end/elytra");
         Advancement.Builder.advancement()
             .parent(var1)
             .display(
@@ -152,6 +153,6 @@ public class VanillaTheEndAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion("dragon_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Blocks.DRAGON_EGG))
-            .save(param0, "end/dragon_egg");
+            .save(param1, "end/dragon_egg");
     }
 }

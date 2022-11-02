@@ -180,7 +180,7 @@ public final class Biome {
                 && param1.getY() < param0.getMaxBuildHeight()
                 && param0.getBrightness(LightLayer.BLOCK, param1) < 10) {
                 BlockState var0 = param0.getBlockState(param1);
-                if (var0.isAir() && Blocks.SNOW.defaultBlockState().canSurvive(param0, param1)) {
+                if ((var0.isAir() || var0.is(Blocks.SNOW)) && Blocks.SNOW.defaultBlockState().canSurvive(param0, param1)) {
                     return true;
                 }
             }

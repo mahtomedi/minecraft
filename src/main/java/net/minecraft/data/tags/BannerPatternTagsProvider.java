@@ -1,5 +1,7 @@
 package net.minecraft.data.tags;
 
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BannerPatternTags;
@@ -7,12 +9,12 @@ import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatterns;
 
 public class BannerPatternTagsProvider extends TagsProvider<BannerPattern> {
-    public BannerPatternTagsProvider(PackOutput param0) {
-        super(param0, Registry.BANNER_PATTERN);
+    public BannerPatternTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
+        super(param0, Registry.BANNER_PATTERN_REGISTRY, param1);
     }
 
     @Override
-    protected void addTags() {
+    protected void addTags(HolderLookup.Provider param0) {
         this.tag(BannerPatternTags.NO_ITEM_REQUIRED)
             .add(
                 BannerPatterns.SQUARE_BOTTOM_LEFT,

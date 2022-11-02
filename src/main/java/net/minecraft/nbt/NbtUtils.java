@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
@@ -216,7 +216,7 @@ public final class NbtUtils {
         return var0;
     }
 
-    public static BlockState readBlockState(HolderLookup<Block> param0, CompoundTag param1) {
+    public static BlockState readBlockState(HolderGetter<Block> param0, CompoundTag param1) {
         if (!param1.contains("Name", 8)) {
             return Blocks.AIR.defaultBlockState();
         } else {

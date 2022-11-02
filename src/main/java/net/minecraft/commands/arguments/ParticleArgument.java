@@ -66,6 +66,6 @@ public class ParticleArgument implements ArgumentType<ParticleOptions> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
-        return SharedSuggestionProvider.suggestResource(this.particles.listElements().map(ResourceKey::location), param1);
+        return SharedSuggestionProvider.suggestResource(this.particles.listElementIds().map(ResourceKey::location), param1);
     }
 }

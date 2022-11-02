@@ -51,6 +51,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -76,6 +77,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -118,6 +120,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final BlockableEventLoop<Runnable> mainThreadExecutor;
     private ChunkGenerator generator;
     private final RandomState randomState;
+    private final ChunkGeneratorStructureState chunkGeneratorState;
     private final Supplier<DimensionDataStorage> overworldDataStorage;
     private final PoiManager poiManager;
     final LongSet toDrop = new LongOpenHashSet();
@@ -159,36 +162,39 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         this.storageName = var0.getFileName().toString();
         this.level = param0;
         this.generator = param7;
-        if (param7 instanceof NoiseBasedChunkGenerator var1) {
-            this.randomState = RandomState.create(
-                var1.generatorSettings().value(), param0.registryAccess().registryOrThrow(Registry.NOISE_REGISTRY), param0.getSeed()
-            );
+        RegistryAccess var1 = param0.registryAccess();
+        long var2 = param0.getSeed();
+        if (param7 instanceof NoiseBasedChunkGenerator var3) {
+            this.randomState = RandomState.create(var3.generatorSettings().value(), var1.lookupOrThrow(Registry.NOISE_REGISTRY), var2);
         } else {
-            this.randomState = RandomState.create(
-                NoiseGeneratorSettings.dummy(), param0.registryAccess().registryOrThrow(Registry.NOISE_REGISTRY), param0.getSeed()
-            );
+            this.randomState = RandomState.create(NoiseGeneratorSettings.dummy(), var1.lookupOrThrow(Registry.NOISE_REGISTRY), var2);
         }
 
+        this.chunkGeneratorState = param7.createState(var1.lookupOrThrow(Registry.STRUCTURE_SET_REGISTRY), this.randomState, var2);
         this.mainThreadExecutor = param5;
-        ProcessorMailbox<Runnable> var2 = ProcessorMailbox.create(param4, "worldgen");
-        ProcessorHandle<Runnable> var3 = ProcessorHandle.of("main", param5::tell);
+        ProcessorMailbox<Runnable> var4 = ProcessorMailbox.create(param4, "worldgen");
+        ProcessorHandle<Runnable> var5 = ProcessorHandle.of("main", param5::tell);
         this.progressListener = param8;
         this.chunkStatusListener = param9;
-        ProcessorMailbox<Runnable> var4 = ProcessorMailbox.create(param4, "light");
-        this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(var2, var3, var4), param4, Integer.MAX_VALUE);
-        this.worldgenMailbox = this.queueSorter.getProcessor(var2, false);
-        this.mainThreadMailbox = this.queueSorter.getProcessor(var3, false);
+        ProcessorMailbox<Runnable> var6 = ProcessorMailbox.create(param4, "light");
+        this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(var4, var5, var6), param4, Integer.MAX_VALUE);
+        this.worldgenMailbox = this.queueSorter.getProcessor(var4, false);
+        this.mainThreadMailbox = this.queueSorter.getProcessor(var5, false);
         this.lightEngine = new ThreadedLevelLightEngine(
-            param6, this, this.level.dimensionType().hasSkyLight(), var4, this.queueSorter.getProcessor(var4, false)
+            param6, this, this.level.dimensionType().hasSkyLight(), var6, this.queueSorter.getProcessor(var6, false)
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param10;
-        this.poiManager = new PoiManager(var0.resolve("poi"), param2, param12, param0.registryAccess(), param0);
+        this.poiManager = new PoiManager(var0.resolve("poi"), param2, param12, var1, param0);
         this.setViewDistance(param11);
     }
 
     protected ChunkGenerator generator() {
         return this.generator;
+    }
+
+    protected ChunkGeneratorStructureState generatorState() {
+        return this.chunkGeneratorState;
     }
 
     protected RandomState randomState() {

@@ -17,7 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CamelModel<T extends Camel> extends HierarchicalModel<T> {
-    private static final float WALK_ANIMATION_SPEED_FACTOR = 75.0F;
+    private static final float WALK_ANIMATION_SPEED_FACTOR = 400.0F;
     private static final float MAX_WALK_ANIMATION_SPEED = 2.0F;
     private static final String SADDLE = "saddle";
     private static final String BRIDLE = "bridle";
@@ -122,7 +122,7 @@ public class CamelModel<T extends Camel> extends HierarchicalModel<T> {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.applyHeadRotation(param0, param4, param5, param3);
         this.toggleInvisibleParts(param0);
-        float var0 = Math.min((float)param0.getDeltaMovement().lengthSqr() * 75.0F, 2.0F);
+        float var0 = Math.min((float)param0.getDeltaMovement().horizontalDistanceSqr() * 400.0F, 2.0F);
         this.animate(param0.walkAnimationState, CamelAnimation.CAMEL_WALK, param3, var0);
         this.animate(param0.sitAnimationState, CamelAnimation.CAMEL_SIT, param3, 1.0F);
         this.animate(param0.sitPoseAnimationState, CamelAnimation.CAMEL_SIT_POSE, param3, 1.0F);

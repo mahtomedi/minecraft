@@ -1,9 +1,19 @@
 package net.minecraft.world.level.block;
 
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,7 +55,29 @@ public class SpawnerBlock extends BaseEntityBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
-        return ItemStack.EMPTY;
+    public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
+        super.appendHoverText(param0, param1, param2, param3);
+        Optional<Component> var0 = this.getSpawnEntityDisplayName(param0);
+        if (var0.isPresent()) {
+            param2.add(var0.get());
+        } else {
+            param2.add(CommonComponents.EMPTY);
+            param2.add(Component.translatable("block.minecraft.spawner.desc1").withStyle(ChatFormatting.GRAY));
+            param2.add(Component.literal(" ").append(Component.translatable("block.minecraft.spawner.desc2").withStyle(ChatFormatting.BLUE)));
+        }
+
+    }
+
+    private Optional<Component> getSpawnEntityDisplayName(ItemStack param0) {
+        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
+        if (var0 != null && var0.contains("SpawnData", 10)) {
+            String var1 = var0.getCompound("SpawnData").getCompound("entity").getString("id");
+            ResourceLocation var2 = ResourceLocation.tryParse(var1);
+            if (var2 != null) {
+                return Registry.ENTITY_TYPE.getOptional(var2).map(param0x -> Component.translatable(param0x.getDescriptionId()).withStyle(ChatFormatting.GRAY));
+            }
+        }
+
+        return Optional.empty();
     }
 }

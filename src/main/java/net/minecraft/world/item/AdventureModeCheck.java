@@ -5,7 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -51,7 +50,7 @@ public class AdventureModeCheck {
                     String var3 = var1.getString(var2);
 
                     try {
-                        BlockPredicateArgument.Result var4 = BlockPredicateArgument.parse(HolderLookup.forRegistry(param1), new StringReader(var3));
+                        BlockPredicateArgument.Result var4 = BlockPredicateArgument.parse(param1.asLookup(), new StringReader(var3));
                         this.checksBlockEntity |= var4.requiresNbt();
                         if (var4.test(param2)) {
                             this.lastResult = true;

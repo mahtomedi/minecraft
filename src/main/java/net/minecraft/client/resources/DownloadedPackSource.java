@@ -230,7 +230,7 @@ public class DownloadedPackSource implements RepositorySource {
     }
 
     public CompletableFuture<Void> setServerPack(File param0, PackSource param1) {
-        Pack.ResourcesSupplier var0 = param1x -> new FilePackResources(param1x, param0);
+        Pack.ResourcesSupplier var0 = param1x -> new FilePackResources(param1x, param0, false);
         Pack.Info var1 = Pack.readPackInfo("server", var0);
         if (var1 == null) {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid pack metadata at " + param0));

@@ -143,4 +143,8 @@ public class GroundPathNavigation extends PathNavigation {
     public void setAvoidSun(boolean param0) {
         this.avoidSun = param0;
     }
+
+    public void setCanWalkOverFences(boolean param0) {
+        this.nodeEvaluator.setCanWalkOverFences(param0);
+    }
 }

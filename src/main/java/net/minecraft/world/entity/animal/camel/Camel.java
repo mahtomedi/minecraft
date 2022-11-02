@@ -36,6 +36,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Player;
@@ -73,7 +74,9 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
     public Camel(EntityType<? extends Camel> param0, Level param1) {
         super(param0, param1);
         this.maxUpStep = 1.5F;
-        this.getNavigation().setCanFloat(true);
+        GroundPathNavigation var0 = (GroundPathNavigation)this.getNavigation();
+        var0.setCanFloat(true);
+        var0.setCanWalkOverFences(true);
     }
 
     @Override

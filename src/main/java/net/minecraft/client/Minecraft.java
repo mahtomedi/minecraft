@@ -452,8 +452,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             } else {
                 this.window.setIcon(this.getIconFile("icons", "icon_16x16.png"), this.getIconFile("icons", "icon_32x32.png"));
             }
-        } catch (IOException var11) {
-            LOGGER.error("Couldn't set icon", (Throwable)var11);
+        } catch (IOException var121) {
+            LOGGER.error("Couldn't set icon", (Throwable)var121);
         }
 
         this.window.setFramerateLimit(this.options.framerateLimit().get());
@@ -572,7 +572,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 this.reloadStateTracker.finishReload();
             }), false));
         if (var3 != null) {
-            var13.done().thenRunAsync(() -> ConnectScreen.startConnecting(new TitleScreen(), this, new ServerAddress(var3, var4), null), this);
+            ServerAddress var14 = new ServerAddress(var3, var4);
+            var13.done()
+                .thenRunAsync(
+                    () -> ConnectScreen.startConnecting(
+                            new TitleScreen(), this, var14, new ServerData(I18n.get("selectServer.defaultName"), var14.toString(), false)
+                        ),
+                    this
+                );
         } else if (this.shouldShowBanNotice()) {
             this.setScreen(BanNoticeScreen.create(param0x -> {
                 if (param0x) {
@@ -750,6 +757,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                         param0
                     )
             );
+        CreativeModeTabs.TAB_SEARCH.setSearchTreeRebuilder(param0 -> {
+            this.populateSearchTree(SearchRegistry.CREATIVE_NAMES, param0);
+            this.populateSearchTree(SearchRegistry.CREATIVE_TAGS, param0);
+        });
     }
 
     private void onFullscreenError(int param0x, long param1) {
@@ -876,7 +887,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
-        for(ItemStack var10 : CreativeModeTabs.TAB_SEARCH.getDisplayItems(FeatureFlags.REGISTRY.allFlags())) {
+        for(ItemStack var10 : CreativeModeTabs.TAB_SEARCH.getDisplayItems(FeatureFlags.REGISTRY.allFlags(), true)) {
             String var11 = var10.getDescriptionId();
             String var12 = Component.translatable(var11).getString();
             if (var12.toLowerCase(Locale.ROOT).equals(var10.getItem().getDescriptionId())) {
