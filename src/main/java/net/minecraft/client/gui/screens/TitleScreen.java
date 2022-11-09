@@ -12,7 +12,6 @@ import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -23,6 +22,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.PlainTextButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -195,23 +195,9 @@ public class TitleScreen extends Screen {
                 .bounds(this.width / 2 - 100, param0, 200, 20)
                 .build()
         );
-        final Component var0 = this.getMultiplayerDisabledReason();
+        Component var0 = this.getMultiplayerDisabledReason();
         boolean var1 = var0 == null;
-        Button.OnTooltip var2 = var0 == null
-            ? Button.NO_TOOLTIP
-            : new Button.OnTooltip() {
-                @Override
-                public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
-                    TitleScreen.this.renderTooltip(
-                        param1, TitleScreen.this.minecraft.font.split(var0, Math.max(TitleScreen.this.width / 2 - 43, 170)), param2, param3
-                    );
-                }
-    
-                @Override
-                public void narrateTooltip(Consumer<Component> param0) {
-                    param0.accept(var0);
-                }
-            };
+        Tooltip var2 = var0 != null ? Tooltip.create(var0) : null;
         this.addRenderableWidget(Button.builder(Component.translatable("menu.multiplayer"), param0x -> {
             Screen var0x = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
             this.minecraft.setScreen(var0x);

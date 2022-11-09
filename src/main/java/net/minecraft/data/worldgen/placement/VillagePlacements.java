@@ -2,7 +2,7 @@ package net.minecraft.data.worldgen.placement;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.PileFeatures;
 import net.minecraft.data.worldgen.features.TreeFeatures;
@@ -28,7 +28,7 @@ public class VillagePlacements {
     public static final ResourceKey<PlacedFeature> PATCH_BERRY_BUSH_VILLAGE = PlacementUtils.createKey("patch_berry_bush");
 
     public static void bootstrap(BootstapContext<PlacedFeature> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
         Holder<ConfiguredFeature<?, ?>> var1 = var0.getOrThrow(PileFeatures.PILE_HAY);
         Holder<ConfiguredFeature<?, ?>> var2 = var0.getOrThrow(PileFeatures.PILE_MELON);
         Holder<ConfiguredFeature<?, ?>> var3 = var0.getOrThrow(PileFeatures.PILE_SNOW);

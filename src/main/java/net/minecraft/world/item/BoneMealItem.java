@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
@@ -94,7 +94,7 @@ public class BoneMealItem extends Item {
                     Holder<Biome> var5 = param1.getBiome(var2);
                     if (var5.is(BiomeTags.PRODUCES_CORALS_FROM_BONEMEAL)) {
                         if (var1 == 0 && param3 != null && param3.getAxis().isHorizontal()) {
-                            var3 = Registry.BLOCK
+                            var3 = BuiltInRegistries.BLOCK
                                 .getTag(BlockTags.WALL_CORALS)
                                 .flatMap(param1x -> param1x.getRandomElement(param1.random))
                                 .map(param0x -> param0x.value().defaultBlockState())
@@ -103,7 +103,7 @@ public class BoneMealItem extends Item {
                                 var3 = var3.setValue(BaseCoralWallFanBlock.FACING, param3);
                             }
                         } else if (var0.nextInt(4) == 0) {
-                            var3 = Registry.BLOCK
+                            var3 = BuiltInRegistries.BLOCK
                                 .getTag(BlockTags.UNDERWATER_BONEMEALS)
                                 .flatMap(param1x -> param1x.getRandomElement(param1.random))
                                 .map(param0x -> param0x.value().defaultBlockState())

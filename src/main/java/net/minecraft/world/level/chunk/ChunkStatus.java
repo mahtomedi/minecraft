@@ -14,6 +14,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -305,7 +306,7 @@ public class ChunkStatus {
         ChunkStatus.GenerationTask param5,
         ChunkStatus.LoadingTask param6
     ) {
-        return Registry.register(Registry.CHUNK_STATUS, param0, new ChunkStatus(param0, param1, param2, param3, param4, param5, param6));
+        return Registry.register(BuiltInRegistries.CHUNK_STATUS, param0, new ChunkStatus(param0, param1, param2, param3, param4, param5, param6));
     }
 
     public static List<ChunkStatus> getStatusList() {
@@ -415,7 +416,7 @@ public class ChunkStatus {
     }
 
     public static ChunkStatus byName(String param0) {
-        return Registry.CHUNK_STATUS.get(ResourceLocation.tryParse(param0));
+        return BuiltInRegistries.CHUNK_STATUS.get(ResourceLocation.tryParse(param0));
     }
 
     public EnumSet<Heightmap.Types> heightmapsAfter() {
@@ -428,7 +429,7 @@ public class ChunkStatus {
 
     @Override
     public String toString() {
-        return Registry.CHUNK_STATUS.getKey(this).toString();
+        return BuiltInRegistries.CHUNK_STATUS.getKey(this).toString();
     }
 
     public static enum ChunkType {

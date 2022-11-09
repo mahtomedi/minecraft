@@ -40,7 +40,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -722,7 +722,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             if (var2 instanceof JigsawBlockEntity var3) {
                 var3.setName(param0.getName());
                 var3.setTarget(param0.getTarget());
-                var3.setPool(ResourceKey.create(Registry.TEMPLATE_POOL_REGISTRY, param0.getPool()));
+                var3.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, param0.getPool()));
                 var3.setFinalState(param0.getFinalState());
                 var3.setJoint(param0.getJoint());
                 var3.setChanged();
@@ -1444,7 +1444,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             case START_RIDING_JUMP:
                 if (this.player.getVehicle() instanceof PlayerRideableJumping var0) {
                     int var1 = param0.getData();
-                    if (var0.canJump() && var1 > 0) {
+                    if (var0.canJump(this.player) && var1 > 0) {
                         var0.handleStartJump(var1);
                     }
                 }

@@ -1,24 +1,31 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
+import java.util.Optional;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.GameRules;
 
-public class StopBeingAngryIfTargetDead<E extends Mob> extends Behavior<E> {
-    public StopBeingAngryIfTargetDead() {
-        super(ImmutableMap.of(MemoryModuleType.ANGRY_AT, MemoryStatus.VALUE_PRESENT));
-    }
-
-    protected void start(ServerLevel param0, E param1, long param2) {
-        BehaviorUtils.getLivingEntityFromUUIDMemory(param1, MemoryModuleType.ANGRY_AT).ifPresent(param2x -> {
-            if (param2x.isDeadOrDying() && (param2x.getType() != EntityType.PLAYER || param0.getGameRules().getBoolean(GameRules.RULE_FORGIVE_DEAD_PLAYERS))) {
-                param1.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
-            }
-
-        });
+public class StopBeingAngryIfTargetDead {
+    public static BehaviorControl<LivingEntity> create() {
+        return BehaviorBuilder.create(
+            param0 -> param0.<MemoryAccessor>group(param0.present(MemoryModuleType.ANGRY_AT))
+                    .apply(
+                        param0,
+                        param1 -> (param2, param3, param4) -> {
+                                Optional.ofNullable(param2.getEntity(param0.get(param1)))
+                                    .map(param0x -> param0x instanceof LivingEntity var0x ? var0x : null)
+                                    .filter(LivingEntity::isDeadOrDying)
+                                    .filter(
+                                        param1x -> param1x.getType() != EntityType.PLAYER
+                                                || param2.getGameRules().getBoolean(GameRules.RULE_FORGIVE_DEAD_PLAYERS)
+                                    )
+                                    .ifPresent(param1x -> param1.erase());
+                                return true;
+                            }
+                    )
+        );
     }
 }

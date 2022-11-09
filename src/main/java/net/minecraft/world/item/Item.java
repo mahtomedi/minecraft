@@ -13,7 +13,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -57,7 +57,7 @@ public class Item implements FeatureElement, ItemLike {
     public static final int MAX_STACK_SIZE = 64;
     public static final int EAT_DURATION = 32;
     public static final int MAX_BAR_WIDTH = 13;
-    private final Holder.Reference<Item> builtInRegistryHolder = Registry.ITEM.createIntrusiveHolder(this);
+    private final Holder.Reference<Item> builtInRegistryHolder = BuiltInRegistries.ITEM.createIntrusiveHolder(this);
     private final Rarity rarity;
     private final int maxStackSize;
     private final int maxDamage;
@@ -71,11 +71,11 @@ public class Item implements FeatureElement, ItemLike {
     private final FeatureFlagSet requiredFeatures;
 
     public static int getId(Item param0) {
-        return param0 == null ? 0 : Registry.ITEM.getId(param0);
+        return param0 == null ? 0 : BuiltInRegistries.ITEM.getId(param0);
     }
 
     public static Item byId(int param0) {
-        return Registry.ITEM.byId(param0);
+        return BuiltInRegistries.ITEM.byId(param0);
     }
 
     @Deprecated
@@ -204,12 +204,12 @@ public class Item implements FeatureElement, ItemLike {
 
     @Override
     public String toString() {
-        return Registry.ITEM.getKey(this).getPath();
+        return BuiltInRegistries.ITEM.getKey(this).getPath();
     }
 
     protected String getOrCreateDescriptionId() {
         if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("item", Registry.ITEM.getKey(this));
+            this.descriptionId = Util.makeDescriptionId("item", BuiltInRegistries.ITEM.getKey(this));
         }
 
         return this.descriptionId;

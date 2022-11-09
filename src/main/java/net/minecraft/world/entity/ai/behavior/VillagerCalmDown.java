@@ -1,28 +1,35 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.npc.Villager;
 
-public class VillagerCalmDown extends Behavior<Villager> {
+public class VillagerCalmDown {
     private static final int SAFE_DISTANCE_FROM_DANGER = 36;
 
-    public VillagerCalmDown() {
-        super(ImmutableMap.of());
-    }
-
-    protected void start(ServerLevel param0, Villager param1, long param2) {
-        boolean var0 = VillagerPanicTrigger.isHurt(param1) || VillagerPanicTrigger.hasHostile(param1) || isCloseToEntityThatHurtMe(param1);
-        if (!var0) {
-            param1.getBrain().eraseMemory(MemoryModuleType.HURT_BY);
-            param1.getBrain().eraseMemory(MemoryModuleType.HURT_BY_ENTITY);
-            param1.getBrain().updateActivityFromSchedule(param0.getDayTime(), param0.getGameTime());
-        }
-
-    }
-
-    private static boolean isCloseToEntityThatHurtMe(Villager param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.HURT_BY_ENTITY).filter(param1 -> param1.distanceToSqr(param0) <= 36.0).isPresent();
+    public static BehaviorControl<LivingEntity> create() {
+        return BehaviorBuilder.create(
+            param0 -> param0.<MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param0.registered(MemoryModuleType.HURT_BY),
+                        param0.registered(MemoryModuleType.HURT_BY_ENTITY),
+                        param0.registered(MemoryModuleType.NEAREST_HOSTILE)
+                    )
+                    .apply(
+                        param0,
+                        (param1, param2, param3) -> (param4, param5, param6) -> {
+                                boolean var0x = param0.tryGet(param1).isPresent()
+                                    || param0.tryGet(param3).isPresent()
+                                    || param0.<LivingEntity>tryGet(param2).filter(param1x -> param1x.distanceToSqr(param5) <= 36.0).isPresent();
+                                if (!var0x) {
+                                    param1.erase();
+                                    param2.erase();
+                                    param5.getBrain().updateActivityFromSchedule(param4.getDayTime(), param4.getGameTime());
+                                }
+            
+                                return true;
+                            }
+                    )
+        );
     }
 }

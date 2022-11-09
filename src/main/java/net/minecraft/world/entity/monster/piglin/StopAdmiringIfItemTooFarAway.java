@@ -1,37 +1,32 @@
 package net.minecraft.world.entity.monster.piglin;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.item.ItemEntity;
 
-public class StopAdmiringIfItemTooFarAway<E extends Piglin> extends Behavior<E> {
-    private final int maxDistanceToItem;
-
-    public StopAdmiringIfItemTooFarAway(int param0) {
-        super(
-            ImmutableMap.of(MemoryModuleType.ADMIRING_ITEM, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryStatus.REGISTERED)
+public class StopAdmiringIfItemTooFarAway<E extends Piglin> {
+    public static BehaviorControl<LivingEntity> create(int param0) {
+        return BehaviorBuilder.create(
+            param1 -> param1.<MemoryAccessor, MemoryAccessor>group(
+                        param1.present(MemoryModuleType.ADMIRING_ITEM), param1.registered(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)
+                    )
+                    .apply(param1, (param2, param3) -> (param4, param5, param6) -> {
+                            if (!param5.getOffhandItem().isEmpty()) {
+                                return false;
+                            } else {
+                                Optional<ItemEntity> var0x = param1.tryGet(param3);
+                                if (var0x.isPresent() && ((ItemEntity)var0x.get()).closerThan(param5, (double)param0)) {
+                                    return false;
+                                } else {
+                                    param2.erase();
+                                    return true;
+                                }
+                            }
+                        })
         );
-        this.maxDistanceToItem = param0;
-    }
-
-    protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        if (!param1.getOffhandItem().isEmpty()) {
-            return false;
-        } else {
-            Optional<ItemEntity> var0 = param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
-            if (!var0.isPresent()) {
-                return true;
-            } else {
-                return !var0.get().closerThan(param1, (double)this.maxDistanceToItem);
-            }
-        }
-    }
-
-    protected void start(ServerLevel param0, E param1, long param2) {
-        param1.getBrain().eraseMemory(MemoryModuleType.ADMIRING_ITEM);
     }
 }

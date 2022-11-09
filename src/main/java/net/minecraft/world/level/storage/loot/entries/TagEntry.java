@@ -5,7 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.function.Consumer;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
@@ -32,14 +33,14 @@ public class TagEntry extends LootPoolSingletonContainer {
 
     @Override
     public void createItemStack(Consumer<ItemStack> param0, LootContext param1) {
-        Registry.ITEM.getTagOrEmpty(this.tag).forEach(param1x -> param0.accept(new ItemStack(param1x)));
+        BuiltInRegistries.ITEM.getTagOrEmpty(this.tag).forEach(param1x -> param0.accept(new ItemStack(param1x)));
     }
 
     private boolean expandTag(LootContext param0, Consumer<LootPoolEntry> param1) {
         if (!this.canRun(param0)) {
             return false;
         } else {
-            for(final Holder<Item> var0 : Registry.ITEM.getTagOrEmpty(this.tag)) {
+            for(final Holder<Item> var0 : BuiltInRegistries.ITEM.getTagOrEmpty(this.tag)) {
                 param1.accept(new LootPoolSingletonContainer.EntryBase() {
                     @Override
                     public void createItemStack(Consumer<ItemStack> param0, LootContext param1) {
@@ -76,7 +77,7 @@ public class TagEntry extends LootPoolSingletonContainer {
             JsonObject param0, JsonDeserializationContext param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5
         ) {
             ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "name"));
-            TagKey<Item> var1 = TagKey.create(Registry.ITEM_REGISTRY, var0);
+            TagKey<Item> var1 = TagKey.create(Registries.ITEM, var0);
             boolean var2 = GsonHelper.getAsBoolean(param0, "expand");
             return new TagEntry(var1, var2, param2, param3, param4, param5);
         }

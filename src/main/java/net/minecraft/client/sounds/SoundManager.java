@@ -21,7 +21,7 @@ import net.minecraft.client.resources.sounds.SoundEventRegistration;
 import net.minecraft.client.resources.sounds.SoundEventRegistrationSerializer;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -105,7 +105,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             for(ResourceLocation var0 : this.registry.keySet()) {
                 WeighedSoundEvents var1 = this.registry.get(var0);
-                if (!ComponentUtils.isTranslationResolvable(var1.getSubtitle()) && Registry.SOUND_EVENT.containsKey(var0)) {
+                if (!ComponentUtils.isTranslationResolvable(var1.getSubtitle()) && BuiltInRegistries.SOUND_EVENT.containsKey(var0)) {
                     LOGGER.error("Missing subtitle {} for sound event: {}", var1.getSubtitle(), var0);
                 }
             }
@@ -113,7 +113,7 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
 
         if (LOGGER.isDebugEnabled()) {
             for(ResourceLocation var2 : this.registry.keySet()) {
-                if (!Registry.SOUND_EVENT.containsKey(var2)) {
+                if (!BuiltInRegistries.SOUND_EVENT.containsKey(var2)) {
                     LOGGER.debug("Not having sound event for: {}", var2);
                 }
             }

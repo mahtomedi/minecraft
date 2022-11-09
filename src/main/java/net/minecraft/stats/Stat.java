@@ -2,7 +2,7 @@ package net.minecraft.stats;
 
 import java.util.Objects;
 import javax.annotation.Nullable;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
@@ -19,7 +19,7 @@ public class Stat<T> extends ObjectiveCriteria {
     }
 
     public static <T> String buildName(StatType<T> param0, T param1) {
-        return locationToKey(Registry.STAT_TYPE.getKey(param0)) + ":" + locationToKey(param0.getRegistry().getKey(param1));
+        return locationToKey(BuiltInRegistries.STAT_TYPE.getKey(param0)) + ":" + locationToKey(param0.getRegistry().getKey(param1));
     }
 
     private static <T> String locationToKey(@Nullable ResourceLocation param0) {

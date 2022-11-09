@@ -7,7 +7,8 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -51,7 +52,7 @@ public class InstrumentItem extends Item {
     }
 
     public static void setRandom(ItemStack param0, TagKey<Instrument> param1, RandomSource param2) {
-        Optional<Holder<Instrument>> var0 = Registry.INSTRUMENT.getTag(param1).flatMap(param1x -> param1x.getRandomElement(param2));
+        Optional<Holder<Instrument>> var0 = BuiltInRegistries.INSTRUMENT.getTag(param1).flatMap(param1x -> param1x.getRandomElement(param2));
         var0.ifPresent(param1x -> setSoundVariantId(param0, param1x));
     }
 
@@ -87,11 +88,11 @@ public class InstrumentItem extends Item {
         if (var0 != null) {
             ResourceLocation var1 = ResourceLocation.tryParse(var0.getString("instrument"));
             if (var1 != null) {
-                return Registry.INSTRUMENT.getHolder(ResourceKey.create(Registry.INSTRUMENT_REGISTRY, var1));
+                return BuiltInRegistries.INSTRUMENT.getHolder(ResourceKey.create(Registries.INSTRUMENT, var1));
             }
         }
 
-        Iterator<Holder<Instrument>> var2 = Registry.INSTRUMENT.getTagOrEmpty(this.instruments).iterator();
+        Iterator<Holder<Instrument>> var2 = BuiltInRegistries.INSTRUMENT.getTagOrEmpty(this.instruments).iterator();
         return var2.hasNext() ? Optional.of(var2.next()) : Optional.empty();
     }
 

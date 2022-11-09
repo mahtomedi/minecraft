@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -74,7 +74,9 @@ public class SpawnerBlock extends BaseEntityBlock {
             String var1 = var0.getCompound("SpawnData").getCompound("entity").getString("id");
             ResourceLocation var2 = ResourceLocation.tryParse(var1);
             if (var2 != null) {
-                return Registry.ENTITY_TYPE.getOptional(var2).map(param0x -> Component.translatable(param0x.getDescriptionId()).withStyle(ChatFormatting.GRAY));
+                return BuiltInRegistries.ENTITY_TYPE
+                    .getOptional(var2)
+                    .map(param0x -> Component.translatable(param0x.getDescriptionId()).withStyle(ChatFormatting.GRAY));
             }
         }
 

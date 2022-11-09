@@ -1,61 +1,45 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.phys.Vec3;
 
-public class VillageBoundRandomStroll extends Behavior<PathfinderMob> {
+public class VillageBoundRandomStroll {
     private static final int MAX_XZ_DIST = 10;
     private static final int MAX_Y_DIST = 7;
-    private final float speedModifier;
-    private final int maxXyDist;
-    private final int maxYDist;
 
-    public VillageBoundRandomStroll(float param0) {
-        this(param0, 10, 7);
+    public static OneShot<PathfinderMob> create(float param0) {
+        return create(param0, 10, 7);
     }
 
-    public VillageBoundRandomStroll(float param0, int param1, int param2) {
-        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
-        this.speedModifier = param0;
-        this.maxXyDist = param1;
-        this.maxYDist = param2;
-    }
-
-    protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        BlockPos var0 = param1.blockPosition();
-        if (param0.isVillage(var0)) {
-            this.setRandomPos(param1);
-        } else {
-            SectionPos var1 = SectionPos.of(var0);
-            SectionPos var2 = BehaviorUtils.findSectionClosestToVillage(param0, var1, 2);
-            if (var2 != var1) {
-                this.setTargetedPos(param1, var2);
-            } else {
-                this.setRandomPos(param1);
-            }
-        }
-
-    }
-
-    private void setTargetedPos(PathfinderMob param0, SectionPos param1) {
-        Optional<Vec3> var0 = Optional.ofNullable(
-            DefaultRandomPos.getPosTowards(param0, this.maxXyDist, this.maxYDist, Vec3.atBottomCenterOf(param1.center()), (float) (Math.PI / 2))
+    public static OneShot<PathfinderMob> create(float param0, int param1, int param2) {
+        return BehaviorBuilder.create(
+            param3 -> param3.<MemoryAccessor>group(param3.absent(MemoryModuleType.WALK_TARGET)).apply(param3, param3x -> (param4, param5, param6) -> {
+                        BlockPos var0x = param5.blockPosition();
+                        Vec3 var1;
+                        if (param4.isVillage(var0x)) {
+                            var1 = LandRandomPos.getPos(param5, param1, param2);
+                        } else {
+                            SectionPos var2x = SectionPos.of(var0x);
+                            SectionPos var3x = BehaviorUtils.findSectionClosestToVillage(param4, var2x, 2);
+                            if (var3x != var2x) {
+                                var1 = DefaultRandomPos.getPosTowards(param5, param1, param2, Vec3.atBottomCenterOf(var3x.center()), (float) (Math.PI / 2));
+                            } else {
+                                var1 = LandRandomPos.getPos(param5, param1, param2);
+                            }
+                        }
+    
+                        param3x.setOrErase(Optional.ofNullable(var1).map(param1x -> new WalkTarget(param1x, param0, 0)));
+                        return true;
+                    })
         );
-        param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speedModifier, 0)));
-    }
-
-    private void setRandomPos(PathfinderMob param0) {
-        Optional<Vec3> var0 = Optional.ofNullable(LandRandomPos.getPos(param0, this.maxXyDist, this.maxYDist));
-        param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speedModifier, 0)));
     }
 }

@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.Map;
 import javax.annotation.Nullable;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -58,7 +58,7 @@ public class EnchantmentPredicate {
         } else {
             JsonObject var0 = new JsonObject();
             if (this.enchantment != null) {
-                var0.addProperty("enchantment", Registry.ENCHANTMENT.getKey(this.enchantment).toString());
+                var0.addProperty("enchantment", BuiltInRegistries.ENCHANTMENT.getKey(this.enchantment).toString());
             }
 
             var0.add("levels", this.level.serializeToJson());
@@ -72,7 +72,7 @@ public class EnchantmentPredicate {
             Enchantment var1 = null;
             if (var0.has("enchantment")) {
                 ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(var0, "enchantment"));
-                var1 = Registry.ENCHANTMENT.getOptional(var2).orElseThrow(() -> new JsonSyntaxException("Unknown enchantment '" + var2 + "'"));
+                var1 = BuiltInRegistries.ENCHANTMENT.getOptional(var2).orElseThrow(() -> new JsonSyntaxException("Unknown enchantment '" + var2 + "'"));
             }
 
             MinMaxBounds.Ints var3 = MinMaxBounds.Ints.fromJson(var0.get("levels"));

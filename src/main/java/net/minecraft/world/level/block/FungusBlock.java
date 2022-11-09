@@ -3,7 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -14,19 +14,19 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.HugeFungusConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FungusBlock extends BushBlock implements BonemealableBlock {
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 9.0, 12.0);
     private static final double BONEMEAL_SUCCESS_PROBABILITY = 0.4;
+    private final Block requiredBlock;
     private final ResourceKey<ConfiguredFeature<?, ?>> feature;
 
-    protected FungusBlock(BlockBehaviour.Properties param0, ResourceKey<ConfiguredFeature<?, ?>> param1) {
+    protected FungusBlock(BlockBehaviour.Properties param0, ResourceKey<ConfiguredFeature<?, ?>> param1, Block param2) {
         super(param0);
         this.feature = param1;
+        this.requiredBlock = param2;
     }
 
     @Override
@@ -40,22 +40,13 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
     }
 
     private Optional<? extends Holder<ConfiguredFeature<?, ?>>> getFeature(LevelReader param0) {
-        return param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).getHolder(this.feature);
+        return param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(this.feature);
     }
 
     @Override
     public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
-        Optional<? extends Holder<ConfiguredFeature<?, ?>>> var0 = this.getFeature(param0);
-        if (var0.isPresent()) {
-            FeatureConfiguration var2 = var0.get().value().config();
-            if (var2 instanceof HugeFungusConfiguration var1) {
-                Block var2x = var1.validBaseState.getBlock();
-                BlockState var3 = param0.getBlockState(param1.below());
-                return var3.is(var2x);
-            }
-        }
-
-        return false;
+        BlockState var0 = param0.getBlockState(param1.below());
+        return var0.is(this.requiredBlock);
     }
 
     @Override

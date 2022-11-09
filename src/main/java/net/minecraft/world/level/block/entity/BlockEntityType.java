@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.BlockGetter;
@@ -250,7 +251,7 @@ public class BlockEntityType<T extends BlockEntity> {
 
     @Nullable
     public static ResourceLocation getKey(BlockEntityType<?> param0) {
-        return Registry.BLOCK_ENTITY_TYPE.getKey(param0);
+        return BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(param0);
     }
 
     private static <T extends BlockEntity> BlockEntityType<T> register(String param0, BlockEntityType.Builder<T> param1) {
@@ -259,7 +260,7 @@ public class BlockEntityType<T extends BlockEntity> {
         }
 
         Type<?> var0 = Util.fetchChoiceType(References.BLOCK_ENTITY, param0);
-        return Registry.register(Registry.BLOCK_ENTITY_TYPE, param0, param1.build(var0));
+        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, param0, param1.build(var0));
     }
 
     public BlockEntityType(BlockEntityType.BlockEntitySupplier<? extends T> param0, Set<Block> param1, Type<?> param2) {

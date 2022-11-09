@@ -18,13 +18,13 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.components.AbstractOptionSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.client.gui.components.TooltipAccessor;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.OptionEnum;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,8 +35,7 @@ import org.slf4j.Logger;
 public final class OptionInstance<T> {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final OptionInstance.Enum<Boolean> BOOLEAN_VALUES = new OptionInstance.Enum<>(ImmutableList.of(Boolean.TRUE, Boolean.FALSE), Codec.BOOL);
-    private static final int TOOLTIP_WIDTH = 200;
-    private final OptionInstance.TooltipSupplierFactory<T> tooltip;
+    private final OptionInstance.TooltipSupplier<T> tooltip;
     final Function<T, Component> toString;
     private final OptionInstance.ValueSet<T> values;
     private final Codec<T> codec;
@@ -54,14 +53,12 @@ public final class OptionInstance<T> {
         });
     }
 
-    public static OptionInstance<Boolean> createBoolean(String param0, OptionInstance.TooltipSupplierFactory<Boolean> param1, boolean param2) {
+    public static OptionInstance<Boolean> createBoolean(String param0, OptionInstance.TooltipSupplier<Boolean> param1, boolean param2) {
         return createBoolean(param0, param1, param2, param0x -> {
         });
     }
 
-    public static OptionInstance<Boolean> createBoolean(
-        String param0, OptionInstance.TooltipSupplierFactory<Boolean> param1, boolean param2, Consumer<Boolean> param3
-    ) {
+    public static OptionInstance<Boolean> createBoolean(String param0, OptionInstance.TooltipSupplier<Boolean> param1, boolean param2, Consumer<Boolean> param3) {
         return new OptionInstance<>(
             param0, param1, (param0x, param1x) -> param1x ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF, BOOLEAN_VALUES, param2, param3
         );
@@ -69,7 +66,7 @@ public final class OptionInstance<T> {
 
     public OptionInstance(
         String param0,
-        OptionInstance.TooltipSupplierFactory<T> param1,
+        OptionInstance.TooltipSupplier<T> param1,
         OptionInstance.CaptionBasedToString<T> param2,
         OptionInstance.ValueSet<T> param3,
         T param4,
@@ -80,7 +77,7 @@ public final class OptionInstance<T> {
 
     public OptionInstance(
         String param0,
-        OptionInstance.TooltipSupplierFactory<T> param1,
+        OptionInstance.TooltipSupplier<T> param1,
         OptionInstance.CaptionBasedToString<T> param2,
         OptionInstance.ValueSet<T> param3,
         Codec<T> param4,
@@ -97,28 +94,20 @@ public final class OptionInstance<T> {
         this.value = this.initialValue;
     }
 
-    public static <T> OptionInstance.TooltipSupplierFactory<T> noTooltip() {
-        return param0 -> param0x -> ImmutableList.of();
+    public static <T> OptionInstance.TooltipSupplier<T> noTooltip() {
+        return param0 -> null;
     }
 
-    public static <T> OptionInstance.TooltipSupplierFactory<T> cachedConstantTooltip(Component param0) {
-        return param1 -> {
-            List<FormattedCharSequence> var0x = splitTooltip(param1, param0);
-            return param1x -> var0x;
-        };
+    public static <T> OptionInstance.TooltipSupplier<T> cachedConstantTooltip(Component param0) {
+        return param1 -> Tooltip.create(param0);
     }
 
     public static <T extends OptionEnum> OptionInstance.CaptionBasedToString<T> forOptionEnum() {
         return (param0, param1) -> param1.getCaption();
     }
 
-    protected static List<FormattedCharSequence> splitTooltip(Minecraft param0, Component param1) {
-        return param0.font.split(param1, 200);
-    }
-
     public AbstractWidget createButton(Options param0, int param1, int param2, int param3) {
-        OptionInstance.TooltipSupplier<T> var0 = this.tooltip.apply((T)Minecraft.getInstance());
-        return this.values.createButton(var0, param0, param1, param2, param3).apply(this);
+        return this.values.createButton(this.tooltip, param0, param1, param2, param3).apply(this);
     }
 
     public T get() {
@@ -316,10 +305,10 @@ public final class OptionInstance<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static final class OptionInstanceSliderButton<N> extends AbstractOptionSliderButton implements TooltipAccessor {
+    static final class OptionInstanceSliderButton<N> extends AbstractOptionSliderButton {
         private final OptionInstance<N> instance;
         private final OptionInstance.SliderableValueSet<N> values;
-        private final OptionInstance.TooltipSupplier<N> tooltip;
+        private final OptionInstance.TooltipSupplier<N> tooltipSupplier;
 
         OptionInstanceSliderButton(
             Options param0,
@@ -334,24 +323,20 @@ public final class OptionInstance<T> {
             super(param0, param1, param2, param3, param4, param6.toSliderValue(param5.get()));
             this.instance = param5;
             this.values = param6;
-            this.tooltip = param7;
+            this.tooltipSupplier = param7;
             this.updateMessage();
         }
 
         @Override
         protected void updateMessage() {
             this.setMessage(this.instance.toString.apply(this.instance.get()));
+            this.setTooltip(this.tooltipSupplier.apply(this.values.fromSliderValue(this.value)));
         }
 
         @Override
         protected void applyValue() {
             this.instance.set(this.values.fromSliderValue(this.value));
             this.options.save();
-        }
-
-        @Override
-        public List<FormattedCharSequence> getTooltip() {
-            return this.tooltip.apply(this.values.fromSliderValue(this.value));
         }
     }
 
@@ -385,11 +370,9 @@ public final class OptionInstance<T> {
 
     @FunctionalInterface
     @OnlyIn(Dist.CLIENT)
-    public interface TooltipSupplier<T> extends Function<T, List<FormattedCharSequence>> {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public interface TooltipSupplierFactory<T> extends Function<Minecraft, OptionInstance.TooltipSupplier<T>> {
+    public interface TooltipSupplier<T> {
+        @Nullable
+        Tooltip apply(T var1);
     }
 
     @OnlyIn(Dist.CLIENT)

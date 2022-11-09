@@ -2,7 +2,7 @@ package net.minecraft.world.level.levelgen.flat;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,7 +12,7 @@ public class FlatLayerInfo {
     public static final Codec<FlatLayerInfo> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Codec.intRange(0, DimensionType.Y_SIZE).fieldOf("height").forGetter(FlatLayerInfo::getHeight),
-                    Registry.BLOCK.byNameCodec().fieldOf("block").orElse(Blocks.AIR).forGetter(param0x -> param0x.getBlockState().getBlock())
+                    BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").orElse(Blocks.AIR).forGetter(param0x -> param0x.getBlockState().getBlock())
                 )
                 .apply(param0, FlatLayerInfo::new)
     );
@@ -34,6 +34,6 @@ public class FlatLayerInfo {
 
     @Override
     public String toString() {
-        return (this.height != 1 ? this.height + "*" : "") + Registry.BLOCK.getKey(this.block);
+        return (this.height != 1 ? this.height + "*" : "") + BuiltInRegistries.BLOCK.getKey(this.block);
     }
 }

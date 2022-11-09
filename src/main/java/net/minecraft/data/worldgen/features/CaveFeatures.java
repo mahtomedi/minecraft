@@ -5,7 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.ProcessorLists;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -119,8 +119,8 @@ public class CaveFeatures {
     }
 
     public static void bootstrap(BootstapContext<ConfiguredFeature<?, ?>> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
-        HolderGetter<StructureProcessorList> var1 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
+        HolderGetter<StructureProcessorList> var1 = param0.lookup(Registries.PROCESSOR_LIST);
         FeatureUtils.register(param0, MONSTER_ROOM, Feature.MONSTER_ROOM);
         List<ResourceLocation> var2 = List.of(
             new ResourceLocation("fossil/spine_1"),

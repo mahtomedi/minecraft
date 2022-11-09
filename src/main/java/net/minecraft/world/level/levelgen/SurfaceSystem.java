@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -188,7 +189,7 @@ public class SurfaceSystem {
         boolean param6
     ) {
         SurfaceRules.Context var0 = new SurfaceRules.Context(
-            this, param1.randomState(), param3, param4, param2, param1.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param1
+            this, param1.randomState(), param3, param4, param2, param1.registryAccess().registryOrThrow(Registries.BIOME), param1
         );
         SurfaceRules.SurfaceRule var1 = param0.apply(var0);
         int var2 = param5.getX();

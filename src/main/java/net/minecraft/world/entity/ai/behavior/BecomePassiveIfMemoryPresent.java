@@ -1,31 +1,27 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
+import com.mojang.datafixers.util.Function3;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
+import net.minecraft.world.entity.ai.behavior.declarative.Trigger;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public class BecomePassiveIfMemoryPresent extends Behavior<LivingEntity> {
-    private final int pacifyDuration;
-
-    public BecomePassiveIfMemoryPresent(MemoryModuleType<?> param0, int param1) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.ATTACK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.PACIFIED,
-                MemoryStatus.VALUE_ABSENT,
-                param0,
-                MemoryStatus.VALUE_PRESENT
-            )
+public class BecomePassiveIfMemoryPresent {
+    public static BehaviorControl<LivingEntity> create(MemoryModuleType<?> param0, int param1) {
+        return BehaviorBuilder.create(
+            param2 -> param2.group(param2.registered(MemoryModuleType.ATTACK_TARGET), param2.absent(MemoryModuleType.PACIFIED), param2.present(param0))
+                    .apply(
+                        param2,
+                        param2.point(
+                            () -> "[BecomePassive if " + param0 + " present]",
+                            (Function3<MemoryAccessor, MemoryAccessor, MemoryAccessor, Trigger<LivingEntity>>)(param1x, param2x, param3) -> (param3x, param4, param5) -> {
+                                    param2x.setWithExpiry(true, (long)param1);
+                                    param1x.erase();
+                                    return true;
+                                }
+                        )
+                    )
         );
-        this.pacifyDuration = param1;
-    }
-
-    @Override
-    protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.PACIFIED, true, (long)this.pacifyDuration);
-        param1.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
     }
 }

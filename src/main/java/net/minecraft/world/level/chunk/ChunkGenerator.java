@@ -35,6 +35,8 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -75,7 +77,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public abstract class ChunkGenerator {
-    public static final Codec<ChunkGenerator> CODEC = Registry.CHUNK_GENERATOR.byNameCodec().dispatchStable(ChunkGenerator::codec, Function.identity());
+    public static final Codec<ChunkGenerator> CODEC = BuiltInRegistries.CHUNK_GENERATOR
+        .byNameCodec()
+        .dispatchStable(ChunkGenerator::codec, Function.identity());
     protected final BiomeSource biomeSource;
     private final Supplier<List<FeatureSorter.StepFeatureData>> featuresPerStep;
     private final Function<Holder<Biome>, BiomeGenerationSettings> generationSettingsGetter;
@@ -99,7 +103,7 @@ public abstract class ChunkGenerator {
     }
 
     public Optional<ResourceKey<Codec<? extends ChunkGenerator>>> getTypeNameForDataFixer() {
-        return Registry.CHUNK_GENERATOR.getResourceKey(this.codec());
+        return BuiltInRegistries.CHUNK_GENERATOR.getResourceKey(this.codec());
     }
 
     public CompletableFuture<ChunkAccess> createBiomes(Executor param0, RandomState param1, Blender param2, StructureManager param3, ChunkAccess param4) {
@@ -282,7 +286,7 @@ public abstract class ChunkGenerator {
         if (!SharedConstants.debugVoidTerrain(var0)) {
             SectionPos var1 = SectionPos.of(var0, param0.getMinSection());
             BlockPos var2 = var1.origin();
-            Registry<Structure> var3 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+            Registry<Structure> var3 = param0.registryAccess().registryOrThrow(Registries.STRUCTURE);
             Map<Integer, List<Structure>> var4 = var3.stream().collect(Collectors.groupingBy(param0x -> param0x.step().ordinal()));
             List<FeatureSorter.StepFeatureData> var5 = this.featuresPerStep.get();
             WorldgenRandom var6 = new WorldgenRandom(new XoroshiroRandomSource(RandomSupport.generateUniqueSeed()));
@@ -300,7 +304,7 @@ public abstract class ChunkGenerator {
             int var9 = var5.size();
 
             try {
-                Registry<PlacedFeature> var10 = param0.registryAccess().registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+                Registry<PlacedFeature> var10 = param0.registryAccess().registryOrThrow(Registries.PLACED_FEATURE);
                 int var11 = Math.max(GenerationStep.Decoration.values().length, var9);
 
                 for(int var12 = 0; var12 < var11; ++var12) {
@@ -527,9 +531,9 @@ public abstract class ChunkGenerator {
                     } catch (Exception var21) {
                         CrashReport var12 = CrashReport.forThrowable(var21, "Generating structure reference");
                         CrashReportCategory var13 = var12.addCategory("Structure");
-                        Optional<? extends Registry<Structure>> var14 = param0.registryAccess().registry(Registry.STRUCTURE_REGISTRY);
+                        Optional<? extends Registry<Structure>> var14 = param0.registryAccess().registry(Registries.STRUCTURE);
                         var13.setDetail("Id", () -> var14.<String>map(param1x -> param1x.getKey(var10.getStructure()).toString()).orElse("UNKNOWN"));
-                        var13.setDetail("Name", () -> Registry.STRUCTURE_TYPES.getKey(var10.getStructure().type()).toString());
+                        var13.setDetail("Name", () -> BuiltInRegistries.STRUCTURE_TYPE.getKey(var10.getStructure().type()).toString());
                         var13.setDetail("Class", () -> var10.getStructure().getClass().getCanonicalName());
                         throw new ReportedException(var12);
                     }

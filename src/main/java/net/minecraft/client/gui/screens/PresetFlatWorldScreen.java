@@ -9,21 +9,25 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.worldselection.WorldGenSettingsComponent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FlatLevelGeneratorPresetTags;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
@@ -41,7 +45,7 @@ import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class PresetFlatWorldScreen extends Screen {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    static final Logger LOGGER = LogUtils.getLogger();
     private static final int SLOT_TEX_SIZE = 128;
     private static final int SLOT_BG_SIZE = 18;
     private static final int SLOT_STAT_HEIGHT = 20;
@@ -65,47 +69,50 @@ public class PresetFlatWorldScreen extends Screen {
     }
 
     @Nullable
-    private static FlatLayerInfo getLayerInfoFromString(String param0, int param1) {
-        String[] var0 = param0.split("\\*", 2);
-        int var1;
-        if (var0.length == 2) {
+    private static FlatLayerInfo getLayerInfoFromString(HolderGetter<Block> param0, String param1, int param2) {
+        List<String> var0 = Splitter.on('*').limit(2).splitToList(param1);
+        int var2;
+        String var1;
+        if (var0.size() == 2) {
+            var1 = var0.get(1);
+
             try {
-                var1 = Math.max(Integer.parseInt(var0[0]), 0);
-            } catch (NumberFormatException var10) {
-                LOGGER.error("Error while parsing flat world string => {}", var10.getMessage());
+                var2 = Math.max(Integer.parseInt(var0.get(0)), 0);
+            } catch (NumberFormatException var11) {
+                LOGGER.error("Error while parsing flat world string", (Throwable)var11);
                 return null;
             }
         } else {
-            var1 = 1;
+            var1 = var0.get(0);
+            var2 = 1;
         }
 
-        int var4 = Math.min(param1 + var1, DimensionType.Y_SIZE);
-        int var5 = var4 - param1;
-        String var6 = var0[var0.length - 1];
+        int var6 = Math.min(param2 + var2, DimensionType.Y_SIZE);
+        int var7 = var6 - param2;
 
-        Block var7;
+        Optional<Holder.Reference<Block>> var8;
         try {
-            var7 = Registry.BLOCK.getOptional(new ResourceLocation(var6)).orElse(null);
-        } catch (Exception var91) {
-            LOGGER.error("Error while parsing flat world string => {}", var91.getMessage());
+            var8 = param0.get(ResourceKey.create(Registries.BLOCK, new ResourceLocation(var1)));
+        } catch (Exception var101) {
+            LOGGER.error("Error while parsing flat world string", (Throwable)var101);
             return null;
         }
 
-        if (var7 == null) {
-            LOGGER.error("Error while parsing flat world string => Unknown block, {}", var6);
+        if (var8.isEmpty()) {
+            LOGGER.error("Error while parsing flat world string => Unknown block, {}", var1);
             return null;
         } else {
-            return new FlatLayerInfo(var5, var7);
+            return new FlatLayerInfo(var7, var8.get().value());
         }
     }
 
-    private static List<FlatLayerInfo> getLayersInfoFromString(String param0) {
+    private static List<FlatLayerInfo> getLayersInfoFromString(HolderGetter<Block> param0, String param1) {
         List<FlatLayerInfo> var0 = Lists.newArrayList();
-        String[] var1 = param0.split(",");
+        String[] var1 = param1.split(",");
         int var2 = 0;
 
         for(String var3 : var1) {
-            FlatLayerInfo var4 = getLayerInfoFromString(var3, var2);
+            FlatLayerInfo var4 = getLayerInfoFromString(param0, var3, var2);
             if (var4 == null) {
                 return Collections.emptyList();
             }
@@ -118,30 +125,35 @@ public class PresetFlatWorldScreen extends Screen {
     }
 
     public static FlatLevelGeneratorSettings fromString(
-        HolderGetter<Biome> param0, HolderGetter<StructureSet> param1, HolderGetter<PlacedFeature> param2, String param3, FlatLevelGeneratorSettings param4
+        HolderGetter<Block> param0,
+        HolderGetter<Biome> param1,
+        HolderGetter<StructureSet> param2,
+        HolderGetter<PlacedFeature> param3,
+        String param4,
+        FlatLevelGeneratorSettings param5
     ) {
-        Iterator<String> var0 = Splitter.on(';').split(param3).iterator();
+        Iterator<String> var0 = Splitter.on(';').split(param4).iterator();
         if (!var0.hasNext()) {
-            return FlatLevelGeneratorSettings.getDefault(param0, param1, param2);
+            return FlatLevelGeneratorSettings.getDefault(param1, param2, param3);
         } else {
-            List<FlatLayerInfo> var1 = getLayersInfoFromString(var0.next());
+            List<FlatLayerInfo> var1 = getLayersInfoFromString(param0, var0.next());
             if (var1.isEmpty()) {
-                return FlatLevelGeneratorSettings.getDefault(param0, param1, param2);
+                return FlatLevelGeneratorSettings.getDefault(param1, param2, param3);
             } else {
-                Holder.Reference<Biome> var2 = param0.getOrThrow(DEFAULT_BIOME);
+                Holder.Reference<Biome> var2 = param1.getOrThrow(DEFAULT_BIOME);
                 Holder<Biome> var3 = var2;
                 if (var0.hasNext()) {
                     String var4 = var0.next();
                     var3 = Optional.ofNullable(ResourceLocation.tryParse(var4))
-                        .map(param0x -> ResourceKey.create(Registry.BIOME_REGISTRY, param0x))
-                        .flatMap(param0::get)
+                        .map(param0x -> ResourceKey.create(Registries.BIOME, param0x))
+                        .flatMap(param1::get)
                         .orElseGet(() -> {
                             LOGGER.warn("Invalid biome: {}", var4);
                             return var2;
                         });
                 }
 
-                return param4.withBiomeAndLayers(var1, param4.structureOverrides(), var3);
+                return param5.withBiomeAndLayers(var1, param5.structureOverrides(), var3);
             }
         }
     }
@@ -169,17 +181,20 @@ public class PresetFlatWorldScreen extends Screen {
         this.listText = Component.translatable("createWorld.customize.presets.list");
         this.export = new EditBox(this.font, 50, 40, this.width - 100, 20, this.shareText);
         this.export.setMaxLength(1230);
-        RegistryAccess var0 = this.parent.parent.worldGenSettingsComponent.registryHolder();
-        HolderGetter<Biome> var1 = var0.lookupOrThrow(Registry.BIOME_REGISTRY);
-        HolderGetter<StructureSet> var2 = var0.lookupOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-        HolderGetter<PlacedFeature> var3 = var0.lookupOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+        WorldGenSettingsComponent var0 = this.parent.parent.worldGenSettingsComponent;
+        RegistryAccess var1 = var0.registryHolder();
+        FeatureFlagSet var2 = var0.settings().dataConfiguration().enabledFeatures();
+        HolderGetter<Biome> var3 = var1.lookupOrThrow(Registries.BIOME);
+        HolderGetter<StructureSet> var4 = var1.lookupOrThrow(Registries.STRUCTURE_SET);
+        HolderGetter<PlacedFeature> var5 = var1.lookupOrThrow(Registries.PLACED_FEATURE);
+        HolderGetter<Block> var6 = var1.lookupOrThrow(Registries.BLOCK).filterFeatures(var2);
         this.export.setValue(save(this.parent.settings()));
         this.settings = this.parent.settings();
         this.addWidget(this.export);
-        this.list = new PresetFlatWorldScreen.PresetsList(this.parent.parent.worldGenSettingsComponent.registryHolder());
+        this.list = new PresetFlatWorldScreen.PresetsList(var1, var2);
         this.addWidget(this.list);
-        this.selectButton = this.addRenderableWidget(Button.builder(Component.translatable("createWorld.customize.presets.select"), param3 -> {
-            FlatLevelGeneratorSettings var0x = fromString(var1, var2, var3, this.export.getValue(), this.settings);
+        this.selectButton = this.addRenderableWidget(Button.builder(Component.translatable("createWorld.customize.presets.select"), param4 -> {
+            FlatLevelGeneratorSettings var0x = fromString(var6, var3, var4, var5, this.export.getValue(), this.settings);
             this.parent.setConfig(var0x);
             this.minecraft.setScreen(this.parent);
         }).bounds(this.width / 2 - 155, this.height - 28, 150, 20).build());
@@ -239,7 +254,7 @@ public class PresetFlatWorldScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     class PresetsList extends ObjectSelectionList<PresetFlatWorldScreen.PresetsList.Entry> {
-        public PresetsList(RegistryAccess param0) {
+        public PresetsList(RegistryAccess param0, FeatureFlagSet param1) {
             super(
                 PresetFlatWorldScreen.this.minecraft,
                 PresetFlatWorldScreen.this.width,
@@ -249,9 +264,25 @@ public class PresetFlatWorldScreen extends Screen {
                 24
             );
 
-            for(Holder<FlatLevelGeneratorPreset> param1 : param0.registryOrThrow(Registry.FLAT_LEVEL_GENERATOR_PRESET_REGISTRY)
+            for(Holder<FlatLevelGeneratorPreset> param2 : param0.registryOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET)
                 .getTagOrEmpty(FlatLevelGeneratorPresetTags.VISIBLE)) {
-                this.addEntry(new PresetFlatWorldScreen.PresetsList.Entry(param1));
+                Set<Block> var0 = param2.value()
+                    .settings()
+                    .getLayersInfo()
+                    .stream()
+                    .map(param0x -> param0x.getBlockState().getBlock())
+                    .filter(param1x -> !param1x.isEnabled(param1))
+                    .collect(Collectors.toSet());
+                if (!var0.isEmpty()) {
+                    PresetFlatWorldScreen.LOGGER
+                        .info(
+                            "Discarding flat world preset {} since it contains experimental blocks {}",
+                            param2.unwrapKey().map(param0x -> param0x.location().toString()).orElse("<unknown>"),
+                            var0
+                        );
+                } else {
+                    this.addEntry(new PresetFlatWorldScreen.PresetsList.Entry(param2));
+                }
             }
 
         }

@@ -1,37 +1,43 @@
 package net.minecraft.world.entity.monster.piglin;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.behavior.Behavior;
+import java.util.List;
+import net.minecraft.world.entity.ai.behavior.OneShot;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 
-public class StartHuntingHoglin<E extends Piglin> extends Behavior<E> {
-    public StartHuntingHoglin() {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN,
-                MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.ANGRY_AT,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.HUNTED_RECENTLY,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
-                MemoryStatus.REGISTERED
-            )
+public class StartHuntingHoglin {
+    public static OneShot<Piglin> create() {
+        return BehaviorBuilder.create(
+            param0 -> param0.<MemoryAccessor, MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param0.present(MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN),
+                        param0.absent(MemoryModuleType.ANGRY_AT),
+                        param0.absent(MemoryModuleType.HUNTED_RECENTLY),
+                        param0.registered(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS)
+                    )
+                    .apply(
+                        param0,
+                        (param1, param2, param3, param4) -> (param3x, param4x, param5) -> {
+                                if (!param4x.isBaby()
+                                    && !param0.<List>tryGet(param4)
+                                        .map(param0x -> param0x.stream().anyMatch(StartHuntingHoglin::hasHuntedRecently))
+                                        .isPresent()) {
+                                    Hoglin var0x = param0.get(param1);
+                                    PiglinAi.setAngerTarget(param4x, var0x);
+                                    PiglinAi.dontKillAnyMoreHoglinsForAWhile(param4x);
+                                    PiglinAi.broadcastAngerTarget(param4x, var0x);
+                                    param0.<List>tryGet(param4).ifPresent(param0x -> param0x.forEach(PiglinAi::dontKillAnyMoreHoglinsForAWhile));
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                    )
         );
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel param0, Piglin param1) {
-        return !param1.isBaby() && !PiglinAi.hasAnyoneNearbyHuntedRecently(param1);
-    }
-
-    protected void start(ServerLevel param0, E param1, long param2) {
-        Hoglin var0 = param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN).get();
-        PiglinAi.setAngerTarget(param1, var0);
-        PiglinAi.dontKillAnyMoreHoglinsForAWhile(param1);
-        PiglinAi.broadcastAngerTarget(param1, var0);
-        PiglinAi.broadcastDontKillAnyMoreHoglinsForAWhile(param1);
+    private static boolean hasHuntedRecently(AbstractPiglin param0) {
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.HUNTED_RECENTLY);
     }
 }

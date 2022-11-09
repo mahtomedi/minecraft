@@ -17,7 +17,7 @@ public class PageButton extends Button {
     private final boolean playTurnSound;
 
     public PageButton(int param0, int param1, boolean param2, Button.OnPress param3, boolean param4) {
-        super(param0, param1, 23, 13, CommonComponents.EMPTY, param3, NO_TOOLTIP, DEFAULT_NARRATION);
+        super(param0, param1, 23, 13, CommonComponents.EMPTY, param3, DEFAULT_NARRATION);
         this.isForward = param2;
         this.playTurnSound = param4;
     }

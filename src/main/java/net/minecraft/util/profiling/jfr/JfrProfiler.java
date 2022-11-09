@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.SocketAddress;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -27,6 +26,7 @@ import jdk.jfr.FlightRecorder;
 import jdk.jfr.FlightRecorderListener;
 import jdk.jfr.Recording;
 import jdk.jfr.RecordingState;
+import net.minecraft.FileUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
@@ -142,10 +142,7 @@ public class JfrProfiler implements JvmProfiler {
                     param2.setName(String.format(Locale.ROOT, "%s-%s-%s", param1.getDescription(), SharedConstants.getCurrentVersion().getName(), var1));
                 });
                 Path var2 = Paths.get(String.format(Locale.ROOT, "debug/%s-%s.jfr", param1.getDescription(), var1));
-                if (!Files.exists(var2.getParent())) {
-                    Files.createDirectories(var2.getParent());
-                }
-
+                FileUtil.createDirectoriesSafe(var2.getParent());
                 this.recording.setDestination(var2);
                 this.recording.start();
                 this.setupSummaryListener();

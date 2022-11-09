@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.placement.VillagePlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -17,18 +17,18 @@ public class PlainVillagePools {
     private static final ResourceKey<StructureTemplatePool> TERMINATORS_KEY = Pools.createKey("village/plains/terminators");
 
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
+        HolderGetter<PlacedFeature> var0 = param0.lookup(Registries.PLACED_FEATURE);
         Holder<PlacedFeature> var1 = var0.getOrThrow(VillagePlacements.OAK_VILLAGE);
         Holder<PlacedFeature> var2 = var0.getOrThrow(VillagePlacements.FLOWER_PLAIN_VILLAGE);
         Holder<PlacedFeature> var3 = var0.getOrThrow(VillagePlacements.PILE_HAY_VILLAGE);
-        HolderGetter<StructureProcessorList> var4 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<StructureProcessorList> var4 = param0.lookup(Registries.PROCESSOR_LIST);
         Holder<StructureProcessorList> var5 = var4.getOrThrow(ProcessorLists.MOSSIFY_10_PERCENT);
         Holder<StructureProcessorList> var6 = var4.getOrThrow(ProcessorLists.MOSSIFY_20_PERCENT);
         Holder<StructureProcessorList> var7 = var4.getOrThrow(ProcessorLists.MOSSIFY_70_PERCENT);
         Holder<StructureProcessorList> var8 = var4.getOrThrow(ProcessorLists.ZOMBIE_PLAINS);
         Holder<StructureProcessorList> var9 = var4.getOrThrow(ProcessorLists.STREET_PLAINS);
         Holder<StructureProcessorList> var10 = var4.getOrThrow(ProcessorLists.FARM_PLAINS);
-        HolderGetter<StructureTemplatePool> var11 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var11 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var12 = var11.getOrThrow(Pools.EMPTY);
         Holder<StructureTemplatePool> var13 = var11.getOrThrow(TERMINATORS_KEY);
         param0.register(

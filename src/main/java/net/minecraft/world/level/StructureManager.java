@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.TagKey;
@@ -104,12 +105,12 @@ public class StructureManager {
     }
 
     public StructureStart getStructureWithPieceAt(BlockPos param0, ResourceKey<Structure> param1) {
-        Structure var0 = this.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY).get(param1);
+        Structure var0 = this.registryAccess().registryOrThrow(Registries.STRUCTURE).get(param1);
         return var0 == null ? StructureStart.INVALID_START : this.getStructureWithPieceAt(param0, var0);
     }
 
     public StructureStart getStructureWithPieceAt(BlockPos param0, TagKey<Structure> param1) {
-        Registry<Structure> var0 = this.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        Registry<Structure> var0 = this.registryAccess().registryOrThrow(Registries.STRUCTURE);
 
         for(StructureStart var1 : this.startsForStructure(
             new ChunkPos(param0), param2 -> var0.getHolder(var0.getId(param2)).map(param1x -> param1x.is(param1)).orElse(false)

@@ -26,6 +26,8 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -74,7 +76,7 @@ import org.slf4j.Logger;
 public final class ItemStack {
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    Registry.ITEM.byNameCodec().fieldOf("id").forGetter(param0x -> param0x.item),
+                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(param0x -> param0x.item),
                     Codec.INT.fieldOf("Count").forGetter(param0x -> param0x.count),
                     CompoundTag.CODEC.optionalFieldOf("tag").forGetter(param0x -> Optional.ofNullable(param0x.tag))
                 )
@@ -150,7 +152,7 @@ public final class ItemStack {
     }
 
     private ItemStack(CompoundTag param0) {
-        this.item = Registry.ITEM.get(new ResourceLocation(param0.getString("id")));
+        this.item = BuiltInRegistries.ITEM.get(new ResourceLocation(param0.getString("id")));
         this.count = param0.getByte("Count");
         if (param0.contains("tag", 10)) {
             this.tag = param0.getCompound("tag");
@@ -229,7 +231,7 @@ public final class ItemStack {
         BlockInWorld var2 = new BlockInWorld(param0.getLevel(), var1, false);
         if (var0 != null
             && !var0.getAbilities().mayBuild
-            && !this.hasAdventureModePlaceTagForBlock(param0.getLevel().registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), var2)) {
+            && !this.hasAdventureModePlaceTagForBlock(param0.getLevel().registryAccess().registryOrThrow(Registries.BLOCK), var2)) {
             return InteractionResult.PASS;
         } else {
             Item var3 = this.getItem();
@@ -255,7 +257,7 @@ public final class ItemStack {
     }
 
     public CompoundTag save(CompoundTag param0) {
-        ResourceLocation var0 = Registry.ITEM.getKey(this.getItem());
+        ResourceLocation var0 = BuiltInRegistries.ITEM.getKey(this.getItem());
         param0.putString("id", var0 == null ? "minecraft:air" : var0.toString());
         param0.putByte("Count", (byte)this.count);
         if (this.tag != null) {
@@ -780,7 +782,7 @@ public final class ItemStack {
                 var0.add(Component.translatable("item.durability", this.getMaxDamage() - this.getDamageValue(), this.getMaxDamage()));
             }
 
-            var0.add(Component.literal(Registry.ITEM.getKey(this.getItem()).toString()).withStyle(ChatFormatting.DARK_GRAY));
+            var0.add(Component.literal(BuiltInRegistries.ITEM.getKey(this.getItem()).toString()).withStyle(ChatFormatting.DARK_GRAY));
             if (this.hasTag()) {
                 var0.add(Component.translatable("item.nbt_tags", this.tag.getAllKeys().size()).withStyle(ChatFormatting.DARK_GRAY));
             }
@@ -809,7 +811,7 @@ public final class ItemStack {
     public static void appendEnchantmentNames(List<Component> param0, ListTag param1) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
             CompoundTag var1 = param1.getCompound(var0);
-            Registry.ENCHANTMENT
+            BuiltInRegistries.ENCHANTMENT
                 .getOptional(EnchantmentHelper.getEnchantmentId(var1))
                 .ifPresent(param2 -> param0.add(param2.getFullname(EnchantmentHelper.getEnchantmentLevel(var1))));
         }
@@ -818,7 +820,7 @@ public final class ItemStack {
 
     private static Collection<Component> expandBlockState(String param0) {
         try {
-            return BlockStateParser.parseForTesting(Registry.BLOCK.asLookup(), param0, true)
+            return BlockStateParser.parseForTesting(BuiltInRegistries.BLOCK.asLookup(), param0, true)
                 .map(
                     param0x -> Lists.newArrayList(param0x.blockState().getBlock().getName().withStyle(ChatFormatting.DARK_GRAY)),
                     param0x -> param0x.tag()
@@ -904,7 +906,7 @@ public final class ItemStack {
             for(int var2 = 0; var2 < var1.size(); ++var2) {
                 CompoundTag var3 = var1.getCompound(var2);
                 if (!var3.contains("Slot", 8) || var3.getString("Slot").equals(param0.getName())) {
-                    Optional<Attribute> var4 = Registry.ATTRIBUTE.getOptional(ResourceLocation.tryParse(var3.getString("AttributeName")));
+                    Optional<Attribute> var4 = BuiltInRegistries.ATTRIBUTE.getOptional(ResourceLocation.tryParse(var3.getString("AttributeName")));
                     if (var4.isPresent()) {
                         AttributeModifier var5 = AttributeModifier.load(var3);
                         if (var5 != null && var5.getId().getLeastSignificantBits() != 0L && var5.getId().getMostSignificantBits() != 0L) {
@@ -928,7 +930,7 @@ public final class ItemStack {
 
         ListTag var0 = this.tag.getList("AttributeModifiers", 10);
         CompoundTag var1 = param1.save();
-        var1.putString("AttributeName", Registry.ATTRIBUTE.getKey(param0).toString());
+        var1.putString("AttributeName", BuiltInRegistries.ATTRIBUTE.getKey(param0).toString());
         if (param2 != null) {
             var1.putString("Slot", param2.getName());
         }

@@ -3,7 +3,7 @@ package net.minecraft.data.worldgen.placement;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -52,7 +52,7 @@ public class PlacementUtils {
     }
 
     public static ResourceKey<PlacedFeature> createKey(String param0) {
-        return ResourceKey.create(Registry.PLACED_FEATURE_REGISTRY, new ResourceLocation(param0));
+        return ResourceKey.create(Registries.PLACED_FEATURE, new ResourceLocation(param0));
     }
 
     public static void register(

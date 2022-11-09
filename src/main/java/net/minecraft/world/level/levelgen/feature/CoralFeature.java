@@ -5,7 +5,7 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
@@ -27,7 +27,7 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
         RandomSource var0 = param0.random();
         WorldGenLevel var1 = param0.level();
         BlockPos var2 = param0.origin();
-        Optional<Block> var3 = Registry.BLOCK.getTag(BlockTags.CORAL_BLOCKS).flatMap(param1 -> param1.getRandomElement(var0)).map(Holder::value);
+        Optional<Block> var3 = BuiltInRegistries.BLOCK.getTag(BlockTags.CORAL_BLOCKS).flatMap(param1 -> param1.getRandomElement(var0)).map(Holder::value);
         return var3.isEmpty() ? false : this.placeFeature(var1, var0, var2, var3.get().defaultBlockState());
     }
 
@@ -39,7 +39,7 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
         if ((var1.is(Blocks.WATER) || var1.is(BlockTags.CORALS)) && param0.getBlockState(var0).is(Blocks.WATER)) {
             param0.setBlock(param2, param3, 3);
             if (param1.nextFloat() < 0.25F) {
-                Registry.BLOCK
+                BuiltInRegistries.BLOCK
                     .getTag(BlockTags.CORALS)
                     .flatMap(param1x -> param1x.getRandomElement(param1))
                     .map(Holder::value)
@@ -52,7 +52,7 @@ public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
                 if (param1.nextFloat() < 0.2F) {
                     BlockPos var3 = param2.relative(var2);
                     if (param0.getBlockState(var3).is(Blocks.WATER)) {
-                        Registry.BLOCK
+                        BuiltInRegistries.BLOCK
                             .getTag(BlockTags.WALL_CORALS)
                             .flatMap(param1x -> param1x.getRandomElement(param1))
                             .map(Holder::value)

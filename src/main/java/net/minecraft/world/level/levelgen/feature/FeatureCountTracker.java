@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -60,7 +61,7 @@ public class FeatureCountTracker {
                 (param0, param1) -> {
                     String var0 = param0.dimension().location().toString();
                     boolean var1 = param0.getServer().isRunning();
-                    Registry<PlacedFeature> var2 = param0.registryAccess().registryOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+                    Registry<PlacedFeature> var2 = param0.registryAccess().registryOrThrow(Registries.PLACED_FEATURE);
                     String var3 = (var1 ? "running" : "dead") + " " + var0;
                     Integer var4 = param1.chunksWithFeatures().getValue();
                     LOGGER.debug(var3 + " total_chunks: " + var4);

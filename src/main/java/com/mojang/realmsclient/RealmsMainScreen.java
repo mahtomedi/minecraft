@@ -30,7 +30,6 @@ import com.mojang.realmsclient.gui.task.DataFetcher;
 import com.mojang.realmsclient.util.RealmsPersistence;
 import com.mojang.realmsclient.util.RealmsTextureManager;
 import com.mojang.realmsclient.util.task.GetServerDetailsTask;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -123,8 +122,6 @@ public class RealmsMainScreen extends RealmsScreen {
     private Button renewButton;
     private Button configureButton;
     private Button leaveButton;
-    @Nullable
-    private List<Component> toolTip;
     private List<RealmsServer> realmsServers = ImmutableList.of();
     volatile int numberOfPendingInvites;
     int animTick;
@@ -761,7 +758,6 @@ public class RealmsMainScreen extends RealmsScreen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.hoveredElement = RealmsMainScreen.HoveredElement.NONE;
-        this.toolTip = null;
         this.renderBackground(param0);
         this.realmSelectionList.render(param0, param1, param2, param3);
         this.drawRealmsLogo(param0, this.width / 2 - 50, 7);
@@ -790,10 +786,6 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         super.render(param0, param1, param2, param3);
-        if (this.toolTip != null) {
-            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
-        }
-
         if (this.trialsAvailable && !this.createdTrial && this.shouldShowPopup()) {
             RenderSystem.setShaderTexture(0, TRIAL_ICON_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -996,7 +988,7 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 < this.height - 40
             && param4 > 32
             && !this.shouldShowPopup()) {
-            this.setTooltip(SERVER_EXPIRED_TOOLTIP);
+            this.setTooltipForNextRenderPass(SERVER_EXPIRED_TOOLTIP);
         }
 
     }
@@ -1018,11 +1010,11 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 > 32
             && !this.shouldShowPopup()) {
             if (param5 <= 0) {
-                this.setTooltip(SERVER_EXPIRES_SOON_TOOLTIP);
+                this.setTooltipForNextRenderPass(SERVER_EXPIRES_SOON_TOOLTIP);
             } else if (param5 == 1) {
-                this.setTooltip(SERVER_EXPIRES_IN_DAY_TOOLTIP);
+                this.setTooltipForNextRenderPass(SERVER_EXPIRES_IN_DAY_TOOLTIP);
             } else {
-                this.setTooltip(Component.translatable("mco.selectServer.expires.days", param5));
+                this.setTooltipForNextRenderPass(Component.translatable("mco.selectServer.expires.days", param5));
             }
         }
 
@@ -1039,7 +1031,7 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 < this.height - 40
             && param4 > 32
             && !this.shouldShowPopup()) {
-            this.setTooltip(SERVER_OPEN_TOOLTIP);
+            this.setTooltipForNextRenderPass(SERVER_OPEN_TOOLTIP);
         }
 
     }
@@ -1055,7 +1047,7 @@ public class RealmsMainScreen extends RealmsScreen {
             && param4 < this.height - 40
             && param4 > 32
             && !this.shouldShowPopup()) {
-            this.setTooltip(SERVER_CLOSED_TOOLTIP);
+            this.setTooltipForNextRenderPass(SERVER_CLOSED_TOOLTIP);
         }
 
     }
@@ -1077,7 +1069,7 @@ public class RealmsMainScreen extends RealmsScreen {
         float var1 = var0 ? 28.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
-            this.setTooltip(LEAVE_SERVER_TOOLTIP);
+            this.setTooltipForNextRenderPass(LEAVE_SERVER_TOOLTIP);
             this.hoveredElement = RealmsMainScreen.HoveredElement.LEAVE;
         }
 
@@ -1100,38 +1092,10 @@ public class RealmsMainScreen extends RealmsScreen {
         float var1 = var0 ? 28.0F : 0.0F;
         GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
-            this.setTooltip(CONFIGURE_SERVER_TOOLTIP);
+            this.setTooltipForNextRenderPass(CONFIGURE_SERVER_TOOLTIP);
             this.hoveredElement = RealmsMainScreen.HoveredElement.CONFIGURE;
         }
 
-    }
-
-    protected void renderMousehoverTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
-        if (!param1.isEmpty()) {
-            int var0 = 0;
-            int var1 = 0;
-
-            for(Component var2 : param1) {
-                int var3 = this.font.width(var2);
-                if (var3 > var1) {
-                    var1 = var3;
-                }
-            }
-
-            int var4 = param2 - var1 - 5;
-            int var5 = param3;
-            if (var4 < 0) {
-                var4 = param2 + 12;
-            }
-
-            for(Component var6 : param1) {
-                int var7 = var5 - (var0 == 0 ? 3 : 0) + var0;
-                this.fillGradient(param0, var4 - 3, var7, var4 + var1 + 3, var5 + 8 + 3 + var0, -1073741824, -1073741824);
-                this.font.drawShadow(param0, var6, (float)var4, (float)(var5 + var0), 16777215);
-                var0 += 10;
-            }
-
-        }
     }
 
     void renderNews(PoseStack param0, int param1, int param2, boolean param3, int param4, int param5, boolean param6, boolean param7) {
@@ -1151,7 +1115,7 @@ public class RealmsMainScreen extends RealmsScreen {
         float var2 = var1 ? 20.0F : 0.0F;
         GuiComponent.blit(param0, param4, param5, var2, 0.0F, 20, 20, 40, 20);
         if (var0 && param7) {
-            this.setTooltip(NEWS_TOOLTIP);
+            this.setTooltipForNextRenderPass(NEWS_TOOLTIP);
         }
 
         if (param3 && param7) {
@@ -1196,10 +1160,6 @@ public class RealmsMainScreen extends RealmsScreen {
         teaserImages = var0.stream().filter(param0x -> param0x.getNamespace().equals("realms")).toList();
     }
 
-    void setTooltip(Component... param0) {
-        this.toolTip = Arrays.asList(param0);
-    }
-
     private void pendingButtonPress(Button param0) {
         this.minecraft.setScreen(new RealmsPendingInvitesScreen(this.lastScreen));
     }
@@ -1214,7 +1174,6 @@ public class RealmsMainScreen extends RealmsScreen {
                 12,
                 Component.translatable("mco.selectServer.close"),
                 param1 -> RealmsMainScreen.this.onClosePopup(),
-                NO_TOOLTIP,
                 DEFAULT_NARRATION
             );
         }
@@ -1226,7 +1185,7 @@ public class RealmsMainScreen extends RealmsScreen {
             float var0 = this.isHoveredOrFocused() ? 12.0F : 0.0F;
             blit(param0, this.getX(), this.getY(), 0.0F, var0, 12, 12, 12, 24);
             if (this.isMouseOver((double)param1, (double)param2)) {
-                RealmsMainScreen.this.setTooltip(this.getMessage());
+                RealmsMainScreen.this.setTooltipForNextRenderPass(this.getMessage());
             }
 
         }
@@ -1266,7 +1225,7 @@ public class RealmsMainScreen extends RealmsScreen {
                     }
 
                 }
-            }, NO_TOOLTIP, DEFAULT_NARRATION);
+            }, DEFAULT_NARRATION);
         }
 
         @Override
@@ -1280,16 +1239,7 @@ public class RealmsMainScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class PendingInvitesButton extends Button {
         public PendingInvitesButton() {
-            super(
-                RealmsMainScreen.this.width / 2 + 47,
-                6,
-                22,
-                22,
-                CommonComponents.EMPTY,
-                RealmsMainScreen.this::pendingButtonPress,
-                NO_TOOLTIP,
-                DEFAULT_NARRATION
-            );
+            super(RealmsMainScreen.this.width / 2 + 47, 6, 22, 22, CommonComponents.EMPTY, RealmsMainScreen.this::pendingButtonPress, DEFAULT_NARRATION);
         }
 
         public void tick() {
@@ -1460,7 +1410,7 @@ public class RealmsMainScreen extends RealmsScreen {
                         && param5 < RealmsMainScreen.this.height - 40
                         && param5 > 32
                         && !RealmsMainScreen.this.shouldShowPopup()) {
-                        RealmsMainScreen.this.setTooltip(Component.literal(param0.serverPing.playerList));
+                        RealmsMainScreen.this.setTooltipForNextRenderPass(Component.literal(param0.serverPing.playerList));
                     }
                 }
 

@@ -13,7 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -119,6 +119,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         add(var0, Items.COAL, 1600);
         add(var0, Items.CHARCOAL, 1600);
         add(var0, ItemTags.LOGS, 300);
+        add(var0, ItemTags.BAMBOO_BLOCKS, 300);
         add(var0, ItemTags.PLANKS, 300);
         add(var0, Blocks.BAMBOO_MOSAIC, 300);
         add(var0, ItemTags.WOODEN_STAIRS, 300);
@@ -179,7 +180,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     private static void add(Map<Item, Integer> param0, TagKey<Item> param1, int param2) {
-        for(Holder<Item> var0 : Registry.ITEM.getTagOrEmpty(param1)) {
+        for(Holder<Item> var0 : BuiltInRegistries.ITEM.getTagOrEmpty(param1)) {
             if (!isNeverAFurnaceFuel(var0.value())) {
                 param0.put(var0.value(), param2);
             }

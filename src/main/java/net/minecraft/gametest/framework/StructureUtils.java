@@ -17,9 +17,9 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.data.structures.StructureUpdater;
@@ -278,9 +278,7 @@ public class StructureUtils {
         BlockState var0 = null;
         RegistryAccess var1 = param2.registryAccess();
         FlatLevelGeneratorSettings var2 = FlatLevelGeneratorSettings.getDefault(
-            var1.lookupOrThrow(Registry.BIOME_REGISTRY),
-            var1.lookupOrThrow(Registry.STRUCTURE_SET_REGISTRY),
-            var1.lookupOrThrow(Registry.PLACED_FEATURE_REGISTRY)
+            var1.lookupOrThrow(Registries.BIOME), var1.lookupOrThrow(Registries.STRUCTURE_SET), var1.lookupOrThrow(Registries.PLACED_FEATURE)
         );
         List<BlockState> var3 = var2.getLayers();
         int var4 = param1.getY() - param2.getMinBuildHeight();

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -34,7 +34,7 @@ public class BiomeParametersDumpReport implements DataProvider {
     public CompletableFuture<?> run(CachedOutput param0) {
         return this.registries.thenCompose(param1 -> {
             DynamicOps<JsonElement> var0 = RegistryOps.create(JsonOps.INSTANCE, param1);
-            HolderGetter<Biome> var1x = param1.lookupOrThrow(Registry.BIOME_REGISTRY);
+            HolderGetter<Biome> var1x = param1.lookupOrThrow(Registries.BIOME);
             return CompletableFuture.allOf(MultiNoiseBiomeSource.Preset.getPresets().map(param3 -> {
                 MultiNoiseBiomeSource var0x = param3.getSecond().biomeSource(var1x, false);
                 return dumpValue(this.createPath(param3.getFirst()), param0, var0, MultiNoiseBiomeSource.CODEC, var0x);

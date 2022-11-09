@@ -6,7 +6,7 @@ import java.util.function.Function;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -97,7 +97,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
                     BlockState var6 = Blocks.AIR.defaultBlockState();
 
                     try {
-                        var6 = BlockStateParser.parseForBlock(param0.holderLookup(Registry.BLOCK_REGISTRY), var5, true).blockState();
+                        var6 = BlockStateParser.parseForBlock(param0.holderLookup(Registries.BLOCK), var5, true).blockState();
                     } catch (CommandSyntaxException var15) {
                         LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos);
                     }

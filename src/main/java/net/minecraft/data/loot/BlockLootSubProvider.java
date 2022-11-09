@@ -16,7 +16,7 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -570,13 +570,15 @@ public abstract class BlockLootSubProvider implements LootTableSubProvider {
         this.generate();
         Set<ResourceLocation> var0 = new HashSet<>();
 
-        for(Block var1 : Registry.BLOCK) {
+        for(Block var1 : BuiltInRegistries.BLOCK) {
             if (var1.isEnabled(this.enabledFeatures)) {
                 ResourceLocation var2 = var1.getLootTable();
                 if (var2 != BuiltInLootTables.EMPTY && var0.add(var2)) {
                     LootTable.Builder var3 = this.map.remove(var2);
                     if (var3 == null) {
-                        throw new IllegalStateException(String.format(Locale.ROOT, "Missing loottable '%s' for '%s'", var2, Registry.BLOCK.getKey(var1)));
+                        throw new IllegalStateException(
+                            String.format(Locale.ROOT, "Missing loottable '%s' for '%s'", var2, BuiltInRegistries.BLOCK.getKey(var1))
+                        );
                     }
 
                     param0.accept(var2, var3);

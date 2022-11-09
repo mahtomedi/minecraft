@@ -1,43 +1,41 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Optional;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import org.apache.commons.lang3.mutable.MutableInt;
 
-public class SetHiddenState extends Behavior<LivingEntity> {
+public class SetHiddenState {
     private static final int HIDE_TIMEOUT = 300;
-    private final int closeEnoughDist;
-    private final int stayHiddenTicks;
-    private int ticksHidden;
 
-    public SetHiddenState(int param0, int param1) {
-        super(ImmutableMap.of(MemoryModuleType.HIDING_PLACE, MemoryStatus.VALUE_PRESENT, MemoryModuleType.HEARD_BELL_TIME, MemoryStatus.VALUE_PRESENT));
-        this.stayHiddenTicks = param0 * 20;
-        this.ticksHidden = 0;
-        this.closeEnoughDist = param1;
-    }
-
-    @Override
-    protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        Brain<?> var0 = param1.getBrain();
-        Optional<Long> var1 = var0.getMemory(MemoryModuleType.HEARD_BELL_TIME);
-        boolean var2 = var1.get() + 300L <= param2;
-        if (this.ticksHidden <= this.stayHiddenTicks && !var2) {
-            BlockPos var3 = var0.getMemory(MemoryModuleType.HIDING_PLACE).get().pos();
-            if (var3.closerThan(param1.blockPosition(), (double)this.closeEnoughDist)) {
-                ++this.ticksHidden;
-            }
-
-        } else {
-            var0.eraseMemory(MemoryModuleType.HEARD_BELL_TIME);
-            var0.eraseMemory(MemoryModuleType.HIDING_PLACE);
-            var0.updateActivityFromSchedule(param0.getDayTime(), param0.getGameTime());
-            this.ticksHidden = 0;
-        }
+    public static BehaviorControl<LivingEntity> create(int param0, int param1) {
+        int var0 = param0 * 20;
+        MutableInt var1 = new MutableInt(0);
+        return BehaviorBuilder.create(
+            param3 -> param3.<MemoryAccessor, MemoryAccessor>group(
+                        param3.present(MemoryModuleType.HIDING_PLACE), param3.present(MemoryModuleType.HEARD_BELL_TIME)
+                    )
+                    .apply(param3, (param4, param5) -> (param6, param7, param8) -> {
+                            long var0x = param3.<Long>get(param5);
+                            boolean var1x = var0x + 300L <= param8;
+                            if (var1.getValue() <= var0 && !var1x) {
+                                BlockPos var2x = param3.<GlobalPos>get(param4).pos();
+                                if (var2x.closerThan(param7.blockPosition(), (double)param1)) {
+                                    var1.increment();
+                                }
+        
+                                return true;
+                            } else {
+                                param5.erase();
+                                param4.erase();
+                                param7.getBrain().updateActivityFromSchedule(param6.getDayTime(), param6.getGameTime());
+                                var1.setValue(0);
+                                return true;
+                            }
+                        })
+        );
     }
 }

@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.util.VisibleForDebug;
 
@@ -19,7 +19,7 @@ public class PoiRecord {
         return RecordCodecBuilder.create(
             param1 -> param1.group(
                         BlockPos.CODEC.fieldOf("pos").forGetter(param0x -> param0x.pos),
-                        RegistryFixedCodec.create(Registry.POINT_OF_INTEREST_TYPE_REGISTRY).fieldOf("type").forGetter(param0x -> param0x.poiType),
+                        RegistryFixedCodec.create(Registries.POINT_OF_INTEREST_TYPE).fieldOf("type").forGetter(param0x -> param0x.poiType),
                         Codec.INT.fieldOf("free_tickets").orElse(0).forGetter(param0x -> param0x.freeTickets),
                         RecordCodecBuilder.point(param0)
                     )

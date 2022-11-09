@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
@@ -71,7 +71,7 @@ public class RepairItemRecipe extends CustomRecipe {
                 Map<Enchantment, Integer> var12 = Maps.newHashMap();
                 Map<Enchantment, Integer> var13 = EnchantmentHelper.getEnchantments(var4);
                 Map<Enchantment, Integer> var14 = EnchantmentHelper.getEnchantments(var5);
-                Registry.ENCHANTMENT.stream().filter(Enchantment::isCurse).forEach(param3 -> {
+                BuiltInRegistries.ENCHANTMENT.stream().filter(Enchantment::isCurse).forEach(param3 -> {
                     int var0x = Math.max(var13.getOrDefault(param3, 0), var14.getOrDefault(param3, 0));
                     if (var0x > 0) {
                         var12.put(param3, var0x);

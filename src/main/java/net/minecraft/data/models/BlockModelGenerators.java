@@ -1136,6 +1136,20 @@ public class BlockModelGenerators {
             );
     }
 
+    static BlockStateGenerator createPillarBlockUVLocked(Block param0, TextureMapping param1, BiConsumer<ResourceLocation, Supplier<JsonElement>> param2) {
+        ResourceLocation var0 = ModelTemplates.CUBE_COLUMN_UV_LOCKED_X.create(param0, param1, param2);
+        ResourceLocation var1 = ModelTemplates.CUBE_COLUMN_UV_LOCKED_Y.create(param0, param1, param2);
+        ResourceLocation var2 = ModelTemplates.CUBE_COLUMN_UV_LOCKED_Z.create(param0, param1, param2);
+        ResourceLocation var3 = ModelTemplates.CUBE_COLUMN.create(param0, param1, param2);
+        return MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.MODEL, var3))
+            .with(
+                PropertyDispatch.property(BlockStateProperties.AXIS)
+                    .select(Direction.Axis.X, Variant.variant().with(VariantProperties.MODEL, var0))
+                    .select(Direction.Axis.Y, Variant.variant().with(VariantProperties.MODEL, var1))
+                    .select(Direction.Axis.Z, Variant.variant().with(VariantProperties.MODEL, var2))
+            );
+    }
+
     static BlockStateGenerator createAxisAlignedPillarBlock(Block param0, ResourceLocation param1) {
         return MultiVariantGenerator.multiVariant(param0, Variant.variant().with(VariantProperties.MODEL, param1)).with(createRotatedPillar());
     }
@@ -4600,6 +4614,8 @@ public class BlockModelGenerators {
         this.createHangingSign(Blocks.STRIPPED_WARPED_STEM, Blocks.WARPED_HANGING_SIGN, Blocks.WARPED_WALL_HANGING_SIGN);
         this.createPlant(Blocks.WARPED_FUNGUS, Blocks.POTTED_WARPED_FUNGUS, BlockModelGenerators.TintState.NOT_TINTED);
         this.createNetherRoots(Blocks.WARPED_ROOTS, Blocks.POTTED_WARPED_ROOTS);
+        this.woodProvider(Blocks.BAMBOO_BLOCK).logUVLocked(Blocks.BAMBOO_BLOCK);
+        this.woodProvider(Blocks.STRIPPED_BAMBOO_BLOCK).logUVLocked(Blocks.STRIPPED_BAMBOO_BLOCK);
         this.createHangingSign(Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_HANGING_SIGN, Blocks.BAMBOO_WALL_HANGING_SIGN);
         this.createCrossBlock(Blocks.NETHER_SPROUTS, BlockModelGenerators.TintState.NOT_TINTED);
         this.createSimpleFlatItemModel(Items.NETHER_SPROUTS);
@@ -4943,6 +4959,12 @@ public class BlockModelGenerators {
             ResourceLocation var0 = ModelTemplates.CUBE_COLUMN.create(param0, this.logMapping, BlockModelGenerators.this.modelOutput);
             ResourceLocation var1 = ModelTemplates.CUBE_COLUMN_HORIZONTAL.create(param0, this.logMapping, BlockModelGenerators.this.modelOutput);
             BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createRotatedPillarWithHorizontalVariant(param0, var0, var1));
+            return this;
+        }
+
+        public BlockModelGenerators.WoodProvider logUVLocked(Block param0) {
+            BlockModelGenerators.this.blockStateOutput
+                .accept(BlockModelGenerators.createPillarBlockUVLocked(param0, this.logMapping, BlockModelGenerators.this.modelOutput));
             return this;
         }
     }

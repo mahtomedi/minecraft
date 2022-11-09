@@ -6,6 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -41,7 +42,7 @@ public class WorldPresets {
     }
 
     private static ResourceKey<WorldPreset> register(String param0) {
-        return ResourceKey.create(Registry.WORLD_PRESET_REGISTRY, new ResourceLocation(param0));
+        return ResourceKey.create(Registries.WORLD_PRESET, new ResourceLocation(param0));
     }
 
     public static Optional<ResourceKey<WorldPreset>> fromSettings(Registry<LevelStem> param0) {
@@ -56,11 +57,11 @@ public class WorldPresets {
     }
 
     public static WorldDimensions createNormalWorldDimensions(RegistryAccess param0) {
-        return param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value().createWorldDimensions();
+        return param0.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(NORMAL).value().createWorldDimensions();
     }
 
     public static LevelStem getNormalOverworld(RegistryAccess param0) {
-        return param0.registryOrThrow(Registry.WORLD_PRESET_REGISTRY).getHolderOrThrow(NORMAL).value().overworld().orElseThrow();
+        return param0.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(NORMAL).value().overworld().orElseThrow();
     }
 
     static class Bootstrap {
@@ -75,11 +76,11 @@ public class WorldPresets {
 
         Bootstrap(BootstapContext<WorldPreset> param0) {
             this.context = param0;
-            HolderGetter<DimensionType> var0 = param0.lookup(Registry.DIMENSION_TYPE_REGISTRY);
-            this.noiseSettings = param0.lookup(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
-            this.biomes = param0.lookup(Registry.BIOME_REGISTRY);
-            this.placedFeatures = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
-            this.structureSets = param0.lookup(Registry.STRUCTURE_SET_REGISTRY);
+            HolderGetter<DimensionType> var0 = param0.lookup(Registries.DIMENSION_TYPE);
+            this.noiseSettings = param0.lookup(Registries.NOISE_SETTINGS);
+            this.biomes = param0.lookup(Registries.BIOME);
+            this.placedFeatures = param0.lookup(Registries.PLACED_FEATURE);
+            this.structureSets = param0.lookup(Registries.STRUCTURE_SET);
             this.overworldDimensionType = var0.getOrThrow(BuiltinDimensionTypes.OVERWORLD);
             Holder<DimensionType> var1 = var0.getOrThrow(BuiltinDimensionTypes.NETHER);
             Holder<NoiseGeneratorSettings> var2 = this.noiseSettings.getOrThrow(NoiseGeneratorSettings.NETHER);

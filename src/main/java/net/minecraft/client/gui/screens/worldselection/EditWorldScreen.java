@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Function;
+import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -84,7 +85,7 @@ public class EditWorldScreen extends Screen {
             Path var1x = var0x.getBackupPath();
 
             try {
-                Files.createDirectories(Files.exists(var1x) ? var1x.toRealPath() : var1x);
+                FileUtil.createDirectoriesSafe(var1x);
             } catch (IOException var5) {
                 throw new RuntimeException(var5);
             }

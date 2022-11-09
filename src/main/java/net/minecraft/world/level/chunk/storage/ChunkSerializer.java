@@ -19,6 +19,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
@@ -91,7 +93,7 @@ public class ChunkSerializer {
         boolean var6 = param0.dimensionType().hasSkyLight();
         ChunkSource var7 = param0.getChunkSource();
         LevelLightEngine var8 = var7.getLightEngine();
-        Registry<Biome> var9 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<Biome> var9 = param0.registryAccess().registryOrThrow(Registries.BIOME);
         Codec<PalettedContainerRO<Holder<Biome>>> var10 = makeBiomeCodec(var9);
         boolean var11 = false;
 
@@ -153,18 +155,18 @@ public class ChunkSerializer {
         ChunkAccess var29;
         if (var24 == ChunkStatus.ChunkType.LEVELCHUNK) {
             LevelChunkTicks<Block> var27 = LevelChunkTicks.load(
-                param3.getList("block_ticks", 10), param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
+                param3.getList("block_ticks", 10), param0x -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
             LevelChunkTicks<Fluid> var28 = LevelChunkTicks.load(
-                param3.getList("fluid_ticks", 10), param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
+                param3.getList("fluid_ticks", 10), param0x -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
             var29 = new LevelChunk(param0.getLevel(), param2, var1, var27, var28, var23, var5, postLoadChunk(param0, param3), var25);
         } else {
             ProtoChunkTicks<Block> var30 = ProtoChunkTicks.load(
-                param3.getList("block_ticks", 10), param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
+                param3.getList("block_ticks", 10), param0x -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
             ProtoChunkTicks<Fluid> var31 = ProtoChunkTicks.load(
-                param3.getList("fluid_ticks", 10), param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
+                param3.getList("fluid_ticks", 10), param0x -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
             ProtoChunk var32 = new ProtoChunk(param2, var1, var5, var30, var31, param0, var9, var25);
             var29 = var32;
@@ -310,7 +312,7 @@ public class ChunkSerializer {
         LevelChunkSection[] var5 = param1.getSections();
         ListTag var6 = new ListTag();
         LevelLightEngine var7 = param0.getChunkSource().getLightEngine();
-        Registry<Biome> var8 = param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<Biome> var8 = param0.registryAccess().registryOrThrow(Registries.BIOME);
         Codec<PalettedContainerRO<Holder<Biome>>> var9 = makeBiomeCodec(var8);
         boolean var10 = param1.isLightCorrect();
 
@@ -392,8 +394,8 @@ public class ChunkSerializer {
 
     private static void saveTicks(ServerLevel param0, CompoundTag param1, ChunkAccess.TicksToSave param2) {
         long var0 = param0.getLevelData().getGameTime();
-        param1.put("block_ticks", param2.blocks().save(var0, param0x -> Registry.BLOCK.getKey(param0x).toString()));
-        param1.put("fluid_ticks", param2.fluids().save(var0, param0x -> Registry.FLUID.getKey(param0x).toString()));
+        param1.put("block_ticks", param2.blocks().save(var0, param0x -> BuiltInRegistries.BLOCK.getKey(param0x).toString()));
+        param1.put("fluid_ticks", param2.fluids().save(var0, param0x -> BuiltInRegistries.FLUID.getKey(param0x).toString()));
     }
 
     public static ChunkStatus.ChunkType getChunkTypeFromTag(@Nullable CompoundTag param0) {
@@ -439,7 +441,7 @@ public class ChunkSerializer {
     ) {
         CompoundTag var0 = new CompoundTag();
         CompoundTag var1 = new CompoundTag();
-        Registry<Structure> var2 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        Registry<Structure> var2 = param0.registryAccess().registryOrThrow(Registries.STRUCTURE);
 
         for(Entry<Structure, StructureStart> var3 : param2.entrySet()) {
             ResourceLocation var4 = var2.getKey(var3.getKey());
@@ -462,7 +464,7 @@ public class ChunkSerializer {
 
     private static Map<Structure, StructureStart> unpackStructureStart(StructurePieceSerializationContext param0, CompoundTag param1, long param2) {
         Map<Structure, StructureStart> var0 = Maps.newHashMap();
-        Registry<Structure> var1 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        Registry<Structure> var1 = param0.registryAccess().registryOrThrow(Registries.STRUCTURE);
         CompoundTag var2 = param1.getCompound("starts");
 
         for(String var3 : var2.getAllKeys()) {
@@ -483,7 +485,7 @@ public class ChunkSerializer {
 
     private static Map<Structure, LongSet> unpackStructureReferences(RegistryAccess param0, ChunkPos param1, CompoundTag param2) {
         Map<Structure, LongSet> var0 = Maps.newHashMap();
-        Registry<Structure> var1 = param0.registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        Registry<Structure> var1 = param0.registryOrThrow(Registries.STRUCTURE);
         CompoundTag var2 = param2.getCompound("References");
 
         for(String var3 : var2.getAllKeys()) {

@@ -6,7 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.TreePlacements;
@@ -88,13 +88,13 @@ public class VegetationFeatures {
     }
 
     public static void bootstrap(BootstapContext<ConfiguredFeature<?, ?>> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
         Holder<ConfiguredFeature<?, ?>> var1 = var0.getOrThrow(TreeFeatures.HUGE_BROWN_MUSHROOM);
         Holder<ConfiguredFeature<?, ?>> var2 = var0.getOrThrow(TreeFeatures.HUGE_RED_MUSHROOM);
         Holder<ConfiguredFeature<?, ?>> var3 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES_005);
         Holder<ConfiguredFeature<?, ?>> var4 = var0.getOrThrow(TreeFeatures.OAK_BEES_005);
         Holder<ConfiguredFeature<?, ?>> var5 = var0.getOrThrow(PATCH_GRASS_JUNGLE);
-        HolderGetter<PlacedFeature> var6 = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
+        HolderGetter<PlacedFeature> var6 = param0.lookup(Registries.PLACED_FEATURE);
         Holder<PlacedFeature> var7 = var6.getOrThrow(TreePlacements.DARK_OAK_CHECKED);
         Holder<PlacedFeature> var8 = var6.getOrThrow(TreePlacements.BIRCH_CHECKED);
         Holder<PlacedFeature> var9 = var6.getOrThrow(TreePlacements.FANCY_OAK_CHECKED);

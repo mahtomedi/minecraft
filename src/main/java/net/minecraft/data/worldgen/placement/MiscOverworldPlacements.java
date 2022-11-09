@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.resources.ResourceKey;
@@ -50,7 +50,7 @@ public class MiscOverworldPlacements {
     public static final ResourceKey<PlacedFeature> SPRING_WATER = PlacementUtils.createKey("spring_water");
 
     public static void bootstrap(BootstapContext<PlacedFeature> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
         Holder<ConfiguredFeature<?, ?>> var1 = var0.getOrThrow(MiscOverworldFeatures.ICE_SPIKE);
         Holder<ConfiguredFeature<?, ?>> var2 = var0.getOrThrow(MiscOverworldFeatures.ICE_PATCH);
         Holder<ConfiguredFeature<?, ?>> var3 = var0.getOrThrow(MiscOverworldFeatures.FOREST_ROCK);

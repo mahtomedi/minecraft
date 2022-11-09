@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public abstract class Behavior<E extends LivingEntity> {
+public abstract class Behavior<E extends LivingEntity> implements BehaviorControl<E> {
     public static final int DEFAULT_DURATION = 60;
     protected final Map<MemoryModuleType<?>, MemoryStatus> entryCondition;
     private Behavior.Status status = Behavior.Status.STOPPED;
@@ -29,10 +29,12 @@ public abstract class Behavior<E extends LivingEntity> {
         this.entryCondition = param0;
     }
 
+    @Override
     public Behavior.Status getStatus() {
         return this.status;
     }
 
+    @Override
     public final boolean tryStart(ServerLevel param0, E param1, long param2) {
         if (this.hasRequiredMemories(param1) && this.checkExtraStartConditions(param0, param1)) {
             this.status = Behavior.Status.RUNNING;
@@ -48,6 +50,7 @@ public abstract class Behavior<E extends LivingEntity> {
     protected void start(ServerLevel param0, E param1, long param2) {
     }
 
+    @Override
     public final void tickOrStop(ServerLevel param0, E param1, long param2) {
         if (!this.timedOut(param2) && this.canStillUse(param0, param1, param2)) {
             this.tick(param0, param1, param2);
@@ -60,6 +63,7 @@ public abstract class Behavior<E extends LivingEntity> {
     protected void tick(ServerLevel param0, E param1, long param2) {
     }
 
+    @Override
     public final void doStop(ServerLevel param0, E param1, long param2) {
         this.status = Behavior.Status.STOPPED;
         this.stop(param0, param1, param2);
@@ -81,11 +85,11 @@ public abstract class Behavior<E extends LivingEntity> {
     }
 
     @Override
-    public String toString() {
+    public String debugString() {
         return this.getClass().getSimpleName();
     }
 
-    private boolean hasRequiredMemories(E param0) {
+    protected boolean hasRequiredMemories(E param0) {
         for(Entry<MemoryModuleType<?>, MemoryStatus> var0 : this.entryCondition.entrySet()) {
             MemoryModuleType<?> var1 = var0.getKey();
             MemoryStatus var2 = var0.getValue();

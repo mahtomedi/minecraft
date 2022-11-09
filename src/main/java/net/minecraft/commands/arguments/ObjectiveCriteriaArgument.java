@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
@@ -55,7 +55,7 @@ public class ObjectiveCriteriaArgument implements ArgumentType<ObjectiveCriteria
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
         List<String> var0 = Lists.newArrayList(ObjectiveCriteria.getCustomCriteriaNames());
 
-        for(StatType<?> var1 : Registry.STAT_TYPE) {
+        for(StatType<?> var1 : BuiltInRegistries.STAT_TYPE) {
             for(Object var2 : var1.getRegistry()) {
                 String var3 = this.getName(var1, var2);
                 var0.add(var3);

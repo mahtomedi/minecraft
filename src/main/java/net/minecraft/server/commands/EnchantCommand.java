@@ -13,7 +13,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,7 +43,7 @@ public class EnchantCommand {
                 .then(
                     Commands.argument("targets", EntityArgument.entities())
                         .then(
-                            Commands.argument("enchantment", ResourceArgument.resource(param1, Registry.ENCHANTMENT_REGISTRY))
+                            Commands.argument("enchantment", ResourceArgument.resource(param1, Registries.ENCHANTMENT))
                                 .executes(
                                     param0x -> enchant(
                                             param0x.getSource(),

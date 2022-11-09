@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundAwardStatsPacket;
@@ -96,7 +96,7 @@ public class ServerStatsCounter extends StatsCounter {
                     for(String var4 : var3.getAllKeys()) {
                         if (var3.contains(var4, 10)) {
                             Util.ifElse(
-                                Registry.STAT_TYPE.getOptional(new ResourceLocation(var4)),
+                                BuiltInRegistries.STAT_TYPE.getOptional(new ResourceLocation(var4)),
                                 param2 -> {
                                     CompoundTag var0x = var3.getCompound(var4);
     
@@ -162,7 +162,7 @@ public class ServerStatsCounter extends StatsCounter {
         JsonObject var3 = new JsonObject();
 
         for(Entry<StatType<?>, JsonObject> var4 : var0.entrySet()) {
-            var3.add(Registry.STAT_TYPE.getKey(var4.getKey()).toString(), var4.getValue());
+            var3.add(BuiltInRegistries.STAT_TYPE.getKey(var4.getKey()).toString(), var4.getValue());
         }
 
         JsonObject var5 = new JsonObject();

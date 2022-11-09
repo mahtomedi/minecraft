@@ -137,7 +137,7 @@ public class RecipeButton extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
+    public void updateWidgetNarration(NarrationElementOutput param0) {
         ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem();
         param0.add(NarratedElementType.TITLE, (Component)Component.translatable("narration.recipe", var0.getHoverName()));
         if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {

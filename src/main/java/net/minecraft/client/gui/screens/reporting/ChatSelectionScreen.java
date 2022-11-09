@@ -47,8 +47,6 @@ public class ChatSelectionScreen extends Screen {
     final ChatReportBuilder report;
     private final Consumer<ChatReportBuilder> onSelected;
     private ChatSelectionLogFiller chatLogFiller;
-    @Nullable
-    private List<FormattedCharSequence> tooltip;
 
     public ChatSelectionScreen(@Nullable Screen param0, ReportingContext param1, ChatReportBuilder param2, Consumer<ChatReportBuilder> param3) {
         super(TITLE);
@@ -106,11 +104,6 @@ public class ChatSelectionScreen extends Screen {
         drawCenteredString(param0, this.font, var3, this.width / 2, 16 + 9 * 3 / 2, 10526880);
         this.contextInfoLabel.renderCentered(param0, this.width / 2, this.chatSelectionList.getFooterTop());
         super.render(param0, param1, param2, param3);
-        if (this.tooltip != null) {
-            this.renderTooltip(param0, this.tooltip, param1, param2);
-            this.tooltip = null;
-        }
-
     }
 
     @Override
@@ -121,10 +114,6 @@ public class ChatSelectionScreen extends Screen {
     @Override
     public Component getNarrationMessage() {
         return CommonComponents.joinForNarration(super.getNarrationMessage(), CONTEXT_INFO);
-    }
-
-    void setTooltip(@Nullable List<FormattedCharSequence> param0) {
-        this.tooltip = param0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -357,7 +346,7 @@ public class ChatSelectionScreen extends Screen {
                     param0, ChatSelectionScreen.this.font, Language.getInstance().getVisualOrder(this.text), var0, var1, this.canReport ? -1 : -1593835521
                 );
                 if (this.hoverText != null && param8) {
-                    ChatSelectionScreen.this.setTooltip(this.hoverText);
+                    ChatSelectionScreen.this.setTooltipForNextRenderPass(this.hoverText);
                 }
 
                 int var2 = ChatSelectionScreen.this.font.width(this.text);
@@ -373,7 +362,7 @@ public class ChatSelectionScreen extends Screen {
                         && param4 <= param1 + this.tagIcon.width
                         && param5 >= var0
                         && param5 <= var0 + this.tagIcon.height) {
-                        ChatSelectionScreen.this.setTooltip(this.tagHoverText);
+                        ChatSelectionScreen.this.setTooltipForNextRenderPass(this.tagHoverText);
                     }
                 }
 

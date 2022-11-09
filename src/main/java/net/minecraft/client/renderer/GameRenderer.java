@@ -44,6 +44,7 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -1021,7 +1022,7 @@ public class GameRenderer implements AutoCloseable {
                 }
             } else if (this.minecraft.screen != null) {
                 try {
-                    this.minecraft.screen.render(var5, var0, var1, this.minecraft.getDeltaFrameTime());
+                    this.minecraft.screen.renderWithTooltip(var5, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var151) {
                     CrashReport var12 = CrashReport.forThrowable(var151, "Rendering screen");
                     CrashReportCategory var13 = var12.addCategory("Screen render details");
@@ -1133,7 +1134,7 @@ public class GameRenderer implements AutoCloseable {
                         var1 = var5.getMenuProvider(this.minecraft.level, var4) != null;
                     } else {
                         BlockInWorld var6 = new BlockInWorld(this.minecraft.level, var4, false);
-                        Registry<Block> var7 = this.minecraft.level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY);
+                        Registry<Block> var7 = this.minecraft.level.registryAccess().registryOrThrow(Registries.BLOCK);
                         var1 = !var2.isEmpty() && (var2.hasAdventureModeBreakTagForBlock(var7, var6) || var2.hasAdventureModePlaceTagForBlock(var7, var6));
                     }
                 }

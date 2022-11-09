@@ -290,7 +290,7 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         private final ResourceLocation image;
 
         public FrameButton(int param0, int param1, Component param2, ResourceLocation param3, Button.OnPress param4) {
-            super(param0, param1, 60, 72, param2, param4, NO_TOOLTIP, DEFAULT_NARRATION);
+            super(param0, param1, 60, 72, param2, param4, DEFAULT_NARRATION);
             this.image = param3;
         }
 

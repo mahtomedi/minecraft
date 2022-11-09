@@ -267,7 +267,8 @@ public class Piglin extends AbstractPiglin implements CrossbowAttackMob, Invento
 
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
-        return this.isBaby() ? 0.93F : 1.74F;
+        float var0 = super.getStandingEyeHeight(param0, param1);
+        return this.isBaby() ? var0 - 0.81F : var0;
     }
 
     @Override

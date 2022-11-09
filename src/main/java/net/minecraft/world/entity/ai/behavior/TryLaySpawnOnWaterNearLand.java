@@ -1,55 +1,50 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluids;
 
-public class TryLaySpawnOnWaterNearLand extends Behavior<Frog> {
-    private final Block spawnBlock;
-    private final MemoryModuleType<?> memoryModule;
-
-    public TryLaySpawnOnWaterNearLand(Block param0, MemoryModuleType<?> param1) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.ATTACK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.IS_PREGNANT,
-                MemoryStatus.VALUE_PRESENT
-            )
+public class TryLaySpawnOnWaterNearLand {
+    public static BehaviorControl<LivingEntity> create(Block param0) {
+        return BehaviorBuilder.create(
+            param1 -> param1.<MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param1.absent(MemoryModuleType.ATTACK_TARGET),
+                        param1.present(MemoryModuleType.WALK_TARGET),
+                        param1.present(MemoryModuleType.IS_PREGNANT)
+                    )
+                    .apply(
+                        param1,
+                        (param1x, param2, param3) -> (param2x, param3x, param4) -> {
+                                if (!param3x.isInWater() && param3x.isOnGround()) {
+                                    BlockPos var0x = param3x.blockPosition().below();
+            
+                                    for(Direction var1x : Direction.Plane.HORIZONTAL) {
+                                        BlockPos var2x = var0x.relative(var1x);
+                                        if (param2x.getBlockState(var2x).getCollisionShape(param2x, var2x).getFaceShape(Direction.UP).isEmpty()
+                                            && param2x.getFluidState(var2x).is(Fluids.WATER)) {
+                                            BlockPos var3x = var2x.above();
+                                            if (param2x.getBlockState(var3x).isAir()) {
+                                                param2x.setBlock(var3x, param0.defaultBlockState(), 3);
+                                                param2x.playSound(null, param3x, SoundEvents.FROG_LAY_SPAWN, SoundSource.BLOCKS, 1.0F, 1.0F);
+                                                param3.erase();
+                                                return true;
+                                            }
+                                        }
+                                    }
+            
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                    )
         );
-        this.spawnBlock = param0;
-        this.memoryModule = param1;
-    }
-
-    protected boolean checkExtraStartConditions(ServerLevel param0, Frog param1) {
-        return !param1.isInWater() && param1.isOnGround();
-    }
-
-    protected void start(ServerLevel param0, Frog param1, long param2) {
-        BlockPos var0 = param1.blockPosition().below();
-
-        for(Direction var1 : Direction.Plane.HORIZONTAL) {
-            BlockPos var2 = var0.relative(var1);
-            if (param0.getBlockState(var2).getCollisionShape(param0, var2).getFaceShape(Direction.UP).isEmpty() && param0.getFluidState(var2).is(Fluids.WATER)) {
-                BlockPos var3 = var2.above();
-                if (param0.getBlockState(var3).isAir()) {
-                    param0.setBlock(var3, this.spawnBlock.defaultBlockState(), 3);
-                    param0.playSound(null, param1, SoundEvents.FROG_LAY_SPAWN, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    param1.getBrain().eraseMemory(this.memoryModule);
-                    return;
-                }
-            }
-        }
-
     }
 }

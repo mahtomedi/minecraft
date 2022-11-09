@@ -16,7 +16,7 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -197,7 +197,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
 
             param0.add("key", var2);
             JsonObject var4 = new JsonObject();
-            var4.addProperty("item", Registry.ITEM.getKey(this.result).toString());
+            var4.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result).toString());
             if (this.count > 1) {
                 var4.addProperty("count", this.count);
             }

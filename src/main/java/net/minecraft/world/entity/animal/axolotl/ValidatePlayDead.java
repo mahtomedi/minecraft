@@ -1,27 +1,29 @@
 package net.minecraft.world.entity.animal.axolotl;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public class ValidatePlayDead extends Behavior<Axolotl> {
-    public ValidatePlayDead() {
-        super(ImmutableMap.of(MemoryModuleType.PLAY_DEAD_TICKS, MemoryStatus.VALUE_PRESENT));
-    }
-
-    protected void start(ServerLevel param0, Axolotl param1, long param2) {
-        Brain<Axolotl> var0 = param1.getBrain();
-        int var1 = var0.getMemory(MemoryModuleType.PLAY_DEAD_TICKS).get();
-        if (var1 <= 0) {
-            var0.eraseMemory(MemoryModuleType.PLAY_DEAD_TICKS);
-            var0.eraseMemory(MemoryModuleType.HURT_BY_ENTITY);
-            var0.useDefaultActivity();
-        } else {
-            var0.setMemory(MemoryModuleType.PLAY_DEAD_TICKS, var1 - 1);
-        }
-
+public class ValidatePlayDead {
+    public static BehaviorControl<LivingEntity> create() {
+        return BehaviorBuilder.create(
+            param0 -> param0.<MemoryAccessor, MemoryAccessor>group(
+                        param0.present(MemoryModuleType.PLAY_DEAD_TICKS), param0.registered(MemoryModuleType.HURT_BY_ENTITY)
+                    )
+                    .apply(param0, (param1, param2) -> (param3, param4, param5) -> {
+                            int var0x = param0.<Integer>get(param1);
+                            if (var0x <= 0) {
+                                param1.erase();
+                                param2.erase();
+                                param4.getBrain().useDefaultActivity();
+                            } else {
+                                param1.set(var0x - 1);
+                            }
+        
+                            return true;
+                        })
+        );
     }
 }

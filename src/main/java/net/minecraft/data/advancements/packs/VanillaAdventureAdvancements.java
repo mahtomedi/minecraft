@@ -34,7 +34,8 @@ import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.advancements.critereon.UsingItemTrigger;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -141,7 +142,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("slept_in_bed", PlayerTrigger.TriggerInstance.sleptInBed())
             .save(param1, "adventure/sleep_in_bed");
-        HolderGetter<Biome> var2 = param0.lookupOrThrow(Registry.BIOME_REGISTRY);
+        HolderGetter<Biome> var2 = param0.lookupOrThrow(Registries.BIOME);
         addBiomes(Advancement.Builder.advancement(), MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes(var2).toList())
             .parent(var1)
             .display(
@@ -606,7 +607,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {
         for(EntityType<?> var0 : MOBS_TO_KILL) {
             param0.addCriterion(
-                Registry.ENTITY_TYPE.getKey(var0).toString(), KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(var0))
+                BuiltInRegistries.ENTITY_TYPE.getKey(var0).toString(),
+                KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(var0))
             );
         }
 

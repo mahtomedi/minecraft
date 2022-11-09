@@ -14,7 +14,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -41,7 +41,7 @@ public class EffectCommands {
                             Commands.argument("targets", EntityArgument.entities())
                                 .executes(param0x -> clearEffects(param0x.getSource(), EntityArgument.getEntities(param0x, "targets")))
                                 .then(
-                                    Commands.argument("effect", ResourceArgument.resource(param1, Registry.MOB_EFFECT_REGISTRY))
+                                    Commands.argument("effect", ResourceArgument.resource(param1, Registries.MOB_EFFECT))
                                         .executes(
                                             param0x -> clearEffect(
                                                     param0x.getSource(),
@@ -57,7 +57,7 @@ public class EffectCommands {
                         .then(
                             Commands.argument("targets", EntityArgument.entities())
                                 .then(
-                                    Commands.argument("effect", ResourceArgument.resource(param1, Registry.MOB_EFFECT_REGISTRY))
+                                    Commands.argument("effect", ResourceArgument.resource(param1, Registries.MOB_EFFECT))
                                         .executes(
                                             param0x -> giveEffect(
                                                     param0x.getSource(),

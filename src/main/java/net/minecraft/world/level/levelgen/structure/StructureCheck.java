@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.NbtUtils;
@@ -76,8 +77,8 @@ public class StructureCheck {
         this.biomeSource = param7;
         this.seed = param8;
         this.fixerUpper = param9;
-        this.biomes = param1.registryOrThrow(Registry.BIOME_REGISTRY);
-        this.structureConfigs = param1.registryOrThrow(Registry.STRUCTURE_REGISTRY);
+        this.biomes = param1.registryOrThrow(Registries.BIOME);
+        this.structureConfigs = param1.registryOrThrow(Registries.STRUCTURE);
     }
 
     public StructureCheckResult checkStart(ChunkPos param0, Structure param1, boolean param2) {
@@ -174,7 +175,7 @@ public class StructureCheck {
                     return Object2IntMaps.emptyMap();
                 } else {
                     Object2IntMap<Structure> var2 = new Object2IntOpenHashMap<>();
-                    Registry<Structure> var3 = this.registryAccess.registryOrThrow(Registry.STRUCTURE_REGISTRY);
+                    Registry<Structure> var3 = this.registryAccess.registryOrThrow(Registries.STRUCTURE);
 
                     for(String var4 : var1.getAllKeys()) {
                         ResourceLocation var5 = ResourceLocation.tryParse(var4);

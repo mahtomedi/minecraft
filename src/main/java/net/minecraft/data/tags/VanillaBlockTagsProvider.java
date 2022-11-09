@@ -2,7 +2,7 @@ package net.minecraft.data.tags;
 
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Blocks;
 
 public class VanillaBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
     public VanillaBlockTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        super(param0, Registry.BLOCK_REGISTRY, param1, param0x -> param0x.builtInRegistryHolder().key());
+        super(param0, Registries.BLOCK, param1, param0x -> param0x.builtInRegistryHolder().key());
     }
 
     @Override

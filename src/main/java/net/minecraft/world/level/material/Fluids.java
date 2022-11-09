@@ -1,6 +1,7 @@
 package net.minecraft.world.level.material;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class Fluids {
     public static final Fluid EMPTY = register("empty", new EmptyFluid());
@@ -10,11 +11,11 @@ public class Fluids {
     public static final FlowingFluid LAVA = register("lava", new LavaFluid.Source());
 
     private static <T extends Fluid> T register(String param0, T param1) {
-        return Registry.register(Registry.FLUID, param0, param1);
+        return Registry.register(BuiltInRegistries.FLUID, param0, param1);
     }
 
     static {
-        for(Fluid var0 : Registry.FLUID) {
+        for(Fluid var0 : BuiltInRegistries.FLUID) {
             for(FluidState var1 : var0.getStateDefinition().getPossibleStates()) {
                 Fluid.FLUID_STATE_REGISTRY.add(var1);
             }

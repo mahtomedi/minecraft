@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -110,7 +110,9 @@ public class ClientRecipeBook extends RecipeBook {
                 return RecipeBookCategories.SMITHING;
             } else {
                 LOGGER.warn(
-                    "Unknown recipe category: {}/{}", LogUtils.defer(() -> Registry.RECIPE_TYPE.getKey(param0.getType())), LogUtils.defer(param0::getId)
+                    "Unknown recipe category: {}/{}",
+                    LogUtils.defer(() -> BuiltInRegistries.RECIPE_TYPE.getKey(param0.getType())),
+                    LogUtils.defer(param0::getId)
                 );
                 return RecipeBookCategories.UNKNOWN;
             }

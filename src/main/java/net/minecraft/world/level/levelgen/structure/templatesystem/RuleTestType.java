@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public interface RuleTestType<P extends RuleTest> {
     RuleTestType<AlwaysTrueTest> ALWAYS_TRUE_TEST = register("always_true", AlwaysTrueTest.CODEC);
@@ -14,6 +15,6 @@ public interface RuleTestType<P extends RuleTest> {
     Codec<P> codec();
 
     static <P extends RuleTest> RuleTestType<P> register(String param0, Codec<P> param1) {
-        return Registry.register(Registry.RULE_TEST, param0, () -> param1);
+        return Registry.register(BuiltInRegistries.RULE_TEST, param0, () -> param1);
     }
 }

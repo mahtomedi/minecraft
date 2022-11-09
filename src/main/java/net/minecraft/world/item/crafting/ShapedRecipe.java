@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Map.Entry;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -276,7 +276,7 @@ public class ShapedRecipe implements CraftingRecipe {
 
     public static Item itemFromJson(JsonObject param0) {
         String var0 = GsonHelper.getAsString(param0, "item");
-        Item var1 = Registry.ITEM.getOptional(new ResourceLocation(var0)).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
+        Item var1 = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(var0)).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
         if (var1 == Items.AIR) {
             throw new JsonSyntaxException("Invalid item: " + var0);
         } else {

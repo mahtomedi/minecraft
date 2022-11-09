@@ -1,7 +1,7 @@
 package net.minecraft.data.structures;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -38,7 +38,7 @@ public class StructureUpdater implements SnbtToNbt.Filter {
         }
 
         CompoundTag var3 = NbtUtils.update(DataFixers.getDataFixer(), DataFixTypes.STRUCTURE, param1, var1);
-        var0.load(Registry.BLOCK.asLookup(), var3);
+        var0.load(BuiltInRegistries.BLOCK.asLookup(), var3);
         return var0.save(new CompoundTag());
     }
 }

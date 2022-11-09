@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.schedule;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class Activity {
     public static final Activity CORE = register("core");
@@ -42,7 +43,7 @@ public class Activity {
     }
 
     private static Activity register(String param0) {
-        return Registry.register(Registry.ACTIVITY, param0, new Activity(param0));
+        return Registry.register(BuiltInRegistries.ACTIVITY, param0, new Activity(param0));
     }
 
     @Override

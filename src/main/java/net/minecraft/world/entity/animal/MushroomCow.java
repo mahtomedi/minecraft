@@ -26,8 +26,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
@@ -35,9 +33,8 @@ import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -232,15 +229,8 @@ public class MushroomCow extends Cow implements Shearable {
     }
 
     private Optional<Pair<MobEffect, Integer>> getEffectFromItemStack(ItemStack param0) {
-        Item var0 = param0.getItem();
-        if (var0 instanceof BlockItem) {
-            Block var1 = ((BlockItem)var0).getBlock();
-            if (var1 instanceof FlowerBlock var2) {
-                return Optional.of(Pair.of(var2.getSuspiciousStewEffect(), var2.getEffectDuration()));
-            }
-        }
-
-        return Optional.empty();
+        SuspiciousEffectHolder var0 = SuspiciousEffectHolder.tryGet(param0.getItem());
+        return var0 != null ? Optional.of(Pair.of(var0.getSuspiciousEffect(), var0.getEffectDuration())) : Optional.empty();
     }
 
     private void setMushroomType(MushroomCow.MushroomType param0) {

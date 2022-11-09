@@ -35,8 +35,8 @@ public class MapItemSavedData extends SavedData {
     private static final int HALF_MAP_SIZE = 64;
     public static final int MAX_SCALE = 4;
     public static final int TRACKED_DECORATION_LIMIT = 256;
-    public final int x;
-    public final int z;
+    public final int centerX;
+    public final int centerZ;
     public final ResourceKey<Level> dimension;
     private final boolean trackingPosition;
     private final boolean unlimitedTracking;
@@ -52,8 +52,8 @@ public class MapItemSavedData extends SavedData {
 
     private MapItemSavedData(int param0, int param1, byte param2, boolean param3, boolean param4, boolean param5, ResourceKey<Level> param6) {
         this.scale = param2;
-        this.x = param0;
-        this.z = param1;
+        this.centerX = param0;
+        this.centerZ = param1;
         this.dimension = param6;
         this.trackingPosition = param3;
         this.unlimitedTracking = param4;
@@ -123,8 +123,8 @@ public class MapItemSavedData extends SavedData {
             .encodeStart(NbtOps.INSTANCE, this.dimension.location())
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("dimension", param1));
-        param0.putInt("xCenter", this.x);
-        param0.putInt("zCenter", this.z);
+        param0.putInt("xCenter", this.centerX);
+        param0.putInt("zCenter", this.centerZ);
         param0.putByte("scale", this.scale);
         param0.putByteArray("colors", this.colors);
         param0.putBoolean("trackingPosition", this.trackingPosition);
@@ -148,7 +148,9 @@ public class MapItemSavedData extends SavedData {
     }
 
     public MapItemSavedData locked() {
-        MapItemSavedData var0 = new MapItemSavedData(this.x, this.z, this.scale, this.trackingPosition, this.unlimitedTracking, true, this.dimension);
+        MapItemSavedData var0 = new MapItemSavedData(
+            this.centerX, this.centerZ, this.scale, this.trackingPosition, this.unlimitedTracking, true, this.dimension
+        );
         var0.bannerMarkers.putAll(this.bannerMarkers);
         var0.decorations.putAll(this.decorations);
         var0.trackedDecorationCount = this.trackedDecorationCount;
@@ -159,7 +161,12 @@ public class MapItemSavedData extends SavedData {
 
     public MapItemSavedData scaled(int param0) {
         return createFresh(
-            (double)this.x, (double)this.z, (byte)Mth.clamp(this.scale + param0, 0, 4), this.trackingPosition, this.unlimitedTracking, this.dimension
+            (double)this.centerX,
+            (double)this.centerZ,
+            (byte)Mth.clamp(this.scale + param0, 0, 4),
+            this.trackingPosition,
+            this.unlimitedTracking,
+            this.dimension
         );
     }
 
@@ -269,8 +276,8 @@ public class MapItemSavedData extends SavedData {
         MapDecoration.Type param0, @Nullable LevelAccessor param1, String param2, double param3, double param4, double param5, @Nullable Component param6
     ) {
         int var0 = 1 << this.scale;
-        float var1 = (float)(param3 - (double)this.x) / (float)var0;
-        float var2 = (float)(param4 - (double)this.z) / (float)var0;
+        float var1 = (float)(param3 - (double)this.centerX) / (float)var0;
+        float var2 = (float)(param4 - (double)this.centerZ) / (float)var0;
         byte var3 = (byte)((int)((double)(var1 * 2.0F) + 0.5));
         byte var4 = (byte)((int)((double)(var2 * 2.0F) + 0.5));
         int var5 = 63;
@@ -369,8 +376,8 @@ public class MapItemSavedData extends SavedData {
         double var0 = (double)param1.getX() + 0.5;
         double var1 = (double)param1.getZ() + 0.5;
         int var2 = 1 << this.scale;
-        double var3 = (var0 - (double)this.x) / (double)var2;
-        double var4 = (var1 - (double)this.z) / (double)var2;
+        double var3 = (var0 - (double)this.centerX) / (double)var2;
+        double var4 = (var1 - (double)this.centerZ) / (double)var2;
         int var5 = 63;
         if (var3 >= -63.0 && var4 >= -63.0 && var3 <= 63.0 && var4 <= 63.0) {
             MapBanner var6 = MapBanner.fromWorld(param0, param1);

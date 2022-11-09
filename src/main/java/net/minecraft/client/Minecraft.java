@@ -152,7 +152,7 @@ import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -216,9 +216,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PlayerHeadItem;
 import net.minecraft.world.item.TooltipFlag;
@@ -735,11 +735,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             .register(
                 SearchRegistry.CREATIVE_NAMES,
                 param0 -> new FullTextSearchTree<>(
-                        param0x -> param0x.getTooltipLines(null, TooltipFlag.Default.NORMAL)
+                        param0x -> param0x.getTooltipLines(null, TooltipFlag.Default.NORMAL.asCreative())
                                 .stream()
                                 .map(param0xx -> ChatFormatting.stripFormatting(param0xx.getString()).trim())
                                 .filter(param0xx -> !param0xx.isEmpty()),
-                        param0x -> Stream.of(Registry.ITEM.getKey(param0x.getItem())),
+                        param0x -> Stream.of(BuiltInRegistries.ITEM.getKey(param0x.getItem())),
                         param0
                     )
             );
@@ -753,11 +753,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                                 .flatMap(param0xx -> param0xx.getResultItem().getTooltipLines(null, TooltipFlag.Default.NORMAL).stream())
                                 .map(param0xx -> ChatFormatting.stripFormatting(param0xx.getString()).trim())
                                 .filter(param0xx -> !param0xx.isEmpty()),
-                        param0x -> param0x.getRecipes().stream().map(param0xx -> Registry.ITEM.getKey(param0xx.getResultItem().getItem())),
+                        param0x -> param0x.getRecipes().stream().map(param0xx -> BuiltInRegistries.ITEM.getKey(param0xx.getResultItem().getItem())),
                         param0
                     )
             );
-        CreativeModeTabs.TAB_SEARCH.setSearchTreeRebuilder(param0 -> {
+        CreativeModeTabs.searchTab().setSearchTreeBuilder(param0 -> {
             this.populateSearchTree(SearchRegistry.CREATIVE_NAMES, param0);
             this.populateSearchTree(SearchRegistry.CREATIVE_TAGS, param0);
         });
@@ -863,7 +863,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         BlockModelShaper var1 = this.getBlockRenderer().getBlockModelShaper();
         BakedModel var2 = var1.getModelManager().getMissingModel();
 
-        for(Block var3 : Registry.BLOCK) {
+        for(Block var3 : BuiltInRegistries.BLOCK) {
             for(BlockState var4 : var3.getStateDefinition().getPossibleStates()) {
                 if (var4.getRenderShape() == RenderShape.MODEL) {
                     BakedModel var5 = var1.getBlockModel(var4);
@@ -877,7 +877,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         TextureAtlasSprite var6 = var2.getParticleIcon();
 
-        for(Block var7 : Registry.BLOCK) {
+        for(Block var7 : BuiltInRegistries.BLOCK) {
             for(BlockState var8 : var7.getStateDefinition().getPossibleStates()) {
                 TextureAtlasSprite var9 = var1.getParticleIcon(var8);
                 if (!var8.isAir() && var9 == var6) {
@@ -887,11 +887,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
-        for(ItemStack var10 : CreativeModeTabs.TAB_SEARCH.getDisplayItems(FeatureFlags.REGISTRY.allFlags(), true)) {
-            String var11 = var10.getDescriptionId();
-            String var12 = Component.translatable(var11).getString();
-            if (var12.toLowerCase(Locale.ROOT).equals(var10.getItem().getDescriptionId())) {
-                LOGGER.debug("Missing translation for: {} {} {}", var10, var11, var10.getItem());
+        for(Item var10 : BuiltInRegistries.ITEM) {
+            ItemStack var11 = var10.getDefaultInstance();
+            String var12 = var11.getDescriptionId();
+            String var13 = Component.translatable(var12).getString();
+            if (var13.toLowerCase(Locale.ROOT).equals(var10.getDescriptionId())) {
+                LOGGER.debug("Missing translation for: {} {} {}", var11, var12, var10);
             }
         }
 
@@ -2177,9 +2178,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             if (var6.isEmpty()) {
                 String var10 = "";
                 if (var2 == HitResult.Type.BLOCK) {
-                    var10 = Registry.BLOCK.getKey(this.level.getBlockState(((BlockHitResult)this.hitResult).getBlockPos()).getBlock()).toString();
+                    var10 = BuiltInRegistries.BLOCK.getKey(this.level.getBlockState(((BlockHitResult)this.hitResult).getBlockPos()).getBlock()).toString();
                 } else if (var2 == HitResult.Type.ENTITY) {
-                    var10 = Registry.ENTITY_TYPE.getKey(((EntityHitResult)this.hitResult).getEntity().getType()).toString();
+                    var10 = BuiltInRegistries.ENTITY_TYPE.getKey(((EntityHitResult)this.hitResult).getEntity().getType()).toString();
                 }
 
                 LOGGER.warn("Picking on: [{}] {} gave null item", var2, var10);
@@ -2320,6 +2321,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Nullable
     public IntegratedServer getSingleplayerServer() {
         return this.singleplayerServer;
+    }
+
+    public boolean isSingleplayer() {
+        IntegratedServer var0 = this.getSingleplayerServer();
+        return var0 != null && !var0.isPublished();
     }
 
     public User getUser() {

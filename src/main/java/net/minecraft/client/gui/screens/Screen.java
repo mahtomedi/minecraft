@@ -33,6 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -85,6 +86,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     private long nextNarrationTime = Long.MAX_VALUE;
     @Nullable
     private NarratableEntry lastNarratable;
+    @Nullable
+    private List<FormattedCharSequence> tooltip;
 
     protected Screen(Component param0) {
         this.title = param0;
@@ -96,6 +99,15 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
 
     public Component getNarrationMessage() {
         return this.getTitle();
+    }
+
+    public final void renderWithTooltip(PoseStack param0, int param1, int param2, float param3) {
+        this.render(param0, param1, param2, param3);
+        if (this.tooltip != null) {
+            this.renderTooltip(param0, this.tooltip, param1, param2);
+            this.tooltip = null;
+        }
+
     }
 
     @Override
@@ -613,6 +625,18 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
 
     public void narrationEnabled() {
         this.scheduleNarration(NARRATE_DELAY_NARRATOR_ENABLED, false);
+    }
+
+    public void setTooltipForNextRenderPass(List<FormattedCharSequence> param0) {
+        this.tooltip = param0;
+    }
+
+    protected void setTooltipForNextRenderPass(Component param0) {
+        this.setTooltipForNextRenderPass(Tooltip.splitTooltip(this.minecraft, param0));
+    }
+
+    public void setTooltipForNextRenderPass(Tooltip param0) {
+        this.setTooltipForNextRenderPass(param0.toCharSequence(this.minecraft));
     }
 
     protected static void hideWidgets(AbstractWidget... param0) {

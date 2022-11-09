@@ -94,7 +94,7 @@ public class LevelStorageSource {
         this.fixerUpper = param2;
 
         try {
-            Files.createDirectories(Files.exists(param0) ? param0.toRealPath() : param0);
+            FileUtil.createDirectoriesSafe(param0);
         } catch (IOException var5) {
             throw new RuntimeException(var5);
         }
@@ -522,7 +522,7 @@ public class LevelStorageSource {
             Path var1 = LevelStorageSource.this.getBackupPath();
 
             try {
-                Files.createDirectories(Files.exists(var1) ? var1.toRealPath() : var1);
+                FileUtil.createDirectoriesSafe(var1);
             } catch (IOException var9) {
                 throw new RuntimeException(var9);
             }

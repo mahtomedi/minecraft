@@ -2,7 +2,7 @@ package net.minecraft.network.protocol.game;
 
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
@@ -94,7 +94,7 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
     public ClientboundAddEntityPacket(FriendlyByteBuf param0) {
         this.id = param0.readVarInt();
         this.uuid = param0.readUUID();
-        this.type = param0.readById(Registry.ENTITY_TYPE);
+        this.type = param0.readById(BuiltInRegistries.ENTITY_TYPE);
         this.x = param0.readDouble();
         this.y = param0.readDouble();
         this.z = param0.readDouble();
@@ -111,7 +111,7 @@ public class ClientboundAddEntityPacket implements Packet<ClientGamePacketListen
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.id);
         param0.writeUUID(this.uuid);
-        param0.writeId(Registry.ENTITY_TYPE, this.type);
+        param0.writeId(BuiltInRegistries.ENTITY_TYPE, this.type);
         param0.writeDouble(this.x);
         param0.writeDouble(this.y);
         param0.writeDouble(this.z);

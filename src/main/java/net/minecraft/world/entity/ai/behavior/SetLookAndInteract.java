@@ -1,68 +1,37 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.function.Predicate;
-import net.minecraft.server.level.ServerLevel;
+import java.util.Optional;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 
-public class SetLookAndInteract extends Behavior<LivingEntity> {
-    private final EntityType<?> type;
-    private final int interactionRangeSqr;
-    private final Predicate<LivingEntity> targetFilter;
-    private final Predicate<LivingEntity> selfFilter;
-
-    public SetLookAndInteract(EntityType<?> param0, int param1, Predicate<LivingEntity> param2, Predicate<LivingEntity> param3) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.INTERACTION_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-                MemoryStatus.VALUE_PRESENT
-            )
-        );
-        this.type = param0;
-        this.interactionRangeSqr = param1 * param1;
-        this.targetFilter = param3;
-        this.selfFilter = param2;
-    }
-
-    public SetLookAndInteract(EntityType<?> param0, int param1) {
-        this(param0, param1, param0x -> true, param0x -> true);
-    }
-
-    @Override
-    public boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
-        return this.selfFilter.test(param1) && this.getVisibleEntities(param1).contains(this::isMatchingTarget);
-    }
-
-    @Override
-    public void start(ServerLevel param0, LivingEntity param1, long param2) {
-        super.start(param0, param1, param2);
-        Brain<?> var0 = param1.getBrain();
-        var0.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .flatMap(
-                param1x -> param1x.findClosest(
-                        param1xx -> param1xx.distanceToSqr(param1) <= (double)this.interactionRangeSqr && this.isMatchingTarget(param1xx)
+public class SetLookAndInteract {
+    public static BehaviorControl<LivingEntity> create(EntityType<?> param0, int param1) {
+        int var0 = param1 * param1;
+        return BehaviorBuilder.create(
+            param2 -> param2.<MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param2.registered(MemoryModuleType.LOOK_TARGET),
+                        param2.absent(MemoryModuleType.INTERACTION_TARGET),
+                        param2.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
                     )
-            )
-            .ifPresent(param1x -> {
-                var0.setMemory(MemoryModuleType.INTERACTION_TARGET, param1x);
-                var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1x, true));
-            });
-    }
-
-    private boolean isMatchingTarget(LivingEntity param0x) {
-        return this.type.equals(param0x.getType()) && this.targetFilter.test(param0x);
-    }
-
-    private NearestVisibleLivingEntities getVisibleEntities(LivingEntity param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
+                    .apply(
+                        param2,
+                        (param3, param4, param5) -> (param6, param7, param8) -> {
+                                Optional<LivingEntity> var0x = param2.<NearestVisibleLivingEntities>get(param5)
+                                    .findClosest(param3x -> param3x.distanceToSqr(param7) <= (double)var0 && param0.equals(param3x.getType()));
+                                if (var0x.isEmpty()) {
+                                    return false;
+                                } else {
+                                    LivingEntity var1x = var0x.get();
+                                    param4.set(var1x);
+                                    param3.set(new EntityTracker(var1x, true));
+                                    return true;
+                                }
+                            }
+                    )
+        );
     }
 }

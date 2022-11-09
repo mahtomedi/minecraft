@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
@@ -794,8 +794,8 @@ public class VillagerTrades {
         private final int villagerXp;
 
         public EmeraldsForVillagerTypeItem(int param0, int param1, int param2, Map<VillagerType, Item> param3) {
-            Registry.VILLAGER_TYPE.stream().filter(param1x -> !param3.containsKey(param1x)).findAny().ifPresent(param0x -> {
-                throw new IllegalStateException("Missing trade for villager type: " + Registry.VILLAGER_TYPE.getKey(param0x));
+            BuiltInRegistries.VILLAGER_TYPE.stream().filter(param1x -> !param3.containsKey(param1x)).findAny().ifPresent(param0x -> {
+                throw new IllegalStateException("Missing trade for villager type: " + BuiltInRegistries.VILLAGER_TYPE.getKey(param0x));
             });
             this.trades = param3;
             this.cost = param0;
@@ -824,7 +824,7 @@ public class VillagerTrades {
 
         @Override
         public MerchantOffer getOffer(Entity param0, RandomSource param1) {
-            List<Enchantment> var0 = Registry.ENCHANTMENT.stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
+            List<Enchantment> var0 = BuiltInRegistries.ENCHANTMENT.stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
             Enchantment var1 = var0.get(param1.nextInt(var0.size()));
             int var2 = Mth.nextInt(param1, var1.getMinLevel(), var1.getMaxLevel());
             ItemStack var3 = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var1, var2));
@@ -1005,7 +1005,7 @@ public class VillagerTrades {
         @Override
         public MerchantOffer getOffer(Entity param0, RandomSource param1) {
             ItemStack var0 = new ItemStack(Items.EMERALD, this.emeraldCost);
-            List<Potion> var1 = Registry.POTION
+            List<Potion> var1 = BuiltInRegistries.POTION
                 .stream()
                 .filter(param0x -> !param0x.getEffects().isEmpty() && PotionBrewing.isBrewablePotion(param0x))
                 .collect(Collectors.toList());

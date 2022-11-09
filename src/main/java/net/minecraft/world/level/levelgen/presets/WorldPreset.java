@@ -10,6 +10,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -18,14 +19,14 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 public class WorldPreset {
     public static final Codec<WorldPreset> DIRECT_CODEC = RecordCodecBuilder.<WorldPreset>create(
             param0 -> param0.group(
-                        Codec.unboundedMap(ResourceKey.codec(Registry.LEVEL_STEM_REGISTRY), LevelStem.CODEC)
+                        Codec.unboundedMap(ResourceKey.codec(Registries.LEVEL_STEM), LevelStem.CODEC)
                             .fieldOf("dimensions")
                             .forGetter(param0x -> param0x.dimensions)
                     )
                     .apply(param0, WorldPreset::new)
         )
         .flatXmap(WorldPreset::requireOverworld, WorldPreset::requireOverworld);
-    public static final Codec<Holder<WorldPreset>> CODEC = RegistryFileCodec.create(Registry.WORLD_PRESET_REGISTRY, DIRECT_CODEC);
+    public static final Codec<Holder<WorldPreset>> CODEC = RegistryFileCodec.create(Registries.WORLD_PRESET, DIRECT_CODEC);
     private final Map<ResourceKey<LevelStem>, LevelStem> dimensions;
 
     public WorldPreset(Map<ResourceKey<LevelStem>, LevelStem> param0) {
@@ -33,7 +34,7 @@ public class WorldPreset {
     }
 
     private Registry<LevelStem> createRegistry() {
-        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
+        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.experimental());
         WorldDimensions.keysInOrder(this.dimensions.keySet().stream()).forEach(param1 -> {
             LevelStem var0x = this.dimensions.get(param1);
             if (var0x != null) {

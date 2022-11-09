@@ -16,8 +16,8 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
@@ -98,7 +98,7 @@ public class LevelChunk extends ChunkAccess {
         @Nullable LevelChunk.PostLoadProcessor param7,
         @Nullable BlendingData param8
     ) {
-        super(param1, param2, param0, param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), param5, param6, param8);
+        super(param1, param2, param0, param0.registryAccess().registryOrThrow(Registries.BIOME), param5, param6, param8);
         this.level = param0;
         this.gameEventListenerRegistrySections = new Int2ObjectOpenHashMap<>();
 

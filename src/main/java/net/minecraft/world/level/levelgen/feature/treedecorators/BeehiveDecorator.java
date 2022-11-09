@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
@@ -60,7 +60,7 @@ public class BeehiveDecorator extends TreeDecorator {
 
                         for(int var1x = 0; var1x < var0x; ++var1x) {
                             CompoundTag var2x = new CompoundTag();
-                            var2x.putString("id", Registry.ENTITY_TYPE.getKey(EntityType.BEE).toString());
+                            var2x.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.BEE).toString());
                             param1.storeBee(var2x, var0.nextInt(599), false);
                         }
 

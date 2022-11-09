@@ -3,7 +3,7 @@ package net.minecraft.data.tags;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
@@ -12,7 +12,7 @@ import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 
 public class BiomeTagsProvider extends TagsProvider<Biome> {
     public BiomeTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        super(param0, Registry.BIOME_REGISTRY, param1);
+        super(param0, Registries.BIOME, param1);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class BiomeTagsProvider extends TagsProvider<Biome> {
             .add(Biomes.DARK_FOREST)
             .add(Biomes.GROVE);
         this.tag(BiomeTags.IS_SAVANNA).add(Biomes.SAVANNA).add(Biomes.SAVANNA_PLATEAU).add(Biomes.WINDSWEPT_SAVANNA);
-        HolderGetter<Biome> var0 = param0.lookupOrThrow(Registry.BIOME_REGISTRY);
+        HolderGetter<Biome> var0 = param0.lookupOrThrow(Registries.BIOME);
         TagsProvider.TagAppender<Biome> var1 = this.tag(BiomeTags.IS_NETHER);
         MultiNoiseBiomeSource.Preset.NETHER.possibleBiomes(var0).forEach(var1::add);
         TagsProvider.TagAppender<Biome> var2 = this.tag(BiomeTags.IS_OVERWORLD);

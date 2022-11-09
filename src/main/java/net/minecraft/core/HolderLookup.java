@@ -102,7 +102,7 @@ public interface HolderLookup<T> extends HolderGetter<T> {
     public interface RegistryLookup<T> extends HolderLookup<T>, HolderOwner<T> {
         ResourceKey<? extends Registry<? extends T>> key();
 
-        Lifecycle elementsLifecycle();
+        Lifecycle registryLifecycle();
 
         default HolderLookup<T> filterFeatures(FeatureFlagSet param0) {
             return (HolderLookup<T>)(FeatureElement.FILTERED_REGISTRIES.contains(this.key())
@@ -119,8 +119,8 @@ public interface HolderLookup<T> extends HolderGetter<T> {
             }
 
             @Override
-            public Lifecycle elementsLifecycle() {
-                return this.parent().elementsLifecycle();
+            public Lifecycle registryLifecycle() {
+                return this.parent().registryLifecycle();
             }
 
             @Override

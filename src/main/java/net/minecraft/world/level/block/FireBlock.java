@@ -366,6 +366,7 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.ACACIA_LOG, 5, 5);
         var0.setFlammable(Blocks.DARK_OAK_LOG, 5, 5);
         var0.setFlammable(Blocks.MANGROVE_LOG, 5, 5);
+        var0.setFlammable(Blocks.BAMBOO_BLOCK, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_OAK_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_SPRUCE_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_BIRCH_LOG, 5, 5);
@@ -373,6 +374,7 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.STRIPPED_ACACIA_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_DARK_OAK_LOG, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_MANGROVE_LOG, 5, 5);
+        var0.setFlammable(Blocks.STRIPPED_BAMBOO_BLOCK, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_OAK_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_SPRUCE_WOOD, 5, 5);
         var0.setFlammable(Blocks.STRIPPED_BIRCH_WOOD, 5, 5);

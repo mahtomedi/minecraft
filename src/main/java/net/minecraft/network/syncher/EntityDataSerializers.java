@@ -8,10 +8,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -67,12 +67,12 @@ public class EntityDataSerializers {
     public static final EntityDataSerializer<Boolean> BOOLEAN = EntityDataSerializer.simple(FriendlyByteBuf::writeBoolean, FriendlyByteBuf::readBoolean);
     public static final EntityDataSerializer<ParticleOptions> PARTICLE = new EntityDataSerializer.ForValueType<ParticleOptions>() {
         public void write(FriendlyByteBuf param0, ParticleOptions param1) {
-            param0.writeId(Registry.PARTICLE_TYPE, param1.getType());
+            param0.writeId(BuiltInRegistries.PARTICLE_TYPE, param1.getType());
             param1.writeToNetwork(param0);
         }
 
         public ParticleOptions read(FriendlyByteBuf param0) {
-            return this.readParticle(param0, param0.readById(Registry.PARTICLE_TYPE));
+            return this.readParticle(param0, param0.readById(BuiltInRegistries.PARTICLE_TYPE));
         }
 
         private <T extends ParticleOptions> T readParticle(FriendlyByteBuf param0, ParticleType<T> param1) {
@@ -116,13 +116,15 @@ public class EntityDataSerializers {
     };
     public static final EntityDataSerializer<VillagerData> VILLAGER_DATA = new EntityDataSerializer.ForValueType<VillagerData>() {
         public void write(FriendlyByteBuf param0, VillagerData param1) {
-            param0.writeId(Registry.VILLAGER_TYPE, param1.getType());
-            param0.writeId(Registry.VILLAGER_PROFESSION, param1.getProfession());
+            param0.writeId(BuiltInRegistries.VILLAGER_TYPE, param1.getType());
+            param0.writeId(BuiltInRegistries.VILLAGER_PROFESSION, param1.getProfession());
             param0.writeVarInt(param1.getLevel());
         }
 
         public VillagerData read(FriendlyByteBuf param0) {
-            return new VillagerData(param0.readById(Registry.VILLAGER_TYPE), param0.readById(Registry.VILLAGER_PROFESSION), param0.readVarInt());
+            return new VillagerData(
+                param0.readById(BuiltInRegistries.VILLAGER_TYPE), param0.readById(BuiltInRegistries.VILLAGER_PROFESSION), param0.readVarInt()
+            );
         }
     };
     public static final EntityDataSerializer<OptionalInt> OPTIONAL_UNSIGNED_INT = new EntityDataSerializer.ForValueType<OptionalInt>() {
@@ -136,10 +138,10 @@ public class EntityDataSerializers {
         }
     };
     public static final EntityDataSerializer<Pose> POSE = EntityDataSerializer.simpleEnum(Pose.class);
-    public static final EntityDataSerializer<CatVariant> CAT_VARIANT = EntityDataSerializer.simpleId(Registry.CAT_VARIANT);
-    public static final EntityDataSerializer<FrogVariant> FROG_VARIANT = EntityDataSerializer.simpleId(Registry.FROG_VARIANT);
+    public static final EntityDataSerializer<CatVariant> CAT_VARIANT = EntityDataSerializer.simpleId(BuiltInRegistries.CAT_VARIANT);
+    public static final EntityDataSerializer<FrogVariant> FROG_VARIANT = EntityDataSerializer.simpleId(BuiltInRegistries.FROG_VARIANT);
     public static final EntityDataSerializer<Holder<PaintingVariant>> PAINTING_VARIANT = EntityDataSerializer.simpleId(
-        Registry.PAINTING_VARIANT.asHolderIdMap()
+        BuiltInRegistries.PAINTING_VARIANT.asHolderIdMap()
     );
 
     public static void registerSerializer(EntityDataSerializer<?> param0) {

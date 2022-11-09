@@ -27,8 +27,9 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -221,7 +222,7 @@ public final class NbtUtils {
             return Blocks.AIR.defaultBlockState();
         } else {
             ResourceLocation var0 = new ResourceLocation(param1.getString("Name"));
-            Optional<? extends Holder<Block>> var1 = param0.get(ResourceKey.create(Registry.BLOCK_REGISTRY, var0));
+            Optional<? extends Holder<Block>> var1 = param0.get(ResourceKey.create(Registries.BLOCK, var0));
             if (var1.isEmpty()) {
                 return Blocks.AIR.defaultBlockState();
             } else {
@@ -258,7 +259,7 @@ public final class NbtUtils {
 
     public static CompoundTag writeBlockState(BlockState param0) {
         CompoundTag var0 = new CompoundTag();
-        var0.putString("Name", Registry.BLOCK.getKey(param0.getBlock()).toString());
+        var0.putString("Name", BuiltInRegistries.BLOCK.getKey(param0.getBlock()).toString());
         ImmutableMap<Property<?>, Comparable<?>> var1 = param0.getValues();
         if (!var1.isEmpty()) {
             CompoundTag var2 = new CompoundTag();
@@ -276,7 +277,7 @@ public final class NbtUtils {
 
     public static CompoundTag writeFluidState(FluidState param0) {
         CompoundTag var0 = new CompoundTag();
-        var0.putString("Name", Registry.FLUID.getKey(param0.getType()).toString());
+        var0.putString("Name", BuiltInRegistries.FLUID.getKey(param0.getType()).toString());
         ImmutableMap<Property<?>, Comparable<?>> var1 = param0.getValues();
         if (!var1.isEmpty()) {
             CompoundTag var2 = new CompoundTag();

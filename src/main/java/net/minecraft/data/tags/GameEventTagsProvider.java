@@ -3,7 +3,7 @@ package net.minecraft.data.tags;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.GameEventTags;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -54,7 +54,7 @@ public class GameEventTagsProvider extends IntrinsicHolderTagsProvider<GameEvent
     };
 
     public GameEventTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        super(param0, Registry.GAME_EVENT_REGISTRY, param1, param0x -> param0x.builtInRegistryHolder().key());
+        super(param0, Registries.GAME_EVENT, param1, param0x -> param0x.builtInRegistryHolder().key());
     }
 
     @Override

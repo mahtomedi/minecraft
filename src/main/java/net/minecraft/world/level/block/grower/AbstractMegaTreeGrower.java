@@ -3,7 +3,7 @@ package net.minecraft.world.level.block.grower;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -36,7 +36,7 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
         if (var0 == null) {
             return false;
         } else {
-            Holder<ConfiguredFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).getHolder(var0).orElse(null);
+            Holder<ConfiguredFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(var0).orElse(null);
             if (var1 == null) {
                 return false;
             } else {

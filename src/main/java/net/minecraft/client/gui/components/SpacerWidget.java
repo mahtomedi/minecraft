@@ -16,7 +16,7 @@ public class SpacerWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
+    public void updateWidgetNarration(NarrationElementOutput param0) {
     }
 
     public static AbstractWidget width(int param0) {

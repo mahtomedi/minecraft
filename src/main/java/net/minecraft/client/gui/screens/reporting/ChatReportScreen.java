@@ -14,6 +14,7 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.GenericWaitingScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.WarningScreen;
@@ -57,7 +58,7 @@ public class ChatReportScreen extends Screen {
     private Button sendButton;
     private ChatReportBuilder reportBuilder;
     @Nullable
-    ChatReportBuilder.CannotBuildReason cannotBuildReason;
+    private ChatReportBuilder.CannotBuildReason cannotBuildReason;
 
     private ChatReportScreen(@Nullable Screen param0, ReportingContext param1, ChatReportBuilder param2) {
         super(Component.translatable("gui.chatReport.title"));
@@ -130,7 +131,6 @@ public class ChatReportScreen extends Screen {
         this.sendButton = this.addRenderableWidget(
             Button.builder(Component.translatable("gui.chatReport.send"), param0 -> this.sendReport())
                 .bounds(var1 + 10, this.completeButtonTop(), 120, 20)
-                .tooltip(new ChatReportScreen.SubmitButtonTooltip())
                 .build()
         );
         this.onReportChanged();
@@ -139,6 +139,7 @@ public class ChatReportScreen extends Screen {
     private void onReportChanged() {
         this.cannotBuildReason = this.reportBuilder.checkBuildable();
         this.sendButton.active = this.cannotBuildReason == null;
+        this.sendButton.setTooltip(Util.mapNullable(this.cannotBuildReason, param0 -> Tooltip.create(param0.message())));
     }
 
     private void sendReport() {
@@ -325,20 +326,6 @@ public class ChatReportScreen extends Screen {
         @Override
         protected void renderTitle(PoseStack param0) {
             drawString(param0, this.font, this.title, this.width / 2 - 155, 30, 16777215);
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    class SubmitButtonTooltip implements Button.OnTooltip {
-        @Override
-        public void onTooltip(Button param0, PoseStack param1, int param2, int param3) {
-            if (ChatReportScreen.this.cannotBuildReason != null) {
-                Component var0 = ChatReportScreen.this.cannotBuildReason.message();
-                ChatReportScreen.this.renderTooltip(
-                    param1, ChatReportScreen.this.font.split(var0, Math.max(ChatReportScreen.this.width / 2 - 43, 170)), param2, param3
-                );
-            }
-
         }
     }
 }

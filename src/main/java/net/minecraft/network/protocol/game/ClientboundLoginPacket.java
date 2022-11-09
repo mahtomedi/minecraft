@@ -5,9 +5,9 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistrySynchronization;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
@@ -40,10 +40,10 @@ public record ClientboundLoginPacket(
             param0.readBoolean(),
             GameType.byId(param0.readByte()),
             GameType.byNullableId(param0.readByte()),
-            param0.readCollection(Sets::newHashSetWithExpectedSize, param0x -> param0x.readResourceKey(Registry.DIMENSION_REGISTRY)),
+            param0.readCollection(Sets::newHashSetWithExpectedSize, param0x -> param0x.readResourceKey(Registries.DIMENSION)),
             param0.readWithCodec(RegistrySynchronization.NETWORK_CODEC).freeze(),
-            param0.readResourceKey(Registry.DIMENSION_TYPE_REGISTRY),
-            param0.readResourceKey(Registry.DIMENSION_REGISTRY),
+            param0.readResourceKey(Registries.DIMENSION_TYPE),
+            param0.readResourceKey(Registries.DIMENSION),
             param0.readLong(),
             param0.readVarInt(),
             param0.readVarInt(),

@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -103,10 +101,10 @@ public class BehaviorUtils {
     }
 
     public static boolean isWithinAttackRange(Mob param0, LivingEntity param1, int param2) {
-        Item var0 = param0.getMainHandItem().getItem();
-        if (var0 instanceof ProjectileWeaponItem var1 && param0.canFireProjectileWeapon((ProjectileWeaponItem)var0)) {
-            int var2 = var1.getDefaultProjectileRange() - param2;
-            return param0.closerThan(param1, (double)var2);
+        Item var1 = param0.getMainHandItem().getItem();
+        if (var1 instanceof ProjectileWeaponItem var0 && param0.canFireProjectileWeapon(var0)) {
+            int var1x = var0.getDefaultProjectileRange() - param2;
+            return param0.closerThan(param1, (double)var1x);
         }
 
         return param0.isWithinMeleeAttackRange(param1);
@@ -143,19 +141,6 @@ public class BehaviorUtils {
     public static Optional<LivingEntity> getLivingEntityFromUUIDMemory(LivingEntity param0, MemoryModuleType<UUID> param1) {
         Optional<UUID> var0 = param0.getBrain().getMemory(param1);
         return var0.<Entity>map(param1x -> ((ServerLevel)param0.level).getEntity(param1x)).map(param0x -> param0x instanceof LivingEntity var0x ? var0x : null);
-    }
-
-    public static Stream<Villager> getNearbyVillagersWithCondition(Villager param0, Predicate<Villager> param1) {
-        return param0.getBrain()
-            .getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES)
-            .map(
-                param2 -> param2.stream()
-                        .filter(param1x -> param1x instanceof Villager && param1x != param0)
-                        .map(param0x -> (Villager)param0x)
-                        .filter(LivingEntity::isAlive)
-                        .filter(param1)
-            )
-            .orElseGet(Stream::empty);
     }
 
     @Nullable

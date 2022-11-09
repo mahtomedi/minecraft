@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -42,7 +43,7 @@ public final class StructureStart {
         if ("INVALID".equals(var0)) {
             return INVALID_START;
         } else {
-            Registry<Structure> var1 = param0.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY);
+            Registry<Structure> var1 = param0.registryAccess().registryOrThrow(Registries.STRUCTURE);
             Structure var2 = var1.get(new ResourceLocation(var0));
             if (var2 == null) {
                 LOGGER.error("Unknown stucture id: {}", var0);
@@ -97,7 +98,7 @@ public final class StructureStart {
     public CompoundTag createTag(StructurePieceSerializationContext param0, ChunkPos param1) {
         CompoundTag var0 = new CompoundTag();
         if (this.isValid()) {
-            var0.putString("id", param0.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY).getKey(this.structure).toString());
+            var0.putString("id", param0.registryAccess().registryOrThrow(Registries.STRUCTURE).getKey(this.structure).toString());
             var0.putInt("ChunkX", param1.x);
             var0.putInt("ChunkZ", param1.z);
             var0.putInt("references", this.references);

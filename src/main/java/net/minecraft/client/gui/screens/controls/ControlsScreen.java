@@ -40,6 +40,7 @@ public class ControlsScreen extends OptionsSubScreen {
         this.addRenderableWidget(this.options.toggleSprint().createButton(this.options, var1, var2, 150));
         var2 += 24;
         this.addRenderableWidget(this.options.autoJump().createButton(this.options, var0, var2, 150));
+        this.addRenderableWidget(this.options.operatorItemsTab().createButton(this.options, var1, var2, 150));
         var2 += 24;
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen)).bounds(this.width / 2 - 100, var2, 200, 20).build()

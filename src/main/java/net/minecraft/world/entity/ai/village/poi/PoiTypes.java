@@ -10,6 +10,7 @@ import java.util.Set;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.BedBlock;
@@ -72,7 +73,7 @@ public class PoiTypes {
     }
 
     private static ResourceKey<PoiType> createKey(String param0) {
-        return ResourceKey.create(Registry.POINT_OF_INTEREST_TYPE_REGISTRY, new ResourceLocation(param0));
+        return ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE, new ResourceLocation(param0));
     }
 
     private static PoiType register(Registry<PoiType> param0, ResourceKey<PoiType> param1, Set<BlockState> param2, int param3, int param4) {

@@ -61,8 +61,8 @@ public class MultiLineEditBox extends AbstractScrollWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
-        param0.add(NarratedElementType.TITLE, (Component)Component.translatable("narration.edit_box", this.getValue()));
+    public void updateWidgetNarration(NarrationElementOutput param0) {
+        param0.add(NarratedElementType.TITLE, (Component)Component.translatable("gui.narrate.editBox", this.getMessage(), this.getValue()));
     }
 
     @Override

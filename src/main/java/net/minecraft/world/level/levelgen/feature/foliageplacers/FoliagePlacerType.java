@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class FoliagePlacerType<P extends FoliagePlacer> {
     public static final FoliagePlacerType<BlobFoliagePlacer> BLOB_FOLIAGE_PLACER = register("blob_foliage_placer", BlobFoliagePlacer.CODEC);
@@ -19,7 +20,7 @@ public class FoliagePlacerType<P extends FoliagePlacer> {
     private final Codec<P> codec;
 
     private static <P extends FoliagePlacer> FoliagePlacerType<P> register(String param0, Codec<P> param1) {
-        return Registry.register(Registry.FOLIAGE_PLACER_TYPES, param0, new FoliagePlacerType<>(param1));
+        return Registry.register(BuiltInRegistries.FOLIAGE_PLACER_TYPE, param0, new FoliagePlacerType<>(param1));
     }
 
     private FoliagePlacerType(Codec<P> param0) {

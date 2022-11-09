@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -50,7 +51,7 @@ public class OptimizeWorldScreen extends Screen {
                 WorldData var1 = var0.worldData();
                 RegistryAccess.Frozen var2 = var0.registries().compositeAccess();
                 param3.saveDataTag(var2, var1);
-                var8 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var2.registryOrThrow(Registry.LEVEL_STEM_REGISTRY));
+                var8 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var2.registryOrThrow(Registries.LEVEL_STEM));
             }
 
             return var8;

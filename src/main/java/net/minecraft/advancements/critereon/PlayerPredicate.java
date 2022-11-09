@@ -16,6 +16,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.CriterionProgress;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
@@ -147,7 +148,7 @@ public class PlayerPredicate implements EntitySubPredicate {
             for(JsonElement var5 : var4) {
                 JsonObject var6 = GsonHelper.convertToJsonObject(var5, "stats entry");
                 ResourceLocation var7 = new ResourceLocation(GsonHelper.getAsString(var6, "type"));
-                StatType<?> var8 = Registry.STAT_TYPE.get(var7);
+                StatType<?> var8 = BuiltInRegistries.STAT_TYPE.get(var7);
                 if (var8 == null) {
                     throw new JsonParseException("Invalid stat type: " + var7);
                 }
@@ -185,7 +186,7 @@ public class PlayerPredicate implements EntitySubPredicate {
         Registry<T> var0 = param0.getRegistry();
         T var1 = var0.get(param1);
         if (var1 == null) {
-            throw new JsonParseException("Unknown object " + param1 + " for stat type " + Registry.STAT_TYPE.getKey(param0));
+            throw new JsonParseException("Unknown object " + param1 + " for stat type " + BuiltInRegistries.STAT_TYPE.getKey(param0));
         } else {
             return param0.get(var1);
         }
@@ -207,7 +208,7 @@ public class PlayerPredicate implements EntitySubPredicate {
             JsonArray var1 = new JsonArray();
             this.stats.forEach((param1, param2) -> {
                 JsonObject var0x = new JsonObject();
-                var0x.addProperty("type", Registry.STAT_TYPE.getKey(param1.getType()).toString());
+                var0x.addProperty("type", BuiltInRegistries.STAT_TYPE.getKey(param1.getType()).toString());
                 var0x.addProperty("stat", getStatValueId(param1).toString());
                 var0x.add("value", param2.serializeToJson());
                 var1.add(var0x);

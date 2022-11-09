@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.features.NetherFeatures;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -50,7 +51,7 @@ public class NyliumBlock extends Block implements BonemealableBlock {
         BlockState var0 = param0.getBlockState(param2);
         BlockPos var1 = param2.above();
         ChunkGenerator var2 = param0.getChunkSource().getGenerator();
-        Registry<ConfiguredFeature<?, ?>> var3 = param0.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
+        Registry<ConfiguredFeature<?, ?>> var3 = param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE);
         if (var0.is(Blocks.CRIMSON_NYLIUM)) {
             this.place(var3, NetherFeatures.CRIMSON_FOREST_VEGETATION_BONEMEAL, param0, var2, param1, var1);
         } else if (var0.is(Blocks.WARPED_NYLIUM)) {

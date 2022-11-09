@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.animal;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
@@ -18,7 +19,7 @@ public record CatVariant(ResourceLocation texture) {
     public static final ResourceKey<CatVariant> ALL_BLACK = createKey("all_black");
 
     private static ResourceKey<CatVariant> createKey(String param0) {
-        return ResourceKey.create(Registry.CAT_VARIANT_REGISTRY, new ResourceLocation(param0));
+        return ResourceKey.create(Registries.CAT_VARIANT, new ResourceLocation(param0));
     }
 
     public static CatVariant bootstrap(Registry<CatVariant> param0) {

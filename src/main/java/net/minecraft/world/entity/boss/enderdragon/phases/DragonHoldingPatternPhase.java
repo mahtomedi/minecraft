@@ -3,7 +3,6 @@ package net.minecraft.world.entity.boss.enderdragon.phases;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -61,44 +60,46 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
                 return;
             }
 
-            double var2 = 64.0;
-            Player var3 = this.dragon.level.getNearestPlayer(NEW_TARGET_TARGETING, this.dragon, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ());
-            if (var3 != null) {
-                var2 = var0.distToCenterSqr(var3.position()) / 512.0;
+            Player var2 = this.dragon.level.getNearestPlayer(NEW_TARGET_TARGETING, this.dragon, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ());
+            double var3;
+            if (var2 != null) {
+                var3 = var0.distToCenterSqr(var2.position()) / 512.0;
+            } else {
+                var3 = 64.0;
             }
 
-            if (var3 != null && (this.dragon.getRandom().nextInt(Mth.abs((int)var2) + 2) == 0 || this.dragon.getRandom().nextInt(var1 + 2) == 0)) {
-                this.strafePlayer(var3);
+            if (var2 != null && (this.dragon.getRandom().nextInt((int)(var3 + 2.0)) == 0 || this.dragon.getRandom().nextInt(var1 + 2) == 0)) {
+                this.strafePlayer(var2);
                 return;
             }
         }
 
         if (this.currentPath == null || this.currentPath.isDone()) {
-            int var4 = this.dragon.findClosestNode();
-            int var5 = var4;
+            int var5 = this.dragon.findClosestNode();
+            int var6 = var5;
             if (this.dragon.getRandom().nextInt(8) == 0) {
                 this.clockwise = !this.clockwise;
-                var5 = var4 + 6;
+                var6 = var5 + 6;
             }
 
             if (this.clockwise) {
-                ++var5;
+                ++var6;
             } else {
-                --var5;
+                --var6;
             }
 
             if (this.dragon.getDragonFight() != null && this.dragon.getDragonFight().getCrystalsAlive() >= 0) {
-                var5 %= 12;
-                if (var5 < 0) {
-                    var5 += 12;
+                var6 %= 12;
+                if (var6 < 0) {
+                    var6 += 12;
                 }
             } else {
-                var5 -= 12;
-                var5 &= 7;
-                var5 += 12;
+                var6 -= 12;
+                var6 &= 7;
+                var6 += 12;
             }
 
-            this.currentPath = this.dragon.findPath(var4, var5, null);
+            this.currentPath = this.dragon.findPath(var5, var6, null);
             if (this.currentPath != null) {
                 this.currentPath.advance();
             }

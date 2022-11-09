@@ -8,7 +8,7 @@ import com.mojang.logging.LogUtils;
 import java.util.Locale;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
@@ -175,7 +175,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
         private static TagKey<Structure> readStructure(JsonObject param0) {
             if (param0.has("destination")) {
                 String var0 = GsonHelper.getAsString(param0, "destination");
-                return TagKey.create(Registry.STRUCTURE_REGISTRY, new ResourceLocation(var0));
+                return TagKey.create(Registries.STRUCTURE, new ResourceLocation(var0));
             } else {
                 return ExplorationMapFunction.DEFAULT_DESTINATION;
             }

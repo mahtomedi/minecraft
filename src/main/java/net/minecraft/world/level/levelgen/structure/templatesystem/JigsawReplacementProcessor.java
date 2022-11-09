@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,7 +33,7 @@ public class JigsawReplacementProcessor extends StructureProcessor {
 
             BlockState var3;
             try {
-                BlockStateParser.BlockResult var2 = BlockStateParser.parseForBlock(param0.holderLookup(Registry.BLOCK_REGISTRY), var1, true);
+                BlockStateParser.BlockResult var2 = BlockStateParser.parseForBlock(param0.holderLookup(Registries.BLOCK), var1, true);
                 var3 = var2.blockState();
             } catch (CommandSyntaxException var11) {
                 throw new RuntimeException(var11);

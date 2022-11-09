@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
@@ -145,7 +145,7 @@ public class VegetationPlacements {
     }
 
     public static void bootstrap(BootstapContext<PlacedFeature> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
         Holder<ConfiguredFeature<?, ?>> var1 = var0.getOrThrow(VegetationFeatures.BAMBOO_NO_PODZOL);
         Holder<ConfiguredFeature<?, ?>> var2 = var0.getOrThrow(VegetationFeatures.BAMBOO_SOME_PODZOL);
         Holder<ConfiguredFeature<?, ?>> var3 = var0.getOrThrow(VegetationFeatures.VINES);

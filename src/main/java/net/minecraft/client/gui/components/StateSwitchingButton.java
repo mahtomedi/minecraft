@@ -40,7 +40,7 @@ public class StateSwitchingButton extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
+    public void updateWidgetNarration(NarrationElementOutput param0) {
         this.defaultButtonNarrationText(param0);
     }
 

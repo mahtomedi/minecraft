@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
@@ -13,12 +13,12 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 
 public class AncientCityStructurePools {
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
+        HolderGetter<PlacedFeature> var0 = param0.lookup(Registries.PLACED_FEATURE);
         Holder<PlacedFeature> var1 = var0.getOrThrow(CavePlacements.SCULK_PATCH_ANCIENT_CITY);
-        HolderGetter<StructureProcessorList> var2 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<StructureProcessorList> var2 = param0.lookup(Registries.PROCESSOR_LIST);
         Holder<StructureProcessorList> var3 = var2.getOrThrow(ProcessorLists.ANCIENT_CITY_GENERIC_DEGRADATION);
         Holder<StructureProcessorList> var4 = var2.getOrThrow(ProcessorLists.ANCIENT_CITY_WALLS_DEGRADATION);
-        HolderGetter<StructureTemplatePool> var5 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var5 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var6 = var5.getOrThrow(Pools.EMPTY);
         Pools.register(
             param0,

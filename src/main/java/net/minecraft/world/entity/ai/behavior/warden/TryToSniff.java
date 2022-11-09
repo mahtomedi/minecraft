@@ -1,38 +1,34 @@
 package net.minecraft.world.entity.ai.behavior.warden;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Unit;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.monster.warden.Warden;
 
-public class TryToSniff extends Behavior<Warden> {
+public class TryToSniff {
     private static final IntProvider SNIFF_COOLDOWN = UniformInt.of(100, 200);
 
-    public TryToSniff() {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.SNIFF_COOLDOWN,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.NEAREST_ATTACKABLE,
-                MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.DISTURBANCE_LOCATION,
-                MemoryStatus.VALUE_ABSENT
-            )
+    public static BehaviorControl<LivingEntity> create() {
+        return BehaviorBuilder.create(
+            param0 -> param0.<MemoryAccessor, MemoryAccessor, MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param0.registered(MemoryModuleType.IS_SNIFFING),
+                        param0.registered(MemoryModuleType.WALK_TARGET),
+                        param0.absent(MemoryModuleType.SNIFF_COOLDOWN),
+                        param0.present(MemoryModuleType.NEAREST_ATTACKABLE),
+                        param0.absent(MemoryModuleType.DISTURBANCE_LOCATION)
+                    )
+                    .apply(param0, (param0x, param1, param2, param3, param4) -> (param3x, param4x, param5) -> {
+                            param0x.set(Unit.INSTANCE);
+                            param2.setWithExpiry(Unit.INSTANCE, (long)SNIFF_COOLDOWN.sample(param3x.getRandom()));
+                            param1.erase();
+                            param4x.setPose(Pose.SNIFFING);
+                            return true;
+                        })
         );
-    }
-
-    protected void start(ServerLevel param0, Warden param1, long param2) {
-        Brain<Warden> var0 = param1.getBrain();
-        var0.setMemory(MemoryModuleType.IS_SNIFFING, Unit.INSTANCE);
-        var0.setMemoryWithExpiry(MemoryModuleType.SNIFF_COOLDOWN, Unit.INSTANCE, (long)SNIFF_COOLDOWN.sample(param0.getRandom()));
-        var0.eraseMemory(MemoryModuleType.WALK_TARGET);
-        param1.setPose(Pose.SNIFFING);
     }
 }

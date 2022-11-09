@@ -3,7 +3,7 @@ package net.minecraft.advancements.critereon;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import javax.annotation.Nullable;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -30,7 +30,7 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
     private static Block deserializeBlock(JsonObject param0) {
         if (param0.has("block")) {
             ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "block"));
-            return Registry.BLOCK.getOptional(var0).orElseThrow(() -> new JsonSyntaxException("Unknown block type '" + var0 + "'"));
+            return BuiltInRegistries.BLOCK.getOptional(var0).orElseThrow(() -> new JsonSyntaxException("Unknown block type '" + var0 + "'"));
         } else {
             return null;
         }
@@ -69,7 +69,7 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         public JsonObject serializeToJson(SerializationContext param0) {
             JsonObject var0 = super.serializeToJson(param0);
             if (this.block != null) {
-                var0.addProperty("block", Registry.BLOCK.getKey(this.block).toString());
+                var0.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.block).toString());
             }
 
             var0.add("item", this.item.serializeToJson());

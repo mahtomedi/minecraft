@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.feature.trunkplacers;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class TrunkPlacerType<P extends TrunkPlacer> {
     public static final TrunkPlacerType<StraightTrunkPlacer> STRAIGHT_TRUNK_PLACER = register("straight_trunk_placer", StraightTrunkPlacer.CODEC);
@@ -17,7 +18,7 @@ public class TrunkPlacerType<P extends TrunkPlacer> {
     private final Codec<P> codec;
 
     private static <P extends TrunkPlacer> TrunkPlacerType<P> register(String param0, Codec<P> param1) {
-        return Registry.register(Registry.TRUNK_PLACER_TYPES, param0, new TrunkPlacerType<>(param1));
+        return Registry.register(BuiltInRegistries.TRUNK_PLACER_TYPE, param0, new TrunkPlacerType<>(param1));
     }
 
     private TrunkPlacerType(Codec<P> param0) {
