@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -160,7 +161,7 @@ import org.slf4j.Logger;
 public class EntityType<T extends Entity> implements FeatureElement, EntityTypeTest<Entity, T> {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final String ENTITY_TAG = "EntityTag";
-    private final Holder.Reference<EntityType<?>> builtInRegistryHolder = Registry.ENTITY_TYPE.createIntrusiveHolder(this);
+    private final Holder.Reference<EntityType<?>> builtInRegistryHolder = BuiltInRegistries.ENTITY_TYPE.createIntrusiveHolder(this);
     private static final float MAGIC_HORSE_WIDTH = 1.3964844F;
     public static final EntityType<Allay> ALLAY = register(
         "allay", EntityType.Builder.<Allay>of(Allay::new, MobCategory.CREATURE).sized(0.35F, 0.6F).clientTrackingRange(8).updateInterval(2)
@@ -586,15 +587,15 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
     private final FeatureFlagSet requiredFeatures;
 
     private static <T extends Entity> EntityType<T> register(String param0, EntityType.Builder<T> param1) {
-        return Registry.register(Registry.ENTITY_TYPE, param0, param1.build(param0));
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, param0, param1.build(param0));
     }
 
     public static ResourceLocation getKey(EntityType<?> param0) {
-        return Registry.ENTITY_TYPE.getKey(param0);
+        return BuiltInRegistries.ENTITY_TYPE.getKey(param0);
     }
 
     public static Optional<EntityType<?>> byString(String param0) {
-        return Registry.ENTITY_TYPE.getOptional(ResourceLocation.tryParse(param0));
+        return BuiltInRegistries.ENTITY_TYPE.getOptional(ResourceLocation.tryParse(param0));
     }
 
     public EntityType(
@@ -751,7 +752,7 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
 
     public String getDescriptionId() {
         if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("entity", Registry.ENTITY_TYPE.getKey(this));
+            this.descriptionId = Util.makeDescriptionId("entity", BuiltInRegistries.ENTITY_TYPE.getKey(this));
         }
 
         return this.descriptionId;
@@ -777,7 +778,7 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
 
     public ResourceLocation getDefaultLootTable() {
         if (this.lootTable == null) {
-            ResourceLocation var0 = Registry.ENTITY_TYPE.getKey(this);
+            ResourceLocation var0 = BuiltInRegistries.ENTITY_TYPE.getKey(this);
             this.lootTable = var0.withPrefix("entities/");
         }
 
@@ -830,7 +831,7 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
     }
 
     public static Optional<EntityType<?>> by(CompoundTag param0) {
-        return Registry.ENTITY_TYPE.getOptional(new ResourceLocation(param0.getString("id")));
+        return BuiltInRegistries.ENTITY_TYPE.getOptional(new ResourceLocation(param0.getString("id")));
     }
 
     @Nullable

@@ -17,7 +17,6 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -31,7 +30,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class EditBox extends AbstractWidget implements Renderable, GuiEventListener {
+public class EditBox extends AbstractWidget implements Renderable {
     public static final int BACKWARDS = -1;
     public static final int FORWARDS = 1;
     private static final int CURSOR_INSERT_WIDTH = 1;
@@ -60,6 +59,8 @@ public class EditBox extends AbstractWidget implements Renderable, GuiEventListe
     private Consumer<String> responder;
     private Predicate<String> filter = Objects::nonNull;
     private BiFunction<String, Integer, FormattedCharSequence> formatter = (param0x, param1x) -> FormattedCharSequence.forward(param0x, Style.EMPTY);
+    @Nullable
+    private Component hint;
 
     public EditBox(Font param0, int param1, int param2, int param3, int param4, Component param5) {
         this(param0, param1, param2, param3, param4, null, param5);
@@ -421,6 +422,10 @@ public class EditBox extends AbstractWidget implements Renderable, GuiEventListe
                 this.font.drawShadow(param0, this.formatter.apply(var4.substring(var2), this.cursorPos), (float)var9, (float)var8, var1);
             }
 
+            if (this.hint != null && var4.isEmpty() && !this.isFocused()) {
+                this.font.drawShadow(param0, this.hint, (float)var9, (float)var8, var1);
+            }
+
             if (!var11 && this.suggestion != null) {
                 this.font.drawShadow(param0, this.suggestion, (float)(var12 - 1), (float)var8, -8355712);
             }
@@ -594,7 +599,11 @@ public class EditBox extends AbstractWidget implements Renderable, GuiEventListe
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
-        param0.add(NarratedElementType.TITLE, (Component)Component.translatable("narration.edit_box", this.getValue()));
+    public void updateWidgetNarration(NarrationElementOutput param0) {
+        param0.add(NarratedElementType.TITLE, (Component)this.createNarrationMessage());
+    }
+
+    public void setHint(Component param0) {
+        this.hint = param0;
     }
 }

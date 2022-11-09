@@ -5,7 +5,7 @@ import com.mojang.serialization.Dynamic;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -101,7 +101,7 @@ public class Goat extends Animal {
     public ItemStack createHorn() {
         RandomSource var0 = RandomSource.create((long)this.getUUID().hashCode());
         TagKey<Instrument> var1 = this.isScreamingGoat() ? InstrumentTags.SCREAMING_GOAT_HORNS : InstrumentTags.REGULAR_GOAT_HORNS;
-        HolderSet<Instrument> var2 = Registry.INSTRUMENT.getOrCreateTag(var1);
+        HolderSet<Instrument> var2 = BuiltInRegistries.INSTRUMENT.getOrCreateTag(var1);
         return InstrumentItem.create(Items.GOAT_HORN, var2.getRandomElement(var0).get());
     }
 

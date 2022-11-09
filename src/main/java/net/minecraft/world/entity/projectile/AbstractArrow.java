@@ -7,8 +7,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -459,7 +460,7 @@ public abstract class AbstractArrow extends Projectile {
         param0.putDouble("damage", this.baseDamage);
         param0.putBoolean("crit", this.isCritArrow());
         param0.putByte("PierceLevel", this.getPierceLevel());
-        param0.putString("SoundEvent", Registry.SOUND_EVENT.getKey(this.soundEvent).toString());
+        param0.putString("SoundEvent", BuiltInRegistries.SOUND_EVENT.getKey(this.soundEvent).toString());
         param0.putBoolean("ShotFromCrossbow", this.shotFromCrossbow());
     }
 
@@ -468,7 +469,7 @@ public abstract class AbstractArrow extends Projectile {
         super.readAdditionalSaveData(param0);
         this.life = param0.getShort("life");
         if (param0.contains("inBlockState", 10)) {
-            this.lastState = NbtUtils.readBlockState(this.level.holderLookup(Registry.BLOCK_REGISTRY), param0.getCompound("inBlockState"));
+            this.lastState = NbtUtils.readBlockState(this.level.holderLookup(Registries.BLOCK), param0.getCompound("inBlockState"));
         }
 
         this.shakeTime = param0.getByte("shake") & 255;
@@ -481,7 +482,7 @@ public abstract class AbstractArrow extends Projectile {
         this.setCritArrow(param0.getBoolean("crit"));
         this.setPierceLevel(param0.getByte("PierceLevel"));
         if (param0.contains("SoundEvent", 8)) {
-            this.soundEvent = Registry.SOUND_EVENT
+            this.soundEvent = BuiltInRegistries.SOUND_EVENT
                 .getOptional(new ResourceLocation(param0.getString("SoundEvent")))
                 .orElse(this.getDefaultHitGroundSoundEvent());
         }

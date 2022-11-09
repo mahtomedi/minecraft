@@ -59,6 +59,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.gametest.framework.GameTestTicker;
 import net.minecraft.network.chat.ChatDecorator;
@@ -269,7 +270,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         super("Server");
         this.registries = param3.registries();
         this.worldData = param3.worldData();
-        if (!this.registries.compositeAccess().registryOrThrow(Registry.LEVEL_STEM_REGISTRY).containsKey(LevelStem.OVERWORLD)) {
+        if (!this.registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)) {
             throw new IllegalStateException("Missing Overworld dimension data");
         } else {
             this.proxy = param4;
@@ -288,7 +289,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.functionManager = new ServerFunctionManager(this, this.resources.managers.getFunctionLibrary());
             HolderGetter<Block> var0 = this.registries
                 .compositeAccess()
-                .<Block>registryOrThrow(Registry.BLOCK_REGISTRY)
+                .<Block>registryOrThrow(Registries.BLOCK)
                 .asLookup()
                 .filterFeatures(this.worldData.enabledFeatures());
             this.structureTemplateManager = new StructureTemplateManager(param3.resourceManager(), param1, param5, var0);
@@ -334,7 +335,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     protected void createLevels(ChunkProgressListener param0) {
         ServerLevelData var0 = this.worldData.overworldData();
         boolean var1 = this.worldData.isDebugWorld();
-        Registry<LevelStem> var2 = this.registries.compositeAccess().registryOrThrow(Registry.LEVEL_STEM_REGISTRY);
+        Registry<LevelStem> var2 = this.registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
         WorldOptions var3 = this.worldData.worldGenOptions();
         long var4 = var3.seed();
         long var5 = BiomeManager.obfuscateSeed(var4);
@@ -377,7 +378,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         for(Entry<ResourceKey<LevelStem>, LevelStem> var13 : var2.entrySet()) {
             ResourceKey<LevelStem> var14 = var13.getKey();
             if (var14 != LevelStem.OVERWORLD) {
-                ResourceKey<Level> var15 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var14.location());
+                ResourceKey<Level> var15 = ResourceKey.create(Registries.DIMENSION, var14.location());
                 DerivedLevelData var16 = new DerivedLevelData(this.worldData, var0);
                 ServerLevel var17 = new ServerLevel(
                     this, this.executor, this.storageSource, var16, var15, var13.getValue(), param0, var1, var5, ImmutableList.of(), false
@@ -430,7 +431,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
             if (param2) {
                 param0.registryAccess()
-                    .registry(Registry.CONFIGURED_FEATURE_REGISTRY)
+                    .registry(Registries.CONFIGURED_FEATURE)
                     .flatMap(param0x -> param0x.getHolder(MiscOverworldFeatures.BONUS_CHEST))
                     .ifPresent(
                         param3x -> param3x.value()

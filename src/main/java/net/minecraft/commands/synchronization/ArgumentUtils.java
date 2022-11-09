@@ -12,7 +12,7 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
 import java.util.Set;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.slf4j.Logger;
 
 public class ArgumentUtils {
@@ -54,7 +54,7 @@ public class ArgumentUtils {
     private static <T extends ArgumentType<?>> void serializeArgumentToJson(JsonObject param0, T param1) {
         ArgumentTypeInfo.Template<T> var0 = ArgumentTypeInfos.unpack(param1);
         param0.addProperty("type", "argument");
-        param0.addProperty("parser", Registry.COMMAND_ARGUMENT_TYPE.getKey(var0.type()).toString());
+        param0.addProperty("parser", BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getKey(var0.type()).toString());
         JsonObject var1 = new JsonObject();
         serializeCap(var1, var0);
         if (var1.size() > 0) {

@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -57,7 +57,7 @@ public class EnchantmentHelper {
 
     @Nullable
     public static ResourceLocation getEnchantmentId(Enchantment param0) {
-        return Registry.ENCHANTMENT.getKey(param0);
+        return BuiltInRegistries.ENCHANTMENT.getKey(param0);
     }
 
     public static int getItemEnchantmentLevel(Enchantment param0, ItemStack param1) {
@@ -89,7 +89,7 @@ public class EnchantmentHelper {
 
         for(int var1 = 0; var1 < param0.size(); ++var1) {
             CompoundTag var2 = param0.getCompound(var1);
-            Registry.ENCHANTMENT.getOptional(getEnchantmentId(var2)).ifPresent(param2 -> var0.put(param2, getEnchantmentLevel(var2)));
+            BuiltInRegistries.ENCHANTMENT.getOptional(getEnchantmentId(var2)).ifPresent(param2 -> var0.put(param2, getEnchantmentLevel(var2)));
         }
 
         return var0;
@@ -123,7 +123,7 @@ public class EnchantmentHelper {
 
             for(int var1 = 0; var1 < var0.size(); ++var1) {
                 CompoundTag var2 = var0.getCompound(var1);
-                Registry.ENCHANTMENT.getOptional(getEnchantmentId(var2)).ifPresent(param2 -> param0.accept(param2, getEnchantmentLevel(var2)));
+                BuiltInRegistries.ENCHANTMENT.getOptional(getEnchantmentId(var2)).ifPresent(param2 -> param0.accept(param2, getEnchantmentLevel(var2)));
             }
 
         }
@@ -382,7 +382,7 @@ public class EnchantmentHelper {
         Item var1 = param1.getItem();
         boolean var2 = param1.is(Items.BOOK);
 
-        for(Enchantment var3 : Registry.ENCHANTMENT) {
+        for(Enchantment var3 : BuiltInRegistries.ENCHANTMENT) {
             if ((!var3.isTreasureOnly() || param2) && var3.isDiscoverable() && (var3.category.canEnchant(var1) || var2)) {
                 for(int var4 = var3.getMaxLevel(); var4 > var3.getMinLevel() - 1; --var4) {
                     if (param0 >= var3.getMinCost(var4) && param0 <= var3.getMaxCost(var4)) {

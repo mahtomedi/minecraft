@@ -1,60 +1,47 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 
-public class SetEntityLookTarget extends Behavior<LivingEntity> {
-    private final Predicate<LivingEntity> predicate;
-    private final float maxDistSqr;
-    private Optional<LivingEntity> nearestEntityMatchingTest = Optional.empty();
-
-    public SetEntityLookTarget(TagKey<EntityType<?>> param0, float param1) {
-        this(param1x -> param1x.getType().is(param0), param1);
+public class SetEntityLookTarget {
+    public static BehaviorControl<LivingEntity> create(MobCategory param0, float param1) {
+        return create(param1x -> param0.equals(param1x.getType().getCategory()), param1);
     }
 
-    public SetEntityLookTarget(MobCategory param0, float param1) {
-        this(param1x -> param0.equals(param1x.getType().getCategory()), param1);
+    public static OneShot<LivingEntity> create(EntityType<?> param0, float param1) {
+        return create(param1x -> param0.equals(param1x.getType()), param1);
     }
 
-    public SetEntityLookTarget(EntityType<?> param0, float param1) {
-        this(param1x -> param0.equals(param1x.getType()), param1);
+    public static OneShot<LivingEntity> create(float param0) {
+        return create(param0x -> true, param0);
     }
 
-    public SetEntityLookTarget(float param0) {
-        this(param0x -> true, param0);
-    }
-
-    public SetEntityLookTarget(Predicate<LivingEntity> param0, float param1) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
-            )
+    public static OneShot<LivingEntity> create(Predicate<LivingEntity> param0, float param1) {
+        float var0 = param1 * param1;
+        return BehaviorBuilder.create(
+            param2 -> param2.<MemoryAccessor, MemoryAccessor>group(
+                        param2.absent(MemoryModuleType.LOOK_TARGET), param2.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+                    )
+                    .apply(
+                        param2,
+                        (param3, param4) -> (param5, param6, param7) -> {
+                                Optional<LivingEntity> var0x = param2.<NearestVisibleLivingEntities>get(param4)
+                                    .findClosest(param0.and(param2x -> param2x.distanceToSqr(param6) <= (double)var0 && !param6.hasPassenger(param2x)));
+                                if (var0x.isEmpty()) {
+                                    return false;
+                                } else {
+                                    param3.set(new EntityTracker(var0x.get(), true));
+                                    return true;
+                                }
+                            }
+                    )
         );
-        this.predicate = param0;
-        this.maxDistSqr = param1 * param1;
-    }
-
-    @Override
-    protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
-        NearestVisibleLivingEntities var0 = param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
-        this.nearestEntityMatchingTest = var0.findClosest(
-            this.predicate.and(param1x -> param1x.distanceToSqr(param1) <= (double)this.maxDistSqr && !param1.hasPassenger(param1x))
-        );
-        return this.nearestEntityMatchingTest.isPresent();
-    }
-
-    @Override
-    protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        param1.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.nearestEntityMatchingTest.get(), true));
-        this.nearestEntityMatchingTest = Optional.empty();
     }
 }

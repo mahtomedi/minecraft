@@ -1,45 +1,38 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.mutable.MutableLong;
 
-public class StrollAroundPoi extends Behavior<PathfinderMob> {
+public class StrollAroundPoi {
     private static final int MIN_TIME_BETWEEN_STROLLS = 180;
     private static final int STROLL_MAX_XZ_DIST = 8;
     private static final int STROLL_MAX_Y_DIST = 6;
-    private final MemoryModuleType<GlobalPos> memoryType;
-    private long nextOkStartTime;
-    private final int maxDistanceFromPoi;
-    private final float speedModifier;
 
-    public StrollAroundPoi(MemoryModuleType<GlobalPos> param0, float param1, int param2) {
-        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED, param0, MemoryStatus.VALUE_PRESENT));
-        this.memoryType = param0;
-        this.speedModifier = param1;
-        this.maxDistanceFromPoi = param2;
-    }
-
-    protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
-        Optional<GlobalPos> var0 = param1.getBrain().getMemory(this.memoryType);
-        return var0.isPresent()
-            && param0.dimension() == var0.get().dimension()
-            && var0.get().pos().closerToCenterThan(param1.position(), (double)this.maxDistanceFromPoi);
-    }
-
-    protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        if (param2 > this.nextOkStartTime) {
-            Optional<Vec3> var0 = Optional.ofNullable(LandRandomPos.getPos(param1, 8, 6));
-            param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speedModifier, 1)));
-            this.nextOkStartTime = param2 + 180L;
-        }
-
+    public static OneShot<PathfinderMob> create(MemoryModuleType<GlobalPos> param0, float param1, int param2) {
+        MutableLong var0 = new MutableLong(0L);
+        return BehaviorBuilder.create(
+            param4 -> param4.<MemoryAccessor, MemoryAccessor>group(param4.registered(MemoryModuleType.WALK_TARGET), param4.present(param0))
+                    .apply(param4, (param4x, param5) -> (param6, param7, param8) -> {
+                            GlobalPos var0x = param4.get(param5);
+                            if (param6.dimension() != var0x.dimension() || !var0x.pos().closerToCenterThan(param7.position(), (double)param2)) {
+                                return false;
+                            } else if (param8 <= var0.getValue()) {
+                                return true;
+                            } else {
+                                Optional<Vec3> var1x = Optional.ofNullable(LandRandomPos.getPos(param7, 8, 6));
+                                param4x.setOrErase(var1x.map(param1x -> new WalkTarget(param1x, param1, 1)));
+                                var0.setValue(param8 + 180L);
+                                return true;
+                            }
+                        })
+        );
     }
 }

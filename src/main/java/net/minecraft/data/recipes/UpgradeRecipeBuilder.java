@@ -8,7 +8,7 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -95,7 +95,7 @@ public class UpgradeRecipeBuilder {
             param0.add("base", this.base.toJson());
             param0.add("addition", this.addition.toJson());
             JsonObject var0 = new JsonObject();
-            var0.addProperty("item", Registry.ITEM.getKey(this.result).toString());
+            var0.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result).toString());
             param0.add("result", var0);
         }
 

@@ -12,6 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -58,7 +59,7 @@ public class JigsawPlacement {
         StructureTemplateManager var2 = param0.structureTemplateManager();
         LevelHeightAccessor var3 = param0.heightAccessor();
         WorldgenRandom var4 = param0.random();
-        Registry<StructureTemplatePool> var5 = var0.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        Registry<StructureTemplatePool> var5 = var0.registryOrThrow(Registries.TEMPLATE_POOL);
         Rotation var6 = Rotation.getRandom(var4);
         StructureTemplatePool var7 = param1.value();
         StructurePoolElement var8 = var7.getRandomTemplate(var4);
@@ -396,7 +397,7 @@ public class JigsawPlacement {
         }
 
         private static ResourceKey<StructureTemplatePool> readPoolName(StructureTemplate.StructureBlockInfo param0) {
-            return ResourceKey.create(Registry.TEMPLATE_POOL_REGISTRY, new ResourceLocation(param0.nbt.getString("pool")));
+            return ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation(param0.nbt.getString("pool")));
         }
     }
 }

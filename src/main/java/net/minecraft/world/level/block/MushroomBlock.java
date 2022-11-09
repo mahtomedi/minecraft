@@ -3,7 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -81,7 +81,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
 
     public boolean growMushroom(ServerLevel param0, BlockPos param1, BlockState param2, RandomSource param3) {
         Optional<? extends Holder<ConfiguredFeature<?, ?>>> var0 = param0.registryAccess()
-            .registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY)
+            .registryOrThrow(Registries.CONFIGURED_FEATURE)
             .getHolder(this.feature);
         if (var0.isEmpty()) {
             return false;

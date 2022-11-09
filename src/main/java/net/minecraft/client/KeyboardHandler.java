@@ -22,7 +22,7 @@ import net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
@@ -258,7 +258,7 @@ public class KeyboardHandler {
                     break;
                 case ENTITY:
                     Entity var5 = ((EntityHitResult)var0).getEntity();
-                    ResourceLocation var6 = Registry.ENTITY_TYPE.getKey(var5.getType());
+                    ResourceLocation var6 = BuiltInRegistries.ENTITY_TYPE.getKey(var5.getType());
                     if (param0) {
                         if (param1) {
                             this.minecraft.player.connection.getDebugQueryHandler().queryEntityTag(var5.getId(), param2 -> {

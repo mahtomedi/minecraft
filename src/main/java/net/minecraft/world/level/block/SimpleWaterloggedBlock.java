@@ -16,7 +16,7 @@ import net.minecraft.world.level.material.Fluids;
 public interface SimpleWaterloggedBlock extends BucketPickup, LiquidBlockContainer {
     @Override
     default boolean canPlaceLiquid(BlockGetter param0, BlockPos param1, BlockState param2, Fluid param3) {
-        return !param2.getValue(BlockStateProperties.WATERLOGGED) && param3 == Fluids.WATER;
+        return param3 == Fluids.WATER;
     }
 
     @Override

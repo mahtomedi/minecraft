@@ -47,7 +47,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -147,13 +147,13 @@ public class ModelBakery {
         );
         param1.popPush("blocks");
 
-        for(Block var1 : Registry.BLOCK) {
+        for(Block var1 : BuiltInRegistries.BLOCK) {
             var1.getStateDefinition().getPossibleStates().forEach(param0x -> this.loadTopLevel(BlockModelShaper.stateToModelLocation(param0x)));
         }
 
         param1.popPush("items");
 
-        for(ResourceLocation var2 : Registry.ITEM.keySet()) {
+        for(ResourceLocation var2 : BuiltInRegistries.ITEM.keySet()) {
             this.loadTopLevel(new ModelResourceLocation(var2, "inventory"));
         }
 
@@ -268,7 +268,7 @@ public class ModelBakery {
             } else {
                 ResourceLocation var3 = new ResourceLocation(param0.getNamespace(), param0.getPath());
                 StateDefinition<Block, BlockState> var4 = Optional.ofNullable(STATIC_DEFINITIONS.get(var3))
-                    .orElseGet(() -> Registry.BLOCK.get(var3).getStateDefinition());
+                    .orElseGet(() -> BuiltInRegistries.BLOCK.get(var3).getStateDefinition());
                 this.context.setDefinition(var4);
                 List<Property<?>> var5 = ImmutableList.copyOf(this.blockColors.getColoringProperties(var4.getOwner()));
                 ImmutableList<BlockState> var6 = var4.getPossibleStates();

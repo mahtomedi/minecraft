@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.placement.VillagePlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -18,13 +18,13 @@ public class DesertVillagePools {
     private static final ResourceKey<StructureTemplatePool> ZOMBIE_TERMINATORS_KEY = Pools.createKey("village/desert/zombie/terminators");
 
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
+        HolderGetter<PlacedFeature> var0 = param0.lookup(Registries.PLACED_FEATURE);
         Holder<PlacedFeature> var1 = var0.getOrThrow(VillagePlacements.PATCH_CACTUS_VILLAGE);
         Holder<PlacedFeature> var2 = var0.getOrThrow(VillagePlacements.PILE_HAY_VILLAGE);
-        HolderGetter<StructureProcessorList> var3 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<StructureProcessorList> var3 = param0.lookup(Registries.PROCESSOR_LIST);
         Holder<StructureProcessorList> var4 = var3.getOrThrow(ProcessorLists.ZOMBIE_DESERT);
         Holder<StructureProcessorList> var5 = var3.getOrThrow(ProcessorLists.FARM_DESERT);
-        HolderGetter<StructureTemplatePool> var6 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var6 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var7 = var6.getOrThrow(Pools.EMPTY);
         Holder<StructureTemplatePool> var8 = var6.getOrThrow(TERMINATORS_KEY);
         Holder<StructureTemplatePool> var9 = var6.getOrThrow(ZOMBIE_TERMINATORS_KEY);

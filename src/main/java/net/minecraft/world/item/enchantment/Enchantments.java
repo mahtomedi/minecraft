@@ -1,6 +1,7 @@
 package net.minecraft.world.item.enchantment;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EquipmentSlot;
 
 public class Enchantments {
@@ -68,6 +69,6 @@ public class Enchantments {
     );
 
     private static Enchantment register(String param0, Enchantment param1) {
-        return Registry.register(Registry.ENCHANTMENT, param0, param1);
+        return Registry.register(BuiltInRegistries.ENCHANTMENT, param0, param1);
     }
 }

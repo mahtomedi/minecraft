@@ -41,7 +41,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -69,6 +69,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     public static final int ITEM_COUNT_BLIT_OFFSET = 200;
     public static final float COMPASS_FOIL_UI_SCALE = 0.5F;
     public static final float COMPASS_FOIL_FIRST_PERSON_SCALE = 0.75F;
+    public static final float COMPASS_FOIL_TEXTURE_SCALE = 0.0078125F;
     private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation.vanilla("trident", "inventory");
     public static final ModelResourceLocation TRIDENT_IN_HAND_MODEL = ModelResourceLocation.vanilla("trident_in_hand", "inventory");
     private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.vanilla("spyglass", "inventory");
@@ -84,9 +85,9 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         this.itemModelShaper = new ItemModelShaper(param1);
         this.blockEntityRenderer = param3;
 
-        for(Item var0 : Registry.ITEM) {
+        for(Item var0 : BuiltInRegistries.ITEM) {
             if (!IGNORED.contains(var0)) {
-                this.itemModelShaper.register(var0, new ModelResourceLocation(Registry.ITEM.getKey(var0), "inventory"));
+                this.itemModelShaper.register(var0, new ModelResourceLocation(BuiltInRegistries.ITEM.getKey(var0), "inventory"));
             }
         }
 
@@ -185,13 +186,13 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
     public static VertexConsumer getCompassFoilBuffer(MultiBufferSource param0, RenderType param1, PoseStack.Pose param2) {
         return VertexMultiConsumer.create(
-            new SheetedDecalTextureGenerator(param0.getBuffer(RenderType.glint()), param2.pose(), param2.normal()), param0.getBuffer(param1)
+            new SheetedDecalTextureGenerator(param0.getBuffer(RenderType.glint()), param2.pose(), param2.normal(), 0.0078125F), param0.getBuffer(param1)
         );
     }
 
     public static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource param0, RenderType param1, PoseStack.Pose param2) {
         return VertexMultiConsumer.create(
-            new SheetedDecalTextureGenerator(param0.getBuffer(RenderType.glintDirect()), param2.pose(), param2.normal()), param0.getBuffer(param1)
+            new SheetedDecalTextureGenerator(param0.getBuffer(RenderType.glintDirect()), param2.pose(), param2.normal(), 0.0078125F), param0.getBuffer(param1)
         );
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -32,9 +33,9 @@ public interface PresetEditor {
         (param0, param1) -> {
             ChunkGenerator var0 = param1.selectedDimensions().overworld();
             RegistryAccess var1 = param1.worldgenLoadContext();
-            HolderGetter<Biome> var2 = var1.lookupOrThrow(Registry.BIOME_REGISTRY);
-            HolderGetter<StructureSet> var3 = var1.lookupOrThrow(Registry.STRUCTURE_SET_REGISTRY);
-            HolderGetter<PlacedFeature> var4 = var1.lookupOrThrow(Registry.PLACED_FEATURE_REGISTRY);
+            HolderGetter<Biome> var2 = var1.lookupOrThrow(Registries.BIOME);
+            HolderGetter<StructureSet> var3 = var1.lookupOrThrow(Registries.STRUCTURE_SET);
+            HolderGetter<PlacedFeature> var4 = var1.lookupOrThrow(Registries.PLACED_FEATURE);
             return new CreateFlatWorldScreen(
                 param0,
                 param1x -> param0.worldGenSettingsComponent.updateSettings(flatWorldConfigurator(param1x)),
@@ -58,7 +59,7 @@ public interface PresetEditor {
 
     private static WorldCreationContext.DimensionsUpdater fixedBiomeConfigurator(Holder<Biome> param0) {
         return (param1, param2) -> {
-            Registry<NoiseGeneratorSettings> var0x = param1.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY);
+            Registry<NoiseGeneratorSettings> var0x = param1.registryOrThrow(Registries.NOISE_SETTINGS);
             Holder<NoiseGeneratorSettings> var1 = var0x.getHolderOrThrow(NoiseGeneratorSettings.OVERWORLD);
             BiomeSource var2 = new FixedBiomeSource(param0);
             ChunkGenerator var3 = new NoiseBasedChunkGenerator(var2, var1);

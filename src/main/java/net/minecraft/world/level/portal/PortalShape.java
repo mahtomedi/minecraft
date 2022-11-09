@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -16,7 +17,10 @@ import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class PortalShape {
     private static final int MIN_WIDTH = 2;
@@ -24,6 +28,8 @@ public class PortalShape {
     private static final int MIN_HEIGHT = 3;
     public static final int MAX_HEIGHT = 21;
     private static final BlockBehaviour.StatePredicate FRAME = (param0, param1, param2) -> param0.is(Blocks.OBSIDIAN);
+    private static final float SAFE_TRAVEL_MAX_ENTITY_XY = 4.0F;
+    private static final double SAFE_TRAVEL_MAX_VERTICAL_DELTA = 1.0;
     private final LevelAccessor level;
     private final Direction.Axis axis;
     private final Direction rightDir;
@@ -194,27 +200,35 @@ public class PortalShape {
     }
 
     public static PortalInfo createPortalInfo(
-        ServerLevel param0,
-        BlockUtil.FoundRectangle param1,
-        Direction.Axis param2,
-        Vec3 param3,
-        EntityDimensions param4,
-        Vec3 param5,
-        float param6,
-        float param7
+        ServerLevel param0, BlockUtil.FoundRectangle param1, Direction.Axis param2, Vec3 param3, Entity param4, Vec3 param5, float param6, float param7
     ) {
         BlockPos var0 = param1.minCorner;
         BlockState var1 = param0.getBlockState(var0);
         Direction.Axis var2 = var1.getOptionalValue(BlockStateProperties.HORIZONTAL_AXIS).orElse(Direction.Axis.X);
         double var3 = (double)param1.axis1Size;
         double var4 = (double)param1.axis2Size;
-        int var5 = param2 == var2 ? 0 : 90;
-        Vec3 var6 = param2 == var2 ? param5 : new Vec3(param5.z, param5.y, -param5.x);
-        double var7 = (double)param4.width / 2.0 + (var3 - (double)param4.width) * param3.x();
-        double var8 = (var4 - (double)param4.height) * param3.y();
-        double var9 = 0.5 + param3.z();
-        boolean var10 = var2 == Direction.Axis.X;
-        Vec3 var11 = new Vec3((double)var0.getX() + (var10 ? var7 : var9), (double)var0.getY() + var8, (double)var0.getZ() + (var10 ? var9 : var7));
-        return new PortalInfo(var11, var6, param6 + (float)var5, param7);
+        EntityDimensions var5 = param4.getDimensions(param4.getPose());
+        int var6 = param2 == var2 ? 0 : 90;
+        Vec3 var7 = param2 == var2 ? param5 : new Vec3(param5.z, param5.y, -param5.x);
+        double var8 = (double)var5.width / 2.0 + (var3 - (double)var5.width) * param3.x();
+        double var9 = (var4 - (double)var5.height) * param3.y();
+        double var10 = 0.5 + param3.z();
+        boolean var11 = var2 == Direction.Axis.X;
+        Vec3 var12 = new Vec3((double)var0.getX() + (var11 ? var8 : var10), (double)var0.getY() + var9, (double)var0.getZ() + (var11 ? var10 : var8));
+        Vec3 var13 = findCollisionFreePosition(var12, param0, param4, var5);
+        return new PortalInfo(var13, var7, param6 + (float)var6, param7);
+    }
+
+    private static Vec3 findCollisionFreePosition(Vec3 param0, ServerLevel param1, Entity param2, EntityDimensions param3) {
+        if (!(param3.width > 4.0F) && !(param3.height > 4.0F)) {
+            double var0 = (double)param3.height / 2.0;
+            Vec3 var1 = param0.add(0.0, var0, 0.0);
+            VoxelShape var2 = Shapes.create(AABB.ofSize(var1, (double)param3.width, 0.0, (double)param3.width).expandTowards(0.0, 1.0, 0.0).inflate(1.0E-6));
+            Optional<Vec3> var3 = param1.findFreePosition(param2, var2, var1, (double)param3.width, (double)param3.height, (double)param3.width);
+            Optional<Vec3> var4 = var3.map(param1x -> param1x.subtract(0.0, var0, 0.0));
+            return var4.orElse(param0);
+        } else {
+            return param0;
+        }
     }
 }

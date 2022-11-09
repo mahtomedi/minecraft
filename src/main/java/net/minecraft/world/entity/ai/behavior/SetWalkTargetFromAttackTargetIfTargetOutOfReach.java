@@ -1,57 +1,47 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import java.util.function.Function;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 
-public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mob> {
+public class SetWalkTargetFromAttackTargetIfTargetOutOfReach {
     private static final int PROJECTILE_ATTACK_RANGE_BUFFER = 1;
-    private final Function<LivingEntity, Float> speedModifier;
 
-    public SetWalkTargetFromAttackTargetIfTargetOutOfReach(float param0) {
-        this(param1 -> param0);
+    public static BehaviorControl<Mob> create(float param0) {
+        return create(param1 -> param0);
     }
 
-    public SetWalkTargetFromAttackTargetIfTargetOutOfReach(Function<LivingEntity, Float> param0) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.ATTACK_TARGET,
-                MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-                MemoryStatus.REGISTERED
-            )
+    public static BehaviorControl<Mob> create(Function<LivingEntity, Float> param0) {
+        return BehaviorBuilder.create(
+            param1 -> param1.<MemoryAccessor, MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param1.registered(MemoryModuleType.WALK_TARGET),
+                        param1.registered(MemoryModuleType.LOOK_TARGET),
+                        param1.present(MemoryModuleType.ATTACK_TARGET),
+                        param1.registered(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+                    )
+                    .apply(
+                        param1,
+                        (param2, param3, param4, param5) -> (param6, param7, param8) -> {
+                                LivingEntity var0x = param1.get(param4);
+                                Optional<NearestVisibleLivingEntities> var1x = param1.tryGet(param5);
+                                if (var1x.isPresent()
+                                    && ((NearestVisibleLivingEntities)var1x.get()).contains(var0x)
+                                    && BehaviorUtils.isWithinAttackRange(param7, var0x, 1)) {
+                                    param2.erase();
+                                } else {
+                                    param3.set(new EntityTracker(var0x, true));
+                                    param2.set(new WalkTarget(new EntityTracker(var0x, false), param0.apply(param7), 0));
+                                }
+            
+                                return true;
+                            }
+                    )
         );
-        this.speedModifier = param0;
-    }
-
-    protected void start(ServerLevel param0, Mob param1, long param2) {
-        LivingEntity var0 = param1.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
-        if (BehaviorUtils.canSee(param1, var0) && BehaviorUtils.isWithinAttackRange(param1, var0, 1)) {
-            this.clearWalkTarget(param1);
-        } else {
-            this.setWalkAndLookTarget(param1, var0);
-        }
-
-    }
-
-    private void setWalkAndLookTarget(LivingEntity param0, LivingEntity param1) {
-        Brain<?> var0 = param0.getBrain();
-        var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1, true));
-        WalkTarget var1 = new WalkTarget(new EntityTracker(param1, false), this.speedModifier.apply(param0), 0);
-        var0.setMemory(MemoryModuleType.WALK_TARGET, var1);
-    }
-
-    private void clearWalkTarget(LivingEntity param0) {
-        param0.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
     }
 }

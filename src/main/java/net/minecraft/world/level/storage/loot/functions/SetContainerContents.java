@@ -9,7 +9,7 @@ import com.google.gson.JsonSyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -99,14 +99,14 @@ public class SetContainerContents extends LootItemConditionalFunction {
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetContainerContents> {
         public void serialize(JsonObject param0, SetContainerContents param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
-            param0.addProperty("type", Registry.BLOCK_ENTITY_TYPE.getKey(param1.type).toString());
+            param0.addProperty("type", BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(param1.type).toString());
             param0.add("entries", param2.serialize(param1.entries));
         }
 
         public SetContainerContents deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
             LootPoolEntryContainer[] var0 = GsonHelper.getAsObject(param0, "entries", param1, LootPoolEntryContainer[].class);
             ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "type"));
-            BlockEntityType<?> var2 = Registry.BLOCK_ENTITY_TYPE
+            BlockEntityType<?> var2 = BuiltInRegistries.BLOCK_ENTITY_TYPE
                 .getOptional(var1)
                 .orElseThrow(() -> new JsonSyntaxException("Unknown block entity type id '" + var1 + "'"));
             return new SetContainerContents(param2, var2, Arrays.asList(var0));

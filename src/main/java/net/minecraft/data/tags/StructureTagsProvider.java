@@ -2,7 +2,7 @@ package net.minecraft.data.tags;
 
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 
 public class StructureTagsProvider extends TagsProvider<Structure> {
     public StructureTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        super(param0, Registry.STRUCTURE_REGISTRY, param1);
+        super(param0, Registries.STRUCTURE, param1);
     }
 
     @Override

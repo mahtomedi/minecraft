@@ -3,7 +3,7 @@ package net.minecraft.world.level.levelgen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.Block;
@@ -27,8 +27,8 @@ public class GeodeBlockSettings {
                     BlockStateProvider.CODEC.fieldOf("middle_layer_provider").forGetter(param0x -> param0x.middleLayerProvider),
                     BlockStateProvider.CODEC.fieldOf("outer_layer_provider").forGetter(param0x -> param0x.outerLayerProvider),
                     ExtraCodecs.nonEmptyList(BlockState.CODEC.listOf()).fieldOf("inner_placements").forGetter(param0x -> param0x.innerPlacements),
-                    TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("cannot_replace").forGetter(param0x -> param0x.cannotReplace),
-                    TagKey.hashedCodec(Registry.BLOCK_REGISTRY).fieldOf("invalid_blocks").forGetter(param0x -> param0x.invalidBlocks)
+                    TagKey.hashedCodec(Registries.BLOCK).fieldOf("cannot_replace").forGetter(param0x -> param0x.cannotReplace),
+                    TagKey.hashedCodec(Registries.BLOCK).fieldOf("invalid_blocks").forGetter(param0x -> param0x.invalidBlocks)
                 )
                 .apply(param0, GeodeBlockSettings::new)
     );

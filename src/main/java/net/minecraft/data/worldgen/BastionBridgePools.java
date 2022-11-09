@@ -4,19 +4,19 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 
 public class BastionBridgePools {
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<StructureProcessorList> var0 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<StructureProcessorList> var0 = param0.lookup(Registries.PROCESSOR_LIST);
         Holder<StructureProcessorList> var1 = var0.getOrThrow(ProcessorLists.ENTRANCE_REPLACEMENT);
         Holder<StructureProcessorList> var2 = var0.getOrThrow(ProcessorLists.BASTION_GENERIC_DEGRADATION);
         Holder<StructureProcessorList> var3 = var0.getOrThrow(ProcessorLists.BRIDGE);
         Holder<StructureProcessorList> var4 = var0.getOrThrow(ProcessorLists.RAMPART_DEGRADATION);
-        HolderGetter<StructureTemplatePool> var5 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var5 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var6 = var5.getOrThrow(Pools.EMPTY);
         Pools.register(
             param0,

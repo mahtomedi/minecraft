@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -355,7 +355,7 @@ public abstract class BlockBehaviour implements FeatureElement {
 
     public final ResourceLocation getLootTable() {
         if (this.drops == null) {
-            ResourceLocation var0 = Registry.BLOCK.getKey(this.asBlock());
+            ResourceLocation var0 = BuiltInRegistries.BLOCK.getKey(this.asBlock());
             this.drops = var0.withPrefix("blocks/");
         }
 
@@ -826,7 +826,7 @@ public abstract class BlockBehaviour implements FeatureElement {
                         String.format(
                             Locale.ROOT,
                             "%s has a collision shape and an offset type, but is not marked as dynamicShape in its properties.",
-                            Registry.BLOCK.getKey(var0)
+                            BuiltInRegistries.BLOCK.getKey(var0)
                         )
                     );
                 } else {

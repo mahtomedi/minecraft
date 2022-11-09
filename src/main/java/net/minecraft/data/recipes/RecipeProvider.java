@@ -18,7 +18,7 @@ import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.BlockFamilies;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.CachedOutput;
@@ -149,16 +149,24 @@ public abstract class RecipeProvider implements DataProvider {
         ShapedRecipeBuilder.shaped(param1, param2, 1).define('#', param3).pattern("##").pattern("##").unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
-    protected static void planksFromLog(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, 4)
+    protected static void threeByThreePacker(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3, String param4) {
+        ShapelessRecipeBuilder.shapeless(param1, param2).requires(param3, 9).unlockedBy(param4, has(param3)).save(param0);
+    }
+
+    protected static void threeByThreePacker(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+        threeByThreePacker(param0, param1, param2, param3, getHasName(param3));
+    }
+
+    protected static void planksFromLog(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2, int param3) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, param3)
             .requires(param2)
             .group("planks")
             .unlockedBy("has_log", has(param2))
             .save(param0);
     }
 
-    protected static void planksFromLogs(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, 4)
+    protected static void planksFromLogs(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2, int param3) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, param3)
             .requires(param2)
             .group("planks")
             .unlockedBy("has_logs", has(param2))
@@ -247,11 +255,7 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     protected static void hangingSign(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
-        hangingSign(param0, param1, param2, 6);
-    }
-
-    protected static void hangingSign(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2, int param3) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, param3)
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, 6)
             .group("hanging_sign")
             .define('#', param2)
             .define('X', Items.CHAIN)
@@ -584,7 +588,7 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     protected static String getItemName(ItemLike param0) {
-        return Registry.ITEM.getKey(param0.asItem()).getPath();
+        return BuiltInRegistries.ITEM.getKey(param0.asItem()).getPath();
     }
 
     protected static String getSimpleRecipeName(ItemLike param0) {

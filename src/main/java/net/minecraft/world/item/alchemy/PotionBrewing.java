@@ -3,7 +3,7 @@ package net.minecraft.world.item.alchemy;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.function.Predicate;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -192,9 +192,9 @@ public class PotionBrewing {
 
     private static void addContainerRecipe(Item param0, Item param1, Item param2) {
         if (!(param0 instanceof PotionItem)) {
-            throw new IllegalArgumentException("Expected a potion, got: " + Registry.ITEM.getKey(param0));
+            throw new IllegalArgumentException("Expected a potion, got: " + BuiltInRegistries.ITEM.getKey(param0));
         } else if (!(param2 instanceof PotionItem)) {
-            throw new IllegalArgumentException("Expected a potion, got: " + Registry.ITEM.getKey(param2));
+            throw new IllegalArgumentException("Expected a potion, got: " + BuiltInRegistries.ITEM.getKey(param2));
         } else {
             CONTAINER_MIXES.add(new PotionBrewing.Mix<>(param0, Ingredient.of(param1), param2));
         }
@@ -202,7 +202,7 @@ public class PotionBrewing {
 
     private static void addContainer(Item param0) {
         if (!(param0 instanceof PotionItem)) {
-            throw new IllegalArgumentException("Expected a potion, got: " + Registry.ITEM.getKey(param0));
+            throw new IllegalArgumentException("Expected a potion, got: " + BuiltInRegistries.ITEM.getKey(param0));
         } else {
             ALLOWED_CONTAINERS.add(Ingredient.of(param0));
         }

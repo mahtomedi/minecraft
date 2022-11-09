@@ -10,6 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -22,7 +23,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -38,6 +38,8 @@ public class MapItem extends ComplexItem {
     public static final int IMAGE_HEIGHT = 128;
     private static final int DEFAULT_MAP_COLOR = -12173266;
     private static final String TAG_MAP = "map";
+    public static final String MAP_SCALE_TAG = "map_scale_direction";
+    public static final String MAP_LOCK_TAG = "map_to_lock";
 
     public MapItem(Item.Properties param0) {
         super(param0);
@@ -91,8 +93,8 @@ public class MapItem extends ComplexItem {
     public void update(Level param0, Entity param1, MapItemSavedData param2) {
         if (param0.dimension() == param2.dimension && param1 instanceof Player) {
             int var0 = 1 << param2.scale;
-            int var1 = param2.x;
-            int var2 = param2.z;
+            int var1 = param2.centerX;
+            int var2 = param2.centerZ;
             int var3 = Mth.floor(param1.getX() - (double)var1) / var0 + 64;
             int var4 = Mth.floor(param1.getZ() - (double)var2) / var0 + 64;
             int var5 = 128 / var0;
@@ -102,102 +104,98 @@ public class MapItem extends ComplexItem {
 
             MapItemSavedData.HoldingPlayer var6 = param2.getHoldingPlayer((Player)param1);
             ++var6.step;
-            boolean var7 = false;
+            BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
+            BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
+            boolean var9 = false;
 
-            for(int var8 = var3 - var5 + 1; var8 < var3 + var5; ++var8) {
-                if ((var8 & 15) == (var6.step & 15) || var7) {
-                    var7 = false;
-                    double var9 = 0.0;
+            for(int var10 = var3 - var5 + 1; var10 < var3 + var5; ++var10) {
+                if ((var10 & 15) == (var6.step & 15) || var9) {
+                    var9 = false;
+                    double var11 = 0.0;
 
-                    for(int var10 = var4 - var5 - 1; var10 < var4 + var5; ++var10) {
-                        if (var8 >= 0 && var10 >= -1 && var8 < 128 && var10 < 128) {
-                            int var11 = var8 - var3;
-                            int var12 = var10 - var4;
-                            boolean var13 = var11 * var11 + var12 * var12 > (var5 - 2) * (var5 - 2);
-                            int var14 = (var1 / var0 + var8 - 64) * var0;
-                            int var15 = (var2 / var0 + var10 - 64) * var0;
-                            Multiset<MaterialColor> var16 = LinkedHashMultiset.create();
-                            LevelChunk var17 = param0.getChunkAt(new BlockPos(var14, 0, var15));
-                            if (!var17.isEmpty()) {
-                                ChunkPos var18 = var17.getPos();
-                                int var19 = var14 & 15;
-                                int var20 = var15 & 15;
-                                int var21 = 0;
-                                double var22 = 0.0;
+                    for(int var12 = var4 - var5 - 1; var12 < var4 + var5; ++var12) {
+                        if (var10 >= 0 && var12 >= -1 && var10 < 128 && var12 < 128) {
+                            int var13 = Mth.square(var10 - var3) + Mth.square(var12 - var4);
+                            boolean var14 = var13 > (var5 - 2) * (var5 - 2);
+                            int var15 = (var1 / var0 + var10 - 64) * var0;
+                            int var16 = (var2 / var0 + var12 - 64) * var0;
+                            Multiset<MaterialColor> var17 = LinkedHashMultiset.create();
+                            LevelChunk var18 = param0.getChunk(SectionPos.blockToSectionCoord(var15), SectionPos.blockToSectionCoord(var16));
+                            if (!var18.isEmpty()) {
+                                int var19 = 0;
+                                double var20 = 0.0;
                                 if (param0.dimensionType().hasCeiling()) {
-                                    int var23 = var14 + var15 * 231871;
-                                    var23 = var23 * var23 * 31287121 + var23 * 11;
-                                    if ((var23 >> 20 & 1) == 0) {
-                                        var16.add(Blocks.DIRT.defaultBlockState().getMapColor(param0, BlockPos.ZERO), 10);
+                                    int var21 = var15 + var16 * 231871;
+                                    var21 = var21 * var21 * 31287121 + var21 * 11;
+                                    if ((var21 >> 20 & 1) == 0) {
+                                        var17.add(Blocks.DIRT.defaultBlockState().getMapColor(param0, BlockPos.ZERO), 10);
                                     } else {
-                                        var16.add(Blocks.STONE.defaultBlockState().getMapColor(param0, BlockPos.ZERO), 100);
+                                        var17.add(Blocks.STONE.defaultBlockState().getMapColor(param0, BlockPos.ZERO), 100);
                                     }
 
-                                    var22 = 100.0;
+                                    var20 = 100.0;
                                 } else {
-                                    BlockPos.MutableBlockPos var24 = new BlockPos.MutableBlockPos();
-                                    BlockPos.MutableBlockPos var25 = new BlockPos.MutableBlockPos();
-
-                                    for(int var26 = 0; var26 < var0; ++var26) {
-                                        for(int var27 = 0; var27 < var0; ++var27) {
-                                            int var28 = var17.getHeight(Heightmap.Types.WORLD_SURFACE, var26 + var19, var27 + var20) + 1;
-                                            BlockState var32;
-                                            if (var28 <= param0.getMinBuildHeight() + 1) {
-                                                var32 = Blocks.BEDROCK.defaultBlockState();
+                                    for(int var22 = 0; var22 < var0; ++var22) {
+                                        for(int var23 = 0; var23 < var0; ++var23) {
+                                            var7.set(var15 + var22, 0, var16 + var23);
+                                            int var24 = var18.getHeight(Heightmap.Types.WORLD_SURFACE, var7.getX(), var7.getZ()) + 1;
+                                            BlockState var28;
+                                            if (var24 <= param0.getMinBuildHeight() + 1) {
+                                                var28 = Blocks.BEDROCK.defaultBlockState();
                                             } else {
                                                 do {
-                                                    var24.set(var18.getMinBlockX() + var26 + var19, --var28, var18.getMinBlockZ() + var27 + var20);
-                                                    var32 = var17.getBlockState(var24);
-                                                } while(var32.getMapColor(param0, var24) == MaterialColor.NONE && var28 > param0.getMinBuildHeight());
+                                                    var7.setY(--var24);
+                                                    var28 = var18.getBlockState(var7);
+                                                } while(var28.getMapColor(param0, var7) == MaterialColor.NONE && var24 > param0.getMinBuildHeight());
 
-                                                if (var28 > param0.getMinBuildHeight() && !var32.getFluidState().isEmpty()) {
-                                                    int var30 = var28 - 1;
-                                                    var25.set(var24);
+                                                if (var24 > param0.getMinBuildHeight() && !var28.getFluidState().isEmpty()) {
+                                                    int var26 = var24 - 1;
+                                                    var8.set(var7);
 
-                                                    BlockState var31;
+                                                    BlockState var27;
                                                     do {
-                                                        var25.setY(var30--);
-                                                        var31 = var17.getBlockState(var25);
-                                                        ++var21;
-                                                    } while(var30 > param0.getMinBuildHeight() && !var31.getFluidState().isEmpty());
+                                                        var8.setY(var26--);
+                                                        var27 = var18.getBlockState(var8);
+                                                        ++var19;
+                                                    } while(var26 > param0.getMinBuildHeight() && !var27.getFluidState().isEmpty());
 
-                                                    var32 = this.getCorrectStateForFluidBlock(param0, var32, var24);
+                                                    var28 = this.getCorrectStateForFluidBlock(param0, var28, var7);
                                                 }
                                             }
 
-                                            param2.checkBanners(param0, var18.getMinBlockX() + var26 + var19, var18.getMinBlockZ() + var27 + var20);
-                                            var22 += (double)var28 / (double)(var0 * var0);
-                                            var16.add(var32.getMapColor(param0, var24));
+                                            param2.checkBanners(param0, var7.getX(), var7.getZ());
+                                            var20 += (double)var24 / (double)(var0 * var0);
+                                            var17.add(var28.getMapColor(param0, var7));
                                         }
                                     }
                                 }
 
-                                var21 /= var0 * var0;
-                                MaterialColor var33 = Iterables.getFirst(Multisets.copyHighestCountFirst(var16), MaterialColor.NONE);
-                                MaterialColor.Brightness var35;
-                                if (var33 == MaterialColor.WATER) {
-                                    double var34 = (double)var21 * 0.1 + (double)(var8 + var10 & 1) * 0.2;
-                                    if (var34 < 0.5) {
-                                        var35 = MaterialColor.Brightness.HIGH;
-                                    } else if (var34 > 0.9) {
-                                        var35 = MaterialColor.Brightness.LOW;
+                                var19 /= var0 * var0;
+                                MaterialColor var29 = Iterables.getFirst(Multisets.copyHighestCountFirst(var17), MaterialColor.NONE);
+                                MaterialColor.Brightness var31;
+                                if (var29 == MaterialColor.WATER) {
+                                    double var30 = (double)var19 * 0.1 + (double)(var10 + var12 & 1) * 0.2;
+                                    if (var30 < 0.5) {
+                                        var31 = MaterialColor.Brightness.HIGH;
+                                    } else if (var30 > 0.9) {
+                                        var31 = MaterialColor.Brightness.LOW;
                                     } else {
-                                        var35 = MaterialColor.Brightness.NORMAL;
+                                        var31 = MaterialColor.Brightness.NORMAL;
                                     }
                                 } else {
-                                    double var38 = (var22 - var9) * 4.0 / (double)(var0 + 4) + ((double)(var8 + var10 & 1) - 0.5) * 0.4;
-                                    if (var38 > 0.6) {
-                                        var35 = MaterialColor.Brightness.HIGH;
-                                    } else if (var38 < -0.6) {
-                                        var35 = MaterialColor.Brightness.LOW;
+                                    double var34 = (var20 - var11) * 4.0 / (double)(var0 + 4) + ((double)(var10 + var12 & 1) - 0.5) * 0.4;
+                                    if (var34 > 0.6) {
+                                        var31 = MaterialColor.Brightness.HIGH;
+                                    } else if (var34 < -0.6) {
+                                        var31 = MaterialColor.Brightness.LOW;
                                     } else {
-                                        var35 = MaterialColor.Brightness.NORMAL;
+                                        var31 = MaterialColor.Brightness.NORMAL;
                                     }
                                 }
 
-                                var9 = var22;
-                                if (var10 >= 0 && var11 * var11 + var12 * var12 < var5 * var5 && (!var13 || (var8 + var10 & 1) != 0)) {
-                                    var7 |= param2.updateColor(var8, var10, var33.getPackedId(var35));
+                                var11 = var20;
+                                if (var12 >= 0 && var13 < var5 * var5 && (!var14 || (var10 + var12 & 1) != 0)) {
+                                    var9 |= param2.updateColor(var10, var12, var29.getPackedId(var31));
                                 }
                             }
                         }
@@ -222,8 +220,8 @@ public class MapItem extends ComplexItem {
         if (var0 != null) {
             if (param0.dimension() == var0.dimension) {
                 int var1 = 1 << var0.scale;
-                int var2 = var0.x;
-                int var3 = var0.z;
+                int var2 = var0.centerX;
+                int var3 = var0.centerZ;
                 boolean[] var4 = new boolean[16384];
                 int var5 = var2 / var1 - 64;
                 int var6 = var3 / var1 - 64;
@@ -357,15 +355,30 @@ public class MapItem extends ComplexItem {
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         Integer var0 = getMapId(param0);
         MapItemSavedData var1 = param1 == null ? null : getSavedData(var0, param1);
-        if (var1 != null && var1.locked) {
+        CompoundTag var2 = param0.getTag();
+        boolean var3;
+        byte var4;
+        if (var2 != null) {
+            var3 = var2.getBoolean("map_to_lock");
+            var4 = var2.getByte("map_scale_direction");
+        } else {
+            var3 = false;
+            var4 = 0;
+        }
+
+        if (var1 != null && (var1.locked || var3)) {
             param2.add(Component.translatable("filled_map.locked", var0).withStyle(ChatFormatting.GRAY));
         }
 
         if (param3.isAdvanced()) {
             if (var1 != null) {
-                param2.add(Component.translatable("filled_map.id", var0).withStyle(ChatFormatting.GRAY));
-                param2.add(Component.translatable("filled_map.scale", 1 << var1.scale).withStyle(ChatFormatting.GRAY));
-                param2.add(Component.translatable("filled_map.level", var1.scale, 4).withStyle(ChatFormatting.GRAY));
+                if (!var3 && var4 == 0) {
+                    param2.add(Component.translatable("filled_map.id", var0).withStyle(ChatFormatting.GRAY));
+                }
+
+                int var7 = Math.min(var1.scale + var4, 4);
+                param2.add(Component.translatable("filled_map.scale", 1 << var7).withStyle(ChatFormatting.GRAY));
+                param2.add(Component.translatable("filled_map.level", var7, 4).withStyle(ChatFormatting.GRAY));
             } else {
                 param2.add(Component.translatable("filled_map.unknown").withStyle(ChatFormatting.GRAY));
             }

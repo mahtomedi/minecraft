@@ -15,6 +15,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -29,7 +30,7 @@ import net.minecraft.world.level.storage.PrimaryLevelData;
 public record WorldDimensions(Registry<LevelStem> dimensions) {
     public static final MapCodec<WorldDimensions> CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
-                    RegistryCodecs.fullCodec(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable(), LevelStem.CODEC)
+                    RegistryCodecs.fullCodec(Registries.LEVEL_STEM, Lifecycle.stable(), LevelStem.CODEC)
                         .fieldOf("dimensions")
                         .forGetter(WorldDimensions::dimensions)
                 )
@@ -52,7 +53,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     }
 
     public WorldDimensions replaceOverworldGenerator(RegistryAccess param0, ChunkGenerator param1) {
-        Registry<DimensionType> var0 = param0.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+        Registry<DimensionType> var0 = param0.registryOrThrow(Registries.DIMENSION_TYPE);
         Registry<LevelStem> var1 = withOverworld(var0, this.dimensions, param1);
         return new WorldDimensions(var1);
     }
@@ -64,7 +65,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     }
 
     public static Registry<LevelStem> withOverworld(Registry<LevelStem> param0, Holder<DimensionType> param1, ChunkGenerator param2) {
-        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.experimental());
+        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.experimental());
         var0.register(LevelStem.OVERWORLD, new LevelStem(param1, param2), Lifecycle.stable());
 
         for(java.util.Map.Entry<ResourceKey<LevelStem>, LevelStem> var1 : param0.entrySet()) {
@@ -91,7 +92,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     }
 
     public ImmutableSet<ResourceKey<Level>> levels() {
-        return this.dimensions().entrySet().stream().map(java.util.Map.Entry::getKey).map(Registry::levelStemToLevel).collect(ImmutableSet.toImmutableSet());
+        return this.dimensions().entrySet().stream().map(java.util.Map.Entry::getKey).map(Registries::levelStemToLevel).collect(ImmutableSet.toImmutableSet());
     }
 
     public boolean isDebug() {
@@ -177,7 +178,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
                 param2 -> param0.getOptional(param2).or(() -> this.dimensions.getOptional(param2)).ifPresent(param2x -> var1.add(new Entry(param2, param2x)))
             );
         Lifecycle var2 = var1.size() == VANILLA_DIMENSION_COUNT ? Lifecycle.stable() : Lifecycle.experimental();
-        WritableRegistry<LevelStem> var3 = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, var2);
+        WritableRegistry<LevelStem> var3 = new MappedRegistry<>(Registries.LEVEL_STEM, var2);
         var1.forEach(param1 -> var3.register(param1.key, param1.value, param1.lifecycle()));
         Registry<LevelStem> var4 = var3.freeze();
         PrimaryLevelData.SpecialWorldProperty var5 = specialWorldProperty(var4);
@@ -186,7 +187,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
 
     public static record Complete(Registry<LevelStem> dimensions, PrimaryLevelData.SpecialWorldProperty specialWorldProperty) {
         public Lifecycle lifecycle() {
-            return this.dimensions.elementsLifecycle();
+            return this.dimensions.registryLifecycle();
         }
 
         public RegistryAccess.Frozen dimensionsRegistryAccess() {

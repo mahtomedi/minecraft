@@ -1,13 +1,13 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.Collection;
 import java.util.Collections;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.GameModeArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
@@ -17,20 +17,26 @@ public class GameModeCommand {
     public static final int PERMISSION_LEVEL = 2;
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
-        LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("gamemode").requires(param0x -> param0x.hasPermission(2));
-
-        for(GameType var1 : GameType.values()) {
-            var0.then(
-                Commands.literal(var1.getName())
-                    .executes(param1 -> setMode(param1, Collections.singleton(param1.getSource().getPlayerOrException()), var1))
-                    .then(
-                        Commands.argument("target", EntityArgument.players())
-                            .executes(param1 -> setMode(param1, EntityArgument.getPlayers(param1, "target"), var1))
-                    )
-            );
-        }
-
-        param0.register(var0);
+        param0.register(
+            Commands.literal("gamemode")
+                .requires(param0x -> param0x.hasPermission(2))
+                .then(
+                    Commands.argument("gamemode", GameModeArgument.gameMode())
+                        .executes(
+                            param0x -> setMode(
+                                    param0x,
+                                    Collections.singleton(param0x.getSource().getPlayerOrException()),
+                                    GameModeArgument.getGameMode(param0x, "gamemode")
+                                )
+                        )
+                        .then(
+                            Commands.argument("target", EntityArgument.players())
+                                .executes(
+                                    param0x -> setMode(param0x, EntityArgument.getPlayers(param0x, "target"), GameModeArgument.getGameMode(param0x, "gamemode"))
+                                )
+                        )
+                )
+        );
     }
 
     private static void logGamemodeChange(CommandSourceStack param0, ServerPlayer param1, GameType param2) {

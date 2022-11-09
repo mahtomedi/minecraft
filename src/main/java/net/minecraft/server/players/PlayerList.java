@@ -26,6 +26,8 @@ import net.minecraft.FileUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.LayeredRegistryAccess;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistrySynchronization;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -122,6 +124,7 @@ public abstract class PlayerList {
     private final PlayerDataStorage playerIo;
     private boolean doWhiteList;
     private final LayeredRegistryAccess<RegistryLayer> registries;
+    private final RegistryAccess.Frozen synchronizedRegistries;
     protected final int maxPlayers;
     private int viewDistance;
     private int simulationDistance;
@@ -132,6 +135,7 @@ public abstract class PlayerList {
     public PlayerList(MinecraftServer param0, LayeredRegistryAccess<RegistryLayer> param1, PlayerDataStorage param2, int param3) {
         this.server = param0;
         this.registries = param1;
+        this.synchronizedRegistries = new RegistryAccess.ImmutableRegistryAccess(RegistrySynchronization.networkedRegistries(param1)).freeze();
         this.maxPlayers = param3;
         this.playerIo = param2;
     }
@@ -183,7 +187,7 @@ public abstract class PlayerList {
                 param1.gameMode.getGameModeForPlayer(),
                 param1.gameMode.getPreviousGameModeForPlayer(),
                 this.server.levelKeys(),
-                this.registries.getAccessFrom(RegistryLayer.WORLDGEN),
+                this.synchronizedRegistries,
                 var7.dimensionTypeId(),
                 var7.dimension(),
                 BiomeManager.obfuscateSeed(var7.getSeed()),

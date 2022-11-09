@@ -60,8 +60,8 @@ public interface RegistryAccess extends HolderLookup.Provider {
         return new FrozenAccess(this.registries().map(RegistryAccess.RegistryEntry::freeze));
     }
 
-    default Lifecycle allElementsLifecycle() {
-        return this.registries().map(param0 -> param0.value.elementsLifecycle()).reduce(Lifecycle.stable(), Lifecycle::add);
+    default Lifecycle allRegistriesLifecycle() {
+        return this.registries().map(param0 -> param0.value.registryLifecycle()).reduce(Lifecycle.stable(), Lifecycle::add);
     }
 
     public interface Frozen extends RegistryAccess {

@@ -24,6 +24,7 @@ import net.minecraft.Util;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -140,10 +141,10 @@ public class Main {
                         param6 -> WorldLoader.load(
                                 var29,
                                 param5x -> {
-                                    Registry<LevelStem> var0x = param5x.datapackDimensions().registryOrThrow(Registry.LEVEL_STEM_REGISTRY);
+                                    Registry<LevelStem> var0x = param5x.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
                                     DynamicOps<Tag> var1x = RegistryOps.create(NbtOps.INSTANCE, param5x.datapackWorldgen());
                                     Pair<WorldData, WorldDimensions.Complete> var2x = var25.getDataTag(
-                                        var1x, param5x.dataConfiguration(), var0x, param5x.datapackWorldgen().allElementsLifecycle()
+                                        var1x, param5x.dataConfiguration(), var0x, param5x.datapackWorldgen().allRegistriesLifecycle()
                                     );
                                     if (var2x != null) {
                                         return new WorldLoader.DataLoadOutput<>(var2x.getFirst(), var2x.getSecond().dimensionsRegistryAccess());
@@ -171,7 +172,7 @@ public class Main {
                                         }
             
                                         WorldDimensions.Complete var14x = var5x.bake(var0x);
-                                        Lifecycle var11x = var14x.lifecycle().add(param5x.datapackWorldgen().allElementsLifecycle());
+                                        Lifecycle var11x = var14x.lifecycle().add(param5x.datapackWorldgen().allRegistriesLifecycle());
                                         return new WorldLoader.DataLoadOutput<>(
                                             new PrimaryLevelData(var3x, var4x, var14x.specialWorldProperty(), var11x), var14x.dimensionsRegistryAccess()
                                         );
@@ -193,7 +194,7 @@ public class Main {
 
             RegistryAccess.Frozen var33 = var30.registries().compositeAccess();
             if (var16.has(var5)) {
-                forceUpgrade(var25, DataFixers.getDataFixer(), var16.has(var6), () -> true, var33.registryOrThrow(Registry.LEVEL_STEM_REGISTRY));
+                forceUpgrade(var25, DataFixers.getDataFixer(), var16.has(var6), () -> true, var33.registryOrThrow(Registries.LEVEL_STEM));
             }
 
             WorldData var34 = var30.worldData();

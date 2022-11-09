@@ -3,7 +3,7 @@ package net.minecraft.network.protocol.game;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +30,7 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
         this.attributes = param0.readList(
             param0x -> {
                 ResourceLocation var0 = param0x.readResourceLocation();
-                Attribute var1x = Registry.ATTRIBUTE.get(var0);
+                Attribute var1x = BuiltInRegistries.ATTRIBUTE.get(var0);
                 double var2 = param0x.readDouble();
                 List<AttributeModifier> var3 = param0x.readList(
                     param0xx -> new AttributeModifier(
@@ -49,7 +49,7 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
         param0.writeCollection(this.attributes, (param0x, param1) -> {
-            param0x.writeResourceLocation(Registry.ATTRIBUTE.getKey(param1.getAttribute()));
+            param0x.writeResourceLocation(BuiltInRegistries.ATTRIBUTE.getKey(param1.getAttribute()));
             param0x.writeDouble(param1.getBase());
             param0x.writeCollection(param1.getModifiers(), (param0xx, param1x) -> {
                 param0xx.writeUUID(param1x.getId());

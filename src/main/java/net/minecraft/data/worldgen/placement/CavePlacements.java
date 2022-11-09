@@ -3,7 +3,7 @@ package net.minecraft.data.worldgen.placement;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
@@ -48,7 +48,7 @@ public class CavePlacements {
     public static final ResourceKey<PlacedFeature> SCULK_VEIN = PlacementUtils.createKey("sculk_vein");
 
     public static void bootstrap(BootstapContext<PlacedFeature> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
         Holder<ConfiguredFeature<?, ?>> var1 = var0.getOrThrow(CaveFeatures.MONSTER_ROOM);
         Holder<ConfiguredFeature<?, ?>> var2 = var0.getOrThrow(CaveFeatures.FOSSIL_COAL);
         Holder<ConfiguredFeature<?, ?>> var3 = var0.getOrThrow(CaveFeatures.FOSSIL_DIAMONDS);

@@ -1,65 +1,62 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import org.apache.commons.lang3.mutable.MutableLong;
 
-public class TryFindLandNearWater extends Behavior<PathfinderMob> {
-    private final int range;
-    private final float speedModifier;
-    private long nextOkStartTime;
-
-    public TryFindLandNearWater(int param0, float param1) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.ATTACK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED
-            )
+public class TryFindLandNearWater {
+    public static BehaviorControl<PathfinderMob> create(int param0, float param1) {
+        MutableLong var0 = new MutableLong(0L);
+        return BehaviorBuilder.create(
+            param3 -> param3.<MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param3.absent(MemoryModuleType.ATTACK_TARGET),
+                        param3.absent(MemoryModuleType.WALK_TARGET),
+                        param3.registered(MemoryModuleType.LOOK_TARGET)
+                    )
+                    .apply(
+                        param3,
+                        (param3x, param4, param5) -> (param5x, param6, param7) -> {
+                                if (param5x.getFluidState(param6.blockPosition()).is(FluidTags.WATER)) {
+                                    return false;
+                                } else if (param7 < var0.getValue()) {
+                                    var0.setValue(param7 + 40L);
+                                    return true;
+                                } else {
+                                    CollisionContext var0x = CollisionContext.of(param6);
+                                    BlockPos var1x = param6.blockPosition();
+                                    BlockPos.MutableBlockPos var2x = new BlockPos.MutableBlockPos();
+            
+                                    label45:
+                                    for(BlockPos var3x : BlockPos.withinManhattan(var1x, param0, param0, param0)) {
+                                        if ((var3x.getX() != var1x.getX() || var3x.getZ() != var1x.getZ())
+                                            && param5x.getBlockState(var3x).getCollisionShape(param5x, var3x, var0x).isEmpty()
+                                            && !param5x.getBlockState(var2x.setWithOffset(var3x, Direction.DOWN))
+                                                .getCollisionShape(param5x, var3x, var0x)
+                                                .isEmpty()) {
+                                            for(Direction var4x : Direction.Plane.HORIZONTAL) {
+                                                var2x.setWithOffset(var3x, var4x);
+                                                if (param5x.getBlockState(var2x).isAir() && param5x.getBlockState(var2x.move(Direction.DOWN)).is(Blocks.WATER)) {
+                                                    param5.set(new BlockPosTracker(var3x));
+                                                    param4.set(new WalkTarget(new BlockPosTracker(var3x), param1, 0));
+                                                    break label45;
+                                                }
+                                            }
+                                        }
+                                    }
+            
+                                    var0.setValue(param7 + 40L);
+                                    return true;
+                                }
+                            }
+                    )
         );
-        this.range = param0;
-        this.speedModifier = param1;
-    }
-
-    protected void stop(ServerLevel param0, PathfinderMob param1, long param2) {
-        this.nextOkStartTime = param2 + 40L;
-    }
-
-    protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
-        return !param1.level.getFluidState(param1.blockPosition()).is(FluidTags.WATER);
-    }
-
-    protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        if (param2 >= this.nextOkStartTime) {
-            CollisionContext var0 = CollisionContext.of(param1);
-            BlockPos var1 = param1.blockPosition();
-            BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
-
-            for(BlockPos var3 : BlockPos.withinManhattan(var1, this.range, this.range, this.range)) {
-                if ((var3.getX() != var1.getX() || var3.getZ() != var1.getZ())
-                    && param0.getBlockState(var3).getCollisionShape(param0, var3, var0).isEmpty()
-                    && !param0.getBlockState(var2.setWithOffset(var3, Direction.DOWN)).getCollisionShape(param0, var3, var0).isEmpty()) {
-                    for(Direction var4 : Direction.Plane.HORIZONTAL) {
-                        var2.setWithOffset(var3, var4);
-                        if (param0.getBlockState(var2).isAir() && param0.getBlockState(var2.move(Direction.DOWN)).is(Blocks.WATER)) {
-                            this.nextOkStartTime = param2 + 40L;
-                            BehaviorUtils.setWalkAndLookTargetMemories(param1, var3, this.speedModifier, 0);
-                            return;
-                        }
-                    }
-                }
-            }
-
-        }
     }
 }

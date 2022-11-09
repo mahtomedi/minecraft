@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
@@ -68,11 +68,11 @@ public class Sheets {
     public static final Map<WoodType, Material> SIGN_MATERIALS = WoodType.values().collect(Collectors.toMap(Function.identity(), Sheets::createSignMaterial));
     public static final Map<WoodType, Material> HANGING_SIGN_MATERIALS = WoodType.values()
         .collect(Collectors.toMap(Function.identity(), Sheets::createHangingSignMaterial));
-    public static final Map<ResourceKey<BannerPattern>, Material> BANNER_MATERIALS = Registry.BANNER_PATTERN
+    public static final Map<ResourceKey<BannerPattern>, Material> BANNER_MATERIALS = BuiltInRegistries.BANNER_PATTERN
         .registryKeySet()
         .stream()
         .collect(Collectors.toMap(Function.identity(), Sheets::createBannerMaterial));
-    public static final Map<ResourceKey<BannerPattern>, Material> SHIELD_MATERIALS = Registry.BANNER_PATTERN
+    public static final Map<ResourceKey<BannerPattern>, Material> SHIELD_MATERIALS = BuiltInRegistries.BANNER_PATTERN
         .registryKeySet()
         .stream()
         .collect(Collectors.toMap(Function.identity(), Sheets::createShieldMaterial));

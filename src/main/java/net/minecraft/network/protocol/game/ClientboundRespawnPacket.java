@@ -3,7 +3,7 @@ package net.minecraft.network.protocol.game;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
@@ -46,8 +46,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     }
 
     public ClientboundRespawnPacket(FriendlyByteBuf param0) {
-        this.dimensionType = param0.readResourceKey(Registry.DIMENSION_TYPE_REGISTRY);
-        this.dimension = param0.readResourceKey(Registry.DIMENSION_REGISTRY);
+        this.dimensionType = param0.readResourceKey(Registries.DIMENSION_TYPE);
+        this.dimension = param0.readResourceKey(Registries.DIMENSION);
         this.seed = param0.readLong();
         this.playerGameType = GameType.byId(param0.readUnsignedByte());
         this.previousPlayerGameType = GameType.byNullableId(param0.readByte());

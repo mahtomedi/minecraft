@@ -87,13 +87,16 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
-        ItemStack var0 = super.getCloneItemStack(param0, param1, param2);
-        if (param2.getValue(LEVEL) != 15) {
-            CompoundTag var1 = new CompoundTag();
-            var1.putString(LEVEL.getName(), String.valueOf(param2.getValue(LEVEL)));
-            var0.addTagElement("BlockStateTag", var1);
+        return setLightOnStack(super.getCloneItemStack(param0, param1, param2), param2.getValue(LEVEL));
+    }
+
+    public static ItemStack setLightOnStack(ItemStack param0, int param1) {
+        if (param1 != 15) {
+            CompoundTag var0 = new CompoundTag();
+            var0.putString(LEVEL.getName(), String.valueOf(param1));
+            param0.addTagElement("BlockStateTag", var0);
         }
 
-        return var0;
+        return param0;
     }
 }

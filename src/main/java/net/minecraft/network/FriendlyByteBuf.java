@@ -50,6 +50,8 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
@@ -410,7 +412,7 @@ public class FriendlyByteBuf extends ByteBuf {
     }
 
     public GlobalPos readGlobalPos() {
-        ResourceKey<Level> var0 = this.readResourceKey(Registry.DIMENSION_REGISTRY);
+        ResourceKey<Level> var0 = this.readResourceKey(Registries.DIMENSION);
         BlockPos var1 = this.readBlockPos();
         return GlobalPos.of(var0, var1);
     }
@@ -550,7 +552,7 @@ public class FriendlyByteBuf extends ByteBuf {
         } else {
             this.writeBoolean(true);
             Item var0 = param0.getItem();
-            this.writeId(Registry.ITEM, var0);
+            this.writeId(BuiltInRegistries.ITEM, var0);
             this.writeByte(param0.getCount());
             CompoundTag var1 = null;
             if (var0.canBeDepleted() || var0.shouldOverrideMultiplayerNbt()) {
@@ -567,7 +569,7 @@ public class FriendlyByteBuf extends ByteBuf {
         if (!this.readBoolean()) {
             return ItemStack.EMPTY;
         } else {
-            Item var0 = this.readById(Registry.ITEM);
+            Item var0 = this.readById(BuiltInRegistries.ITEM);
             int var1 = this.readByte();
             ItemStack var2 = new ItemStack(var0, var1);
             var2.setTag(this.readNbt());

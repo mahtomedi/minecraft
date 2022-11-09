@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 
 public record WorldGenSettings<T>(WorldOptions options, WorldDimensions dimensions) {
     public static final Codec<WorldGenSettings> CODEC = RecordCodecBuilder.create(
@@ -18,6 +18,6 @@ public record WorldGenSettings<T>(WorldOptions options, WorldDimensions dimensio
     }
 
     public static <T> DataResult<T> encode(DynamicOps<T> param0, WorldOptions param1, RegistryAccess param2) {
-        return encode(param0, param1, new WorldDimensions(param2.registryOrThrow(Registry.LEVEL_STEM_REGISTRY)));
+        return encode(param0, param1, new WorldDimensions(param2.registryOrThrow(Registries.LEVEL_STEM)));
     }
 }

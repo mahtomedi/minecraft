@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
@@ -49,7 +49,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
         Enchantment var3;
         if (this.enchantments.isEmpty()) {
             boolean var1 = param0.is(Items.BOOK);
-            List<Enchantment> var2 = Registry.ENCHANTMENT
+            List<Enchantment> var2 = BuiltInRegistries.ENCHANTMENT
                 .stream()
                 .filter(Enchantment::isDiscoverable)
                 .filter(param2 -> var1 || param2.canEnchant(param0))
@@ -112,7 +112,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
                 JsonArray var0 = new JsonArray();
 
                 for(Enchantment var1 : param1.enchantments) {
-                    ResourceLocation var2 = Registry.ENCHANTMENT.getKey(var1);
+                    ResourceLocation var2 = BuiltInRegistries.ENCHANTMENT.getKey(var1);
                     if (var2 == null) {
                         throw new IllegalArgumentException("Don't know how to serialize enchantment " + var1);
                     }
@@ -130,7 +130,7 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
             if (param0.has("enchantments")) {
                 for(JsonElement var2 : GsonHelper.getAsJsonArray(param0, "enchantments")) {
                     String var3 = GsonHelper.convertToString(var2, "enchantment");
-                    Enchantment var4 = Registry.ENCHANTMENT
+                    Enchantment var4 = BuiltInRegistries.ENCHANTMENT
                         .getOptional(new ResourceLocation(var3))
                         .orElseThrow(() -> new JsonSyntaxException("Unknown enchantment '" + var3 + "'"));
                     var0.add(var4);

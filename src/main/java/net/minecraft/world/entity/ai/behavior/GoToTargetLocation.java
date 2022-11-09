@@ -1,45 +1,13 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public class GoToTargetLocation<E extends Mob> extends Behavior<E> {
-    private final MemoryModuleType<BlockPos> locationMemory;
-    private final int closeEnoughDist;
-    private final float speedModifier;
-
-    public GoToTargetLocation(MemoryModuleType<BlockPos> param0, int param1, float param2) {
-        super(
-            ImmutableMap.of(
-                param0,
-                MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.ATTACK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED
-            )
-        );
-        this.locationMemory = param0;
-        this.closeEnoughDist = param1;
-        this.speedModifier = param2;
-    }
-
-    protected void start(ServerLevel param0, Mob param1, long param2) {
-        BlockPos var0 = this.getTargetLocation(param1);
-        boolean var1 = var0.closerThan(param1.blockPosition(), (double)this.closeEnoughDist);
-        if (!var1) {
-            BehaviorUtils.setWalkAndLookTargetMemories(param1, getNearbyPos(param1, var0), this.speedModifier, this.closeEnoughDist);
-        }
-
-    }
-
+public class GoToTargetLocation {
     private static BlockPos getNearbyPos(Mob param0, BlockPos param1) {
         RandomSource var0 = param0.level.random;
         return param1.offset(getRandomOffset(var0), 0, getRandomOffset(var0));
@@ -49,7 +17,23 @@ public class GoToTargetLocation<E extends Mob> extends Behavior<E> {
         return param0.nextInt(3) - 1;
     }
 
-    private BlockPos getTargetLocation(Mob param0) {
-        return param0.getBrain().getMemory(this.locationMemory).get();
+    public static <E extends Mob> OneShot<E> create(MemoryModuleType<BlockPos> param0, int param1, float param2) {
+        return BehaviorBuilder.create(
+            param3 -> param3.<MemoryAccessor, MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param3.present(param0),
+                        param3.absent(MemoryModuleType.ATTACK_TARGET),
+                        param3.absent(MemoryModuleType.WALK_TARGET),
+                        param3.registered(MemoryModuleType.LOOK_TARGET)
+                    )
+                    .apply(param3, (param3x, param4, param5, param6) -> (param4x, param5x, param6x) -> {
+                            BlockPos var0x = param3.get(param3x);
+                            boolean var1x = var0x.closerThan(param5x.blockPosition(), (double)param1);
+                            if (!var1x) {
+                                BehaviorUtils.setWalkAndLookTargetMemories(param5x, getNearbyPos(param5x, var0x), param2, param1);
+                            }
+        
+                            return true;
+                        })
+        );
     }
 }

@@ -2,7 +2,7 @@ package net.minecraft.client.resources;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +17,7 @@ public class PaintingTextureManager extends TextureAtlasHolder {
     }
 
     public TextureAtlasSprite get(PaintingVariant param0) {
-        return this.getSprite(Registry.PAINTING_VARIANT.getKey(param0));
+        return this.getSprite(BuiltInRegistries.PAINTING_VARIANT.getKey(param0));
     }
 
     public TextureAtlasSprite getBackSprite() {

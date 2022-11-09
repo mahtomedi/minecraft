@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -134,7 +134,7 @@ public class AttributeMap {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             CompoundTag var1 = param0.getCompound(var0);
             String var2 = var1.getString("Name");
-            Util.ifElse(Registry.ATTRIBUTE.getOptional(ResourceLocation.tryParse(var2)), param1 -> {
+            Util.ifElse(BuiltInRegistries.ATTRIBUTE.getOptional(ResourceLocation.tryParse(var2)), param1 -> {
                 AttributeInstance var0x = this.getInstance(param1);
                 if (var0x != null) {
                     var0x.load(var1);

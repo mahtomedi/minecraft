@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -50,7 +50,7 @@ public class DimensionArgument implements ArgumentType<ResourceLocation> {
 
     public static ServerLevel getDimension(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
-        ResourceKey<Level> var1 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var0);
+        ResourceKey<Level> var1 = ResourceKey.create(Registries.DIMENSION, var0);
         ServerLevel var2 = param0.getSource().getServer().getLevel(var1);
         if (var2 == null) {
             throw ERROR_INVALID_VALUE.create(var0);

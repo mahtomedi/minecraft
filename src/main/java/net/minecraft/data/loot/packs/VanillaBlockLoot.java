@@ -122,6 +122,7 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
         this.dropSelf(Blocks.JUNGLE_LOG);
         this.dropSelf(Blocks.ACACIA_LOG);
         this.dropSelf(Blocks.DARK_OAK_LOG);
+        this.add(Blocks.BAMBOO_BLOCK, noDrop());
         this.dropSelf(Blocks.STRIPPED_SPRUCE_LOG);
         this.dropSelf(Blocks.STRIPPED_BIRCH_LOG);
         this.dropSelf(Blocks.STRIPPED_JUNGLE_LOG);
@@ -131,6 +132,7 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
         this.dropSelf(Blocks.STRIPPED_WARPED_STEM);
         this.dropSelf(Blocks.STRIPPED_CRIMSON_STEM);
         this.dropSelf(Blocks.STRIPPED_MANGROVE_LOG);
+        this.add(Blocks.STRIPPED_BAMBOO_BLOCK, noDrop());
         this.dropSelf(Blocks.OAK_WOOD);
         this.dropSelf(Blocks.SPRUCE_WOOD);
         this.dropSelf(Blocks.BIRCH_WOOD);

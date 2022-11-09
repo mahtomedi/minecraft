@@ -1,9 +1,14 @@
 package net.minecraft.world.item;
 
+import com.mojang.datafixers.util.Pair;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.InstrumentTags;
 import net.minecraft.tags.TagKey;
@@ -17,16 +22,14 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LightBlock;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 
 public class CreativeModeTabs {
-    public static final CreativeModeTab TAB_BUILDING_BLOCKS = new CreativeModeTab(0, Component.translatable("itemGroup.buildingBlocks")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.BRICKS);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+    private static final CreativeModeTab BUILDING_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
+        .title(Component.translatable("itemGroup.buildingBlocks"))
+        .icon(() -> new ItemStack(Blocks.BRICKS))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.OAK_LOG);
             param1.accept(Items.OAK_WOOD);
             param1.accept(Items.STRIPPED_OAK_LOG);
@@ -38,6 +41,8 @@ public class CreativeModeTabs {
             param1.accept(Items.OAK_FENCE_GATE);
             param1.accept(Items.OAK_DOOR);
             param1.accept(Items.OAK_TRAPDOOR);
+            param1.accept(Items.OAK_PRESSURE_PLATE);
+            param1.accept(Items.OAK_BUTTON);
             param1.accept(Items.SPRUCE_LOG);
             param1.accept(Items.SPRUCE_WOOD);
             param1.accept(Items.STRIPPED_SPRUCE_LOG);
@@ -49,6 +54,8 @@ public class CreativeModeTabs {
             param1.accept(Items.SPRUCE_FENCE_GATE);
             param1.accept(Items.SPRUCE_DOOR);
             param1.accept(Items.SPRUCE_TRAPDOOR);
+            param1.accept(Items.SPRUCE_PRESSURE_PLATE);
+            param1.accept(Items.SPRUCE_BUTTON);
             param1.accept(Items.BIRCH_LOG);
             param1.accept(Items.BIRCH_WOOD);
             param1.accept(Items.STRIPPED_BIRCH_LOG);
@@ -60,6 +67,8 @@ public class CreativeModeTabs {
             param1.accept(Items.BIRCH_FENCE_GATE);
             param1.accept(Items.BIRCH_DOOR);
             param1.accept(Items.BIRCH_TRAPDOOR);
+            param1.accept(Items.BIRCH_PRESSURE_PLATE);
+            param1.accept(Items.BIRCH_BUTTON);
             param1.accept(Items.JUNGLE_LOG);
             param1.accept(Items.JUNGLE_WOOD);
             param1.accept(Items.STRIPPED_JUNGLE_LOG);
@@ -71,6 +80,8 @@ public class CreativeModeTabs {
             param1.accept(Items.JUNGLE_FENCE_GATE);
             param1.accept(Items.JUNGLE_DOOR);
             param1.accept(Items.JUNGLE_TRAPDOOR);
+            param1.accept(Items.JUNGLE_PRESSURE_PLATE);
+            param1.accept(Items.JUNGLE_BUTTON);
             param1.accept(Items.ACACIA_LOG);
             param1.accept(Items.ACACIA_WOOD);
             param1.accept(Items.STRIPPED_ACACIA_LOG);
@@ -82,6 +93,8 @@ public class CreativeModeTabs {
             param1.accept(Items.ACACIA_FENCE_GATE);
             param1.accept(Items.ACACIA_DOOR);
             param1.accept(Items.ACACIA_TRAPDOOR);
+            param1.accept(Items.ACACIA_PRESSURE_PLATE);
+            param1.accept(Items.ACACIA_BUTTON);
             param1.accept(Items.DARK_OAK_LOG);
             param1.accept(Items.DARK_OAK_WOOD);
             param1.accept(Items.STRIPPED_DARK_OAK_LOG);
@@ -93,6 +106,8 @@ public class CreativeModeTabs {
             param1.accept(Items.DARK_OAK_FENCE_GATE);
             param1.accept(Items.DARK_OAK_DOOR);
             param1.accept(Items.DARK_OAK_TRAPDOOR);
+            param1.accept(Items.DARK_OAK_PRESSURE_PLATE);
+            param1.accept(Items.DARK_OAK_BUTTON);
             param1.accept(Items.MANGROVE_LOG);
             param1.accept(Items.MANGROVE_WOOD);
             param1.accept(Items.STRIPPED_MANGROVE_LOG);
@@ -104,6 +119,10 @@ public class CreativeModeTabs {
             param1.accept(Items.MANGROVE_FENCE_GATE);
             param1.accept(Items.MANGROVE_DOOR);
             param1.accept(Items.MANGROVE_TRAPDOOR);
+            param1.accept(Items.MANGROVE_PRESSURE_PLATE);
+            param1.accept(Items.MANGROVE_BUTTON);
+            param1.accept(Items.BAMBOO_BLOCK);
+            param1.accept(Items.STRIPPED_BAMBOO_BLOCK);
             param1.accept(Items.BAMBOO_PLANKS);
             param1.accept(Items.BAMBOO_MOSAIC);
             param1.accept(Items.BAMBOO_STAIRS);
@@ -114,6 +133,8 @@ public class CreativeModeTabs {
             param1.accept(Items.BAMBOO_FENCE_GATE);
             param1.accept(Items.BAMBOO_DOOR);
             param1.accept(Items.BAMBOO_TRAPDOOR);
+            param1.accept(Items.BAMBOO_PRESSURE_PLATE);
+            param1.accept(Items.BAMBOO_BUTTON);
             param1.accept(Items.CRIMSON_STEM);
             param1.accept(Items.CRIMSON_HYPHAE);
             param1.accept(Items.STRIPPED_CRIMSON_STEM);
@@ -125,6 +146,8 @@ public class CreativeModeTabs {
             param1.accept(Items.CRIMSON_FENCE_GATE);
             param1.accept(Items.CRIMSON_DOOR);
             param1.accept(Items.CRIMSON_TRAPDOOR);
+            param1.accept(Items.CRIMSON_PRESSURE_PLATE);
+            param1.accept(Items.CRIMSON_BUTTON);
             param1.accept(Items.WARPED_STEM);
             param1.accept(Items.WARPED_HYPHAE);
             param1.accept(Items.STRIPPED_WARPED_STEM);
@@ -136,9 +159,13 @@ public class CreativeModeTabs {
             param1.accept(Items.WARPED_FENCE_GATE);
             param1.accept(Items.WARPED_DOOR);
             param1.accept(Items.WARPED_TRAPDOOR);
+            param1.accept(Items.WARPED_PRESSURE_PLATE);
+            param1.accept(Items.WARPED_BUTTON);
             param1.accept(Items.STONE);
             param1.accept(Items.STONE_STAIRS);
             param1.accept(Items.STONE_SLAB);
+            param1.accept(Items.STONE_PRESSURE_PLATE);
+            param1.accept(Items.STONE_BUTTON);
             param1.accept(Items.COBBLESTONE);
             param1.accept(Items.COBBLESTONE_STAIRS);
             param1.accept(Items.COBBLESTONE_SLAB);
@@ -266,6 +293,8 @@ public class CreativeModeTabs {
             param1.accept(Items.POLISHED_BLACKSTONE_STAIRS);
             param1.accept(Items.POLISHED_BLACKSTONE_SLAB);
             param1.accept(Items.POLISHED_BLACKSTONE_WALL);
+            param1.accept(Items.POLISHED_BLACKSTONE_PRESSURE_PLATE);
+            param1.accept(Items.POLISHED_BLACKSTONE_BUTTON);
             param1.accept(Items.POLISHED_BLACKSTONE_BRICKS);
             param1.accept(Items.CRACKED_POLISHED_BLACKSTONE_BRICKS);
             param1.accept(Items.POLISHED_BLACKSTONE_BRICK_STAIRS);
@@ -285,8 +314,10 @@ public class CreativeModeTabs {
             param1.accept(Items.IRON_BARS);
             param1.accept(Items.IRON_DOOR);
             param1.accept(Items.IRON_TRAPDOOR);
+            param1.accept(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
             param1.accept(Items.CHAIN);
             param1.accept(Items.GOLD_BLOCK);
+            param1.accept(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
             param1.accept(Items.REDSTONE_BLOCK);
             param1.accept(Items.EMERALD_BLOCK);
             param1.accept(Items.LAPIS_BLOCK);
@@ -334,6 +365,12 @@ public class CreativeModeTabs {
             param1.accept(Items.WAXED_OXIDIZED_CUT_COPPER);
             param1.accept(Items.WAXED_OXIDIZED_CUT_COPPER_STAIRS);
             param1.accept(Items.WAXED_OXIDIZED_CUT_COPPER_SLAB);
+        })
+        .build();
+    private static final CreativeModeTab COLORED_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 1)
+        .title(Component.translatable("itemGroup.coloredBlocks"))
+        .icon(() -> new ItemStack(Blocks.CYAN_WOOL))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.WHITE_WOOL);
             param1.accept(Items.LIGHT_GRAY_WOOL);
             param1.accept(Items.GRAY_WOOL);
@@ -466,42 +503,100 @@ public class CreativeModeTabs {
             param1.accept(Items.PURPLE_STAINED_GLASS_PANE);
             param1.accept(Items.MAGENTA_STAINED_GLASS_PANE);
             param1.accept(Items.PINK_STAINED_GLASS_PANE);
-        }
-    };
-    public static final CreativeModeTab TAB_NATURAL = new CreativeModeTab(1, Component.translatable("itemGroup.natural")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.GRASS_BLOCK);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+            param1.accept(Items.SHULKER_BOX);
+            param1.accept(Items.WHITE_SHULKER_BOX);
+            param1.accept(Items.LIGHT_GRAY_SHULKER_BOX);
+            param1.accept(Items.GRAY_SHULKER_BOX);
+            param1.accept(Items.BLACK_SHULKER_BOX);
+            param1.accept(Items.BROWN_SHULKER_BOX);
+            param1.accept(Items.RED_SHULKER_BOX);
+            param1.accept(Items.ORANGE_SHULKER_BOX);
+            param1.accept(Items.YELLOW_SHULKER_BOX);
+            param1.accept(Items.LIME_SHULKER_BOX);
+            param1.accept(Items.GREEN_SHULKER_BOX);
+            param1.accept(Items.CYAN_SHULKER_BOX);
+            param1.accept(Items.LIGHT_BLUE_SHULKER_BOX);
+            param1.accept(Items.BLUE_SHULKER_BOX);
+            param1.accept(Items.PURPLE_SHULKER_BOX);
+            param1.accept(Items.MAGENTA_SHULKER_BOX);
+            param1.accept(Items.PINK_SHULKER_BOX);
+            param1.accept(Items.WHITE_BED);
+            param1.accept(Items.LIGHT_GRAY_BED);
+            param1.accept(Items.GRAY_BED);
+            param1.accept(Items.BLACK_BED);
+            param1.accept(Items.BROWN_BED);
+            param1.accept(Items.RED_BED);
+            param1.accept(Items.ORANGE_BED);
+            param1.accept(Items.YELLOW_BED);
+            param1.accept(Items.LIME_BED);
+            param1.accept(Items.GREEN_BED);
+            param1.accept(Items.CYAN_BED);
+            param1.accept(Items.LIGHT_BLUE_BED);
+            param1.accept(Items.BLUE_BED);
+            param1.accept(Items.PURPLE_BED);
+            param1.accept(Items.MAGENTA_BED);
+            param1.accept(Items.PINK_BED);
+            param1.accept(Items.CANDLE);
+            param1.accept(Items.WHITE_CANDLE);
+            param1.accept(Items.LIGHT_GRAY_CANDLE);
+            param1.accept(Items.GRAY_CANDLE);
+            param1.accept(Items.BLACK_CANDLE);
+            param1.accept(Items.BROWN_CANDLE);
+            param1.accept(Items.RED_CANDLE);
+            param1.accept(Items.ORANGE_CANDLE);
+            param1.accept(Items.YELLOW_CANDLE);
+            param1.accept(Items.LIME_CANDLE);
+            param1.accept(Items.GREEN_CANDLE);
+            param1.accept(Items.CYAN_CANDLE);
+            param1.accept(Items.LIGHT_BLUE_CANDLE);
+            param1.accept(Items.BLUE_CANDLE);
+            param1.accept(Items.PURPLE_CANDLE);
+            param1.accept(Items.MAGENTA_CANDLE);
+            param1.accept(Items.PINK_CANDLE);
+            param1.accept(Items.WHITE_BANNER);
+            param1.accept(Items.LIGHT_GRAY_BANNER);
+            param1.accept(Items.GRAY_BANNER);
+            param1.accept(Items.BLACK_BANNER);
+            param1.accept(Items.BROWN_BANNER);
+            param1.accept(Items.RED_BANNER);
+            param1.accept(Items.ORANGE_BANNER);
+            param1.accept(Items.YELLOW_BANNER);
+            param1.accept(Items.LIME_BANNER);
+            param1.accept(Items.GREEN_BANNER);
+            param1.accept(Items.CYAN_BANNER);
+            param1.accept(Items.LIGHT_BLUE_BANNER);
+            param1.accept(Items.BLUE_BANNER);
+            param1.accept(Items.PURPLE_BANNER);
+            param1.accept(Items.MAGENTA_BANNER);
+            param1.accept(Items.PINK_BANNER);
+        })
+        .build();
+    private static final CreativeModeTab NATURAL_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 2)
+        .title(Component.translatable("itemGroup.natural"))
+        .icon(() -> new ItemStack(Blocks.GRASS_BLOCK))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.GRASS_BLOCK);
-            param1.accept(Items.MOSS_BLOCK);
-            param1.accept(Items.MOSS_CARPET);
             param1.accept(Items.PODZOL);
             param1.accept(Items.MYCELIUM);
-            param1.accept(Items.DIRT);
-            param1.accept(Items.FARMLAND);
             param1.accept(Items.DIRT_PATH);
+            param1.accept(Items.DIRT);
             param1.accept(Items.COARSE_DIRT);
             param1.accept(Items.ROOTED_DIRT);
+            param1.accept(Items.FARMLAND);
             param1.accept(Items.MUD);
             param1.accept(Items.CLAY);
             param1.accept(Items.GRAVEL);
             param1.accept(Items.SAND);
+            param1.accept(Items.SANDSTONE);
             param1.accept(Items.RED_SAND);
-            param1.accept(Items.NETHERRACK);
-            param1.accept(Items.CRIMSON_NYLIUM);
-            param1.accept(Items.WARPED_NYLIUM);
-            param1.accept(Items.SOUL_SAND);
-            param1.accept(Items.SOUL_SOIL);
-            param1.accept(Items.BONE_BLOCK);
+            param1.accept(Items.RED_SANDSTONE);
             param1.accept(Items.ICE);
             param1.accept(Items.PACKED_ICE);
             param1.accept(Items.BLUE_ICE);
             param1.accept(Items.SNOW_BLOCK);
             param1.accept(Items.SNOW);
+            param1.accept(Items.MOSS_BLOCK);
+            param1.accept(Items.MOSS_CARPET);
             param1.accept(Items.STONE);
             param1.accept(Items.DEEPSLATE);
             param1.accept(Items.GRANITE);
@@ -511,12 +606,16 @@ public class CreativeModeTabs {
             param1.accept(Items.TUFF);
             param1.accept(Items.DRIPSTONE_BLOCK);
             param1.accept(Items.POINTED_DRIPSTONE);
-            param1.accept(Items.SANDSTONE);
-            param1.accept(Items.RED_SANDSTONE);
             param1.accept(Items.PRISMARINE);
             param1.accept(Items.MAGMA_BLOCK);
             param1.accept(Items.OBSIDIAN);
             param1.accept(Items.CRYING_OBSIDIAN);
+            param1.accept(Items.NETHERRACK);
+            param1.accept(Items.CRIMSON_NYLIUM);
+            param1.accept(Items.WARPED_NYLIUM);
+            param1.accept(Items.SOUL_SAND);
+            param1.accept(Items.SOUL_SOIL);
+            param1.accept(Items.BONE_BLOCK);
             param1.accept(Items.BLACKSTONE);
             param1.accept(Items.BASALT);
             param1.accept(Items.SMOOTH_BASALT);
@@ -550,19 +649,6 @@ public class CreativeModeTabs {
             param1.accept(Items.MEDIUM_AMETHYST_BUD);
             param1.accept(Items.LARGE_AMETHYST_BUD);
             param1.accept(Items.AMETHYST_CLUSTER);
-            param1.accept(Items.OAK_SAPLING);
-            param1.accept(Items.SPRUCE_SAPLING);
-            param1.accept(Items.BIRCH_SAPLING);
-            param1.accept(Items.JUNGLE_SAPLING);
-            param1.accept(Items.ACACIA_SAPLING);
-            param1.accept(Items.DARK_OAK_SAPLING);
-            param1.accept(Items.MANGROVE_PROPAGULE);
-            param1.accept(Items.AZALEA);
-            param1.accept(Items.FLOWERING_AZALEA);
-            param1.accept(Items.BROWN_MUSHROOM);
-            param1.accept(Items.RED_MUSHROOM);
-            param1.accept(Items.CRIMSON_FUNGUS);
-            param1.accept(Items.WARPED_FUNGUS);
             param1.accept(Items.OAK_LOG);
             param1.accept(Items.SPRUCE_LOG);
             param1.accept(Items.BIRCH_LOG);
@@ -589,6 +675,19 @@ public class CreativeModeTabs {
             param1.accept(Items.NETHER_WART_BLOCK);
             param1.accept(Items.WARPED_WART_BLOCK);
             param1.accept(Items.SHROOMLIGHT);
+            param1.accept(Items.OAK_SAPLING);
+            param1.accept(Items.SPRUCE_SAPLING);
+            param1.accept(Items.BIRCH_SAPLING);
+            param1.accept(Items.JUNGLE_SAPLING);
+            param1.accept(Items.ACACIA_SAPLING);
+            param1.accept(Items.DARK_OAK_SAPLING);
+            param1.accept(Items.MANGROVE_PROPAGULE);
+            param1.accept(Items.AZALEA);
+            param1.accept(Items.FLOWERING_AZALEA);
+            param1.accept(Items.BROWN_MUSHROOM);
+            param1.accept(Items.RED_MUSHROOM);
+            param1.accept(Items.CRIMSON_FUNGUS);
+            param1.accept(Items.WARPED_FUNGUS);
             param1.accept(Items.GRASS);
             param1.accept(Items.FERN);
             param1.accept(Items.DEAD_BUSH);
@@ -612,6 +711,9 @@ public class CreativeModeTabs {
             param1.accept(Items.CRIMSON_ROOTS);
             param1.accept(Items.WARPED_ROOTS);
             param1.accept(Items.NETHER_SPROUTS);
+            param1.accept(Items.WEEPING_VINES);
+            param1.accept(Items.TWISTING_VINES);
+            param1.accept(Items.VINE);
             param1.accept(Items.TALL_GRASS);
             param1.accept(Items.LARGE_FERN);
             param1.accept(Items.SUNFLOWER);
@@ -622,11 +724,10 @@ public class CreativeModeTabs {
             param1.accept(Items.SMALL_DRIPLEAF);
             param1.accept(Items.CHORUS_PLANT);
             param1.accept(Items.CHORUS_FLOWER);
-            param1.accept(Items.WEEPING_VINES);
-            param1.accept(Items.TWISTING_VINES);
-            param1.accept(Items.VINE);
             param1.accept(Items.GLOW_LICHEN);
             param1.accept(Items.HANGING_ROOTS);
+            param1.accept(Items.FROGSPAWN);
+            param1.accept(Items.TURTLE_EGG);
             param1.accept(Items.WHEAT_SEEDS);
             param1.accept(Items.COCOA_BEANS);
             param1.accept(Items.PUMPKIN_SEEDS);
@@ -690,25 +791,30 @@ public class CreativeModeTabs {
             param1.accept(Items.SCULK_SHRIEKER);
             param1.accept(Items.SCULK_SENSOR);
             param1.accept(Items.COBWEB);
-            param1.accept(Items.FROGSPAWN);
-            param1.accept(Items.TURTLE_EGG);
             param1.accept(Items.BEDROCK);
-        }
-    };
-    public static final CreativeModeTab TAB_FUNCTIONAL = new CreativeModeTab(2, Component.translatable("itemGroup.functional")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.OAK_SIGN);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+        })
+        .build();
+    private static final CreativeModeTab FUNCTIONAL_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 3)
+        .title(Component.translatable("itemGroup.functional"))
+        .icon(() -> new ItemStack(Items.OAK_SIGN))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.TORCH);
             param1.accept(Items.SOUL_TORCH);
+            param1.accept(Items.REDSTONE_TORCH);
             param1.accept(Items.LANTERN);
             param1.accept(Items.SOUL_LANTERN);
             param1.accept(Items.CHAIN);
             param1.accept(Items.END_ROD);
+            param1.accept(Items.SEA_LANTERN);
+            param1.accept(Items.REDSTONE_LAMP);
+            param1.accept(Items.GLOWSTONE);
+            param1.accept(Items.SHROOMLIGHT);
+            param1.accept(Items.OCHRE_FROGLIGHT);
+            param1.accept(Items.VERDANT_FROGLIGHT);
+            param1.accept(Items.PEARLESCENT_FROGLIGHT);
+            param1.accept(Items.CRYING_OBSIDIAN);
+            param1.accept(Items.GLOW_LICHEN);
+            param1.accept(Items.MAGMA_BLOCK);
             param1.accept(Items.CRAFTING_TABLE);
             param1.accept(Items.STONECUTTER);
             param1.accept(Items.CARTOGRAPHY_TABLE);
@@ -848,6 +954,7 @@ public class CreativeModeTabs {
             param1.accept(Items.DRAGON_HEAD);
             param1.accept(Items.DRAGON_EGG);
             param1.accept(Items.END_PORTAL_FRAME);
+            param1.accept(Items.ENDER_EYE);
             param1.accept(Items.INFESTED_STONE);
             param1.accept(Items.INFESTED_COBBLESTONE);
             param1.accept(Items.INFESTED_STONE_BRICKS);
@@ -855,23 +962,17 @@ public class CreativeModeTabs {
             param1.accept(Items.INFESTED_CRACKED_STONE_BRICKS);
             param1.accept(Items.INFESTED_CHISELED_STONE_BRICKS);
             param1.accept(Items.INFESTED_DEEPSLATE);
-        }
-    };
-    public static final CreativeModeTab TAB_REDSTONE = new CreativeModeTab(3, Component.translatable("itemGroup.redstone")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.REDSTONE);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+        })
+        .build();
+    private static final CreativeModeTab REDSTONE_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 4)
+        .title(Component.translatable("itemGroup.redstone"))
+        .icon(() -> new ItemStack(Items.REDSTONE))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.REDSTONE);
             param1.accept(Items.REDSTONE_TORCH);
-            param1.accept(Items.REDSTONE_ORE);
-            param1.accept(Items.DEEPSLATE_REDSTONE_ORE);
-            param1.accept(Items.REDSTONE_BLOCK);
             param1.accept(Items.REPEATER);
             param1.accept(Items.COMPARATOR);
+            param1.accept(Items.REDSTONE_BLOCK);
             param1.accept(Items.PISTON);
             param1.accept(Items.STICKY_PISTON);
             param1.accept(Items.SLIME_BLOCK);
@@ -882,8 +983,35 @@ public class CreativeModeTabs {
             param1.accept(Items.DROPPER);
             param1.accept(Items.CHEST);
             param1.accept(Items.BARREL);
+            param1.accept(Items.CHISELED_BOOKSHELF);
+            param1.accept(Items.ARMOR_STAND);
             param1.accept(Items.CAULDRON);
+            param1.accept(Items.FURNACE);
+            param1.accept(Items.RAIL);
+            param1.accept(Items.POWERED_RAIL);
+            param1.accept(Items.DETECTOR_RAIL);
+            param1.accept(Items.ACTIVATOR_RAIL);
+            param1.accept(Items.MINECART);
+            param1.accept(Items.CHEST_MINECART);
+            param1.accept(Items.FURNACE_MINECART);
+            param1.accept(Items.TNT_MINECART);
+            param1.accept(Items.HOPPER_MINECART);
+            param1.accept(Items.OAK_CHEST_BOAT);
+            param1.accept(Items.BAMBOO_CHEST_RAFT);
+            param1.accept(Items.OAK_BUTTON);
+            param1.accept(Items.STONE_BUTTON);
+            param1.accept(Items.OAK_PRESSURE_PLATE);
+            param1.accept(Items.STONE_PRESSURE_PLATE);
+            param1.accept(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+            param1.accept(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+            param1.accept(Items.OAK_DOOR);
+            param1.accept(Items.OAK_TRAPDOOR);
+            param1.accept(Items.OAK_FENCE_GATE);
+            param1.accept(Items.IRON_DOOR);
+            param1.accept(Items.IRON_TRAPDOOR);
+            param1.accept(Items.COMPOSTER);
             param1.accept(Items.LECTERN);
+            param1.accept(Items.NOTE_BLOCK);
             param1.accept(Items.TARGET);
             param1.accept(Items.LEVER);
             param1.accept(Items.LIGHTNING_ROD);
@@ -895,146 +1023,40 @@ public class CreativeModeTabs {
             param1.accept(Items.TRAPPED_CHEST);
             param1.accept(Items.TNT);
             param1.accept(Items.REDSTONE_LAMP);
-            param1.accept(Items.NOTE_BLOCK);
             param1.accept(Items.BIG_DRIPLEAF);
             param1.accept(Items.BELL);
-            param1.accept(Items.CHISELED_BOOKSHELF);
-            param1.accept(Items.FURNACE);
-            param1.accept(Items.COMPOSTER);
-            param1.accept(Items.RAIL);
-            param1.accept(Items.POWERED_RAIL);
-            param1.accept(Items.DETECTOR_RAIL);
-            param1.accept(Items.ACTIVATOR_RAIL);
-            param1.accept(Items.MINECART);
-            param1.accept(Items.CHEST_MINECART);
-            param1.accept(Items.FURNACE_MINECART);
-            param1.accept(Items.TNT_MINECART);
-            param1.accept(Items.HOPPER_MINECART);
-            if (param2) {
-                param1.accept(Items.COMMAND_BLOCK_MINECART);
-            }
-
-            param1.accept(Items.OAK_CHEST_BOAT);
-            param1.accept(Items.SPRUCE_CHEST_BOAT);
-            param1.accept(Items.BIRCH_CHEST_BOAT);
-            param1.accept(Items.JUNGLE_CHEST_BOAT);
-            param1.accept(Items.ACACIA_CHEST_BOAT);
-            param1.accept(Items.DARK_OAK_CHEST_BOAT);
-            param1.accept(Items.MANGROVE_CHEST_BOAT);
-            param1.accept(Items.BAMBOO_CHEST_RAFT);
-            param1.accept(Items.STONE_BUTTON);
-            param1.accept(Items.POLISHED_BLACKSTONE_BUTTON);
-            param1.accept(Items.OAK_BUTTON);
-            param1.accept(Items.SPRUCE_BUTTON);
-            param1.accept(Items.BIRCH_BUTTON);
-            param1.accept(Items.JUNGLE_BUTTON);
-            param1.accept(Items.ACACIA_BUTTON);
-            param1.accept(Items.DARK_OAK_BUTTON);
-            param1.accept(Items.MANGROVE_BUTTON);
-            param1.accept(Items.BAMBOO_BUTTON);
-            param1.accept(Items.CRIMSON_BUTTON);
-            param1.accept(Items.WARPED_BUTTON);
-            param1.accept(Items.OAK_PRESSURE_PLATE);
-            param1.accept(Items.SPRUCE_PRESSURE_PLATE);
-            param1.accept(Items.BIRCH_PRESSURE_PLATE);
-            param1.accept(Items.JUNGLE_PRESSURE_PLATE);
-            param1.accept(Items.ACACIA_PRESSURE_PLATE);
-            param1.accept(Items.DARK_OAK_PRESSURE_PLATE);
-            param1.accept(Items.MANGROVE_PRESSURE_PLATE);
-            param1.accept(Items.BAMBOO_PRESSURE_PLATE);
-            param1.accept(Items.CRIMSON_PRESSURE_PLATE);
-            param1.accept(Items.WARPED_PRESSURE_PLATE);
-            param1.accept(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
-            param1.accept(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
-            param1.accept(Items.STONE_PRESSURE_PLATE);
-            param1.accept(Items.POLISHED_BLACKSTONE_PRESSURE_PLATE);
-            param1.accept(Items.IRON_DOOR);
-            param1.accept(Items.OAK_DOOR);
-            param1.accept(Items.SPRUCE_DOOR);
-            param1.accept(Items.BIRCH_DOOR);
-            param1.accept(Items.JUNGLE_DOOR);
-            param1.accept(Items.ACACIA_DOOR);
-            param1.accept(Items.DARK_OAK_DOOR);
-            param1.accept(Items.MANGROVE_DOOR);
-            param1.accept(Items.BAMBOO_DOOR);
-            param1.accept(Items.CRIMSON_DOOR);
-            param1.accept(Items.WARPED_DOOR);
-            param1.accept(Items.IRON_TRAPDOOR);
-            param1.accept(Items.OAK_TRAPDOOR);
-            param1.accept(Items.SPRUCE_TRAPDOOR);
-            param1.accept(Items.BIRCH_TRAPDOOR);
-            param1.accept(Items.JUNGLE_TRAPDOOR);
-            param1.accept(Items.ACACIA_TRAPDOOR);
-            param1.accept(Items.DARK_OAK_TRAPDOOR);
-            param1.accept(Items.MANGROVE_TRAPDOOR);
-            param1.accept(Items.BAMBOO_TRAPDOOR);
-            param1.accept(Items.CRIMSON_TRAPDOOR);
-            param1.accept(Items.WARPED_TRAPDOOR);
-            param1.accept(Items.OAK_FENCE_GATE);
-            param1.accept(Items.SPRUCE_FENCE_GATE);
-            param1.accept(Items.BIRCH_FENCE_GATE);
-            param1.accept(Items.JUNGLE_FENCE_GATE);
-            param1.accept(Items.ACACIA_FENCE_GATE);
-            param1.accept(Items.DARK_OAK_FENCE_GATE);
-            param1.accept(Items.MANGROVE_FENCE_GATE);
-            param1.accept(Items.BAMBOO_FENCE_GATE);
-            param1.accept(Items.CRIMSON_FENCE_GATE);
-            param1.accept(Items.WARPED_FENCE_GATE);
-            if (param2) {
-                param1.accept(Items.COMMAND_BLOCK);
-                param1.accept(Items.CHAIN_COMMAND_BLOCK);
-                param1.accept(Items.REPEATING_COMMAND_BLOCK);
-                param1.accept(Items.JIGSAW);
-                param1.accept(Items.STRUCTURE_VOID);
-                param1.accept(Items.BARRIER);
-                param1.accept(Items.LIGHT);
-                param1.accept(Items.DEBUG_STICK);
-            }
-
-        }
-    };
-    public static final CreativeModeTab TAB_HOTBAR = new CreativeModeTab(4, Component.translatable("itemGroup.hotbar")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.BOOKSHELF);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
-        }
-
-        @Override
-        public boolean isAlignedRight() {
-            return true;
-        }
-    };
-    public static final CreativeModeTab TAB_SEARCH = (new CreativeModeTab(5, Component.translatable("itemGroup.search")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.COMPASS);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+            param1.accept(Items.REDSTONE_ORE);
+            param1.accept(Items.DEEPSLATE_REDSTONE_ORE);
+        })
+        .build();
+    private static final CreativeModeTab HOTBAR = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 5)
+        .title(Component.translatable("itemGroup.hotbar"))
+        .icon(() -> new ItemStack(Blocks.BOOKSHELF))
+        .alignedRight()
+        .type(CreativeModeTab.Type.HOTBAR)
+        .build();
+    private static final CreativeModeTab SEARCH = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 6)
+        .title(Component.translatable("itemGroup.search"))
+        .icon(() -> new ItemStack(Items.COMPASS))
+        .displayItems((param0, param1, param2) -> {
             Set<ItemStack> var0 = new ItemStackLinkedSet();
-
+    
             for(CreativeModeTab var1 : CreativeModeTabs.TABS) {
-                if (var1 != this) {
-                    var0.addAll(var1.getSearchTabDisplayItems(param0, param2));
+                if (var1.getType() != CreativeModeTab.Type.SEARCH) {
+                    var0.addAll(var1.getSearchTabDisplayItems());
                 }
             }
-
+    
             param1.acceptAll(var0);
-        }
-    }).setBackgroundSuffix("item_search.png");
-    public static final CreativeModeTab TAB_TOOLS = new CreativeModeTab(6, Component.translatable("itemGroup.tools")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.DIAMOND_PICKAXE);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+        })
+        .backgroundSuffix("item_search.png")
+        .alignedRight()
+        .type(CreativeModeTab.Type.SEARCH)
+        .build();
+    private static final CreativeModeTab TOOLS_AND_UTILITIES = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0)
+        .title(Component.translatable("itemGroup.tools"))
+        .icon(() -> new ItemStack(Items.DIAMOND_PICKAXE))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.WOODEN_SHOVEL);
             param1.accept(Items.WOODEN_PICKAXE);
             param1.accept(Items.WOODEN_AXE);
@@ -1080,7 +1102,7 @@ public class CreativeModeTabs {
             if (param0.contains(FeatureFlags.BUNDLE)) {
                 param1.accept(Items.BUNDLE);
             }
-
+    
             param1.accept(Items.COMPASS);
             param1.accept(Items.RECOVERY_COMPASS);
             param1.accept(Items.CLOCK);
@@ -1090,7 +1112,7 @@ public class CreativeModeTabs {
             param1.accept(Items.ENDER_PEARL);
             param1.accept(Items.ENDER_EYE);
             param1.accept(Items.ELYTRA);
-            param1.accept(Items.FIREWORK_ROCKET);
+            generateFireworksAllDurations(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             param1.accept(Items.SADDLE);
             param1.accept(Items.CARROT_ON_A_STICK);
             param1.accept(Items.WARPED_FUNGUS_ON_A_STICK);
@@ -1115,7 +1137,7 @@ public class CreativeModeTabs {
             param1.accept(Items.FURNACE_MINECART);
             param1.accept(Items.TNT_MINECART);
             param1.accept(Items.HOPPER_MINECART);
-            CreativeModeTabs.generateInstrumentTypes(param1, Items.GOAT_HORN, InstrumentTags.GOAT_HORNS, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            generateInstrumentTypes(param1, Items.GOAT_HORN, InstrumentTags.GOAT_HORNS, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             param1.accept(Items.MUSIC_DISC_13);
             param1.accept(Items.MUSIC_DISC_CAT);
             param1.accept(Items.MUSIC_DISC_BLOCKS);
@@ -1131,23 +1153,24 @@ public class CreativeModeTabs {
             param1.accept(Items.MUSIC_DISC_OTHERSIDE);
             param1.accept(Items.MUSIC_DISC_5);
             param1.accept(Items.MUSIC_DISC_PIGSTEP);
-            param1.accept(Items.EXPERIENCE_BOTTLE);
-        }
-    };
-    public static final CreativeModeTab TAB_COMBAT = new CreativeModeTab(7, Component.translatable("itemGroup.combat")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.NETHERITE_SWORD);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+        })
+        .build();
+    private static final CreativeModeTab COMBAT = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 1)
+        .title(Component.translatable("itemGroup.combat"))
+        .icon(() -> new ItemStack(Items.NETHERITE_SWORD))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.WOODEN_SWORD);
             param1.accept(Items.STONE_SWORD);
             param1.accept(Items.IRON_SWORD);
             param1.accept(Items.GOLDEN_SWORD);
             param1.accept(Items.DIAMOND_SWORD);
             param1.accept(Items.NETHERITE_SWORD);
+            param1.accept(Items.WOODEN_AXE);
+            param1.accept(Items.STONE_AXE);
+            param1.accept(Items.IRON_AXE);
+            param1.accept(Items.GOLDEN_AXE);
+            param1.accept(Items.DIAMOND_AXE);
+            param1.accept(Items.NETHERITE_AXE);
             param1.accept(Items.TRIDENT);
             param1.accept(Items.SHIELD);
             param1.accept(Items.LEATHER_HELMET);
@@ -1186,19 +1209,16 @@ public class CreativeModeTabs {
             param1.accept(Items.EGG);
             param1.accept(Items.BOW);
             param1.accept(Items.CROSSBOW);
+            generateFireworksAllDurations(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             param1.accept(Items.ARROW);
             param1.accept(Items.SPECTRAL_ARROW);
-            CreativeModeTabs.generatePotionEffectTypes(param1, Items.TIPPED_ARROW, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        }
-    };
-    public static final CreativeModeTab TAB_CONSUMABLES = new CreativeModeTab(8, Component.translatable("itemGroup.consumables")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.GOLDEN_APPLE);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+            generatePotionEffectTypes(param1, Items.TIPPED_ARROW, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        })
+        .build();
+    private static final CreativeModeTab FOOD_AND_DRINKS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 2)
+        .title(Component.translatable("itemGroup.foodAndDrink"))
+        .icon(() -> new ItemStack(Items.GOLDEN_APPLE))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.APPLE);
             param1.accept(Items.GOLDEN_APPLE);
             param1.accept(Items.ENCHANTED_GOLDEN_APPLE);
@@ -1213,22 +1233,22 @@ public class CreativeModeTabs {
             param1.accept(Items.POISONOUS_POTATO);
             param1.accept(Items.BEETROOT);
             param1.accept(Items.DRIED_KELP);
+            param1.accept(Items.BEEF);
+            param1.accept(Items.COOKED_BEEF);
+            param1.accept(Items.PORKCHOP);
+            param1.accept(Items.COOKED_PORKCHOP);
+            param1.accept(Items.MUTTON);
+            param1.accept(Items.COOKED_MUTTON);
+            param1.accept(Items.CHICKEN);
+            param1.accept(Items.COOKED_CHICKEN);
+            param1.accept(Items.RABBIT);
+            param1.accept(Items.COOKED_RABBIT);
             param1.accept(Items.COD);
+            param1.accept(Items.COOKED_COD);
             param1.accept(Items.SALMON);
+            param1.accept(Items.COOKED_SALMON);
             param1.accept(Items.TROPICAL_FISH);
             param1.accept(Items.PUFFERFISH);
-            param1.accept(Items.BEEF);
-            param1.accept(Items.PORKCHOP);
-            param1.accept(Items.CHICKEN);
-            param1.accept(Items.RABBIT);
-            param1.accept(Items.MUTTON);
-            param1.accept(Items.COOKED_COD);
-            param1.accept(Items.COOKED_SALMON);
-            param1.accept(Items.COOKED_BEEF);
-            param1.accept(Items.COOKED_PORKCHOP);
-            param1.accept(Items.COOKED_CHICKEN);
-            param1.accept(Items.COOKED_RABBIT);
-            param1.accept(Items.COOKED_MUTTON);
             param1.accept(Items.BREAD);
             param1.accept(Items.COOKIE);
             param1.accept(Items.CAKE);
@@ -1238,45 +1258,25 @@ public class CreativeModeTabs {
             param1.accept(Items.MUSHROOM_STEW);
             param1.accept(Items.BEETROOT_SOUP);
             param1.accept(Items.RABBIT_STEW);
+            generateSuspiciousStews(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             param1.accept(Items.MILK_BUCKET);
             param1.accept(Items.HONEY_BOTTLE);
-            CreativeModeTabs.generatePotionEffectTypes(param1, Items.POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            CreativeModeTabs.generatePotionEffectTypes(param1, Items.SPLASH_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            CreativeModeTabs.generatePotionEffectTypes(param1, Items.LINGERING_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        }
-    };
-    public static final CreativeModeTab TAB_CRAFTING = new CreativeModeTab(9, Component.translatable("itemGroup.crafting")) {
-        private static final Set<EnchantmentCategory> ENCHANTMENT_CATEGORIES = EnumSet.of(
-            EnchantmentCategory.VANISHABLE,
-            EnchantmentCategory.DIGGER,
-            EnchantmentCategory.FISHING_ROD,
-            EnchantmentCategory.BREAKABLE,
-            EnchantmentCategory.ARMOR,
-            EnchantmentCategory.ARMOR_FEET,
-            EnchantmentCategory.ARMOR_HEAD,
-            EnchantmentCategory.ARMOR_LEGS,
-            EnchantmentCategory.ARMOR_CHEST,
-            EnchantmentCategory.BOW,
-            EnchantmentCategory.WEAPON,
-            EnchantmentCategory.WEARABLE,
-            EnchantmentCategory.TRIDENT,
-            EnchantmentCategory.CROSSBOW
-        );
-
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.IRON_INGOT);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+            generatePotionEffectTypes(param1, Items.POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            generatePotionEffectTypes(param1, Items.SPLASH_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            generatePotionEffectTypes(param1, Items.LINGERING_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        })
+        .build();
+    private static final CreativeModeTab INGREDIENTS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 3)
+        .title(Component.translatable("itemGroup.ingredients"))
+        .icon(() -> new ItemStack(Items.IRON_INGOT))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.COAL);
             param1.accept(Items.CHARCOAL);
             param1.accept(Items.RAW_IRON);
             param1.accept(Items.RAW_COPPER);
             param1.accept(Items.RAW_GOLD);
-            param1.accept(Items.LAPIS_LAZULI);
             param1.accept(Items.EMERALD);
+            param1.accept(Items.LAPIS_LAZULI);
             param1.accept(Items.DIAMOND);
             param1.accept(Items.ANCIENT_DEBRIS);
             param1.accept(Items.QUARTZ);
@@ -1363,18 +1363,16 @@ public class CreativeModeTabs {
             param1.accept(Items.MOJANG_BANNER_PATTERN);
             param1.accept(Items.GLOBE_BANNER_PATTERN);
             param1.accept(Items.PIGLIN_BANNER_PATTERN);
-            CreativeModeTabs.generateEnchantmentBookTypesOnlyMaxLevel(param1, ENCHANTMENT_CATEGORIES, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
-            CreativeModeTabs.generateEnchantmentBookTypesAllLevels(param1, ENCHANTMENT_CATEGORIES, CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
-        }
-    };
-    public static final CreativeModeTab TAB_SPAWN_EGGS = new CreativeModeTab(10, Component.translatable("itemGroup.spawnEggs")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Items.PIG_SPAWN_EGG);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
+            param1.accept(Items.EXPERIENCE_BOTTLE);
+            Set<EnchantmentCategory> var0 = EnumSet.allOf(EnchantmentCategory.class);
+            generateEnchantmentBookTypesOnlyMaxLevel(param1, var0, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+            generateEnchantmentBookTypesAllLevels(param1, var0, CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
+        })
+        .build();
+    private static final CreativeModeTab SPAWN_EGGS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 4)
+        .title(Component.translatable("itemGroup.spawnEggs"))
+        .icon(() -> new ItemStack(Items.PIG_SPAWN_EGG))
+        .displayItems((param0, param1, param2) -> {
             param1.accept(Items.SPAWNER);
             param1.accept(Items.ALLAY_SPAWN_EGG);
             param1.accept(Items.AXOLOTL_SPAWN_EGG);
@@ -1450,59 +1448,80 @@ public class CreativeModeTabs {
             param1.accept(Items.ZOMBIE_HORSE_SPAWN_EGG);
             param1.accept(Items.ZOMBIE_VILLAGER_SPAWN_EGG);
             param1.accept(Items.ZOMBIFIED_PIGLIN_SPAWN_EGG);
-        }
-    };
-    public static final CreativeModeTab TAB_INVENTORY = (new CreativeModeTab(11, Component.translatable("itemGroup.inventory")) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Blocks.CHEST);
-        }
-
-        @Override
-        public void generateDisplayItems(FeatureFlagSet param0, CreativeModeTab.Output param1, boolean param2) {
-        }
-    }).setBackgroundSuffix("inventory.png").hideScroll().hideTitle();
-    public static final CreativeModeTab[] TABS = createTabList(
-        TAB_BUILDING_BLOCKS,
-        TAB_NATURAL,
-        TAB_FUNCTIONAL,
-        TAB_REDSTONE,
-        TAB_HOTBAR,
-        TAB_SEARCH,
-        TAB_TOOLS,
-        TAB_COMBAT,
-        TAB_CONSUMABLES,
-        TAB_CRAFTING,
-        TAB_SPAWN_EGGS,
-        TAB_INVENTORY
+        })
+        .build();
+    private static final CreativeModeTab OP_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 5)
+        .title(Component.translatable("itemGroup.op"))
+        .icon(() -> new ItemStack(Items.COMMAND_BLOCK))
+        .alignedRight()
+        .displayItems((param0, param1, param2) -> {
+            if (param2) {
+                param1.accept(Items.COMMAND_BLOCK);
+                param1.accept(Items.CHAIN_COMMAND_BLOCK);
+                param1.accept(Items.REPEATING_COMMAND_BLOCK);
+                param1.accept(Items.COMMAND_BLOCK_MINECART);
+                param1.accept(Items.JIGSAW);
+                param1.accept(Items.STRUCTURE_BLOCK);
+                param1.accept(Items.STRUCTURE_VOID);
+                param1.accept(Items.BARRIER);
+                param1.accept(Items.DEBUG_STICK);
+    
+                for(int var0 = 15; var0 >= 0; --var0) {
+                    param1.accept(LightBlock.setLightOnStack(new ItemStack(Items.LIGHT), var0));
+                }
+            }
+    
+        })
+        .build();
+    private static final CreativeModeTab INVENTORY = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 6)
+        .title(Component.translatable("itemGroup.inventory"))
+        .icon(() -> new ItemStack(Blocks.CHEST))
+        .backgroundSuffix("inventory.png")
+        .hideTitle()
+        .alignedRight()
+        .type(CreativeModeTab.Type.INVENTORY)
+        .noScrollBar()
+        .build();
+    private static final List<CreativeModeTab> TABS = checkTabs(
+        BUILDING_BLOCKS,
+        COLORED_BLOCKS,
+        NATURAL_BLOCKS,
+        FUNCTIONAL_BLOCKS,
+        REDSTONE_BLOCKS,
+        HOTBAR,
+        SEARCH,
+        TOOLS_AND_UTILITIES,
+        COMBAT,
+        FOOD_AND_DRINKS,
+        INGREDIENTS,
+        SPAWN_EGGS,
+        OP_BLOCKS,
+        INVENTORY
     );
+    @Nullable
+    public static FeatureFlagSet CACHED_ENABLED_FEATURES;
+    public static boolean CACHED_HAS_PERMISSIONS = false;
 
-    private static CreativeModeTab[] createTabList(CreativeModeTab... param0) {
-        CreativeModeTab[] var0 = new CreativeModeTab[param0.length];
+    private static List<CreativeModeTab> checkTabs(CreativeModeTab... param0) {
+        Map<Pair<CreativeModeTab.Row, Integer>, String> var0 = new HashMap<>();
 
         for(CreativeModeTab var1 : param0) {
-            int var2 = var1.getId();
-            CreativeModeTab var3 = var0[var2];
+            String var2 = var1.getDisplayName().getString();
+            String var3 = var0.put(Pair.of(var1.row(), var1.column()), var2);
             if (var3 != null) {
-                throw new IllegalStateException(
-                    "Duplicate tab on id " + var2 + ": " + var3.getDisplayName().getString() + " vs. " + var1.getDisplayName().getString()
-                );
-            }
-
-            var0[var2] = var1;
-        }
-
-        for(int var4 = 0; var4 < var0.length; ++var4) {
-            if (var0[var4] == null) {
-                throw new IllegalStateException("Missing tab id " + var4);
+                throw new IllegalArgumentException("Duplicate position: " + var2 + " vs. " + var3);
             }
         }
 
-        return var0;
+        return List.of(param0);
     }
 
-    static void generatePotionEffectTypes(CreativeModeTab.Output param0, Item param1, CreativeModeTab.TabVisibility param2) {
-        for(Potion var0 : Registry.POTION) {
+    public static CreativeModeTab getDefaultTab() {
+        return BUILDING_BLOCKS;
+    }
+
+    private static void generatePotionEffectTypes(CreativeModeTab.Output param0, Item param1, CreativeModeTab.TabVisibility param2) {
+        for(Potion var0 : BuiltInRegistries.POTION) {
             if (var0 != Potions.EMPTY) {
                 param0.accept(PotionUtils.setPotion(new ItemStack(param1), var0), param2);
             }
@@ -1510,8 +1529,10 @@ public class CreativeModeTabs {
 
     }
 
-    static void generateEnchantmentBookTypesOnlyMaxLevel(CreativeModeTab.Output param0, Set<EnchantmentCategory> param1, CreativeModeTab.TabVisibility param2) {
-        for(Enchantment var0 : Registry.ENCHANTMENT) {
+    private static void generateEnchantmentBookTypesOnlyMaxLevel(
+        CreativeModeTab.Output param0, Set<EnchantmentCategory> param1, CreativeModeTab.TabVisibility param2
+    ) {
+        for(Enchantment var0 : BuiltInRegistries.ENCHANTMENT) {
             if (param1.contains(var0.category)) {
                 param0.accept(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var0, var0.getMaxLevel())), param2);
             }
@@ -1519,8 +1540,10 @@ public class CreativeModeTabs {
 
     }
 
-    static void generateEnchantmentBookTypesAllLevels(CreativeModeTab.Output param0, Set<EnchantmentCategory> param1, CreativeModeTab.TabVisibility param2) {
-        for(Enchantment var0 : Registry.ENCHANTMENT) {
+    private static void generateEnchantmentBookTypesAllLevels(
+        CreativeModeTab.Output param0, Set<EnchantmentCategory> param1, CreativeModeTab.TabVisibility param2
+    ) {
+        for(Enchantment var0 : BuiltInRegistries.ENCHANTMENT) {
             if (param1.contains(var0.category)) {
                 for(int var1 = var0.getMinLevel(); var1 <= var0.getMaxLevel(); ++var1) {
                     param0.accept(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var0, var1)), param2);
@@ -1530,10 +1553,64 @@ public class CreativeModeTabs {
 
     }
 
-    static void generateInstrumentTypes(CreativeModeTab.Output param0, Item param1, TagKey<Instrument> param2, CreativeModeTab.TabVisibility param3) {
-        for(Holder<Instrument> var0 : Registry.INSTRUMENT.getTagOrEmpty(param2)) {
+    private static void generateInstrumentTypes(CreativeModeTab.Output param0, Item param1, TagKey<Instrument> param2, CreativeModeTab.TabVisibility param3) {
+        for(Holder<Instrument> var0 : BuiltInRegistries.INSTRUMENT.getTagOrEmpty(param2)) {
             param0.accept(InstrumentItem.create(param1, var0), param3);
         }
 
+    }
+
+    private static void generateSuspiciousStews(CreativeModeTab.Output param0, CreativeModeTab.TabVisibility param1) {
+        List<SuspiciousEffectHolder> var0 = SuspiciousEffectHolder.getAllEffectHolders();
+        ItemStackLinkedSet var1 = new ItemStackLinkedSet();
+
+        for(SuspiciousEffectHolder var2 : var0) {
+            ItemStack var3 = new ItemStack(Items.SUSPICIOUS_STEW);
+            SuspiciousStewItem.saveMobEffect(var3, var2.getSuspiciousEffect(), var2.getEffectDuration());
+            var1.add(var3);
+        }
+
+        param0.acceptAll(var1, param1);
+    }
+
+    private static void generateFireworksAllDurations(CreativeModeTab.Output param0, CreativeModeTab.TabVisibility param1) {
+        for(byte var0 : FireworkRocketItem.CRAFTABLE_DURATIONS) {
+            ItemStack var1 = new ItemStack(Items.FIREWORK_ROCKET);
+            FireworkRocketItem.setDuration(var1, var0);
+            param0.accept(var1, param1);
+        }
+
+    }
+
+    public static List<CreativeModeTab> tabs() {
+        return TABS.stream().filter(CreativeModeTab::shouldDisplay).toList();
+    }
+
+    public static List<CreativeModeTab> allTabs() {
+        return TABS;
+    }
+
+    public static CreativeModeTab searchTab() {
+        return SEARCH;
+    }
+
+    private static void buildAllTabContents(FeatureFlagSet param0, boolean param1) {
+        TABS.stream().filter(param0x -> param0x.getType() == CreativeModeTab.Type.CATEGORY).forEach(param2 -> param2.buildContents(param0, param1));
+        TABS.stream().filter(param0x -> param0x.getType() != CreativeModeTab.Type.CATEGORY).forEach(param2 -> param2.buildContents(param0, param1));
+    }
+
+    private static boolean wouldRebuildSameContents(FeatureFlagSet param0, boolean param1) {
+        return CACHED_HAS_PERMISSIONS == param1 && param0.equals(CACHED_ENABLED_FEATURES);
+    }
+
+    public static boolean tryRebuildTabContents(FeatureFlagSet param0, boolean param1) {
+        if (wouldRebuildSameContents(param0, param1)) {
+            return false;
+        } else {
+            CACHED_ENABLED_FEATURES = param0;
+            CACHED_HAS_PERMISSIONS = param1;
+            buildAllTabContents(CACHED_ENABLED_FEATURES, CACHED_HAS_PERMISSIONS);
+            return true;
+        }
     }
 }

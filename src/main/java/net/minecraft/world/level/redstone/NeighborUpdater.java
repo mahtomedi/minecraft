@@ -7,7 +7,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -48,10 +48,14 @@ public interface NeighborUpdater {
                 () -> {
                     try {
                         return String.format(
-                            Locale.ROOT, "ID #%s (%s // %s)", Registry.BLOCK.getKey(param3), param3.getDescriptionId(), param3.getClass().getCanonicalName()
+                            Locale.ROOT,
+                            "ID #%s (%s // %s)",
+                            BuiltInRegistries.BLOCK.getKey(param3),
+                            param3.getDescriptionId(),
+                            param3.getClass().getCanonicalName()
                         );
                     } catch (Throwable var2x) {
-                        return "ID #" + Registry.BLOCK.getKey(param3);
+                        return "ID #" + BuiltInRegistries.BLOCK.getKey(param3);
                     }
                 }
             );

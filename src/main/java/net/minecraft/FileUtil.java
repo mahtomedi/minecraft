@@ -158,4 +158,8 @@ public class FileUtil {
 
         }
     }
+
+    public static void createDirectoriesSafe(Path param0) throws IOException {
+        Files.createDirectories(Files.exists(param0) ? param0.toRealPath() : param0);
+    }
 }

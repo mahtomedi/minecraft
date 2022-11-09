@@ -1,7 +1,7 @@
 package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -28,7 +28,7 @@ public class MossBlock extends Block implements BonemealableBlock {
     @Override
     public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         param0.registryAccess()
-            .registry(Registry.CONFIGURED_FEATURE_REGISTRY)
+            .registry(Registries.CONFIGURED_FEATURE)
             .flatMap(param0x -> param0x.getHolder(CaveFeatures.MOSS_PATCH_BONEMEAL))
             .ifPresent(param3x -> param3x.value().place(param0, param0.getChunkSource().getGenerator(), param1, param2.above()));
     }

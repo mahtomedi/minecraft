@@ -9,7 +9,8 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -37,7 +38,7 @@ public class Painting extends HangingEntity {
     private static final ResourceKey<PaintingVariant> DEFAULT_VARIANT = PaintingVariants.KEBAB;
 
     private static Holder<PaintingVariant> getDefaultVariant() {
-        return Registry.PAINTING_VARIANT.getHolderOrThrow(DEFAULT_VARIANT);
+        return BuiltInRegistries.PAINTING_VARIANT.getHolderOrThrow(DEFAULT_VARIANT);
     }
 
     public Painting(EntityType<? extends Painting> param0, Level param1) {
@@ -68,7 +69,7 @@ public class Painting extends HangingEntity {
     public static Optional<Painting> create(Level param0, BlockPos param1, Direction param2) {
         Painting var0 = new Painting(param0, param1);
         List<Holder<PaintingVariant>> var1 = new ArrayList<>();
-        Registry.PAINTING_VARIANT.getTagOrEmpty(PaintingVariantTags.PLACEABLE).forEach(var1::add);
+        BuiltInRegistries.PAINTING_VARIANT.getTagOrEmpty(PaintingVariantTags.PLACEABLE).forEach(var1::add);
         if (var1.isEmpty()) {
             return Optional.empty();
         } else {
@@ -118,8 +119,8 @@ public class Painting extends HangingEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         Holder<PaintingVariant> var0 = Optional.ofNullable(ResourceLocation.tryParse(param0.getString("variant")))
-            .map(param0x -> ResourceKey.create(Registry.PAINTING_VARIANT_REGISTRY, param0x))
-            .flatMap(Registry.PAINTING_VARIANT::getHolder)
+            .map(param0x -> ResourceKey.create(Registries.PAINTING_VARIANT, param0x))
+            .flatMap(BuiltInRegistries.PAINTING_VARIANT::getHolder)
             .map((Function<? super Holder.Reference<PaintingVariant>, ? extends Holder.Reference<PaintingVariant>>)(param0x -> param0x))
             .orElseGet(Painting::getDefaultVariant);
         this.setVariant(var0);

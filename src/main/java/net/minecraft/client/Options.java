@@ -45,6 +45,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.GpuWarnlistManager;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -60,7 +61,6 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -167,15 +167,10 @@ public class Options {
     private final OptionInstance<GraphicsStatus> graphicsMode = new OptionInstance<>(
         "options.graphics",
         param0x -> {
-            List<FormattedCharSequence> var0x = OptionInstance.splitTooltip(param0x, GRAPHICS_TOOLTIP_FAST);
-            List<FormattedCharSequence> var1x = OptionInstance.splitTooltip(param0x, GRAPHICS_TOOLTIP_FANCY);
-            List<FormattedCharSequence> var2x = OptionInstance.splitTooltip(param0x, GRAPHICS_TOOLTIP_FABULOUS);
-            return param3 -> {
-                return switch(param3) {
-                    case FANCY -> var1x;
-                    case FAST -> var0x;
-                    case FABULOUS -> var2x;
-                };
+            return switch(param0x) {
+                case FANCY -> Tooltip.create(GRAPHICS_TOOLTIP_FANCY);
+                case FAST -> Tooltip.create(GRAPHICS_TOOLTIP_FAST);
+                case FABULOUS -> Tooltip.create(GRAPHICS_TOOLTIP_FABULOUS);
             };
         },
         (param0x, param1x) -> {
@@ -228,15 +223,10 @@ public class Options {
     private final OptionInstance<PrioritizeChunkUpdates> prioritizeChunkUpdates = new OptionInstance<>(
         "options.prioritizeChunkUpdates",
         param0x -> {
-            List<FormattedCharSequence> var0x = OptionInstance.splitTooltip(param0x, PRIORITIZE_CHUNK_TOOLTIP_NONE);
-            List<FormattedCharSequence> var1x = OptionInstance.splitTooltip(param0x, PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED);
-            List<FormattedCharSequence> var2x = OptionInstance.splitTooltip(param0x, PRIORITIZE_CHUNK_TOOLTIP_NEARBY);
-            return param3 -> {
-                return switch(param3) {
-                    case NONE -> var0x;
-                    case PLAYER_AFFECTED -> var1x;
-                    case NEARBY -> var2x;
-                };
+            return switch(param0x) {
+                case NONE -> Tooltip.create(PRIORITIZE_CHUNK_TOOLTIP_NONE);
+                case PLAYER_AFFECTED -> Tooltip.create(PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED);
+                case NEARBY -> Tooltip.create(PRIORITIZE_CHUNK_TOOLTIP_NEARBY);
             };
         },
         OptionInstance.forOptionEnum(),
@@ -391,6 +381,7 @@ public class Options {
     });
     public int glDebugVerbosity = 1;
     private final OptionInstance<Boolean> autoJump = OptionInstance.createBoolean("options.autoJump", true);
+    private final OptionInstance<Boolean> operatorItemsTab = OptionInstance.createBoolean("options.operatorItemsTab", false);
     private final OptionInstance<Boolean> autoSuggestions = OptionInstance.createBoolean("options.autoSuggestCommands", true);
     private final OptionInstance<Boolean> chatColors = OptionInstance.createBoolean("options.chat.color", true);
     private final OptionInstance<Boolean> chatLinks = OptionInstance.createBoolean("options.chat.links", true);
@@ -427,15 +418,16 @@ public class Options {
     private final OptionInstance<Boolean> showSubtitles = OptionInstance.createBoolean("options.showSubtitles", false);
     private static final Component DIRECTIONAL_AUDIO_TOOLTIP_ON = Component.translatable("options.directionalAudio.on.tooltip");
     private static final Component DIRECTIONAL_AUDIO_TOOLTIP_OFF = Component.translatable("options.directionalAudio.off.tooltip");
-    private final OptionInstance<Boolean> directionalAudio = OptionInstance.createBoolean("options.directionalAudio", param0x -> {
-        List<FormattedCharSequence> var0x = OptionInstance.splitTooltip(param0x, DIRECTIONAL_AUDIO_TOOLTIP_ON);
-        List<FormattedCharSequence> var1x = OptionInstance.splitTooltip(param0x, DIRECTIONAL_AUDIO_TOOLTIP_OFF);
-        return param2 -> param2 ? var0x : var1x;
-    }, false, param0x -> {
-        SoundManager var0x = Minecraft.getInstance().getSoundManager();
-        var0x.reload();
-        var0x.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-    });
+    private final OptionInstance<Boolean> directionalAudio = OptionInstance.createBoolean(
+        "options.directionalAudio",
+        param0x -> param0x ? Tooltip.create(DIRECTIONAL_AUDIO_TOOLTIP_ON) : Tooltip.create(DIRECTIONAL_AUDIO_TOOLTIP_OFF),
+        false,
+        param0x -> {
+            SoundManager var0x = Minecraft.getInstance().getSoundManager();
+            var0x.reload();
+            var0x.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+    );
     private final OptionInstance<Boolean> backgroundForChatOnly = new OptionInstance<>(
         "options.accessibility.text_background",
         OptionInstance.noTooltip(),
@@ -800,6 +792,10 @@ public class Options {
         return this.autoJump;
     }
 
+    public OptionInstance<Boolean> operatorItemsTab() {
+        return this.operatorItemsTab;
+    }
+
     public OptionInstance<Boolean> autoSuggestions() {
         return this.autoSuggestions;
     }
@@ -992,6 +988,7 @@ public class Options {
 
     private void processOptions(Options.FieldAccess param0) {
         param0.process("autoJump", this.autoJump);
+        param0.process("operatorItemsTab", this.operatorItemsTab);
         param0.process("autoSuggestions", this.autoSuggestions);
         param0.process("chatColors", this.chatColors);
         param0.process("chatLinks", this.chatLinks);

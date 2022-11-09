@@ -106,7 +106,7 @@ public abstract class AbstractContainerWidget extends AbstractWidget implements 
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
+    public void updateWidgetNarration(NarrationElementOutput param0) {
         GuiEventListener var0 = this.getHovered();
         if (var0 != null) {
             if (var0 instanceof NarrationSupplier var1) {

@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleListIterator;
 import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.util.RandomSource;
 
@@ -101,7 +101,7 @@ public class NormalNoise {
                     )
                     .apply(param0, NormalNoise.NoiseParameters::new)
         );
-        public static final Codec<Holder<NormalNoise.NoiseParameters>> CODEC = RegistryFileCodec.create(Registry.NOISE_REGISTRY, DIRECT_CODEC);
+        public static final Codec<Holder<NormalNoise.NoiseParameters>> CODEC = RegistryFileCodec.create(Registries.NOISE, DIRECT_CODEC);
 
         public NoiseParameters(int param0, List<Double> param1) {
             this(param0, new DoubleArrayList(param1));

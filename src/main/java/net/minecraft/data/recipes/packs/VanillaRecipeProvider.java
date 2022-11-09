@@ -60,15 +60,15 @@ public class VanillaRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> param0) {
         generateForEnabledBlockFamilies(param0, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        planksFromLog(param0, Blocks.ACACIA_PLANKS, ItemTags.ACACIA_LOGS);
-        planksFromLogs(param0, Blocks.BIRCH_PLANKS, ItemTags.BIRCH_LOGS);
-        planksFromLogs(param0, Blocks.CRIMSON_PLANKS, ItemTags.CRIMSON_STEMS);
-        planksFromLog(param0, Blocks.DARK_OAK_PLANKS, ItemTags.DARK_OAK_LOGS);
-        planksFromLogs(param0, Blocks.JUNGLE_PLANKS, ItemTags.JUNGLE_LOGS);
-        planksFromLogs(param0, Blocks.OAK_PLANKS, ItemTags.OAK_LOGS);
-        planksFromLogs(param0, Blocks.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS);
-        planksFromLogs(param0, Blocks.WARPED_PLANKS, ItemTags.WARPED_STEMS);
-        planksFromLogs(param0, Blocks.MANGROVE_PLANKS, ItemTags.MANGROVE_LOGS);
+        planksFromLog(param0, Blocks.ACACIA_PLANKS, ItemTags.ACACIA_LOGS, 4);
+        planksFromLogs(param0, Blocks.BIRCH_PLANKS, ItemTags.BIRCH_LOGS, 4);
+        planksFromLogs(param0, Blocks.CRIMSON_PLANKS, ItemTags.CRIMSON_STEMS, 4);
+        planksFromLog(param0, Blocks.DARK_OAK_PLANKS, ItemTags.DARK_OAK_LOGS, 4);
+        planksFromLogs(param0, Blocks.JUNGLE_PLANKS, ItemTags.JUNGLE_LOGS, 4);
+        planksFromLogs(param0, Blocks.OAK_PLANKS, ItemTags.OAK_LOGS, 4);
+        planksFromLogs(param0, Blocks.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS, 4);
+        planksFromLogs(param0, Blocks.WARPED_PLANKS, ItemTags.WARPED_STEMS, 4);
+        planksFromLogs(param0, Blocks.MANGROVE_PLANKS, ItemTags.MANGROVE_LOGS, 4);
         woodFromLogs(param0, Blocks.ACACIA_WOOD, Blocks.ACACIA_LOG);
         woodFromLogs(param0, Blocks.BIRCH_WOOD, Blocks.BIRCH_LOG);
         woodFromLogs(param0, Blocks.DARK_OAK_WOOD, Blocks.DARK_OAK_LOG);
@@ -395,13 +395,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy("has_lapis_lazuli", has(Items.LAPIS_LAZULI))
             .save(param0);
         oneToOneConversionRecipe(param0, Items.BLUE_DYE, Blocks.CORNFLOWER, "blue_dye");
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE)
-            .define('#', Blocks.PACKED_ICE)
-            .pattern("###")
-            .pattern("###")
-            .pattern("###")
-            .unlockedBy("has_packed_ice", has(Blocks.PACKED_ICE))
-            .save(param0);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.BLUE_ICE, Blocks.PACKED_ICE);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.BONE_MEAL, 3)
             .requires(Items.BONE)
             .group("bonemeal")
@@ -548,12 +542,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
         chiseledBuilder(RecipeCategory.BUILDING_BLOCKS, Blocks.CHISELED_STONE_BRICKS, Ingredient.of(Blocks.STONE_BRICK_SLAB))
             .unlockedBy("has_tag", has(ItemTags.STONE_BRICKS))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.CLAY)
-            .define('#', Items.CLAY_BALL)
-            .pattern("##")
-            .pattern("##")
-            .unlockedBy("has_clay_ball", has(Items.CLAY_BALL))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.CLAY, Items.CLAY_BALL);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.CLOCK)
             .define('#', Items.GOLD_INGOT)
             .define('X', Items.REDSTONE)
@@ -882,12 +871,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("###")
             .unlockedBy("has_glass", has(Blocks.GLASS))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.GLOWSTONE)
-            .define('#', Items.GLOWSTONE_DUST)
-            .pattern("##")
-            .pattern("##")
-            .unlockedBy("has_glowstone_dust", has(Items.GLOWSTONE_DUST))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.GLOWSTONE, Items.GLOWSTONE_DUST);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, Items.GLOW_ITEM_FRAME)
             .requires(Items.ITEM_FRAME)
             .requires(Items.GLOW_INK_SAC)
@@ -1002,31 +986,15 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy("has_white_dye", has(Items.WHITE_DYE))
             .unlockedBy("has_black_dye", has(Items.BLACK_DYE))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.HAY_BLOCK)
-            .define('#', Items.WHEAT)
-            .pattern("###")
-            .pattern("###")
-            .pattern("###")
-            .unlockedBy("has_wheat", has(Items.WHEAT))
-            .save(param0);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.HAY_BLOCK, Items.WHEAT);
         pressurePlate(param0, Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Items.IRON_INGOT);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, Items.HONEY_BOTTLE, 4)
             .requires(Items.HONEY_BLOCK)
             .requires(Items.GLASS_BOTTLE, 4)
             .unlockedBy("has_honey_block", has(Blocks.HONEY_BLOCK))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Blocks.HONEY_BLOCK, 1)
-            .define('S', Items.HONEY_BOTTLE)
-            .pattern("SS")
-            .pattern("SS")
-            .unlockedBy("has_honey_bottle", has(Items.HONEY_BOTTLE))
-            .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Blocks.HONEYCOMB_BLOCK)
-            .define('H', Items.HONEYCOMB)
-            .pattern("HH")
-            .pattern("HH")
-            .unlockedBy("has_honeycomb", has(Items.HONEYCOMB))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.REDSTONE, Blocks.HONEY_BLOCK, Items.HONEY_BOTTLE);
+        twoByTwoPacker(param0, RecipeCategory.DECORATIONS, Blocks.HONEYCOMB_BLOCK, Items.HONEYCOMB);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Blocks.HOPPER)
             .define('C', Blocks.CHEST)
             .define('I', Items.IRON_INGOT)
@@ -1152,12 +1120,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("  ~")
             .unlockedBy("has_slime_ball", has(Items.SLIME_BALL))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.LEATHER)
-            .define('#', Items.RABBIT_HIDE)
-            .pattern("##")
-            .pattern("##")
-            .unlockedBy("has_rabbit_hide", has(Items.RABBIT_HIDE))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.MISC, Items.LEATHER, Items.RABBIT_HIDE);
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.LEATHER_BOOTS)
             .define('X', Items.LEATHER)
             .pattern("X X")
@@ -1279,12 +1242,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy("has_pink_dye", has(Items.PINK_DYE))
             .unlockedBy("has_purple_dye", has(Items.PURPLE_DYE))
             .save(param0, "magenta_dye_from_purple_and_pink");
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.MAGMA_BLOCK)
-            .define('#', Items.MAGMA_CREAM)
-            .pattern("##")
-            .pattern("##")
-            .unlockedBy("has_magma_cream", has(Items.MAGMA_CREAM))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.MAGMA_BLOCK, Items.MAGMA_CREAM);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BREWING, Items.MAGMA_CREAM)
             .requires(Items.BLAZE_POWDER)
             .requires(Items.SLIME_BALL)
@@ -1298,13 +1256,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("###")
             .unlockedBy("has_compass", has(Items.COMPASS))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.MELON)
-            .define('M', Items.MELON_SLICE)
-            .pattern("MMM")
-            .pattern("MMM")
-            .pattern("MMM")
-            .unlockedBy("has_melon", has(Items.MELON_SLICE))
-            .save(param0);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.MELON, Items.MELON_SLICE, "has_melon");
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.MELON_SEEDS)
             .requires(Items.MELON_SLICE)
             .unlockedBy("has_melon", has(Items.MELON_SLICE))
@@ -1349,13 +1301,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy("has_red_mushroom", has(Blocks.RED_MUSHROOM))
             .save(param0);
         twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.NETHER_BRICKS, Items.NETHER_BRICK);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.NETHER_WART_BLOCK)
-            .define('#', Items.NETHER_WART)
-            .pattern("###")
-            .pattern("###")
-            .pattern("###")
-            .unlockedBy("has_nether_wart", has(Items.NETHER_WART))
-            .save(param0);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.NETHER_WART_BLOCK, Items.NETHER_WART);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Blocks.NOTE_BLOCK)
             .define('#', ItemTags.PLANKS)
             .define('X', Items.REDSTONE)
@@ -1402,10 +1348,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy("has_quartz_block", has(Blocks.QUARTZ_BLOCK))
             .unlockedBy("has_quartz_pillar", has(Blocks.QUARTZ_PILLAR))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Blocks.PACKED_ICE)
-            .requires(Blocks.ICE, 9)
-            .unlockedBy("has_ice", has(Blocks.ICE))
-            .save(param0);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.PACKED_ICE, Blocks.ICE);
         oneToOneConversionRecipe(param0, Items.PINK_DYE, Blocks.PEONY, "pink_dye", 2);
         oneToOneConversionRecipe(param0, Items.PINK_DYE, Blocks.PINK_TULIP, "pink_dye");
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.PINK_DYE, 2)
@@ -1426,19 +1369,8 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy("has_redstone", has(Items.REDSTONE))
             .save(param0);
         polished(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.POLISHED_BASALT, Blocks.BASALT);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.PRISMARINE)
-            .define('S', Items.PRISMARINE_SHARD)
-            .pattern("SS")
-            .pattern("SS")
-            .unlockedBy("has_prismarine_shard", has(Items.PRISMARINE_SHARD))
-            .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.PRISMARINE_BRICKS)
-            .define('S', Items.PRISMARINE_SHARD)
-            .pattern("SSS")
-            .pattern("SSS")
-            .pattern("SSS")
-            .unlockedBy("has_prismarine_shard", has(Items.PRISMARINE_SHARD))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.PRISMARINE, Items.PRISMARINE_SHARD);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.PRISMARINE_BRICKS, Items.PRISMARINE_SHARD);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, Items.PUMPKIN_PIE)
             .requires(Blocks.PUMPKIN)
             .requires(Items.SUGAR)
@@ -1482,12 +1414,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
         stairBuilder(Blocks.PURPUR_STAIRS, Ingredient.of(Blocks.PURPUR_BLOCK, Blocks.PURPUR_PILLAR))
             .unlockedBy("has_purpur_block", has(Blocks.PURPUR_BLOCK))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.QUARTZ_BLOCK)
-            .define('#', Items.QUARTZ)
-            .pattern("##")
-            .pattern("##")
-            .unlockedBy("has_quartz", has(Items.QUARTZ))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.QUARTZ_BLOCK, Items.QUARTZ);
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.QUARTZ_BRICKS, 4)
             .define('#', Blocks.QUARTZ_BLOCK)
             .pattern("##")
@@ -1619,12 +1546,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
         nineBlockStorageRecipes(param0, RecipeCategory.MISC, Items.SLIME_BALL, RecipeCategory.REDSTONE, Items.SLIME_BLOCK);
         cut(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.CUT_RED_SANDSTONE, Blocks.RED_SANDSTONE);
         cut(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.CUT_SANDSTONE, Blocks.SANDSTONE);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.SNOW_BLOCK)
-            .define('#', Items.SNOWBALL)
-            .pattern("##")
-            .pattern("##")
-            .unlockedBy("has_snowball", has(Items.SNOWBALL))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.SNOW_BLOCK, Items.SNOWBALL);
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Blocks.SNOW, 6)
             .define('#', Blocks.SNOW_BLOCK)
             .pattern("###")
@@ -2026,12 +1948,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern(" S ")
             .unlockedBy("has_amethyst_shard", has(Items.AMETHYST_SHARD))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.AMETHYST_BLOCK)
-            .define('S', Items.AMETHYST_SHARD)
-            .pattern("SS")
-            .pattern("SS")
-            .unlockedBy("has_amethyst_shard", has(Items.AMETHYST_SHARD))
-            .save(param0);
+        twoByTwoPacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.AMETHYST_BLOCK, Items.AMETHYST_SHARD);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.RECOVERY_COMPASS)
             .define('C', Items.COMPASS)
             .define('S', Items.ECHO_SHARD)
@@ -2040,13 +1957,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("SSS")
             .unlockedBy("has_echo_shard", has(Items.ECHO_SHARD))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.MUSIC_DISC_5)
-            .define('S', Items.DISC_FRAGMENT_5)
-            .pattern("SSS")
-            .pattern("SSS")
-            .pattern("SSS")
-            .unlockedBy("has_disc_fragment_5", has(Items.DISC_FRAGMENT_5))
-            .save(param0);
+        threeByThreePacker(param0, RecipeCategory.MISC, Items.MUSIC_DISC_5, Items.DISC_FRAGMENT_5);
         SpecialRecipeBuilder.special(RecipeSerializer.ARMOR_DYE).save(param0, "armor_dye");
         SpecialRecipeBuilder.special(RecipeSerializer.BANNER_DUPLICATE).save(param0, "banner_duplicate");
         SpecialRecipeBuilder.special(RecipeSerializer.BOOK_CLONING).save(param0, "book_cloning");

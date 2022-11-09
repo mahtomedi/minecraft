@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.placement.VillagePlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -17,15 +17,15 @@ public class SnowyVillagePools {
     private static final ResourceKey<StructureTemplatePool> TERMINATORS_KEY = Pools.createKey("village/snowy/terminators");
 
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
+        HolderGetter<PlacedFeature> var0 = param0.lookup(Registries.PLACED_FEATURE);
         Holder<PlacedFeature> var1 = var0.getOrThrow(VillagePlacements.SPRUCE_VILLAGE);
         Holder<PlacedFeature> var2 = var0.getOrThrow(VillagePlacements.PILE_SNOW_VILLAGE);
         Holder<PlacedFeature> var3 = var0.getOrThrow(VillagePlacements.PILE_ICE_VILLAGE);
-        HolderGetter<StructureProcessorList> var4 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<StructureProcessorList> var4 = param0.lookup(Registries.PROCESSOR_LIST);
         Holder<StructureProcessorList> var5 = var4.getOrThrow(ProcessorLists.STREET_SNOWY_OR_TAIGA);
         Holder<StructureProcessorList> var6 = var4.getOrThrow(ProcessorLists.FARM_SNOWY);
         Holder<StructureProcessorList> var7 = var4.getOrThrow(ProcessorLists.ZOMBIE_SNOWY);
-        HolderGetter<StructureTemplatePool> var8 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var8 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var9 = var8.getOrThrow(Pools.EMPTY);
         Holder<StructureTemplatePool> var10 = var8.getOrThrow(TERMINATORS_KEY);
         param0.register(

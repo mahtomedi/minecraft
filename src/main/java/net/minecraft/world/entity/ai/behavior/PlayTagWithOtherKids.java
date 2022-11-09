@@ -1,25 +1,22 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.phys.Vec3;
 
-public class PlayTagWithOtherKids extends Behavior<PathfinderMob> {
+public class PlayTagWithOtherKids {
     private static final int MAX_FLEE_XZ_DIST = 20;
     private static final int MAX_FLEE_Y_DIST = 8;
     private static final float FLEE_SPEED_MODIFIER = 0.6F;
@@ -27,63 +24,55 @@ public class PlayTagWithOtherKids extends Behavior<PathfinderMob> {
     private static final int MAX_CHASERS_PER_TARGET = 5;
     private static final int AVERAGE_WAIT_TIME_BETWEEN_RUNS = 10;
 
-    public PlayTagWithOtherKids() {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.VISIBLE_VILLAGER_BABIES,
-                MemoryStatus.VALUE_PRESENT,
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.INTERACTION_TARGET,
-                MemoryStatus.REGISTERED
-            )
+    public static BehaviorControl<PathfinderMob> create() {
+        return BehaviorBuilder.create(
+            param0 -> param0.<MemoryAccessor, MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param0.present(MemoryModuleType.VISIBLE_VILLAGER_BABIES),
+                        param0.absent(MemoryModuleType.WALK_TARGET),
+                        param0.registered(MemoryModuleType.LOOK_TARGET),
+                        param0.registered(MemoryModuleType.INTERACTION_TARGET)
+                    )
+                    .apply(param0, (param1, param2, param3, param4) -> (param5, param6, param7) -> {
+                            if (param5.getRandom().nextInt(10) != 0) {
+                                return false;
+                            } else {
+                                List<LivingEntity> var0x = param0.get(param1);
+                                Optional<LivingEntity> var1x = var0x.stream().filter(param1x -> isFriendChasingMe(param6, param1x)).findAny();
+                                if (!var1x.isPresent()) {
+                                    Optional<LivingEntity> var4 = findSomeoneBeingChased(var0x);
+                                    if (var4.isPresent()) {
+                                        chaseKid(param4, param3, param2, var4.get());
+                                        return true;
+                                    } else {
+                                        var0x.stream().findAny().ifPresent(param3x -> chaseKid(param4, param3, param2, param3x));
+                                        return true;
+                                    }
+                                } else {
+                                    for(int var4x = 0; var4x < 10; ++var4x) {
+                                        Vec3 var3x = LandRandomPos.getPos(param6, 20, 8);
+                                        if (var3x != null && param5.isVillage(new BlockPos(var3x))) {
+                                            param2.set(new WalkTarget(var3x, 0.6F, 0));
+                                            break;
+                                        }
+                                    }
+        
+                                    return true;
+                                }
+                            }
+                        })
         );
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
-        return param0.getRandom().nextInt(10) == 0 && this.hasFriendsNearby(param1);
+    private static void chaseKid(
+        MemoryAccessor<?, LivingEntity> param0, MemoryAccessor<?, PositionTracker> param1, MemoryAccessor<?, WalkTarget> param2, LivingEntity param3
+    ) {
+        param0.set(param3);
+        param1.set(new EntityTracker(param3, true));
+        param2.set(new WalkTarget(new EntityTracker(param3, false), 0.6F, 1));
     }
 
-    protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        LivingEntity var0 = this.seeIfSomeoneIsChasingMe(param1);
-        if (var0 != null) {
-            this.fleeFromChaser(param0, param1, var0);
-        } else {
-            Optional<LivingEntity> var1 = this.findSomeoneBeingChased(param1);
-            if (var1.isPresent()) {
-                chaseKid(param1, var1.get());
-            } else {
-                this.findSomeoneToChase(param1).ifPresent(param1x -> chaseKid(param1, param1x));
-            }
-        }
-    }
-
-    private void fleeFromChaser(ServerLevel param0, PathfinderMob param1, LivingEntity param2) {
-        for(int var0 = 0; var0 < 10; ++var0) {
-            Vec3 var1 = LandRandomPos.getPos(param1, 20, 8);
-            if (var1 != null && param0.isVillage(new BlockPos(var1))) {
-                param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var1, 0.6F, 0));
-                return;
-            }
-        }
-
-    }
-
-    private static void chaseKid(PathfinderMob param0, LivingEntity param1) {
-        Brain<?> var0 = param0.getBrain();
-        var0.setMemory(MemoryModuleType.INTERACTION_TARGET, param1);
-        var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1, true));
-        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(param1, false), 0.6F, 1));
-    }
-
-    private Optional<LivingEntity> findSomeoneToChase(PathfinderMob param0) {
-        return this.getFriendsNearby(param0).stream().findAny();
-    }
-
-    private Optional<LivingEntity> findSomeoneBeingChased(PathfinderMob param0) {
-        Map<LivingEntity, Integer> var0 = this.checkHowManyChasersEachFriendHas(param0);
+    private static Optional<LivingEntity> findSomeoneBeingChased(List<LivingEntity> param0) {
+        Map<LivingEntity, Integer> var0 = checkHowManyChasersEachFriendHas(param0);
         return var0.entrySet()
             .stream()
             .sorted(Comparator.comparingInt(Entry::getValue))
@@ -92,43 +81,23 @@ public class PlayTagWithOtherKids extends Behavior<PathfinderMob> {
             .findFirst();
     }
 
-    private Map<LivingEntity, Integer> checkHowManyChasersEachFriendHas(PathfinderMob param0) {
+    private static Map<LivingEntity, Integer> checkHowManyChasersEachFriendHas(List<LivingEntity> param0) {
         Map<LivingEntity, Integer> var0 = Maps.newHashMap();
-        this.getFriendsNearby(param0)
-            .stream()
-            .filter(this::isChasingSomeone)
-            .forEach(param1 -> var0.compute(this.whoAreYouChasing(param1), (param0x, param1x) -> param1x == null ? 1 : param1x + 1));
+        param0.stream()
+            .filter(PlayTagWithOtherKids::isChasingSomeone)
+            .forEach(param1 -> var0.compute(whoAreYouChasing(param1), (param0x, param1x) -> param1x == null ? 1 : param1x + 1));
         return var0;
     }
 
-    private List<LivingEntity> getFriendsNearby(PathfinderMob param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.VISIBLE_VILLAGER_BABIES).get();
-    }
-
-    private LivingEntity whoAreYouChasing(LivingEntity param0) {
+    private static LivingEntity whoAreYouChasing(LivingEntity param0) {
         return param0.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).get();
     }
 
-    @Nullable
-    private LivingEntity seeIfSomeoneIsChasingMe(LivingEntity param0) {
-        return param0.getBrain()
-            .getMemory(MemoryModuleType.VISIBLE_VILLAGER_BABIES)
-            .get()
-            .stream()
-            .filter(param1 -> this.isFriendChasingMe(param0, param1))
-            .findAny()
-            .orElse(null);
-    }
-
-    private boolean isChasingSomeone(LivingEntity param0x) {
+    private static boolean isChasingSomeone(LivingEntity param0x) {
         return param0x.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).isPresent();
     }
 
-    private boolean isFriendChasingMe(LivingEntity param0, LivingEntity param1) {
+    private static boolean isFriendChasingMe(LivingEntity param0, LivingEntity param1) {
         return param1.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).filter(param1x -> param1x == param0).isPresent();
-    }
-
-    private boolean hasFriendsNearby(PathfinderMob param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.VISIBLE_VILLAGER_BABIES);
     }
 }

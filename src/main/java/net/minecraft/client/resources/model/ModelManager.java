@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -154,7 +153,7 @@ public class ModelManager implements PreparableReloadListener, AutoCloseable {
                                 }
         
                                 return var2x;
-                            } catch (IOException var6) {
+                            } catch (Exception var6) {
                                 LOGGER.error("Failed to load model {}", var1x.getKey(), var6);
                                 return null;
                             }
@@ -184,7 +183,7 @@ public class ModelManager implements PreparableReloadListener, AutoCloseable {
                                 try (Reader var3 = var2x.openAsReader()) {
                                     JsonObject var4x = GsonHelper.parse(var3);
                                     var1xx.add(new ModelBakery.LoadedJson(var2x.sourcePackId(), var4x));
-                                } catch (IOException var10) {
+                                } catch (Exception var10) {
                                     LOGGER.error("Failed to load blockstate {} from pack {}", var1x.getKey(), var2x.sourcePackId(), var10);
                                 }
                             }
@@ -229,7 +228,7 @@ public class ModelManager implements PreparableReloadListener, AutoCloseable {
         BakedModel var2 = var1.get(ModelBakery.MISSING_MODEL_LOCATION);
         Map<BlockState, BakedModel> var3 = new IdentityHashMap<>();
 
-        for(Block var4 : Registry.BLOCK) {
+        for(Block var4 : BuiltInRegistries.BLOCK) {
             var4.getStateDefinition().getPossibleStates().forEach(param3 -> {
                 ResourceLocation var0x = param3.getBlock().builtInRegistryHolder().key().location();
                 BakedModel var1x = var1.getOrDefault(BlockModelShaper.stateToModelLocation(var0x, param3), var2);

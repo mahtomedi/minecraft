@@ -1,7 +1,7 @@
 package net.minecraft.network.protocol.game;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.effect.MobEffect;
@@ -19,13 +19,13 @@ public class ClientboundRemoveMobEffectPacket implements Packet<ClientGamePacket
 
     public ClientboundRemoveMobEffectPacket(FriendlyByteBuf param0) {
         this.entityId = param0.readVarInt();
-        this.effect = param0.readById(Registry.MOB_EFFECT);
+        this.effect = param0.readById(BuiltInRegistries.MOB_EFFECT);
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeVarInt(this.entityId);
-        param0.writeId(Registry.MOB_EFFECT, this.effect);
+        param0.writeId(BuiltInRegistries.MOB_EFFECT, this.effect);
     }
 
     public void handle(ClientGamePacketListener param0) {

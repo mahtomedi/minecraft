@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.CommonComponents;
@@ -126,7 +126,7 @@ public class PotionUtils {
     }
 
     public static ItemStack setPotion(ItemStack param0, Potion param1) {
-        ResourceLocation var0 = Registry.POTION.getKey(param1);
+        ResourceLocation var0 = BuiltInRegistries.POTION.getKey(param1);
         if (param1 == Potions.EMPTY) {
             param0.removeTagKey("Potion");
         } else {
@@ -153,67 +153,70 @@ public class PotionUtils {
     }
 
     public static void addPotionTooltip(ItemStack param0, List<Component> param1, float param2) {
-        List<MobEffectInstance> var0 = getMobEffects(param0);
-        List<Pair<Attribute, AttributeModifier>> var1 = Lists.newArrayList();
-        if (var0.isEmpty()) {
+        addPotionTooltip(getMobEffects(param0), param1, param2);
+    }
+
+    public static void addPotionTooltip(List<MobEffectInstance> param0, List<Component> param1, float param2) {
+        List<Pair<Attribute, AttributeModifier>> var0 = Lists.newArrayList();
+        if (param0.isEmpty()) {
             param1.add(NO_EFFECT);
         } else {
-            for(MobEffectInstance var2 : var0) {
-                MutableComponent var3 = Component.translatable(var2.getDescriptionId());
-                MobEffect var4 = var2.getEffect();
-                Map<Attribute, AttributeModifier> var5 = var4.getAttributeModifiers();
-                if (!var5.isEmpty()) {
-                    for(Entry<Attribute, AttributeModifier> var6 : var5.entrySet()) {
-                        AttributeModifier var7 = var6.getValue();
-                        AttributeModifier var8 = new AttributeModifier(
-                            var7.getName(), var4.getAttributeModifierValue(var2.getAmplifier(), var7), var7.getOperation()
+            for(MobEffectInstance var1 : param0) {
+                MutableComponent var2 = Component.translatable(var1.getDescriptionId());
+                MobEffect var3 = var1.getEffect();
+                Map<Attribute, AttributeModifier> var4 = var3.getAttributeModifiers();
+                if (!var4.isEmpty()) {
+                    for(Entry<Attribute, AttributeModifier> var5 : var4.entrySet()) {
+                        AttributeModifier var6 = var5.getValue();
+                        AttributeModifier var7 = new AttributeModifier(
+                            var6.getName(), var3.getAttributeModifierValue(var1.getAmplifier(), var6), var6.getOperation()
                         );
-                        var1.add(new Pair<>(var6.getKey(), var8));
+                        var0.add(new Pair<>(var5.getKey(), var7));
                     }
                 }
 
-                if (var2.getAmplifier() > 0) {
-                    var3 = Component.translatable("potion.withAmplifier", var3, Component.translatable("potion.potency." + var2.getAmplifier()));
+                if (var1.getAmplifier() > 0) {
+                    var2 = Component.translatable("potion.withAmplifier", var2, Component.translatable("potion.potency." + var1.getAmplifier()));
                 }
 
-                if (var2.getDuration() > 20) {
-                    var3 = Component.translatable("potion.withDuration", var3, MobEffectUtil.formatDuration(var2, param2));
+                if (var1.getDuration() > 20) {
+                    var2 = Component.translatable("potion.withDuration", var2, MobEffectUtil.formatDuration(var1, param2));
                 }
 
-                param1.add(var3.withStyle(var4.getCategory().getTooltipFormatting()));
+                param1.add(var2.withStyle(var3.getCategory().getTooltipFormatting()));
             }
         }
 
-        if (!var1.isEmpty()) {
+        if (!var0.isEmpty()) {
             param1.add(CommonComponents.EMPTY);
             param1.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
 
-            for(Pair<Attribute, AttributeModifier> var9 : var1) {
-                AttributeModifier var10 = var9.getSecond();
-                double var11 = var10.getAmount();
-                double var13;
-                if (var10.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && var10.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                    var13 = var10.getAmount();
+            for(Pair<Attribute, AttributeModifier> var8 : var0) {
+                AttributeModifier var9 = var8.getSecond();
+                double var10 = var9.getAmount();
+                double var12;
+                if (var9.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && var9.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                    var12 = var9.getAmount();
                 } else {
-                    var13 = var10.getAmount() * 100.0;
+                    var12 = var9.getAmount() * 100.0;
                 }
 
-                if (var11 > 0.0) {
+                if (var10 > 0.0) {
                     param1.add(
                         Component.translatable(
-                                "attribute.modifier.plus." + var10.getOperation().toValue(),
-                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var13),
-                                Component.translatable(var9.getFirst().getDescriptionId())
+                                "attribute.modifier.plus." + var9.getOperation().toValue(),
+                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var12),
+                                Component.translatable(var8.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.BLUE)
                     );
-                } else if (var11 < 0.0) {
-                    var13 *= -1.0;
+                } else if (var10 < 0.0) {
+                    var12 *= -1.0;
                     param1.add(
                         Component.translatable(
-                                "attribute.modifier.take." + var10.getOperation().toValue(),
-                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var13),
-                                Component.translatable(var9.getFirst().getDescriptionId())
+                                "attribute.modifier.take." + var9.getOperation().toValue(),
+                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var12),
+                                Component.translatable(var8.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.RED)
                     );

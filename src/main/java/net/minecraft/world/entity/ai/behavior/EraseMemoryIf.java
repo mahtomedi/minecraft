@@ -1,29 +1,20 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.function.Predicate;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public class EraseMemoryIf<E extends LivingEntity> extends Behavior<E> {
-    private final Predicate<E> predicate;
-    private final MemoryModuleType<?> memoryType;
-
-    public EraseMemoryIf(Predicate<E> param0, MemoryModuleType<?> param1) {
-        super(ImmutableMap.of(param1, MemoryStatus.VALUE_PRESENT));
-        this.predicate = param0;
-        this.memoryType = param1;
-    }
-
-    @Override
-    protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        return this.predicate.test(param1);
-    }
-
-    @Override
-    protected void start(ServerLevel param0, E param1, long param2) {
-        param1.getBrain().eraseMemory(this.memoryType);
+public class EraseMemoryIf {
+    public static <E extends LivingEntity> BehaviorControl<E> create(Predicate<E> param0, MemoryModuleType<?> param1) {
+        return BehaviorBuilder.create(param2 -> param2.<MemoryAccessor>group(param2.present(param1)).apply(param2, param1x -> (param2x, param3, param4) -> {
+                    if (param0.test(param3)) {
+                        param1x.erase();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }));
     }
 }

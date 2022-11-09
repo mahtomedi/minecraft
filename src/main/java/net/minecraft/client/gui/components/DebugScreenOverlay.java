@@ -42,8 +42,8 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -458,7 +458,7 @@ public class DebugScreenOverlay extends GuiComponent {
                 BlockState var6 = this.minecraft.level.getBlockState(var5);
                 var4.add("");
                 var4.add(ChatFormatting.UNDERLINE + "Targeted Block: " + var5.getX() + ", " + var5.getY() + ", " + var5.getZ());
-                var4.add(String.valueOf(Registry.BLOCK.getKey(var6.getBlock())));
+                var4.add(String.valueOf(BuiltInRegistries.BLOCK.getKey(var6.getBlock())));
 
                 for(Entry<Property<?>, Comparable<?>> var7 : var6.getValues().entrySet()) {
                     var4.add(this.getPropertyValueString(var7));
@@ -472,7 +472,7 @@ public class DebugScreenOverlay extends GuiComponent {
                 FluidState var9 = this.minecraft.level.getFluidState(var8);
                 var4.add("");
                 var4.add(ChatFormatting.UNDERLINE + "Targeted Fluid: " + var8.getX() + ", " + var8.getY() + ", " + var8.getZ());
-                var4.add(String.valueOf(Registry.FLUID.getKey(var9.getType())));
+                var4.add(String.valueOf(BuiltInRegistries.FLUID.getKey(var9.getType())));
 
                 for(Entry<Property<?>, Comparable<?>> var10 : var9.getValues().entrySet()) {
                     var4.add(this.getPropertyValueString(var10));
@@ -485,7 +485,7 @@ public class DebugScreenOverlay extends GuiComponent {
             if (var11 != null) {
                 var4.add("");
                 var4.add(ChatFormatting.UNDERLINE + "Targeted Entity");
-                var4.add(String.valueOf(Registry.ENTITY_TYPE.getKey(var11.getType())));
+                var4.add(String.valueOf(BuiltInRegistries.ENTITY_TYPE.getKey(var11.getType())));
             }
 
             return var4;

@@ -4,7 +4,7 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,7 +59,7 @@ public class DebugStickItem extends Item {
             Block var0 = param1.getBlock();
             StateDefinition<Block, BlockState> var1 = var0.getStateDefinition();
             Collection<Property<?>> var2 = var1.getProperties();
-            String var3 = Registry.BLOCK.getKey(var0).toString();
+            String var3 = BuiltInRegistries.BLOCK.getKey(var0).toString();
             if (var2.isEmpty()) {
                 message(param0, Component.translatable(this.getDescriptionId() + ".empty", var3));
                 return false;

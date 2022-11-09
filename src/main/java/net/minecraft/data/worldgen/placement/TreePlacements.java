@@ -4,7 +4,7 @@ import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.resources.ResourceKey;
@@ -48,7 +48,7 @@ public class TreePlacements {
     public static final ResourceKey<PlacedFeature> FANCY_OAK_BEES = PlacementUtils.createKey("fancy_oak_bees");
 
     public static void bootstrap(BootstapContext<PlacedFeature> param0) {
-        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registry.CONFIGURED_FEATURE_REGISTRY);
+        HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
         Holder<ConfiguredFeature<?, ?>> var1 = var0.getOrThrow(TreeFeatures.CRIMSON_FUNGUS);
         Holder<ConfiguredFeature<?, ?>> var2 = var0.getOrThrow(TreeFeatures.WARPED_FUNGUS);
         Holder<ConfiguredFeature<?, ?>> var3 = var0.getOrThrow(TreeFeatures.OAK);

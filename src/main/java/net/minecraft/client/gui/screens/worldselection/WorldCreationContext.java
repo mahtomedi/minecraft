@@ -5,6 +5,7 @@ import java.util.function.UnaryOperator;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.world.level.WorldDataConfiguration;
@@ -39,7 +40,7 @@ public record WorldCreationContext(
     ) {
         this(
             param0,
-            param2.getLayer(RegistryLayer.DIMENSIONS).registryOrThrow(Registry.LEVEL_STEM_REGISTRY),
+            param2.getLayer(RegistryLayer.DIMENSIONS).registryOrThrow(Registries.LEVEL_STEM),
             param1,
             param2.replaceFrom(RegistryLayer.DIMENSIONS),
             param3,

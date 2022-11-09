@@ -18,6 +18,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -67,15 +68,15 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
     }
 
     public static Holder.Reference<ConfiguredFeature<?, ?>> getConfiguredFeature(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return resolveKey(param0, param1, Registry.CONFIGURED_FEATURE_REGISTRY, ERROR_INVALID_FEATURE);
+        return resolveKey(param0, param1, Registries.CONFIGURED_FEATURE, ERROR_INVALID_FEATURE);
     }
 
     public static Holder.Reference<Structure> getStructure(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return resolveKey(param0, param1, Registry.STRUCTURE_REGISTRY, ERROR_INVALID_STRUCTURE);
+        return resolveKey(param0, param1, Registries.STRUCTURE, ERROR_INVALID_STRUCTURE);
     }
 
     public static Holder.Reference<StructureTemplatePool> getStructureTemplatePool(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        return resolveKey(param0, param1, Registry.TEMPLATE_POOL_REGISTRY, ERROR_INVALID_TEMPLATE_POOL);
+        return resolveKey(param0, param1, Registries.TEMPLATE_POOL, ERROR_INVALID_TEMPLATE_POOL);
     }
 
     public ResourceKey<T> parse(StringReader param0) throws CommandSyntaxException {

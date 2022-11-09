@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -31,7 +32,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
     public static final ResourceKey<ChatType> EMOTE_COMMAND = create("emote_command");
 
     private static ResourceKey<ChatType> create(String param0) {
-        return ResourceKey.create(Registry.CHAT_TYPE_REGISTRY, new ResourceLocation(param0));
+        return ResourceKey.create(Registries.CHAT_TYPE, new ResourceLocation(param0));
     }
 
     public static void bootstrap(BootstapContext<ChatType> param0) {
@@ -67,7 +68,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
     }
 
     public static ChatType.Bound bind(ResourceKey<ChatType> param0, RegistryAccess param1, Component param2) {
-        Registry<ChatType> var0 = param1.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+        Registry<ChatType> var0 = param1.registryOrThrow(Registries.CHAT_TYPE);
         return var0.getOrThrow(param0).bind(param2);
     }
 
@@ -93,7 +94,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
         }
 
         public ChatType.BoundNetwork toNetwork(RegistryAccess param0) {
-            Registry<ChatType> var0 = param0.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+            Registry<ChatType> var0 = param0.registryOrThrow(Registries.CHAT_TYPE);
             return new ChatType.BoundNetwork(var0.getId(this.chatType), this.name, this.targetName);
         }
     }
@@ -110,7 +111,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
         }
 
         public Optional<ChatType.Bound> resolve(RegistryAccess param0) {
-            Registry<ChatType> var0 = param0.registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+            Registry<ChatType> var0 = param0.registryOrThrow(Registries.CHAT_TYPE);
             ChatType var1 = var0.byId(this.chatType);
             return Optional.ofNullable(var1).map(param0x -> new ChatType.Bound(param0x, this.name, this.targetName));
         }

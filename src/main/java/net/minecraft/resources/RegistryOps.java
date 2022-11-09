@@ -32,7 +32,7 @@ public class RegistryOps<T> extends DelegatingOps<T> {
         return create(param0, memoizeLookup(new RegistryOps.RegistryInfoLookup() {
             @Override
             public <E> Optional<RegistryOps.RegistryInfo<E>> lookup(ResourceKey<? extends Registry<? extends E>> param0) {
-                return param1.lookup(param0).map(param0x -> new RegistryOps.RegistryInfo<>(param0x, param0x, param0x.elementsLifecycle()));
+                return param1.lookup(param0).map(param0x -> new RegistryOps.RegistryInfo<>(param0x, param0x, param0x.registryLifecycle()));
             }
         }));
     }

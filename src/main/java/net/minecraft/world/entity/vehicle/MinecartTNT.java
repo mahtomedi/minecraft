@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.vehicle;
 
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -64,7 +65,8 @@ public class MinecartTNT extends AbstractMinecart {
     public boolean hurt(DamageSource param0, float param1) {
         Entity var0 = param0.getDirectEntity();
         if (var0 instanceof AbstractArrow var1 && var1.isOnFire()) {
-            this.explode(var1.getDeltaMovement().lengthSqr());
+            DamageSource var2 = DamageSource.explosion(this, param0.getEntity());
+            this.explode(var2, var1.getDeltaMovement().lengthSqr());
         }
 
         return super.hurt(param0, param1);
@@ -90,14 +92,28 @@ public class MinecartTNT extends AbstractMinecart {
     }
 
     protected void explode(double param0) {
+        this.explode(null, param0);
+    }
+
+    protected void explode(@Nullable DamageSource param0, double param1) {
         if (!this.level.isClientSide) {
-            double var0 = Math.sqrt(param0);
+            double var0 = Math.sqrt(param1);
             if (var0 > 5.0) {
                 var0 = 5.0;
             }
 
             this.level
-                .explode(this, this.getX(), this.getY(), this.getZ(), (float)(4.0 + this.random.nextDouble() * 1.5 * var0), Level.ExplosionInteraction.TNT);
+                .explode(
+                    this,
+                    param0,
+                    null,
+                    this.getX(),
+                    this.getY(),
+                    this.getZ(),
+                    (float)(4.0 + this.random.nextDouble() * 1.5 * var0),
+                    false,
+                    Level.ExplosionInteraction.TNT
+                );
             this.discard();
         }
 

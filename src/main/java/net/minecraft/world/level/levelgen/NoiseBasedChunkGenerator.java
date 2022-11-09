@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
@@ -217,7 +218,7 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
         if (!SharedConstants.debugVoidTerrain(param3.getPos())) {
             WorldGenerationContext var0 = new WorldGenerationContext(this, param0);
             this.buildSurface(
-                param3, var0, param2, param1, param0.getBiomeManager(), param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY), Blender.of(param0)
+                param3, var0, param2, param1, param0.getBiomeManager(), param0.registryAccess().registryOrThrow(Registries.BIOME), Blender.of(param0)
             );
         }
     }

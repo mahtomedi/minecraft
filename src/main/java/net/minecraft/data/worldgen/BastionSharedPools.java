@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 public class BastionSharedPools {
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<StructureTemplatePool> var0 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var0 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var1 = var0.getOrThrow(Pools.EMPTY);
         Pools.register(
             param0,

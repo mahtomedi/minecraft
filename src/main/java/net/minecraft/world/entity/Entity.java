@@ -2401,9 +2401,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                                 var3x = new Vec3(0.5, 0.0, 0.0);
                             }
         
-                            return PortalShape.createPortalInfo(
-                                param0, param1, var1x, var3x, this.getDimensions(this.getPose()), this.getDeltaMovement(), this.getYRot(), this.getXRot()
-                            );
+                            return PortalShape.createPortalInfo(param0, param1, var1x, var3x, this, this.getDeltaMovement(), this.getYRot(), this.getXRot());
                         }
                     )
                     .orElse(null);

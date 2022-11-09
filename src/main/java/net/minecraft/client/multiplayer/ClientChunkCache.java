@@ -9,8 +9,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
@@ -38,7 +38,7 @@ public class ClientChunkCache extends ChunkSource {
     public ClientChunkCache(ClientLevel param0, int param1) {
         this.level = param0;
         this.emptyChunk = new EmptyLevelChunk(
-            param0, new ChunkPos(0, 0), param0.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS)
+            param0, new ChunkPos(0, 0), param0.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
         );
         this.lightEngine = new LevelLightEngine(this, true, param0.dimensionType().hasSkyLight());
         this.storage = new ClientChunkCache.Storage(calculateStorageRange(param1));

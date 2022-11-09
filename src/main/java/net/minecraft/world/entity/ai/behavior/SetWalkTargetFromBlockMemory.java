@@ -1,94 +1,53 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.phys.Vec3;
 
-public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
-    private final MemoryModuleType<GlobalPos> memoryType;
-    private final float speedModifier;
-    private final int closeEnoughDist;
-    private final int tooFarDistance;
-    private final int tooLongUnreachableDuration;
-
-    public SetWalkTargetFromBlockMemory(MemoryModuleType<GlobalPos> param0, float param1, int param2, int param3, int param4) {
-        super(
-            ImmutableMap.of(
-                MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-                MemoryStatus.REGISTERED,
-                MemoryModuleType.WALK_TARGET,
-                MemoryStatus.VALUE_ABSENT,
-                param0,
-                MemoryStatus.VALUE_PRESENT
-            )
+public class SetWalkTargetFromBlockMemory {
+    public static OneShot<Villager> create(MemoryModuleType<GlobalPos> param0, float param1, int param2, int param3, int param4) {
+        return BehaviorBuilder.create(
+            param5 -> param5.<MemoryAccessor, MemoryAccessor, MemoryAccessor>group(
+                        param5.registered(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE), param5.absent(MemoryModuleType.WALK_TARGET), param5.present(param0)
+                    )
+                    .apply(param5, (param6, param7, param8) -> (param9, param10, param11) -> {
+                            GlobalPos var0x = param5.get(param8);
+                            Optional<Long> var1x = param5.tryGet(param6);
+                            if (var0x.dimension() == param9.dimension() && (!var1x.isPresent() || param9.getGameTime() - var1x.get() <= (long)param4)) {
+                                if (var0x.pos().distManhattan(param10.blockPosition()) > param3) {
+                                    Vec3 var2x = null;
+                                    int var3x = 0;
+                                    int var4x = 1000;
+        
+                                    while(var2x == null || new BlockPos(var2x).distManhattan(param10.blockPosition()) > param3) {
+                                        var2x = DefaultRandomPos.getPosTowards(param10, 15, 7, Vec3.atBottomCenterOf(var0x.pos()), (float) (Math.PI / 2));
+                                        if (++var3x == 1000) {
+                                            param10.releasePoi(param0);
+                                            param8.erase();
+                                            param6.set(param11);
+                                            return true;
+                                        }
+                                    }
+        
+                                    param7.set(new WalkTarget(var2x, param1, param2));
+                                } else if (var0x.pos().distManhattan(param10.blockPosition()) > param2) {
+                                    param7.set(new WalkTarget(var0x.pos(), param1, param2));
+                                }
+                            } else {
+                                param10.releasePoi(param0);
+                                param8.erase();
+                                param6.set(param11);
+                            }
+        
+                            return true;
+                        })
         );
-        this.memoryType = param0;
-        this.speedModifier = param1;
-        this.closeEnoughDist = param2;
-        this.tooFarDistance = param3;
-        this.tooLongUnreachableDuration = param4;
-    }
-
-    private void dropPOI(Villager param0, long param1) {
-        Brain<?> var0 = param0.getBrain();
-        param0.releasePoi(this.memoryType);
-        var0.eraseMemory(this.memoryType);
-        var0.setMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, param1);
-    }
-
-    protected void start(ServerLevel param0, Villager param1, long param2) {
-        Brain<?> var0 = param1.getBrain();
-        var0.getMemory(this.memoryType).ifPresent(param4 -> {
-            if (this.wrongDimension(param0, param4) || this.tiredOfTryingToFindTarget(param0, param1)) {
-                this.dropPOI(param1, param2);
-            } else if (this.tooFar(param1, param4)) {
-                Vec3 var0x = null;
-                int var1x = 0;
-
-                for(int var2x = 1000; var1x < 1000 && (var0x == null || this.tooFar(param1, GlobalPos.of(param0.dimension(), new BlockPos(var0x)))); ++var1x) {
-                    var0x = DefaultRandomPos.getPosTowards(param1, 15, 7, Vec3.atBottomCenterOf(param4.pos()), (float) (Math.PI / 2));
-                }
-
-                if (var1x == 1000) {
-                    this.dropPOI(param1, param2);
-                    return;
-                }
-
-                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0x, this.speedModifier, this.closeEnoughDist));
-            } else if (!this.closeEnough(param0, param1, param4)) {
-                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param4.pos(), this.speedModifier, this.closeEnoughDist));
-            }
-
-        });
-    }
-
-    private boolean tiredOfTryingToFindTarget(ServerLevel param0, Villager param1) {
-        Optional<Long> var0 = param1.getBrain().getMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-        if (var0.isPresent()) {
-            return param0.getGameTime() - var0.get() > (long)this.tooLongUnreachableDuration;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean tooFar(Villager param0, GlobalPos param1) {
-        return param1.pos().distManhattan(param0.blockPosition()) > this.tooFarDistance;
-    }
-
-    private boolean wrongDimension(ServerLevel param0, GlobalPos param1) {
-        return param1.dimension() != param0.dimension();
-    }
-
-    private boolean closeEnough(ServerLevel param0, Villager param1, GlobalPos param2) {
-        return param2.dimension() == param0.dimension() && param2.pos().distManhattan(param1.blockPosition()) <= this.closeEnoughDist;
     }
 }

@@ -15,8 +15,8 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction8;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -82,13 +82,13 @@ public class UpgradeData {
         loadTicks(
             param0,
             "neighbor_block_ticks",
-            param0x -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(param0x)).or(() -> Optional.of(Blocks.AIR)),
+            param0x -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(param0x)).or(() -> Optional.of(Blocks.AIR)),
             this.neighborBlockTicks
         );
         loadTicks(
             param0,
             "neighbor_fluid_ticks",
-            param0x -> Registry.FLUID.getOptional(ResourceLocation.tryParse(param0x)).or(() -> Optional.of(Fluids.EMPTY)),
+            param0x -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(param0x)).or(() -> Optional.of(Fluids.EMPTY)),
             this.neighborFluidTicks
         );
     }
@@ -238,13 +238,13 @@ public class UpgradeData {
         var0.putByte("Sides", (byte)var4);
         if (!this.neighborBlockTicks.isEmpty()) {
             ListTag var6 = new ListTag();
-            this.neighborBlockTicks.forEach(param1 -> var6.add(param1.save(param0x -> Registry.BLOCK.getKey(param0x).toString())));
+            this.neighborBlockTicks.forEach(param1 -> var6.add(param1.save(param0x -> BuiltInRegistries.BLOCK.getKey(param0x).toString())));
             var0.put("neighbor_block_ticks", var6);
         }
 
         if (!this.neighborFluidTicks.isEmpty()) {
             ListTag var7 = new ListTag();
-            this.neighborFluidTicks.forEach(param1 -> var7.add(param1.save(param0x -> Registry.FLUID.getKey(param0x).toString())));
+            this.neighborFluidTicks.forEach(param1 -> var7.add(param1.save(param0x -> BuiltInRegistries.FLUID.getKey(param0x).toString())));
             var0.put("neighbor_fluid_ticks", var7);
         }
 

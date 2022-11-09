@@ -25,6 +25,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -61,7 +62,7 @@ public class WorldUpgrader {
 
     public WorldUpgrader(LevelStorageSource.LevelStorageAccess param0, DataFixer param1, Registry<LevelStem> param2, boolean param3) {
         this.dimensions = param2;
-        this.levels = param2.registryKeySet().stream().map(Registry::levelStemToLevel).collect(Collectors.toUnmodifiableSet());
+        this.levels = param2.registryKeySet().stream().map(Registries::levelStemToLevel).collect(Collectors.toUnmodifiableSet());
         this.eraseCache = param3;
         this.dataFixer = param1;
         this.levelStorage = param0;
@@ -126,7 +127,7 @@ public class WorldUpgrader {
                             CompoundTag var17 = var14.read(var15).join().orElse(null);
                             if (var17 != null) {
                                 int var18 = ChunkStorage.getVersion(var17);
-                                ChunkGenerator var19 = this.dimensions.getOrThrow(Registry.levelToLevelStem(var12)).generator();
+                                ChunkGenerator var19 = this.dimensions.getOrThrow(Registries.levelToLevelStem(var12)).generator();
                                 CompoundTag var20 = var14.upgradeChunkTag(var12, () -> this.overworldDataStorage, var17, var19.getTypeNameForDataFixer());
                                 ChunkPos var21 = new ChunkPos(var20.getInt("xPos"), var20.getInt("zPos"));
                                 if (!var21.equals(var15)) {

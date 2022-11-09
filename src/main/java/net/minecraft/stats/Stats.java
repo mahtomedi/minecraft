@@ -1,21 +1,22 @@
 package net.minecraft.stats;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 public class Stats {
-    public static final StatType<Block> BLOCK_MINED = makeRegistryStatType("mined", Registry.BLOCK);
-    public static final StatType<Item> ITEM_CRAFTED = makeRegistryStatType("crafted", Registry.ITEM);
-    public static final StatType<Item> ITEM_USED = makeRegistryStatType("used", Registry.ITEM);
-    public static final StatType<Item> ITEM_BROKEN = makeRegistryStatType("broken", Registry.ITEM);
-    public static final StatType<Item> ITEM_PICKED_UP = makeRegistryStatType("picked_up", Registry.ITEM);
-    public static final StatType<Item> ITEM_DROPPED = makeRegistryStatType("dropped", Registry.ITEM);
-    public static final StatType<EntityType<?>> ENTITY_KILLED = makeRegistryStatType("killed", Registry.ENTITY_TYPE);
-    public static final StatType<EntityType<?>> ENTITY_KILLED_BY = makeRegistryStatType("killed_by", Registry.ENTITY_TYPE);
-    public static final StatType<ResourceLocation> CUSTOM = makeRegistryStatType("custom", Registry.CUSTOM_STAT);
+    public static final StatType<Block> BLOCK_MINED = makeRegistryStatType("mined", BuiltInRegistries.BLOCK);
+    public static final StatType<Item> ITEM_CRAFTED = makeRegistryStatType("crafted", BuiltInRegistries.ITEM);
+    public static final StatType<Item> ITEM_USED = makeRegistryStatType("used", BuiltInRegistries.ITEM);
+    public static final StatType<Item> ITEM_BROKEN = makeRegistryStatType("broken", BuiltInRegistries.ITEM);
+    public static final StatType<Item> ITEM_PICKED_UP = makeRegistryStatType("picked_up", BuiltInRegistries.ITEM);
+    public static final StatType<Item> ITEM_DROPPED = makeRegistryStatType("dropped", BuiltInRegistries.ITEM);
+    public static final StatType<EntityType<?>> ENTITY_KILLED = makeRegistryStatType("killed", BuiltInRegistries.ENTITY_TYPE);
+    public static final StatType<EntityType<?>> ENTITY_KILLED_BY = makeRegistryStatType("killed_by", BuiltInRegistries.ENTITY_TYPE);
+    public static final StatType<ResourceLocation> CUSTOM = makeRegistryStatType("custom", BuiltInRegistries.CUSTOM_STAT);
     public static final ResourceLocation LEAVE_GAME = makeCustomStat("leave_game", StatFormatter.DEFAULT);
     public static final ResourceLocation PLAY_TIME = makeCustomStat("play_time", StatFormatter.TIME);
     public static final ResourceLocation TOTAL_WORLD_TIME = makeCustomStat("total_world_time", StatFormatter.TIME);
@@ -94,12 +95,12 @@ public class Stats {
 
     private static ResourceLocation makeCustomStat(String param0, StatFormatter param1) {
         ResourceLocation var0 = new ResourceLocation(param0);
-        Registry.register(Registry.CUSTOM_STAT, param0, var0);
+        Registry.register(BuiltInRegistries.CUSTOM_STAT, param0, var0);
         CUSTOM.get(var0, param1);
         return var0;
     }
 
     private static <T> StatType<T> makeRegistryStatType(String param0, Registry<T> param1) {
-        return Registry.register(Registry.STAT_TYPE, param0, new StatType<>(param1));
+        return Registry.register(BuiltInRegistries.STAT_TYPE, param0, new StatType<>(param1));
     }
 }

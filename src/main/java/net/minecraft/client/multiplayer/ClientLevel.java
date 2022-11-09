@@ -31,11 +31,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -264,7 +265,7 @@ public class ClientLevel extends Level {
     public void tickNonPassenger(Entity param0) {
         param0.setOldPosAndRot();
         ++param0.tickCount;
-        this.getProfiler().push(() -> Registry.ENTITY_TYPE.getKey(param0.getType()).toString());
+        this.getProfiler().push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(param0.getType()).toString());
         param0.tick();
         this.getProfiler().pop();
 
@@ -556,9 +557,12 @@ public class ClientLevel extends Level {
         return this.mapData.get(param0);
     }
 
+    public void overrideMapData(String param0, MapItemSavedData param1) {
+        this.mapData.put(param0, param1);
+    }
+
     @Override
     public void setMapData(String param0, MapItemSavedData param1) {
-        this.mapData.put(param0, param1);
     }
 
     @Override
@@ -652,7 +656,7 @@ public class ClientLevel extends Level {
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int param0, int param1, int param2) {
-        return this.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS);
+        return this.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS);
     }
 
     public float getSkyDarken(float param0) {

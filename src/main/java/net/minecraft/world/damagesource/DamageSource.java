@@ -120,7 +120,7 @@ public class DamageSource {
             return new IndirectEntityDamageSource("explosion.player", param0, param1).setScalesWithDifficulty().setExplosion();
         } else {
             return param0 != null
-                ? new EntityDamageSource("explosion.player", param0).setScalesWithDifficulty().setExplosion()
+                ? new EntityDamageSource("explosion", param0).setScalesWithDifficulty().setExplosion()
                 : new DamageSource("explosion").setScalesWithDifficulty().setExplosion();
         }
     }

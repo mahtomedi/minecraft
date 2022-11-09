@@ -1,6 +1,6 @@
 package net.minecraft.network.protocol.game;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
@@ -27,7 +27,7 @@ public class ClientboundSoundEntityPacket implements Packet<ClientGamePacketList
     }
 
     public ClientboundSoundEntityPacket(FriendlyByteBuf param0) {
-        this.sound = param0.readById(Registry.SOUND_EVENT);
+        this.sound = param0.readById(BuiltInRegistries.SOUND_EVENT);
         this.source = param0.readEnum(SoundSource.class);
         this.id = param0.readVarInt();
         this.volume = param0.readFloat();
@@ -37,7 +37,7 @@ public class ClientboundSoundEntityPacket implements Packet<ClientGamePacketList
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeId(Registry.SOUND_EVENT, this.sound);
+        param0.writeId(BuiltInRegistries.SOUND_EVENT, this.sound);
         param0.writeEnum(this.source);
         param0.writeVarInt(this.id);
         param0.writeFloat(this.volume);

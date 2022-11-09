@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.IdMapper;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.GrassColor;
@@ -86,7 +86,7 @@ public class BlockColors {
     }
 
     public int getColor(BlockState param0, Level param1, BlockPos param2) {
-        BlockColor var0 = this.blockColors.byId(Registry.BLOCK.getId(param0.getBlock()));
+        BlockColor var0 = this.blockColors.byId(BuiltInRegistries.BLOCK.getId(param0.getBlock()));
         if (var0 != null) {
             return var0.getColor(param0, null, null, 0);
         } else {
@@ -96,13 +96,13 @@ public class BlockColors {
     }
 
     public int getColor(BlockState param0, @Nullable BlockAndTintGetter param1, @Nullable BlockPos param2, int param3) {
-        BlockColor var0 = this.blockColors.byId(Registry.BLOCK.getId(param0.getBlock()));
+        BlockColor var0 = this.blockColors.byId(BuiltInRegistries.BLOCK.getId(param0.getBlock()));
         return var0 == null ? -1 : var0.getColor(param0, param1, param2, param3);
     }
 
     public void register(BlockColor param0, Block... param1) {
         for(Block var0 : param1) {
-            this.blockColors.addMapping(param0, Registry.BLOCK.getId(var0));
+            this.blockColors.addMapping(param0, BuiltInRegistries.BLOCK.getId(var0));
         }
 
     }

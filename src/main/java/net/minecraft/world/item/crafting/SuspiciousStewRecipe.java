@@ -2,15 +2,13 @@ package net.minecraft.world.item.crafting;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 
 public class SuspiciousStewRecipe extends CustomRecipe {
     public SuspiciousStewRecipe(ResourceLocation param0, CraftingBookCategory param1) {
@@ -46,23 +44,20 @@ public class SuspiciousStewRecipe extends CustomRecipe {
     }
 
     public ItemStack assemble(CraftingContainer param0) {
-        ItemStack var0 = ItemStack.EMPTY;
+        ItemStack var0 = new ItemStack(Items.SUSPICIOUS_STEW, 1);
 
         for(int var1 = 0; var1 < param0.getContainerSize(); ++var1) {
             ItemStack var2 = param0.getItem(var1);
-            if (!var2.isEmpty() && var2.is(ItemTags.SMALL_FLOWERS)) {
-                var0 = var2;
-                break;
+            if (!var2.isEmpty()) {
+                SuspiciousEffectHolder var3 = SuspiciousEffectHolder.tryGet(var2.getItem());
+                if (var3 != null) {
+                    SuspiciousStewItem.saveMobEffect(var0, var3.getSuspiciousEffect(), var3.getEffectDuration());
+                    break;
+                }
             }
         }
 
-        ItemStack var3 = new ItemStack(Items.SUSPICIOUS_STEW, 1);
-        if (var0.getItem() instanceof BlockItem && ((BlockItem)var0.getItem()).getBlock() instanceof FlowerBlock var4) {
-            MobEffect var5 = var4.getSuspiciousStewEffect();
-            SuspiciousStewItem.saveMobEffect(var3, var5, var4.getEffectDuration());
-        }
-
-        return var3;
+        return var0;
     }
 
     @Override

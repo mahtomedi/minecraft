@@ -7,7 +7,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -206,20 +206,20 @@ public class LocationPredicate {
                 ? ResourceLocation.CODEC
                     .parse(JsonOps.INSTANCE, var0.get("dimension"))
                     .resultOrPartial(LOGGER::error)
-                    .map(param0x -> ResourceKey.create(Registry.DIMENSION_REGISTRY, param0x))
+                    .map(param0x -> ResourceKey.create(Registries.DIMENSION, param0x))
                     .orElse(null)
                 : null;
             ResourceKey<Structure> var6 = var0.has("structure")
                 ? ResourceLocation.CODEC
                     .parse(JsonOps.INSTANCE, var0.get("structure"))
                     .resultOrPartial(LOGGER::error)
-                    .map(param0x -> ResourceKey.create(Registry.STRUCTURE_REGISTRY, param0x))
+                    .map(param0x -> ResourceKey.create(Registries.STRUCTURE, param0x))
                     .orElse(null)
                 : null;
             ResourceKey<Biome> var7 = null;
             if (var0.has("biome")) {
                 ResourceLocation var8 = new ResourceLocation(GsonHelper.getAsString(var0, "biome"));
-                var7 = ResourceKey.create(Registry.BIOME_REGISTRY, var8);
+                var7 = ResourceKey.create(Registries.BIOME, var8);
             }
 
             Boolean var9 = var0.has("smokey") ? var0.get("smokey").getAsBoolean() : null;

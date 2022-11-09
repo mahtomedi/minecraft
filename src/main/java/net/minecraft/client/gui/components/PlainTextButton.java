@@ -16,7 +16,7 @@ public class PlainTextButton extends Button {
     private final Component underlinedMessage;
 
     public PlainTextButton(int param0, int param1, int param2, int param3, Component param4, Button.OnPress param5, Font param6) {
-        super(param0, param1, param2, param3, param4, param5, NO_TOOLTIP, DEFAULT_NARRATION);
+        super(param0, param1, param2, param3, param4, param5, DEFAULT_NARRATION);
         this.font = param6;
         this.message = param4;
         this.underlinedMessage = ComponentUtils.mergeStyles(param4.copy(), Style.EMPTY.withUnderlined(true));

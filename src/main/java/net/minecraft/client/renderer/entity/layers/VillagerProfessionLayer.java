@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.resources.metadata.animation.VillagerMetaDataSection;
 import net.minecraft.core.DefaultedRegistry;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
@@ -53,15 +53,15 @@ public class VillagerProfessionLayer<T extends LivingEntity & VillagerDataHolder
             VillagerData var0 = param3.getVillagerData();
             VillagerType var1 = var0.getType();
             VillagerProfession var2 = var0.getProfession();
-            VillagerMetaDataSection.Hat var3 = this.getHatData(this.typeHatCache, "type", Registry.VILLAGER_TYPE, var1);
-            VillagerMetaDataSection.Hat var4 = this.getHatData(this.professionHatCache, "profession", Registry.VILLAGER_PROFESSION, var2);
+            VillagerMetaDataSection.Hat var3 = this.getHatData(this.typeHatCache, "type", BuiltInRegistries.VILLAGER_TYPE, var1);
+            VillagerMetaDataSection.Hat var4 = this.getHatData(this.professionHatCache, "profession", BuiltInRegistries.VILLAGER_PROFESSION, var2);
             M var5 = this.getParentModel();
             var5.hatVisible(var4 == VillagerMetaDataSection.Hat.NONE || var4 == VillagerMetaDataSection.Hat.PARTIAL && var3 != VillagerMetaDataSection.Hat.FULL);
-            ResourceLocation var6 = this.getResourceLocation("type", Registry.VILLAGER_TYPE.getKey(var1));
+            ResourceLocation var6 = this.getResourceLocation("type", BuiltInRegistries.VILLAGER_TYPE.getKey(var1));
             renderColoredCutoutModel(var5, var6, param0, param1, param2, param3, 1.0F, 1.0F, 1.0F);
             var5.hatVisible(true);
             if (var2 != VillagerProfession.NONE && !param3.isBaby()) {
-                ResourceLocation var7 = this.getResourceLocation("profession", Registry.VILLAGER_PROFESSION.getKey(var2));
+                ResourceLocation var7 = this.getResourceLocation("profession", BuiltInRegistries.VILLAGER_PROFESSION.getKey(var2));
                 renderColoredCutoutModel(var5, var7, param0, param1, param2, param3, 1.0F, 1.0F, 1.0F);
                 if (var2 != VillagerProfession.NITWIT) {
                     ResourceLocation var8 = this.getResourceLocation(

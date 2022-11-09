@@ -4,7 +4,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -81,7 +81,7 @@ public class SetContainerLootTable extends LootItemConditionalFunction {
         public void serialize(JsonObject param0, SetContainerLootTable param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             param0.addProperty("name", param1.name.toString());
-            param0.addProperty("type", Registry.BLOCK_ENTITY_TYPE.getKey(param1.type).toString());
+            param0.addProperty("type", BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(param1.type).toString());
             if (param1.seed != 0L) {
                 param0.addProperty("seed", param1.seed);
             }
@@ -92,7 +92,7 @@ public class SetContainerLootTable extends LootItemConditionalFunction {
             ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "name"));
             long var1 = GsonHelper.getAsLong(param0, "seed", 0L);
             ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(param0, "type"));
-            BlockEntityType<?> var3 = Registry.BLOCK_ENTITY_TYPE
+            BlockEntityType<?> var3 = BuiltInRegistries.BLOCK_ENTITY_TYPE
                 .getOptional(var2)
                 .orElseThrow(() -> new JsonSyntaxException("Unknown block entity type id '" + var2 + "'"));
             return new SetContainerLootTable(param2, var0, var1, var3);

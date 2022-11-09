@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.Services;
@@ -83,9 +84,9 @@ public class GameTestServer extends MinecraftServer {
                         param2x -> WorldLoader.load(
                                 var3,
                                 param1x -> {
-                                    Registry<LevelStem> var0x = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable()).freeze();
+                                    Registry<LevelStem> var0x = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable()).freeze();
                                     WorldDimensions.Complete var1x = param1x.datapackWorldgen()
-                                        .<WorldPreset>registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
+                                        .<WorldPreset>registryOrThrow(Registries.WORLD_PRESET)
                                         .getHolderOrThrow(WorldPresets.FLAT)
                                         .value()
                                         .createWorldDimensions()

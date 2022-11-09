@@ -179,7 +179,7 @@ public class MerchantMenu extends AbstractContainerMenu {
     }
 
     public void tryMoveItems(int param0) {
-        if (this.getOffers().size() > param0) {
+        if (param0 >= 0 && this.getOffers().size() > param0) {
             ItemStack var0 = this.tradeContainer.getItem(0);
             if (!var0.isEmpty()) {
                 if (!this.moveItemStackTo(var0, 3, 39, true)) {

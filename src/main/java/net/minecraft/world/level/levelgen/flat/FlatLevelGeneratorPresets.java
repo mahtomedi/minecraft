@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +35,7 @@ public class FlatLevelGeneratorPresets {
     }
 
     private static ResourceKey<FlatLevelGeneratorPreset> register(String param0) {
-        return ResourceKey.create(Registry.FLAT_LEVEL_GENERATOR_PRESET_REGISTRY, new ResourceLocation(param0));
+        return ResourceKey.create(Registries.FLAT_LEVEL_GENERATOR_PRESET, new ResourceLocation(param0));
     }
 
     static class Bootstrap {
@@ -54,9 +54,9 @@ public class FlatLevelGeneratorPresets {
             boolean param5,
             FlatLayerInfo... param6
         ) {
-            HolderGetter<StructureSet> var0 = this.context.lookup(Registry.STRUCTURE_SET_REGISTRY);
-            HolderGetter<PlacedFeature> var1 = this.context.lookup(Registry.PLACED_FEATURE_REGISTRY);
-            HolderGetter<Biome> var2 = this.context.lookup(Registry.BIOME_REGISTRY);
+            HolderGetter<StructureSet> var0 = this.context.lookup(Registries.STRUCTURE_SET);
+            HolderGetter<PlacedFeature> var1 = this.context.lookup(Registries.PLACED_FEATURE);
+            HolderGetter<Biome> var2 = this.context.lookup(Registries.BIOME);
             HolderSet.Direct<StructureSet> var3 = HolderSet.direct(param3.stream().map(var0::getOrThrow).collect(Collectors.toList()));
             FlatLevelGeneratorSettings var4 = new FlatLevelGeneratorSettings(
                 Optional.of(var3), var2.getOrThrow(param2), FlatLevelGeneratorSettings.createLakesList(var1)

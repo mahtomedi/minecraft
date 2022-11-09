@@ -28,7 +28,7 @@ import net.minecraft.advancements.critereon.PlayerInteractTrigger;
 import net.minecraft.advancements.critereon.StartRidingTrigger;
 import net.minecraft.advancements.critereon.TameAnimalTrigger;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -251,7 +251,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .parent(var5)
             .requirements(RequirementsStrategy.OR)
             .addCriterion(
-                Registry.ITEM.getKey(Items.AXOLOTL_BUCKET).getPath(),
+                BuiltInRegistries.ITEM.getKey(Items.AXOLOTL_BUCKET).getPath(),
                 FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item().of(Items.AXOLOTL_BUCKET).build())
             )
             .display(
@@ -358,7 +358,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
         Advancement var9 = Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
-                Registry.ITEM.getKey(Items.TADPOLE_BUCKET).getPath(),
+                BuiltInRegistries.ITEM.getKey(Items.TADPOLE_BUCKET).getPath(),
                 FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item().of(Items.TADPOLE_BUCKET).build())
             )
             .display(
@@ -511,7 +511,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
     }
 
     private Advancement.Builder addLeashedFrogVariants(Advancement.Builder param0) {
-        Registry.FROG_VARIANT
+        BuiltInRegistries.FROG_VARIANT
             .holders()
             .forEach(
                 param1 -> param0.addCriterion(
@@ -529,7 +529,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
 
     private Advancement.Builder addFood(Advancement.Builder param0) {
         for(Item var0 : EDIBLE_ITEMS) {
-            param0.addCriterion(Registry.ITEM.getKey(var0).getPath(), ConsumeItemTrigger.TriggerInstance.usedItem(var0));
+            param0.addCriterion(BuiltInRegistries.ITEM.getKey(var0).getPath(), ConsumeItemTrigger.TriggerInstance.usedItem(var0));
         }
 
         return param0;
@@ -555,7 +555,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
     private Advancement.Builder addFishBuckets(Advancement.Builder param0) {
         for(Item var0 : FISH_BUCKETS) {
             param0.addCriterion(
-                Registry.ITEM.getKey(var0).getPath(), FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item().of(var0).build())
+                BuiltInRegistries.ITEM.getKey(var0).getPath(), FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item().of(var0).build())
             );
         }
 
@@ -565,7 +565,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
     private Advancement.Builder addFish(Advancement.Builder param0) {
         for(Item var0 : FISH) {
             param0.addCriterion(
-                Registry.ITEM.getKey(var0).getPath(),
+                BuiltInRegistries.ITEM.getKey(var0).getPath(),
                 FishingRodHookedTrigger.TriggerInstance.fishedItem(ItemPredicate.ANY, EntityPredicate.ANY, ItemPredicate.Builder.item().of(var0).build())
             );
         }
@@ -574,7 +574,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
     }
 
     private Advancement.Builder addCatVariants(Advancement.Builder param0) {
-        Registry.CAT_VARIANT
+        BuiltInRegistries.CAT_VARIANT
             .entrySet()
             .stream()
             .sorted(Entry.comparingByKey(Comparator.comparing(ResourceKey::location)))

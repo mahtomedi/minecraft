@@ -19,7 +19,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
@@ -253,7 +253,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             this.setRenderHeader(true, 20);
             Set<Item> param1 = Sets.newIdentityHashSet();
 
-            for(Item var0 : Registry.ITEM) {
+            for(Item var0 : BuiltInRegistries.ITEM) {
                 boolean var1 = false;
 
                 for(StatType<Item> var2 : this.itemColumns) {
@@ -267,7 +267,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 }
             }
 
-            for(Block var3 : Registry.BLOCK) {
+            for(Block var3 : BuiltInRegistries.BLOCK) {
                 boolean var4 = false;
 
                 for(StatType<Block> var5 : this.blockColumns) {
@@ -509,7 +509,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         public MobsStatisticsList(Minecraft param0) {
             super(param0, StatsScreen.this.width, StatsScreen.this.height, 32, StatsScreen.this.height - 64, 9 * 4);
 
-            for(EntityType<?> param1 : Registry.ENTITY_TYPE) {
+            for(EntityType<?> param1 : BuiltInRegistries.ENTITY_TYPE) {
                 if (StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED.get(param1)) > 0
                     || StatsScreen.this.stats.getValue(Stats.ENTITY_KILLED_BY.get(param1)) > 0) {
                     this.addEntry(new StatsScreen.MobsStatisticsList.MobRow(param1));

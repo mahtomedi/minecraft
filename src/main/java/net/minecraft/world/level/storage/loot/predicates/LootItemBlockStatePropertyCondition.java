@@ -7,7 +7,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
 import java.util.Set;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
@@ -65,13 +65,13 @@ public class LootItemBlockStatePropertyCondition implements LootItemCondition {
 
     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<LootItemBlockStatePropertyCondition> {
         public void serialize(JsonObject param0, LootItemBlockStatePropertyCondition param1, JsonSerializationContext param2) {
-            param0.addProperty("block", Registry.BLOCK.getKey(param1.block).toString());
+            param0.addProperty("block", BuiltInRegistries.BLOCK.getKey(param1.block).toString());
             param0.add("properties", param1.properties.serializeToJson());
         }
 
         public LootItemBlockStatePropertyCondition deserialize(JsonObject param0, JsonDeserializationContext param1) {
             ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "block"));
-            Block var1 = Registry.BLOCK.getOptional(var0).orElseThrow(() -> new IllegalArgumentException("Can't find block " + var0));
+            Block var1 = BuiltInRegistries.BLOCK.getOptional(var0).orElseThrow(() -> new IllegalArgumentException("Can't find block " + var0));
             StatePropertiesPredicate var2 = StatePropertiesPredicate.fromJson(param0.get("properties"));
             var2.checkState(var1.getStateDefinition(), param1x -> {
                 throw new JsonSyntaxException("Block " + var1 + " has no property " + param1x);

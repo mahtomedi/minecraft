@@ -2,14 +2,14 @@ package net.minecraft.data.tags;
 
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 
 public class EntityTypeTagsProvider extends IntrinsicHolderTagsProvider<EntityType<?>> {
     public EntityTypeTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        super(param0, Registry.ENTITY_TYPE_REGISTRY, param1, param0x -> param0x.builtInRegistryHolder().key());
+        super(param0, Registries.ENTITY_TYPE, param1, param0x -> param0x.builtInRegistryHolder().key());
     }
 
     @Override

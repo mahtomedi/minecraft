@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class FlowerBlock extends BushBlock {
+public class FlowerBlock extends BushBlock implements SuspiciousEffectHolder {
     protected static final float AABB_OFFSET = 3.0F;
     protected static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 10.0, 11.0);
     private final MobEffect suspiciousStewEffect;
@@ -32,10 +32,12 @@ public class FlowerBlock extends BushBlock {
         return SHAPE.move(var0.x, var0.y, var0.z);
     }
 
-    public MobEffect getSuspiciousStewEffect() {
+    @Override
+    public MobEffect getSuspiciousEffect() {
         return this.suspiciousStewEffect;
     }
 
+    @Override
     public int getEffectDuration() {
         return this.effectDuration;
     }

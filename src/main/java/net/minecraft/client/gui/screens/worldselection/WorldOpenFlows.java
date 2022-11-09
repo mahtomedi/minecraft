@@ -22,6 +22,7 @@ import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
@@ -73,7 +74,7 @@ public class WorldOpenFlows {
                     var3,
                     param3x -> {
                         WorldDimensions.Complete var0x = param3.apply(param3x.datapackWorldgen())
-                            .bake(param3x.datapackDimensions().registryOrThrow(Registry.LEVEL_STEM_REGISTRY));
+                            .bake(param3x.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM));
                         return new WorldLoader.DataLoadOutput<>(
                             new PrimaryLevelData(param1, param2, var0x.specialWorldProperty(), var0x.lifecycle()), var0x.dimensionsRegistryAccess()
                         );
@@ -115,9 +116,9 @@ public class WorldOpenFlows {
             var0,
             param1x -> {
                 DynamicOps<Tag> var0x = RegistryOps.create(NbtOps.INSTANCE, param1x.datapackWorldgen());
-                Registry<LevelStem> var1x = param1x.datapackDimensions().registryOrThrow(Registry.LEVEL_STEM_REGISTRY);
+                Registry<LevelStem> var1x = param1x.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM);
                 Pair<WorldData, WorldDimensions.Complete> var2x = param0.getDataTag(
-                    var0x, param1x.dataConfiguration(), var1x, param1x.datapackWorldgen().allElementsLifecycle()
+                    var0x, param1x.dataConfiguration(), var1x, param1x.datapackWorldgen().allRegistriesLifecycle()
                 );
                 if (var2x == null) {
                     throw new IllegalStateException("Failed to load world");
@@ -138,9 +139,9 @@ public class WorldOpenFlows {
             var1,
             param1 -> {
                 DynamicOps<Tag> var0x = RegistryOps.create(NbtOps.INSTANCE, param1.datapackWorldgen());
-                Registry<LevelStem> var1x = new MappedRegistry<>(Registry.LEVEL_STEM_REGISTRY, Lifecycle.stable()).freeze();
+                Registry<LevelStem> var1x = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable()).freeze();
                 Pair<WorldData, WorldDimensions.Complete> var2x = param0.getDataTag(
-                    var0x, param1.dataConfiguration(), var1x, param1.datapackWorldgen().allElementsLifecycle()
+                    var0x, param1.dataConfiguration(), var1x, param1.datapackWorldgen().allRegistriesLifecycle()
                 );
                 if (var2x == null) {
                     throw new IllegalStateException("Failed to load world");

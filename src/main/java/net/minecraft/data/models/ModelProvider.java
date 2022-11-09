@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -53,11 +53,11 @@ public class ModelProvider implements DataProvider {
         Consumer<Item> var5 = var3::add;
         new BlockModelGenerators(var1, var4, var5).run();
         new ItemModelGenerators(var4).run();
-        List<Block> var6 = Registry.BLOCK.stream().filter(param1 -> !var0.containsKey(param1)).toList();
+        List<Block> var6 = BuiltInRegistries.BLOCK.stream().filter(param1 -> !var0.containsKey(param1)).toList();
         if (!var6.isEmpty()) {
             throw new IllegalStateException("Missing blockstate definitions for: " + var6);
         } else {
-            Registry.BLOCK.forEach(param2 -> {
+            BuiltInRegistries.BLOCK.forEach(param2 -> {
                 Item var0x = Item.BY_BLOCK.get(param2);
                 if (var0x != null) {
                     if (var3.contains(var0x)) {

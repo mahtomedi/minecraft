@@ -3,6 +3,7 @@ package net.minecraft.world.level.gameevent;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,7 +59,7 @@ public class GameEvent {
     public static final int DEFAULT_NOTIFICATION_RADIUS = 16;
     private final String name;
     private final int notificationRadius;
-    private final Holder.Reference<GameEvent> builtInRegistryHolder = Registry.GAME_EVENT.createIntrusiveHolder(this);
+    private final Holder.Reference<GameEvent> builtInRegistryHolder = BuiltInRegistries.GAME_EVENT.createIntrusiveHolder(this);
 
     public GameEvent(String param0, int param1) {
         this.name = param0;
@@ -78,7 +79,7 @@ public class GameEvent {
     }
 
     private static GameEvent register(String param0, int param1) {
-        return Registry.register(Registry.GAME_EVENT, param0, new GameEvent(param0, param1));
+        return Registry.register(BuiltInRegistries.GAME_EVENT, param0, new GameEvent(param0, param1));
     }
 
     @Override

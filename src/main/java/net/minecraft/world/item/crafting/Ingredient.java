@@ -18,7 +18,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -41,43 +42,36 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public ItemStack[] getItems() {
-        this.dissolve();
-        return this.itemStacks;
-    }
-
-    private void dissolve() {
         if (this.itemStacks == null) {
             this.itemStacks = Arrays.stream(this.values).flatMap(param0 -> param0.getItems().stream()).distinct().toArray(param0 -> new ItemStack[param0]);
         }
 
+        return this.itemStacks;
     }
 
     public boolean test(@Nullable ItemStack param0) {
         if (param0 == null) {
             return false;
+        } else if (this.isEmpty()) {
+            return param0.isEmpty();
         } else {
-            this.dissolve();
-            if (this.itemStacks.length == 0) {
-                return param0.isEmpty();
-            } else {
-                for(ItemStack var0 : this.itemStacks) {
-                    if (var0.is(param0.getItem())) {
-                        return true;
-                    }
+            for(ItemStack var0 : this.getItems()) {
+                if (var0.is(param0.getItem())) {
+                    return true;
                 }
-
-                return false;
             }
+
+            return false;
         }
     }
 
     public IntList getStackingIds() {
         if (this.stackingIds == null) {
-            this.dissolve();
-            this.stackingIds = new IntArrayList(this.itemStacks.length);
+            ItemStack[] var0 = this.getItems();
+            this.stackingIds = new IntArrayList(var0.length);
 
-            for(ItemStack var0 : this.itemStacks) {
-                this.stackingIds.add(StackedContents.getStackingIndex(var0));
+            for(ItemStack var1 : var0) {
+                this.stackingIds.add(StackedContents.getStackingIndex(var1));
             }
 
             this.stackingIds.sort(IntComparators.NATURAL_COMPARATOR);
@@ -87,8 +81,7 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public void toNetwork(FriendlyByteBuf param0) {
-        this.dissolve();
-        param0.writeCollection(Arrays.asList(this.itemStacks), FriendlyByteBuf::writeItem);
+        param0.writeCollection(Arrays.asList(this.getItems()), FriendlyByteBuf::writeItem);
     }
 
     public JsonElement toJson() {
@@ -106,12 +99,12 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public boolean isEmpty() {
-        return this.values.length == 0 && (this.itemStacks == null || this.itemStacks.length == 0) && (this.stackingIds == null || this.stackingIds.isEmpty());
+        return this.values.length == 0;
     }
 
     private static Ingredient fromValues(Stream<? extends Ingredient.Value> param0) {
         Ingredient var0 = new Ingredient(param0);
-        return var0.values.length == 0 ? EMPTY : var0;
+        return var0.isEmpty() ? EMPTY : var0;
     }
 
     public static Ingredient of() {
@@ -165,7 +158,7 @@ public final class Ingredient implements Predicate<ItemStack> {
             return new Ingredient.ItemValue(new ItemStack(var0));
         } else if (param0.has("tag")) {
             ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
-            TagKey<Item> var2 = TagKey.create(Registry.ITEM_REGISTRY, var1);
+            TagKey<Item> var2 = TagKey.create(Registries.ITEM, var1);
             return new Ingredient.TagValue(var2);
         } else {
             throw new JsonParseException("An ingredient entry needs either a tag or an item");
@@ -187,7 +180,7 @@ public final class Ingredient implements Predicate<ItemStack> {
         @Override
         public JsonObject serialize() {
             JsonObject var0 = new JsonObject();
-            var0.addProperty("item", Registry.ITEM.getKey(this.item.getItem()).toString());
+            var0.addProperty("item", BuiltInRegistries.ITEM.getKey(this.item.getItem()).toString());
             return var0;
         }
     }
@@ -203,7 +196,7 @@ public final class Ingredient implements Predicate<ItemStack> {
         public Collection<ItemStack> getItems() {
             List<ItemStack> var0 = Lists.newArrayList();
 
-            for(Holder<Item> var1 : Registry.ITEM.getTagOrEmpty(this.tag)) {
+            for(Holder<Item> var1 : BuiltInRegistries.ITEM.getTagOrEmpty(this.tag)) {
                 var0.add(new ItemStack(var1));
             }
 

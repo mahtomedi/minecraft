@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.placement.VillagePlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -18,15 +18,15 @@ public class SavannaVillagePools {
     private static final ResourceKey<StructureTemplatePool> ZOMBIE_TERMINATORS_KEY = Pools.createKey("village/savanna/zombie/terminators");
 
     public static void bootstrap(BootstapContext<StructureTemplatePool> param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookup(Registry.PLACED_FEATURE_REGISTRY);
+        HolderGetter<PlacedFeature> var0 = param0.lookup(Registries.PLACED_FEATURE);
         Holder<PlacedFeature> var1 = var0.getOrThrow(VillagePlacements.ACACIA_VILLAGE);
         Holder<PlacedFeature> var2 = var0.getOrThrow(VillagePlacements.PILE_HAY_VILLAGE);
         Holder<PlacedFeature> var3 = var0.getOrThrow(VillagePlacements.PILE_MELON_VILLAGE);
-        HolderGetter<StructureProcessorList> var4 = param0.lookup(Registry.PROCESSOR_LIST_REGISTRY);
+        HolderGetter<StructureProcessorList> var4 = param0.lookup(Registries.PROCESSOR_LIST);
         Holder<StructureProcessorList> var5 = var4.getOrThrow(ProcessorLists.ZOMBIE_SAVANNA);
         Holder<StructureProcessorList> var6 = var4.getOrThrow(ProcessorLists.STREET_SAVANNA);
         Holder<StructureProcessorList> var7 = var4.getOrThrow(ProcessorLists.FARM_SAVANNA);
-        HolderGetter<StructureTemplatePool> var8 = param0.lookup(Registry.TEMPLATE_POOL_REGISTRY);
+        HolderGetter<StructureTemplatePool> var8 = param0.lookup(Registries.TEMPLATE_POOL);
         Holder<StructureTemplatePool> var9 = var8.getOrThrow(Pools.EMPTY);
         Holder<StructureTemplatePool> var10 = var8.getOrThrow(TERMINATORS_KEY);
         Holder<StructureTemplatePool> var11 = var8.getOrThrow(ZOMBIE_TERMINATORS_KEY);

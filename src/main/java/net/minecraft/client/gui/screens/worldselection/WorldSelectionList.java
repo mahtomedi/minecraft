@@ -365,12 +365,12 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                 if (this.summary.isLocked()) {
                     GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                     if (var4) {
-                        this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_LOCKED_TOOLTIP, 175));
+                        this.screen.setTooltipForNextRenderPass(this.minecraft.font.split(WorldSelectionList.WORLD_LOCKED_TOOLTIP, 175));
                     }
                 } else if (this.summary.requiresManualConversion()) {
                     GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                     if (var4) {
-                        this.screen.setToolTip(this.minecraft.font.split(WorldSelectionList.WORLD_REQUIRES_CONVERSION, 175));
+                        this.screen.setTooltipForNextRenderPass(this.minecraft.font.split(WorldSelectionList.WORLD_REQUIRES_CONVERSION, 175));
                     }
                 } else if (this.summary.markVersionInList()) {
                     GuiComponent.blit(param0, param3, param2, 32.0F, (float)var5, 32, 32, 256, 256);
@@ -378,7 +378,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                         GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                         if (var4) {
                             this.screen
-                                .setToolTip(
+                                .setTooltipForNextRenderPass(
                                     ImmutableList.of(
                                         WorldSelectionList.FROM_NEWER_TOOLTIP_1.getVisualOrderText(),
                                         WorldSelectionList.FROM_NEWER_TOOLTIP_2.getVisualOrderText()
@@ -389,7 +389,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                         GuiComponent.blit(param0, param3, param2, 64.0F, (float)var5, 32, 32, 256, 256);
                         if (var4) {
                             this.screen
-                                .setToolTip(
+                                .setTooltipForNextRenderPass(
                                     ImmutableList.of(
                                         WorldSelectionList.SNAPSHOT_TOOLTIP_1.getVisualOrderText(), WorldSelectionList.SNAPSHOT_TOOLTIP_2.getVisualOrderText()
                                     )

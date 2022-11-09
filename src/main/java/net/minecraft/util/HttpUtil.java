@@ -170,4 +170,21 @@ public class HttpUtil {
             return 25564;
         }
     }
+
+    public static boolean isPortAvailable(int param0) {
+        if (param0 >= 0 && param0 <= 65535) {
+            try {
+                boolean var2;
+                try (ServerSocket var0 = new ServerSocket(param0)) {
+                    var2 = var0.getLocalPort() == param0;
+                }
+
+                return var2;
+            } catch (IOException var6) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }

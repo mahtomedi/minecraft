@@ -118,7 +118,6 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             this.name = param2;
             this.changeButton = Button.builder(param2, param1x -> KeyBindsList.this.keyBindsScreen.selectedKey = param1)
                 .bounds(0, 0, 75, 20)
-                .tooltip(Button.NO_TOOLTIP)
                 .createNarration(
                     param2x -> param1.isUnbound()
                             ? Component.translatable("narrator.controls.unbound", param2)
@@ -128,7 +127,7 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             this.resetButton = Button.builder(Component.translatable("controls.reset"), param1x -> {
                 KeyBindsList.this.minecraft.options.setKey(param1, param1.getDefaultKey());
                 KeyMapping.resetMapping();
-            }).bounds(0, 0, 50, 20).tooltip(Button.NO_TOOLTIP).createNarration(param1x -> Component.translatable("narrator.controls.reset", param2)).build();
+            }).bounds(0, 0, 50, 20).createNarration(param1x -> Component.translatable("narrator.controls.reset", param2)).build();
         }
 
         @Override

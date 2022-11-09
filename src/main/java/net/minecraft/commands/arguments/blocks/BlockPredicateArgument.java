@@ -18,7 +18,7 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +32,7 @@ public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgume
     private final HolderLookup<Block> blocks;
 
     public BlockPredicateArgument(CommandBuildContext param0) {
-        this.blocks = param0.holderLookup(Registry.BLOCK_REGISTRY);
+        this.blocks = param0.holderLookup(Registries.BLOCK);
     }
 
     public static BlockPredicateArgument blockPredicate(CommandBuildContext param0) {

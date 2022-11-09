@@ -1,16 +1,13 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 
-public class UpdateActivityFromSchedule extends Behavior<LivingEntity> {
-    public UpdateActivityFromSchedule() {
-        super(ImmutableMap.of());
-    }
-
-    @Override
-    protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        param1.getBrain().updateActivityFromSchedule(param0.getDayTime(), param0.getGameTime());
+public class UpdateActivityFromSchedule {
+    public static BehaviorControl<LivingEntity> create() {
+        return BehaviorBuilder.create(param0 -> param0.point((param0x, param1, param2) -> {
+                param1.getBrain().updateActivityFromSchedule(param0x.getDayTime(), param0x.getGameTime());
+                return true;
+            }));
     }
 }

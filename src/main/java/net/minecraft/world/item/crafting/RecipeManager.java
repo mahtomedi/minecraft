@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -138,7 +138,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
 
     public static Recipe<?> fromJson(ResourceLocation param0, JsonObject param1) {
         String var0 = GsonHelper.getAsString(param1, "type");
-        return Registry.RECIPE_SERIALIZER
+        return BuiltInRegistries.RECIPE_SERIALIZER
             .getOptional(new ResourceLocation(var0))
             .orElseThrow(() -> new JsonSyntaxException("Invalid or unsupported recipe type '" + var0 + "'"))
             .fromJson(param0, param1);

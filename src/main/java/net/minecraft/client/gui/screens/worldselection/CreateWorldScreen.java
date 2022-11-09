@@ -37,7 +37,7 @@ import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.LayeredRegistryAccess;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -298,7 +298,7 @@ public class CreateWorldScreen extends Screen {
         WorldDimensions.Complete var1 = var0.selectedDimensions().bake(var0.datapackDimensions());
         LayeredRegistryAccess<RegistryLayer> var2 = var0.worldgenRegistries().replaceFrom(RegistryLayer.DIMENSIONS, var1.dimensionsRegistryAccess());
         Lifecycle var3 = FeatureFlags.isExperimental(var0.dataConfiguration().enabledFeatures()) ? Lifecycle.experimental() : Lifecycle.stable();
-        Lifecycle var4 = var2.compositeAccess().allElementsLifecycle();
+        Lifecycle var4 = var2.compositeAccess().allRegistriesLifecycle();
         Lifecycle var5 = var4.add(var3);
         WorldOpenFlows.confirmWorldCreation(this.minecraft, this, var5, () -> this.createNewWorld(var1.specialWorldProperty(), var2, var5));
     }
@@ -519,9 +519,9 @@ public class CreateWorldScreen extends Screen {
         WorldLoader.<CreateWorldScreen.DataPackReloadCookie, WorldCreationContext>load(
                 var0,
                 param0x -> {
-                    if (param0x.datapackWorldgen().registryOrThrow(Registry.WORLD_PRESET_REGISTRY).size() == 0) {
+                    if (param0x.datapackWorldgen().registryOrThrow(Registries.WORLD_PRESET).size() == 0) {
                         throw new IllegalStateException("Needs at least one world preset to continue");
-                    } else if (param0x.datapackWorldgen().registryOrThrow(Registry.BIOME_REGISTRY).size() == 0) {
+                    } else if (param0x.datapackWorldgen().registryOrThrow(Registries.BIOME).size() == 0) {
                         throw new IllegalStateException("Needs at least one biome continue");
                     } else {
                         WorldCreationContext var0x = this.worldGenSettingsComponent.settings();
@@ -627,7 +627,7 @@ public class CreateWorldScreen extends Screen {
                 Optional var41;
                 try (Stream<Path> var1 = Files.walk(this.tempDataPackDir)) {
                     Path var2 = var0.getLevelPath(LevelResource.DATAPACK_DIR);
-                    Files.createDirectories(var2);
+                    FileUtil.createDirectoriesSafe(var2);
                     var1.filter(param0 -> !param0.equals(this.tempDataPackDir)).forEach(param1 -> copyBetweenDirs(this.tempDataPackDir, var2, param1));
                     var41 = Optional.of(var0);
                 }

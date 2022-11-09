@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.effect.MobEffect;
@@ -73,7 +73,7 @@ public class MobEffectsPredicate {
 
             for(Entry<String, JsonElement> var2 : var0.entrySet()) {
                 ResourceLocation var3 = new ResourceLocation(var2.getKey());
-                MobEffect var4 = Registry.MOB_EFFECT.getOptional(var3).orElseThrow(() -> new JsonSyntaxException("Unknown effect '" + var3 + "'"));
+                MobEffect var4 = BuiltInRegistries.MOB_EFFECT.getOptional(var3).orElseThrow(() -> new JsonSyntaxException("Unknown effect '" + var3 + "'"));
                 MobEffectsPredicate.MobEffectInstancePredicate var5 = MobEffectsPredicate.MobEffectInstancePredicate.fromJson(
                     GsonHelper.convertToJsonObject(var2.getValue(), var2.getKey())
                 );
@@ -93,7 +93,7 @@ public class MobEffectsPredicate {
             JsonObject var0 = new JsonObject();
 
             for(Entry<MobEffect, MobEffectsPredicate.MobEffectInstancePredicate> var1 : this.effects.entrySet()) {
-                var0.add(Registry.MOB_EFFECT.getKey(var1.getKey()).toString(), var1.getValue().serializeToJson());
+                var0.add(BuiltInRegistries.MOB_EFFECT.getKey(var1.getKey()).toString(), var1.getValue().serializeToJson());
             }
 
             return var0;

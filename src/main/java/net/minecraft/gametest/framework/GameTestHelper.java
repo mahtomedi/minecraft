@@ -12,7 +12,7 @@ import java.util.stream.LongStream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -483,7 +483,7 @@ public class GameTestHelper {
         BlockPos var0 = this.absolutePos(param0);
         BlockEntity var1 = this.getLevel().getBlockEntity(var0);
         if (!(var1 instanceof BaseContainerBlockEntity)) {
-            throw new GameTestAssertException("Expected a container at " + param0 + ", found " + Registry.BLOCK_ENTITY_TYPE.getKey(var1.getType()));
+            throw new GameTestAssertException("Expected a container at " + param0 + ", found " + BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(var1.getType()));
         } else if (((BaseContainerBlockEntity)var1).countItem(param1) != 1) {
             throw new GameTestAssertException("Container should contain: " + param1);
         }

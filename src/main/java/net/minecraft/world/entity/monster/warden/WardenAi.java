@@ -6,15 +6,13 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import java.util.List;
-import java.util.Map;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.behavior.DoNothing;
 import net.minecraft.world.entity.ai.behavior.GoToTargetLocation;
@@ -27,6 +25,8 @@ import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromAttackTargetIfTargetOutOfReach;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.behavior.Swim;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
 import net.minecraft.world.entity.ai.behavior.warden.Digging;
 import net.minecraft.world.entity.ai.behavior.warden.Emerging;
 import net.minecraft.world.entity.ai.behavior.warden.ForceUnmount;
@@ -82,11 +82,15 @@ public class WardenAi {
         MemoryModuleType.SONIC_BOOM_SOUND_COOLDOWN,
         MemoryModuleType.SONIC_BOOM_SOUND_DELAY
     );
-    private static final Behavior<Warden> DIG_COOLDOWN_SETTER = new Behavior<Warden>(ImmutableMap.of(MemoryModuleType.DIG_COOLDOWN, MemoryStatus.REGISTERED)) {
-        protected void start(ServerLevel param0, Warden param1, long param2) {
-            WardenAi.setDigCooldown(param1);
-        }
-    };
+    private static final BehaviorControl<Warden> DIG_COOLDOWN_SETTER = BehaviorBuilder.create(
+        param0 -> param0.<MemoryAccessor>group(param0.registered(MemoryModuleType.DIG_COOLDOWN)).apply(param0, param1 -> (param2, param3, param4) -> {
+                    if (param0.tryGet(param1).isPresent()) {
+                        param1.setWithExpiry(Unit.INSTANCE, 1200L);
+                    }
+    
+                    return true;
+                })
+    );
 
     public static void updateActivity(Warden param0) {
         param0.getBrain()
@@ -113,7 +117,9 @@ public class WardenAi {
     }
 
     private static void initCoreActivity(Brain<Warden> param0) {
-        param0.addActivity(Activity.CORE, 0, ImmutableList.of(new Swim(0.8F), new SetWardenLookTarget(), new LookAtTargetSink(45, 90), new MoveToTargetSink()));
+        param0.addActivity(
+            Activity.CORE, 0, ImmutableList.of(new Swim(0.8F), SetWardenLookTarget.create(), new LookAtTargetSink(45, 90), new MoveToTargetSink())
+        );
     }
 
     private static void initEmergeActivity(Brain<Warden> param0) {
@@ -133,11 +139,11 @@ public class WardenAi {
             Activity.IDLE,
             10,
             ImmutableList.of(
-                new SetRoarTarget<>(Warden::getEntityAngryAt),
-                new TryToSniff(),
-                new RunOne(
+                SetRoarTarget.create(Warden::getEntityAngryAt),
+                TryToSniff.create(),
+                new RunOne<>(
                     ImmutableMap.of(MemoryModuleType.IS_SNIFFING, MemoryStatus.VALUE_ABSENT),
-                    ImmutableList.of(Pair.of(new RandomStroll(0.5F), 2), Pair.of(new DoNothing(30, 60), 1))
+                    ImmutableList.of(Pair.of(RandomStroll.stroll(0.5F), 2), Pair.of(new DoNothing(30, 60), 1))
                 )
             )
         );
@@ -147,14 +153,17 @@ public class WardenAi {
         param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.INVESTIGATE,
             5,
-            ImmutableList.of(new SetRoarTarget<>(Warden::getEntityAngryAt), new GoToTargetLocation(MemoryModuleType.DISTURBANCE_LOCATION, 2, 0.7F)),
+            ImmutableList.of(SetRoarTarget.create(Warden::getEntityAngryAt), GoToTargetLocation.create(MemoryModuleType.DISTURBANCE_LOCATION, 2, 0.7F)),
             MemoryModuleType.DISTURBANCE_LOCATION
         );
     }
 
     private static void initSniffingActivity(Brain<Warden> param0) {
         param0.addActivityAndRemoveMemoryWhenStopped(
-            Activity.SNIFF, 5, ImmutableList.of(new SetRoarTarget<>(Warden::getEntityAngryAt), new Sniffing(SNIFFING_DURATION)), MemoryModuleType.IS_SNIFFING
+            Activity.SNIFF,
+            5,
+            ImmutableList.of(SetRoarTarget.create(Warden::getEntityAngryAt), new Sniffing<>(SNIFFING_DURATION)),
+            MemoryModuleType.IS_SNIFFING
         );
     }
 
@@ -168,13 +177,13 @@ public class WardenAi {
             10,
             ImmutableList.of(
                 DIG_COOLDOWN_SETTER,
-                new StopAttackingIfTargetInvalid<>(
+                StopAttackingIfTargetInvalid.<Warden>create(
                     param1x -> !param0.getAngerLevel().isAngry() || !param0.canTargetEntity(param1x), WardenAi::onTargetInvalid, false
                 ),
-                new SetEntityLookTarget(param1x -> isTarget(param0, param1x), (float)param0.getAttributeValue(Attributes.FOLLOW_RANGE)),
-                new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.2F),
+                SetEntityLookTarget.create(param1x -> isTarget(param0, param1x), (float)param0.getAttributeValue(Attributes.FOLLOW_RANGE)),
+                SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.2F),
                 new SonicBoom(),
-                new MeleeAttack(18)
+                MeleeAttack.create(18)
             ),
             MemoryModuleType.ATTACK_TARGET
         );

@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Animal;
@@ -47,7 +47,7 @@ public class SpawnPlacements {
     ) {
         SpawnPlacements.Data var0 = DATA_BY_TYPE.put(param0, new SpawnPlacements.Data(param2, param1, param3));
         if (var0 != null) {
-            throw new IllegalStateException("Duplicate registration for type " + Registry.ENTITY_TYPE.getKey(param0));
+            throw new IllegalStateException("Duplicate registration for type " + BuiltInRegistries.ENTITY_TYPE.getKey(param0));
         }
     }
 

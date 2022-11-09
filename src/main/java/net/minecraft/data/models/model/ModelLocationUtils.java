@@ -1,6 +1,6 @@
 package net.minecraft.data.models.model;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -16,22 +16,22 @@ public class ModelLocationUtils {
     }
 
     public static ResourceLocation getModelLocation(Block param0, String param1) {
-        ResourceLocation var0 = Registry.BLOCK.getKey(param0);
+        ResourceLocation var0 = BuiltInRegistries.BLOCK.getKey(param0);
         return var0.withPath(param1x -> "block/" + param1x + param1);
     }
 
     public static ResourceLocation getModelLocation(Block param0) {
-        ResourceLocation var0 = Registry.BLOCK.getKey(param0);
+        ResourceLocation var0 = BuiltInRegistries.BLOCK.getKey(param0);
         return var0.withPrefix("block/");
     }
 
     public static ResourceLocation getModelLocation(Item param0) {
-        ResourceLocation var0 = Registry.ITEM.getKey(param0);
+        ResourceLocation var0 = BuiltInRegistries.ITEM.getKey(param0);
         return var0.withPrefix("item/");
     }
 
     public static ResourceLocation getModelLocation(Item param0, String param1) {
-        ResourceLocation var0 = Registry.ITEM.getKey(param0);
+        ResourceLocation var0 = BuiltInRegistries.ITEM.getKey(param0);
         return var0.withPath(param1x -> "item/" + param1x + param1);
     }
 }

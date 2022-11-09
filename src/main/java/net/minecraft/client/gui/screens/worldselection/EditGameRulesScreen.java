@@ -83,14 +83,6 @@ public class EditGameRulesScreen extends Screen {
         this.rules.render(param0, param1, param2, param3);
         drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
-        if (this.tooltip != null) {
-            this.renderTooltip(param0, this.tooltip, param1, param2);
-        }
-
-    }
-
-    void setTooltip(@Nullable List<FormattedCharSequence> param0) {
-        this.tooltip = param0;
     }
 
     private void updateDoneButton() {
@@ -317,7 +309,7 @@ public class EditGameRulesScreen extends Screen {
             super.render(param0, param1, param2, param3);
             EditGameRulesScreen.RuleEntry var0 = this.getHovered();
             if (var0 != null) {
-                EditGameRulesScreen.this.setTooltip(var0.tooltip);
+                EditGameRulesScreen.this.setTooltipForNextRenderPass(var0.tooltip);
             }
 
         }

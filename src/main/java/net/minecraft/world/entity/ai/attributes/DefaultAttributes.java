@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.logging.LogUtils;
 import java.util.Map;
 import net.minecraft.Util;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.GlowSquid;
 import net.minecraft.world.entity.LivingEntity;
@@ -173,11 +173,11 @@ public class DefaultAttributes {
     }
 
     public static void validate() {
-        Registry.ENTITY_TYPE
+        BuiltInRegistries.ENTITY_TYPE
             .stream()
             .filter(param0 -> param0.getCategory() != MobCategory.MISC)
             .filter(param0 -> !hasSupplier(param0))
-            .map(Registry.ENTITY_TYPE::getKey)
+            .map(BuiltInRegistries.ENTITY_TYPE::getKey)
             .forEach(param0 -> Util.logAndPauseIfInIde("Entity " + param0 + " has no attributes"));
     }
 }

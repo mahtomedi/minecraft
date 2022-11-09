@@ -72,13 +72,13 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SculkChargeParticleOptions;
 import net.minecraft.core.particles.ShriekParticleOption;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.BlockDestructionProgress;
@@ -1323,7 +1323,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         if (var30 >= 0) {
                             PoseStack.Pose var31 = param0.last();
                             VertexConsumer var32 = new SheetedDecalTextureGenerator(
-                                this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var30)), var31.pose(), var31.normal()
+                                this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var30)), var31.pose(), var31.normal(), 1.0F
                             );
                             var28 = param2x -> {
                                 VertexConsumer var0x = var13.getBuffer(param2x);
@@ -1380,7 +1380,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     param0.translate((double)var36.getX() - var3, (double)var36.getY() - var4, (double)var36.getZ() - var5);
                     PoseStack.Pose var42 = param0.last();
                     VertexConsumer var43 = new SheetedDecalTextureGenerator(
-                        this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var41)), var42.pose(), var42.normal()
+                        this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var41)), var42.pose(), var42.normal(), 1.0F
                     );
                     this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var36), var36, this.level, param0, var43);
                     param0.popPose();
@@ -2811,7 +2811,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         } catch (Throwable var19) {
             CrashReport var1 = CrashReport.forThrowable(var19, "Exception while adding particle");
             CrashReportCategory var2 = var1.addCategory("Particle being added");
-            var2.setDetail("ID", Registry.PARTICLE_TYPE.getKey(param0.getType()));
+            var2.setDetail("ID", BuiltInRegistries.PARTICLE_TYPE.getKey(param0.getType()));
             var2.setDetail("Parameters", param0.writeToString());
             var2.setDetail("Position", () -> CrashReportCategory.formatLocation(this.level, param3, param4, param5));
             throw new ReportedException(var1);

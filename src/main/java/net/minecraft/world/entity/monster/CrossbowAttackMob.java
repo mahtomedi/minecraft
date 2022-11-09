@@ -34,21 +34,21 @@ public interface CrossbowAttackMob extends RangedAttackMob {
     }
 
     default void shootCrossbowProjectile(LivingEntity param0, LivingEntity param1, Projectile param2, float param3, float param4) {
-        double var1 = param1.getX() - param0.getX();
-        double var2 = param1.getZ() - param0.getZ();
-        double var3 = Math.sqrt(var1 * var1 + var2 * var2);
-        double var4 = param1.getY(0.3333333333333333) - param2.getY() + var3 * 0.2F;
-        Vector3f var5 = this.getProjectileShotVector(param0, new Vec3(var1, var4, var2), param3);
-        param2.shoot((double)var5.x(), (double)var5.y(), (double)var5.z(), param4, (float)(14 - param0.level.getDifficulty().getId() * 4));
+        double var0 = param1.getX() - param0.getX();
+        double var1 = param1.getZ() - param0.getZ();
+        double var2 = Math.sqrt(var0 * var0 + var1 * var1);
+        double var3 = param1.getY(0.3333333333333333) - param2.getY() + var2 * 0.2F;
+        Vector3f var4 = this.getProjectileShotVector(param0, new Vec3(var0, var3, var1), param3);
+        param2.shoot((double)var4.x(), (double)var4.y(), (double)var4.z(), param4, (float)(14 - param0.level.getDifficulty().getId() * 4));
         param0.playSound(SoundEvents.CROSSBOW_SHOOT, 1.0F, 1.0F / (param0.getRandom().nextFloat() * 0.4F + 0.8F));
     }
 
     default Vector3f getProjectileShotVector(LivingEntity param0, Vec3 param1, float param2) {
         Vector3f var0 = param1.toVector3f().normalize();
-        Vector3f var1 = var0.cross(new Vector3f(0.0F, 1.0F, 0.0F));
+        Vector3f var1 = new Vector3f((Vector3fc)var0).cross(new Vector3f(0.0F, 1.0F, 0.0F));
         if ((double)var1.lengthSquared() <= 1.0E-7) {
             Vec3 var2 = param0.getUpVector(1.0F);
-            var1 = var0.cross(var2.toVector3f());
+            var1 = new Vector3f((Vector3fc)var0).cross(var2.toVector3f());
         }
 
         Vector3f var3 = new Vector3f((Vector3fc)var0).rotateAxis((float) (Math.PI / 2), var1.x, var1.y, var1.z);
