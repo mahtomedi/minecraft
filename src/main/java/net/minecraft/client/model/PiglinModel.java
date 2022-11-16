@@ -32,7 +32,14 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
         MeshDefinition var0 = PlayerModel.createMesh(param0, false);
         PartDefinition var1 = var0.getRoot();
         var1.addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, param0), PartPose.ZERO);
-        PartDefinition var2 = var1.addOrReplaceChild(
+        addHead(param0, var0);
+        var1.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        return var0;
+    }
+
+    public static void addHead(CubeDeformation param0, MeshDefinition param1) {
+        PartDefinition var0 = param1.getRoot();
+        PartDefinition var1 = var0.addOrReplaceChild(
             "head",
             CubeListBuilder.create()
                 .texOffs(0, 0)
@@ -45,18 +52,16 @@ public class PiglinModel<T extends Mob> extends PlayerModel<T> {
                 .addBox(-3.0F, -2.0F, -5.0F, 1.0F, 2.0F, 1.0F, param0),
             PartPose.ZERO
         );
-        var2.addOrReplaceChild(
+        var1.addOrReplaceChild(
             "left_ear",
             CubeListBuilder.create().texOffs(51, 6).addBox(0.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0),
             PartPose.offsetAndRotation(4.5F, -6.0F, 0.0F, 0.0F, 0.0F, (float) (-Math.PI / 6))
         );
-        var2.addOrReplaceChild(
+        var1.addOrReplaceChild(
             "right_ear",
             CubeListBuilder.create().texOffs(39, 6).addBox(-1.0F, 0.0F, -2.0F, 1.0F, 5.0F, 4.0F, param0),
             PartPose.offsetAndRotation(-4.5F, -6.0F, 0.0F, 0.0F, 0.0F, (float) (Math.PI / 6))
         );
-        var1.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
-        return var0;
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {

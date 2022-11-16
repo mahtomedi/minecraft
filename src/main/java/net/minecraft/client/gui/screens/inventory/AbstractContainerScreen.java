@@ -82,8 +82,6 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
     @Override
     protected void init() {
-        super.init();
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
     }
@@ -615,7 +613,6 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     @Override
     public void removed() {
         if (this.minecraft.player != null) {
-            this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
             this.menu.removed(this.minecraft.player);
         }
     }

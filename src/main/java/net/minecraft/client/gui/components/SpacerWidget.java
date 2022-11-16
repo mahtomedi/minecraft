@@ -19,6 +19,11 @@ public class SpacerWidget extends AbstractWidget {
     public void updateWidgetNarration(NarrationElementOutput param0) {
     }
 
+    @Override
+    public boolean changeFocus(boolean param0) {
+        return false;
+    }
+
     public static AbstractWidget width(int param0) {
         return new SpacerWidget(param0, 0);
     }

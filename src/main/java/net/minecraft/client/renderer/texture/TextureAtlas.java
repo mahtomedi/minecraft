@@ -77,15 +77,23 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
 
     private void dumpContents(int param0, int param1, int param2) {
         String var0 = this.location.toDebugFileName();
-        TextureUtil.writeAsPNG(var0, this.getId(), param0, param1, param2);
-        dumpSpriteNames(var0, this.texturesByName);
+        Path var1 = TextureUtil.getDebugTexturePath();
+
+        try {
+            Files.createDirectories(var1);
+            TextureUtil.writeAsPNG(var1, var0, this.getId(), param0, param1, param2);
+            dumpSpriteNames(var1, var0, this.texturesByName);
+        } catch (IOException var7) {
+            LOGGER.warn("Failed to dump atlas contents to {}", var1);
+        }
+
     }
 
-    private static void dumpSpriteNames(String param0, Map<ResourceLocation, TextureAtlasSprite> param1) {
-        Path var0 = Path.of(param0 + ".txt");
+    private static void dumpSpriteNames(Path param0, String param1, Map<ResourceLocation, TextureAtlasSprite> param2) {
+        Path var0 = param0.resolve(param1 + ".txt");
 
         try (Writer var1 = Files.newBufferedWriter(var0)) {
-            for(Entry<ResourceLocation, TextureAtlasSprite> var2 : param1.entrySet().stream().sorted(Entry.comparingByKey()).toList()) {
+            for(Entry<ResourceLocation, TextureAtlasSprite> var2 : param2.entrySet().stream().sorted(Entry.comparingByKey()).toList()) {
                 TextureAtlasSprite var3 = var2.getValue();
                 var1.write(
                     String.format(
@@ -93,8 +101,8 @@ public class TextureAtlas extends AbstractTexture implements Tickable {
                     )
                 );
             }
-        } catch (IOException var9) {
-            LOGGER.warn("Failed to write file {}", var0, var9);
+        } catch (IOException var10) {
+            LOGGER.warn("Failed to write file {}", var0, var10);
         }
 
     }

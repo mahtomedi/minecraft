@@ -115,19 +115,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
 
     @Override
     public void generate(HolderLookup.Provider param0, Consumer<Advancement> param1) {
-        Advancement var0 = Advancement.Builder.advancement()
-            .display(
-                Blocks.HAY_BLOCK,
-                Component.translatable("advancements.husbandry.root.title"),
-                Component.translatable("advancements.husbandry.root.description"),
-                new ResourceLocation("textures/gui/advancements/backgrounds/husbandry.png"),
-                FrameType.TASK,
-                false,
-                false,
-                false
-            )
-            .addCriterion("consumed_item", ConsumeItemTrigger.TriggerInstance.usedItem())
-            .save(param1, "husbandry/root");
+        Advancement var0 = this.createRoot(param1);
         Advancement var1 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -147,21 +135,8 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .addCriterion("beetroots", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.BEETROOTS))
             .addCriterion("nether_wart", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.NETHER_WART))
             .save(param1, "husbandry/plant_seed");
-        Advancement var2 = Advancement.Builder.advancement()
-            .parent(var0)
-            .display(
-                Items.WHEAT,
-                Component.translatable("advancements.husbandry.breed_an_animal.title"),
-                Component.translatable("advancements.husbandry.breed_an_animal.description"),
-                null,
-                FrameType.TASK,
-                true,
-                true,
-                false
-            )
-            .requirements(RequirementsStrategy.OR)
-            .addCriterion("bred", BredAnimalsTrigger.TriggerInstance.bredAnimals())
-            .save(param1, "husbandry/breed_an_animal");
+        Advancement var2 = this.createBreedAnAnimalAdvancement(var0, param1);
+        this.createBreedAllAnimalsAdvancement(var2, param1);
         this.addFood(Advancement.Builder.advancement())
             .parent(var1)
             .display(
@@ -205,20 +180,6 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("tamed_animal", TameAnimalTrigger.TriggerInstance.tamedAnimal())
             .save(param1, "husbandry/tame_an_animal");
-        this.addBreedable(Advancement.Builder.advancement())
-            .parent(var2)
-            .display(
-                Items.GOLDEN_CARROT,
-                Component.translatable("advancements.husbandry.breed_all_animals.title"),
-                Component.translatable("advancements.husbandry.breed_all_animals.description"),
-                null,
-                FrameType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .rewards(AdvancementRewards.Builder.experience(100))
-            .save(param1, "husbandry/bred_all_animals");
         Advancement var4 = this.addFish(Advancement.Builder.advancement())
             .parent(var0)
             .requirements(RequirementsStrategy.OR)
@@ -462,7 +423,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "make_a_sign_glow",
                 ItemInteractWithBlockTrigger.TriggerInstance.itemUsedOnBlock(
-                    LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(BlockTags.SIGNS).build()),
+                    LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(BlockTags.ALL_SIGNS).build()),
                     ItemPredicate.Builder.item().of(Items.GLOW_INK_SAC)
                 )
             )
@@ -510,6 +471,57 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .save(param1, "husbandry/allay_deliver_cake_to_note_block");
     }
 
+    Advancement createRoot(Consumer<Advancement> param0) {
+        return Advancement.Builder.advancement()
+            .display(
+                Blocks.HAY_BLOCK,
+                Component.translatable("advancements.husbandry.root.title"),
+                Component.translatable("advancements.husbandry.root.description"),
+                new ResourceLocation("textures/gui/advancements/backgrounds/husbandry.png"),
+                FrameType.TASK,
+                false,
+                false,
+                false
+            )
+            .addCriterion("consumed_item", ConsumeItemTrigger.TriggerInstance.usedItem())
+            .save(param0, "husbandry/root");
+    }
+
+    Advancement createBreedAnAnimalAdvancement(Advancement param0, Consumer<Advancement> param1) {
+        return Advancement.Builder.advancement()
+            .parent(param0)
+            .display(
+                Items.WHEAT,
+                Component.translatable("advancements.husbandry.breed_an_animal.title"),
+                Component.translatable("advancements.husbandry.breed_an_animal.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .requirements(RequirementsStrategy.OR)
+            .addCriterion("bred", BredAnimalsTrigger.TriggerInstance.bredAnimals())
+            .save(param1, "husbandry/breed_an_animal");
+    }
+
+    Advancement createBreedAllAnimalsAdvancement(Advancement param0, Consumer<Advancement> param1) {
+        return this.addBreedable(Advancement.Builder.advancement())
+            .parent(param0)
+            .display(
+                Items.GOLDEN_CARROT,
+                Component.translatable("advancements.husbandry.breed_all_animals.title"),
+                Component.translatable("advancements.husbandry.breed_all_animals.description"),
+                null,
+                FrameType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .rewards(AdvancementRewards.Builder.experience(100))
+            .save(param1, "husbandry/bred_all_animals");
+    }
+
     private Advancement.Builder addLeashedFrogVariants(Advancement.Builder param0) {
         BuiltInRegistries.FROG_VARIANT
             .holders()
@@ -535,12 +547,12 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
         return param0;
     }
 
-    private Advancement.Builder addBreedable(Advancement.Builder param0) {
-        for(EntityType<?> var0 : BREEDABLE_ANIMALS) {
+    Advancement.Builder addBreedable(Advancement.Builder param0) {
+        for(EntityType<?> var0 : this.getBreedableAnimals()) {
             param0.addCriterion(EntityType.getKey(var0).toString(), BredAnimalsTrigger.TriggerInstance.bredAnimals(EntityPredicate.Builder.entity().of(var0)));
         }
 
-        for(EntityType<?> var1 : INDIRECTLY_BREEDABLE_ANIMALS) {
+        for(EntityType<?> var1 : this.getIndirectlyBreedableAnimals()) {
             param0.addCriterion(
                 EntityType.getKey(var1).toString(),
                 BredAnimalsTrigger.TriggerInstance.bredAnimals(
@@ -587,5 +599,13 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     )
             );
         return param0;
+    }
+
+    public EntityType<?>[] getBreedableAnimals() {
+        return BREEDABLE_ANIMALS;
+    }
+
+    public EntityType<?>[] getIndirectlyBreedableAnimals() {
+        return INDIRECTLY_BREEDABLE_ANIMALS;
     }
 }

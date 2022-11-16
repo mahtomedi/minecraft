@@ -30,7 +30,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.ClientRecipeBook;
-import net.minecraft.client.ClientTelemetryManager;
 import net.minecraft.client.DebugQueryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -71,6 +70,7 @@ import net.minecraft.client.resources.sounds.MinecartSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.searchtree.SearchRegistry;
+import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ArgumentSignatures;
@@ -337,7 +337,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     private Set<ResourceKey<Level>> levels;
     private LayeredRegistryAccess<ClientRegistryLayer> registryAccess = ClientRegistryLayer.createRegistryAccess();
     private FeatureFlagSet enabledFeatures = FeatureFlags.DEFAULT_FLAGS;
-    private final ClientTelemetryManager telemetryManager;
+    private final WorldSessionTelemetryManager telemetryManager;
     @Nullable
     private LocalChatSession chatSession;
     private SignedMessageChain.Encoder signedMessageEncoder = SignedMessageChain.Encoder.UNSIGNED;
@@ -345,7 +345,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     private MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
 
     public ClientPacketListener(
-        Minecraft param0, Screen param1, Connection param2, @Nullable ServerData param3, GameProfile param4, ClientTelemetryManager param5
+        Minecraft param0, Screen param1, Connection param2, @Nullable ServerData param3, GameProfile param4, WorldSessionTelemetryManager param5
     ) {
         this.minecraft = param0;
         this.callbackScreen = param1;
@@ -361,8 +361,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         return this.suggestionsProvider;
     }
 
-    public void cleanup() {
+    public void close() {
         this.level = null;
+        this.telemetryManager.onDisconnect();
     }
 
     public RecipeManager getRecipeManager() {
@@ -437,10 +438,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         this.lastSeenMessages = new LastSeenMessagesTracker(20);
         this.messageSignatureCache = MessageSignatureCache.createDefault();
         if (this.connection.isEncrypted()) {
-            this.minecraft
-                .getProfileKeyPairManager()
-                .prepareKeyPair()
-                .thenAcceptAsync(param0x -> param0x.ifPresent(param0xx -> this.setChatSession(LocalChatSession.create(param0xx))), this.minecraft);
+            this.minecraft.getProfileKeyPairManager().prepareKeyPair().thenAcceptAsync(param0x -> param0x.ifPresent(this::setKeyPair), this.minecraft);
         }
 
         this.minecraft.getGame().onStartGameSession();
@@ -929,6 +927,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.level.setGameTime(param0.getGameTime());
         this.minecraft.level.setDayTime(param0.getDayTime());
+        this.telemetryManager.setTime(param0.getGameTime());
     }
 
     @Override
@@ -1488,7 +1487,6 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                     null,
                     Optional.ofNullable(param0.getFactorData())
                 );
-                var2.setNoCounter(param0.isSuperLongDuration());
                 ((LivingEntity)var0).forceAddEffect(var2, null);
             }
         }
@@ -2583,22 +2581,19 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         if (this.connection.isEncrypted()) {
             ProfileKeyPairManager var0 = this.minecraft.getProfileKeyPairManager();
             if (var0.shouldRefreshKeyPair()) {
-                var0.prepareKeyPair().thenAcceptAsync(param0 -> param0.ifPresent(this::refreshKeyPair), this.minecraft);
+                var0.prepareKeyPair().thenAcceptAsync(param0 -> param0.ifPresent(this::setKeyPair), this.minecraft);
             }
         }
 
+        this.telemetryManager.tick();
     }
 
-    private void refreshKeyPair(ProfileKeyPair param0) {
+    public void setKeyPair(ProfileKeyPair param0) {
         if (this.chatSession == null || !this.chatSession.keyPair().equals(param0)) {
-            this.setChatSession(LocalChatSession.create(param0));
+            this.chatSession = LocalChatSession.create(param0);
+            this.signedMessageEncoder = this.chatSession.createMessageEncoder(this.localGameProfile.getId());
+            this.send(new ServerboundChatSessionUpdatePacket(this.chatSession.asRemote().asData()));
         }
-    }
-
-    private void setChatSession(LocalChatSession param0) {
-        this.chatSession = param0;
-        this.signedMessageEncoder = param0.createMessageEncoder(this.localGameProfile.getId());
-        this.send(new ServerboundChatSessionUpdatePacket(param0.asRemote().asData()));
     }
 
     @Nullable

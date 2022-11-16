@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MobEffectTextureManager extends TextureAtlasHolder {
     public MobEffectTextureManager(TextureManager param0) {
-        super(param0, new ResourceLocation("textures/atlas/mob_effects.png"), "mob_effect");
+        super(param0, new ResourceLocation("textures/atlas/mob_effects.png"), new ResourceLocation("mob_effects"));
     }
 
     public TextureAtlasSprite get(MobEffect param0) {

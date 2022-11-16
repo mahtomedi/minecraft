@@ -24,6 +24,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
@@ -156,8 +157,13 @@ public class GameTestHelper {
 
     public void useBlock(BlockPos param0, Player param1) {
         BlockPos var0 = this.absolutePos(param0);
+        this.useBlock(param0, param1, new BlockHitResult(Vec3.atCenterOf(var0), Direction.NORTH, var0, true));
+    }
+
+    public void useBlock(BlockPos param0, Player param1, BlockHitResult param2) {
+        BlockPos var0 = this.absolutePos(param0);
         BlockState var1 = this.getLevel().getBlockState(var0);
-        var1.use(this.getLevel(), param1, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(var0), Direction.NORTH, var0, true));
+        var1.use(this.getLevel(), param1, InteractionHand.MAIN_HAND, param2);
     }
 
     public LivingEntity makeAboutToDrown(LivingEntity param0) {
@@ -665,5 +671,12 @@ public class GameTestHelper {
 
     public void onEachTick(Runnable param0) {
         LongStream.range(this.testInfo.getTick(), (long)this.testInfo.getTimeoutTicks()).forEach(param1 -> this.testInfo.setRunAtTickTime(param1, param0::run));
+    }
+
+    public void placeAt(Player param0, ItemStack param1, BlockPos param2, Direction param3) {
+        BlockPos var0 = this.absolutePos(param2.relative(param3));
+        BlockHitResult var1 = new BlockHitResult(Vec3.atCenterOf(var0), param3, var0, false);
+        UseOnContext var2 = new UseOnContext(param0, InteractionHand.MAIN_HAND, var1);
+        param1.useOn(var2);
     }
 }

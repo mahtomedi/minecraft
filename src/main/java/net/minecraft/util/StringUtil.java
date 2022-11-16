@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -14,7 +15,9 @@ public class StringUtil {
         int var0 = param0 / 20;
         int var1 = var0 / 60;
         var0 %= 60;
-        return var0 < 10 ? var1 + ":0" + var0 : var1 + ":" + var0;
+        int var2 = var1 / 60;
+        var1 %= 60;
+        return var2 > 0 ? String.format(Locale.ROOT, "%02d:%02d:%02d", var2, var1, var0) : String.format(Locale.ROOT, "%02d:%02d", var1, var0);
     }
 
     public static String stripColor(String param0) {

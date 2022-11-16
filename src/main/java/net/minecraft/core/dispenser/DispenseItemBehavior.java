@@ -473,6 +473,7 @@ public interface DispenseItemBehavior {
         DispenserBlock.registerBehavior(Items.ZOMBIE_HEAD, var4);
         DispenserBlock.registerBehavior(Items.DRAGON_HEAD, var4);
         DispenserBlock.registerBehavior(Items.SKELETON_SKULL, var4);
+        DispenserBlock.registerBehavior(Items.PIGLIN_HEAD, var4);
         DispenserBlock.registerBehavior(Items.PLAYER_HEAD, var4);
         DispenserBlock.registerBehavior(
             Items.WITHER_SKELETON_SKULL,

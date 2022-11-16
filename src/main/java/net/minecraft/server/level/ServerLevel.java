@@ -66,6 +66,7 @@ import net.minecraft.server.players.SleepStatus;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.CsvOutput;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
@@ -457,40 +458,42 @@ public class ServerLevel extends Level implements WorldGenLevel {
                     if (var14.is(Blocks.SNOW)) {
                         int var15 = var14.getValue(SnowLayerBlock.LAYERS);
                         if (var15 < Math.min(var13, 8)) {
-                            this.setBlockAndUpdate(var10, var14.setValue(SnowLayerBlock.LAYERS, Integer.valueOf(var15 + 1)));
+                            BlockState var16 = var14.setValue(SnowLayerBlock.LAYERS, Integer.valueOf(var15 + 1));
+                            Block.pushEntitiesUp(var14, var16, this, var10);
+                            this.setBlockAndUpdate(var10, var16);
                         }
                     } else {
                         this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
                     }
                 }
 
-                BlockState var16 = this.getBlockState(var11);
-                Biome.Precipitation var17 = var12.getPrecipitation();
-                if (var17 == Biome.Precipitation.RAIN && var12.coldEnoughToSnow(var11)) {
-                    var17 = Biome.Precipitation.SNOW;
+                BlockState var17 = this.getBlockState(var11);
+                Biome.Precipitation var18 = var12.getPrecipitation();
+                if (var18 == Biome.Precipitation.RAIN && var12.coldEnoughToSnow(var11)) {
+                    var18 = Biome.Precipitation.SNOW;
                 }
 
-                var16.getBlock().handlePrecipitation(var16, this, var11, var17);
+                var17.getBlock().handlePrecipitation(var17, this, var11, var18);
             }
         }
 
         var4.popPush("tickBlocks");
         if (param1 > 0) {
-            for(LevelChunkSection var18 : param0.getSections()) {
-                if (var18.isRandomlyTicking()) {
-                    int var19 = var18.bottomBlockY();
+            for(LevelChunkSection var19 : param0.getSections()) {
+                if (var19.isRandomlyTicking()) {
+                    int var20 = var19.bottomBlockY();
 
-                    for(int var20 = 0; var20 < param1; ++var20) {
-                        BlockPos var21 = this.getBlockRandomPos(var2, var19, var3, 15);
+                    for(int var21 = 0; var21 < param1; ++var21) {
+                        BlockPos var22 = this.getBlockRandomPos(var2, var20, var3, 15);
                         var4.push("randomTick");
-                        BlockState var22 = var18.getBlockState(var21.getX() - var2, var21.getY() - var19, var21.getZ() - var3);
-                        if (var22.isRandomlyTicking()) {
-                            var22.randomTick(this, var21, this.random);
+                        BlockState var23 = var19.getBlockState(var22.getX() - var2, var22.getY() - var20, var22.getZ() - var3);
+                        if (var23.isRandomlyTicking()) {
+                            var23.randomTick(this, var22, this.random);
                         }
 
-                        FluidState var23 = var22.getFluidState();
-                        if (var23.isRandomlyTicking()) {
-                            var23.randomTick(this, var21, this.random);
+                        FluidState var24 = var23.getFluidState();
+                        if (var24.isRandomlyTicking()) {
+                            var24.randomTick(this, var22, this.random);
                         }
 
                         var4.pop();
@@ -759,13 +762,25 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     public <T extends Entity> List<? extends T> getEntities(EntityTypeTest<Entity, T> param0, Predicate<? super T> param1) {
         List<T> var0 = Lists.newArrayList();
-        this.getEntities().get(param0, param2 -> {
-            if (param1.test(param2)) {
-                var0.add(param2);
+        this.getEntities(param0, param1, var0);
+        return var0;
+    }
+
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> param0, Predicate<? super T> param1, List<? super T> param2) {
+        this.getEntities(param0, param1, param2, Integer.MAX_VALUE);
+    }
+
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> param0, Predicate<? super T> param1, List<? super T> param2, int param3) {
+        this.getEntities().get(param0, param3x -> {
+            if (param1.test(param3x)) {
+                param2.add(param3x);
+                if (param2.size() >= param3) {
+                    return AbortableIterationConsumer.Continuation.ABORT;
+                }
             }
 
+            return AbortableIterationConsumer.Continuation.CONTINUE;
         });
-        return var0;
     }
 
     public List<? extends EnderDragon> getDragons() {
@@ -773,11 +788,18 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public List<ServerPlayer> getPlayers(Predicate<? super ServerPlayer> param0) {
+        return this.getPlayers(param0, Integer.MAX_VALUE);
+    }
+
+    public List<ServerPlayer> getPlayers(Predicate<? super ServerPlayer> param0, int param1) {
         List<ServerPlayer> var0 = Lists.newArrayList();
 
         for(ServerPlayer var1 : this.players) {
             if (param0.test(var1)) {
                 var0.add(var1);
+                if (var0.size() >= param1) {
+                    return var0;
+                }
             }
         }
 

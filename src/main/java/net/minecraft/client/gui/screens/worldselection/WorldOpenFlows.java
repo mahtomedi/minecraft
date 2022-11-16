@@ -81,7 +81,7 @@ public class WorldOpenFlows {
                     },
                     WorldStem::new
                 );
-                this.minecraft.doWorldLoad(param0, var0, var1, var4);
+                this.minecraft.doWorldLoad(param0, var0, var1, var4, true);
             } catch (Exception var10) {
                 LOGGER.warn("Failed to load datapacks, can't proceed with server load", (Throwable)var10);
                 safeCloseAccess(var0, param0);
@@ -107,7 +107,7 @@ public class WorldOpenFlows {
     ) {
         PackRepository var0 = ServerPacksSource.createPackRepository(param0);
         CloseableResourceManager var1 = new WorldLoader.PackConfig(var0, param3.getDataConfiguration(), false, false).createResourceManager().getSecond();
-        this.minecraft.doWorldLoad(param0.getLevelId(), param0, var0, new WorldStem(var1, param1, param2, param3));
+        this.minecraft.doWorldLoad(param0.getLevelId(), param0, var0, new WorldStem(var1, param1, param2, param3), true);
     }
 
     private WorldStem loadWorldStem(LevelStorageSource.LevelStorageAccess param0, boolean param1, PackRepository param2) throws Exception {
@@ -218,7 +218,7 @@ public class WorldOpenFlows {
                     return this.promptBundledPackLoadFailure();
                 }, this.minecraft).thenAcceptAsync(param5 -> {
                     if (param5) {
-                        this.minecraft.doWorldLoad(param1, var0, var1, var2);
+                        this.minecraft.doWorldLoad(param1, var0, var1, var2, false);
                     } else {
                         var2.close();
                         safeCloseAccess(var0, param1);

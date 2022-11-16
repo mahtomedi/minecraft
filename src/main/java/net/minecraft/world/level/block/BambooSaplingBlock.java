@@ -86,6 +86,6 @@ public class BambooSaplingBlock extends Block implements BonemealableBlock {
     }
 
     protected void growBamboo(Level param0, BlockPos param1) {
-        param0.setBlock(param1.above(), Blocks.BAMBOO.defaultBlockState().setValue(BambooBlock.LEAVES, BambooLeaves.SMALL), 3);
+        param0.setBlock(param1.above(), Blocks.BAMBOO.defaultBlockState().setValue(BambooStalkBlock.LEAVES, BambooLeaves.SMALL), 3);
     }
 }

@@ -53,7 +53,6 @@ public abstract class AbstractSignEditScreen extends Screen {
 
     @Override
     protected void init() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 100, this.height / 4 + 120, 200, 20).build()
         );
@@ -72,7 +71,6 @@ public abstract class AbstractSignEditScreen extends Screen {
 
     @Override
     public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
         ClientPacketListener var0 = this.minecraft.getConnection();
         if (var0 != null) {
             var0.send(new ServerboundSignUpdatePacket(this.sign.getBlockPos(), this.messages[0], this.messages[1], this.messages[2], this.messages[3]));

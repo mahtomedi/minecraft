@@ -206,11 +206,6 @@ public class RealmsResetWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
-    }
-
-    @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (param0 == 256) {
             this.minecraft.setScreen(this.lastScreen);

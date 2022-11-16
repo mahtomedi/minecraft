@@ -39,5 +39,6 @@ public class UpdateOneTwentyBlockLoot extends BlockLootSubProvider {
         this.add(Blocks.BAMBOO_MOSAIC_SLAB, param1 -> this.createSlabItemTable(param1));
         this.add(Blocks.BAMBOO_DOOR, param1 -> this.createDoorTable(param1));
         this.dropWhenSilkTouch(Blocks.CHISELED_BOOKSHELF);
+        this.dropSelf(Blocks.PIGLIN_HEAD);
     }
 }

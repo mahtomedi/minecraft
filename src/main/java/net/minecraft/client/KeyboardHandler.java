@@ -44,7 +44,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class KeyboardHandler {
     public static final int DEBUG_CRASH_TIME = 10000;
     private final Minecraft minecraft;
-    private boolean sendRepeatsToGui;
     private final ClipboardManager clipboardManager = new ClipboardManager();
     private long debugCrashKeyTime = -1L;
     private long debugCrashKeyReportedTime = -1L;
@@ -358,13 +357,11 @@ public class KeyboardHandler {
             if (var0 != null) {
                 boolean[] var3 = new boolean[]{false};
                 Screen.wrapScreenError(() -> {
-                    if (param3 != 1 && (param3 != 2 || !this.sendRepeatsToGui)) {
-                        if (param3 == 0) {
-                            var3[0] = var0.keyReleased(param1, param2, param4);
-                        }
-                    } else {
+                    if (param3 == 1 || param3 == 2) {
                         var0.afterKeyboardAction();
                         var3[0] = var0.keyPressed(param1, param2, param4);
+                    } else if (param3 == 0) {
+                        var3[0] = var0.keyReleased(param1, param2, param4);
                     }
 
                 }, "keyPressed event handler", var0.getClass().getCanonicalName());
@@ -435,10 +432,6 @@ public class KeyboardHandler {
 
             }
         }
-    }
-
-    public void setSendRepeatsToGui(boolean param0) {
-        this.sendRepeatsToGui = param0;
     }
 
     public void setup(long param0) {

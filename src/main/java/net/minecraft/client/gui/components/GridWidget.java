@@ -4,6 +4,7 @@ import com.mojang.math.Divisor;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -123,6 +124,10 @@ public class GridWidget extends AbstractContainerWidget {
         return this.defaultCellSettings;
     }
 
+    public GridWidget.RowHelper createRowHelper(int param0) {
+        return new GridWidget.RowHelper(param0);
+    }
+
     @OnlyIn(Dist.CLIENT)
     static class CellInhabitant extends AbstractContainerWidget.AbstractChildWrapper {
         final int row;
@@ -144,6 +149,49 @@ public class GridWidget extends AbstractContainerWidget {
 
         public int getLastOccupiedColumn() {
             return this.column + this.occupiedColumns - 1;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public final class RowHelper {
+        private final int columns;
+        private int index;
+
+        RowHelper(int param1) {
+            this.columns = param1;
+        }
+
+        public <T extends AbstractWidget> T addChild(T param0) {
+            return this.addChild(param0, 1);
+        }
+
+        public <T extends AbstractWidget> T addChild(T param0, int param1) {
+            return this.addChild(param0, param1, this.defaultCellSetting());
+        }
+
+        public <T extends AbstractWidget> T addChild(T param0, LayoutSettings param1) {
+            return this.addChild(param0, 1, param1);
+        }
+
+        public <T extends AbstractWidget> T addChild(T param0, int param1, LayoutSettings param2) {
+            int var0 = this.index / this.columns;
+            int var1 = this.index % this.columns;
+            if (var1 + param1 > this.columns) {
+                ++var0;
+                var1 = 0;
+                this.index = Mth.roundToward(this.index, this.columns);
+            }
+
+            this.index += param1;
+            return GridWidget.this.addChild(param0, var0, var1, 1, param1, param2);
+        }
+
+        public LayoutSettings newCellSettings() {
+            return GridWidget.this.newCellSettings();
+        }
+
+        public LayoutSettings defaultCellSetting() {
+            return GridWidget.this.defaultCellSetting();
         }
     }
 }

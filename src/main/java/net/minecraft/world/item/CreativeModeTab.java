@@ -3,6 +3,7 @@ package net.minecraft.world.item;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -21,8 +22,8 @@ public class CreativeModeTab {
     private final CreativeModeTab.Type type;
     @Nullable
     private ItemStack iconItemStack;
-    private ItemStackLinkedSet displayItems = new ItemStackLinkedSet();
-    private ItemStackLinkedSet displayItemsSearchTab = new ItemStackLinkedSet();
+    private Collection<ItemStack> displayItems = ItemStackLinkedSet.createTypeAndTagSet();
+    private Set<ItemStack> displayItemsSearchTab = ItemStackLinkedSet.createTypeAndTagSet();
     @Nullable
     private Consumer<List<ItemStack>> searchTreeBuilder;
     private final Supplier<ItemStack> iconGenerator;
@@ -99,16 +100,16 @@ public class CreativeModeTab {
     public void buildContents(FeatureFlagSet param0, boolean param1) {
         CreativeModeTab.ItemDisplayBuilder var0 = new CreativeModeTab.ItemDisplayBuilder(this, param0);
         this.displayItemsGenerator.accept(param0, var0, param1);
-        this.displayItems = var0.getTabContents();
-        this.displayItemsSearchTab = var0.getSearchTabContents();
+        this.displayItems = var0.tabContents;
+        this.displayItemsSearchTab = var0.searchTabContents;
         this.rebuildSearchTree();
     }
 
-    public ItemStackLinkedSet getDisplayItems() {
+    public Collection<ItemStack> getDisplayItems() {
         return this.displayItems;
     }
 
-    public ItemStackLinkedSet getSearchTabDisplayItems() {
+    public Collection<ItemStack> getSearchTabDisplayItems() {
         return this.displayItemsSearchTab;
     }
 
@@ -205,8 +206,8 @@ public class CreativeModeTab {
     }
 
     static class ItemDisplayBuilder implements CreativeModeTab.Output {
-        private final ItemStackLinkedSet tabContents = new ItemStackLinkedSet();
-        private final ItemStackLinkedSet searchTabContents = new ItemStackLinkedSet();
+        public final Collection<ItemStack> tabContents = ItemStackLinkedSet.createTypeAndTagSet();
+        public final Set<ItemStack> searchTabContents = ItemStackLinkedSet.createTypeAndTagSet();
         private final CreativeModeTab tab;
         private final FeatureFlagSet featureFlagSet;
 
@@ -217,38 +218,34 @@ public class CreativeModeTab {
 
         @Override
         public void accept(ItemStack param0, CreativeModeTab.TabVisibility param1) {
-            boolean var0 = this.tabContents.contains(param0) && param1 != CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY;
-            if (var0) {
-                throw new IllegalStateException(
-                    "Accidentally adding the same item stack twice "
-                        + param0.getDisplayName().getString()
-                        + " to a Creative Mode Tab: "
-                        + this.tab.getDisplayName().getString()
-                );
+            if (param0.getCount() != 1) {
+                throw new IllegalArgumentException("Stack size must be exactly 1");
             } else {
-                if (param0.getItem().isEnabled(this.featureFlagSet)) {
-                    switch(param1) {
-                        case PARENT_AND_SEARCH_TABS:
-                            this.tabContents.add(param0);
-                            this.searchTabContents.add(param0);
-                            break;
-                        case PARENT_TAB_ONLY:
-                            this.tabContents.add(param0);
-                            break;
-                        case SEARCH_TAB_ONLY:
-                            this.searchTabContents.add(param0);
+                boolean var0 = this.tabContents.contains(param0) && param1 != CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY;
+                if (var0) {
+                    throw new IllegalStateException(
+                        "Accidentally adding the same item stack twice "
+                            + param0.getDisplayName().getString()
+                            + " to a Creative Mode Tab: "
+                            + this.tab.getDisplayName().getString()
+                    );
+                } else {
+                    if (param0.getItem().isEnabled(this.featureFlagSet)) {
+                        switch(param1) {
+                            case PARENT_AND_SEARCH_TABS:
+                                this.tabContents.add(param0);
+                                this.searchTabContents.add(param0);
+                                break;
+                            case PARENT_TAB_ONLY:
+                                this.tabContents.add(param0);
+                                break;
+                            case SEARCH_TAB_ONLY:
+                                this.searchTabContents.add(param0);
+                        }
                     }
+
                 }
-
             }
-        }
-
-        public ItemStackLinkedSet getTabContents() {
-            return this.tabContents;
-        }
-
-        public ItemStackLinkedSet getSearchTabContents() {
-            return this.searchTabContents;
         }
     }
 

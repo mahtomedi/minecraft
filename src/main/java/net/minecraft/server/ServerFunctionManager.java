@@ -42,13 +42,13 @@ public class ServerFunctionManager {
     }
 
     public void tick() {
-        this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
         if (this.postReload) {
             this.postReload = false;
             Collection<CommandFunction> var0 = this.library.getTag(LOAD_FUNCTION_TAG);
             this.executeTagFunctions(var0, LOAD_FUNCTION_TAG);
         }
 
+        this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
     }
 
     private void executeTagFunctions(Collection<CommandFunction> param0, ResourceLocation param1) {

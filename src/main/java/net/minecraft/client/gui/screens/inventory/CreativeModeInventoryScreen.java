@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +42,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -92,7 +92,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private void tryRefreshInvalidatedTabs(FeatureFlagSet param0, boolean param1) {
         if (CreativeModeTabs.tryRebuildTabContents(param0, param1)) {
             for(CreativeModeTab var0 : CreativeModeTabs.allTabs()) {
-                ItemStackLinkedSet var1 = var0.getDisplayItems();
+                Collection<ItemStack> var1 = var0.getDisplayItems();
                 if (var0 == selectedTab) {
                     if (var0.getType() == CreativeModeTab.Type.CATEGORY && var1.isEmpty()) {
                         this.selectTab(CreativeModeTabs.getDefaultTab());
@@ -105,7 +105,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
     }
 
-    private void refreshCurrentTabContents(ItemStackLinkedSet param0) {
+    private void refreshCurrentTabContents(Collection<ItemStack> param0) {
         int var0 = this.menu.getRowIndexForScroll(this.scrollOffs);
         this.menu.items.clear();
         if (selectedTab.getType() == CreativeModeTab.Type.SEARCH) {
@@ -710,7 +710,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         int var1 = 27;
         int var2 = 27 * var0;
         if (param0.isAlignedRight()) {
-            var2 = this.imageWidth - 27 * (7 - var0);
+            var2 = this.imageWidth - 27 * (7 - var0) + 1;
         }
 
         return var2;

@@ -45,7 +45,6 @@ public class DirectJoinServerScreen extends Screen {
 
     @Override
     protected void init() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.selectButton = this.addRenderableWidget(
             Button.builder(Component.translatable("selectServer.select"), param0 -> this.onSelect())
                 .bounds(this.width / 2 - 100, this.height / 4 + 96 + 12, 200, 20)
@@ -58,7 +57,6 @@ public class DirectJoinServerScreen extends Screen {
         );
         this.ipEdit = new EditBox(this.font, this.width / 2 - 100, 116, 200, 20, Component.translatable("addServer.enterIp"));
         this.ipEdit.setMaxLength(128);
-        this.ipEdit.setFocus(true);
         this.ipEdit.setValue(this.minecraft.options.lastMpIp);
         this.ipEdit.setResponder(param0 -> this.updateSelectButtonStatus());
         this.addWidget(this.ipEdit);
@@ -85,7 +83,6 @@ public class DirectJoinServerScreen extends Screen {
 
     @Override
     public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
         this.minecraft.options.lastMpIp = this.ipEdit.getValue();
         this.minecraft.options.save();
     }

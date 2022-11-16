@@ -570,6 +570,26 @@ public class Options {
         70,
         param0x -> Minecraft.getInstance().levelRenderer.needsUpdate()
     );
+    private static final MutableComponent TELEMETRY_TOOLTIP = Component.translatable(
+        "options.telemetry.button.tooltip", Component.translatable("options.telemetry.state.minimal"), Component.translatable("options.telemetry.state.all")
+    );
+    private final OptionInstance<Boolean> telemetryOptInExtra = OptionInstance.createBoolean(
+        "options.telemetry.button",
+        OptionInstance.cachedConstantTooltip(TELEMETRY_TOOLTIP),
+        (param0x, param1x) -> {
+            Minecraft var0x = Minecraft.getInstance();
+            if (!var0x.allowsTelemetry()) {
+                return Component.translatable("options.telemetry.state.none");
+            } else {
+                return param1x && var0x.extraTelemetryAvailable()
+                    ? Component.translatable("options.telemetry.state.all")
+                    : Component.translatable("options.telemetry.state.minimal");
+            }
+        },
+        false,
+        param0x -> {
+        }
+    );
     private static final Component ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT = Component.translatable("options.screenEffectScale.tooltip");
     private final OptionInstance<Double> screenEffectScale = new OptionInstance<>(
         "options.screenEffectScale",
@@ -911,6 +931,10 @@ public class Options {
         return this.fov;
     }
 
+    public OptionInstance<Boolean> telemetryOptInExtra() {
+        return this.telemetryOptInExtra;
+    }
+
     public OptionInstance<Double> screenEffectScale() {
         return this.screenEffectScale;
     }
@@ -1066,6 +1090,7 @@ public class Options {
         param0.process("allowServerListing", this.allowServerListing);
         param0.process("onlyShowSecureChat", this.onlyShowSecureChat);
         param0.process("panoramaScrollSpeed", this.panoramaSpeed);
+        param0.process("telemetryOptInExtra", this.telemetryOptInExtra);
 
         for(KeyMapping var0 : this.keyMappings) {
             String var1 = var0.saveString();

@@ -2,8 +2,8 @@ package net.minecraft.world.level.entity;
 
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
 import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.phys.AABB;
@@ -27,25 +27,31 @@ public class EntitySection<T extends EntityAccess> {
         return this.storage.remove(param0);
     }
 
-    public void getEntities(AABB param0, Consumer<T> param1) {
+    public AbortableIterationConsumer.Continuation getEntities(AABB param0, AbortableIterationConsumer<T> param1) {
         for(T var0 : this.storage) {
-            if (var0.getBoundingBox().intersects(param0)) {
-                param1.accept(var0);
+            if (var0.getBoundingBox().intersects(param0) && param1.accept(var0).shouldAbort()) {
+                return AbortableIterationConsumer.Continuation.ABORT;
             }
         }
 
+        return AbortableIterationConsumer.Continuation.CONTINUE;
     }
 
-    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, AABB param1, Consumer<? super U> param2) {
+    public <U extends T> AbortableIterationConsumer.Continuation getEntities(
+        EntityTypeTest<T, U> param0, AABB param1, AbortableIterationConsumer<? super U> param2
+    ) {
         Collection<? extends T> var0 = this.storage.find(param0.getBaseClass());
-        if (!var0.isEmpty()) {
+        if (var0.isEmpty()) {
+            return AbortableIterationConsumer.Continuation.CONTINUE;
+        } else {
             for(T var1 : var0) {
                 U var2 = (U)param0.tryCast(var1);
-                if (var2 != null && var1.getBoundingBox().intersects(param1)) {
-                    param2.accept(var2);
+                if (var2 != null && var1.getBoundingBox().intersects(param1) && param2.accept(var2).shouldAbort()) {
+                    return AbortableIterationConsumer.Continuation.ABORT;
                 }
             }
 
+            return AbortableIterationConsumer.Continuation.CONTINUE;
         }
     }
 

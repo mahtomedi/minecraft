@@ -866,6 +866,8 @@ public abstract class LivingEntity extends Entity {
             EntityType<?> var3 = param0.getType();
             if (var3 == EntityType.SKELETON && var2.is(Items.SKELETON_SKULL)
                 || var3 == EntityType.ZOMBIE && var2.is(Items.ZOMBIE_HEAD)
+                || var3 == EntityType.PIGLIN && var2.is(Items.PIGLIN_HEAD)
+                || var3 == EntityType.PIGLIN_BRUTE && var2.is(Items.PIGLIN_HEAD)
                 || var3 == EntityType.CREEPER && var2.is(Items.CREEPER_HEAD)) {
                 var0 *= 0.5;
             }
@@ -1151,7 +1153,7 @@ public abstract class LivingEntity extends Entity {
                     this.markHurt();
                 }
 
-                if (var6 != null) {
+                if (var6 != null && !param0.isExplosion()) {
                     double var14 = var6.getX() - this.getX();
 
                     double var15;
@@ -3237,15 +3239,16 @@ public abstract class LivingEntity extends Entity {
         this.getSleepingPos().filter(this.level::hasChunkAt).ifPresent(param0 -> {
             BlockState var0x = this.level.getBlockState(param0);
             if (var0x.getBlock() instanceof BedBlock) {
+                Direction var1x = var0x.getValue(BedBlock.FACING);
                 this.level.setBlock(param0, var0x.setValue(BedBlock.OCCUPIED, Boolean.valueOf(false)), 3);
-                Vec3 var1x = BedBlock.findStandUpPosition(this.getType(), this.level, param0, this.getYRot()).orElseGet(() -> {
+                Vec3 var2 = BedBlock.findStandUpPosition(this.getType(), this.level, param0, var1x, this.getYRot()).orElseGet(() -> {
                     BlockPos var0xx = param0.above();
                     return new Vec3((double)var0xx.getX() + 0.5, (double)var0xx.getY() + 0.1, (double)var0xx.getZ() + 0.5);
                 });
-                Vec3 var2 = Vec3.atBottomCenterOf(param0).subtract(var1x).normalize();
-                float var3 = (float)Mth.wrapDegrees(Mth.atan2(var2.z, var2.x) * 180.0F / (float)Math.PI - 90.0);
-                this.setPos(var1x.x, var1x.y, var1x.z);
-                this.setYRot(var3);
+                Vec3 var3 = Vec3.atBottomCenterOf(param0).subtract(var2).normalize();
+                float var4 = (float)Mth.wrapDegrees(Mth.atan2(var3.z, var3.x) * 180.0F / (float)Math.PI - 90.0);
+                this.setPos(var2.x, var2.y, var2.z);
+                this.setYRot(var4);
                 this.setXRot(0.0F);
             }
 

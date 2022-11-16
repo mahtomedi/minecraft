@@ -107,7 +107,6 @@ public class StructureBlockEditScreen extends Screen {
 
     @Override
     protected void init() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 4 - 150, 210, 150, 20).build());
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.onCancel()).bounds(this.width / 2 + 4, 210, 150, 20).build());
         this.initialMirror = this.structure.getMirror();
@@ -262,11 +261,6 @@ public class StructureBlockEditScreen extends Screen {
         this.integrityEdit.setValue(var7);
         this.seedEdit.setValue(var8);
         this.dataEdit.setValue(var9);
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     private void updateDirectionButtons() {

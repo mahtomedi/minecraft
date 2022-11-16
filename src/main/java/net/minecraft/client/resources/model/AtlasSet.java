@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.client.renderer.texture.SpriteLoader;
@@ -12,7 +11,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,7 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class AtlasSet implements AutoCloseable {
     private final Map<ResourceLocation, AtlasSet.AtlasEntry> atlases;
 
-    public AtlasSet(Map<ResourceLocation, AtlasSet.ResourceLister> param0, TextureManager param1) {
+    public AtlasSet(Map<ResourceLocation, ResourceLocation> param0, TextureManager param1) {
         this.atlases = param0.entrySet().stream().collect(Collectors.toMap(Entry::getKey, param1x -> {
             TextureAtlas var0 = new TextureAtlas(param1x.getKey());
             param1.register(param1x.getKey(), var0);
@@ -48,8 +46,8 @@ public class AtlasSet implements AutoCloseable {
                     Entry::getKey,
                     param3 -> {
                         AtlasSet.AtlasEntry var0 = param3.getValue();
-                        return CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(() -> var0.resourceLister.apply(param0), param2)
-                            .thenCompose(param3x -> SpriteLoader.create(var0.atlas).stitch(param3x, param1, param2))
+                        return SpriteLoader.create(var0.atlas)
+                            .loadAndStitch(param0, var0.atlasInfoLocation, param1, param2)
                             .thenApply(param1x -> new AtlasSet.StitchResult(var0.atlas, param1x));
                     }
                 )
@@ -57,16 +55,11 @@ public class AtlasSet implements AutoCloseable {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static record AtlasEntry(TextureAtlas atlas, AtlasSet.ResourceLister resourceLister) implements AutoCloseable {
+    static record AtlasEntry(TextureAtlas atlas, ResourceLocation atlasInfoLocation) implements AutoCloseable {
         @Override
         public void close() {
             this.atlas.clearTextureData();
         }
-    }
-
-    @FunctionalInterface
-    @OnlyIn(Dist.CLIENT)
-    public interface ResourceLister extends Function<ResourceManager, Map<ResourceLocation, Resource>> {
     }
 
     @OnlyIn(Dist.CLIENT)

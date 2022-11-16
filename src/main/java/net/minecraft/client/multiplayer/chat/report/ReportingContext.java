@@ -34,30 +34,30 @@ public final class ReportingContext {
         return new ReportingContext(var1, param0, var0);
     }
 
-    public boolean draftReportHandled(Minecraft param0, @Nullable Screen param1, boolean param2) {
+    public void draftReportHandled(Minecraft param0, @Nullable Screen param1, Runnable param2, boolean param3) {
         if (this.chatReportDraft != null) {
             ChatReportBuilder.ChatReport var0 = this.chatReportDraft.copy();
             param0.setScreen(
                 new ConfirmScreen(
-                    param3 -> {
+                    param4 -> {
                         this.setChatReportDraft(null);
-                        if (param3) {
+                        if (param4) {
                             param0.setScreen(new ChatReportScreen(param1, this, var0));
                         } else {
-                            param0.setScreen(param1);
+                            param2.run();
                         }
         
                     },
-                    Component.translatable(param2 ? "gui.chatReport.draft.quittotitle.title" : "gui.chatReport.draft.title"),
-                    Component.translatable(param2 ? "gui.chatReport.draft.quittotitle.content" : "gui.chatReport.draft.content"),
+                    Component.translatable(param3 ? "gui.chatReport.draft.quittotitle.title" : "gui.chatReport.draft.title"),
+                    Component.translatable(param3 ? "gui.chatReport.draft.quittotitle.content" : "gui.chatReport.draft.content"),
                     Component.translatable("gui.chatReport.draft.edit"),
                     Component.translatable("gui.chatReport.draft.discard")
                 )
             );
-            return false;
         } else {
-            return true;
+            param2.run();
         }
+
     }
 
     public AbuseReportSender sender() {

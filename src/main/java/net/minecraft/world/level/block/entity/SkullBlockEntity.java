@@ -28,8 +28,8 @@ public class SkullBlockEntity extends BlockEntity {
     private static Executor mainThreadExecutor;
     @Nullable
     private GameProfile owner;
-    private int mouthTickCount;
-    private boolean isMovingMouth;
+    private int animationTickCount;
+    private boolean isAnimating;
 
     public SkullBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.SKULL, param0, param1);
@@ -72,18 +72,18 @@ public class SkullBlockEntity extends BlockEntity {
 
     }
 
-    public static void dragonHeadAnimation(Level param0, BlockPos param1, BlockState param2, SkullBlockEntity param3) {
+    public static void animation(Level param0, BlockPos param1, BlockState param2, SkullBlockEntity param3) {
         if (param0.hasNeighborSignal(param1)) {
-            param3.isMovingMouth = true;
-            ++param3.mouthTickCount;
+            param3.isAnimating = true;
+            ++param3.animationTickCount;
         } else {
-            param3.isMovingMouth = false;
+            param3.isAnimating = false;
         }
 
     }
 
-    public float getMouthAnimation(float param0) {
-        return this.isMovingMouth ? (float)this.mouthTickCount + param0 : (float)this.mouthTickCount;
+    public float getAnimation(float param0) {
+        return this.isAnimating ? (float)this.animationTickCount + param0 : (float)this.animationTickCount;
     }
 
     @Nullable

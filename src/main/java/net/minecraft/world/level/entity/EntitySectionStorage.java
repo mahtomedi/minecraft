@@ -11,12 +11,12 @@ import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import java.util.Objects;
 import java.util.Spliterators;
 import java.util.PrimitiveIterator.OfLong;
-import java.util.function.Consumer;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import net.minecraft.core.SectionPos;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.VisibleForDebug;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
@@ -32,7 +32,7 @@ public class EntitySectionStorage<T extends EntityAccess> {
         this.intialSectionVisibility = param1;
     }
 
-    public void forEachAccessibleNonEmptySection(AABB param0, Consumer<EntitySection<T>> param1) {
+    public void forEachAccessibleNonEmptySection(AABB param0, AbortableIterationConsumer<EntitySection<T>> param1) {
         int var0 = 2;
         int var1 = SectionPos.posToSectionCoord(param0.minX - 2.0);
         int var2 = SectionPos.posToSectionCoord(param0.minY - 4.0);
@@ -52,8 +52,8 @@ public class EntitySectionStorage<T extends EntityAccess> {
                 int var13 = SectionPos.z(var11);
                 if (var12 >= var2 && var12 <= var5 && var13 >= var3 && var13 <= var6) {
                     EntitySection<T> var14 = this.sections.get(var11);
-                    if (var14 != null && !var14.isEmpty() && var14.getStatus().isAccessible()) {
-                        param1.accept(var14);
+                    if (var14 != null && !var14.isEmpty() && var14.getStatus().isAccessible() && param1.accept(var14).shouldAbort()) {
+                        return;
                     }
                 }
             }
@@ -109,11 +109,11 @@ public class EntitySectionStorage<T extends EntityAccess> {
         return var0;
     }
 
-    public void getEntities(AABB param0, Consumer<T> param1) {
+    public void getEntities(AABB param0, AbortableIterationConsumer<T> param1) {
         this.forEachAccessibleNonEmptySection(param0, param2 -> param2.getEntities(param0, param1));
     }
 
-    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, AABB param1, Consumer<U> param2) {
+    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, AABB param1, AbortableIterationConsumer<U> param2) {
         this.forEachAccessibleNonEmptySection(param1, param3 -> param3.getEntities(param0, param1, param2));
     }
 

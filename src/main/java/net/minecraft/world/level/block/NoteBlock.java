@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -40,16 +41,30 @@ public class NoteBlock extends Block {
         );
     }
 
+    private static boolean isFeatureFlagEnabled(LevelAccessor param0) {
+        return param0.enabledFeatures().contains(FeatureFlags.UPDATE_1_20);
+    }
+
+    private BlockState setInstrument(LevelAccessor param0, BlockPos param1, BlockState param2) {
+        if (isFeatureFlagEnabled(param0)) {
+            BlockState var0 = param0.getBlockState(param1.above());
+            return param2.setValue(
+                INSTRUMENT, NoteBlockInstrument.byStateAbove(var0).orElseGet(() -> NoteBlockInstrument.byStateBelow(param0.getBlockState(param1.below())))
+            );
+        } else {
+            return param2.setValue(INSTRUMENT, NoteBlockInstrument.byStateBelow(param0.getBlockState(param1.below())));
+        }
+    }
+
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        return this.defaultBlockState().setValue(INSTRUMENT, NoteBlockInstrument.byState(param0.getLevel().getBlockState(param0.getClickedPos().below())));
+        return this.setInstrument(param0.getLevel(), param0.getClickedPos(), this.defaultBlockState());
     }
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        return param1 == Direction.DOWN
-            ? param0.setValue(INSTRUMENT, NoteBlockInstrument.byState(param2))
-            : super.updateShape(param0, param1, param2, param3, param4, param5);
+        boolean var0 = isFeatureFlagEnabled(param3) ? param1.getAxis() == Direction.Axis.Y : param1 == Direction.DOWN;
+        return var0 ? this.setInstrument(param3, param4, param0) : super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
     @Override
@@ -57,7 +72,7 @@ public class NoteBlock extends Block {
         boolean var0 = param1.hasNeighborSignal(param2);
         if (var0 != param0.getValue(POWERED)) {
             if (var0) {
-                this.playNote(null, param1, param2);
+                this.playNote(null, param0, param1, param2);
             }
 
             param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)), 3);
@@ -65,11 +80,12 @@ public class NoteBlock extends Block {
 
     }
 
-    private void playNote(@Nullable Entity param0, Level param1, BlockPos param2) {
-        if (param1.getBlockState(param2.above()).isAir()) {
-            param1.blockEvent(param2, this, 0, 0);
-            param1.gameEvent(param0, GameEvent.NOTE_BLOCK_PLAY, param2);
+    private void playNote(@Nullable Entity param0, BlockState param1, Level param2, BlockPos param3) {
+        if (this.hasMobHead(param1) || param2.getBlockState(param3.above()).isAir()) {
+            param2.blockEvent(param3, this, 0, 0);
+            param2.gameEvent(param0, GameEvent.NOTE_BLOCK_PLAY, param3);
         }
+
     }
 
     @Override
@@ -79,7 +95,7 @@ public class NoteBlock extends Block {
         } else {
             param0 = param0.cycle(NOTE);
             param1.setBlock(param2, param0, 3);
-            this.playNote(param3, param1, param2);
+            this.playNote(param3, param0, param1, param2);
             param3.awardStat(Stats.TUNE_NOTEBLOCK);
             return InteractionResult.CONSUME;
         }
@@ -88,19 +104,29 @@ public class NoteBlock extends Block {
     @Override
     public void attack(BlockState param0, Level param1, BlockPos param2, Player param3) {
         if (!param1.isClientSide) {
-            this.playNote(param3, param1, param2);
+            this.playNote(param3, param0, param1, param2);
             param3.awardStat(Stats.PLAY_NOTEBLOCK);
         }
     }
 
+    private boolean hasMobHead(BlockState param0) {
+        return param0.getValue(INSTRUMENT).isMobHeadInstrument();
+    }
+
     @Override
     public boolean triggerEvent(BlockState param0, Level param1, BlockPos param2, int param3, int param4) {
-        int var0 = param0.getValue(NOTE);
-        float var1 = (float)Math.pow(2.0, (double)(var0 - 12) / 12.0);
+        float var1;
+        if (!this.hasMobHead(param0)) {
+            int var0 = param0.getValue(NOTE);
+            var1 = (float)Math.pow(2.0, (double)(var0 - 12) / 12.0);
+            param1.addParticle(
+                ParticleTypes.NOTE, (double)param2.getX() + 0.5, (double)param2.getY() + 1.2, (double)param2.getZ() + 0.5, (double)var0 / 24.0, 0.0, 0.0
+            );
+        } else {
+            var1 = 1.0F;
+        }
+
         param1.playSound(null, param2, param0.getValue(INSTRUMENT).getSoundEvent(), SoundSource.RECORDS, 3.0F, var1);
-        param1.addParticle(
-            ParticleTypes.NOTE, (double)param2.getX() + 0.5, (double)param2.getY() + 1.2, (double)param2.getZ() + 0.5, (double)var0 / 24.0, 0.0, 0.0
-        );
         return true;
     }
 

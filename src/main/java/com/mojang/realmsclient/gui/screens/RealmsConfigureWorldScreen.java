@@ -79,7 +79,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
         this.leftX = this.width / 2 - 187;
         this.rightX = this.width / 2 + 190;
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.playersButton = this.addRenderableWidget(
             Button.builder(
                     Component.translatable("mco.configure.world.buttons.players"),
@@ -266,11 +265,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private int frame(int param0) {
         return this.leftX + (param0 - 1) * 98;
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

@@ -111,36 +111,36 @@
   },
   "assetIndex": {
     "id": "2",
-    "sha1": "a6400962a2ba7cfd13f7bd799f6819ce16c28fcd",
-    "size": 390748,
-    "totalSize": 559602398,
-    "url": "https://piston-meta.mojang.com/v1/packages/a6400962a2ba7cfd13f7bd799f6819ce16c28fcd/2.json"
+    "sha1": "fc8e313a8fadd7a99911ccea980169347b232aac",
+    "size": 390746,
+    "totalSize": 548116976,
+    "url": "https://piston-meta.mojang.com/v1/packages/fc8e313a8fadd7a99911ccea980169347b232aac/2.json"
   },
   "assets": "2",
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "4868ad0188d9349ef58fdbea5bf9afc0f942c0b4",
-      "size": 22687442,
-      "url": "https://piston-data.mojang.com/v1/objects/4868ad0188d9349ef58fdbea5bf9afc0f942c0b4/client.jar"
+      "sha1": "fcb3e5462fb4cf29da933005ddac269dd31087ff",
+      "size": 22667125,
+      "url": "https://piston-data.mojang.com/v1/objects/fcb3e5462fb4cf29da933005ddac269dd31087ff/client.jar"
     },
     "client_mappings": {
-      "sha1": "a72ce32ac120c16c155810e100f97aeb05276728",
-      "size": 7498738,
-      "url": "https://piston-data.mojang.com/v1/objects/a72ce32ac120c16c155810e100f97aeb05276728/client.txt"
+      "sha1": "01efd7b592dfa3650f41ca2190c4d59e929642f4",
+      "size": 7549134,
+      "url": "https://piston-data.mojang.com/v1/objects/01efd7b592dfa3650f41ca2190c4d59e929642f4/client.txt"
     },
     "server": {
-      "sha1": "d98f05500b14a8884b85e71be9fa1ef0d261029a",
-      "size": 47087883,
-      "url": "https://piston-data.mojang.com/v1/objects/d98f05500b14a8884b85e71be9fa1ef0d261029a/server.jar"
+      "sha1": "302ae4acba96e733fdbe144ebe2ba575b2bbf969",
+      "size": 47139006,
+      "url": "https://piston-data.mojang.com/v1/objects/302ae4acba96e733fdbe144ebe2ba575b2bbf969/server.jar"
     },
     "server_mappings": {
-      "sha1": "b88f3ce1998f51e195f0e7ca43d46ad901bfb144",
-      "size": 5820403,
-      "url": "https://piston-data.mojang.com/v1/objects/b88f3ce1998f51e195f0e7ca43d46ad901bfb144/server.txt"
+      "sha1": "f27522d1a43b80942bc5c66a8fcad51a0dc0fe18",
+      "size": 5833532,
+      "url": "https://piston-data.mojang.com/v1/objects/f27522d1a43b80942bc5c66a8fcad51a0dc0fe18/server.txt"
     }
   },
-  "id": "22w45a",
+  "id": "22w46a",
   "javaVersion": {
     "component": "java-runtime-gamma",
     "majorVersion": 17
@@ -179,13 +179,13 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/google/code/gson/gson/2.9.1/gson-2.9.1.jar",
-          "sha1": "02cc2131b98ebfb04e2b2c7dfb84431f4045096b",
-          "size": 265030,
-          "url": "https://libraries.minecraft.net/com/google/code/gson/gson/2.9.1/gson-2.9.1.jar"
+          "path": "com/google/code/gson/gson/2.10/gson-2.10.jar",
+          "sha1": "dd9b193aef96e973d5a11ab13cd17430c2e4306b",
+          "size": 286235,
+          "url": "https://libraries.minecraft.net/com/google/code/gson/gson/2.10/gson-2.10.jar"
         }
       },
-      "name": "com.google.code.gson:gson:2.9.1"
+      "name": "com.google.code.gson:gson:2.10"
     },
     {
       "downloads": {
@@ -223,13 +223,13 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/mojang/authlib/3.13.56/authlib-3.13.56.jar",
-          "sha1": "88c5e6091e52fd76e2ee73420957a4cc74deab8d",
-          "size": 117839,
-          "url": "https://libraries.minecraft.net/com/mojang/authlib/3.13.56/authlib-3.13.56.jar"
+          "path": "com/mojang/authlib/3.15.28/authlib-3.15.28.jar",
+          "sha1": "a562f3bbe97501089e3fbe3b43d95ff69c60c723",
+          "size": 118007,
+          "url": "https://libraries.minecraft.net/com/mojang/authlib/3.15.28/authlib-3.15.28.jar"
         }
       },
-      "name": "com.mojang:authlib:3.13.56"
+      "name": "com.mojang:authlib:3.15.28"
     },
     {
       "downloads": {
@@ -1405,7 +1405,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2022-11-09T14:30:16+00:00",
-  "time": "2022-11-09T14:30:16+00:00",
+  "releaseTime": "2022-11-16T13:32:50+00:00",
+  "time": "2022-11-16T13:32:50+00:00",
   "type": "snapshot"
 }

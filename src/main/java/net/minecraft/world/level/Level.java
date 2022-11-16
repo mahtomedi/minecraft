@@ -26,6 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -656,24 +657,39 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> param0, AABB param1, Predicate<? super T> param2) {
-        this.getProfiler().incrementCounter("getEntities");
         List<T> var0 = Lists.newArrayList();
-        this.getEntities().get(param0, param1, param3 -> {
-            if (param2.test(param3)) {
-                var0.add(param3);
+        this.getEntities(param0, param1, param2, var0);
+        return var0;
+    }
+
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> param0, AABB param1, Predicate<? super T> param2, List<? super T> param3) {
+        this.getEntities(param0, param1, param2, param3, Integer.MAX_VALUE);
+    }
+
+    public <T extends Entity> void getEntities(EntityTypeTest<Entity, T> param0, AABB param1, Predicate<? super T> param2, List<? super T> param3, int param4) {
+        this.getProfiler().incrementCounter("getEntities");
+        this.getEntities().get(param0, param1, param4x -> {
+            if (param2.test(param4x)) {
+                param3.add(param4x);
+                if (param3.size() >= param4) {
+                    return AbortableIterationConsumer.Continuation.ABORT;
+                }
             }
 
-            if (param3 instanceof EnderDragon var0x) {
-                for(EnderDragonPart var1x : var0x.getSubEntities()) {
+            if (param4x instanceof EnderDragon var0) {
+                for(EnderDragonPart var1x : var0.getSubEntities()) {
                     T var2x = param0.tryCast(var1x);
                     if (var2x != null && param2.test((T)var2x)) {
-                        var0.add((T)var2x);
+                        param3.add((T)var2x);
+                        if (param3.size() >= param4) {
+                            return AbortableIterationConsumer.Continuation.ABORT;
+                        }
                     }
                 }
             }
 
+            return AbortableIterationConsumer.Continuation.CONTINUE;
         });
-        return var0;
     }
 
     @Nullable

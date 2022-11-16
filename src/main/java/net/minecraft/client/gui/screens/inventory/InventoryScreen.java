@@ -69,7 +69,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
             this.addRenderableWidget(new ImageButton(this.leftPos + 104, this.height / 2 - 22, 20, 18, 0, 0, 19, RECIPE_BUTTON_LOCATION, param0 -> {
                 this.recipeBookComponent.toggleVisibility();
                 this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
-                ((ImageButton)param0).setPosition(this.leftPos + 104, this.height / 2 - 22);
+                param0.setPosition(this.leftPos + 104, this.height / 2 - 22);
                 this.buttonClicked = true;
             }));
             this.addWidget(this.recipeBookComponent);

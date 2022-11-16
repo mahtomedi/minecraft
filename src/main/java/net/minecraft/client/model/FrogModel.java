@@ -8,14 +8,16 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class FrogModel<T extends Frog> extends HierarchicalModel<T> {
-    private static final float WALK_ANIMATION_SPEED_FACTOR = 9000.0F;
-    public static final float MAX_WALK_ANIMATION_SPEED = 8.0F;
+    private static final float WALK_ANIMATION_SPEED_FACTOR = 8000.0F;
+    public static final float MIN_WALK_ANIMATION_SPEED = 0.5F;
+    public static final float MAX_WALK_ANIMATION_SPEED = 1.5F;
     private final ModelPart root;
     private final ModelPart body;
     private final ModelPart head;
@@ -98,11 +100,12 @@ public class FrogModel<T extends Frog> extends HierarchicalModel<T> {
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
-        float var0 = Math.min((float)param0.getDeltaMovement().horizontalDistanceSqr() * 9000.0F, 8.0F);
+        float var0 = (float)param0.getDeltaMovement().horizontalDistanceSqr();
+        float var1 = Mth.clamp(var0 * 8000.0F, 0.5F, 1.5F);
         this.animate(param0.jumpAnimationState, FrogAnimation.FROG_JUMP, param3);
         this.animate(param0.croakAnimationState, FrogAnimation.FROG_CROAK, param3);
         this.animate(param0.tongueAnimationState, FrogAnimation.FROG_TONGUE, param3);
-        this.animate(param0.walkAnimationState, FrogAnimation.FROG_WALK, param3, var0);
+        this.animate(param0.walkAnimationState, FrogAnimation.FROG_WALK, param3, var1);
         this.animate(param0.swimAnimationState, FrogAnimation.FROG_SWIM, param3);
         this.animate(param0.swimIdleAnimationState, FrogAnimation.FROG_IDLE_WATER, param3);
         this.croakingBody.visible = param0.croakAnimationState.isStarted();
