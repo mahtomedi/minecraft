@@ -68,7 +68,6 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
             this.addButtons();
         }
 
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
     }
 
     @Override
@@ -202,11 +201,6 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
 
     private int getFramePositionX(int param0) {
         return this.leftX + (param0 - 1) * 110;
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

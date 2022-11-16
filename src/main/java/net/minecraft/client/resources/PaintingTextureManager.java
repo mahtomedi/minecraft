@@ -13,7 +13,7 @@ public class PaintingTextureManager extends TextureAtlasHolder {
     private static final ResourceLocation BACK_SPRITE_LOCATION = new ResourceLocation("back");
 
     public PaintingTextureManager(TextureManager param0) {
-        super(param0, new ResourceLocation("textures/atlas/paintings.png"), "painting");
+        super(param0, new ResourceLocation("textures/atlas/paintings.png"), new ResourceLocation("paintings"));
     }
 
     public TextureAtlasSprite get(PaintingVariant param0) {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -38,60 +39,48 @@ public class InteractWithDoor {
                         param2.registered(MemoryModuleType.DOORS_TO_CLOSE),
                         param2.registered(MemoryModuleType.NEAREST_LIVING_ENTITIES)
                     )
-                    .apply(
-                        param2,
-                        (param3, param4, param5) -> (param6, param7, param8) -> {
-                                Path var0x = param2.get(param3);
-                                Optional<Set<GlobalPos>> var1x = param2.tryGet(param4);
-                                if (!var0x.notStarted() && !var0x.isDone()) {
-                                    if (!Objects.equals(var0.getValue(), var0x.getNextNode())) {
-                                        var1.setValue(20);
-                                        return true;
-                                    } else {
-                                        if (var1.getValue() > 0) {
-                                            var1.decrement();
-                                        }
-            
-                                        if (var1.getValue() == 0) {
-                                            return true;
-                                        } else {
-                                            var0.setValue(var0x.getNextNode());
-                                            Node var2x = var0x.getPreviousNode();
-                                            Node var3x = var0x.getNextNode();
-                                            BlockPos var4x = var2x.asBlockPos();
-                                            BlockState var5x = param6.getBlockState(var4x);
-                                            if (var5x.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
-                                                DoorBlock var6 = (DoorBlock)var5x.getBlock();
-                                                if (!var6.isOpen(var5x)) {
-                                                    var6.setOpen(param7, param6, var5x, var4x, true);
-                                                }
-            
-                                                rememberDoorToClose(param4, var1x, param6, param7, var4x);
-                                            }
-            
-                                            BlockPos var7 = var3x.asBlockPos();
-                                            BlockState var8 = param6.getBlockState(var7);
-                                            if (var8.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
-                                                DoorBlock var9 = (DoorBlock)var8.getBlock();
-                                                if (!var9.isOpen(var8)) {
-                                                    var9.setOpen(param7, param6, var8, var7, true);
-                                                    rememberDoorToClose(param4, var1x, param6, param7, var7);
-                                                }
-                                            }
-            
-                                            var1x.ifPresent(
-                                                param6x -> closeDoorsThatIHaveOpenedOrPassedThrough(
-                                                        param6, param7, var2x, var3x, param6x, param2.tryGet(param5)
-                                                    )
-                                            );
-                                            return false;
-                                        }
-                                    }
-                                } else {
+                    .apply(param2, (param3, param4, param5) -> (param6, param7, param8) -> {
+                            Path var0x = param2.get(param3);
+                            Optional<Set<GlobalPos>> var1x = param2.tryGet(param4);
+                            if (!var0x.notStarted() && !var0x.isDone()) {
+                                if (Objects.equals(var0.getValue(), var0x.getNextNode())) {
+                                    var1.setValue(20);
+                                } else if (var1.decrementAndGet() > 0) {
                                     return false;
                                 }
+        
+                                var0.setValue(var0x.getNextNode());
+                                Node var2x = var0x.getPreviousNode();
+                                Node var3x = var0x.getNextNode();
+                                BlockPos var4x = var2x.asBlockPos();
+                                BlockState var5x = param6.getBlockState(var4x);
+                                if (var5x.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
+                                    DoorBlock var6 = (DoorBlock)var5x.getBlock();
+                                    if (!var6.isOpen(var5x)) {
+                                        var6.setOpen(param7, param6, var5x, var4x, true);
+                                    }
+        
+                                    var1x = rememberDoorToClose(param4, var1x, param6, var4x);
+                                }
+        
+                                BlockPos var7 = var3x.asBlockPos();
+                                BlockState var8 = param6.getBlockState(var7);
+                                if (var8.is(BlockTags.WOODEN_DOORS, param0x -> param0x.getBlock() instanceof DoorBlock)) {
+                                    DoorBlock var9 = (DoorBlock)var8.getBlock();
+                                    if (!var9.isOpen(var8)) {
+                                        var9.setOpen(param7, param6, var8, var7, true);
+                                        var1x = rememberDoorToClose(param4, var1x, param6, var7);
+                                    }
+                                }
+        
+                                var1x.ifPresent(
+                                    param6x -> closeDoorsThatIHaveOpenedOrPassedThrough(param6, param7, var2x, var3x, param6x, param2.tryGet(param5))
+                                );
+                                return true;
+                            } else {
+                                return false;
                             }
-                    )
+                        })
         );
     }
 
@@ -160,10 +149,17 @@ public class InteractWithDoor {
         return param2.dimension() != param0.dimension() || !param2.pos().closerToCenterThan(param1.position(), 2.0);
     }
 
-    private static void rememberDoorToClose(
-        MemoryAccessor<Mu, Set<GlobalPos>> param0, Optional<Set<GlobalPos>> param1, ServerLevel param2, LivingEntity param3, BlockPos param4
+    private static Optional<Set<GlobalPos>> rememberDoorToClose(
+        MemoryAccessor<Mu, Set<GlobalPos>> param0, Optional<Set<GlobalPos>> param1, ServerLevel param2, BlockPos param3
     ) {
-        GlobalPos var0 = GlobalPos.of(param2.dimension(), param4);
-        param1.ifPresentOrElse(param1x -> param1x.add(var0), () -> param0.set(Sets.newHashSet(var0)));
+        GlobalPos var0 = GlobalPos.of(param2.dimension(), param3);
+        return Optional.of(param1.map((Function<? super Set<GlobalPos>, ? extends Set<GlobalPos>>)(param1x -> {
+            param1x.add(var0);
+            return param1x;
+        })).orElseGet(() -> {
+            Set<GlobalPos> var0x = Sets.newHashSet(var0);
+            param0.set(var0x);
+            return var0x;
+        }));
     }
 }

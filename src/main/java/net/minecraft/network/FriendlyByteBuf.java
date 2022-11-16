@@ -8,7 +8,6 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
@@ -44,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -105,23 +105,16 @@ public class FriendlyByteBuf extends ByteBuf {
         return 10;
     }
 
-    /** @deprecated */
+    @Deprecated
     public <T> T readWithCodec(Codec<T> param0) {
         CompoundTag var0 = this.readAnySizeNbt();
-        DataResult<T> var1 = param0.parse(NbtOps.INSTANCE, var0);
-        var1.error().ifPresent(param1 -> {
-            throw new EncoderException("Failed to decode: " + param1.message() + " " + var0);
-        });
-        return var1.result().get();
+        return Util.getOrThrow(param0.parse(NbtOps.INSTANCE, var0), param1 -> new DecoderException("Failed to decode: " + param1 + " " + var0));
     }
 
-    /** @deprecated */
+    @Deprecated
     public <T> void writeWithCodec(Codec<T> param0, T param1) {
-        DataResult<Tag> var0 = param0.encodeStart(NbtOps.INSTANCE, param1);
-        var0.error().ifPresent(param1x -> {
-            throw new EncoderException("Failed to encode: " + param1x.message() + " " + param1);
-        });
-        this.writeNbt((CompoundTag)var0.result().get());
+        Tag var0 = Util.getOrThrow(param0.encodeStart(NbtOps.INSTANCE, param1), param1x -> new EncoderException("Failed to encode: " + param1x + " " + param1));
+        this.writeNbt((CompoundTag)var0);
     }
 
     public <T> void writeId(IdMap<T> param0, T param1) {

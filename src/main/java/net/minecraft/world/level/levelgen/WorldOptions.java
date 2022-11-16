@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
+import java.util.OptionalLong;
 import net.minecraft.util.RandomSource;
 import org.apache.commons.lang3.StringUtils;
 
@@ -62,19 +63,19 @@ public class WorldOptions {
         return new WorldOptions(this.seed, param0, this.generateBonusChest, this.legacyCustomOptions);
     }
 
-    public WorldOptions withSeed(long param0) {
-        return new WorldOptions(param0, this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
+    public WorldOptions withSeed(OptionalLong param0) {
+        return new WorldOptions(param0.orElse(randomSeed()), this.generateStructures, this.generateBonusChest, this.legacyCustomOptions);
     }
 
-    public static long parseSeedOrElseRandom(String param0) {
+    public static OptionalLong parseSeed(String param0) {
         param0 = param0.trim();
         if (StringUtils.isEmpty(param0)) {
-            return randomSeed();
+            return OptionalLong.empty();
         } else {
             try {
-                return Long.parseLong(param0);
+                return OptionalLong.of(Long.parseLong(param0));
             } catch (NumberFormatException var2) {
-                return (long)param0.hashCode();
+                return OptionalLong.of((long)param0.hashCode());
             }
         }
     }

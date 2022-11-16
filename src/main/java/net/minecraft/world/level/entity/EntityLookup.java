@@ -7,8 +7,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.util.AbortableIterationConsumer;
 import org.slf4j.Logger;
 
 public class EntityLookup<T extends EntityAccess> {
@@ -16,11 +16,11 @@ public class EntityLookup<T extends EntityAccess> {
     private final Int2ObjectMap<T> byId = new Int2ObjectLinkedOpenHashMap<>();
     private final Map<UUID, T> byUuid = Maps.newHashMap();
 
-    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, Consumer<U> param1) {
+    public <U extends T> void getEntities(EntityTypeTest<T, U> param0, AbortableIterationConsumer<U> param1) {
         for(T var0 : this.byId.values()) {
             U var1 = (U)param0.tryCast(var0);
-            if (var1 != null) {
-                param1.accept(var1);
+            if (var1 != null && param1.accept(var1).shouldAbort()) {
+                return;
             }
         }
 

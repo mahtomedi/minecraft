@@ -101,7 +101,6 @@ public class SocialInteractionsScreen extends Screen {
 
     @Override
     protected void init() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         if (this.initialized) {
             this.socialInteractionsPlayerList.updateSize(this.width, this.height, 88, this.listEnd());
         } else {
@@ -191,11 +190,6 @@ public class SocialInteractionsScreen extends Screen {
             }
         }
 
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

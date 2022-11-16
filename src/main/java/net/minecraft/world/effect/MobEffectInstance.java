@@ -20,7 +20,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     int duration;
     private int amplifier;
     private boolean ambient;
-    private boolean noCounter;
     private boolean visible;
     private boolean showIcon;
     @Nullable
@@ -300,14 +299,6 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         }
 
         return new MobEffectInstance(param0, var1, Math.max(var0, 0), var2, var3, var4, var5, var6);
-    }
-
-    public void setNoCounter(boolean param0) {
-        this.noCounter = param0;
-    }
-
-    public boolean isNoCounter() {
-        return this.noCounter;
     }
 
     public int compareTo(MobEffectInstance param0) {

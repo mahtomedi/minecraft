@@ -24,6 +24,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class EntitySelector {
     public static final int INFINITE = Integer.MAX_VALUE;
+    public static final BiConsumer<Vec3, List<? extends Entity>> ORDER_ARBITRARY = (param0, param1) -> {
+    };
     private static final EntityTypeTest<Entity, ?> ANY_TYPE = new EntityTypeTest<Entity, Entity>() {
         public Entity tryCast(Entity param0) {
             return param0;
@@ -162,12 +164,19 @@ public class EntitySelector {
     }
 
     private void addEntities(List<Entity> param0, ServerLevel param1, Vec3 param2, Predicate<Entity> param3) {
-        if (this.aabb != null) {
-            param0.addAll(param1.getEntities(this.type, this.aabb.move(param2), param3));
-        } else {
-            param0.addAll(param1.getEntities(this.type, param3));
-        }
+        int var0 = this.getResultLimit();
+        if (param0.size() < var0) {
+            if (this.aabb != null) {
+                param1.getEntities(this.type, this.aabb.move(param2), param3, param0, var0);
+            } else {
+                param1.getEntities(this.type, param3, param0, var0);
+            }
 
+        }
+    }
+
+    private int getResultLimit() {
+        return this.order == ORDER_ARBITRARY ? this.maxResults : Integer.MAX_VALUE;
     }
 
     public ServerPlayer findSinglePlayer(CommandSourceStack param0) throws CommandSyntaxException {
@@ -198,20 +207,24 @@ public class EntitySelector {
 
                 return Collections.emptyList();
             } else {
-                List<ServerPlayer> var5;
+                int var5 = this.getResultLimit();
+                List<ServerPlayer> var6;
                 if (this.isWorldLimited()) {
-                    var5 = param0.getLevel().getPlayers(var3);
+                    var6 = param0.getLevel().getPlayers(var3, var5);
                 } else {
-                    var5 = Lists.newArrayList();
+                    var6 = Lists.newArrayList();
 
-                    for(ServerPlayer var7 : param0.getServer().getPlayerList().getPlayers()) {
-                        if (var3.test(var7)) {
-                            var5.add(var7);
+                    for(ServerPlayer var8 : param0.getServer().getPlayerList().getPlayers()) {
+                        if (var3.test(var8)) {
+                            var6.add(var8);
+                            if (var6.size() >= var5) {
+                                return var6;
+                            }
                         }
                     }
                 }
 
-                return this.sortAndLimit(var2, var5);
+                return this.sortAndLimit(var2, var6);
             }
         }
     }

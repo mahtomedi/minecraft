@@ -951,6 +951,7 @@ public class CreativeModeTabs {
             param1.accept(Items.PLAYER_HEAD);
             param1.accept(Items.ZOMBIE_HEAD);
             param1.accept(Items.CREEPER_HEAD);
+            param1.accept(Items.PIGLIN_HEAD);
             param1.accept(Items.DRAGON_HEAD);
             param1.accept(Items.DRAGON_EGG);
             param1.accept(Items.END_PORTAL_FRAME);
@@ -970,63 +971,62 @@ public class CreativeModeTabs {
         .displayItems((param0, param1, param2) -> {
             param1.accept(Items.REDSTONE);
             param1.accept(Items.REDSTONE_TORCH);
+            param1.accept(Items.REDSTONE_BLOCK);
             param1.accept(Items.REPEATER);
             param1.accept(Items.COMPARATOR);
-            param1.accept(Items.REDSTONE_BLOCK);
-            param1.accept(Items.PISTON);
-            param1.accept(Items.STICKY_PISTON);
-            param1.accept(Items.SLIME_BLOCK);
-            param1.accept(Items.HONEY_BLOCK);
-            param1.accept(Items.OBSERVER);
-            param1.accept(Items.HOPPER);
-            param1.accept(Items.DISPENSER);
-            param1.accept(Items.DROPPER);
-            param1.accept(Items.CHEST);
-            param1.accept(Items.BARREL);
-            param1.accept(Items.CHISELED_BOOKSHELF);
-            param1.accept(Items.ARMOR_STAND);
-            param1.accept(Items.CAULDRON);
-            param1.accept(Items.FURNACE);
-            param1.accept(Items.RAIL);
-            param1.accept(Items.POWERED_RAIL);
-            param1.accept(Items.DETECTOR_RAIL);
-            param1.accept(Items.ACTIVATOR_RAIL);
-            param1.accept(Items.MINECART);
-            param1.accept(Items.CHEST_MINECART);
-            param1.accept(Items.FURNACE_MINECART);
-            param1.accept(Items.TNT_MINECART);
-            param1.accept(Items.HOPPER_MINECART);
-            param1.accept(Items.OAK_CHEST_BOAT);
-            param1.accept(Items.BAMBOO_CHEST_RAFT);
+            param1.accept(Items.TARGET);
+            param1.accept(Items.LEVER);
             param1.accept(Items.OAK_BUTTON);
             param1.accept(Items.STONE_BUTTON);
             param1.accept(Items.OAK_PRESSURE_PLATE);
             param1.accept(Items.STONE_PRESSURE_PLATE);
             param1.accept(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
             param1.accept(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
-            param1.accept(Items.OAK_DOOR);
-            param1.accept(Items.OAK_TRAPDOOR);
-            param1.accept(Items.OAK_FENCE_GATE);
-            param1.accept(Items.IRON_DOOR);
-            param1.accept(Items.IRON_TRAPDOOR);
-            param1.accept(Items.COMPOSTER);
-            param1.accept(Items.LECTERN);
-            param1.accept(Items.NOTE_BLOCK);
-            param1.accept(Items.TARGET);
-            param1.accept(Items.LEVER);
-            param1.accept(Items.LIGHTNING_ROD);
-            param1.accept(Items.DAYLIGHT_DETECTOR);
             param1.accept(Items.SCULK_SENSOR);
             param1.accept(Items.WHITE_WOOL);
             param1.accept(Items.TRIPWIRE_HOOK);
             param1.accept(Items.STRING);
+            param1.accept(Items.LECTERN);
+            param1.accept(Items.DAYLIGHT_DETECTOR);
+            param1.accept(Items.LIGHTNING_ROD);
+            param1.accept(Items.PISTON);
+            param1.accept(Items.STICKY_PISTON);
+            param1.accept(Items.SLIME_BLOCK);
+            param1.accept(Items.HONEY_BLOCK);
+            param1.accept(Items.DISPENSER);
+            param1.accept(Items.DROPPER);
+            param1.accept(Items.HOPPER);
+            param1.accept(Items.CHEST);
+            param1.accept(Items.BARREL);
+            param1.accept(Items.CHISELED_BOOKSHELF);
+            param1.accept(Items.FURNACE);
             param1.accept(Items.TRAPPED_CHEST);
+            param1.accept(Items.OBSERVER);
+            param1.accept(Items.NOTE_BLOCK);
+            param1.accept(Items.COMPOSTER);
+            param1.accept(Items.CAULDRON);
+            param1.accept(Items.RAIL);
+            param1.accept(Items.POWERED_RAIL);
+            param1.accept(Items.DETECTOR_RAIL);
+            param1.accept(Items.ACTIVATOR_RAIL);
+            param1.accept(Items.MINECART);
+            param1.accept(Items.HOPPER_MINECART);
+            param1.accept(Items.CHEST_MINECART);
+            param1.accept(Items.FURNACE_MINECART);
+            param1.accept(Items.TNT_MINECART);
+            param1.accept(Items.OAK_CHEST_BOAT);
+            param1.accept(Items.BAMBOO_CHEST_RAFT);
+            param1.accept(Items.OAK_DOOR);
+            param1.accept(Items.IRON_DOOR);
+            param1.accept(Items.OAK_FENCE_GATE);
+            param1.accept(Items.OAK_TRAPDOOR);
+            param1.accept(Items.IRON_TRAPDOOR);
             param1.accept(Items.TNT);
             param1.accept(Items.REDSTONE_LAMP);
-            param1.accept(Items.BIG_DRIPLEAF);
             param1.accept(Items.BELL);
+            param1.accept(Items.BIG_DRIPLEAF);
+            param1.accept(Items.ARMOR_STAND);
             param1.accept(Items.REDSTONE_ORE);
-            param1.accept(Items.DEEPSLATE_REDSTONE_ORE);
         })
         .build();
     private static final CreativeModeTab HOTBAR = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 5)
@@ -1039,7 +1039,7 @@ public class CreativeModeTabs {
         .title(Component.translatable("itemGroup.search"))
         .icon(() -> new ItemStack(Items.COMPASS))
         .displayItems((param0, param1, param2) -> {
-            Set<ItemStack> var0 = new ItemStackLinkedSet();
+            Set<ItemStack> var0 = ItemStackLinkedSet.createTypeAndTagSet();
     
             for(CreativeModeTab var1 : CreativeModeTabs.TABS) {
                 if (var1.getType() != CreativeModeTab.Type.SEARCH) {
@@ -1132,11 +1132,15 @@ public class CreativeModeTabs {
             param1.accept(Items.MANGROVE_CHEST_BOAT);
             param1.accept(Items.BAMBOO_RAFT);
             param1.accept(Items.BAMBOO_CHEST_RAFT);
+            param1.accept(Items.RAIL);
+            param1.accept(Items.POWERED_RAIL);
+            param1.accept(Items.DETECTOR_RAIL);
+            param1.accept(Items.ACTIVATOR_RAIL);
             param1.accept(Items.MINECART);
+            param1.accept(Items.HOPPER_MINECART);
             param1.accept(Items.CHEST_MINECART);
             param1.accept(Items.FURNACE_MINECART);
             param1.accept(Items.TNT_MINECART);
-            param1.accept(Items.HOPPER_MINECART);
             generateInstrumentTypes(param1, Items.GOAT_HORN, InstrumentTags.GOAT_HORNS, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             param1.accept(Items.MUSIC_DISC_13);
             param1.accept(Items.MUSIC_DISC_CAT);
@@ -1562,7 +1566,7 @@ public class CreativeModeTabs {
 
     private static void generateSuspiciousStews(CreativeModeTab.Output param0, CreativeModeTab.TabVisibility param1) {
         List<SuspiciousEffectHolder> var0 = SuspiciousEffectHolder.getAllEffectHolders();
-        ItemStackLinkedSet var1 = new ItemStackLinkedSet();
+        Set<ItemStack> var1 = ItemStackLinkedSet.createTypeAndTagSet();
 
         for(SuspiciousEffectHolder var2 : var0) {
             ItemStack var3 = new ItemStack(Items.SUSPICIOUS_STEW);

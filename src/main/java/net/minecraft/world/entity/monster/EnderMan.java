@@ -50,9 +50,11 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -61,6 +63,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -342,7 +346,17 @@ public class EnderMan extends Monster implements NeutralMob {
         super.dropCustomDeathLoot(param0, param1, param2);
         BlockState var0 = this.getCarriedBlock();
         if (var0 != null) {
-            this.spawnAtLocation(var0.getBlock());
+            ItemStack var1 = new ItemStack(Items.DIAMOND_AXE);
+            var1.enchant(Enchantments.SILK_TOUCH, 1);
+            LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.level)
+                .withRandom(this.level.getRandom())
+                .withParameter(LootContextParams.ORIGIN, this.position())
+                .withParameter(LootContextParams.TOOL, var1)
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, this);
+
+            for(ItemStack var4 : var0.getDrops(var2)) {
+                this.spawnAtLocation(var4);
+            }
         }
 
     }

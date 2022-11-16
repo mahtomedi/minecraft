@@ -12,12 +12,8 @@ import net.minecraft.world.phys.Vec3;
 
 public final class MobEffectUtil {
     public static String formatDuration(MobEffectInstance param0, float param1) {
-        if (param0.isNoCounter()) {
-            return "**:**";
-        } else {
-            int var0 = Mth.floor((float)param0.getDuration() * param1);
-            return StringUtil.formatTickDuration(var0);
-        }
+        int var0 = Mth.floor((float)param0.getDuration() * param1);
+        return StringUtil.formatTickDuration(var0);
     }
 
     public static boolean hasDigSpeed(LivingEntity param0) {

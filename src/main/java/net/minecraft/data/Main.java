@@ -14,6 +14,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.WorldVersion;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.data.advancements.packs.UpdateOneTwentyVanillaAdvancementProvider;
 import net.minecraft.data.advancements.packs.VanillaAdvancementProvider;
 import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
@@ -155,6 +156,7 @@ public class Main {
         var5 = var3.addProvider(bindRegistries(UpdateOneTwentyBlockTagsProvider::new, var2));
         var3.addProvider(param2x -> new UpdateOneTwentyItemTagsProvider(param2x, var2, var5));
         var3.addProvider(UpdateOneTwentyLootTableProvider::create);
+        var3.addProvider(bindRegistries(UpdateOneTwentyVanillaAdvancementProvider::create, var2));
         var3.addProvider(
             param0x -> PackMetadataGenerator.forFeaturePack(
                     param0x, Component.translatable("dataPack.update_1_20.description"), FeatureFlagSet.of(FeatureFlags.UPDATE_1_20)

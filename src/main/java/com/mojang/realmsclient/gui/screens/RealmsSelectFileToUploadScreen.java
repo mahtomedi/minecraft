@@ -65,7 +65,6 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.worldSelectionList = new RealmsSelectFileToUploadScreen.WorldSelectionList();
 
         try {
@@ -99,11 +98,6 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     @Override
     public Component getNarrationMessage() {
         return CommonComponents.joinForNarration(this.getTitle(), this.createLabelNarration());
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     private void upload() {

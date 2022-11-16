@@ -10,6 +10,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
 import java.security.PublicKey;
+import java.time.Duration;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
@@ -49,15 +50,26 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
     private final Consumer<Component> updateStatus;
     private final Connection connection;
     private GameProfile localGameProfile;
+    private final boolean newWorld;
+    @Nullable
+    private final Duration worldLoadDuration;
 
     public ClientHandshakePacketListenerImpl(
-        Connection param0, Minecraft param1, @Nullable ServerData param2, @Nullable Screen param3, Consumer<Component> param4
+        Connection param0,
+        Minecraft param1,
+        @Nullable ServerData param2,
+        @Nullable Screen param3,
+        boolean param4,
+        @Nullable Duration param5,
+        Consumer<Component> param6
     ) {
         this.connection = param0;
         this.minecraft = param1;
         this.serverData = param2;
         this.parent = param3;
-        this.updateStatus = param4;
+        this.updateStatus = param6;
+        this.newWorld = param4;
+        this.worldLoadDuration = param5;
     }
 
     @Override
@@ -125,7 +137,12 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
         this.connection
             .setListener(
                 new ClientPacketListener(
-                    this.minecraft, this.parent, this.connection, this.serverData, this.localGameProfile, this.minecraft.createTelemetryManager()
+                    this.minecraft,
+                    this.parent,
+                    this.connection,
+                    this.serverData,
+                    this.localGameProfile,
+                    this.minecraft.getTelemetryManager().createWorldSessionManager(this.newWorld, this.worldLoadDuration)
                 )
             );
     }

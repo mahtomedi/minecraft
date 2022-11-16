@@ -59,7 +59,7 @@ public class RealmsConnect {
                         RealmsConnect.this.connection
                             .setListener(
                                 new ClientHandshakePacketListenerImpl(
-                                    RealmsConnect.this.connection, var0, param0.toServerData(var1), RealmsConnect.this.onlineScreen, param0xx -> {
+                                    RealmsConnect.this.connection, var0, param0.toServerData(var1), RealmsConnect.this.onlineScreen, false, null, param0xx -> {
                                     }
                                 )
                             );

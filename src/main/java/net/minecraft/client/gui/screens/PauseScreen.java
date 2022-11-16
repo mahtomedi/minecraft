@@ -125,31 +125,33 @@ public class PauseScreen extends Screen {
         ++var5;
         Component var8 = this.minecraft.isLocalServer() ? Component.translatable("menu.returnToMenu") : Component.translatable("menu.disconnect");
         this.disconnectButton = var2.addChild(Button.builder(var8, param0 -> {
-            if (this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, true)) {
-                boolean var0x = this.minecraft.isLocalServer();
-                boolean var1x = this.minecraft.isConnectedToRealms();
-                param0.active = false;
-                this.minecraft.level.disconnect();
-                if (var0x) {
-                    this.minecraft.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
-                } else {
-                    this.minecraft.clearLevel();
-                }
-
-                TitleScreen var2x = new TitleScreen();
-                if (var0x) {
-                    this.minecraft.setScreen(var2x);
-                } else if (var1x) {
-                    this.minecraft.setScreen(new RealmsMainScreen(var2x));
-                } else {
-                    this.minecraft.setScreen(new JoinMultiplayerScreen(var2x));
-                }
-            }
-
+            param0.active = false;
+            this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::onDisconnect, true);
         }).width(204).build(), var5, 0, 1, 2);
         var2.pack();
         FrameWidget.centerInRectangle(var2, 0, 0, this.width, this.height);
         this.addRenderableWidget(var2);
+    }
+
+    private void onDisconnect() {
+        boolean var0 = this.minecraft.isLocalServer();
+        boolean var1 = this.minecraft.isConnectedToRealms();
+        this.minecraft.level.disconnect();
+        if (var0) {
+            this.minecraft.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
+        } else {
+            this.minecraft.clearLevel();
+        }
+
+        TitleScreen var2 = new TitleScreen();
+        if (var0) {
+            this.minecraft.setScreen(var2);
+        } else if (var1) {
+            this.minecraft.setScreen(new RealmsMainScreen(var2));
+        } else {
+            this.minecraft.setScreen(new JoinMultiplayerScreen(var2));
+        }
+
     }
 
     @Override

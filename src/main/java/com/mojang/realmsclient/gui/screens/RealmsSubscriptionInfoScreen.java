@@ -56,7 +56,6 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     @Override
     public void init() {
         this.getSubscription(this.serverData.id);
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.addRenderableWidget(
             Button.builder(
                     Component.translatable("mco.configure.world.subscription.extend"),
@@ -133,11 +132,6 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
         Calendar var0 = new GregorianCalendar(TimeZone.getDefault());
         var0.setTimeInMillis(param0);
         return Component.literal(DateFormat.getDateTimeInstance().format(var0.getTime()));
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

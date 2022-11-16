@@ -16,6 +16,7 @@ import java.util.Optional;
 import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemStackSpawnEggFix extends DataFix {
+    private final String itemType;
     private static final Map<String, String> MAP = DataFixUtils.make(Maps.newHashMap(), param0 -> {
         param0.put("minecraft:bat", "minecraft:bat_spawn_egg");
         param0.put("minecraft:blaze", "minecraft:blaze_spawn_egg");
@@ -25,6 +26,7 @@ public class ItemStackSpawnEggFix extends DataFix {
         param0.put("minecraft:creeper", "minecraft:creeper_spawn_egg");
         param0.put("minecraft:donkey", "minecraft:donkey_spawn_egg");
         param0.put("minecraft:elder_guardian", "minecraft:elder_guardian_spawn_egg");
+        param0.put("minecraft:ender_dragon", "minecraft:ender_dragon_spawn_egg");
         param0.put("minecraft:enderman", "minecraft:enderman_spawn_egg");
         param0.put("minecraft:endermite", "minecraft:endermite_spawn_egg");
         param0.put("minecraft:evocation_illager", "minecraft:evocation_illager_spawn_egg");
@@ -32,6 +34,7 @@ public class ItemStackSpawnEggFix extends DataFix {
         param0.put("minecraft:guardian", "minecraft:guardian_spawn_egg");
         param0.put("minecraft:horse", "minecraft:horse_spawn_egg");
         param0.put("minecraft:husk", "minecraft:husk_spawn_egg");
+        param0.put("minecraft:iron_golem", "minecraft:iron_golem_spawn_egg");
         param0.put("minecraft:llama", "minecraft:llama_spawn_egg");
         param0.put("minecraft:magma_cube", "minecraft:magma_cube_spawn_egg");
         param0.put("minecraft:mooshroom", "minecraft:mooshroom_spawn_egg");
@@ -48,6 +51,7 @@ public class ItemStackSpawnEggFix extends DataFix {
         param0.put("minecraft:skeleton", "minecraft:skeleton_spawn_egg");
         param0.put("minecraft:skeleton_horse", "minecraft:skeleton_horse_spawn_egg");
         param0.put("minecraft:slime", "minecraft:slime_spawn_egg");
+        param0.put("minecraft:snow_golem", "minecraft:snow_golem_spawn_egg");
         param0.put("minecraft:spider", "minecraft:spider_spawn_egg");
         param0.put("minecraft:squid", "minecraft:squid_spawn_egg");
         param0.put("minecraft:stray", "minecraft:stray_spawn_egg");
@@ -56,6 +60,7 @@ public class ItemStackSpawnEggFix extends DataFix {
         param0.put("minecraft:villager", "minecraft:villager_spawn_egg");
         param0.put("minecraft:vindication_illager", "minecraft:vindication_illager_spawn_egg");
         param0.put("minecraft:witch", "minecraft:witch_spawn_egg");
+        param0.put("minecraft:wither", "minecraft:wither_spawn_egg");
         param0.put("minecraft:wither_skeleton", "minecraft:wither_skeleton_spawn_egg");
         param0.put("minecraft:wolf", "minecraft:wolf_spawn_egg");
         param0.put("minecraft:zombie", "minecraft:zombie_spawn_egg");
@@ -64,8 +69,9 @@ public class ItemStackSpawnEggFix extends DataFix {
         param0.put("minecraft:zombie_villager", "minecraft:zombie_villager_spawn_egg");
     });
 
-    public ItemStackSpawnEggFix(Schema param0, boolean param1) {
+    public ItemStackSpawnEggFix(Schema param0, boolean param1, String param2) {
         super(param0, param1);
+        this.itemType = param2;
     }
 
     @Override
@@ -75,9 +81,9 @@ public class ItemStackSpawnEggFix extends DataFix {
         OpticFinder<String> var2 = DSL.fieldFinder("id", NamespacedSchema.namespacedString());
         OpticFinder<?> var3 = var0.findField("tag");
         OpticFinder<?> var4 = var3.type().findField("EntityTag");
-        return this.fixTypeEverywhereTyped("ItemInstanceSpawnEggFix", var0, param4 -> {
+        return this.fixTypeEverywhereTyped("ItemInstanceSpawnEggFix" + this.getOutputSchema().getVersionKey(), var0, param4 -> {
             Optional<Pair<String, String>> var0x = param4.getOptional(var1);
-            if (var0x.isPresent() && Objects.equals(var0x.get().getSecond(), "minecraft:spawn_egg")) {
+            if (var0x.isPresent() && Objects.equals(var0x.get().getSecond(), this.itemType)) {
                 Typed<?> var1x = param4.getOrCreateTyped(var3);
                 Typed<?> var2x = var1x.getOrCreateTyped(var4);
                 Optional<String> var3x = var2x.getOptional(var2);

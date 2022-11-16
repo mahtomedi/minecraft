@@ -85,7 +85,7 @@ public class ConnectScreen extends Screen {
                     ConnectScreen.this.connection
                         .setListener(
                             new ClientHandshakePacketListenerImpl(
-                                ConnectScreen.this.connection, param0, param2, ConnectScreen.this.parent, ConnectScreen.this::updateStatus
+                                ConnectScreen.this.connection, param0, param2, ConnectScreen.this.parent, false, null, ConnectScreen.this::updateStatus
                             )
                         );
                     ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));

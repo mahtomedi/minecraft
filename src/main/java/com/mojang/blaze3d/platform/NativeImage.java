@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -414,10 +413,6 @@ public final class NativeImage implements AutoCloseable {
         GlStateManager._glDrawPixels(this.width, this.height, this.format.glFormat(), 5121, this.pixels);
     }
 
-    public void writeToFile(String param0) throws IOException {
-        this.writeToFile(FileSystems.getDefault().getPath(param0));
-    }
-
     public void writeToFile(File param0) throws IOException {
         this.writeToFile(param0.toPath());
     }
@@ -536,12 +531,16 @@ public final class NativeImage implements AutoCloseable {
     }
 
     public void copyRect(int param0, int param1, int param2, int param3, int param4, int param5, boolean param6, boolean param7) {
-        for(int var0 = 0; var0 < param5; ++var0) {
-            for(int var1 = 0; var1 < param4; ++var1) {
-                int var2 = param6 ? param4 - 1 - var1 : var1;
-                int var3 = param7 ? param5 - 1 - var0 : var0;
-                int var4 = this.getPixelRGBA(param0 + var1, param1 + var0);
-                this.setPixelRGBA(param0 + param2 + var2, param1 + param3 + var3, var4);
+        this.copyRect(this, param0, param1, param0 + param2, param1 + param3, param4, param5, param6, param7);
+    }
+
+    public void copyRect(NativeImage param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, boolean param8) {
+        for(int var0 = 0; var0 < param6; ++var0) {
+            for(int var1 = 0; var1 < param5; ++var1) {
+                int var2 = param7 ? param5 - 1 - var1 : var1;
+                int var3 = param8 ? param6 - 1 - var0 : var0;
+                int var4 = this.getPixelRGBA(param1 + var1, param2 + var0);
+                param0.setPixelRGBA(param3 + var2, param4 + var3, var4);
             }
         }
 

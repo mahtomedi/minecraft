@@ -18,8 +18,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public interface LoggedChatMessage extends LoggedChatEvent {
-    static LoggedChatMessage.Player player(GameProfile param0, Component param1, PlayerChatMessage param2, ChatTrustLevel param3) {
-        return new LoggedChatMessage.Player(param0, param1, param2, param3);
+    static LoggedChatMessage.Player player(GameProfile param0, PlayerChatMessage param1, ChatTrustLevel param2) {
+        return new LoggedChatMessage.Player(param0, param1, param2);
     }
 
     static LoggedChatMessage.System system(Component param0, Instant param1) {
@@ -35,11 +35,10 @@ public interface LoggedChatMessage extends LoggedChatEvent {
     boolean canReport(UUID var1);
 
     @OnlyIn(Dist.CLIENT)
-    public static record Player(GameProfile profile, Component displayName, PlayerChatMessage message, ChatTrustLevel trustLevel) implements LoggedChatMessage {
+    public static record Player(GameProfile profile, PlayerChatMessage message, ChatTrustLevel trustLevel) implements LoggedChatMessage {
         public static final Codec<LoggedChatMessage.Player> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
                         ExtraCodecs.GAME_PROFILE.fieldOf("profile").forGetter(LoggedChatMessage.Player::profile),
-                        ExtraCodecs.COMPONENT.fieldOf("display_name").forGetter(LoggedChatMessage.Player::displayName),
                         PlayerChatMessage.MAP_CODEC.forGetter(LoggedChatMessage.Player::message),
                         ChatTrustLevel.CODEC.optionalFieldOf("trust_level", ChatTrustLevel.SECURE).forGetter(LoggedChatMessage.Player::trustLevel)
                     )
@@ -61,12 +60,12 @@ public interface LoggedChatMessage extends LoggedChatEvent {
         public Component toNarrationComponent() {
             Component var0 = this.toContentComponent();
             Component var1 = this.getTimeComponent();
-            return Component.translatable("gui.chatSelection.message.narrate", this.displayName, var0, var1);
+            return Component.translatable("gui.chatSelection.message.narrate", this.profile.getName(), var0, var1);
         }
 
         public Component toHeadingComponent() {
             Component var0 = this.getTimeComponent();
-            return Component.translatable("gui.chatSelection.heading", this.displayName, var0);
+            return Component.translatable("gui.chatSelection.heading", this.profile.getName(), var0);
         }
 
         private Component getTimeComponent() {

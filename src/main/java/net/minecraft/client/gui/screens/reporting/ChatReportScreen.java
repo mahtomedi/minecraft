@@ -77,7 +77,6 @@ public class ChatReportScreen extends Screen {
 
     @Override
     protected void init() {
-        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         AbuseReportLimits var0 = this.reportingContext.sender().reportLimits();
         int var1 = this.width / 2;
         ReportReason var2 = this.reportBuilder.reason();

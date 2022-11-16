@@ -105,7 +105,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         super(param0);
         String var0 = this.get("level-seed", "");
         boolean var1 = this.get("generate-structures", true);
-        long var2 = WorldOptions.parseSeedOrElseRandom(var0);
+        long var2 = WorldOptions.parseSeed(var0).orElse(WorldOptions.randomSeed());
         this.worldOptions = new WorldOptions(var2, var1, false);
         this.worldDimensionData = new DedicatedServerProperties.WorldDimensionData(
             this.get("generator-settings", param0x -> GsonHelper.parse(!param0x.isEmpty() ? param0x : "{}"), new JsonObject()),

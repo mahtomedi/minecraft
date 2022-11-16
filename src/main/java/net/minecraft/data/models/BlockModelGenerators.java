@@ -8,7 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -172,6 +172,7 @@ public class BlockModelGenerators {
                     .with(VariantProperties.UV_LOCK, true)
         )
     );
+    private static final Map<BlockModelGenerators.BookSlotModelCacheKey, ResourceLocation> CHISELED_BOOKSHELF_SLOT_MODEL_CACHE = new HashMap<>();
 
     private static BlockStateGenerator createMirroredCubeGenerator(
         Block param0, ResourceLocation param1, TextureMapping param2, BiConsumer<ResourceLocation, Supplier<JsonElement>> param3
@@ -3846,29 +3847,68 @@ public class BlockModelGenerators {
     }
 
     private void createChiseledBookshelf() {
-        String var0 = "_stage";
-        Collection<Integer> var1 = BlockStateProperties.BOOKS_STORED.getPossibleValues();
-        List<ResourceLocation> var2 = var1.stream()
-            .map(
-                param0 -> {
-                    TextureMapping var0x = new TextureMapping()
-                        .put(TextureSlot.FRONT, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, "_stage" + param0))
-                        .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, "_side"))
-                        .put(TextureSlot.TOP, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, "_top"));
-                    return ModelTemplates.CHISELED_BOOKSHELF_BLOCK.createWithSuffix(Blocks.CHISELED_BOOKSHELF, "_stage" + param0, var0x, this.modelOutput);
-                }
+        Block var0 = Blocks.CHISELED_BOOKSHELF;
+        ResourceLocation var1 = ModelLocationUtils.getModelLocation(var0);
+        MultiPartGenerator var2 = MultiPartGenerator.multiPart(var0);
+        Map.of(
+                Direction.NORTH,
+                VariantProperties.Rotation.R0,
+                Direction.EAST,
+                VariantProperties.Rotation.R90,
+                Direction.SOUTH,
+                VariantProperties.Rotation.R180,
+                Direction.WEST,
+                VariantProperties.Rotation.R270
             )
-            .toList();
-        this.blockStateOutput
-            .accept(
-                MultiVariantGenerator.multiVariant(Blocks.CHISELED_BOOKSHELF)
-                    .with(createHorizontalFacingDispatch())
-                    .with(
-                        PropertyDispatch.property(BlockStateProperties.BOOKS_STORED)
-                            .generate(param1 -> Variant.variant().with(VariantProperties.MODEL, var2.get(param1)))
-                    )
-            );
-        this.delegateItemModel(Items.CHISELED_BOOKSHELF, var2.get(0));
+            .forEach((param2, param3) -> {
+                Condition.TerminalCondition var0x = Condition.condition().term(BlockStateProperties.HORIZONTAL_FACING, param2);
+                var2.with(var0x, Variant.variant().with(VariantProperties.MODEL, var1).with(VariantProperties.Y_ROT, param3));
+                this.addSlotStateAndRotationVariants(var2, var0x, param3);
+            });
+        this.blockStateOutput.accept(var2);
+        this.delegateItemModel(var0, ModelLocationUtils.getModelLocation(var0, "_inventory"));
+        CHISELED_BOOKSHELF_SLOT_MODEL_CACHE.clear();
+    }
+
+    private void addSlotStateAndRotationVariants(MultiPartGenerator param0, Condition.TerminalCondition param1, VariantProperties.Rotation param2) {
+        Map.of(
+                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_0_OCCUPIED,
+                ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_LEFT,
+                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_1_OCCUPIED,
+                ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_MID,
+                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_2_OCCUPIED,
+                ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_RIGHT,
+                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_3_OCCUPIED,
+                ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_LEFT,
+                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_4_OCCUPIED,
+                ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_MID,
+                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_5_OCCUPIED,
+                ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_RIGHT
+            )
+            .forEach((param3, param4) -> {
+                this.addBookSlotModel(param0, param1, param2, param3, param4, true);
+                this.addBookSlotModel(param0, param1, param2, param3, param4, false);
+            });
+    }
+
+    private void addBookSlotModel(
+        MultiPartGenerator param0,
+        Condition.TerminalCondition param1,
+        VariantProperties.Rotation param2,
+        BooleanProperty param3,
+        ModelTemplate param4,
+        boolean param5
+    ) {
+        String var0 = param5 ? "_occupied" : "_empty";
+        TextureMapping var1 = new TextureMapping().put(TextureSlot.TEXTURE, TextureMapping.getBlockTexture(Blocks.CHISELED_BOOKSHELF, var0));
+        BlockModelGenerators.BookSlotModelCacheKey var2 = new BlockModelGenerators.BookSlotModelCacheKey(param4, var0);
+        ResourceLocation var3 = CHISELED_BOOKSHELF_SLOT_MODEL_CACHE.computeIfAbsent(
+            var2, param3x -> param4.createWithSuffix(Blocks.CHISELED_BOOKSHELF, var0, var1, this.modelOutput)
+        );
+        param0.with(
+            Condition.and(param1, Condition.condition().term(param3, param5)),
+            Variant.variant().with(VariantProperties.MODEL, var3).with(VariantProperties.Y_ROT, param2)
+        );
     }
 
     private void createMagmaBlock() {
@@ -4326,7 +4366,8 @@ public class BlockModelGenerators {
                 Blocks.PLAYER_HEAD,
                 Blocks.ZOMBIE_HEAD,
                 Blocks.SKELETON_SKULL,
-                Blocks.WITHER_SKELETON_SKULL
+                Blocks.WITHER_SKELETON_SKULL,
+                Blocks.PIGLIN_HEAD
             )
             .create(Blocks.DRAGON_HEAD)
             .createWithoutBlockItem(
@@ -4335,7 +4376,8 @@ public class BlockModelGenerators {
                 Blocks.PLAYER_WALL_HEAD,
                 Blocks.ZOMBIE_WALL_HEAD,
                 Blocks.SKELETON_WALL_SKULL,
-                Blocks.WITHER_SKELETON_WALL_SKULL
+                Blocks.WITHER_SKELETON_WALL_SKULL,
+                Blocks.PIGLIN_WALL_HEAD
             );
         this.createShulkerBox(Blocks.SHULKER_BOX);
         this.createShulkerBox(Blocks.WHITE_SHULKER_BOX);
@@ -4920,6 +4962,9 @@ public class BlockModelGenerators {
     @FunctionalInterface
     interface BlockStateGeneratorSupplier {
         BlockStateGenerator create(Block var1, ResourceLocation var2, TextureMapping var3, BiConsumer<ResourceLocation, Supplier<JsonElement>> var4);
+    }
+
+    static record BookSlotModelCacheKey(ModelTemplate template, String modelSuffix) {
     }
 
     static enum TintState {

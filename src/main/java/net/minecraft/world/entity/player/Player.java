@@ -1394,7 +1394,7 @@ public abstract class Player extends LivingEntity {
 
             return var2;
         } else if (var1 instanceof BedBlock && BedBlock.canSetSpawn(param0)) {
-            return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, param2);
+            return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, var0.getValue(BedBlock.FACING), param2);
         } else if (!param3) {
             return Optional.empty();
         } else {

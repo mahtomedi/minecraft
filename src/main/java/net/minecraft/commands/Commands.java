@@ -57,6 +57,7 @@ import net.minecraft.server.commands.EmoteCommands;
 import net.minecraft.server.commands.EnchantCommand;
 import net.minecraft.server.commands.ExecuteCommand;
 import net.minecraft.server.commands.ExperienceCommand;
+import net.minecraft.server.commands.FillBiomeCommand;
 import net.minecraft.server.commands.FillCommand;
 import net.minecraft.server.commands.ForceLoadCommand;
 import net.minecraft.server.commands.FunctionCommand;
@@ -141,6 +142,7 @@ public class Commands {
         EnchantCommand.register(this.dispatcher, param1);
         ExperienceCommand.register(this.dispatcher);
         FillCommand.register(this.dispatcher, param1);
+        FillBiomeCommand.register(this.dispatcher, param1);
         ForceLoadCommand.register(this.dispatcher);
         FunctionCommand.register(this.dispatcher);
         GameModeCommand.register(this.dispatcher);

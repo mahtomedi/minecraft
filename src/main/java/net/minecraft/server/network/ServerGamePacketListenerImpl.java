@@ -979,6 +979,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                                 this.lastGoodZ = this.player.getZ();
                             } else {
                                 this.teleport(var6, var7, var8, var4, var5);
+                                this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());
                             }
                         }
                     }

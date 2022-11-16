@@ -34,6 +34,7 @@ import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.commands.arguments.ObjectiveArgument;
 import net.minecraft.commands.arguments.RangeArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.ResourceOrTagArgument;
 import net.minecraft.commands.arguments.ScoreHolderArgument;
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -41,6 +42,7 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -416,6 +418,21 @@ public class ExecuteCommand {
                                     param2,
                                     param0x -> BlockPredicateArgument.getBlockPredicate(param0x, "block")
                                             .test(new BlockInWorld(param0x.getSource().getLevel(), BlockPosArgument.getLoadedBlockPos(param0x, "pos"), true))
+                                )
+                            )
+                    )
+            )
+            .then(
+                Commands.literal("biome")
+                    .then(
+                        Commands.argument("pos", BlockPosArgument.blockPos())
+                            .then(
+                                addConditional(
+                                    param0,
+                                    Commands.argument("biome", ResourceOrTagArgument.resourceOrTag(param3, Registries.BIOME)),
+                                    param2,
+                                    param0x -> ResourceOrTagArgument.getResourceOrTag(param0x, "biome", Registries.BIOME)
+                                            .test(param0x.getSource().getLevel().getBiome(BlockPosArgument.getLoadedBlockPos(param0x, "pos")))
                                 )
                             )
                     )

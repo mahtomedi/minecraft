@@ -222,16 +222,15 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         return param0.getBlockState(param1.below()).getBlock() instanceof BedBlock;
     }
 
-    public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, CollisionGetter param1, BlockPos param2, float param3) {
-        Direction var0 = param1.getBlockState(param2).getValue(FACING);
-        Direction var1 = var0.getClockWise();
-        Direction var2 = var1.isFacingAngle(param3) ? var1.getOpposite() : var1;
+    public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, CollisionGetter param1, BlockPos param2, Direction param3, float param4) {
+        Direction var0 = param3.getClockWise();
+        Direction var1 = var0.isFacingAngle(param4) ? var0.getOpposite() : var0;
         if (isBunkBed(param1, param2)) {
-            return findBunkBedStandUpPosition(param0, param1, param2, var0, var2);
+            return findBunkBedStandUpPosition(param0, param1, param2, param3, var1);
         } else {
-            int[][] var3 = bedStandUpOffsets(var0, var2);
-            Optional<Vec3> var4 = findStandUpPositionAtOffset(param0, param1, param2, var3, true);
-            return var4.isPresent() ? var4 : findStandUpPositionAtOffset(param0, param1, param2, var3, false);
+            int[][] var2 = bedStandUpOffsets(param3, var1);
+            Optional<Vec3> var3 = findStandUpPositionAtOffset(param0, param1, param2, var2, true);
+            return var3.isPresent() ? var3 : findStandUpPositionAtOffset(param0, param1, param2, var2, false);
         }
     }
 

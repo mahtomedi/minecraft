@@ -1233,6 +1233,27 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     }
 
+    public void resendChunk(ChunkAccess param0) {
+        ChunkPos var0 = param0.getPos();
+        LevelChunk var2;
+        if (param0 instanceof LevelChunk var1) {
+            var2 = var1;
+        } else {
+            var2 = this.level.getChunk(var0.x, var0.z);
+        }
+
+        MutableObject<ClientboundLevelChunkWithLightPacket> var4 = new MutableObject<>();
+
+        for(ServerPlayer var5 : this.getPlayers(var0, false)) {
+            if (var4.getValue() == null) {
+                var4.setValue(new ClientboundLevelChunkWithLightPacket(var2, this.lightEngine, null, null, true));
+            }
+
+            var5.trackChunk(var0, var4.getValue());
+        }
+
+    }
+
     private void playerLoadedChunk(ServerPlayer param0, MutableObject<ClientboundLevelChunkWithLightPacket> param1, LevelChunk param2) {
         if (param1.getValue() == null) {
             param1.setValue(new ClientboundLevelChunkWithLightPacket(param2, this.lightEngine, null, null, true));

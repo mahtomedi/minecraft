@@ -3,7 +3,6 @@ package com.mojang.blaze3d.platform;
 import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +11,7 @@ import java.nio.IntBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path;
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.SharedConstants;
 import net.minecraftforge.api.distmarker.Dist;
@@ -100,19 +100,19 @@ public class TextureUtil {
         return var2;
     }
 
-    public static void writeAsPNG(String param0, int param1, int param2, int param3, int param4) {
+    public static void writeAsPNG(Path param0, String param1, int param2, int param3, int param4, int param5) {
         RenderSystem.assertOnRenderThread();
-        bind(param1);
+        bind(param2);
 
-        for(int var0 = 0; var0 <= param2; ++var0) {
-            String var1 = param0 + "_" + var0 + ".png";
-            int var2 = param3 >> var0;
-            int var3 = param4 >> var0;
+        for(int var0 = 0; var0 <= param3; ++var0) {
+            int var1 = param4 >> var0;
+            int var2 = param5 >> var0;
 
-            try (NativeImage var4 = new NativeImage(var2, var3, false)) {
-                var4.downloadTexture(var0, false);
-                var4.writeToFile(var1);
-                LOGGER.debug("Exported png to: {}", new File(var1).getAbsolutePath());
+            try (NativeImage var3 = new NativeImage(var1, var2, false)) {
+                var3.downloadTexture(var0, false);
+                Path var4 = param0.resolve(param1 + "_" + var0 + ".png");
+                var3.writeToFile(var4);
+                LOGGER.debug("Exported png to: {}", var4.toAbsolutePath());
             } catch (IOException var14) {
                 LOGGER.debug("Unable to write: ", (Throwable)var14);
             }
@@ -131,5 +131,13 @@ public class TextureUtil {
         GL11.glTexImage2D(3553, 0, 6408, param1, param2, 0, 32993, 33639, param0);
         GL11.glTexParameteri(3553, 10240, 9728);
         GL11.glTexParameteri(3553, 10241, 9729);
+    }
+
+    public static Path getDebugTexturePath(Path param0) {
+        return param0.resolve("screenshots").resolve("debug");
+    }
+
+    public static Path getDebugTexturePath() {
+        return getDebugTexturePath(Path.of("."));
     }
 }

@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ReceivingLevelScreen extends Screen {
     private static final Component DOWNLOADING_TERRAIN_TEXT = Component.translatable("multiplayer.downloadingTerrain");
-    private static final long CHUNK_LOADING_START_WAIT_LIMIT_MS = 2000L;
+    private static final long CHUNK_LOADING_START_WAIT_LIMIT_MS = 30000L;
     private boolean loadingPacketsReceived = false;
     private boolean oneTickSkipped = false;
     private final long createdAt = System.currentTimeMillis();
@@ -33,16 +33,21 @@ public class ReceivingLevelScreen extends Screen {
 
     @Override
     public void tick() {
-        boolean var0 = this.oneTickSkipped || System.currentTimeMillis() > this.createdAt + 2000L;
-        if (var0 && this.minecraft != null && this.minecraft.player != null) {
-            BlockPos var1 = this.minecraft.player.blockPosition();
-            boolean var2 = this.minecraft.level != null && this.minecraft.level.isOutsideBuildHeight(var1.getY());
-            if (var2 || this.minecraft.levelRenderer.isChunkCompiled(var1)) {
-                this.onClose();
-            }
+        if (System.currentTimeMillis() > this.createdAt + 30000L) {
+            this.onClose();
+        } else {
+            if (this.oneTickSkipped) {
+                if (this.minecraft.player == null) {
+                    return;
+                }
 
-            if (this.loadingPacketsReceived) {
-                this.oneTickSkipped = true;
+                BlockPos var0 = this.minecraft.player.blockPosition();
+                boolean var1 = this.minecraft.level != null && this.minecraft.level.isOutsideBuildHeight(var0.getY());
+                if (var1 || this.minecraft.levelRenderer.isChunkCompiled(var0) || this.minecraft.player.isSpectator() || !this.minecraft.player.isAlive()) {
+                    this.onClose();
+                }
+            } else {
+                this.oneTickSkipped = this.loadingPacketsReceived;
             }
 
         }

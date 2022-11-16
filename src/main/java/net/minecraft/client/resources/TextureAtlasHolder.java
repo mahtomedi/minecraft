@@ -1,6 +1,5 @@
 package net.minecraft.client.resources;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.client.renderer.texture.SpriteLoader;
@@ -9,7 +8,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,20 +16,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class TextureAtlasHolder implements PreparableReloadListener, AutoCloseable {
     private final TextureAtlas textureAtlas;
-    private final String prefix;
+    private final ResourceLocation atlasInfoLocation;
 
-    public TextureAtlasHolder(TextureManager param0, ResourceLocation param1, String param2) {
-        this.prefix = param2;
+    public TextureAtlasHolder(TextureManager param0, ResourceLocation param1, ResourceLocation param2) {
+        this.atlasInfoLocation = param2;
         this.textureAtlas = new TextureAtlas(param1);
         param0.register(this.textureAtlas.location(), this.textureAtlas);
     }
 
     protected TextureAtlasSprite getSprite(ResourceLocation param0) {
-        return this.textureAtlas.getSprite(this.resolveLocation(param0));
-    }
-
-    private ResourceLocation resolveLocation(ResourceLocation param0) {
-        return param0.withPrefix(this.prefix + "/");
+        return this.textureAtlas.getSprite(param0);
     }
 
     @Override
@@ -43,8 +37,8 @@ public abstract class TextureAtlasHolder implements PreparableReloadListener, Au
         Executor param4,
         Executor param5
     ) {
-        return CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(() -> SpriteLoader.listSprites(param1, this.prefix), param4)
-            .thenCompose(param1x -> SpriteLoader.create(this.textureAtlas).stitch(param1x, 0, param4))
+        return SpriteLoader.create(this.textureAtlas)
+            .loadAndStitch(param1, this.atlasInfoLocation, 0, param4)
             .thenCompose(SpriteLoader.Preparations::waitForUpload)
             .thenCompose(param0::wait)
             .thenAcceptAsync(param1x -> this.apply(param1x, param3), param5);
