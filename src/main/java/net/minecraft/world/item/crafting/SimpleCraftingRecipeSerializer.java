@@ -14,7 +14,7 @@ public class SimpleCraftingRecipeSerializer<T extends CraftingRecipe> implements
     }
 
     public T fromJson(ResourceLocation param0, JsonObject param1) {
-        CraftingBookCategory var0 = Objects.requireNonNullElse(
+        CraftingBookCategory var0 = (CraftingBookCategory)Objects.requireNonNullElse(
             CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(param1, "category", null)), CraftingBookCategory.MISC
         );
         return this.constructor.create(param0, var0);

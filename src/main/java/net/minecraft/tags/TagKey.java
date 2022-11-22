@@ -33,7 +33,7 @@ public record TagKey<T>(ResourceKey<? extends Registry<T>> registry, ResourceLoc
     }
 
     public static <T> TagKey<T> create(ResourceKey<? extends Registry<T>> param0, ResourceLocation param1) {
-        return (TagKey<T>)VALUES.intern(new TagKey<>(param0, param1));
+        return (TagKey<T>)VALUES.intern(new TagKey<T>(param0, param1));
     }
 
     public boolean isFor(ResourceKey<? extends Registry<?>> param0) {
@@ -41,10 +41,9 @@ public record TagKey<T>(ResourceKey<? extends Registry<T>> registry, ResourceLoc
     }
 
     public <E> Optional<TagKey<E>> cast(ResourceKey<? extends Registry<E>> param0) {
-        return this.isFor(param0) ? Optional.of(this) : Optional.empty();
+        return this.isFor(param0) ? Optional.of((T)this) : Optional.empty();
     }
 
-    @Override
     public String toString() {
         return "TagKey[" + this.registry.location() + " / " + this.location + "]";
     }

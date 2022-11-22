@@ -38,8 +38,8 @@ public record JfrStatsResult(
         Map<ChunkStatus, List<ChunkGenStat>> var0 = this.chunkGenStats.stream().collect(Collectors.groupingBy(ChunkGenStat::status));
         return var0.entrySet()
             .stream()
-            .map(param0 -> Pair.of(param0.getKey(), TimedStatSummary.summary(param0.getValue())))
-            .sorted(Comparator.<Pair<ChunkStatus, TimedStatSummary<ChunkGenStat>>, Duration>comparing(param0 -> param0.getSecond().totalDuration()).reversed())
+            .map(param0 -> Pair.of(param0.getKey(), TimedStatSummary.<ChunkGenStat>summary(param0.getValue())))
+            .sorted(Comparator.<Pair, Duration>comparing(param0 -> ((TimedStatSummary)param0.getSecond()).totalDuration()).reversed())
             .toList();
     }
 

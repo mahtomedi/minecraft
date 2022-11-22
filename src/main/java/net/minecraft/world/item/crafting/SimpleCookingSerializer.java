@@ -20,7 +20,7 @@ public class SimpleCookingSerializer<T extends AbstractCookingRecipe> implements
 
     public T fromJson(ResourceLocation param0, JsonObject param1) {
         String var0 = GsonHelper.getAsString(param1, "group", "");
-        CookingBookCategory var1 = Objects.requireNonNullElse(
+        CookingBookCategory var1 = (CookingBookCategory)Objects.requireNonNullElse(
             CookingBookCategory.CODEC.byName(GsonHelper.getAsString(param1, "category", null)), CookingBookCategory.MISC
         );
         JsonElement var2 = (JsonElement)(GsonHelper.isArrayNode(param1, "ingredient")

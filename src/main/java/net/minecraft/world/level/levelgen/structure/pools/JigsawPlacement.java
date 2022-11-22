@@ -187,7 +187,7 @@ public class JigsawPlacement {
         );
         Optional<Structure.GenerationStub> var5 = addPieces(var4, param1, Optional.of(param2), param3, param4, false, Optional.empty(), 128);
         if (var5.isPresent()) {
-            StructurePiecesBuilder var6 = var5.get().getPiecesBuilder();
+            StructurePiecesBuilder var6 = ((Structure.GenerationStub)var5.get()).getPiecesBuilder();
 
             for(StructurePiece var7 : var6.build().pieces()) {
                 if (var7 instanceof PoolElementStructurePiece var8) {

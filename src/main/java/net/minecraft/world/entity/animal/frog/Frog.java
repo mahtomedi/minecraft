@@ -40,6 +40,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -69,7 +70,7 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.phys.Vec3;
 
-public class Frog extends Animal {
+public class Frog extends Animal implements VariantHolder<FrogVariant> {
     public static final Ingredient TEMPTATION_ITEM = Ingredient.of(Items.SLIME_BALL);
     protected static final ImmutableList<SensorType<? extends Sensor<? super Frog>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES, SensorType.HURT_BY, SensorType.FROG_ATTACKABLES, SensorType.FROG_TEMPTATIONS, SensorType.IS_IN_WATER
@@ -179,7 +180,7 @@ public class Frog extends Animal {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        FrogVariant var0 = BuiltInRegistries.FROG_VARIANT.get(ResourceLocation.tryParse(param0.getString("variant")));
+        FrogVariant var0 = (FrogVariant)BuiltInRegistries.FROG_VARIANT.get(ResourceLocation.tryParse(param0.getString("variant")));
         if (var0 != null) {
             this.setVariant(var0);
         }
@@ -426,9 +427,13 @@ public class Frog extends Animal {
         @Nullable
         @Override
         public Node getStart() {
-            return this.getStartNode(
-                new BlockPos(Mth.floor(this.mob.getBoundingBox().minX), Mth.floor(this.mob.getBoundingBox().minY), Mth.floor(this.mob.getBoundingBox().minZ))
-            );
+            return !this.mob.isInWater()
+                ? super.getStart()
+                : this.getStartNode(
+                    new BlockPos(
+                        Mth.floor(this.mob.getBoundingBox().minX), Mth.floor(this.mob.getBoundingBox().minY), Mth.floor(this.mob.getBoundingBox().minZ)
+                    )
+                );
         }
 
         @Override

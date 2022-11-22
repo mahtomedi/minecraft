@@ -70,9 +70,12 @@ public class StateDefinition<O, S extends StateHolder<O, S>> {
     private static <S extends StateHolder<?, S>, T extends Comparable<T>> MapCodec<S> appendPropertyCodec(
         MapCodec<S> param0, Supplier<S> param1, String param2, Property<T> param3
     ) {
-        return Codec.mapPair(param0, param3.valueCodec().fieldOf(param2).orElseGet(param0x -> {
+        return Codec.<S, S>mapPair(param0, param3.valueCodec().fieldOf(param2).orElseGet(param0x -> {
             }, () -> param3.value(param1.get())))
-            .xmap(param1x -> param1x.getFirst().setValue(param3, param1x.getSecond().value()), param1x -> Pair.of(param1x, param3.value(param1x)));
+            .xmap(
+                param1x -> param1x.getFirst().setValue(param3, ((Property.Value)param1x.getSecond()).value()),
+                param1x -> Pair.of(param1x, (S)param3.value(param1x))
+            );
     }
 
     public ImmutableList<S> getPossibleStates() {

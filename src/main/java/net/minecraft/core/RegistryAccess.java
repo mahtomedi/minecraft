@@ -71,8 +71,7 @@ public interface RegistryAccess extends HolderLookup.Provider {
         private final Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>> registries;
 
         public ImmutableRegistryAccess(List<? extends Registry<?>> param0) {
-            this.registries = param0.stream()
-                .collect(Collectors.toUnmodifiableMap(Registry::key, (Function<? super Registry<?>, ? extends Registry<?>>)(param0x -> param0x)));
+            this.registries = param0.stream().collect(Collectors.toUnmodifiableMap(Registry::key, param0x -> param0x));
         }
 
         public ImmutableRegistryAccess(Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>> param0) {

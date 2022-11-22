@@ -29,7 +29,7 @@ public class FeatureSorter {
     public static <T> List<FeatureSorter.StepFeatureData> buildFeaturesPerStep(
         List<T> param0, Function<T, List<HolderSet<PlacedFeature>>> param1, boolean param2
     ) {
-        Object2IntMap<PlacedFeature> var0 = new Object2IntOpenHashMap<>();
+        Object2IntMap<PlacedFeature> var0 = new Object2IntOpenHashMap();
         MutableInt var1 = new MutableInt(0);
 
         record FeatureData(int featureIndex, int step, PlacedFeature feature) {
@@ -46,21 +46,21 @@ public class FeatureSorter {
 
             for(int var8 = 0; var8 < var7.size(); ++var8) {
                 for(Holder<PlacedFeature> var9 : var7.get(var8)) {
-                    PlacedFeature var10 = var9.value();
+                    PlacedFeature var10 = (PlacedFeature)var9.value();
                     var6.add(new FeatureData(var0.computeIfAbsent(var10, param1x -> var1.getAndIncrement()), var8, var10));
                 }
             }
 
             for(int var11 = 0; var11 < var6.size(); ++var11) {
-                Set<FeatureData> var12 = var3.computeIfAbsent(var6.get(var11), param1x -> new TreeSet<>(var2));
+                Set<FeatureData> var12 = var3.computeIfAbsent((FeatureData)var6.get(var11), param1x -> new TreeSet(var2));
                 if (var11 < var6.size() - 1) {
-                    var12.add(var6.get(var11 + 1));
+                    var12.add((FeatureData)var6.get(var11 + 1));
                 }
             }
         }
 
-        Set<FeatureData> var13 = new TreeSet<>(var2);
-        Set<FeatureData> var14 = new TreeSet<>(var2);
+        Set<FeatureData> var13 = new TreeSet(var2);
+        Set<FeatureData> var14 = new TreeSet(var2);
         List<FeatureData> var15 = Lists.newArrayList();
 
         for(FeatureData var16 : var3.keySet()) {
@@ -68,7 +68,7 @@ public class FeatureSorter {
                 throw new IllegalStateException("You somehow broke the universe; DFS bork (iteration finished with non-empty in-progress vertex set");
             }
 
-            if (!var13.contains(var16) && Graph.depthFirstSearch(var3, var13, var14, var15::add, var16)) {
+            if (!var13.contains(var16) && Graph.depthFirstSearch(var3, var13, var14, var15::add, (T)var16)) {
                 if (!param2) {
                     throw new IllegalStateException("Feature order cycle found");
                 }
@@ -112,7 +112,7 @@ public class FeatureSorter {
 
     public static record StepFeatureData(List<PlacedFeature> features, ToIntFunction<PlacedFeature> indexMapping) {
         StepFeatureData(List<PlacedFeature> param0) {
-            this(param0, Util.createIndexLookup(param0, param0x -> new Object2IntOpenCustomHashMap<>(param0x, Util.identityStrategy())));
+            this(param0, Util.createIndexLookup(param0, param0x -> new Object2IntOpenCustomHashMap(param0x, Util.identityStrategy())));
         }
     }
 }

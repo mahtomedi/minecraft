@@ -77,6 +77,6 @@ public class Noises {
         HolderGetter<NormalNoise.NoiseParameters> param0, PositionalRandomFactory param1, ResourceKey<NormalNoise.NoiseParameters> param2
     ) {
         Holder<NormalNoise.NoiseParameters> var0 = param0.getOrThrow(param2);
-        return NormalNoise.create(param1.fromHashOf(var0.unwrapKey().orElseThrow().location()), var0.value());
+        return NormalNoise.create(param1.fromHashOf(((ResourceKey)var0.unwrapKey().orElseThrow()).location()), (NormalNoise.NoiseParameters)var0.value());
     }
 }

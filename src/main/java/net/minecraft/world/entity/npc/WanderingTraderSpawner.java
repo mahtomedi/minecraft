@@ -101,7 +101,7 @@ public class WanderingTraderSpawner implements CustomSpawner {
                     return false;
                 }
 
-                WanderingTrader var7 = EntityType.WANDERING_TRADER.spawn(param0, null, null, null, var6, MobSpawnType.EVENT, false, false);
+                WanderingTrader var7 = EntityType.WANDERING_TRADER.spawn(param0, var6, MobSpawnType.EVENT);
                 if (var7 != null) {
                     for(int var8 = 0; var8 < 2; ++var8) {
                         this.tryToSpawnLlamaFor(param0, var7, 4);
@@ -122,7 +122,7 @@ public class WanderingTraderSpawner implements CustomSpawner {
     private void tryToSpawnLlamaFor(ServerLevel param0, WanderingTrader param1, int param2) {
         BlockPos var0 = this.findSpawnPositionNear(param0, param1.blockPosition(), param2);
         if (var0 != null) {
-            TraderLlama var1 = EntityType.TRADER_LLAMA.spawn(param0, null, null, null, var0, MobSpawnType.EVENT, false, false);
+            TraderLlama var1 = EntityType.TRADER_LLAMA.spawn(param0, var0, MobSpawnType.EVENT);
             if (var1 != null) {
                 var1.setLeashedTo(param1, true);
             }

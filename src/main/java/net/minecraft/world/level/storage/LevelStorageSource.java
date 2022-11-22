@@ -122,7 +122,7 @@ public class LevelStorageSource {
     }
 
     private static WorldDataConfiguration readDataConfig(Dynamic<?> param0) {
-        return WorldDataConfiguration.CODEC.parse(param0).resultOrPartial(LOGGER::error).orElse(WorldDataConfiguration.DEFAULT);
+        return (WorldDataConfiguration)WorldDataConfiguration.CODEC.parse(param0).resultOrPartial(LOGGER::error).orElse(WorldDataConfiguration.DEFAULT);
     }
 
     public String getName() {
@@ -246,7 +246,8 @@ public class LevelStorageSource {
             Dynamic<Tag> var6 = param5.update(
                 DataFixTypes.LEVEL.getType(), new Dynamic<>(param0, var3x), var5, SharedConstants.getCurrentVersion().getWorldVersion()
             );
-            WorldGenSettings var7 = readWorldGenSettings(var6, param5, var5).getOrThrow(false, Util.prefix("WorldGenSettings: ", LOGGER::error));
+            WorldGenSettings var7 = (WorldGenSettings)readWorldGenSettings(var6, param5, var5)
+                .getOrThrow(false, Util.prefix("WorldGenSettings: ", LOGGER::error));
             LevelVersion var8 = LevelVersion.parse(var6);
             LevelSettings var9 = LevelSettings.parse(var6, param1);
             WorldDimensions.Complete var10 = var7.dimensions().bake(param2);

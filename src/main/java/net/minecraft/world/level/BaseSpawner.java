@@ -10,6 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
@@ -110,7 +111,7 @@ public abstract class BaseSpawner {
                                 continue;
                             }
 
-                            SpawnData.CustomSpawnRules var12 = var2.getCustomSpawnRules().get();
+                            SpawnData.CustomSpawnRules var12 = (SpawnData.CustomSpawnRules)var2.getCustomSpawnRules().get();
                             if (!var12.blockLightLimit().isValueInRange(param0.getBrightness(LightLayer.BLOCK, var11))
                                 || !var12.skyLightLimit().isValueInRange(param0.getBrightness(LightLayer.SKY, var11))) {
                                 continue;
@@ -189,7 +190,7 @@ public abstract class BaseSpawner {
             this.spawnDelay = this.minSpawnDelay + var0.nextInt(this.maxSpawnDelay - this.minSpawnDelay);
         }
 
-        this.spawnPotentials.getRandom(var0).ifPresent(param2 -> this.setNextSpawnData(param0, param1, param2.getData()));
+        this.spawnPotentials.getRandom(var0).ifPresent(param2 -> this.setNextSpawnData(param0, param1, (SpawnData)param2.getData()));
         this.broadcastEvent(param0, param1, 1);
     }
 
@@ -197,7 +198,7 @@ public abstract class BaseSpawner {
         this.spawnDelay = param2.getShort("Delay");
         boolean var0 = param2.contains("SpawnData", 10);
         if (var0) {
-            SpawnData var1 = SpawnData.CODEC
+            SpawnData var1 = (SpawnData)SpawnData.CODEC
                 .parse(NbtOps.INSTANCE, param2.getCompound("SpawnData"))
                 .resultOrPartial(param0x -> LOGGER.warn("Invalid SpawnData: {}", param0x))
                 .orElseGet(SpawnData::new);
@@ -248,7 +249,7 @@ public abstract class BaseSpawner {
             );
         }
 
-        param0.put("SpawnPotentials", SpawnData.LIST_CODEC.encodeStart(NbtOps.INSTANCE, this.spawnPotentials).result().orElseThrow());
+        param0.put("SpawnPotentials", (Tag)SpawnData.LIST_CODEC.encodeStart(NbtOps.INSTANCE, this.spawnPotentials).result().orElseThrow());
         return param0;
     }
 
@@ -288,7 +289,9 @@ public abstract class BaseSpawner {
         if (this.nextSpawnData != null) {
             return this.nextSpawnData;
         } else {
-            this.setNextSpawnData(param0, param2, this.spawnPotentials.getRandom(param1).map(WeightedEntry.Wrapper::getData).orElseGet(SpawnData::new));
+            this.setNextSpawnData(
+                param0, param2, (SpawnData)this.spawnPotentials.getRandom(param1).map(WeightedEntry.Wrapper::getData).orElseGet(SpawnData::new)
+            );
             return this.nextSpawnData;
         }
     }

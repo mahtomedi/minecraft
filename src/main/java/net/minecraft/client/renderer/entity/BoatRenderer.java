@@ -75,7 +75,7 @@ public class BoatRenderer extends EntityRenderer<Boat> {
             param3.mulPose(new Quaternionf().setAngleAxis(param0.getBubbleAngle(param2) * (float) (Math.PI / 180.0), 1.0F, 0.0F, 1.0F));
         }
 
-        Pair<ResourceLocation, ListModel<Boat>> var3 = this.boatResources.get(param0.getBoatType());
+        Pair<ResourceLocation, ListModel<Boat>> var3 = this.boatResources.get(param0.getVariant());
         ResourceLocation var4 = var3.getFirst();
         ListModel<Boat> var5 = var3.getSecond();
         param3.scale(-1.0F, -1.0F, 1.0F);
@@ -95,6 +95,6 @@ public class BoatRenderer extends EntityRenderer<Boat> {
     }
 
     public ResourceLocation getTextureLocation(Boat param0) {
-        return this.boatResources.get(param0.getBoatType()).getFirst();
+        return this.boatResources.get(param0.getVariant()).getFirst();
     }
 }

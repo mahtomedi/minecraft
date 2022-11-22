@@ -30,7 +30,7 @@ public class ChatLog {
     }
 
     private ChatLog(int param0, List<LoggedChatEvent> param1) {
-        this.buffer = param1.toArray(param1x -> new LoggedChatEvent[param0]);
+        this.buffer = (LoggedChatEvent[])param1.toArray(param1x -> new LoggedChatEvent[param0]);
         this.nextId = param1.size();
     }
 

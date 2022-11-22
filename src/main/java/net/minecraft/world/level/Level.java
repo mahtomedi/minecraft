@@ -119,8 +119,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.profiler = param3;
         this.levelData = param0;
         this.dimensionTypeRegistration = param2;
-        this.dimensionTypeId = param2.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param2));
-        final DimensionType var0 = param2.value();
+        this.dimensionTypeId = (ResourceKey)param2.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param2));
+        final DimensionType var0 = (DimensionType)param2.value();
         this.dimension = param1;
         this.isClientSide = param4;
         if (var0.coordinateScale() != 1.0) {
@@ -944,7 +944,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public DimensionType dimensionType() {
-        return this.dimensionTypeRegistration.value();
+        return (DimensionType)this.dimensionTypeRegistration.value();
     }
 
     public ResourceKey<DimensionType> dimensionTypeId() {

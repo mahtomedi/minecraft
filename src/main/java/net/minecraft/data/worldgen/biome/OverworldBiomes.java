@@ -847,7 +847,7 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addDefaultUndergroundVariety(var1);
         BiomeDefaultFeatures.addSurfaceFreezing(var1);
         BiomeDefaultFeatures.addPlainGrass(var1);
-        BiomeDefaultFeatures.addDefaultOres(var1, true);
+        BiomeDefaultFeatures.addDefaultOres(var1);
         BiomeDefaultFeatures.addDefaultSoftDisks(var1);
         BiomeDefaultFeatures.addPlainVegetation(var1);
         BiomeDefaultFeatures.addDefaultMushrooms(var1);

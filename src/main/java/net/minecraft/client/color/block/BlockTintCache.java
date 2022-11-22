@@ -29,7 +29,7 @@ public class BlockTintCache {
         int var0 = SectionPos.blockToSectionCoord(param0.getX());
         int var1 = SectionPos.blockToSectionCoord(param0.getZ());
         BlockTintCache.LatestCacheInfo var2 = this.latestChunkOnThread.get();
-        if (var2.x != var0 || var2.z != var1 || var2.cache == null) {
+        if (var2.x != var0 || var2.z != var1 || var2.cache == null || var2.cache.isInvalidated()) {
             var2.x = var0;
             var2.z = var1;
             var2.cache = this.findOrCreateChunkCache(var0, var1);
@@ -56,7 +56,10 @@ public class BlockTintCache {
             for(int var0 = -1; var0 <= 1; ++var0) {
                 for(int var1 = -1; var1 <= 1; ++var1) {
                     long var2 = ChunkPos.asLong(param0 + var0, param1 + var1);
-                    this.cache.remove(var2);
+                    BlockTintCache.CacheData var3 = this.cache.remove(var2);
+                    if (var3 != null) {
+                        var3.invalidate();
+                    }
                 }
             }
         } finally {
@@ -116,6 +119,7 @@ public class BlockTintCache {
         private final Int2ObjectArrayMap<int[]> cache = new Int2ObjectArrayMap<>(16);
         private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
         private static final int BLOCKS_PER_LAYER = Mth.square(16);
+        private volatile boolean invalidated;
 
         public int[] getLayer(int param0) {
             this.lock.readLock().lock();
@@ -145,6 +149,14 @@ public class BlockTintCache {
             int[] var0 = new int[BLOCKS_PER_LAYER];
             Arrays.fill(var0, -1);
             return var0;
+        }
+
+        public boolean isInvalidated() {
+            return this.invalidated;
+        }
+
+        public void invalidate() {
+            this.invalidated = true;
         }
     }
 

@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Services;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class SkullBlockEntity extends BlockEntity {
     public static final String TAG_SKULL_OWNER = "SkullOwner";
+    public static final String TAG_NOTE_BLOCK_SOUND = "note_block_sound";
     @Nullable
     private static GameProfileCache profileCache;
     @Nullable
@@ -28,6 +30,8 @@ public class SkullBlockEntity extends BlockEntity {
     private static Executor mainThreadExecutor;
     @Nullable
     private GameProfile owner;
+    @Nullable
+    private ResourceLocation noteBlockSound;
     private int animationTickCount;
     private boolean isAnimating;
 
@@ -56,6 +60,10 @@ public class SkullBlockEntity extends BlockEntity {
             param0.put("SkullOwner", var0);
         }
 
+        if (this.noteBlockSound != null) {
+            param0.putString("note_block_sound", this.noteBlockSound.toString());
+        }
+
     }
 
     @Override
@@ -68,6 +76,10 @@ public class SkullBlockEntity extends BlockEntity {
             if (!StringUtil.isNullOrEmpty(var0)) {
                 this.setOwner(new GameProfile(null, var0));
             }
+        }
+
+        if (param0.contains("note_block_sound", 8)) {
+            this.noteBlockSound = ResourceLocation.tryParse(param0.getString("note_block_sound"));
         }
 
     }
@@ -89,6 +101,11 @@ public class SkullBlockEntity extends BlockEntity {
     @Nullable
     public GameProfile getOwnerProfile() {
         return this.owner;
+    }
+
+    @Nullable
+    public ResourceLocation getNoteBlockSound() {
+        return this.noteBlockSound;
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {

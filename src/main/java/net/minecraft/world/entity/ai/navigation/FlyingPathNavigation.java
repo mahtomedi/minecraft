@@ -24,6 +24,11 @@ public class FlyingPathNavigation extends PathNavigation {
     }
 
     @Override
+    protected boolean canMoveDirectly(Vec3 param0, Vec3 param1) {
+        return isClearForMovementBetween(this.mob, param0, param1, true);
+    }
+
+    @Override
     protected boolean canUpdatePath() {
         return this.canFloat() && this.isInLiquid() || !this.mob.isPassenger();
     }

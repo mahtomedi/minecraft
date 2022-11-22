@@ -22,10 +22,10 @@ public class SpriteSources {
     public static final SpriteSourceType FILTER = register("filter", SourceFilter.CODEC);
     public static final SpriteSourceType UNSTITCHER = register("unstitch", Unstitcher.CODEC);
     public static Codec<SpriteSourceType> TYPE_CODEC = ResourceLocation.CODEC.flatXmap(param0 -> {
-        SpriteSourceType var0 = TYPES.get(param0);
+        SpriteSourceType var0 = (SpriteSourceType)TYPES.get(param0);
         return var0 != null ? DataResult.success(var0) : DataResult.error("Unknown type " + param0);
     }, param0 -> {
-        ResourceLocation var0 = TYPES.inverse().get(param0);
+        ResourceLocation var0 = (ResourceLocation)TYPES.inverse().get(param0);
         return param0 != null ? DataResult.success(var0) : DataResult.error("Unknown type " + var0);
     });
     public static Codec<SpriteSource> CODEC = TYPE_CODEC.dispatch(SpriteSource::type, SpriteSourceType::codec);
@@ -36,7 +36,7 @@ public class SpriteSources {
     private static SpriteSourceType register(String param0, Codec<? extends SpriteSource> param1) {
         SpriteSourceType var0 = new SpriteSourceType(param1);
         ResourceLocation var1 = new ResourceLocation(param0);
-        SpriteSourceType var2 = TYPES.putIfAbsent(var1, var0);
+        SpriteSourceType var2 = (SpriteSourceType)TYPES.putIfAbsent(var1, var0);
         if (var2 != null) {
             throw new IllegalStateException("Duplicate registration " + var1);
         } else {

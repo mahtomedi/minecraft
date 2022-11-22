@@ -30,6 +30,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -56,7 +57,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-public class Shulker extends AbstractGolem implements Enemy {
+public class Shulker extends AbstractGolem implements VariantHolder<Optional<DyeColor>>, Enemy {
     private static final UUID COVERED_ARMOR_MODIFIER_UUID = UUID.fromString("7E0292F2-9434-48D5-A29F-9583AF7DF27F");
     private static final AttributeModifier COVERED_ARMOR_MODIFIER = new AttributeModifier(
         COVERED_ARMOR_MODIFIER_UUID, "Covered armor bonus", 20.0, AttributeModifier.Operation.ADDITION
@@ -463,11 +464,7 @@ public class Shulker extends AbstractGolem implements Enemy {
             if (!(this.level.random.nextFloat() < var3)) {
                 Shulker var4 = EntityType.SHULKER.create(this.level);
                 if (var4 != null) {
-                    DyeColor var5 = this.getColor();
-                    if (var5 != null) {
-                        var4.setColor(var5);
-                    }
-
+                    var4.setVariant(this.getVariant());
                     var4.moveTo(var0);
                     this.level.addFreshEntity(var4);
                 }
@@ -567,8 +564,12 @@ public class Shulker extends AbstractGolem implements Enemy {
         }
     }
 
-    private void setColor(DyeColor param0) {
-        this.entityData.set(DATA_COLOR_ID, (byte)param0.getId());
+    public void setVariant(Optional<DyeColor> param0) {
+        this.entityData.set(DATA_COLOR_ID, param0.<Byte>map(param0x -> (byte)param0x.getId()).orElse((byte)16));
+    }
+
+    public Optional<DyeColor> getVariant() {
+        return Optional.ofNullable(this.getColor());
     }
 
     @Nullable

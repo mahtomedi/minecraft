@@ -89,9 +89,7 @@ public class TranslatableContents implements ComponentContents {
 
                     String var8 = var0.group(1);
                     int var9 = var8 != null ? Integer.parseInt(var8) - 1 : var1++;
-                    if (var9 < this.args.length) {
-                        param1.accept(this.getArgument(var9));
-                    }
+                    param1.accept(this.getArgument(var9));
                 }
             }
 
@@ -110,15 +108,15 @@ public class TranslatableContents implements ComponentContents {
     }
 
     private FormattedText getArgument(int param0) {
-        if (param0 >= this.args.length) {
-            throw new TranslatableFormatException(this, param0);
-        } else {
+        if (param0 >= 0 && param0 < this.args.length) {
             Object var0 = this.args[param0];
             if (var0 instanceof Component) {
                 return (Component)var0;
             } else {
                 return var0 == null ? TEXT_NULL : FormattedText.of(var0.toString());
             }
+        } else {
+            throw new TranslatableFormatException(this, param0);
         }
     }
 

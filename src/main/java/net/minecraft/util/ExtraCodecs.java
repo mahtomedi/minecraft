@@ -444,7 +444,6 @@ public class ExtraCodecs {
     }
 
     public static record TagOrElementLocation(ResourceLocation id, boolean tag) {
-        @Override
         public String toString() {
             return this.decoratedId();
         }

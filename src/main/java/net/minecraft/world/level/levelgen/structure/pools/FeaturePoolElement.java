@@ -88,7 +88,7 @@ public class FeaturePoolElement extends StructurePoolElement {
         RandomSource param8,
         boolean param9
     ) {
-        return this.feature.value().place(param1, param3, param8, param4);
+        return ((PlacedFeature)this.feature.value()).place(param1, param3, param8, param4);
     }
 
     @Override

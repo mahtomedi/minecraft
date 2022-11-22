@@ -82,7 +82,7 @@ public abstract class RecipeProvider implements DataProvider {
 
             }
         });
-        return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
+        return CompletableFuture.allOf((CompletableFuture<?>[])var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
     protected CompletableFuture<?> buildAdvancement(CachedOutput param0, ResourceLocation param1, Advancement.Builder param2) {

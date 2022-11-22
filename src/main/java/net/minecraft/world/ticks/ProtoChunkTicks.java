@@ -13,7 +13,7 @@ import net.minecraft.world.level.ChunkPos;
 
 public class ProtoChunkTicks<T> implements SerializableTickContainer<T>, TickContainerAccess<T> {
     private final List<SavedTick<T>> ticks = Lists.newArrayList();
-    private final Set<SavedTick<?>> ticksPerPosition = new ObjectOpenCustomHashSet<>(SavedTick.UNIQUE_TICK_HASH);
+    private final Set<SavedTick<?>> ticksPerPosition = new ObjectOpenCustomHashSet(SavedTick.UNIQUE_TICK_HASH);
 
     @Override
     public void schedule(ScheduledTick<T> param0) {

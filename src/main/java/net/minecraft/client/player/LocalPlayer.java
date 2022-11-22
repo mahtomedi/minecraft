@@ -532,7 +532,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public InteractionHand getUsedItemHand() {
-        return Objects.requireNonNullElse(this.usingItemHand, InteractionHand.MAIN_HAND);
+        return (InteractionHand)Objects.requireNonNullElse(this.usingItemHand, InteractionHand.MAIN_HAND);
     }
 
     @Override

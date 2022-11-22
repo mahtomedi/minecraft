@@ -383,10 +383,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         Collections.shuffle(var0);
         this.levels = Sets.newLinkedHashSet(var0);
         ResourceKey<Level> var1 = param0.dimension();
-        Holder<DimensionType> var2 = this.registryAccess
-            .compositeAccess()
-            .<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE)
-            .getHolderOrThrow(param0.dimensionType());
+        Holder<DimensionType> var2 = this.registryAccess.compositeAccess().registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(param0.dimensionType());
         this.serverChunkRadius = param0.chunkRadius();
         this.serverSimulationDistance = param0.simulationDistance();
         boolean var3 = param0.isDebug();
@@ -858,11 +855,13 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                     var5 = SignedMessageLink.unsigned(var2);
                 }
 
-                PlayerChatMessage var7 = new PlayerChatMessage(var5, param0.signature(), var0.get(), param0.unsignedContent(), param0.filterMask());
+                PlayerChatMessage var7 = new PlayerChatMessage(
+                    var5, param0.signature(), (SignedMessageBody)var0.get(), param0.unsignedContent(), param0.filterMask()
+                );
                 if (!var3.getMessageValidator().updateAndValidate(var7)) {
                     this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
                 } else {
-                    this.minecraft.getChatListener().handlePlayerChatMessage(var7, var3.getProfile(), var1.get());
+                    this.minecraft.getChatListener().handlePlayerChatMessage(var7, var3.getProfile(), (ChatType.Bound)var1.get());
                     this.messageSignatureCache.push(var7);
                 }
             }
@@ -878,7 +877,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         if (var0.isEmpty()) {
             this.connection.disconnect(INVALID_PACKET);
         } else {
-            this.minecraft.getChatListener().handleDisguisedChatMessage(param0.message(), var0.get());
+            this.minecraft.getChatListener().handleDisguisedChatMessage(param0.message(), (ChatType.Bound)var0.get());
         }
     }
 
@@ -889,9 +888,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         if (var0.isEmpty()) {
             this.connection.disconnect(INVALID_PACKET);
         } else {
-            this.lastSeenMessages.ignorePending(var0.get());
-            if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue(var0.get())) {
-                this.minecraft.gui.getChat().deleteMessage(var0.get());
+            this.lastSeenMessages.ignorePending((MessageSignature)var0.get());
+            if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue((MessageSignature)var0.get())) {
+                this.minecraft.gui.getChat().deleteMessage((MessageSignature)var0.get());
             }
 
         }
@@ -1034,7 +1033,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         ResourceKey<Level> var0 = param0.getDimension();
         Holder<DimensionType> var1 = this.registryAccess
             .compositeAccess()
-            .<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE)
+            .registryOrThrow(Registries.DIMENSION_TYPE)
             .getHolderOrThrow(param0.getDimensionType());
         LocalPlayer var2 = this.minecraft.player;
         int var3 = var2.getId();
@@ -1994,9 +1993,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                 BlockPos var7 = var1.readBlockPos();
                 ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(var6, var7);
             } else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(var0)) {
-                DimensionType var8 = this.registryAccess
+                DimensionType var8 = (DimensionType)this.registryAccess
                     .compositeAccess()
-                    .<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE)
+                    .registryOrThrow(Registries.DIMENSION_TYPE)
                     .get(var1.readResourceLocation());
                 BoundingBox var9 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
                 int var10 = var1.readInt();

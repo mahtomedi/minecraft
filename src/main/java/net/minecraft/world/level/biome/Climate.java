@@ -111,7 +111,6 @@ public class Climate {
             }
         }
 
-        @Override
         public String toString() {
             return this.min == this.max ? String.format(Locale.ROOT, "%d", this.min) : String.format(Locale.ROOT, "[%d-%d]", this.min, this.max);
         }
@@ -154,12 +153,12 @@ public class Climate {
         public T findValueBruteForce(Climate.TargetPoint param0) {
             Iterator<Pair<Climate.ParameterPoint, T>> var0 = this.values().iterator();
             Pair<Climate.ParameterPoint, T> var1 = var0.next();
-            long var2 = var1.getFirst().fitness(param0);
+            long var2 = ((Climate.ParameterPoint)var1.getFirst()).fitness(param0);
             T var3 = var1.getSecond();
 
             while(var0.hasNext()) {
                 Pair<Climate.ParameterPoint, T> var4 = var0.next();
-                long var5 = var4.getFirst().fitness(param0);
+                long var5 = ((Climate.ParameterPoint)var4.getFirst()).fitness(param0);
                 if (var5 < var2) {
                     var2 = var5;
                     var3 = var4.getSecond();
@@ -239,12 +238,12 @@ public class Climate {
             if (param0.isEmpty()) {
                 throw new IllegalArgumentException("Need at least one value to build the search tree.");
             } else {
-                int var0 = param0.get(0).getFirst().parameterSpace().size();
+                int var0 = ((Climate.ParameterPoint)param0.get(0).getFirst()).parameterSpace().size();
                 if (var0 != 7) {
                     throw new IllegalStateException("Expecting parameter space to be 7, got " + var0);
                 } else {
                     List<Climate.RTree.Leaf<T>> var1 = param0.stream()
-                        .map(param0x -> new Climate.RTree.Leaf(param0x.getFirst(), param0x.getSecond()))
+                        .map(param0x -> new Climate.RTree.Leaf((Climate.ParameterPoint)param0x.getFirst(), param0x.getSecond()))
                         .collect(Collectors.toCollection(ArrayList::new));
                     return new Climate.RTree<>(build(var0, var1));
                 }
@@ -355,7 +354,7 @@ public class Climate {
 
                 for(Climate.RTree.Node<T> var3 : param0) {
                     for(int var4 = 0; var4 < 7; ++var4) {
-                        var1.set(var4, var3.parameterSpace[var4].span(var1.get(var4)));
+                        var1.set(var4, var3.parameterSpace[var4].span((Climate.Parameter)var1.get(var4)));
                     }
                 }
 

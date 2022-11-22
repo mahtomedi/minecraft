@@ -35,7 +35,7 @@ public class PoiRecord {
     }
 
     public PoiRecord(BlockPos param0, Holder<PoiType> param1, Runnable param2) {
-        this(param0, param1, param1.value().maxTickets(), param2);
+        this(param0, param1, ((PoiType)param1.value()).maxTickets(), param2);
     }
 
     @Deprecated
@@ -55,7 +55,7 @@ public class PoiRecord {
     }
 
     protected boolean releaseTicket() {
-        if (this.freeTickets >= this.poiType.value().maxTickets()) {
+        if (this.freeTickets >= ((PoiType)this.poiType.value()).maxTickets()) {
             return false;
         } else {
             ++this.freeTickets;
@@ -69,7 +69,7 @@ public class PoiRecord {
     }
 
     public boolean isOccupied() {
-        return this.freeTickets != this.poiType.value().maxTickets();
+        return this.freeTickets != ((PoiType)this.poiType.value()).maxTickets();
     }
 
     public BlockPos getPos() {

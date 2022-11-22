@@ -2,6 +2,7 @@ package net.minecraft.util.profiling.jfr;
 
 import com.mojang.logging.LogUtils;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Supplier;
@@ -36,7 +37,7 @@ public class SummaryReporter {
             try {
                 infoWithFallback(var0::asJson);
                 Path var3 = param0.resolveSibling("jfr-report-" + StringUtils.substringBefore(param0.getFileName().toString(), ".jfr") + ".json");
-                Files.writeString(var3, var0.asJson(), StandardOpenOption.CREATE);
+                Files.writeString(var3, var0.asJson(), new OpenOption[]{StandardOpenOption.CREATE});
                 infoWithFallback(() -> "Dumped recording summary to " + var3);
             } catch (Throwable var41) {
                 warnWithFallback(() -> "Failed to output JFR report", var41);

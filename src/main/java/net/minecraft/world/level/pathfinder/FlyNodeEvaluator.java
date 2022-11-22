@@ -44,18 +44,22 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             var0 = Mth.floor(this.mob.getY() + 0.5);
         }
 
-        BlockPos var4 = this.mob.blockPosition();
-        BlockPathTypes var5 = this.getCachedBlockPathType(var4.getX(), var0, var4.getZ());
-        if (this.mob.getPathfindingMalus(var5) < 0.0F) {
-            for(BlockPos var6 : this.mob.iteratePathfindingStartNodeCandidatePositions()) {
-                BlockPathTypes var7 = this.getCachedBlockPathType(var6.getX(), var6.getY(), var6.getZ());
-                if (this.mob.getPathfindingMalus(var7) >= 0.0F) {
-                    return super.getStartNode(var6);
+        BlockPos var4 = new BlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
+        if (!this.canStartAt(var4)) {
+            for(BlockPos var5 : this.mob.iteratePathfindingStartNodeCandidatePositions()) {
+                if (this.canStartAt(var5)) {
+                    return super.getStartNode(var5);
                 }
             }
         }
 
-        return super.getStartNode(new BlockPos(var4.getX(), var0, var4.getZ()));
+        return super.getStartNode(var4);
+    }
+
+    @Override
+    protected boolean canStartAt(BlockPos param0) {
+        BlockPathTypes var0 = this.getBlockPathType(this.mob, param0);
+        return this.mob.getPathfindingMalus(var0) >= 0.0F;
     }
 
     @Override

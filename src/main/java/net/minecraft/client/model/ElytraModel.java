@@ -64,7 +64,7 @@ public class ElytraModel<T extends LivingEntity> extends AgeableListModel<T> {
                 var4 = 1.0F - (float)Math.pow(-var6.y, 1.5);
             }
 
-            var0 = var4 * (float) (Math.PI / 9) + (1.0F - var4) * var0;
+            var0 = var4 * ((float) (Math.PI / 9)) + (1.0F - var4) * var0;
             var1 = var4 * (float) (-Math.PI / 2) + (1.0F - var4) * var1;
         } else if (param0.isCrouching()) {
             var0 = (float) (Math.PI * 2.0 / 9.0);

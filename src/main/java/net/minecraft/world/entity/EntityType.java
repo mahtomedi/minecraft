@@ -625,33 +625,38 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
     }
 
     @Nullable
-    public Entity spawn(
+    public T spawn(
         ServerLevel param0, @Nullable ItemStack param1, @Nullable Player param2, BlockPos param3, MobSpawnType param4, boolean param5, boolean param6
     ) {
-        return this.spawn(
-            param0,
-            param1 == null ? null : param1.getTag(),
-            param1 != null && param1.hasCustomHoverName() ? param1.getHoverName() : null,
-            param2,
-            param3,
-            param4,
-            param5,
-            param6
-        );
+        Consumer<T> var0 = param0x -> {
+        };
+        CompoundTag var1;
+        if (param1 != null) {
+            if (param1.hasCustomHoverName()) {
+                var0 = param1x -> param1x.setCustomName(param1.getHoverName());
+            }
+
+            var1 = param1.getTag();
+            if (var1 != null) {
+                var0 = var0.andThen(param3x -> updateCustomEntityTag(param0, param2, param3x, var1));
+            }
+        } else {
+            var1 = null;
+        }
+
+        return this.spawn(param0, var1, var0, param3, param4, param5, param6);
+    }
+
+    @Nullable
+    public T spawn(ServerLevel param0, BlockPos param1, MobSpawnType param2) {
+        return this.spawn(param0, (CompoundTag)null, null, param1, param2, false, false);
     }
 
     @Nullable
     public T spawn(
-        ServerLevel param0,
-        @Nullable CompoundTag param1,
-        @Nullable Component param2,
-        @Nullable Player param3,
-        BlockPos param4,
-        MobSpawnType param5,
-        boolean param6,
-        boolean param7
+        ServerLevel param0, @Nullable CompoundTag param1, @Nullable Consumer<T> param2, BlockPos param3, MobSpawnType param4, boolean param5, boolean param6
     ) {
-        T var0 = this.create(param0, param1, param2, param3, param4, param5, param6, param7);
+        T var0 = this.create(param0, param1, param2, param3, param4, param5, param6);
         if (var0 != null) {
             param0.addFreshEntityWithPassengers(var0);
         }
@@ -661,46 +666,38 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
 
     @Nullable
     public T create(
-        ServerLevel param0,
-        @Nullable CompoundTag param1,
-        @Nullable Component param2,
-        @Nullable Player param3,
-        BlockPos param4,
-        MobSpawnType param5,
-        boolean param6,
-        boolean param7
+        ServerLevel param0, @Nullable CompoundTag param1, @Nullable Consumer<T> param2, BlockPos param3, MobSpawnType param4, boolean param5, boolean param6
     ) {
         T var0 = this.create(param0);
         if (var0 == null) {
             return null;
         } else {
             double var1;
-            if (param6) {
-                var0.setPos((double)param4.getX() + 0.5, (double)(param4.getY() + 1), (double)param4.getZ() + 0.5);
-                var1 = getYOffset(param0, param4, param7, var0.getBoundingBox());
+            if (param5) {
+                var0.setPos((double)param3.getX() + 0.5, (double)(param3.getY() + 1), (double)param3.getZ() + 0.5);
+                var1 = getYOffset(param0, param3, param6, var0.getBoundingBox());
             } else {
                 var1 = 0.0;
             }
 
             var0.moveTo(
-                (double)param4.getX() + 0.5,
-                (double)param4.getY() + var1,
-                (double)param4.getZ() + 0.5,
+                (double)param3.getX() + 0.5,
+                (double)param3.getY() + var1,
+                (double)param3.getZ() + 0.5,
                 Mth.wrapDegrees(param0.random.nextFloat() * 360.0F),
                 0.0F
             );
             if (var0 instanceof Mob var3) {
                 var3.yHeadRot = var3.getYRot();
                 var3.yBodyRot = var3.getYRot();
-                var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var3.blockPosition()), param5, null, param1);
+                var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var3.blockPosition()), param4, null, param1);
                 var3.playAmbientSound();
             }
 
-            if (param2 != null && var0 instanceof LivingEntity) {
-                var0.setCustomName(param2);
+            if (param2 != null) {
+                param2.accept(var0);
             }
 
-            updateCustomEntityTag(param0, param3, var0, param1);
             return var0;
         }
     }

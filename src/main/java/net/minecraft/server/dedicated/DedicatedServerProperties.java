@@ -206,7 +206,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
 
         public WorldDimensions create(RegistryAccess param0) {
             Registry<WorldPreset> var0 = param0.registryOrThrow(Registries.WORLD_PRESET);
-            Holder.Reference<WorldPreset> var1 = var0.getHolder(WorldPresets.NORMAL)
+            Holder.Reference<WorldPreset> var1 = (Holder.Reference)var0.getHolder(WorldPresets.NORMAL)
                 .or(() -> var0.holders().findAny())
                 .orElseThrow(() -> new IllegalStateException("Invalid datapack contents: can't find default preset"));
             Holder<WorldPreset> var2 = Optional.ofNullable(ResourceLocation.tryParse(this.levelType))

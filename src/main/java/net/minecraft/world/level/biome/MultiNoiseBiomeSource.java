@@ -75,7 +75,7 @@ public class MultiNoiseBiomeSource extends BiomeSource {
     }
 
     public boolean stable(MultiNoiseBiomeSource.Preset param0) {
-        return this.preset.isPresent() && Objects.equals(this.preset.get().preset(), param0);
+        return this.preset.isPresent() && Objects.equals(((MultiNoiseBiomeSource.PresetInstance)this.preset.get()).preset(), param0);
     }
 
     @Override

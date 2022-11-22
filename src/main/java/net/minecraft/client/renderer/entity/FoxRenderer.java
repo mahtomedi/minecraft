@@ -33,7 +33,7 @@ public class FoxRenderer extends MobRenderer<Fox, FoxModel<Fox>> {
     }
 
     public ResourceLocation getTextureLocation(Fox param0) {
-        if (param0.getFoxType() == Fox.Type.RED) {
+        if (param0.getVariant() == Fox.Type.RED) {
             return param0.isSleeping() ? RED_FOX_SLEEP_TEXTURE : RED_FOX_TEXTURE;
         } else {
             return param0.isSleeping() ? SNOW_FOX_SLEEP_TEXTURE : SNOW_FOX_TEXTURE;

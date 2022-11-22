@@ -91,8 +91,8 @@ public abstract class Structure {
         Optional<Structure.GenerationStub> var0 = this.findGenerationPoint(
             new Structure.GenerationContext(param0, param1, param2, param3, param4, param5, param6, param8, param9)
         );
-        if (var0.isPresent() && isValidBiome(var0.get(), param1, param3, param9)) {
-            StructurePiecesBuilder var1 = var0.get().getPiecesBuilder();
+        if (var0.isPresent() && isValidBiome((Structure.GenerationStub)var0.get(), param1, param3, param9)) {
+            StructurePiecesBuilder var1 = ((Structure.GenerationStub)var0.get()).getPiecesBuilder();
             StructureStart var2 = new StructureStart(this, param6, param7, var1.build());
             if (var2.isValid()) {
                 return var2;

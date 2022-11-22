@@ -1,6 +1,10 @@
 package net.minecraft.world.entity.animal.horse;
 
+import com.mojang.serialization.Codec;
+import java.util.Arrays;
+import java.util.Comparator;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -13,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -22,6 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -54,9 +60,8 @@ import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.Variant>, RangedAttackMob {
     private static final int MAX_STRENGTH = 5;
-    private static final int VARIANTS = 4;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT, Blocks.HAY_BLOCK.asItem());
     private static final EntityDataAccessor<Integer> DATA_STRENGTH_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SWAG_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
@@ -91,7 +96,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putInt("Variant", this.getVariant());
+        param0.putInt("Variant", this.getVariant().id);
         param0.putInt("Strength", this.getStrength());
         if (!this.inventory.getItem(1).isEmpty()) {
             param0.put("DecorItem", this.inventory.getItem(1).save(new CompoundTag()));
@@ -103,7 +108,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     public void readAdditionalSaveData(CompoundTag param0) {
         this.setStrength(param0.getInt("Strength"));
         super.readAdditionalSaveData(param0);
-        this.setVariant(param0.getInt("Variant"));
+        this.setVariant(Llama.Variant.byId(param0.getInt("Variant")));
         if (param0.contains("DecorItem", 10)) {
             this.inventory.setItem(1, ItemStack.of(param0.getCompound("DecorItem")));
         }
@@ -140,12 +145,12 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         this.entityData.define(DATA_VARIANT_ID, 0);
     }
 
-    public int getVariant() {
-        return Mth.clamp(this.entityData.get(DATA_VARIANT_ID), 0, 3);
+    public Llama.Variant getVariant() {
+        return Llama.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
-    public void setVariant(int param0) {
-        this.entityData.set(DATA_VARIANT_ID, param0);
+    public void setVariant(Llama.Variant param0) {
+        this.entityData.set(DATA_VARIANT_ID, param0.id);
     }
 
     @Override
@@ -256,11 +261,11 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     ) {
         RandomSource var0 = param0.getRandom();
         this.setRandomStrength(var0);
-        int var1;
+        Llama.Variant var1;
         if (param3 instanceof Llama.LlamaGroupData) {
             var1 = ((Llama.LlamaGroupData)param3).variant;
         } else {
-            var1 = var0.nextInt(4);
+            var1 = Util.getRandom(Llama.Variant.values(), var0);
             param3 = new Llama.LlamaGroupData(var1);
         }
 
@@ -517,9 +522,9 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     }
 
     static class LlamaGroupData extends AgeableMob.AgeableMobGroupData {
-        public final int variant;
+        public final Llama.Variant variant;
 
-        LlamaGroupData(int param0) {
+        LlamaGroupData(Llama.Variant param0) {
             super(true);
             this.variant = param0;
         }
@@ -538,6 +543,38 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             }
 
             return super.canContinueToUse();
+        }
+    }
+
+    public static enum Variant implements StringRepresentable {
+        CREAMY(0, "creamy"),
+        WHITE(1, "white"),
+        BROWN(2, "brown"),
+        GRAY(3, "gray");
+
+        public static final Codec<Llama.Variant> CODEC = StringRepresentable.fromEnum(Llama.Variant::values);
+        private static final Llama.Variant[] BY_ID = Arrays.stream(values())
+            .sorted(Comparator.comparingInt(Llama.Variant::getId))
+            .toArray(param0 -> new Llama.Variant[param0]);
+        final int id;
+        private final String name;
+
+        private Variant(int param0, String param1) {
+            this.id = param0;
+            this.name = param1;
+        }
+
+        public int getId() {
+            return this.id;
+        }
+
+        public static Llama.Variant byId(int param0) {
+            return BY_ID[Mth.clamp(param0, 0, BY_ID.length - 1)];
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

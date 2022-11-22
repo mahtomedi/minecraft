@@ -33,7 +33,7 @@ public class RegistrySynchronization {
         ResourceKey<? extends Registry<E>> param1,
         Codec<E> param2
     ) {
-        param0.put(param1, new RegistrySynchronization.NetworkedRegistryData<>(param1, param2));
+        param0.put(param1, new RegistrySynchronization.NetworkedRegistryData<E>(param1, param2));
     }
 
     private static Stream<RegistryAccess.RegistryEntry<?>> ownedNetworkableRegistries(RegistryAccess param0) {
@@ -41,8 +41,8 @@ public class RegistrySynchronization {
     }
 
     private static <E> DataResult<? extends Codec<E>> getNetworkCodec(ResourceKey<? extends Registry<E>> param0) {
-        return (DataResult<? extends Codec<E>>)Optional.ofNullable(NETWORKABLE_REGISTRIES.get(param0))
-            .map(param0x -> param0x.networkCodec())
+        return (DataResult<? extends Codec<E>>)Optional.ofNullable((RegistrySynchronization.NetworkedRegistryData)NETWORKABLE_REGISTRIES.get(param0))
+            .map(param0x -> ((RegistrySynchronization.NetworkedRegistryData)param0x).networkCodec())
             .map(DataResult::success)
             .orElseGet(() -> DataResult.error("Unknown or not serializable registry: " + param0));
     }

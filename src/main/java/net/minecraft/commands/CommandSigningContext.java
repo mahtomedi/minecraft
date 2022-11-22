@@ -20,7 +20,7 @@ public interface CommandSigningContext {
         @Nullable
         @Override
         public PlayerChatMessage getArgument(String param0) {
-            return this.arguments.get(param0);
+            return (PlayerChatMessage)this.arguments.get(param0);
         }
     }
 }

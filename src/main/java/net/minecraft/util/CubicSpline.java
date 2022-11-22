@@ -32,7 +32,7 @@ public interface CubicSpline<C, I extends ToFloatFunction<C>> extends ToFloatFun
                         ExtraCodecs.lazyInitializedCodec(var0::getValue).fieldOf("value").forGetter(Point::value),
                         Codec.FLOAT.fieldOf("derivative").forGetter(Point::derivative)
                     )
-                    .apply(param1, (param0x, param1x, param2) -> new Point<>(param0x, param1x, param2))
+                    .apply(param1, (param0x, param1x, param2) -> new Point(param0x, param1x, param2))
         );
         Codec<CubicSpline.Multipoint<C, I>> var2 = RecordCodecBuilder.create(
             param2 -> param2.group(
@@ -42,7 +42,7 @@ public interface CubicSpline<C, I extends ToFloatFunction<C>> extends ToFloatFun
                             .forGetter(
                                 param0x -> IntStream.range(0, param0x.locations.length)
                                         .mapToObj(
-                                            param1x -> new Point<>(
+                                            param1x -> new Point(
                                                     param0x.locations()[param1x],
                                                     (CubicSpline<C, I>)param0x.values().get(param1x),
                                                     param0x.derivatives()[param1x]
@@ -57,7 +57,7 @@ public interface CubicSpline<C, I extends ToFloatFunction<C>> extends ToFloatFun
                         float[] var2x = new float[param1x.size()];
         
                         for(int var3x = 0; var3x < param1x.size(); ++var3x) {
-                            Point<C, I> var4 = param1x.get(var3x);
+                            Point<C, I> var4 = (Point)param1x.get(var3x);
                             var0x[var3x] = var4.location();
                             var1x.add(var4.value());
                             var2x[var3x] = var4.derivative();

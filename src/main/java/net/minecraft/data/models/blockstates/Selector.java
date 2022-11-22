@@ -12,11 +12,11 @@ public final class Selector {
     private final List<Property.Value<?>> values;
 
     public Selector extend(Property.Value<?> param0) {
-        return new Selector(ImmutableList.<Property.Value<?>>builder().addAll(this.values).add(param0).build());
+        return new Selector(ImmutableList.builder().addAll(this.values).add(param0).build());
     }
 
     public Selector extend(Selector param0) {
-        return new Selector(ImmutableList.<Property.Value<?>>builder().addAll(this.values).addAll(param0.values).build());
+        return new Selector(ImmutableList.builder().addAll(this.values).addAll(param0.values).build());
     }
 
     private Selector(List<Property.Value<?>> param0) {

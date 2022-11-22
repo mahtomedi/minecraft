@@ -51,6 +51,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
 import net.minecraft.world.level.levelgen.feature.SpikeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
@@ -407,7 +408,9 @@ public class EndDragonFight {
             .registryAccess()
             .registry(Registries.CONFIGURED_FEATURE)
             .flatMap(param0x -> param0x.getHolder(EndFeatures.END_GATEWAY_DELAYED))
-            .ifPresent(param1 -> param1.value().place(this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), param0));
+            .ifPresent(
+                param1 -> ((ConfiguredFeature)param1.value()).place(this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), param0)
+            );
     }
 
     private void spawnExitPortal(boolean param0) {

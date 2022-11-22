@@ -147,7 +147,9 @@ public class Main {
                                         var1x, param5x.dataConfiguration(), var0x, param5x.datapackWorldgen().allRegistriesLifecycle()
                                     );
                                     if (var2x != null) {
-                                        return new WorldLoader.DataLoadOutput<>(var2x.getFirst(), var2x.getSecond().dimensionsRegistryAccess());
+                                        return new WorldLoader.DataLoadOutput<>(
+                                            var2x.getFirst(), ((WorldDimensions.Complete)var2x.getSecond()).dimensionsRegistryAccess()
+                                        );
                                     } else {
                                         LevelSettings var3x;
                                         WorldOptions var4x;

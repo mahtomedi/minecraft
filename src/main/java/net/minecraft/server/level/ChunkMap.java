@@ -165,7 +165,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         RegistryAccess var1 = param0.registryAccess();
         long var2 = param0.getSeed();
         if (param7 instanceof NoiseBasedChunkGenerator var3) {
-            this.randomState = RandomState.create(var3.generatorSettings().value(), var1.lookupOrThrow(Registries.NOISE), var2);
+            this.randomState = RandomState.create((NoiseGeneratorSettings)var3.generatorSettings().value(), var1.lookupOrThrow(Registries.NOISE), var2);
         } else {
             this.randomState = RandomState.create(NoiseGeneratorSettings.dummy(), var1.lookupOrThrow(Registries.NOISE), var2);
         }

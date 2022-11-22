@@ -32,7 +32,7 @@ public class MushroomCowMushroomLayer<T extends MushroomCow> extends RenderLayer
             Minecraft var0 = Minecraft.getInstance();
             boolean var1 = var0.shouldEntityAppearGlowing(param3) && param3.isInvisible();
             if (!param3.isInvisible() || var1) {
-                BlockState var2 = param3.getMushroomType().getBlockState();
+                BlockState var2 = param3.getVariant().getBlockState();
                 int var3 = LivingEntityRenderer.getOverlayCoords(param3, 0.0F);
                 BakedModel var4 = this.blockRenderer.getBlockModel(var2);
                 param0.pushPose();

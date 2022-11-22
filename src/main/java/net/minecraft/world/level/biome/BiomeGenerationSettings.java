@@ -68,7 +68,7 @@ public class BiomeGenerationSettings {
     }
 
     public Iterable<Holder<ConfiguredWorldCarver<?>>> getCarvers(GenerationStep.Carving param0) {
-        return Objects.requireNonNullElseGet(this.carvers.get(param0), List::of);
+        return (Iterable<Holder<ConfiguredWorldCarver<?>>>)Objects.requireNonNullElseGet(this.carvers.get(param0), List::of);
     }
 
     public List<ConfiguredFeature<?, ?>> getFlowerFeatures() {

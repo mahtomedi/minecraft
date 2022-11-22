@@ -19,10 +19,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
 
 public class LevelChunkTicks<T> implements SerializableTickContainer<T>, TickContainerAccess<T> {
-    private final Queue<ScheduledTick<T>> tickQueue = new PriorityQueue<>(ScheduledTick.DRAIN_ORDER);
+    private final Queue<ScheduledTick<T>> tickQueue = new PriorityQueue(ScheduledTick.DRAIN_ORDER);
     @Nullable
     private List<SavedTick<T>> pendingTicks;
-    private final Set<ScheduledTick<?>> ticksPerPosition = new ObjectOpenCustomHashSet<>(ScheduledTick.UNIQUE_TICK_HASH);
+    private final Set<ScheduledTick<?>> ticksPerPosition = new ObjectOpenCustomHashSet(ScheduledTick.UNIQUE_TICK_HASH);
     @Nullable
     private BiConsumer<LevelChunkTicks<T>, ScheduledTick<T>> onTickAdded;
 
@@ -44,12 +44,12 @@ public class LevelChunkTicks<T> implements SerializableTickContainer<T>, TickCon
 
     @Nullable
     public ScheduledTick<T> peek() {
-        return this.tickQueue.peek();
+        return (ScheduledTick<T>)this.tickQueue.peek();
     }
 
     @Nullable
     public ScheduledTick<T> poll() {
-        ScheduledTick<T> var0 = this.tickQueue.poll();
+        ScheduledTick<T> var0 = (ScheduledTick)this.tickQueue.poll();
         if (var0 != null) {
             this.ticksPerPosition.remove(var0);
         }
@@ -82,7 +82,7 @@ public class LevelChunkTicks<T> implements SerializableTickContainer<T>, TickCon
         Iterator<ScheduledTick<T>> var0 = this.tickQueue.iterator();
 
         while(var0.hasNext()) {
-            ScheduledTick<T> var1 = var0.next();
+            ScheduledTick<T> var1 = (ScheduledTick)var0.next();
             if (param0.test(var1)) {
                 var0.remove();
                 this.ticksPerPosition.remove(var1);
