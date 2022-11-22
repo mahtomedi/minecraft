@@ -27,12 +27,10 @@ public record ColumnPos(int x, int z) {
         return (int)(param0 >>> 32 & 4294967295L);
     }
 
-    @Override
     public String toString() {
         return "[" + this.x + ", " + this.z + "]";
     }
 
-    @Override
     public int hashCode() {
         return ChunkPos.hash(this.x, this.z);
     }

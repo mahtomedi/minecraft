@@ -95,7 +95,9 @@ public class VibrationListener implements GameEventListener {
                     )
                     .apply(
                         param1,
-                        (param1x, param2, param3, param4, param5) -> new VibrationListener(param1x, param2, param0, param3.orElse(null), param4, param5)
+                        (param1x, param2, param3, param4, param5) -> new VibrationListener(
+                                param1x, param2, param0, (VibrationInfo)param3.orElse(null), param4, param5
+                            )
                     )
         );
     }

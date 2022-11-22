@@ -21,7 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class TelemetryInfoScreen extends Screen {
     private static final int PADDING = 8;
-    private static final String FEEDBACK_URL = "https://feedback.minecraft.net";
+    private static final String FEEDBACK_URL = "https://aka.ms/javafeedback?ref=game";
     private static final Component TITLE = Component.translatable("telemetry_info.screen.title");
     private static final Component DESCRIPTION = Component.translatable("telemetry_info.screen.description").withStyle(ChatFormatting.GRAY);
     private static final Component BUTTON_GIVE_FEEDBACK = Component.translatable("telemetry_info.button.give_feedback");
@@ -86,11 +86,11 @@ public class TelemetryInfoScreen extends Screen {
     private void openFeedbackLink(Button param0) {
         this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
             if (param0x) {
-                Util.getPlatform().openUri("https://feedback.minecraft.net");
+                Util.getPlatform().openUri("https://aka.ms/javafeedback?ref=game");
             }
 
             this.minecraft.setScreen(this);
-        }, "https://feedback.minecraft.net", true));
+        }, "https://aka.ms/javafeedback?ref=game", true));
     }
 
     private void openDataFolder(Button param0) {

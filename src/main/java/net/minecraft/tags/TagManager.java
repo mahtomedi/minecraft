@@ -58,7 +58,7 @@ public class TagManager implements PreparableReloadListener {
             .registries()
             .map(param2x -> this.createLoader(param1, param4, param2x))
             .toList();
-        return CompletableFuture.allOf(var0.toArray(param0x -> new CompletableFuture[param0x]))
+        return CompletableFuture.allOf((CompletableFuture<?>[])var0.toArray(param0x -> new CompletableFuture[param0x]))
             .thenCompose(param0::wait)
             .thenAcceptAsync(param1x -> this.results = var0.stream().map(CompletableFuture::join).collect(Collectors.toUnmodifiableList()), param5);
     }

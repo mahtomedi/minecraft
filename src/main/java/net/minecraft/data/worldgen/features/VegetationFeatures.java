@@ -305,17 +305,19 @@ public class VegetationFeatures {
                             new NormalNoise.NoiseParameters(0, 1.0),
                             0.020833334F,
                             List.of(
-                                Blocks.DANDELION.defaultBlockState(),
-                                Blocks.POPPY.defaultBlockState(),
-                                Blocks.ALLIUM.defaultBlockState(),
-                                Blocks.AZURE_BLUET.defaultBlockState(),
-                                Blocks.RED_TULIP.defaultBlockState(),
-                                Blocks.ORANGE_TULIP.defaultBlockState(),
-                                Blocks.WHITE_TULIP.defaultBlockState(),
-                                Blocks.PINK_TULIP.defaultBlockState(),
-                                Blocks.OXEYE_DAISY.defaultBlockState(),
-                                Blocks.CORNFLOWER.defaultBlockState(),
-                                Blocks.LILY_OF_THE_VALLEY.defaultBlockState()
+                                new BlockState[]{
+                                    Blocks.DANDELION.defaultBlockState(),
+                                    Blocks.POPPY.defaultBlockState(),
+                                    Blocks.ALLIUM.defaultBlockState(),
+                                    Blocks.AZURE_BLUET.defaultBlockState(),
+                                    Blocks.RED_TULIP.defaultBlockState(),
+                                    Blocks.ORANGE_TULIP.defaultBlockState(),
+                                    Blocks.WHITE_TULIP.defaultBlockState(),
+                                    Blocks.PINK_TULIP.defaultBlockState(),
+                                    Blocks.OXEYE_DAISY.defaultBlockState(),
+                                    Blocks.CORNFLOWER.defaultBlockState(),
+                                    Blocks.LILY_OF_THE_VALLEY.defaultBlockState()
+                                }
                             )
                         )
                     )

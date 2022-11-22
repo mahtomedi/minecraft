@@ -3860,11 +3860,16 @@ public class BlockModelGenerators {
                 Direction.WEST,
                 VariantProperties.Rotation.R270
             )
-            .forEach((param2, param3) -> {
-                Condition.TerminalCondition var0x = Condition.condition().term(BlockStateProperties.HORIZONTAL_FACING, param2);
-                var2.with(var0x, Variant.variant().with(VariantProperties.MODEL, var1).with(VariantProperties.Y_ROT, param3));
-                this.addSlotStateAndRotationVariants(var2, var0x, param3);
-            });
+            .forEach(
+                (param2, param3) -> {
+                    Condition.TerminalCondition var0x = Condition.condition().term(BlockStateProperties.HORIZONTAL_FACING, param2);
+                    var2.with(
+                        var0x,
+                        Variant.variant().with(VariantProperties.MODEL, var1).with(VariantProperties.Y_ROT, param3).with(VariantProperties.UV_LOCK, true)
+                    );
+                    this.addSlotStateAndRotationVariants(var2, var0x, param3);
+                }
+            );
         this.blockStateOutput.accept(var2);
         this.delegateItemModel(var0, ModelLocationUtils.getModelLocation(var0, "_inventory"));
         CHISELED_BOOKSHELF_SLOT_MODEL_CACHE.clear();

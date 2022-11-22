@@ -235,7 +235,7 @@ public class ParticleEngine implements PreparableReloadListener {
             this.particles.clear();
             param3.startTick();
             param3.push("upload");
-            SpriteLoader.Preparations var0x = var1.join();
+            SpriteLoader.Preparations var0x = (SpriteLoader.Preparations)var1.join();
             this.textureAtlas.upload(var0x);
             param3.popPush("bindSpriteSets");
             Set<ResourceLocation> var1x = new HashSet<>();

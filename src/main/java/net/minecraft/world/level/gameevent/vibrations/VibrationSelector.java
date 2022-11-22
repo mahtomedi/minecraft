@@ -39,7 +39,7 @@ public class VibrationSelector {
             if (param1 != var1) {
                 return false;
             } else {
-                VibrationInfo var2 = var0.getLeft();
+                VibrationInfo var2 = (VibrationInfo)var0.getLeft();
                 if (param0.distance() < var2.distance()) {
                     return true;
                 } else if (param0.distance() > var2.distance()) {
@@ -55,7 +55,9 @@ public class VibrationSelector {
         if (this.currentVibrationData.isEmpty()) {
             return Optional.empty();
         } else {
-            return this.currentVibrationData.get().getRight() < param0 ? Optional.of(this.currentVibrationData.get().getLeft()) : Optional.empty();
+            return this.currentVibrationData.get().getRight() < param0
+                ? Optional.of((VibrationInfo)this.currentVibrationData.get().getLeft())
+                : Optional.empty();
         }
     }
 

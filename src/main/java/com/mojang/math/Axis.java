@@ -19,6 +19,6 @@ public interface Axis {
     Quaternionf rotation(float var1);
 
     default Quaternionf rotationDegrees(float param0) {
-        return this.rotation(param0 * ((float) (Math.PI / 180.0)));
+        return this.rotation(param0 * (float) (Math.PI / 180.0));
     }
 }

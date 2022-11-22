@@ -28,7 +28,9 @@ public record PlayerChatMessage(
                 )
                 .apply(
                     param0,
-                    (param0x, param1, param2, param3, param4) -> new PlayerChatMessage(param0x, param1.orElse(null), param2, param3.orElse(null), param4)
+                    (param0x, param1, param2, param3, param4) -> new PlayerChatMessage(
+                            param0x, (MessageSignature)param1.orElse(null), param2, (Component)param3.orElse(null), param4
+                        )
                 )
     );
     private static final UUID SYSTEM_SENDER = Util.NIL_UUID;
@@ -77,7 +79,7 @@ public record PlayerChatMessage(
     }
 
     public Component decoratedContent() {
-        return Objects.requireNonNullElseGet(this.unsignedContent, () -> Component.literal(this.signedContent()));
+        return (Component)Objects.requireNonNullElseGet(this.unsignedContent, () -> Component.literal(this.signedContent()));
     }
 
     public Instant timeStamp() {

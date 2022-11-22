@@ -275,7 +275,7 @@ public class MappedRegistry<T> implements WritableRegistry<T> {
 
     @Override
     public Stream<Pair<TagKey<T>, HolderSet.Named<T>>> getTags() {
-        return this.tags.entrySet().stream().map(param0 -> Pair.of(param0.getKey(), param0.getValue()));
+        return this.tags.entrySet().stream().map(param0 -> Pair.of((TagKey)param0.getKey(), (HolderSet.Named<T>)param0.getValue()));
     }
 
     @Override
@@ -368,7 +368,7 @@ public class MappedRegistry<T> implements WritableRegistry<T> {
     @Override
     public void bindTags(Map<TagKey<T>, List<Holder<T>>> param0) {
         Map<Holder.Reference<T>, List<TagKey<T>>> var0 = new IdentityHashMap<>();
-        this.byKey.values().forEach(param1 -> var0.put(param1, new ArrayList<>()));
+        this.byKey.values().forEach(param1 -> var0.put(param1, new ArrayList()));
         param0.forEach((param1, param2) -> {
             for(Holder<T> var0x : param2) {
                 if (!var0x.canSerializeIn(this.asLookup())) {

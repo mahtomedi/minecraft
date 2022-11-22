@@ -553,7 +553,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
             try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess(this.summary.getLevelId())) {
                 Pair<LevelSettings, WorldCreationContext> var1 = this.minecraft.createWorldOpenFlows().recreateWorldData(var0);
                 LevelSettings var2 = var1.getFirst();
-                WorldCreationContext var3 = var1.getSecond();
+                WorldCreationContext var3 = (WorldCreationContext)var1.getSecond();
                 Path var4 = CreateWorldScreen.createTempDataPackDirFromExistingWorld(var0.getLevelPath(LevelResource.DATAPACK_DIR), this.minecraft);
                 if (var3.options().isOldCustomizedWorld()) {
                     this.minecraft

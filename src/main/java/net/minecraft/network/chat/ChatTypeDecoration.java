@@ -70,7 +70,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
 
         public Component select(Component param0, ChatType.Bound param1) {
             Component var0 = this.selector.select(param0, param1);
-            return Objects.requireNonNullElse(var0, CommonComponents.EMPTY);
+            return (Component)Objects.requireNonNullElse(var0, CommonComponents.EMPTY);
         }
 
         @Override

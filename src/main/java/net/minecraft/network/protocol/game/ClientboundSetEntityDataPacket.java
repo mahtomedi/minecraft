@@ -22,7 +22,7 @@ public record ClientboundSetEntityDataPacket(int id, List<SynchedEntityData.Data
     }
 
     private static List<SynchedEntityData.DataValue<?>> unpack(FriendlyByteBuf param0) {
-        List<SynchedEntityData.DataValue<?>> var0 = new ArrayList<>();
+        List<SynchedEntityData.DataValue<?>> var0 = new ArrayList();
 
         int var1;
         while((var1 = param0.readUnsignedByte()) != 255) {

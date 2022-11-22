@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -43,8 +44,8 @@ public class GoalSelector {
     }
 
     @VisibleForTesting
-    public void removeAllGoals() {
-        this.availableGoals.clear();
+    public void removeAllGoals(Predicate<Goal> param0) {
+        this.availableGoals.removeIf(param1 -> param0.test(param1.getGoal()));
     }
 
     public void removeGoal(Goal param0) {

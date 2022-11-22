@@ -72,6 +72,6 @@ public class NyliumBlock extends Block implements BonemealableBlock {
         RandomSource param4,
         BlockPos param5
     ) {
-        param0.getHolder(param1).ifPresent(param4x -> param4x.value().place(param2, param3, param4, param5));
+        param0.getHolder(param1).ifPresent(param4x -> ((ConfiguredFeature)param4x.value()).place(param2, param3, param4, param5));
     }
 }

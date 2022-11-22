@@ -79,12 +79,12 @@ public class HashCache {
     }
 
     public boolean shouldRunInThisVersion(String param0) {
-        HashCache.ProviderCache var0 = this.caches.get(param0);
+        HashCache.ProviderCache var0 = (HashCache.ProviderCache)this.caches.get(param0);
         return var0 == null || !var0.version.equals(this.versionId);
     }
 
     public CompletableFuture<HashCache.UpdateResult> generateUpdate(String param0, HashCache.UpdateFunction param1) {
-        HashCache.ProviderCache var0 = this.caches.get(param0);
+        HashCache.ProviderCache var0 = (HashCache.ProviderCache)this.caches.get(param0);
         if (var0 == null) {
             throw new IllegalStateException("Provider not registered: " + param0);
         } else {

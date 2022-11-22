@@ -109,7 +109,7 @@ public class AcquirePoi {
             int var1 = 1;
 
             for(Pair<Holder<PoiType>, BlockPos> var2 : param1) {
-                var1 = Math.max(var1, var2.getFirst().value().validRange());
+                var1 = Math.max(var1, ((PoiType)var2.getFirst().value()).validRange());
                 var0.add(var2.getSecond());
             }
 

@@ -64,14 +64,14 @@ public class MobBucketItem extends BucketItem {
                 String var3 = "color.minecraft." + TropicalFish.getBaseColor(var1);
                 String var4 = "color.minecraft." + TropicalFish.getPatternColor(var1);
 
-                for(int var5 = 0; var5 < TropicalFish.COMMON_VARIANTS.length; ++var5) {
-                    if (var1 == TropicalFish.COMMON_VARIANTS[var5]) {
+                for(int var5 = 0; var5 < TropicalFish.COMMON_VARIANTS.size(); ++var5) {
+                    if (var1 == ((TropicalFish.Variant)TropicalFish.COMMON_VARIANTS.get(var5)).getPackedId()) {
                         param2.add(Component.translatable(TropicalFish.getPredefinedName(var5)).withStyle(var2));
                         return;
                     }
                 }
 
-                param2.add(Component.translatable(TropicalFish.getFishTypeName(var1)).withStyle(var2));
+                param2.add(TropicalFish.getPattern(var1).displayName().plainCopy().withStyle(var2));
                 MutableComponent var6 = Component.translatable(var3);
                 if (!var3.equals(var4)) {
                     var6.append(", ").append(Component.translatable(var4));

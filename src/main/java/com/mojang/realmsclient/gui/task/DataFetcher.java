@@ -143,7 +143,7 @@ public class DataFetcher {
 
         void updateIfNeeded(long param0) {
             if (this.pendingTask != null) {
-                DataFetcher.ComputationResult<T> var0 = this.pendingTask.getNow(null);
+                DataFetcher.ComputationResult<T> var0 = (DataFetcher.ComputationResult)this.pendingTask.getNow((T)null);
                 if (var0 == null) {
                     return;
                 }

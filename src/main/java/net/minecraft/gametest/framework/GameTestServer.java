@@ -84,7 +84,7 @@ public class GameTestServer extends MinecraftServer {
                         param2x -> WorldLoader.load(
                                 var3,
                                 param1x -> {
-                                    Registry<LevelStem> var0x = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable()).freeze();
+                                    Registry<LevelStem> var0x = new MappedRegistry(Registries.LEVEL_STEM, Lifecycle.stable()).freeze();
                                     WorldDimensions.Complete var1x = param1x.datapackWorldgen()
                                         .<WorldPreset>registryOrThrow(Registries.WORLD_PRESET)
                                         .getHolderOrThrow(WorldPresets.FLAT)

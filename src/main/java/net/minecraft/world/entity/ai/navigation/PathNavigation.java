@@ -27,6 +27,8 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class PathNavigation {
     private static final int MAX_TIME_RECOMPUTE = 20;
+    private static final int STUCK_CHECK_INTERVAL = 100;
+    private static final float STUCK_THRESHOLD_DISTANCE_FACTOR = 0.25F;
     protected final Mob mob;
     protected final Level level;
     @Nullable
@@ -267,7 +269,9 @@ public abstract class PathNavigation {
 
     protected void doStuckDetection(Vec3 param0) {
         if (this.tick - this.lastStuckCheck > 100) {
-            if (param0.distanceToSqr(this.lastStuckCheckPos) < 2.25) {
+            float var0 = this.mob.getSpeed() >= 1.0F ? this.mob.getSpeed() : this.mob.getSpeed() * this.mob.getSpeed();
+            float var1 = var0 * 100.0F * 0.25F;
+            if (param0.distanceToSqr(this.lastStuckCheckPos) < (double)(var1 * var1)) {
                 this.isStuck = true;
                 this.stop();
             } else {
@@ -279,21 +283,21 @@ public abstract class PathNavigation {
         }
 
         if (this.path != null && !this.path.isDone()) {
-            Vec3i var0 = this.path.getNextNodePos();
-            long var1 = this.level.getGameTime();
-            if (var0.equals(this.timeoutCachedNode)) {
-                this.timeoutTimer += var1 - this.lastTimeoutCheck;
+            Vec3i var2 = this.path.getNextNodePos();
+            long var3 = this.level.getGameTime();
+            if (var2.equals(this.timeoutCachedNode)) {
+                this.timeoutTimer += var3 - this.lastTimeoutCheck;
             } else {
-                this.timeoutCachedNode = var0;
-                double var2 = param0.distanceTo(Vec3.atBottomCenterOf(this.timeoutCachedNode));
-                this.timeoutLimit = this.mob.getSpeed() > 0.0F ? var2 / (double)this.mob.getSpeed() * 20.0 : 0.0;
+                this.timeoutCachedNode = var2;
+                double var4 = param0.distanceTo(Vec3.atBottomCenterOf(this.timeoutCachedNode));
+                this.timeoutLimit = this.mob.getSpeed() > 0.0F ? var4 / (double)this.mob.getSpeed() * 20.0 : 0.0;
             }
 
             if (this.timeoutLimit > 0.0 && (double)this.timeoutTimer > this.timeoutLimit * 3.0) {
                 this.timeoutPath();
             }
 
-            this.lastTimeoutCheck = var1;
+            this.lastTimeoutCheck = var3;
         }
 
     }
@@ -351,9 +355,12 @@ public abstract class PathNavigation {
         return false;
     }
 
-    protected static boolean isClearForMovementBetween(Mob param0, Vec3 param1, Vec3 param2) {
+    protected static boolean isClearForMovementBetween(Mob param0, Vec3 param1, Vec3 param2, boolean param3) {
         Vec3 var0 = new Vec3(param2.x, param2.y + (double)param0.getBbHeight() * 0.5, param2.z);
-        return param0.level.clip(new ClipContext(param1, var0, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, param0)).getType() == HitResult.Type.MISS;
+        return param0.level
+                .clip(new ClipContext(param1, var0, ClipContext.Block.COLLIDER, param3 ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, param0))
+                .getType()
+            == HitResult.Type.MISS;
     }
 
     public boolean isStableDestination(BlockPos param0) {

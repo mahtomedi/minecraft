@@ -98,7 +98,6 @@ public record TelemetryProperty<T>(String id, String exportKey, Codec<T> codec, 
         return Component.translatable("telemetry.property." + this.id + ".title");
     }
 
-    @Override
     public String toString() {
         return "TelemetryProperty[" + this.id + "]";
     }

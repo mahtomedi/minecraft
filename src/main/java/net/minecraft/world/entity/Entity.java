@@ -183,9 +183,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
     protected boolean wasTouchingWater;
-    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight = new Object2DoubleArrayMap<>(2);
+    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight = new Object2DoubleArrayMap(2);
     protected boolean wasEyeInWater;
-    private final Set<TagKey<Fluid>> fluidOnEyes = new HashSet<>();
+    private final Set<TagKey<Fluid>> fluidOnEyes = new HashSet();
     public int invulnerableTime;
     protected boolean firstTick = true;
     protected final SynchedEntityData entityData;

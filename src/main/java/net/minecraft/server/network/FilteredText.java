@@ -21,7 +21,7 @@ public record FilteredText(String raw, FilterMask mask) {
     }
 
     public String filteredOrEmpty() {
-        return Objects.requireNonNullElse(this.filtered(), "");
+        return (String)Objects.requireNonNullElse(this.filtered(), "");
     }
 
     public boolean isFiltered() {

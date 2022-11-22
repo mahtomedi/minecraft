@@ -21,7 +21,7 @@ public class SpawnUtil {
             int var3 = Mth.randomBetweenInclusive(param2.random, -param5, param5);
             var0.setWithOffset(param3, var2, param6, var3);
             if (param2.getWorldBorder().isWithinBounds(var0) && moveToPossibleSpawnPosition(param2, param6, var0, param7)) {
-                T var4 = param0.create(param2, null, null, null, var0, param1, false, false);
+                T var4 = param0.create(param2, null, null, var0, param1, false, false);
                 if (var4 != null) {
                     if (var4.checkSpawnRules(param2, param1) && var4.checkSpawnObstruction(param2)) {
                         param2.addFreshEntityWithPassengers(var4);

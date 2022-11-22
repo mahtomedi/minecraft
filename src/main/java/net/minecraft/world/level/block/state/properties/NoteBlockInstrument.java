@@ -10,41 +10,38 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 
 public enum NoteBlockInstrument implements StringRepresentable {
-    HARP("harp", SoundEvents.NOTE_BLOCK_HARP),
-    BASEDRUM("basedrum", SoundEvents.NOTE_BLOCK_BASEDRUM),
-    SNARE("snare", SoundEvents.NOTE_BLOCK_SNARE),
-    HAT("hat", SoundEvents.NOTE_BLOCK_HAT),
-    BASS("bass", SoundEvents.NOTE_BLOCK_BASS),
-    FLUTE("flute", SoundEvents.NOTE_BLOCK_FLUTE),
-    BELL("bell", SoundEvents.NOTE_BLOCK_BELL),
-    GUITAR("guitar", SoundEvents.NOTE_BLOCK_GUITAR),
-    CHIME("chime", SoundEvents.NOTE_BLOCK_CHIME),
-    XYLOPHONE("xylophone", SoundEvents.NOTE_BLOCK_XYLOPHONE),
-    IRON_XYLOPHONE("iron_xylophone", SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE),
-    COW_BELL("cow_bell", SoundEvents.NOTE_BLOCK_COW_BELL),
-    DIDGERIDOO("didgeridoo", SoundEvents.NOTE_BLOCK_DIDGERIDOO),
-    BIT("bit", SoundEvents.NOTE_BLOCK_BIT),
-    BANJO("banjo", SoundEvents.NOTE_BLOCK_BANJO),
-    PLING("pling", SoundEvents.NOTE_BLOCK_PLING),
-    ZOMBIE("zombie", SoundEvents.ZOMBIE_AMBIENT, true),
-    SKELETON("skeleton", SoundEvents.SKELETON_AMBIENT, true),
-    CREEPER("creeper", SoundEvents.CREEPER_PRIMED, true),
-    DRAGON("dragon", SoundEvents.ENDER_DRAGON_AMBIENT, true),
-    WITHER_SKELETON("wither_skeleton", SoundEvents.WITHER_SKELETON_AMBIENT, true),
-    PIGLIN("piglin", SoundEvents.PIGLIN_ANGRY, true);
+    HARP("harp", SoundEvents.NOTE_BLOCK_HARP, NoteBlockInstrument.Type.BASE_BLOCK),
+    BASEDRUM("basedrum", SoundEvents.NOTE_BLOCK_BASEDRUM, NoteBlockInstrument.Type.BASE_BLOCK),
+    SNARE("snare", SoundEvents.NOTE_BLOCK_SNARE, NoteBlockInstrument.Type.BASE_BLOCK),
+    HAT("hat", SoundEvents.NOTE_BLOCK_HAT, NoteBlockInstrument.Type.BASE_BLOCK),
+    BASS("bass", SoundEvents.NOTE_BLOCK_BASS, NoteBlockInstrument.Type.BASE_BLOCK),
+    FLUTE("flute", SoundEvents.NOTE_BLOCK_FLUTE, NoteBlockInstrument.Type.BASE_BLOCK),
+    BELL("bell", SoundEvents.NOTE_BLOCK_BELL, NoteBlockInstrument.Type.BASE_BLOCK),
+    GUITAR("guitar", SoundEvents.NOTE_BLOCK_GUITAR, NoteBlockInstrument.Type.BASE_BLOCK),
+    CHIME("chime", SoundEvents.NOTE_BLOCK_CHIME, NoteBlockInstrument.Type.BASE_BLOCK),
+    XYLOPHONE("xylophone", SoundEvents.NOTE_BLOCK_XYLOPHONE, NoteBlockInstrument.Type.BASE_BLOCK),
+    IRON_XYLOPHONE("iron_xylophone", SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE, NoteBlockInstrument.Type.BASE_BLOCK),
+    COW_BELL("cow_bell", SoundEvents.NOTE_BLOCK_COW_BELL, NoteBlockInstrument.Type.BASE_BLOCK),
+    DIDGERIDOO("didgeridoo", SoundEvents.NOTE_BLOCK_DIDGERIDOO, NoteBlockInstrument.Type.BASE_BLOCK),
+    BIT("bit", SoundEvents.NOTE_BLOCK_BIT, NoteBlockInstrument.Type.BASE_BLOCK),
+    BANJO("banjo", SoundEvents.NOTE_BLOCK_BANJO, NoteBlockInstrument.Type.BASE_BLOCK),
+    PLING("pling", SoundEvents.NOTE_BLOCK_PLING, NoteBlockInstrument.Type.BASE_BLOCK),
+    ZOMBIE("zombie", SoundEvents.ZOMBIE_AMBIENT, NoteBlockInstrument.Type.MOB_HEAD),
+    SKELETON("skeleton", SoundEvents.SKELETON_AMBIENT, NoteBlockInstrument.Type.MOB_HEAD),
+    CREEPER("creeper", SoundEvents.CREEPER_PRIMED, NoteBlockInstrument.Type.MOB_HEAD),
+    DRAGON("dragon", SoundEvents.ENDER_DRAGON_AMBIENT, NoteBlockInstrument.Type.MOB_HEAD),
+    WITHER_SKELETON("wither_skeleton", SoundEvents.WITHER_SKELETON_AMBIENT, NoteBlockInstrument.Type.MOB_HEAD),
+    PIGLIN("piglin", SoundEvents.PIGLIN_AMBIENT, NoteBlockInstrument.Type.MOB_HEAD),
+    CUSTOM_HEAD("custom_head", SoundEvents.UI_BUTTON_CLICK, NoteBlockInstrument.Type.CUSTOM);
 
     private final String name;
     private final SoundEvent soundEvent;
-    private final boolean isMobHead;
+    private final NoteBlockInstrument.Type type;
 
-    private NoteBlockInstrument(String param0, SoundEvent param1, boolean param2) {
+    private NoteBlockInstrument(String param0, SoundEvent param1, NoteBlockInstrument.Type param2) {
         this.name = param0;
         this.soundEvent = param1;
-        this.isMobHead = param2;
-    }
-
-    private NoteBlockInstrument(String param0, SoundEvent param1) {
-        this(param0, param1, false);
+        this.type = param2;
     }
 
     @Override
@@ -56,8 +53,16 @@ public enum NoteBlockInstrument implements StringRepresentable {
         return this.soundEvent;
     }
 
-    public boolean isMobHeadInstrument() {
-        return this.isMobHead;
+    public boolean isTunable() {
+        return this.type == NoteBlockInstrument.Type.BASE_BLOCK;
+    }
+
+    public boolean hasCustomSound() {
+        return this.type == NoteBlockInstrument.Type.CUSTOM;
+    }
+
+    public boolean requiresAirAbove() {
+        return this.type == NoteBlockInstrument.Type.BASE_BLOCK;
     }
 
     public static Optional<NoteBlockInstrument> byStateAbove(BlockState param0) {
@@ -71,8 +76,10 @@ public enum NoteBlockInstrument implements StringRepresentable {
             return Optional.of(DRAGON);
         } else if (param0.is(Blocks.WITHER_SKELETON_SKULL)) {
             return Optional.of(WITHER_SKELETON);
+        } else if (param0.is(Blocks.PIGLIN_HEAD)) {
+            return Optional.of(PIGLIN);
         } else {
-            return param0.is(Blocks.PIGLIN_HEAD) ? Optional.of(PIGLIN) : Optional.empty();
+            return param0.is(Blocks.PLAYER_HEAD) ? Optional.of(CUSTOM_HEAD) : Optional.empty();
         }
     }
 
@@ -111,5 +118,11 @@ public enum NoteBlockInstrument implements StringRepresentable {
                 return var0 != Material.WOOD && var0 != Material.NETHER_WOOD ? HARP : BASS;
             }
         }
+    }
+
+    static enum Type {
+        BASE_BLOCK,
+        MOB_HEAD,
+        CUSTOM;
     }
 }

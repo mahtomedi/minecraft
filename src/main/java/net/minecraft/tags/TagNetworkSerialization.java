@@ -42,7 +42,7 @@ public class TagNetworkSerialization {
                 var1x.add(param0.getId(var2.value()));
             }
 
-            var0.put(param2.getFirst().location(), var1x);
+            var0.put(((TagKey)param2.getFirst()).location(), var1x);
         });
         return new TagNetworkSerialization.NetworkPayload(var0);
     }

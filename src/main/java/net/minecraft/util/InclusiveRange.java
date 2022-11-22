@@ -37,7 +37,7 @@ public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclu
 
     public static <T extends Comparable<T>> DataResult<InclusiveRange<T>> create(T param0x, T param1) {
         return param0x.compareTo(param1) <= 0
-            ? DataResult.success(new InclusiveRange<>(param0x, param1))
+            ? DataResult.success(new InclusiveRange(param0x, param1))
             : DataResult.error("min_inclusive must be less than or equal to max_inclusive");
     }
 
@@ -49,7 +49,6 @@ public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclu
         return param0.minInclusive().compareTo(this.minInclusive) >= 0 && param0.maxInclusive.compareTo(this.maxInclusive) <= 0;
     }
 
-    @Override
     public String toString() {
         return "[" + this.minInclusive + ", " + this.maxInclusive + "]";
     }

@@ -22,7 +22,7 @@ public final class HorseRenderer extends AbstractHorseRenderer<Horse, HorseModel
         param0.put(Variant.BROWN, new ResourceLocation("textures/entity/horse/horse_brown.png"));
         param0.put(Variant.BLACK, new ResourceLocation("textures/entity/horse/horse_black.png"));
         param0.put(Variant.GRAY, new ResourceLocation("textures/entity/horse/horse_gray.png"));
-        param0.put(Variant.DARKBROWN, new ResourceLocation("textures/entity/horse/horse_darkbrown.png"));
+        param0.put(Variant.DARK_BROWN, new ResourceLocation("textures/entity/horse/horse_darkbrown.png"));
     });
 
     public HorseRenderer(EntityRendererProvider.Context param0) {

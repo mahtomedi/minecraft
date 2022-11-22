@@ -4,6 +4,7 @@ import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
+import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
@@ -19,9 +20,9 @@ public class StructureSettingsFlattenFix extends DataFix {
         Type<?> var0 = this.getInputSchema().getType(References.WORLD_GEN_SETTINGS);
         OpticFinder<?> var1 = var0.findField("dimensions");
         return this.fixTypeEverywhereTyped("StructureSettingsFlatten", var0, param1 -> param1.updateTyped(var1, param1x -> {
-                Dynamic<?> var0x = param1x.write().result().orElseThrow();
+                Dynamic<?> var0x = (Dynamic)param1x.write().result().orElseThrow();
                 Dynamic<?> var1x = var0x.updateMapValues(StructureSettingsFlattenFix::fixDimension);
-                return var1.type().readTyped(var1x).result().orElseThrow().getFirst();
+                return (Typed<?>)((Pair)var1.type().readTyped(var1x).result().orElseThrow()).getFirst();
             }));
     }
 

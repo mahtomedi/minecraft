@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
     public RandomPatchFeature(Codec<RandomPatchConfiguration> param0) {
@@ -24,7 +25,7 @@ public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
 
         for(int var8 = 0; var8 < var0.tries(); ++var8) {
             var5.setWithOffset(var2, var1.nextInt(var6) - var1.nextInt(var6), var1.nextInt(var7) - var1.nextInt(var7), var1.nextInt(var6) - var1.nextInt(var6));
-            if (var0.feature().value().place(var3, param0.chunkGenerator(), var1, var5)) {
+            if (((PlacedFeature)var0.feature().value()).place(var3, param0.chunkGenerator(), var1, var5)) {
                 ++var4;
             }
         }

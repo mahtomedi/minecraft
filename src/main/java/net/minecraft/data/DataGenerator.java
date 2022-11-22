@@ -39,7 +39,7 @@ public class DataGenerator {
             } else {
                 LOGGER.info("Starting provider: {}", param2);
                 var2.start();
-                var0.applyUpdate(var0.generateUpdate(param2, param3::run).join());
+                var0.applyUpdate((HashCache.UpdateResult)var0.generateUpdate(param2, param3::run).join());
                 var2.stop();
                 LOGGER.info("{} finished after {} ms", param2, var2.elapsed(TimeUnit.MILLISECONDS));
                 var2.reset();

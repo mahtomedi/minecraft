@@ -91,7 +91,7 @@ public interface Holder<T> {
 
         @Override
         public Stream<TagKey<T>> tags() {
-            return Stream.of();
+            return Stream.of((T[])());
         }
     }
 

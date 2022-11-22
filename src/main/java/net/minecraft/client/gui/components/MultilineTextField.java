@@ -109,7 +109,7 @@ public class MultilineTextField {
 
     public int getLineAtCursor() {
         for(int var0 = 0; var0 < this.displayLines.size(); ++var0) {
-            MultilineTextField.StringView var1 = this.displayLines.get(var0);
+            MultilineTextField.StringView var1 = (MultilineTextField.StringView)this.displayLines.get(var0);
             if (this.cursor >= var1.beginIndex && this.cursor <= var1.endIndex) {
                 return var0;
             }
@@ -119,7 +119,7 @@ public class MultilineTextField {
     }
 
     public MultilineTextField.StringView getLineView(int param0) {
-        return this.displayLines.get(Mth.clamp(param0, 0, this.displayLines.size() - 1));
+        return (MultilineTextField.StringView)this.displayLines.get(Mth.clamp(param0, 0, this.displayLines.size() - 1));
     }
 
     public void seekCursor(Whence param0, int param1) {
@@ -154,7 +154,7 @@ public class MultilineTextField {
     public void seekCursorToPoint(double param0, double param1) {
         int var0 = Mth.floor(param0);
         int var1 = Mth.floor(param1 / 9.0);
-        MultilineTextField.StringView var2 = this.displayLines.get(Mth.clamp(var1, 0, this.displayLines.size() - 1));
+        MultilineTextField.StringView var2 = (MultilineTextField.StringView)this.displayLines.get(Mth.clamp(var1, 0, this.displayLines.size() - 1));
         int var3 = this.font.plainSubstrByWidth(this.value.substring(var2.beginIndex, var2.endIndex), var0).length();
         this.seekCursor(Whence.ABSOLUTE, var2.beginIndex + var3);
     }
@@ -280,7 +280,7 @@ public class MultilineTextField {
         if (var0 < 0) {
             throw new IllegalStateException("Cursor is not within text (cursor = " + this.cursor + ", length = " + this.value.length() + ")");
         } else {
-            return this.displayLines.get(Mth.clamp(var0 + param0, 0, this.displayLines.size() - 1));
+            return (MultilineTextField.StringView)this.displayLines.get(Mth.clamp(var0 + param0, 0, this.displayLines.size() - 1));
         }
     }
 

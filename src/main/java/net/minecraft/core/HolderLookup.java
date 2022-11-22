@@ -3,7 +3,6 @@ package net.minecraft.core;
 import com.mojang.serialization.Lifecycle;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,10 +84,7 @@ public interface HolderLookup<T> extends HolderGetter<T> {
 
         static HolderLookup.Provider create(Stream<HolderLookup.RegistryLookup<?>> param0) {
             final Map<ResourceKey<? extends Registry<?>>, HolderLookup.RegistryLookup<?>> var0 = param0.collect(
-                Collectors.toUnmodifiableMap(
-                    HolderLookup.RegistryLookup::key,
-                    (Function<? super HolderLookup.RegistryLookup<?>, ? extends HolderLookup.RegistryLookup<?>>)(param0x -> param0x)
-                )
+                Collectors.toUnmodifiableMap(HolderLookup.RegistryLookup::key, param0x -> param0x)
             );
             return new HolderLookup.Provider() {
                 @Override

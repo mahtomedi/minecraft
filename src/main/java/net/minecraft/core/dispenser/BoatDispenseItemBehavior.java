@@ -44,7 +44,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
         }
 
         Boat var9 = (Boat)(this.isChestBoat ? new ChestBoat(var1, var2, var3 + var6, var4) : new Boat(var1, var2, var3 + var6, var4));
-        var9.setType(this.type);
+        var9.setVariant(this.type);
         var9.setYRot(var0.toYRot());
         var1.addFreshEntity(var9);
         param1.shrink(1);

@@ -1,14 +1,14 @@
 {
-    "id": "22w46a",
-    "name": "22w46a",
-    "world_version": 3210,
+    "id": "1.19.3-pre1",
+    "name": "1.19.3 Pre-release 1",
+    "world_version": 3211,
     "series_id": "main",
-    "protocol_version": 1073741932,
+    "protocol_version": 1073741933,
     "pack_version": {
         "resource": 12,
         "data": 10
     },
-    "build_time": "2022-11-16T13:31:00+00:00",
+    "build_time": "2022-11-22T13:57:40+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
     "stable": false

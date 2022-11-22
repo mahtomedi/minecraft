@@ -115,7 +115,7 @@ public class CreateWorldScreen extends Screen {
         WorldLoader.InitConfig var1 = createDefaultLoadConfig(var0, WorldDataConfiguration.DEFAULT);
         CompletableFuture<WorldCreationContext> var2 = WorldLoader.load(
             var1,
-            param0x -> new WorldLoader.DataLoadOutput<>(
+            param0x -> new WorldLoader.DataLoadOutput(
                     new CreateWorldScreen.DataPackReloadCookie(
                         new WorldGenSettings(WorldOptions.defaultWithRandomSeed(), WorldPresets.createNormalWorldDimensions(param0x.datapackWorldgen())),
                         param0x.dataConfiguration()
@@ -132,7 +132,9 @@ public class CreateWorldScreen extends Screen {
         param0.managedBlock(var2::isDone);
         param0.setScreen(
             new CreateWorldScreen(
-                param1, WorldDataConfiguration.DEFAULT, new WorldGenSettingsComponent(var2.join(), Optional.of(WorldPresets.NORMAL), OptionalLong.empty())
+                param1,
+                WorldDataConfiguration.DEFAULT,
+                new WorldGenSettingsComponent((WorldCreationContext)var2.join(), Optional.of(WorldPresets.NORMAL), OptionalLong.empty())
             )
         );
     }
@@ -513,7 +515,7 @@ public class CreateWorldScreen extends Screen {
     private void applyNewPackConfig(PackRepository param0, WorldDataConfiguration param1) {
         this.minecraft.tell(() -> this.minecraft.setScreen(new GenericDirtMessageScreen(Component.translatable("dataPack.validation.working"))));
         WorldLoader.InitConfig var0 = createDefaultLoadConfig(param0, param1);
-        WorldLoader.<CreateWorldScreen.DataPackReloadCookie, WorldCreationContext>load(
+        WorldLoader.load(
                 var0,
                 param0x -> {
                     if (param0x.datapackWorldgen().registryOrThrow(Registries.WORLD_PRESET).size() == 0) {
@@ -526,9 +528,9 @@ public class CreateWorldScreen extends Screen {
                         DataResult<JsonElement> var2x = WorldGenSettings.encode(var1x, var0x.options(), var0x.selectedDimensions())
                             .setLifecycle(Lifecycle.stable());
                         DynamicOps<JsonElement> var3x = RegistryOps.create(JsonOps.INSTANCE, param0x.datapackWorldgen());
-                        WorldGenSettings var4 = var2x.<WorldGenSettings>flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x))
+                        WorldGenSettings var4 = (WorldGenSettings)var2x.flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x))
                             .getOrThrow(false, Util.prefix("Error parsing worldgen settings after loading data packs: ", LOGGER::error));
-                        return new WorldLoader.DataLoadOutput<>(
+                        return new WorldLoader.DataLoadOutput(
                             new CreateWorldScreen.DataPackReloadCookie(var4, param0x.dataConfiguration()), param0x.datapackDimensions()
                         );
                     }

@@ -87,7 +87,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
             return false;
         } else {
             param0.removeBlock(param1, false);
-            if (var0.get().value().place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
+            if (((ConfiguredFeature)var0.get().value()).place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
                 return true;
             } else {
                 param0.setBlock(param1, param2, 3);

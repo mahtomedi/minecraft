@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class MossBlock extends Block implements BonemealableBlock {
     public MossBlock(BlockBehaviour.Properties param0) {
@@ -30,6 +31,6 @@ public class MossBlock extends Block implements BonemealableBlock {
         param0.registryAccess()
             .registry(Registries.CONFIGURED_FEATURE)
             .flatMap(param0x -> param0x.getHolder(CaveFeatures.MOSS_PATCH_BONEMEAL))
-            .ifPresent(param3x -> param3x.value().place(param0, param0.getChunkSource().getGenerator(), param1, param2.above()));
+            .ifPresent(param3x -> ((ConfiguredFeature)param3x.value()).place(param0, param0.getChunkSource().getGenerator(), param1, param2.above()));
     }
 }

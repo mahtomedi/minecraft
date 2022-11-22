@@ -77,7 +77,8 @@ public class LocateCommand {
                             Commands.argument("poi", ResourceOrTagArgument.resourceOrTag(param1, Registries.POINT_OF_INTEREST_TYPE))
                                 .executes(
                                     param0x -> locatePoi(
-                                            param0x.getSource(), ResourceOrTagArgument.getResourceOrTag(param0x, "poi", Registries.POINT_OF_INTEREST_TYPE)
+                                            (CommandSourceStack)param0x.getSource(),
+                                            ResourceOrTagArgument.getResourceOrTag(param0x, "poi", Registries.POINT_OF_INTEREST_TYPE)
                                         )
                                 )
                         )

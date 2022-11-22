@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -39,8 +40,9 @@ public class ParrotOnShoulderLayer<T extends Player> extends RenderLayer<T, Play
         EntityType.byString(var0.getString("id")).filter(param0x -> param0x == EntityType.PARROT).ifPresent(param10 -> {
             param0.pushPose();
             param0.translate(param8 ? 0.4F : -0.4F, param3.isCrouching() ? -1.3F : -1.5F, 0.0F);
-            VertexConsumer var0x = param1.getBuffer(this.model.renderType(ParrotRenderer.PARROT_LOCATIONS[var0.getInt("Variant")]));
-            this.model.renderOnShoulder(param0, var0x, param2, OverlayTexture.NO_OVERLAY, param4, param5, param6, param7, param3.tickCount);
+            Parrot.Variant var0x = Parrot.Variant.byId(var0.getInt("Variant"));
+            VertexConsumer var1x = param1.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(var0x)));
+            this.model.renderOnShoulder(param0, var1x, param2, OverlayTexture.NO_OVERLAY, param4, param5, param6, param7, param3.tickCount);
             param0.popPose();
         });
     }

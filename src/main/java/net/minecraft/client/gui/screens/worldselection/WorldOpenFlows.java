@@ -73,7 +73,7 @@ public class WorldOpenFlows {
                 WorldStem var4 = this.loadWorldDataBlocking(
                     var3,
                     param3x -> {
-                        WorldDimensions.Complete var0x = param3.apply(param3x.datapackWorldgen())
+                        WorldDimensions.Complete var0x = ((WorldDimensions)param3.apply(param3x.datapackWorldgen()))
                             .bake(param3x.datapackDimensions().registryOrThrow(Registries.LEVEL_STEM));
                         return new WorldLoader.DataLoadOutput<>(
                             new PrimaryLevelData(param1, param2, var0x.specialWorldProperty(), var0x.lifecycle()), var0x.dimensionsRegistryAccess()
@@ -139,14 +139,14 @@ public class WorldOpenFlows {
             var1,
             param1 -> {
                 DynamicOps<Tag> var0x = RegistryOps.create(NbtOps.INSTANCE, param1.datapackWorldgen());
-                Registry<LevelStem> var1x = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.stable()).freeze();
+                Registry<LevelStem> var1x = new MappedRegistry(Registries.LEVEL_STEM, Lifecycle.stable()).freeze();
                 Pair<WorldData, WorldDimensions.Complete> var2x = param0.getDataTag(
                     var0x, param1.dataConfiguration(), var1x, param1.datapackWorldgen().allRegistriesLifecycle()
                 );
                 if (var2x == null) {
                     throw new IllegalStateException("Failed to load world");
                 } else {
-                    return new WorldLoader.DataLoadOutput<>(
+                    return new WorldLoader.DataLoadOutput(
                         new Data(
                             ((WorldData)var2x.getFirst()).getLevelSettings(),
                             ((WorldData)var2x.getFirst()).worldGenOptions(),

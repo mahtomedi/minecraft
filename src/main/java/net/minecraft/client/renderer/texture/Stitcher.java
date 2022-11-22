@@ -12,11 +12,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class Stitcher<T extends Stitcher.Entry> {
-    private static final Comparator<Stitcher.Holder<?>> HOLDER_COMPARATOR = Comparator.<Stitcher.Holder<?>, Integer>comparing(param0 -> -param0.height)
+    private static final Comparator<Stitcher.Holder<?>> HOLDER_COMPARATOR = Comparator.comparing(param0 -> -param0.height)
         .thenComparing(param0 -> -param0.width)
         .thenComparing(param0 -> param0.entry.name());
     private final int mipLevel;
-    private final List<Stitcher.Holder<T>> texturesToBeStitched = new ArrayList<>();
+    private final List<Stitcher.Holder<T>> texturesToBeStitched = new ArrayList();
     private final List<Stitcher.Region<T>> storage = new ArrayList<>();
     private int storageX;
     private int storageY;
@@ -43,7 +43,7 @@ public class Stitcher<T extends Stitcher.Entry> {
     }
 
     public void stitch() {
-        List<Stitcher.Holder<T>> var0 = new ArrayList<>(this.texturesToBeStitched);
+        List<Stitcher.Holder<T>> var0 = new ArrayList(this.texturesToBeStitched);
         var0.sort(HOLDER_COMPARATOR);
 
         for(Stitcher.Holder<T> var1 : var0) {

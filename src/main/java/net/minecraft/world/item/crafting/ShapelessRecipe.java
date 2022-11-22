@@ -85,7 +85,7 @@ public class ShapelessRecipe implements CraftingRecipe {
     public static class Serializer implements RecipeSerializer<ShapelessRecipe> {
         public ShapelessRecipe fromJson(ResourceLocation param0, JsonObject param1) {
             String var0 = GsonHelper.getAsString(param1, "group", "");
-            CraftingBookCategory var1 = Objects.requireNonNullElse(
+            CraftingBookCategory var1 = (CraftingBookCategory)Objects.requireNonNullElse(
                 CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(param1, "category", null)), CraftingBookCategory.MISC
             );
             NonNullList<Ingredient> var2 = itemsFromJson(GsonHelper.getAsJsonArray(param1, "ingredients"));

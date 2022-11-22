@@ -812,7 +812,7 @@ public class Util {
         if (var0.isPresent()) {
             throw param1.apply(var0.get().message());
         } else {
-            return param0.result().orElseThrow();
+            return (T)param0.result().orElseThrow();
         }
     }
 

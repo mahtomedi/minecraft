@@ -20,7 +20,7 @@ public final class NetworkPacketSummary {
 
     public NetworkPacketSummary(Duration param0, List<Pair<NetworkPacketSummary.PacketIdentification, NetworkPacketSummary.PacketCountAndSize>> param1) {
         this.recordingDuration = param0;
-        this.totalPacketCountAndSize = param1.stream()
+        this.totalPacketCountAndSize = (NetworkPacketSummary.PacketCountAndSize)param1.stream()
             .map(Pair::getSecond)
             .reduce(NetworkPacketSummary.PacketCountAndSize::add)
             .orElseGet(() -> new NetworkPacketSummary.PacketCountAndSize(0L, 0L));

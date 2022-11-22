@@ -69,7 +69,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
 
     public static ChatType.Bound bind(ResourceKey<ChatType> param0, RegistryAccess param1, Component param2) {
         Registry<ChatType> var0 = param1.registryOrThrow(Registries.CHAT_TYPE);
-        return var0.getOrThrow(param0).bind(param2);
+        return ((ChatType)var0.getOrThrow(param0)).bind(param2);
     }
 
     public ChatType.Bound bind(Component param0) {
@@ -112,7 +112,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
 
         public Optional<ChatType.Bound> resolve(RegistryAccess param0) {
             Registry<ChatType> var0 = param0.registryOrThrow(Registries.CHAT_TYPE);
-            ChatType var1 = var0.byId(this.chatType);
+            ChatType var1 = (ChatType)var0.byId(this.chatType);
             return Optional.ofNullable(var1).map(param0x -> new ChatType.Bound(param0x, this.name, this.targetName));
         }
     }

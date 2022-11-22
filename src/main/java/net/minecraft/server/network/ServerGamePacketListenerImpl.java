@@ -771,7 +771,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             var2.ifPresent(var1::add);
             param0.getPages().stream().limit(100L).forEach(var1::add);
             Consumer<List<FilteredText>> var3 = var2.isPresent()
-                ? param1 -> this.signBook(param1.get(0), param1.subList(1, param1.size()), var0)
+                ? param1 -> this.signBook((FilteredText)param1.get(0), param1.subList(1, param1.size()), var0)
                 : param1 -> this.updateBookContents(param1, var0);
             this.filterTextPacket(var1).thenAcceptAsync(var3, this.server);
         }
@@ -815,7 +815,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             int var2 = 0;
 
             for(int var3 = param0.size(); var2 < var3; ++var2) {
-                FilteredText var4 = param0.get(var2);
+                FilteredText var4 = (FilteredText)param0.get(var2);
                 String var5 = var4.raw();
                 var0.add(StringTag.valueOf(param1.apply(var5)));
                 if (var4.isFiltered()) {
@@ -1258,7 +1258,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                 this.server.submit(() -> {
                     PlayerChatMessage var0x;
                     try {
-                        var2x = this.getSignedMessage(param0, var0.get());
+                        var2x = this.getSignedMessage(param0, (LastSeenMessages)var0.get());
                     } catch (SignedMessageChain.DecodeException var6) {
                         this.handleMessageDecodeFailure(var6);
                         return;
@@ -1267,7 +1267,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                     CompletableFuture<FilteredText> var3 = this.filterTextPacket(var2x.signedContent());
                     CompletableFuture<Component> var4 = this.server.getChatDecorator().decorate(this.player, var2x.decoratedContent());
                     this.chatMessageChain.append(param3 -> CompletableFuture.allOf(var3, var4).thenAcceptAsync(param3x -> {
-                            PlayerChatMessage var0x = var2x.withUnsignedContent(var4.join()).filter(var3.join().mask());
+                            PlayerChatMessage var0x = var2x.withUnsignedContent(var4.join()).filter(((FilteredText)var3.join()).mask());
                             this.broadcastChatMessage(var0x);
                         }, param3));
                 });
@@ -1284,7 +1284,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             Optional<LastSeenMessages> var0 = this.tryHandleChat(param0.command(), param0.timeStamp(), param0.lastSeenMessages());
             if (var0.isPresent()) {
                 this.server.submit(() -> {
-                    this.performChatCommand(param0, var0.get());
+                    this.performChatCommand(param0, (LastSeenMessages)var0.get());
                     this.detectRateSpam();
                 });
             }
@@ -1737,7 +1737,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             }
 
             for(int var5 = 0; var5 < param1.size(); ++var5) {
-                FilteredText var6 = param1.get(var5);
+                FilteredText var6 = (FilteredText)param1.get(var5);
                 if (this.player.isTextFilteringEnabled()) {
                     var4.setMessage(var5, Component.literal(var6.filteredOrEmpty()));
                 } else {

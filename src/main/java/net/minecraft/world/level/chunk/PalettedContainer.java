@@ -54,7 +54,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
     private static <T, C extends PalettedContainerRO<T>> Codec<C> codec(
         IdMap<T> param0, Codec<T> param1, PalettedContainer.Strategy param2, T param3, PalettedContainerRO.Unpacker<T, C> param4
     ) {
-        return RecordCodecBuilder.<PalettedContainerRO.PackedData>create(
+        return RecordCodecBuilder.create(
                 param2x -> param2x.group(
                             param1.mapResult(ExtraCodecs.orElsePartial(param3))
                                 .listOf()
