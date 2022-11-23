@@ -134,17 +134,21 @@ public class Node {
         param0.writeFloat(this.walkedDistance);
         param0.writeFloat(this.costMalus);
         param0.writeBoolean(this.closed);
-        param0.writeInt(this.type.ordinal());
+        param0.writeEnum(this.type);
         param0.writeFloat(this.f);
     }
 
     public static Node createFromStream(FriendlyByteBuf param0) {
         Node var0 = new Node(param0.readInt(), param0.readInt(), param0.readInt());
-        var0.walkedDistance = param0.readFloat();
-        var0.costMalus = param0.readFloat();
-        var0.closed = param0.readBoolean();
-        var0.type = BlockPathTypes.values()[param0.readInt()];
-        var0.f = param0.readFloat();
+        readContents(param0, var0);
         return var0;
+    }
+
+    protected static void readContents(FriendlyByteBuf param0, Node param1) {
+        param1.walkedDistance = param0.readFloat();
+        param1.costMalus = param0.readFloat();
+        param1.closed = param0.readBoolean();
+        param1.type = param0.readEnum(BlockPathTypes.class);
+        param1.f = param0.readFloat();
     }
 }

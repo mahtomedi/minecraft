@@ -64,7 +64,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -76,7 +75,6 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     private static final int LIFTING_ITEM_ANIMATION_DURATION = 5;
     private static final float DANCING_LOOP_DURATION = 55.0F;
     private static final float SPINNING_ANIMATION_DURATION = 15.0F;
-    private static final float PATHFINDING_BOUNDING_BOX_PADDING = 0.5F;
     private static final Ingredient DUPLICATION_ITEM = Ingredient.of(Items.AMETHYST_SHARD);
     private static final int DUPLICATION_COOLDOWN_TICKS = 6000;
     private static final int NUM_OF_DUPLICATION_HEARTS = 3;
@@ -517,18 +515,6 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     @Override
     protected boolean shouldStayCloseToLeashHolder() {
         return false;
-    }
-
-    @Override
-    public Iterable<BlockPos> iteratePathfindingStartNodeCandidatePositions() {
-        AABB var0 = this.getBoundingBox();
-        int var1 = Mth.floor(var0.minX - 0.5);
-        int var2 = Mth.floor(var0.maxX + 0.5);
-        int var3 = Mth.floor(var0.minZ - 0.5);
-        int var4 = Mth.floor(var0.maxZ + 0.5);
-        int var5 = Mth.floor(var0.minY - 0.5);
-        int var6 = Mth.floor(var0.maxY + 0.5);
-        return BlockPos.betweenClosed(var1, var5, var3, var2, var6, var4);
     }
 
     private void updateDuplicationCooldown() {

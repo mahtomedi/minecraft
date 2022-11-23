@@ -1,9 +1,7 @@
 package net.minecraft.world.scores.criteria;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.StatType;
+import net.minecraft.util.StringRepresentable;
 
 public class ObjectiveCriteria {
     private static final Map<String, ObjectiveCriteria> CUSTOM_CRITERIA = Maps.newHashMap();
@@ -121,12 +120,14 @@ public class ObjectiveCriteria {
         return this.renderType;
     }
 
-    public static enum RenderType {
+    public static enum RenderType implements StringRepresentable {
         INTEGER("integer"),
         HEARTS("hearts");
 
         private final String id;
-        private static final Map<String, ObjectiveCriteria.RenderType> BY_ID;
+        public static final StringRepresentable.EnumCodec<ObjectiveCriteria.RenderType> CODEC = StringRepresentable.fromEnum(
+            ObjectiveCriteria.RenderType::values
+        );
 
         private RenderType(String param0) {
             this.id = param0;
@@ -136,18 +137,13 @@ public class ObjectiveCriteria {
             return this.id;
         }
 
-        public static ObjectiveCriteria.RenderType byId(String param0) {
-            return BY_ID.getOrDefault(param0, INTEGER);
+        @Override
+        public String getSerializedName() {
+            return this.id;
         }
 
-        static {
-            Builder<String, ObjectiveCriteria.RenderType> var0 = ImmutableMap.builder();
-
-            for(ObjectiveCriteria.RenderType var1 : values()) {
-                var0.put(var1.id, var1);
-            }
-
-            BY_ID = var0.build();
+        public static ObjectiveCriteria.RenderType byId(String param0) {
+            return CODEC.byName(param0, INTEGER);
         }
     }
 }

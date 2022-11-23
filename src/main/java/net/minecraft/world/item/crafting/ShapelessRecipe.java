@@ -3,7 +3,6 @@ package net.minecraft.world.item.crafting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import java.util.Objects;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -85,9 +84,7 @@ public class ShapelessRecipe implements CraftingRecipe {
     public static class Serializer implements RecipeSerializer<ShapelessRecipe> {
         public ShapelessRecipe fromJson(ResourceLocation param0, JsonObject param1) {
             String var0 = GsonHelper.getAsString(param1, "group", "");
-            CraftingBookCategory var1 = (CraftingBookCategory)Objects.requireNonNullElse(
-                CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(param1, "category", null)), CraftingBookCategory.MISC
-            );
+            CraftingBookCategory var1 = CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(param1, "category", null), CraftingBookCategory.MISC);
             NonNullList<Ingredient> var2 = itemsFromJson(GsonHelper.getAsJsonArray(param1, "ingredients"));
             if (var2.isEmpty()) {
                 throw new JsonParseException("No ingredients for shapeless recipe");

@@ -49,6 +49,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -59,6 +60,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -923,6 +925,23 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 (double)param2.getRange(param4),
                 this.dimension(),
                 new ClientboundSoundEntityPacket(param2, param3, param1, param4, param5, param6)
+            );
+    }
+
+    @Override
+    public void playCustomSound(
+        @Nullable Player param0, Vec3 param1, ResourceLocation param2, SoundSource param3, float param4, float param5, double param6, long param7
+    ) {
+        this.server
+            .getPlayerList()
+            .broadcast(
+                param0,
+                param1.x(),
+                param1.y(),
+                param1.z(),
+                param6,
+                this.dimension(),
+                new ClientboundCustomSoundPacket(param2, param3, param1, param4, param5, param7)
             );
     }
 

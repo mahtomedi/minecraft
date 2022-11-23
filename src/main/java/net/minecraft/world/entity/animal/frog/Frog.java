@@ -424,7 +424,6 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
             super(param0);
         }
 
-        @Nullable
         @Override
         public Node getStart() {
             return !this.mob.isInWater()

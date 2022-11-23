@@ -1389,11 +1389,11 @@ public class SoundEvents {
     public static final SoundEvent ZOMBIE_VILLAGER_STEP = register("entity.zombie_villager.step");
 
     private static SoundEvent register(String param0, float param1) {
-        return Registry.register(BuiltInRegistries.SOUND_EVENT, param0, new SoundEvent(new ResourceLocation(param0), param1));
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, param0, SoundEvent.createFixedRangeEvent(new ResourceLocation(param0), param1));
     }
 
     private static SoundEvent register(String param0) {
-        return Registry.register(BuiltInRegistries.SOUND_EVENT, param0, new SoundEvent(new ResourceLocation(param0)));
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, param0, SoundEvent.createVariableRangeEvent(new ResourceLocation(param0)));
     }
 
     private static ImmutableList<SoundEvent> registerGoatHornSoundVariants() {

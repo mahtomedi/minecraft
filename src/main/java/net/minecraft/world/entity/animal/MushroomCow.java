@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.animal;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -290,7 +289,7 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
         }
 
         static MushroomCow.MushroomType byType(String param0) {
-            return (MushroomCow.MushroomType)Objects.requireNonNullElse(CODEC.byName(param0), RED);
+            return CODEC.byName(param0, RED);
         }
     }
 }

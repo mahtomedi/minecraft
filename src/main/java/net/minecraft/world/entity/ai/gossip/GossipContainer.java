@@ -1,11 +1,12 @@
 package net.minecraft.world.entity.ai.gossip;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.serialization.DataResult;
+import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -20,14 +21,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.DoublePredicate;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.VisibleForDebug;
+import org.slf4j.Logger;
 
 public class GossipContainer {
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int DISCARD_THRESHOLD = 2;
     private final Map<UUID, GossipContainer.EntityGossips> gossips = Maps.newHashMap();
 
@@ -55,11 +57,11 @@ public class GossipContainer {
     }
 
     private Stream<GossipContainer.GossipEntry> unpack() {
-        return this.gossips.entrySet().stream().flatMap(param0 -> param0.getValue().unpack(param0.getKey()));
+        return this.gossips.entrySet().stream().flatMap(param0 -> ((GossipContainer.EntityGossips)param0.getValue()).unpack((UUID)param0.getKey()));
     }
 
     private Collection<GossipContainer.GossipEntry> selectGossipsForTransfer(RandomSource param0, int param1) {
-        List<GossipContainer.GossipEntry> var0 = this.unpack().collect(Collectors.toList());
+        List<GossipContainer.GossipEntry> var0 = this.unpack().toList();
         if (var0.isEmpty()) {
             return Collections.emptyList();
         } else {
@@ -67,7 +69,7 @@ public class GossipContainer {
             int var2 = 0;
 
             for(int var3 = 0; var3 < var0.size(); ++var3) {
-                GossipContainer.GossipEntry var4 = var0.get(var3);
+                GossipContainer.GossipEntry var4 = (GossipContainer.GossipEntry)var0.get(var3);
                 var2 += Math.abs(var4.weightedValue());
                 var1[var3] = var2 - 1;
             }
@@ -77,7 +79,7 @@ public class GossipContainer {
             for(int var6 = 0; var6 < param1; ++var6) {
                 int var7 = param0.nextInt(var2);
                 int var8 = Arrays.binarySearch(var1, var7);
-                var5.add(var0.get(var8 < 0 ? -var8 - 1 : var8));
+                var5.add((GossipContainer.GossipEntry)var0.get(var8 < 0 ? -var8 - 1 : var8));
             }
 
             return var5;
@@ -146,14 +148,19 @@ public class GossipContainer {
 
     }
 
-    public <T> Dynamic<T> store(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.createList(this.unpack().map(param1 -> param1.store(param0)).map(Dynamic::getValue)));
+    public <T> T store(DynamicOps<T> param0) {
+        return GossipContainer.GossipEntry.LIST_CODEC
+            .encodeStart(param0, this.unpack().toList())
+            .resultOrPartial(param0x -> LOGGER.warn("Failed to serialize gossips: {}", param0x))
+            .orElseGet(param0::emptyList);
     }
 
     public void update(Dynamic<?> param0) {
-        param0.asStream()
-            .map(GossipContainer.GossipEntry::load)
-            .flatMap(param0x -> param0x.result().stream())
+        GossipContainer.GossipEntry.LIST_CODEC
+            .decode(param0)
+            .resultOrPartial(param0x -> LOGGER.warn("Failed to deserialize gossips: {}", param0x))
+            .stream()
+            .flatMap(param0x -> ((List)param0x.getFirst()).stream())
             .forEach(param0x -> this.getOrCreate(param0x.target).entries.put(param0x.type, param0x.value));
     }
 
@@ -179,7 +186,10 @@ public class GossipContainer {
         }
 
         public Stream<GossipContainer.GossipEntry> unpack(UUID param0) {
-            return this.entries.object2IntEntrySet().stream().map(param1 -> new GossipContainer.GossipEntry(param0, param1.getKey(), param1.getIntValue()));
+            return this.entries
+                .object2IntEntrySet()
+                .stream()
+                .map(param1 -> new GossipContainer.GossipEntry(param0, (GossipType)param1.getKey(), param1.getIntValue()));
         }
 
         public void decay() {
@@ -218,55 +228,19 @@ public class GossipContainer {
         }
     }
 
-    static class GossipEntry {
-        public static final String TAG_TARGET = "Target";
-        public static final String TAG_TYPE = "Type";
-        public static final String TAG_VALUE = "Value";
-        public final UUID target;
-        public final GossipType type;
-        public final int value;
-
-        public GossipEntry(UUID param0, GossipType param1, int param2) {
-            this.target = param0;
-            this.type = param1;
-            this.value = param2;
-        }
+    static record GossipEntry(UUID target, GossipType type, int value) {
+        public static final Codec<GossipContainer.GossipEntry> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        UUIDUtil.CODEC.fieldOf("Target").forGetter(GossipContainer.GossipEntry::target),
+                        GossipType.CODEC.fieldOf("Type").forGetter(GossipContainer.GossipEntry::type),
+                        ExtraCodecs.POSITIVE_INT.fieldOf("Value").forGetter(GossipContainer.GossipEntry::value)
+                    )
+                    .apply(param0, GossipContainer.GossipEntry::new)
+        );
+        public static final Codec<List<GossipContainer.GossipEntry>> LIST_CODEC = CODEC.listOf();
 
         public int weightedValue() {
             return this.value * this.type.weight;
-        }
-
-        @Override
-        public String toString() {
-            return "GossipEntry{target=" + this.target + ", type=" + this.type + ", value=" + this.value + "}";
-        }
-
-        public <T> Dynamic<T> store(DynamicOps<T> param0) {
-            return new Dynamic<>(
-                param0,
-                param0.createMap(
-                    ImmutableMap.of(
-                        param0.createString("Target"),
-                        UUIDUtil.CODEC.encodeStart(param0, this.target).result().orElseThrow(RuntimeException::new),
-                        param0.createString("Type"),
-                        param0.createString(this.type.id),
-                        param0.createString("Value"),
-                        param0.createInt(this.value)
-                    )
-                )
-            );
-        }
-
-        public static DataResult<GossipContainer.GossipEntry> load(Dynamic<?> param0) {
-            return DataResult.unbox(
-                DataResult.instance()
-                    .group(
-                        param0.get("Target").read(UUIDUtil.CODEC),
-                        param0.get("Type").asString().map(GossipType::byId),
-                        param0.get("Value").read(ExtraCodecs.POSITIVE_INT)
-                    )
-                    .apply(DataResult.instance(), GossipContainer.GossipEntry::new)
-            );
         }
     }
 }

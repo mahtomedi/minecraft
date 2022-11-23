@@ -7,6 +7,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -71,6 +72,10 @@ public interface StringRepresentable {
         @Nullable
         public E byName(@Nullable String param0) {
             return this.resolver.apply(param0);
+        }
+
+        public E byName(@Nullable String param0, E param1) {
+            return (E)Objects.requireNonNullElse(this.byName(param0), param1);
         }
     }
 }

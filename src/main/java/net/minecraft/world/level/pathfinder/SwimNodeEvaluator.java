@@ -35,18 +35,16 @@ public class SwimNodeEvaluator extends NodeEvaluator {
         this.pathTypesByPosCache.clear();
     }
 
-    @Nullable
     @Override
     public Node getStart() {
-        return super.getNode(
+        return this.getNode(
             Mth.floor(this.mob.getBoundingBox().minX), Mth.floor(this.mob.getBoundingBox().minY + 0.5), Mth.floor(this.mob.getBoundingBox().minZ)
         );
     }
 
-    @Nullable
     @Override
     public Target getGoal(double param0, double param1, double param2) {
-        return this.getTargetFromNode(super.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
+        return this.getTargetFromNode(this.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
     }
 
     @Override
@@ -55,7 +53,7 @@ public class SwimNodeEvaluator extends NodeEvaluator {
         Map<Direction, Node> var1 = Maps.newEnumMap(Direction.class);
 
         for(Direction var2 : Direction.values()) {
-            Node var3 = this.getNode(param1.x + var2.getStepX(), param1.y + var2.getStepY(), param1.z + var2.getStepZ());
+            Node var3 = this.findAcceptedNode(param1.x + var2.getStepX(), param1.y + var2.getStepY(), param1.z + var2.getStepZ());
             var1.put(var2, var3);
             if (this.isNodeValid(var3)) {
                 param0[var0++] = var3;
@@ -64,7 +62,7 @@ public class SwimNodeEvaluator extends NodeEvaluator {
 
         for(Direction var4 : Direction.Plane.HORIZONTAL) {
             Direction var5 = var4.getClockWise();
-            Node var6 = this.getNode(param1.x + var4.getStepX() + var5.getStepX(), param1.y, param1.z + var4.getStepZ() + var5.getStepZ());
+            Node var6 = this.findAcceptedNode(param1.x + var4.getStepX() + var5.getStepX(), param1.y, param1.z + var4.getStepZ() + var5.getStepZ());
             if (this.isDiagonalNodeValid(var6, var1.get(var4), var1.get(var5))) {
                 param0[var0++] = var6;
             }
@@ -82,20 +80,17 @@ public class SwimNodeEvaluator extends NodeEvaluator {
     }
 
     @Nullable
-    @Override
-    protected Node getNode(int param0, int param1, int param2) {
+    protected Node findAcceptedNode(int param0, int param1, int param2) {
         Node var0 = null;
         BlockPathTypes var1 = this.getCachedBlockType(param0, param1, param2);
         if (this.allowBreaching && var1 == BlockPathTypes.BREACH || var1 == BlockPathTypes.WATER) {
             float var2 = this.mob.getPathfindingMalus(var1);
             if (var2 >= 0.0F) {
-                var0 = super.getNode(param0, param1, param2);
-                if (var0 != null) {
-                    var0.type = var1;
-                    var0.costMalus = Math.max(var0.costMalus, var2);
-                    if (this.level.getFluidState(new BlockPos(param0, param1, param2)).isEmpty()) {
-                        var0.costMalus += 8.0F;
-                    }
+                var0 = this.getNode(param0, param1, param2);
+                var0.type = var1;
+                var0.costMalus = Math.max(var0.costMalus, var2);
+                if (this.level.getFluidState(new BlockPos(param0, param1, param2)).isEmpty()) {
+                    var0.costMalus += 8.0F;
                 }
             }
         }

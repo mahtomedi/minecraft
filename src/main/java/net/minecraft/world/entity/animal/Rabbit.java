@@ -1,8 +1,6 @@
 package net.minecraft.world.entity.animal;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import java.util.Objects;
 import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -20,6 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
@@ -621,12 +620,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
         SALT(5, "salt"),
         EVIL(99, "evil");
 
-        private static final IntFunction<Rabbit.Variant> BY_ID = Util.make(new Int2ObjectOpenHashMap<>(), param0 -> {
-            for(Rabbit.Variant var0 : values()) {
-                param0.put(var0.id, var0);
-            }
-
-        });
+        private static final IntFunction<Rabbit.Variant> BY_ID = ByIdMap.sparse(Rabbit.Variant::id, values(), BROWN);
         public static final Codec<Rabbit.Variant> CODEC = StringRepresentable.fromEnum(Rabbit.Variant::values);
         final int id;
         private final String name;
@@ -646,7 +640,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
         }
 
         public static Rabbit.Variant byId(int param0) {
-            return (Rabbit.Variant)Objects.requireNonNullElse(BY_ID.apply(param0), BROWN);
+            return BY_ID.apply(param0);
         }
     }
 }

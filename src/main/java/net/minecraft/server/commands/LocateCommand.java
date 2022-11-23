@@ -1,11 +1,15 @@
 package net.minecraft.server.commands;
 
+import com.google.common.base.Stopwatch;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.logging.LogUtils;
+import java.time.Duration;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -26,8 +30,10 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import org.slf4j.Logger;
 
 public class LocateCommand {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final DynamicCommandExceptionType ERROR_STRUCTURE_NOT_FOUND = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.locate.structure.not_found", param0)
     );
@@ -95,32 +101,38 @@ public class LocateCommand {
         HolderSet<Structure> var1 = getHolders(param1, var0).orElseThrow(() -> ERROR_STRUCTURE_INVALID.create(param1.asPrintable()));
         BlockPos var2 = new BlockPos(param0.getPosition());
         ServerLevel var3 = param0.getLevel();
-        Pair<BlockPos, Holder<Structure>> var4 = var3.getChunkSource().getGenerator().findNearestMapStructure(var3, var1, var2, 100, false);
-        if (var4 == null) {
+        Stopwatch var4 = Stopwatch.createStarted(Util.TICKER);
+        Pair<BlockPos, Holder<Structure>> var5 = var3.getChunkSource().getGenerator().findNearestMapStructure(var3, var1, var2, 100, false);
+        var4.stop();
+        if (var5 == null) {
             throw ERROR_STRUCTURE_NOT_FOUND.create(param1.asPrintable());
         } else {
-            return showLocateResult(param0, param1, var2, var4, "commands.locate.structure.success", false);
+            return showLocateResult(param0, param1, var2, var5, "commands.locate.structure.success", false, var4.elapsed());
         }
     }
 
     private static int locateBiome(CommandSourceStack param0, ResourceOrTagArgument.Result<Biome> param1) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param0.getPosition());
-        Pair<BlockPos, Holder<Biome>> var1 = param0.getLevel().findClosestBiome3d(param1, var0, 6400, 32, 64);
-        if (var1 == null) {
+        Stopwatch var1 = Stopwatch.createStarted(Util.TICKER);
+        Pair<BlockPos, Holder<Biome>> var2 = param0.getLevel().findClosestBiome3d(param1, var0, 6400, 32, 64);
+        var1.stop();
+        if (var2 == null) {
             throw ERROR_BIOME_NOT_FOUND.create(param1.asPrintable());
         } else {
-            return showLocateResult(param0, param1, var0, var1, "commands.locate.biome.success", true);
+            return showLocateResult(param0, param1, var0, var2, "commands.locate.biome.success", true, var1.elapsed());
         }
     }
 
     private static int locatePoi(CommandSourceStack param0, ResourceOrTagArgument.Result<PoiType> param1) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param0.getPosition());
         ServerLevel var1 = param0.getLevel();
-        Optional<Pair<Holder<PoiType>, BlockPos>> var2 = var1.getPoiManager().findClosestWithType(param1, var0, 256, PoiManager.Occupancy.ANY);
-        if (var2.isEmpty()) {
+        Stopwatch var2 = Stopwatch.createStarted(Util.TICKER);
+        Optional<Pair<Holder<PoiType>, BlockPos>> var3 = var1.getPoiManager().findClosestWithType(param1, var0, 256, PoiManager.Occupancy.ANY);
+        var2.stop();
+        if (var3.isEmpty()) {
             throw ERROR_POI_NOT_FOUND.create(param1.asPrintable());
         } else {
-            return showLocateResult(param0, param1, var0, var2.get().swap(), "commands.locate.poi.success", false);
+            return showLocateResult(param0, param1, var0, var3.get().swap(), "commands.locate.poi.success", false, var2.elapsed());
         }
     }
 
@@ -134,10 +146,11 @@ public class LocateCommand {
         BlockPos param2,
         Pair<BlockPos, ? extends Holder<?>> param3,
         String param4,
-        boolean param5
+        boolean param5,
+        Duration param6
     ) {
         String var0 = param1.unwrap().map(param1x -> param1.asPrintable(), param2x -> param1.asPrintable() + " (" + getElementName(param3) + ")");
-        return showLocateResult(param0, param2, param3, param4, param5, var0);
+        return showLocateResult(param0, param2, param3, param4, param5, var0, param6);
     }
 
     public static int showLocateResult(
@@ -146,14 +159,15 @@ public class LocateCommand {
         BlockPos param2,
         Pair<BlockPos, ? extends Holder<?>> param3,
         String param4,
-        boolean param5
+        boolean param5,
+        Duration param6
     ) {
         String var0 = param1.unwrap().map(param0x -> param0x.location().toString(), param1x -> "#" + param1x.location() + " (" + getElementName(param3) + ")");
-        return showLocateResult(param0, param2, param3, param4, param5, var0);
+        return showLocateResult(param0, param2, param3, param4, param5, var0, param6);
     }
 
     private static int showLocateResult(
-        CommandSourceStack param0, BlockPos param1, Pair<BlockPos, ? extends Holder<?>> param2, String param3, boolean param4, String param5
+        CommandSourceStack param0, BlockPos param1, Pair<BlockPos, ? extends Holder<?>> param2, String param3, boolean param4, String param5, Duration param6
     ) {
         BlockPos var0 = param2.getFirst();
         int var1 = param4 ? Mth.floor(Mth.sqrt((float)param1.distSqr(var0))) : Mth.floor(dist(param1.getX(), param1.getZ(), var0.getX(), var0.getZ()));
@@ -165,6 +179,7 @@ public class LocateCommand {
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.coordinates.tooltip")))
             );
         param0.sendSuccess(Component.translatable(param3, param5, var3, var1), false);
+        LOGGER.info("Locating element " + param5 + " took " + param6.toMillis() + " ms");
         return var1;
     }
 

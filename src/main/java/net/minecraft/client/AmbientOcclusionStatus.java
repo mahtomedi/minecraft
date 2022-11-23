@@ -1,8 +1,7 @@
 package net.minecraft.client;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import net.minecraft.util.Mth;
+import java.util.function.IntFunction;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.OptionEnum;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -13,9 +12,9 @@ public enum AmbientOcclusionStatus implements OptionEnum {
     MIN(1, "options.ao.min"),
     MAX(2, "options.ao.max");
 
-    private static final AmbientOcclusionStatus[] BY_ID = Arrays.stream(values())
-        .sorted(Comparator.comparingInt(AmbientOcclusionStatus::getId))
-        .toArray(param0 -> new AmbientOcclusionStatus[param0]);
+    private static final IntFunction<AmbientOcclusionStatus> BY_ID = ByIdMap.continuous(
+        AmbientOcclusionStatus::getId, values(), ByIdMap.OutOfBoundsStrategy.WRAP
+    );
     private final int id;
     private final String key;
 
@@ -35,6 +34,6 @@ public enum AmbientOcclusionStatus implements OptionEnum {
     }
 
     public static AmbientOcclusionStatus byId(int param0) {
-        return BY_ID[Mth.positiveModulo(param0, BY_ID.length)];
+        return BY_ID.apply(param0);
     }
 }

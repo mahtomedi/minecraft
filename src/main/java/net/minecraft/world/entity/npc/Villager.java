@@ -485,7 +485,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("VillagerData", param1));
         param0.putByte("FoodLevel", (byte)this.foodLevel);
-        param0.put("Gossips", this.gossips.store(NbtOps.INSTANCE).getValue());
+        param0.put("Gossips", this.gossips.store(NbtOps.INSTANCE));
         param0.putInt("Xp", this.villagerXp);
         param0.putLong("LastRestock", this.lastRestockGameTime);
         param0.putLong("LastGossipDecay", this.lastGossipDecayTime);

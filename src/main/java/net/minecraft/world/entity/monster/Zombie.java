@@ -419,7 +419,7 @@ public class Zombie extends Monster {
                     param0, param0.getCurrentDifficultyAt(var2.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false, true), null
                 );
                 var2.setVillagerData(var1.getVillagerData());
-                var2.setGossips(var1.getGossips().store(NbtOps.INSTANCE).getValue());
+                var2.setGossips(var1.getGossips().store(NbtOps.INSTANCE));
                 var2.setTradeOffers(var1.getOffers().createTag());
                 var2.setVillagerXp(var1.getVillagerXp());
                 if (!this.isSilent()) {

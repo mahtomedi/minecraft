@@ -28,11 +28,13 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class NoteBlock extends Block {
     public static final EnumProperty<NoteBlockInstrument> INSTRUMENT = BlockStateProperties.NOTEBLOCK_INSTRUMENT;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final IntegerProperty NOTE = BlockStateProperties.NOTE;
+    public static final int NOTE_VOLUME = 3;
 
     public NoteBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -127,31 +129,25 @@ public class NoteBlock extends Block {
             var2 = 1.0F;
         }
 
-        SoundEvent var4;
         if (var0.hasCustomSound()) {
-            var4 = this.getCustomSoundEvent(var0, param1, param2);
+            ResourceLocation var4 = this.getCustomSoundId(param1, param2);
             if (var4 == null) {
                 return false;
             }
+
+            param1.playCustomSound(null, Vec3.atCenterOf(param2), var4, SoundSource.RECORDS, 3.0F, var2, (double)SoundEvent.legacySoundRange(3.0F));
         } else {
-            var4 = var0.getSoundEvent();
+            SoundEvent var5 = var0.getSoundEvent();
+            param1.playSound(null, param2, var5, SoundSource.RECORDS, 3.0F, var2);
         }
 
-        param1.playSound(null, param2, var4, SoundSource.RECORDS, 3.0F, var2);
         return true;
     }
 
     @Nullable
-    private SoundEvent getCustomSoundEvent(NoteBlockInstrument param0, Level param1, BlockPos param2) {
-        BlockEntity var1 = param1.getBlockEntity(param2.above());
-        if (var1 instanceof SkullBlockEntity var0) {
-            ResourceLocation var1x = var0.getNoteBlockSound();
-            if (var1x != null) {
-                return new SoundEvent(var1x);
-            }
-        }
-
-        return null;
+    private ResourceLocation getCustomSoundId(Level param0, BlockPos param1) {
+        BlockEntity var4 = param0.getBlockEntity(param1.above());
+        return var4 instanceof SkullBlockEntity var0 ? var0.getNoteBlockSound() : null;
     }
 
     @Override

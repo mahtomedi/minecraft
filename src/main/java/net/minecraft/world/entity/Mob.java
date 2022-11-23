@@ -1,6 +1,5 @@
 package net.minecraft.world.entity;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.Map;
@@ -1361,8 +1360,12 @@ public abstract class Mob extends LivingEntity {
         return (double)(this.getBbWidth() * 2.0F * this.getBbWidth() * 2.0F + param0.getBbWidth());
     }
 
+    public double getPerceivedTargetDistanceSquareForMeleeAttack(LivingEntity param0) {
+        return Math.max(this.distanceToSqr(param0.getMeleeAttackReferencePosition()), this.distanceToSqr(param0.position()));
+    }
+
     public boolean isWithinMeleeAttackRange(LivingEntity param0) {
-        double var0 = this.distanceToSqr(param0.getX(), param0.getY(), param0.getZ());
+        double var0 = this.getPerceivedTargetDistanceSquareForMeleeAttack(param0);
         return var0 <= this.getMeleeAttackRangeSqr(param0);
     }
 
@@ -1458,14 +1461,5 @@ public abstract class Mob extends LivingEntity {
     public ItemStack getPickResult() {
         SpawnEggItem var0 = SpawnEggItem.byId(this.getType());
         return var0 == null ? null : new ItemStack(var0);
-    }
-
-    public Iterable<BlockPos> iteratePathfindingStartNodeCandidatePositions() {
-        return ImmutableSet.of(
-            new BlockPos(this.getBoundingBox().minX, (double)this.getBlockY(), this.getBoundingBox().minZ),
-            new BlockPos(this.getBoundingBox().minX, (double)this.getBlockY(), this.getBoundingBox().maxZ),
-            new BlockPos(this.getBoundingBox().maxX, (double)this.getBlockY(), this.getBoundingBox().minZ),
-            new BlockPos(this.getBoundingBox().maxX, (double)this.getBlockY(), this.getBoundingBox().maxZ)
-        );
     }
 }

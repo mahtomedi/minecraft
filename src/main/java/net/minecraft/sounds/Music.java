@@ -2,11 +2,12 @@ package net.minecraft.sounds;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class Music {
     public static final Codec<Music> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    SoundEvent.CODEC.fieldOf("sound").forGetter(param0x -> param0x.event),
+                    BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("sound").forGetter(param0x -> param0x.event),
                     Codec.INT.fieldOf("min_delay").forGetter(param0x -> param0x.minDelay),
                     Codec.INT.fieldOf("max_delay").forGetter(param0x -> param0x.maxDelay),
                     Codec.BOOL.fieldOf("replace_current_music").forGetter(param0x -> param0x.replaceCurrentMusic)

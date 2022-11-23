@@ -1,9 +1,7 @@
 package net.minecraft.world.entity.animal;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -17,6 +15,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.DifficultyInstance;
@@ -239,12 +238,7 @@ public class TropicalFish extends AbstractSchoolingFish implements VariantHolder
         CLAYFISH("clayfish", TropicalFish.Base.LARGE, 5);
 
         public static final Codec<TropicalFish.Pattern> CODEC = StringRepresentable.fromEnum(TropicalFish.Pattern::values);
-        private static final IntFunction<TropicalFish.Pattern> BY_ID = Util.make(new Int2ObjectOpenHashMap<>(), param0 -> {
-            for(TropicalFish.Pattern var0 : values()) {
-                param0.put(var0.packedId, var0);
-            }
-
-        });
+        private static final IntFunction<TropicalFish.Pattern> BY_ID = ByIdMap.sparse(TropicalFish.Pattern::getPackedId, values(), KOB);
         private final String name;
         private final Component displayName;
         private final TropicalFish.Base base;
@@ -258,7 +252,7 @@ public class TropicalFish extends AbstractSchoolingFish implements VariantHolder
         }
 
         public static TropicalFish.Pattern byId(int param0) {
-            return (TropicalFish.Pattern)Objects.requireNonNullElse(BY_ID.apply(param0), KOB);
+            return BY_ID.apply(param0);
         }
 
         public TropicalFish.Base base() {
