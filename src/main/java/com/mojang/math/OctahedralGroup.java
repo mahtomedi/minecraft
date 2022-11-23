@@ -138,14 +138,15 @@ public enum OctahedralGroup implements StringRepresentable {
     public Direction rotate(Direction param0) {
         if (this.rotatedDirections == null) {
             this.rotatedDirections = Maps.newEnumMap(Direction.class);
+            Direction.Axis[] var0 = Direction.Axis.values();
 
-            for(Direction var0 : Direction.values()) {
-                Direction.Axis var1 = var0.getAxis();
-                Direction.AxisDirection var2 = var0.getAxisDirection();
-                Direction.Axis var3 = Direction.Axis.values()[this.permutation.permutation(var1.ordinal())];
-                Direction.AxisDirection var4 = this.inverts(var3) ? var2.opposite() : var2;
-                Direction var5 = Direction.fromAxisAndDirection(var3, var4);
-                this.rotatedDirections.put(var0, var5);
+            for(Direction var1 : Direction.values()) {
+                Direction.Axis var2 = var1.getAxis();
+                Direction.AxisDirection var3 = var1.getAxisDirection();
+                Direction.Axis var4 = var0[this.permutation.permutation(var2.ordinal())];
+                Direction.AxisDirection var5 = this.inverts(var4) ? var3.opposite() : var3;
+                Direction var6 = Direction.fromAxisAndDirection(var4, var5);
+                this.rotatedDirections.put(var1, var6);
             }
         }
 

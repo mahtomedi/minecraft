@@ -34,7 +34,6 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
         super.done();
     }
 
-    @Nullable
     @Override
     public Node getStart() {
         return !this.mob.isInWater()
@@ -46,7 +45,6 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
             );
     }
 
-    @Nullable
     @Override
     public Target getGoal(double param0, double param1, double param2) {
         return this.getTargetFromNode(this.getNode(Mth.floor(param0), Mth.floor(param1 + 0.5), Mth.floor(param2)));

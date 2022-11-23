@@ -1,10 +1,12 @@
 package net.minecraft.client.gui.screens;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
@@ -20,6 +22,8 @@ public class DeathScreen extends Screen {
     private final boolean hardcore;
     private Component deathScore;
     private final List<Button> exitButtons = Lists.newArrayList();
+    @Nullable
+    private Button exitToTitleButton;
 
     public DeathScreen(@Nullable Component param0, boolean param1) {
         super(Component.translatable(param1 ? "deathScreen.title.hardcore" : "deathScreen.title"));
@@ -36,31 +40,15 @@ public class DeathScreen extends Screen {
             this.minecraft.player.respawn();
             this.minecraft.setScreen(null);
         }).bounds(this.width / 2 - 100, this.height / 4 + 72, 200, 20).build()));
-        this.exitButtons
-            .add(
-                this.addRenderableWidget(
-                    Button.builder(
-                            Component.translatable("deathScreen.titleScreen"),
-                            param0 -> {
-                                if (this.hardcore) {
-                                    this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::exitToTitleScreen, true);
-                                } else {
-                                    ConfirmScreen var0x = new ConfirmScreen(
-                                        this::confirmResult,
-                                        Component.translatable("deathScreen.quit.confirm"),
-                                        CommonComponents.EMPTY,
-                                        Component.translatable("deathScreen.titleScreen"),
-                                        Component.translatable("deathScreen.respawn")
-                                    );
-                                    this.minecraft.setScreen(var0x);
-                                    var0x.setDelay(20);
-                                }
-                            }
-                        )
-                        .bounds(this.width / 2 - 100, this.height / 4 + 96, 200, 20)
-                        .build()
+        this.exitToTitleButton = this.addRenderableWidget(
+            Button.builder(
+                    Component.translatable("deathScreen.titleScreen"),
+                    param0 -> this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::handleExitToTitleScreen, true)
                 )
-            );
+                .bounds(this.width / 2 - 100, this.height / 4 + 96, 200, 20)
+                .build()
+        );
+        this.exitButtons.add(this.exitToTitleButton);
 
         for(Button var1 : this.exitButtons) {
             var1.active = false;
@@ -76,14 +64,28 @@ public class DeathScreen extends Screen {
         return false;
     }
 
-    private void confirmResult(boolean param0) {
-        if (param0) {
-            this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::exitToTitleScreen, true);
+    private void handleExitToTitleScreen() {
+        if (this.hardcore) {
+            this.exitToTitleScreen();
         } else {
-            this.minecraft.player.respawn();
-            this.minecraft.setScreen(null);
+            ConfirmScreen var0 = new ConfirmScreen(
+                param0 -> {
+                    if (param0) {
+                        this.exitToTitleScreen();
+                    } else {
+                        this.minecraft.player.respawn();
+                        this.minecraft.setScreen(null);
+                    }
+    
+                },
+                Component.translatable("deathScreen.quit.confirm"),
+                CommonComponents.EMPTY,
+                Component.translatable("deathScreen.titleScreen"),
+                Component.translatable("deathScreen.respawn")
+            );
+            this.minecraft.setScreen(var0);
+            var0.setDelay(20);
         }
-
     }
 
     private void exitToTitleScreen() {
@@ -113,6 +115,12 @@ public class DeathScreen extends Screen {
         }
 
         super.render(param0, param1, param2, param3);
+        if (this.exitToTitleButton != null && this.minecraft.getReportingContext().hasDraftReport()) {
+            RenderSystem.setShaderTexture(0, AbstractWidget.WIDGETS_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            this.blit(param0, this.exitToTitleButton.getX() + this.exitToTitleButton.getWidth() - 17, this.exitToTitleButton.getY() + 3, 182, 24, 15, 15);
+        }
+
     }
 
     @Nullable

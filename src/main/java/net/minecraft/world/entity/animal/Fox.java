@@ -1,13 +1,11 @@
 package net.minecraft.world.entity.animal;
 
 import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -29,6 +27,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
@@ -1502,9 +1501,7 @@ public class Fox extends Animal implements VariantHolder<Fox.Type> {
         SNOW(1, "snow");
 
         public static final StringRepresentable.EnumCodec<Fox.Type> CODEC = StringRepresentable.fromEnum(Fox.Type::values);
-        private static final Fox.Type[] BY_ID = Arrays.stream(values())
-            .sorted(Comparator.comparingInt(Fox.Type::getId))
-            .toArray(param0 -> new Fox.Type[param0]);
+        private static final IntFunction<Fox.Type> BY_ID = ByIdMap.continuous(Fox.Type::getId, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
         private final int id;
         private final String name;
 
@@ -1523,15 +1520,11 @@ public class Fox extends Animal implements VariantHolder<Fox.Type> {
         }
 
         public static Fox.Type byName(String param0) {
-            return (Fox.Type)Objects.requireNonNullElse(CODEC.byName(param0), RED);
+            return CODEC.byName(param0, RED);
         }
 
         public static Fox.Type byId(int param0) {
-            if (param0 < 0 || param0 > BY_ID.length) {
-                param0 = 0;
-            }
-
-            return BY_ID[param0];
+            return BY_ID.apply(param0);
         }
 
         public static Fox.Type byBiome(Holder<Biome> param0) {

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import java.util.OptionalInt;
 import javax.annotation.Nullable;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.StringRepresentable;
@@ -22,7 +23,7 @@ public class BiomeSpecialEffects {
                         .optionalFieldOf("grass_color_modifier", BiomeSpecialEffects.GrassColorModifier.NONE)
                         .forGetter(param0x -> param0x.grassColorModifier),
                     AmbientParticleSettings.CODEC.optionalFieldOf("particle").forGetter(param0x -> param0x.ambientParticleSettings),
-                    SoundEvent.CODEC.optionalFieldOf("ambient_sound").forGetter(param0x -> param0x.ambientLoopSoundEvent),
+                    BuiltInRegistries.SOUND_EVENT.byNameCodec().optionalFieldOf("ambient_sound").forGetter(param0x -> param0x.ambientLoopSoundEvent),
                     AmbientMoodSettings.CODEC.optionalFieldOf("mood_sound").forGetter(param0x -> param0x.ambientMoodSettings),
                     AmbientAdditionsSettings.CODEC.optionalFieldOf("additions_sound").forGetter(param0x -> param0x.ambientAdditionsSettings),
                     Music.CODEC.optionalFieldOf("music").forGetter(param0x -> param0x.backgroundMusic)

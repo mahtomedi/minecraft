@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class AxolotlRenderer extends MobRenderer<Axolotl, AxolotlModel<Axolotl>> {
     private static final Map<Axolotl.Variant, ResourceLocation> TEXTURE_BY_TYPE = Util.make(Maps.newHashMap(), param0 -> {
-        for(Axolotl.Variant var0 : Axolotl.Variant.BY_ID) {
+        for(Axolotl.Variant var0 : Axolotl.Variant.values()) {
             param0.put(var0, new ResourceLocation(String.format(Locale.ROOT, "textures/entity/axolotl/axolotl_%s.png", var0.getName())));
         }
 

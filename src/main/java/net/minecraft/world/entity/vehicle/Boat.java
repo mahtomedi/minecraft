@@ -2,7 +2,7 @@ package net.minecraft.world.entity.vehicle;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
@@ -16,6 +16,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
@@ -915,6 +916,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         private final String name;
         private final Block planks;
         public static final StringRepresentable.EnumCodec<Boat.Type> CODEC = StringRepresentable.fromEnum(Boat.Type::values);
+        private static final IntFunction<Boat.Type> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
 
         private Type(Block param0, String param1) {
             this.name = param1;
@@ -940,16 +942,11 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         }
 
         public static Boat.Type byId(int param0) {
-            Boat.Type[] var0 = values();
-            if (param0 < 0 || param0 >= var0.length) {
-                param0 = 0;
-            }
-
-            return var0[param0];
+            return BY_ID.apply(param0);
         }
 
         public static Boat.Type byName(String param0) {
-            return (Boat.Type)Objects.requireNonNullElse(CODEC.byName(param0), OAK);
+            return CODEC.byName(param0, OAK);
         }
     }
 }

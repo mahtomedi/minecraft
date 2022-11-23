@@ -12,6 +12,9 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
@@ -88,11 +91,15 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
             if (var0 && Util.getMillis() - this.hoverOrFocusedStartTime > (long)this.tooltipMsDelay) {
                 Screen var1 = Minecraft.getInstance().screen;
                 if (var1 != null) {
-                    var1.setTooltipForNextRenderPass(this.tooltip);
+                    var1.setTooltipForNextRenderPass(this.tooltip, this.createTooltipPositioner(), this.isFocused());
                 }
             }
 
         }
+    }
+
+    protected ClientTooltipPositioner createTooltipPositioner() {
+        return (ClientTooltipPositioner)(this.isFocused() ? new BelowOrAboveWidgetTooltipPositioner(this) : DefaultTooltipPositioner.INSTANCE);
     }
 
     public void setTooltip(@Nullable Tooltip param0) {

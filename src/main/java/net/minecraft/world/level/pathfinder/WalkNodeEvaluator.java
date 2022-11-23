@@ -50,7 +50,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         super.done();
     }
 
-    @Nullable
     @Override
     public Node getStart() {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
@@ -102,14 +101,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         return this.getStartNode(new BlockPos(var4.getX(), var1, var4.getZ()));
     }
 
-    @Nullable
     protected Node getStartNode(BlockPos param0) {
         Node var0 = this.getNode(param0);
-        if (var0 != null) {
-            var0.type = this.getBlockPathType(this.mob, var0.asBlockPos());
-            var0.costMalus = this.mob.getPathfindingMalus(var0.type);
-        }
-
+        var0.type = this.getBlockPathType(this.mob, var0.asBlockPos());
+        var0.costMalus = this.mob.getPathfindingMalus(var0.type);
         return var0;
     }
 
@@ -118,7 +113,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         return var0 != BlockPathTypes.OPEN && this.mob.getPathfindingMalus(var0) >= 0.0F;
     }
 
-    @Nullable
     @Override
     public Target getGoal(double param0, double param1, double param2) {
         return this.getTargetFromNode(this.getNode(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2)));
@@ -326,11 +320,9 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
                 if (doesBlockHavePartialCollision(var3) && var0 == null) {
                     var0 = this.getNode(param0, param1, param2);
-                    if (var0 != null) {
-                        var0.closed = true;
-                        var0.type = var3;
-                        var0.costMalus = var3.getMalus();
-                    }
+                    var0.closed = true;
+                    var0.type = var3;
+                    var0.costMalus = var3.getMalus();
                 }
 
                 return var0;
@@ -344,25 +336,17 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         return Math.max(1.125, (double)this.mob.maxUpStep);
     }
 
-    @Nullable
     private Node getNodeAndUpdateCostToMax(int param0, int param1, int param2, BlockPathTypes param3, float param4) {
         Node var0 = this.getNode(param0, param1, param2);
-        if (var0 != null) {
-            var0.type = param3;
-            var0.costMalus = Math.max(var0.costMalus, param4);
-        }
-
+        var0.type = param3;
+        var0.costMalus = Math.max(var0.costMalus, param4);
         return var0;
     }
 
-    @Nullable
     private Node getBlockedNode(int param0, int param1, int param2) {
         Node var0 = this.getNode(param0, param1, param2);
-        if (var0 != null) {
-            var0.type = BlockPathTypes.BLOCKED;
-            var0.costMalus = -1.0F;
-        }
-
+        var0.type = BlockPathTypes.BLOCKED;
+        var0.costMalus = -1.0F;
         return var0;
     }
 

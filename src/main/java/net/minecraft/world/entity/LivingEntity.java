@@ -1452,6 +1452,11 @@ public abstract class LivingEntity extends Entity {
         return this.skipDropExperience;
     }
 
+    protected Vec3 getMeleeAttackReferencePosition() {
+        Entity var2 = this.getVehicle();
+        return var2 instanceof RiderShieldingMount var0 ? this.position().add(0.0, var0.getRiderShieldingHeight(), 0.0) : this.position();
+    }
+
     public LivingEntity.Fallsounds getFallSounds() {
         return new LivingEntity.Fallsounds(SoundEvents.GENERIC_SMALL_FALL, SoundEvents.GENERIC_BIG_FALL);
     }

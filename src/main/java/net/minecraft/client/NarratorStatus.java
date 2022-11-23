@@ -1,9 +1,8 @@
 package net.minecraft.client;
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.function.IntFunction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
+import net.minecraft.util.ByIdMap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,9 +13,7 @@ public enum NarratorStatus {
     CHAT(2, "options.narrator.chat"),
     SYSTEM(3, "options.narrator.system");
 
-    private static final NarratorStatus[] BY_ID = Arrays.stream(values())
-        .sorted(Comparator.comparingInt(NarratorStatus::getId))
-        .toArray(param0 -> new NarratorStatus[param0]);
+    private static final IntFunction<NarratorStatus> BY_ID = ByIdMap.continuous(NarratorStatus::getId, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
     private final int id;
     private final Component name;
 
@@ -34,7 +31,7 @@ public enum NarratorStatus {
     }
 
     public static NarratorStatus byId(int param0) {
-        return BY_ID[Mth.positiveModulo(param0, BY_ID.length)];
+        return BY_ID.apply(param0);
     }
 
     public boolean shouldNarrateChat() {

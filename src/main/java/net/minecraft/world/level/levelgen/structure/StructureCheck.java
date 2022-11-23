@@ -100,7 +100,7 @@ public class StructureCheck {
     }
 
     private boolean canCreateStructure(ChunkPos param0, Structure param1) {
-        return param1.findGenerationPoint(
+        return param1.findValidGenerationPoint(
                 new Structure.GenerationContext(
                     this.registryAccess,
                     this.chunkGenerator,

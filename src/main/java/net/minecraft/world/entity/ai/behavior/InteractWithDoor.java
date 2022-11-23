@@ -27,7 +27,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 public class InteractWithDoor {
     private static final int COOLDOWN_BEFORE_RERUNNING_IN_SAME_NODE = 20;
-    private static final double SKIP_CLOSING_DOOR_IF_FURTHER_AWAY_THAN = 2.0;
+    private static final double SKIP_CLOSING_DOOR_IF_FURTHER_AWAY_THAN = 3.0;
     private static final double MAX_DISTANCE_TO_HOLD_DOOR_OPEN_FOR_OTHER_MOBS = 2.0;
 
     public static BehaviorControl<LivingEntity> create() {
@@ -146,7 +146,7 @@ public class InteractWithDoor {
     }
 
     private static boolean isDoorTooFarAway(ServerLevel param0, LivingEntity param1, GlobalPos param2) {
-        return param2.dimension() != param0.dimension() || !param2.pos().closerToCenterThan(param1.position(), 2.0);
+        return param2.dimension() != param0.dimension() || !param2.pos().closerToCenterThan(param1.position(), 3.0);
     }
 
     private static Optional<Set<GlobalPos>> rememberDoorToClose(
