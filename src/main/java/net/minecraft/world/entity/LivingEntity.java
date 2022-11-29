@@ -105,6 +105,7 @@ import net.minecraft.world.level.block.PowderSnowBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -339,14 +340,16 @@ public abstract class LivingEntity extends Entity {
 
         if (this.isAlive()) {
             boolean var0 = this instanceof Player;
-            if (this.isInWall()) {
-                this.hurt(DamageSource.IN_WALL, 1.0F);
-            } else if (var0 && !this.level.getWorldBorder().isWithinBounds(this.getBoundingBox())) {
-                double var1 = this.level.getWorldBorder().getDistanceToBorder(this) + this.level.getWorldBorder().getDamageSafeZone();
-                if (var1 < 0.0) {
-                    double var2 = this.level.getWorldBorder().getDamagePerBlock();
-                    if (var2 > 0.0) {
-                        this.hurt(DamageSource.IN_WALL, (float)Math.max(1, Mth.floor(-var1 * var2)));
+            if (!this.level.isClientSide) {
+                if (this.isInWall()) {
+                    this.hurt(DamageSource.IN_WALL, 1.0F);
+                } else if (var0 && !this.level.getWorldBorder().isWithinBounds(this.getBoundingBox())) {
+                    double var1 = this.level.getWorldBorder().getDistanceToBorder(this) + this.level.getWorldBorder().getDamageSafeZone();
+                    if (var1 < 0.0) {
+                        double var2 = this.level.getWorldBorder().getDamagePerBlock();
+                        if (var2 > 0.0) {
+                            this.hurt(DamageSource.IN_WALL, (float)Math.max(1, Mth.floor(-var1 * var2)));
+                        }
                     }
                 }
             }
@@ -564,7 +567,7 @@ public abstract class LivingEntity extends Entity {
 
     protected void tickDeath() {
         ++this.deathTime;
-        if (this.deathTime >= 20 && !this.level.isClientSide()) {
+        if (this.deathTime >= 20 && !this.level.isClientSide() && !this.isRemoved()) {
             this.level.broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);
         }
@@ -2697,29 +2700,33 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void pushEntities() {
-        List<Entity> var0 = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this));
-        if (!var0.isEmpty()) {
-            int var1 = this.level.getGameRules().getInt(GameRules.RULE_MAX_ENTITY_CRAMMING);
-            if (var1 > 0 && var0.size() > var1 - 1 && this.random.nextInt(4) == 0) {
-                int var2 = 0;
+        if (this.level.isClientSide()) {
+            this.level.getEntities(EntityTypeTest.forClass(Player.class), this.getBoundingBox(), EntitySelector.pushableBy(this)).forEach(this::doPush);
+        } else {
+            List<Entity> var0 = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this));
+            if (!var0.isEmpty()) {
+                int var1 = this.level.getGameRules().getInt(GameRules.RULE_MAX_ENTITY_CRAMMING);
+                if (var1 > 0 && var0.size() > var1 - 1 && this.random.nextInt(4) == 0) {
+                    int var2 = 0;
 
-                for(int var3 = 0; var3 < var0.size(); ++var3) {
-                    if (!var0.get(var3).isPassenger()) {
-                        ++var2;
+                    for(int var3 = 0; var3 < var0.size(); ++var3) {
+                        if (!var0.get(var3).isPassenger()) {
+                            ++var2;
+                        }
+                    }
+
+                    if (var2 > var1 - 1) {
+                        this.hurt(DamageSource.CRAMMING, 6.0F);
                     }
                 }
 
-                if (var2 > var1 - 1) {
-                    this.hurt(DamageSource.CRAMMING, 6.0F);
+                for(int var4 = 0; var4 < var0.size(); ++var4) {
+                    Entity var5 = var0.get(var4);
+                    this.doPush(var5);
                 }
             }
 
-            for(int var4 = 0; var4 < var0.size(); ++var4) {
-                Entity var5 = var0.get(var4);
-                this.doPush(var5);
-            }
         }
-
     }
 
     protected void checkAutoSpinAttack(AABB param0, AABB param1) {

@@ -11,17 +11,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class WorldLoadEvent implements TelemetryEventProducer {
-    private final WorldLoadEvent.WorldLoadEventCallbacks callbacks;
+public class WorldLoadEvent {
     private boolean eventSent;
     @Nullable
     private TelemetryProperty.GameMode gameMode = null;
     @Nullable
     private String serverBrand;
-
-    public WorldLoadEvent(WorldLoadEvent.WorldLoadEventCallbacks param0) {
-        this.callbacks = param0;
-    }
 
     public void addProperties(TelemetryPropertyMap.Builder param0) {
         if (this.serverBrand != null) {
@@ -39,12 +34,13 @@ public class WorldLoadEvent implements TelemetryEventProducer {
         }
     }
 
-    @Override
-    public void send(TelemetryEventSender param0) {
-        if (!this.eventSent && this.gameMode != null) {
+    public boolean send(TelemetryEventSender param0) {
+        if (!this.eventSent && this.gameMode != null && this.serverBrand != null) {
             this.eventSent = true;
-            this.callbacks.onWorldLoadSent();
             param0.send(TelemetryEventType.WORLD_LOADED, param0x -> param0x.put(TelemetryProperty.GAME_MODE, this.gameMode));
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -59,15 +55,5 @@ public class WorldLoadEvent implements TelemetryEventProducer {
 
     public void setServerBrand(String param0) {
         this.serverBrand = param0;
-    }
-
-    @Nullable
-    public String getServerBrand() {
-        return this.serverBrand;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public interface WorldLoadEventCallbacks {
-        void onWorldLoadSent();
     }
 }

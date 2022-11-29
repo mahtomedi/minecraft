@@ -121,8 +121,6 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleSoundEntityEvent(ClientboundSoundEntityPacket var1);
 
-    void handleCustomSoundEvent(ClientboundCustomSoundPacket var1);
-
     void handleTakeItemEntity(ClientboundTakeItemEntityPacket var1);
 
     void handleTeleportEntity(ClientboundTeleportEntityPacket var1);

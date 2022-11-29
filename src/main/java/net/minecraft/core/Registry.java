@@ -123,6 +123,14 @@ public interface Registry<T> extends Keyable, IdMap<T> {
         return param2;
     }
 
+    static <T> Holder.Reference<T> registerForHolder(Registry<T> param0, ResourceKey<T> param1, T param2) {
+        return ((WritableRegistry)param0).register(param1, param2, Lifecycle.stable());
+    }
+
+    static <T> Holder.Reference<T> registerForHolder(Registry<T> param0, ResourceLocation param1, T param2) {
+        return registerForHolder(param0, ResourceKey.create(param0.key(), param1), param2);
+    }
+
     static <V, T extends V> T registerMapping(Registry<V> param0, int param1, String param2, T param3) {
         ((WritableRegistry)param0).registerMapping(param1, ResourceKey.create(param0.key(), new ResourceLocation(param2)), (V)param3, Lifecycle.stable());
         return param3;
@@ -135,6 +143,8 @@ public interface Registry<T> extends Keyable, IdMap<T> {
     Optional<Holder.Reference<T>> getHolder(int var1);
 
     Optional<Holder.Reference<T>> getHolder(ResourceKey<T> var1);
+
+    Holder<T> wrapAsHolder(T var1);
 
     default Holder.Reference<T> getHolderOrThrow(ResourceKey<T> param0) {
         return this.getHolder(param0).orElseThrow(() -> new IllegalStateException("Missing key in " + this.key() + ": " + param0));

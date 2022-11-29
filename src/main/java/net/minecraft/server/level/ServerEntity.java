@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
@@ -56,6 +57,8 @@ public class ServerEntity {
     private List<Entity> lastPassengers = Collections.emptyList();
     private boolean wasRiding;
     private boolean wasOnGround;
+    @Nullable
+    private List<SynchedEntityData.DataValue<?>> trackedDataValues;
 
     public ServerEntity(ServerLevel param0, Entity param1, int param2, boolean param3, Consumer<Packet<?>> param4) {
         this.level = param0;
@@ -68,6 +71,7 @@ public class ServerEntity {
         this.xRotp = Mth.floor(param1.getXRot() * 256.0F / 360.0F);
         this.yHeadRotp = Mth.floor(param1.getYHeadRot() * 256.0F / 360.0F);
         this.wasOnGround = param1.isOnGround();
+        this.trackedDataValues = param1.getEntityData().getNonDefaultValues();
     }
 
     public void sendChanges() {
@@ -212,50 +216,45 @@ public class ServerEntity {
         Packet<ClientGamePacketListener> var0 = this.entity.getAddEntityPacket();
         this.yHeadRotp = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
         param0.accept(var0);
-        SynchedEntityData var1 = this.entity.getEntityData();
-        if (!var1.isEmpty()) {
-            List<SynchedEntityData.DataValue<?>> var2 = var1.getNonDefaultValues();
-            var1.clearDirty();
-            if (var2 != null) {
-                param0.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), var2));
-            }
+        if (this.trackedDataValues != null) {
+            param0.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.trackedDataValues));
         }
 
-        boolean var3 = this.trackDelta;
+        boolean var1 = this.trackDelta;
         if (this.entity instanceof LivingEntity) {
-            Collection<AttributeInstance> var4 = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
-            if (!var4.isEmpty()) {
-                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var4));
+            Collection<AttributeInstance> var2 = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
+            if (!var2.isEmpty()) {
+                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
             }
 
             if (((LivingEntity)this.entity).isFallFlying()) {
-                var3 = true;
+                var1 = true;
             }
         }
 
         this.ap = this.entity.getDeltaMovement();
-        if (var3 && !(this.entity instanceof LivingEntity)) {
+        if (var1 && !(this.entity instanceof LivingEntity)) {
             param0.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
         }
 
         if (this.entity instanceof LivingEntity) {
-            List<Pair<EquipmentSlot, ItemStack>> var5 = Lists.newArrayList();
+            List<Pair<EquipmentSlot, ItemStack>> var3 = Lists.newArrayList();
 
-            for(EquipmentSlot var6 : EquipmentSlot.values()) {
-                ItemStack var7 = ((LivingEntity)this.entity).getItemBySlot(var6);
-                if (!var7.isEmpty()) {
-                    var5.add(Pair.of(var6, var7.copy()));
+            for(EquipmentSlot var4 : EquipmentSlot.values()) {
+                ItemStack var5 = ((LivingEntity)this.entity).getItemBySlot(var4);
+                if (!var5.isEmpty()) {
+                    var3.add(Pair.of(var4, var5.copy()));
                 }
             }
 
-            if (!var5.isEmpty()) {
-                param0.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var5));
+            if (!var3.isEmpty()) {
+                param0.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var3));
             }
         }
 
-        if (this.entity instanceof LivingEntity var8) {
-            for(MobEffectInstance var9 : var8.getActiveEffects()) {
-                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var9));
+        if (this.entity instanceof LivingEntity var6) {
+            for(MobEffectInstance var7 : var6.getActiveEffects()) {
+                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
             }
         }
 
@@ -267,8 +266,8 @@ public class ServerEntity {
             param0.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
         }
 
-        if (this.entity instanceof Mob var10 && var10.isLeashed()) {
-            param0.accept(new ClientboundSetEntityLinkPacket(var10, var10.getLeashHolder()));
+        if (this.entity instanceof Mob var8 && var8.isLeashed()) {
+            param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
         }
 
     }
@@ -277,6 +276,7 @@ public class ServerEntity {
         SynchedEntityData var0 = this.entity.getEntityData();
         List<SynchedEntityData.DataValue<?>> var1 = var0.packDirty();
         if (var1 != null) {
+            this.trackedDataValues = var0.getNonDefaultValues();
             this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), var1));
         }
 

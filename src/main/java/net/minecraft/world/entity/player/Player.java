@@ -465,6 +465,9 @@ public abstract class Player extends LivingEntity {
         this.containerMenu = this.inventoryMenu;
     }
 
+    protected void doCloseContainer() {
+    }
+
     @Override
     public void rideTick() {
         if (!this.level.isClientSide && this.wantsToStopRiding() && this.isPassenger()) {
@@ -1334,8 +1337,8 @@ public abstract class Player extends LivingEntity {
     public void remove(Entity.RemovalReason param0) {
         super.remove(param0);
         this.inventoryMenu.removed(this);
-        if (this.containerMenu != null) {
-            this.containerMenu.removed(this);
+        if (this.containerMenu != null && this.hasContainerOpen()) {
+            this.doCloseContainer();
         }
 
     }

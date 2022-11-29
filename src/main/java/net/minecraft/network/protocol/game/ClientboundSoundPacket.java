@@ -1,15 +1,15 @@
 package net.minecraft.network.protocol.game;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import org.apache.commons.lang3.Validate;
 
 public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> {
     public static final float LOCATION_ACCURACY = 8.0F;
-    private final SoundEvent sound;
+    private final Holder<SoundEvent> sound;
     private final SoundSource source;
     private final int x;
     private final int y;
@@ -18,8 +18,9 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
     private final float pitch;
     private final long seed;
 
-    public ClientboundSoundPacket(SoundEvent param0, SoundSource param1, double param2, double param3, double param4, float param5, float param6, long param7) {
-        Validate.notNull(param0, "sound");
+    public ClientboundSoundPacket(
+        Holder<SoundEvent> param0, SoundSource param1, double param2, double param3, double param4, float param5, float param6, long param7
+    ) {
         this.sound = param0;
         this.source = param1;
         this.x = (int)(param2 * 8.0);
@@ -31,7 +32,7 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
     }
 
     public ClientboundSoundPacket(FriendlyByteBuf param0) {
-        this.sound = param0.readById(BuiltInRegistries.SOUND_EVENT);
+        this.sound = param0.readById(BuiltInRegistries.SOUND_EVENT.asHolderIdMap(), SoundEvent::readFromNetwork);
         this.source = param0.readEnum(SoundSource.class);
         this.x = param0.readInt();
         this.y = param0.readInt();
@@ -43,7 +44,7 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeId(BuiltInRegistries.SOUND_EVENT, this.sound);
+        param0.writeId(BuiltInRegistries.SOUND_EVENT.asHolderIdMap(), this.sound, (param0x, param1) -> param1.writeToNetwork(param0x));
         param0.writeEnum(this.source);
         param0.writeInt(this.x);
         param0.writeInt(this.y);
@@ -53,7 +54,7 @@ public class ClientboundSoundPacket implements Packet<ClientGamePacketListener> 
         param0.writeLong(this.seed);
     }
 
-    public SoundEvent getSound() {
+    public Holder<SoundEvent> getSound() {
         return this.sound;
     }
 

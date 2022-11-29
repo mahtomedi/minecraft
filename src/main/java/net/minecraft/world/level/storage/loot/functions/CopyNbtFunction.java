@@ -144,7 +144,7 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         REPLACE("replace") {
             @Override
             public void merge(Tag param0, NbtPathArgument.NbtPath param1, List<Tag> param2) throws CommandSyntaxException {
-                param1.set(param0, Iterables.getLast(param2)::copy);
+                param1.set(param0, Iterables.getLast(param2));
             }
         },
         APPEND("append") {

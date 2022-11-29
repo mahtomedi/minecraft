@@ -1,6 +1,7 @@
 package net.minecraft.client.resources.sounds;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -17,6 +18,10 @@ public class SimpleSoundInstance extends AbstractSoundInstance {
 
     public static SimpleSoundInstance forUI(SoundEvent param0, float param1) {
         return forUI(param0, param1, 0.25F);
+    }
+
+    public static SimpleSoundInstance forUI(Holder<SoundEvent> param0, float param1) {
+        return forUI(param0.value(), param1);
     }
 
     public static SimpleSoundInstance forUI(SoundEvent param0, float param1, float param2) {

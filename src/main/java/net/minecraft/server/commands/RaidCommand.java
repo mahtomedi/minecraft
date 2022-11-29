@@ -9,6 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.entity.raid.Raids;
+import net.minecraft.world.phys.Vec3;
 
 public class RaidCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -103,7 +105,9 @@ public class RaidCommand {
 
     private static int playSound(CommandSourceStack param0, @Nullable Component param1) {
         if (param1 != null && param1.getString().equals("local")) {
-            param0.getLevel().playSound(null, new BlockPos(param0.getPosition().add(5.0, 0.0, 0.0)), SoundEvents.RAID_HORN, SoundSource.NEUTRAL, 2.0F, 1.0F);
+            ServerLevel var0 = param0.getLevel();
+            Vec3 var1 = param0.getPosition().add(5.0, 0.0, 0.0);
+            var0.playSeededSound(null, var1.x, var1.y, var1.z, SoundEvents.RAID_HORN, SoundSource.NEUTRAL, 2.0F, 1.0F, var0.random.nextLong());
         }
 
         return 1;

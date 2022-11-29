@@ -47,6 +47,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -73,7 +74,7 @@ import net.minecraft.world.phys.Vec3;
 public class FriendlyByteBuf extends ByteBuf {
     private static final int MAX_VARINT_SIZE = 5;
     private static final int MAX_VARLONG_SIZE = 10;
-    private static final int DEFAULT_NBT_QUOTA = 2097152;
+    public static final int DEFAULT_NBT_QUOTA = 2097152;
     private final ByteBuf source;
     public static final short MAX_STRING_LENGTH = 32767;
     public static final int MAX_COMPONENT_STRING_LENGTH = 262144;
@@ -126,10 +127,41 @@ public class FriendlyByteBuf extends ByteBuf {
         }
     }
 
+    public <T> void writeId(IdMap<Holder<T>> param0, Holder<T> param1, FriendlyByteBuf.Writer<T> param2) {
+        switch(param1.kind()) {
+            case REFERENCE:
+                int var0 = param0.getId(param1);
+                if (var0 == -1) {
+                    throw new IllegalArgumentException("Can't find id for '" + param1.value() + "' in map " + param0);
+                }
+
+                this.writeVarInt(var0 + 1);
+                break;
+            case DIRECT:
+                this.writeVarInt(0);
+                param2.accept((T)this, param1.value());
+        }
+
+    }
+
     @Nullable
     public <T> T readById(IdMap<T> param0) {
         int var0 = this.readVarInt();
         return param0.byId(var0);
+    }
+
+    public <T> Holder<T> readById(IdMap<Holder<T>> param0, FriendlyByteBuf.Reader<T> param1) {
+        int var0 = this.readVarInt();
+        if (var0 == 0) {
+            return Holder.direct(param1.apply((T)this));
+        } else {
+            Holder<T> var1 = param0.byId(var0 - 1);
+            if (var1 == null) {
+                throw new IllegalArgumentException("Can't find element with id " + var0);
+            } else {
+                return var1;
+            }
+        }
     }
 
     public static <T> IntFunction<T> limitValue(IntFunction<T> param0, int param1) {

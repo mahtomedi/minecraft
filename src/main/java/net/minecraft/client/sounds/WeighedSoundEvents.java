@@ -13,13 +13,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class WeighedSoundEvents implements Weighted<Sound> {
     private final List<Weighted<Sound>> list = Lists.newArrayList();
-    private final RandomSource random = RandomSource.create();
-    private final ResourceLocation location;
     @Nullable
     private final Component subtitle;
 
     public WeighedSoundEvents(ResourceLocation param0, @Nullable String param1) {
-        this.location = param0;
         this.subtitle = param1 == null ? null : Component.translatable(param1);
     }
 
@@ -54,10 +51,6 @@ public class WeighedSoundEvents implements Weighted<Sound> {
 
     public void addSound(Weighted<Sound> param0) {
         this.list.add(param0);
-    }
-
-    public ResourceLocation getResourceLocation() {
-        return this.location;
     }
 
     @Nullable
