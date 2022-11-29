@@ -21,8 +21,8 @@ public class WorldSessionTelemetryManager {
     private final WorldLoadTimesEvent worldLoadTimesEvent;
 
     public WorldSessionTelemetryManager(TelemetryEventSender param0, boolean param1, @Nullable Duration param2) {
-        this.worldLoadEvent = new WorldLoadEvent(this::worldSessionStart);
-        this.performanceMetricsEvent = new PerformanceMetricsEvent(param0);
+        this.worldLoadEvent = new WorldLoadEvent();
+        this.performanceMetricsEvent = new PerformanceMetricsEvent();
         this.worldLoadTimesEvent = new WorldLoadTimesEvent(param1, param2);
         this.eventSender = param0.decorate(param0x -> {
             this.worldLoadEvent.addProperties(param0x);
@@ -31,20 +31,18 @@ public class WorldSessionTelemetryManager {
     }
 
     public void tick() {
-        this.performanceMetricsEvent.tick();
+        this.performanceMetricsEvent.tick(this.eventSender);
     }
 
     public void onPlayerInfoReceived(GameType param0, boolean param1) {
         this.worldLoadEvent.setGameMode(param0, param1);
-        if (this.worldLoadEvent.getServerBrand() != null) {
-            this.worldLoadEvent.send(this.eventSender);
-        }
-
+        this.worldUnloadEvent.onPlayerInfoReceived();
+        this.worldSessionStart();
     }
 
     public void onServerBrandReceived(String param0) {
         this.worldLoadEvent.setServerBrand(param0);
-        this.worldLoadEvent.send(this.eventSender);
+        this.worldSessionStart();
     }
 
     public void setTime(long param0) {
@@ -52,9 +50,11 @@ public class WorldSessionTelemetryManager {
     }
 
     public void worldSessionStart() {
-        this.worldLoadTimesEvent.send(this.eventSender);
-        this.worldUnloadEvent.loadedWorld();
-        this.performanceMetricsEvent.start();
+        if (this.worldLoadEvent.send(this.eventSender)) {
+            this.worldLoadTimesEvent.send(this.eventSender);
+            this.performanceMetricsEvent.start();
+        }
+
     }
 
     public void onDisconnect() {

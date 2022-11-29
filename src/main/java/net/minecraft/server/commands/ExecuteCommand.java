@@ -396,7 +396,7 @@ public class ExecuteCommand {
             try {
                 CompoundTag var0x = param1.getData();
                 int var1x = param4 ? param6 : (param5 ? 1 : 0);
-                param2.set(var0x, () -> param3.apply(var1x));
+                param2.set(var0x, param3.apply(var1x));
                 param1.setData(var0x);
             } catch (CommandSyntaxException var9) {
             }

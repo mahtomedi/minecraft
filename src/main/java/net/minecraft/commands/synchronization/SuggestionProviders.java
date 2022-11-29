@@ -26,8 +26,7 @@ public class SuggestionProviders {
         new ResourceLocation("all_recipes"), (param0, param1) -> SharedSuggestionProvider.suggestResource(param0.getSource().getRecipeNames(), param1)
     );
     public static final SuggestionProvider<CommandSourceStack> AVAILABLE_SOUNDS = register(
-        new ResourceLocation("available_sounds"),
-        (param0, param1) -> SharedSuggestionProvider.suggestResource(param0.getSource().getAvailableSoundEvents(), param1)
+        new ResourceLocation("available_sounds"), (param0, param1) -> SharedSuggestionProvider.suggestResource(param0.getSource().getAvailableSounds(), param1)
     );
     public static final SuggestionProvider<CommandSourceStack> SUMMONABLE_ENTITIES = register(
         new ResourceLocation("summonable_entities"),

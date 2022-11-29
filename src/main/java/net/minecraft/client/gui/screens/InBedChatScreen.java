@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
@@ -9,6 +10,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class InBedChatScreen extends ChatScreen {
+    private Button leaveBedButton;
+
     public InBedChatScreen() {
         super("");
     }
@@ -16,11 +19,19 @@ public class InBedChatScreen extends ChatScreen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(
-            Button.builder(Component.translatable("multiplayer.stopSleeping"), param0 -> this.sendWakeUp())
-                .bounds(this.width / 2 - 100, this.height - 40, 200, 20)
-                .build()
-        );
+        this.leaveBedButton = Button.builder(Component.translatable("multiplayer.stopSleeping"), param0 -> this.sendWakeUp())
+            .bounds(this.width / 2 - 100, this.height - 40, 200, 20)
+            .build();
+        this.addRenderableWidget(this.leaveBedButton);
+    }
+
+    @Override
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        if (!this.minecraft.getChatStatus().isChatAllowed(this.minecraft.isLocalServer())) {
+            this.leaveBedButton.render(param0, param1, param2, param3);
+        } else {
+            super.render(param0, param1, param2, param3);
+        }
     }
 
     @Override
@@ -29,10 +40,21 @@ public class InBedChatScreen extends ChatScreen {
     }
 
     @Override
+    public boolean charTyped(char param0, int param1) {
+        return !this.minecraft.getChatStatus().isChatAllowed(this.minecraft.isLocalServer()) ? true : super.charTyped(param0, param1);
+    }
+
+    @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (param0 == 256) {
             this.sendWakeUp();
-        } else if (param0 == 257 || param0 == 335) {
+        }
+
+        if (!this.minecraft.getChatStatus().isChatAllowed(this.minecraft.isLocalServer())) {
+            return true;
+        } else if (param0 != 257 && param0 != 335) {
+            return super.keyPressed(param0, param1, param2);
+        } else {
             if (this.handleChatInput(this.input.getValue(), true)) {
                 this.minecraft.setScreen(null);
                 this.input.setValue("");
@@ -41,8 +63,6 @@ public class InBedChatScreen extends ChatScreen {
 
             return true;
         }
-
-        return super.keyPressed(param0, param1, param2);
     }
 
     private void sendWakeUp() {

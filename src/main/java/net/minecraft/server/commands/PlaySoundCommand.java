@@ -14,11 +14,14 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public class PlaySoundCommand {
@@ -124,18 +127,19 @@ public class PlaySoundCommand {
         float param6,
         float param7
     ) throws CommandSyntaxException {
-        double var0 = Math.pow(param5 > 1.0F ? (double)(param5 * 16.0F) : 16.0, 2.0);
-        int var1 = 0;
-        long var2 = param0.getLevel().getRandom().nextLong();
-        Iterator var13 = param1.iterator();
+        Holder<SoundEvent> var0 = Holder.direct(SoundEvent.createVariableRangeEvent(param2));
+        double var1 = (double)Mth.square(var0.value().getRange(param5));
+        int var2 = 0;
+        long var3 = param0.getLevel().getRandom().nextLong();
+        Iterator var14 = param1.iterator();
 
         while(true) {
-            ServerPlayer var3;
-            Vec3 var8;
-            float var9;
+            ServerPlayer var4;
+            Vec3 var9;
+            float var10;
             while(true) {
-                if (!var13.hasNext()) {
-                    if (var1 == 0) {
+                if (!var14.hasNext()) {
+                    if (var2 == 0) {
                         throw ERROR_TOO_FAR.create();
                     }
 
@@ -145,30 +149,30 @@ public class PlaySoundCommand {
                         param0.sendSuccess(Component.translatable("commands.playsound.success.multiple", param2, param1.size()), true);
                     }
 
-                    return var1;
+                    return var2;
                 }
 
-                var3 = (ServerPlayer)var13.next();
-                double var4 = param4.x - var3.getX();
-                double var5 = param4.y - var3.getY();
-                double var6 = param4.z - var3.getZ();
-                double var7 = var4 * var4 + var5 * var5 + var6 * var6;
-                var8 = param4;
-                var9 = param5;
-                if (!(var7 > var0)) {
+                var4 = (ServerPlayer)var14.next();
+                double var5 = param4.x - var4.getX();
+                double var6 = param4.y - var4.getY();
+                double var7 = param4.z - var4.getZ();
+                double var8 = var5 * var5 + var6 * var6 + var7 * var7;
+                var9 = param4;
+                var10 = param5;
+                if (!(var8 > var1)) {
                     break;
                 }
 
                 if (!(param7 <= 0.0F)) {
-                    double var10 = Math.sqrt(var7);
-                    var8 = new Vec3(var3.getX() + var4 / var10 * 2.0, var3.getY() + var5 / var10 * 2.0, var3.getZ() + var6 / var10 * 2.0);
-                    var9 = param7;
+                    double var11 = Math.sqrt(var8);
+                    var9 = new Vec3(var4.getX() + var5 / var11 * 2.0, var4.getY() + var6 / var11 * 2.0, var4.getZ() + var7 / var11 * 2.0);
+                    var10 = param7;
                     break;
                 }
             }
 
-            var3.connection.send(new ClientboundCustomSoundPacket(param2, param3, var8, var9, param6, var2));
-            ++var1;
+            var4.connection.send(new ClientboundSoundPacket(var0, param3, var9.x(), var9.y(), var9.z(), var10, param6, var3));
+            ++var2;
         }
     }
 }

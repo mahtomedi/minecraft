@@ -253,18 +253,21 @@ public class ChunkSerializer {
             ListTag var53 = param3.getList("Lights", 9);
 
             for(int var54 = 0; var54 < var53.size(); ++var54) {
-                ListTag var55 = var53.getList(var54);
+                LevelChunkSection var55 = var5[var54];
+                if (var55 != null && !var55.hasOnlyAir()) {
+                    ListTag var56 = var53.getList(var54);
 
-                for(int var56 = 0; var56 < var55.size(); ++var56) {
-                    var47.addLight(var55.getShort(var56), var54);
+                    for(int var57 = 0; var57 < var56.size(); ++var57) {
+                        var47.addLight(var56.getShort(var57), var54);
+                    }
                 }
             }
 
-            CompoundTag var57 = param3.getCompound("CarvingMasks");
+            CompoundTag var58 = param3.getCompound("CarvingMasks");
 
-            for(String var58 : var57.getAllKeys()) {
-                GenerationStep.Carving var59 = GenerationStep.Carving.valueOf(var58);
-                var47.setCarvingMask(var59, new CarvingMask(var57.getLongArray(var58), var29.getMinBuildHeight()));
+            for(String var59 : var58.getAllKeys()) {
+                GenerationStep.Carving var60 = GenerationStep.Carving.valueOf(var59);
+                var47.setCarvingMask(var60, new CarvingMask(var58.getLongArray(var59), var29.getMinBuildHeight()));
             }
 
             return var47;

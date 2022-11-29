@@ -2236,20 +2236,24 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
     }
 
-    private ItemStack addCustomNbtData(ItemStack param0, BlockEntity param1) {
+    private void addCustomNbtData(ItemStack param0, BlockEntity param1) {
         CompoundTag var0 = param1.saveWithFullMetadata();
+        BlockItem.setBlockEntityData(param0, param1.getType(), var0);
         if (param0.getItem() instanceof PlayerHeadItem && var0.contains("SkullOwner")) {
             CompoundTag var1 = var0.getCompound("SkullOwner");
-            param0.getOrCreateTag().put("SkullOwner", var1);
-            return param0;
+            CompoundTag var2 = param0.getOrCreateTag();
+            var2.put("SkullOwner", var1);
+            CompoundTag var3 = var2.getCompound("BlockEntityTag");
+            var3.remove("SkullOwner");
+            var3.remove("x");
+            var3.remove("y");
+            var3.remove("z");
         } else {
-            BlockItem.setBlockEntityData(param0, param1.getType(), var0);
-            CompoundTag var2 = new CompoundTag();
-            ListTag var3 = new ListTag();
-            var3.add(StringTag.valueOf("\"(+NBT)\""));
-            var2.put("Lore", var3);
-            param0.addTagElement("display", var2);
-            return param0;
+            CompoundTag var4 = new CompoundTag();
+            ListTag var5 = new ListTag();
+            var5.add(StringTag.valueOf("\"(+NBT)\""));
+            var4.put("Lore", var5);
+            param0.addTagElement("display", var4);
         }
     }
 

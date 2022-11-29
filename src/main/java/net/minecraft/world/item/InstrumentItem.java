@@ -102,7 +102,7 @@ public class InstrumentItem extends Item {
     }
 
     private static void play(Level param0, Player param1, Instrument param2) {
-        SoundEvent var0 = param2.soundEvent();
+        SoundEvent var0 = param2.soundEvent().value();
         float var1 = param2.range() / 16.0F;
         param0.playSound(param1, param1, var0, SoundSource.RECORDS, var1, 1.0F);
         param0.gameEvent(GameEvent.INSTRUMENT_PLAY, param1.position(), GameEvent.Context.of(param1));

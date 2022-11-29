@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class WorldLoadTimesEvent implements TelemetryEventProducer {
+public class WorldLoadTimesEvent {
     private final boolean newWorld;
     @Nullable
     private final Duration worldLoadDuration;
@@ -19,7 +19,6 @@ public class WorldLoadTimesEvent implements TelemetryEventProducer {
         this.newWorld = param0;
     }
 
-    @Override
     public void send(TelemetryEventSender param0) {
         if (this.worldLoadDuration != null) {
             param0.send(TelemetryEventType.WORLD_LOAD_TIMES, param0x -> {

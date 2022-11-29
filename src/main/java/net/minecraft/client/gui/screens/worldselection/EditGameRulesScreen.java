@@ -301,7 +301,7 @@ public class EditGameRulesScreen extends Screen {
         public void render(PoseStack param0, int param1, int param2, float param3) {
             super.render(param0, param1, param2, param3);
             EditGameRulesScreen.RuleEntry var0 = this.getHovered();
-            if (var0 != null) {
+            if (var0 != null && var0.tooltip != null) {
                 EditGameRulesScreen.this.setTooltipForNextRenderPass(var0.tooltip);
             }
 

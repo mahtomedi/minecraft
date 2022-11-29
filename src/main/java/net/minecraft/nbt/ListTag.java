@@ -132,6 +132,18 @@ public class ListTag extends CollectionTag<Tag> {
     }
 
     @Override
+    public int sizeInBits() {
+        int var0 = 296;
+        var0 += 32 * this.list.size();
+
+        for(Tag var1 : this.list) {
+            var0 += var1.sizeInBits();
+        }
+
+        return var0;
+    }
+
+    @Override
     public byte getId() {
         return 9;
     }

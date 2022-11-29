@@ -39,7 +39,7 @@ public class CompoundTag implements Tag {
                     String var2 = CompoundTag.readNamedTagName(param0, param2);
                     param2.accountBits((long)(224 + 16 * var2.length()));
                     Tag var3 = CompoundTag.readNamedTagData(TagTypes.getType(var1), var2, param0, param1 + 1, param2);
-                    if (var0.put(var2, var3) != null) {
+                    if (var0.put(var2, var3) == null) {
                         param2.accountBits(288L);
                     }
                 }
@@ -134,6 +134,19 @@ public class CompoundTag implements Tag {
         }
 
         param0.writeByte(0);
+    }
+
+    @Override
+    public int sizeInBits() {
+        int var0 = 384;
+
+        for(Entry<String, Tag> var1 : this.tags.entrySet()) {
+            var0 += 224 + 16 * var1.getKey().length();
+            var0 += 288;
+            var0 += var1.getValue().sizeInBits();
+        }
+
+        return var0;
     }
 
     public Set<String> getAllKeys() {

@@ -24,7 +24,6 @@ import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.nbt.CollectionTag;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -40,14 +39,8 @@ public class DataCommands {
         param0 -> Component.translatable("commands.data.get.unknown", param0)
     );
     private static final SimpleCommandExceptionType ERROR_MULTIPLE_TAGS = new SimpleCommandExceptionType(Component.translatable("commands.data.get.multiple"));
-    private static final DynamicCommandExceptionType ERROR_EXPECTED_LIST = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.data.modify.expected_list", param0)
-    );
     private static final DynamicCommandExceptionType ERROR_EXPECTED_OBJECT = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.data.modify.expected_object", param0)
-    );
-    private static final DynamicCommandExceptionType ERROR_INVALID_INDEX = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.data.modify.invalid_index", param0)
     );
     public static final List<Function<String, DataCommands.DataProvider>> ALL_PROVIDERS = ImmutableList.of(
         EntityDataAccessor.PROVIDER, BlockDataAccessor.PROVIDER, StorageDataAccessor.PROVIDER
@@ -110,84 +103,62 @@ public class DataCommands {
                                     Commands.literal("insert")
                                         .then(
                                             Commands.argument("index", IntegerArgumentType.integer())
-                                                .then(param1.create((param0xx, param1x, param2, param3) -> {
-                                                    int var0x = IntegerArgumentType.getInteger(param0xx, "index");
-                                                    return insertAtIndex(var0x, param1x, param2, param3);
-                                                }))
+                                                .then(
+                                                    param1.create(
+                                                        (param0xx, param1x, param2, param3) -> param2.insert(
+                                                                IntegerArgumentType.getInteger(param0xx, "index"), param1x, param3
+                                                            )
+                                                    )
+                                                )
                                         )
                                 )
-                                .then(
-                                    Commands.literal("prepend")
-                                        .then(param1.create((param0xx, param1x, param2, param3) -> insertAtIndex(0, param1x, param2, param3)))
-                                )
-                                .then(
-                                    Commands.literal("append")
-                                        .then(param1.create((param0xx, param1x, param2, param3) -> insertAtIndex(-1, param1x, param2, param3)))
-                                )
+                                .then(Commands.literal("prepend").then(param1.create((param0xx, param1x, param2, param3) -> param2.insert(0, param1x, param3))))
+                                .then(Commands.literal("append").then(param1.create((param0xx, param1x, param2, param3) -> param2.insert(-1, param1x, param3))))
                                 .then(
                                     Commands.literal("set")
-                                        .then(param1.create((param0xx, param1x, param2, param3) -> param2.set(param1x, Iterables.getLast(param3)::copy)))
+                                        .then(param1.create((param0xx, param1x, param2, param3) -> param2.set(param1x, Iterables.getLast(param3))))
                                 )
                                 .then(Commands.literal("merge").then(param1.create((param0xx, param1x, param2, param3) -> {
-                                    Collection<Tag> var0x = param2.getOrCreate(param1x, CompoundTag::new);
-                                    int var1x = 0;
+                                    CompoundTag var0x = new CompoundTag();
                 
-                                    for(Tag var2 : var0x) {
-                                        if (!(var2 instanceof CompoundTag)) {
-                                            throw ERROR_EXPECTED_OBJECT.create(var2);
+                                    for(Tag var1x : param3) {
+                                        if (NbtPathArgument.NbtPath.isTooDeep(var1x, 0)) {
+                                            throw NbtPathArgument.ERROR_DATA_TOO_DEEP.create();
                                         }
                 
-                                        CompoundTag var3x = (CompoundTag)var2;
-                                        CompoundTag var4 = var3x.copy();
+                                        if (!(var1x instanceof CompoundTag)) {
+                                            throw ERROR_EXPECTED_OBJECT.create(var1x);
+                                        }
                 
-                                        for(Tag var5 : param3) {
+                                        CompoundTag var2 = (CompoundTag)var1x;
+                                        var0x.merge(var2);
+                                    }
+                
+                                    Collection<Tag> var3 = param2.getOrCreate(param1x, CompoundTag::new);
+                                    if (param1x.sizeInBytes() + var0x.sizeInBytes() * var3.size() > 2097152) {
+                                        throw NbtPathArgument.ERROR_DATA_TOO_LARGE.create();
+                                    } else {
+                                        int var4 = 0;
+                
+                                        for(Tag var5 : var3) {
                                             if (!(var5 instanceof CompoundTag)) {
                                                 throw ERROR_EXPECTED_OBJECT.create(var5);
                                             }
                 
-                                            var3x.merge((CompoundTag)var5);
+                                            CompoundTag var6 = (CompoundTag)var5;
+                                            CompoundTag var8 = var6.copy();
+                                            var6.merge(var0x);
+                                            var4 += var8.equals(var6) ? 0 : 1;
                                         }
                 
-                                        var1x += var4.equals(var3x) ? 0 : 1;
+                                        return var4;
                                     }
-                
-                                    return var1x;
                                 })))
                     )
                 );
         }
 
         param0.register(var0);
-    }
-
-    private static int insertAtIndex(int param0, CompoundTag param1, NbtPathArgument.NbtPath param2, List<Tag> param3) throws CommandSyntaxException {
-        Collection<Tag> var0 = param2.getOrCreate(param1, ListTag::new);
-        int var1 = 0;
-
-        for(Tag var2 : var0) {
-            if (!(var2 instanceof CollectionTag)) {
-                throw ERROR_EXPECTED_LIST.create(var2);
-            }
-
-            boolean var3 = false;
-            CollectionTag<?> var4 = (CollectionTag)var2;
-            int var5 = param0 < 0 ? var4.size() + param0 + 1 : param0;
-
-            for(Tag var6 : param3) {
-                try {
-                    if (var4.addTag(var5, var6.copy())) {
-                        ++var5;
-                        var3 = true;
-                    }
-                } catch (IndexOutOfBoundsException var14) {
-                    throw ERROR_INVALID_INDEX.create(var5);
-                }
-            }
-
-            var1 += var3 ? 1 : 0;
-        }
-
-        return var1;
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> decorateModification(
@@ -300,13 +271,19 @@ public class DataCommands {
 
     private static int mergeData(CommandSourceStack param0, DataAccessor param1, CompoundTag param2) throws CommandSyntaxException {
         CompoundTag var0 = param1.getData();
-        CompoundTag var1 = var0.copy().merge(param2);
-        if (var0.equals(var1)) {
-            throw ERROR_MERGE_UNCHANGED.create();
+        if (NbtPathArgument.NbtPath.isTooDeep(param2, 0)) {
+            throw NbtPathArgument.ERROR_DATA_TOO_DEEP.create();
+        } else if (var0.sizeInBytes() + param2.sizeInBytes() > 2097152) {
+            throw NbtPathArgument.ERROR_DATA_TOO_LARGE.create();
         } else {
-            param1.setData(var1);
-            param0.sendSuccess(param1.getModifiedSuccess(), true);
-            return 1;
+            CompoundTag var1 = var0.copy().merge(param2);
+            if (var0.equals(var1)) {
+                throw ERROR_MERGE_UNCHANGED.create();
+            } else {
+                param1.setData(var1);
+                param0.sendSuccess(param1.getModifiedSuccess(), true);
+                return 1;
+            }
         }
     }
 

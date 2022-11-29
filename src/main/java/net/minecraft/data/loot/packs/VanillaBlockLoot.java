@@ -1,6 +1,7 @@
 package net.minecraft.data.loot.packs;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -904,7 +905,11 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
                                 .setRolls(ConstantValue.exactly(1.0F))
                                 .add(
                                     LootItem.lootTableItem(param0)
-                                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy("SkullOwner", "SkullOwner"))
+                                        .apply(
+                                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                .copy("SkullOwner", "SkullOwner")
+                                                .copy("note_block_sound", String.format(Locale.ROOT, "%s.%s", "BlockEntityTag", "note_block_sound"))
+                                        )
                                 )
                         )
                     )

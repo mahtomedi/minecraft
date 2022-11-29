@@ -2,7 +2,6 @@ package net.minecraft.client;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.text2speech.Narrator;
-import java.util.function.Supplier;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
@@ -23,11 +22,20 @@ public class GameNarrator {
         this.minecraft = param0;
     }
 
-    public void sayChatNow(Supplier<Component> param0) {
+    public void sayChat(Component param0) {
         if (this.getStatus().shouldNarrateChat()) {
-            String var0 = param0.get().getString();
+            String var0 = param0.getString();
             this.logNarratedMessage(var0);
             this.narrator.say(var0, false);
+        }
+
+    }
+
+    public void say(Component param0) {
+        String var0 = param0.getString();
+        if (this.getStatus().shouldNarrateSystem() && !var0.isEmpty()) {
+            this.logNarratedMessage(var0);
+            this.narrator.say(var0, true);
         }
 
     }
