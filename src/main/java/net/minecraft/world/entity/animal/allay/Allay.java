@@ -383,7 +383,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     }
 
     private boolean allayConsidersItemEqual(ItemStack param0, ItemStack param1) {
-        return param0.sameItemStackIgnoreDurability(param1) && !this.hasNonMatchingPotion(param0, param1);
+        return param0.sameItem(param1) && !this.hasNonMatchingPotion(param0, param1);
     }
 
     private boolean hasNonMatchingPotion(ItemStack param0, ItemStack param1) {

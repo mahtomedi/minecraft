@@ -8,12 +8,12 @@ import java.util.Objects;
 import net.minecraft.Util;
 
 public class StringTag implements Tag {
-    private static final int SELF_SIZE_IN_BITS = 288;
+    private static final int SELF_SIZE_IN_BYTES = 36;
     public static final TagType<StringTag> TYPE = new TagType.VariableSize<StringTag>() {
         public StringTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBits(288L);
+            param2.accountBytes(36L);
             String var0 = param0.readUTF();
-            param2.accountBits((long)(16 * var0.length()));
+            param2.accountBytes((long)(2 * var0.length()));
             return StringTag.valueOf(var0);
         }
 
@@ -74,8 +74,8 @@ public class StringTag implements Tag {
     }
 
     @Override
-    public int sizeInBits() {
-        return 288 + 16 * this.data.length();
+    public int sizeInBytes() {
+        return 36 + 2 * this.data.length();
     }
 
     @Override

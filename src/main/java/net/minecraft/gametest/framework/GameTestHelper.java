@@ -21,6 +21,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -474,6 +475,38 @@ public class GameTestHelper {
                 }
             }
 
+        }
+    }
+
+    public <E extends LivingEntity> void assertEntityIsHolding(BlockPos param0, EntityType<E> param1, Item param2) {
+        BlockPos var0 = this.absolutePos(param0);
+        List<E> var1 = this.getLevel().getEntities(param1, new AABB(var0), Entity::isAlive);
+        if (var1.isEmpty()) {
+            throw new GameTestAssertPosException("Expected entity of type: " + param1, var0, param0, this.getTick());
+        } else {
+            for(E var2 : var1) {
+                if (var2.isHolding(param2)) {
+                    return;
+                }
+            }
+
+            throw new GameTestAssertPosException("Entity should be holding: " + param2, var0, param0, this.getTick());
+        }
+    }
+
+    public <E extends Entity & InventoryCarrier> void assertEntityInventoryContains(BlockPos param0, EntityType<E> param1, Item param2) {
+        BlockPos var0 = this.absolutePos(param0);
+        List<E> var1 = this.getLevel().getEntities(param1, new AABB(var0), param0x -> param0x.isAlive());
+        if (var1.isEmpty()) {
+            throw new GameTestAssertPosException("Expected " + param1.toShortString() + " to exist", var0, param0, this.getTick());
+        } else {
+            for(E var2 : var1) {
+                if (var2.getInventory().hasAnyMatching(param1x -> param1x.is(param2))) {
+                    return;
+                }
+            }
+
+            throw new GameTestAssertPosException("Entity inventory should contain: " + param2, var0, param0, this.getTick());
         }
     }
 

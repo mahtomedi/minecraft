@@ -663,7 +663,7 @@ public abstract class LivingEntity extends Entity {
 
     public void onEquipItem(EquipmentSlot param0, ItemStack param1, ItemStack param2) {
         boolean var0 = param2.isEmpty() && param1.isEmpty();
-        if (!var0 && !ItemStack.isSameIgnoreDurability(param1, param2) && !this.firstTick) {
+        if (!var0 && !ItemStack.isSame(param1, param2) && !this.firstTick) {
             if (param0.getType() == EquipmentSlot.Type.ARMOR) {
                 this.playEquipSound(param2);
             }
@@ -2918,7 +2918,7 @@ public abstract class LivingEntity extends Entity {
 
     private void updatingUsingItem() {
         if (this.isUsingItem()) {
-            if (ItemStack.isSameIgnoreDurability(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
+            if (ItemStack.isSame(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
                 this.useItem = this.getItemInHand(this.getUsedItemHand());
                 this.updateUsingItem(this.useItem);
             } else {

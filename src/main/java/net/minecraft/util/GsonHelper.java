@@ -417,7 +417,27 @@ public class GsonHelper {
     }
 
     @Nullable
+    public static <T> T fromNullableJson(Gson param0, Reader param1, Class<T> param2, boolean param3) {
+        try {
+            JsonReader var0 = new JsonReader(param1);
+            var0.setLenient(param3);
+            return param0.getAdapter(param2).read(var0);
+        } catch (IOException var5) {
+            throw new JsonParseException(var5);
+        }
+    }
+
     public static <T> T fromJson(Gson param0, Reader param1, Class<T> param2, boolean param3) {
+        T var0 = fromNullableJson(param0, param1, param2, param3);
+        if (var0 == null) {
+            throw new JsonParseException("JSON data was null or empty");
+        } else {
+            return var0;
+        }
+    }
+
+    @Nullable
+    public static <T> T fromNullableJson(Gson param0, Reader param1, TypeToken<T> param2, boolean param3) {
         try {
             JsonReader var0 = new JsonReader(param1);
             var0.setLenient(param3);
@@ -427,43 +447,42 @@ public class GsonHelper {
         }
     }
 
-    @Nullable
     public static <T> T fromJson(Gson param0, Reader param1, TypeToken<T> param2, boolean param3) {
-        try {
-            JsonReader var0 = new JsonReader(param1);
-            var0.setLenient(param3);
-            return param0.getAdapter(param2).read(var0);
-        } catch (IOException var5) {
-            throw new JsonParseException(var5);
+        T var0 = fromNullableJson(param0, param1, param2, param3);
+        if (var0 == null) {
+            throw new JsonParseException("JSON data was null or empty");
+        } else {
+            return var0;
         }
     }
 
     @Nullable
-    public static <T> T fromJson(Gson param0, String param1, TypeToken<T> param2, boolean param3) {
-        return fromJson(param0, new StringReader(param1), param2, param3);
+    public static <T> T fromNullableJson(Gson param0, String param1, TypeToken<T> param2, boolean param3) {
+        return fromNullableJson(param0, new StringReader(param1), param2, param3);
     }
 
-    @Nullable
     public static <T> T fromJson(Gson param0, String param1, Class<T> param2, boolean param3) {
         return fromJson(param0, new StringReader(param1), param2, param3);
     }
 
     @Nullable
+    public static <T> T fromNullableJson(Gson param0, String param1, Class<T> param2, boolean param3) {
+        return fromNullableJson(param0, new StringReader(param1), param2, param3);
+    }
+
     public static <T> T fromJson(Gson param0, Reader param1, TypeToken<T> param2) {
         return fromJson(param0, param1, param2, false);
     }
 
     @Nullable
-    public static <T> T fromJson(Gson param0, String param1, TypeToken<T> param2) {
-        return fromJson(param0, param1, param2, false);
+    public static <T> T fromNullableJson(Gson param0, String param1, TypeToken<T> param2) {
+        return fromNullableJson(param0, param1, param2, false);
     }
 
-    @Nullable
     public static <T> T fromJson(Gson param0, Reader param1, Class<T> param2) {
         return fromJson(param0, param1, param2, false);
     }
 
-    @Nullable
     public static <T> T fromJson(Gson param0, String param1, Class<T> param2) {
         return fromJson(param0, param1, param2, false);
     }

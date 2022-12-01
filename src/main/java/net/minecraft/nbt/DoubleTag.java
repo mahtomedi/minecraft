@@ -6,11 +6,11 @@ import java.io.IOException;
 import net.minecraft.util.Mth;
 
 public class DoubleTag extends NumericTag {
-    private static final int SELF_SIZE_IN_BITS = 128;
+    private static final int SELF_SIZE_IN_BYTES = 16;
     public static final DoubleTag ZERO = new DoubleTag(0.0);
     public static final TagType<DoubleTag> TYPE = new TagType.StaticSize<DoubleTag>() {
         public DoubleTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBits(128L);
+            param2.accountBytes(16L);
             return DoubleTag.valueOf(param0.readDouble());
         }
 
@@ -55,8 +55,8 @@ public class DoubleTag extends NumericTag {
     }
 
     @Override
-    public int sizeInBits() {
-        return 128;
+    public int sizeInBytes() {
+        return 16;
     }
 
     @Override

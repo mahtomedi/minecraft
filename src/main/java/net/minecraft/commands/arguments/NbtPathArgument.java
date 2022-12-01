@@ -32,7 +32,6 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo.bar", "foo[0]", "[0]", "[]", "{foo=bar}");
     public static final SimpleCommandExceptionType ERROR_INVALID_NODE = new SimpleCommandExceptionType(Component.translatable("arguments.nbtpath.node.invalid"));
     public static final SimpleCommandExceptionType ERROR_DATA_TOO_DEEP = new SimpleCommandExceptionType(Component.translatable("arguments.nbtpath.too_deep"));
-    public static final SimpleCommandExceptionType ERROR_DATA_TOO_LARGE = new SimpleCommandExceptionType(Component.translatable("arguments.nbtpath.too_large"));
     public static final DynamicCommandExceptionType ERROR_NOTHING_FOUND = new DynamicCommandExceptionType(
         param0 -> Component.translatable("arguments.nbtpath.nothing_found", param0)
     );
@@ -633,22 +632,16 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
                 if (var1.isEmpty()) {
                     return 0;
                 } else {
-                    int var2 = var1.size();
-                    int var3 = param0.sizeInBits() + var0.sizeInBits() * var2;
-                    if (var3 > 2097152) {
-                        throw NbtPathArgument.ERROR_DATA_TOO_LARGE.create();
-                    } else {
-                        NbtPathArgument.Node var4 = this.nodes[this.nodes.length - 1];
-                        MutableBoolean var5 = new MutableBoolean(false);
-                        return apply(var1, param3 -> var4.setTag(param3, () -> {
-                                if (var5.isFalse()) {
-                                    var5.setTrue();
-                                    return var0;
-                                } else {
-                                    return var0.copy();
-                                }
-                            }));
-                    }
+                    NbtPathArgument.Node var2 = this.nodes[this.nodes.length - 1];
+                    MutableBoolean var3 = new MutableBoolean(false);
+                    return apply(var1, param3 -> var2.setTag(param3, () -> {
+                            if (var3.isFalse()) {
+                                var3.setTrue();
+                                return var0;
+                            } else {
+                                return var0.copy();
+                            }
+                        }));
                 }
             }
         }
@@ -659,54 +652,44 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
 
         public int insert(int param0, CompoundTag param1, List<Tag> param2) throws CommandSyntaxException {
             List<Tag> var0 = new ArrayList<>(param2.size());
-            int var1 = 0;
 
-            for(Tag var2 : param2) {
-                Tag var3 = var2.copy();
-                var0.add(var3);
-                if (isTooDeep(var3, this.estimatePathDepth())) {
+            for(Tag var1 : param2) {
+                Tag var2 = var1.copy();
+                var0.add(var2);
+                if (isTooDeep(var2, this.estimatePathDepth())) {
                     throw NbtPathArgument.ERROR_DATA_TOO_DEEP.create();
                 }
-
-                var1 += var3.sizeInBits();
             }
 
-            Collection<Tag> var4 = this.getOrCreate(param1, ListTag::new);
-            int var5 = param1.sizeInBits();
-            int var6 = var4.size();
-            int var7 = var5 + var6 * var1;
-            if (var7 > 2097152) {
-                throw NbtPathArgument.ERROR_DATA_TOO_LARGE.create();
-            } else {
-                int var8 = 0;
-                boolean var9 = false;
+            Collection<Tag> var3 = this.getOrCreate(param1, ListTag::new);
+            int var4 = 0;
+            boolean var5 = false;
 
-                for(Tag var10 : var4) {
-                    if (!(var10 instanceof CollectionTag)) {
-                        throw NbtPathArgument.ERROR_EXPECTED_LIST.create(var10);
-                    }
-
-                    CollectionTag<?> var11 = (CollectionTag)var10;
-                    boolean var12 = false;
-                    int var13 = param0 < 0 ? var11.size() + param0 + 1 : param0;
-
-                    for(Tag var14 : var0) {
-                        try {
-                            if (var11.addTag(var13, var9 ? var14.copy() : var14)) {
-                                ++var13;
-                                var12 = true;
-                            }
-                        } catch (IndexOutOfBoundsException var20) {
-                            throw NbtPathArgument.ERROR_INVALID_INDEX.create(var13);
-                        }
-                    }
-
-                    var9 = true;
-                    var8 += var12 ? 1 : 0;
+            for(Tag var6 : var3) {
+                if (!(var6 instanceof CollectionTag)) {
+                    throw NbtPathArgument.ERROR_EXPECTED_LIST.create(var6);
                 }
 
-                return var8;
+                CollectionTag<?> var7 = (CollectionTag)var6;
+                boolean var8 = false;
+                int var9 = param0 < 0 ? var7.size() + param0 + 1 : param0;
+
+                for(Tag var10 : var0) {
+                    try {
+                        if (var7.addTag(var9, var5 ? var10.copy() : var10)) {
+                            ++var9;
+                            var8 = true;
+                        }
+                    } catch (IndexOutOfBoundsException var16) {
+                        throw NbtPathArgument.ERROR_INVALID_INDEX.create(var9);
+                    }
+                }
+
+                var5 = true;
+                var4 += var8 ? 1 : 0;
             }
+
+            return var4;
         }
 
         public int remove(Tag param0) {

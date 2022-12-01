@@ -90,21 +90,21 @@ public class PackSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        this.doneButton = this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onClose()).bounds(this.width / 2 + 4, this.height - 48, 150, 20).build()
-        );
+        this.availablePackList = new TransferableSelectionList(this.minecraft, this, 200, this.height, Component.translatable("pack.available.title"));
+        this.availablePackList.setLeftPos(this.width / 2 - 4 - 200);
+        this.addWidget(this.availablePackList);
+        this.selectedPackList = new TransferableSelectionList(this.minecraft, this, 200, this.height, Component.translatable("pack.selected.title"));
+        this.selectedPackList.setLeftPos(this.width / 2 + 4);
+        this.addWidget(this.selectedPackList);
         this.addRenderableWidget(
             Button.builder(Component.translatable("pack.openFolder"), param0 -> Util.getPlatform().openUri(this.packDir.toUri()))
                 .bounds(this.width / 2 - 154, this.height - 48, 150, 20)
                 .tooltip(Tooltip.create(DIRECTORY_BUTTON_TOOLTIP))
                 .build()
         );
-        this.availablePackList = new TransferableSelectionList(this.minecraft, 200, this.height, Component.translatable("pack.available.title"));
-        this.availablePackList.setLeftPos(this.width / 2 - 4 - 200);
-        this.addWidget(this.availablePackList);
-        this.selectedPackList = new TransferableSelectionList(this.minecraft, 200, this.height, Component.translatable("pack.selected.title"));
-        this.selectedPackList.setLeftPos(this.width / 2 + 4);
-        this.addWidget(this.selectedPackList);
+        this.doneButton = this.addRenderableWidget(
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onClose()).bounds(this.width / 2 + 4, this.height - 48, 150, 20).build()
+        );
         this.reload();
     }
 
@@ -135,6 +135,7 @@ public class PackSelectionScreen extends Screen {
 
     private void updateList(TransferableSelectionList param0, Stream<PackSelectionModel.Entry> param1) {
         param0.children().clear();
+        param0.setSelected(null);
         param1.forEach(param1x -> param0.children().add(new TransferableSelectionList.PackEntry(this.minecraft, param0, this, param1x)));
     }
 

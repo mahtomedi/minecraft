@@ -5,10 +5,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class IntTag extends NumericTag {
-    private static final int SELF_SIZE_IN_BITS = 96;
+    private static final int SELF_SIZE_IN_BYTES = 12;
     public static final TagType<IntTag> TYPE = new TagType.StaticSize<IntTag>() {
         public IntTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBits(96L);
+            param2.accountBytes(12L);
             return IntTag.valueOf(param0.readInt());
         }
 
@@ -53,8 +53,8 @@ public class IntTag extends NumericTag {
     }
 
     @Override
-    public int sizeInBits() {
-        return 96;
+    public int sizeInBytes() {
+        return 12;
     }
 
     @Override

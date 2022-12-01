@@ -24,11 +24,11 @@ public class CompoundTag implements Tag {
         Tag var0 = param0.convert(NbtOps.INSTANCE).getValue();
         return var0 instanceof CompoundTag ? DataResult.success((CompoundTag)var0) : DataResult.error("Not a compound tag: " + var0);
     }, param0 -> new Dynamic<>(NbtOps.INSTANCE, param0));
-    private static final int SELF_SIZE_IN_BITS = 384;
-    private static final int MAP_ENTRY_SIZE_IN_BITS = 256;
+    private static final int SELF_SIZE_IN_BYTES = 48;
+    private static final int MAP_ENTRY_SIZE_IN_BYTES = 32;
     public static final TagType<CompoundTag> TYPE = new TagType.VariableSize<CompoundTag>() {
         public CompoundTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBits(384L);
+            param2.accountBytes(48L);
             if (param1 > 512) {
                 throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
             } else {
@@ -37,10 +37,10 @@ public class CompoundTag implements Tag {
                 byte var1;
                 while((var1 = CompoundTag.readNamedTagType(param0, param2)) != 0) {
                     String var2 = CompoundTag.readNamedTagName(param0, param2);
-                    param2.accountBits((long)(224 + 16 * var2.length()));
+                    param2.accountBytes((long)(28 + 2 * var2.length()));
                     Tag var3 = CompoundTag.readNamedTagData(TagTypes.getType(var1), var2, param0, param1 + 1, param2);
                     if (var0.put(var2, var3) == null) {
-                        param2.accountBits(288L);
+                        param2.accountBytes(36L);
                     }
                 }
 
@@ -137,13 +137,13 @@ public class CompoundTag implements Tag {
     }
 
     @Override
-    public int sizeInBits() {
-        int var0 = 384;
+    public int sizeInBytes() {
+        int var0 = 48;
 
         for(Entry<String, Tag> var1 : this.tags.entrySet()) {
-            var0 += 224 + 16 * var1.getKey().length();
-            var0 += 288;
-            var0 += var1.getValue().sizeInBits();
+            var0 += 28 + 2 * var1.getKey().length();
+            var0 += 36;
+            var0 += var1.getValue().sizeInBytes();
         }
 
         return var0;

@@ -3,7 +3,6 @@ package net.minecraft;
 import com.google.common.base.Ticker;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DSL.TypeReference;
@@ -46,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -695,7 +695,7 @@ public class Util {
 
     public static <T, R> Function<T, R> memoize(final Function<T, R> param0) {
         return new Function<T, R>() {
-            private final Map<T, R> cache = Maps.newHashMap();
+            private final Map<T, R> cache = new ConcurrentHashMap<>();
 
             @Override
             public R apply(T param0x) {
@@ -711,7 +711,7 @@ public class Util {
 
     public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> param0) {
         return new BiFunction<T, U, R>() {
-            private final Map<Pair<T, U>, R> cache = Maps.newHashMap();
+            private final Map<Pair<T, U>, R> cache = new ConcurrentHashMap<>();
 
             @Override
             public R apply(T param0x, U param1) {
