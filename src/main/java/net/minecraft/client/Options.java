@@ -197,25 +197,8 @@ public class Options {
         param0x -> {
         }
     );
-    private final OptionInstance<AmbientOcclusionStatus> ambientOcclusion = new OptionInstance<>(
-        "options.ao",
-        OptionInstance.noTooltip(),
-        OptionInstance.forOptionEnum(),
-        new OptionInstance.Enum<>(
-            Arrays.asList(AmbientOcclusionStatus.values()),
-            Codec.either(
-                    Codec.BOOL
-                        .xmap(
-                            param0x -> param0x ? AmbientOcclusionStatus.MAX.getId() : AmbientOcclusionStatus.OFF.getId(),
-                            param0x -> param0x == AmbientOcclusionStatus.MAX.getId()
-                        ),
-                    Codec.INT
-                )
-                .xmap(param0x -> param0x.map(param0xx -> param0xx, param0xx -> param0xx), Either::right)
-                .xmap(AmbientOcclusionStatus::byId, AmbientOcclusionStatus::getId)
-        ),
-        AmbientOcclusionStatus.MAX,
-        param0x -> Minecraft.getInstance().levelRenderer.allChanged()
+    private final OptionInstance<Boolean> ambientOcclusion = OptionInstance.createBoolean(
+        "options.ao", true, param0x -> Minecraft.getInstance().levelRenderer.allChanged()
     );
     private static final Component PRIORITIZE_CHUNK_TOOLTIP_NONE = Component.translatable("options.prioritizeChunkUpdates.none.tooltip");
     private static final Component PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED = Component.translatable("options.prioritizeChunkUpdates.byPlayer.tooltip");
@@ -728,7 +711,7 @@ public class Options {
         return this.graphicsMode;
     }
 
-    public OptionInstance<AmbientOcclusionStatus> ambientOcclusion() {
+    public OptionInstance<Boolean> ambientOcclusion() {
         return this.ambientOcclusion;
     }
 
@@ -1405,7 +1388,7 @@ public class Options {
     }
 
     private static List<String> readPackList(String param0x) {
-        List<String> var0x = GsonHelper.fromJson(GSON, param0x, RESOURCE_PACK_TYPE);
+        List<String> var0x = GsonHelper.fromNullableJson(GSON, param0x, RESOURCE_PACK_TYPE);
         return (List<String>)(var0x != null ? var0x : Lists.newArrayList());
     }
 

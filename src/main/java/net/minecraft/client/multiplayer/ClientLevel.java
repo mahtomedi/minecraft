@@ -498,9 +498,9 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void playSeededSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5, long param6) {
+    public void playSeededSound(@Nullable Player param0, Entity param1, Holder<SoundEvent> param2, SoundSource param3, float param4, float param5, long param6) {
         if (param0 == this.minecraft.player) {
-            this.minecraft.getSoundManager().play(new EntityBoundSoundInstance(param2, param3, param4, param5, param1, param6));
+            this.minecraft.getSoundManager().play(new EntityBoundSoundInstance(param2.value(), param3, param4, param5, param1, param6));
         }
 
     }

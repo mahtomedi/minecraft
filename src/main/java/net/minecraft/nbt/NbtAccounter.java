@@ -5,7 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 public class NbtAccounter {
     public static final NbtAccounter UNLIMITED = new NbtAccounter(0L) {
         @Override
-        public void accountBits(long param0) {
+        public void accountBytes(long param0) {
         }
     };
     private final long quota;
@@ -15,8 +15,8 @@ public class NbtAccounter {
         this.quota = param0;
     }
 
-    public void accountBits(long param0) {
-        this.usage += param0 / 8L;
+    public void accountBytes(long param0) {
+        this.usage += param0;
         if (this.usage > this.quota) {
             throw new RuntimeException("Tried to read NBT tag that was too big; tried to allocate: " + this.usage + "bytes where max allowed: " + this.quota);
         }

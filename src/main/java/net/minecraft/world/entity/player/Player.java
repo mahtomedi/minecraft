@@ -278,7 +278,7 @@ public abstract class Player extends LivingEntity {
         ++this.attackStrengthTicker;
         ItemStack var3 = this.getMainHandItem();
         if (!ItemStack.matches(this.lastItemInMainHand, var3)) {
-            if (!ItemStack.isSameIgnoreDurability(this.lastItemInMainHand, var3)) {
+            if (!ItemStack.isSame(this.lastItemInMainHand, var3)) {
                 this.resetAttackStrengthTicker();
             }
 

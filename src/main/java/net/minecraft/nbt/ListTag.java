@@ -10,10 +10,10 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class ListTag extends CollectionTag<Tag> {
-    private static final int SELF_SIZE_IN_BITS = 296;
+    private static final int SELF_SIZE_IN_BYTES = 37;
     public static final TagType<ListTag> TYPE = new TagType.VariableSize<ListTag>() {
         public ListTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBits(296L);
+            param2.accountBytes(37L);
             if (param1 > 512) {
                 throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
             } else {
@@ -22,7 +22,7 @@ public class ListTag extends CollectionTag<Tag> {
                 if (var0 == 0 && var1 > 0) {
                     throw new RuntimeException("Missing type on ListTag");
                 } else {
-                    param2.accountBits(32L * (long)var1);
+                    param2.accountBytes(4L * (long)var1);
                     TagType<?> var2 = TagTypes.getType(var0);
                     List<Tag> var3 = Lists.newArrayListWithCapacity(var1);
 
@@ -132,12 +132,12 @@ public class ListTag extends CollectionTag<Tag> {
     }
 
     @Override
-    public int sizeInBits() {
-        int var0 = 296;
-        var0 += 32 * this.list.size();
+    public int sizeInBytes() {
+        int var0 = 37;
+        var0 += 4 * this.list.size();
 
         for(Tag var1 : this.list) {
-            var0 += var1.sizeInBits();
+            var0 += var1.sizeInBytes();
         }
 
         return var0;

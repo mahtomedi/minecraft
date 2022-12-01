@@ -452,24 +452,8 @@ public final class ItemStack {
         }
     }
 
-    public static boolean isSameIgnoreDurability(ItemStack param0, ItemStack param1) {
-        if (param0 == param1) {
-            return true;
-        } else {
-            return !param0.isEmpty() && !param1.isEmpty() ? param0.sameItemStackIgnoreDurability(param1) : false;
-        }
-    }
-
     public boolean sameItem(ItemStack param0) {
         return !param0.isEmpty() && this.is(param0.getItem());
-    }
-
-    public boolean sameItemStackIgnoreDurability(ItemStack param0) {
-        if (!this.isDamageableItem()) {
-            return this.sameItem(param0);
-        } else {
-            return !param0.isEmpty() && this.is(param0.getItem());
-        }
     }
 
     public static boolean isSameItemSameTags(ItemStack param0, ItemStack param1) {

@@ -135,24 +135,20 @@ public class DataCommands {
                                     }
                 
                                     Collection<Tag> var3 = param2.getOrCreate(param1x, CompoundTag::new);
-                                    if (param1x.sizeInBytes() + var0x.sizeInBytes() * var3.size() > 2097152) {
-                                        throw NbtPathArgument.ERROR_DATA_TOO_LARGE.create();
-                                    } else {
-                                        int var4 = 0;
+                                    int var4 = 0;
                 
-                                        for(Tag var5 : var3) {
-                                            if (!(var5 instanceof CompoundTag)) {
-                                                throw ERROR_EXPECTED_OBJECT.create(var5);
-                                            }
-                
-                                            CompoundTag var6 = (CompoundTag)var5;
-                                            CompoundTag var8 = var6.copy();
-                                            var6.merge(var0x);
-                                            var4 += var8.equals(var6) ? 0 : 1;
+                                    for(Tag var5 : var3) {
+                                        if (!(var5 instanceof CompoundTag)) {
+                                            throw ERROR_EXPECTED_OBJECT.create(var5);
                                         }
                 
-                                        return var4;
+                                        CompoundTag var6 = (CompoundTag)var5;
+                                        CompoundTag var8 = var6.copy();
+                                        var6.merge(var0x);
+                                        var4 += var8.equals(var6) ? 0 : 1;
                                     }
+                
+                                    return var4;
                                 })))
                     )
                 );
@@ -273,8 +269,6 @@ public class DataCommands {
         CompoundTag var0 = param1.getData();
         if (NbtPathArgument.NbtPath.isTooDeep(param2, 0)) {
             throw NbtPathArgument.ERROR_DATA_TOO_DEEP.create();
-        } else if (var0.sizeInBytes() + param2.sizeInBytes() > 2097152) {
-            throw NbtPathArgument.ERROR_DATA_TOO_LARGE.create();
         } else {
             CompoundTag var1 = var0.copy().merge(param2);
             if (var0.equals(var1)) {

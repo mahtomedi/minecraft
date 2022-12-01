@@ -145,8 +145,8 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
             param0.run();
         } catch (Exception var3) {
             LOGGER.error(LogUtils.FATAL_MARKER, "Error executing task on {}", this.name(), var3);
-            throw var3;
         }
+
     }
 
     @Override

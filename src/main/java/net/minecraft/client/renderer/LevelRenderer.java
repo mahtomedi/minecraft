@@ -2415,66 +2415,67 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.enablePolygonOffset();
             RenderSystem.disableCull();
             float var12 = (float)(Util.getMillis() % 3000L) / 3000.0F;
-            float var13 = 0.0F;
-            float var14 = 0.0F;
-            float var15 = (float)(var6 - Mth.frac(param0.getPosition().y));
+            float var13 = (float)(-Mth.frac(param0.getPosition().y * 0.5));
+            float var14 = var13 + (float)var6;
             var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            double var16 = Math.max((double)Mth.floor(var5 - var2), var1.getMinZ());
-            double var17 = Math.min((double)Mth.ceil(var5 + var2), var1.getMaxZ());
+            double var15 = Math.max((double)Mth.floor(var5 - var2), var1.getMinZ());
+            double var16 = Math.min((double)Mth.ceil(var5 + var2), var1.getMaxZ());
+            float var17 = (float)(Mth.floor(var15) & 1) * 0.5F;
             if (var4 > var1.getMaxX() - var2) {
-                float var18 = 0.0F;
+                float var18 = var17;
 
-                for(double var19 = var16; var19 < var17; var18 += 0.5F) {
-                    double var20 = Math.min(1.0, var17 - var19);
+                for(double var19 = var15; var19 < var16; var18 += 0.5F) {
+                    double var20 = Math.min(1.0, var16 - var19);
                     float var21 = (float)var20 * 0.5F;
-                    var0.vertex(var1.getMaxX() - var4, -var6, var19 - var5).uv(var12 - var18, var12 + var15).endVertex();
-                    var0.vertex(var1.getMaxX() - var4, -var6, var19 + var20 - var5).uv(var12 - (var21 + var18), var12 + var15).endVertex();
-                    var0.vertex(var1.getMaxX() - var4, var6, var19 + var20 - var5).uv(var12 - (var21 + var18), var12 + 0.0F).endVertex();
-                    var0.vertex(var1.getMaxX() - var4, var6, var19 - var5).uv(var12 - var18, var12 + 0.0F).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, -var6, var19 - var5).uv(var12 - var18, var12 + var14).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, -var6, var19 + var20 - var5).uv(var12 - (var21 + var18), var12 + var14).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, var6, var19 + var20 - var5).uv(var12 - (var21 + var18), var12 + var13).endVertex();
+                    var0.vertex(var1.getMaxX() - var4, var6, var19 - var5).uv(var12 - var18, var12 + var13).endVertex();
                     ++var19;
                 }
             }
 
             if (var4 < var1.getMinX() + var2) {
-                float var22 = 0.0F;
+                float var22 = var17;
 
-                for(double var23 = var16; var23 < var17; var22 += 0.5F) {
-                    double var24 = Math.min(1.0, var17 - var23);
+                for(double var23 = var15; var23 < var16; var22 += 0.5F) {
+                    double var24 = Math.min(1.0, var16 - var23);
                     float var25 = (float)var24 * 0.5F;
-                    var0.vertex(var1.getMinX() - var4, -var6, var23 - var5).uv(var12 + var22, var12 + var15).endVertex();
-                    var0.vertex(var1.getMinX() - var4, -var6, var23 + var24 - var5).uv(var12 + var25 + var22, var12 + var15).endVertex();
-                    var0.vertex(var1.getMinX() - var4, var6, var23 + var24 - var5).uv(var12 + var25 + var22, var12 + 0.0F).endVertex();
-                    var0.vertex(var1.getMinX() - var4, var6, var23 - var5).uv(var12 + var22, var12 + 0.0F).endVertex();
+                    var0.vertex(var1.getMinX() - var4, -var6, var23 - var5).uv(var12 + var22, var12 + var14).endVertex();
+                    var0.vertex(var1.getMinX() - var4, -var6, var23 + var24 - var5).uv(var12 + var25 + var22, var12 + var14).endVertex();
+                    var0.vertex(var1.getMinX() - var4, var6, var23 + var24 - var5).uv(var12 + var25 + var22, var12 + var13).endVertex();
+                    var0.vertex(var1.getMinX() - var4, var6, var23 - var5).uv(var12 + var22, var12 + var13).endVertex();
                     ++var23;
                 }
             }
 
-            var16 = Math.max((double)Mth.floor(var4 - var2), var1.getMinX());
-            var17 = Math.min((double)Mth.ceil(var4 + var2), var1.getMaxX());
+            var15 = Math.max((double)Mth.floor(var4 - var2), var1.getMinX());
+            var16 = Math.min((double)Mth.ceil(var4 + var2), var1.getMaxX());
+            var17 = (float)(Mth.floor(var15) & 1) * 0.5F;
             if (var5 > var1.getMaxZ() - var2) {
-                float var26 = 0.0F;
+                float var26 = var17;
 
-                for(double var27 = var16; var27 < var17; var26 += 0.5F) {
-                    double var28 = Math.min(1.0, var17 - var27);
+                for(double var27 = var15; var27 < var16; var26 += 0.5F) {
+                    double var28 = Math.min(1.0, var16 - var27);
                     float var29 = (float)var28 * 0.5F;
-                    var0.vertex(var27 - var4, -var6, var1.getMaxZ() - var5).uv(var12 + var26, var12 + var15).endVertex();
-                    var0.vertex(var27 + var28 - var4, -var6, var1.getMaxZ() - var5).uv(var12 + var29 + var26, var12 + var15).endVertex();
-                    var0.vertex(var27 + var28 - var4, var6, var1.getMaxZ() - var5).uv(var12 + var29 + var26, var12 + 0.0F).endVertex();
-                    var0.vertex(var27 - var4, var6, var1.getMaxZ() - var5).uv(var12 + var26, var12 + 0.0F).endVertex();
+                    var0.vertex(var27 - var4, -var6, var1.getMaxZ() - var5).uv(var12 + var26, var12 + var14).endVertex();
+                    var0.vertex(var27 + var28 - var4, -var6, var1.getMaxZ() - var5).uv(var12 + var29 + var26, var12 + var14).endVertex();
+                    var0.vertex(var27 + var28 - var4, var6, var1.getMaxZ() - var5).uv(var12 + var29 + var26, var12 + var13).endVertex();
+                    var0.vertex(var27 - var4, var6, var1.getMaxZ() - var5).uv(var12 + var26, var12 + var13).endVertex();
                     ++var27;
                 }
             }
 
             if (var5 < var1.getMinZ() + var2) {
-                float var30 = 0.0F;
+                float var30 = var17;
 
-                for(double var31 = var16; var31 < var17; var30 += 0.5F) {
-                    double var32 = Math.min(1.0, var17 - var31);
+                for(double var31 = var15; var31 < var16; var30 += 0.5F) {
+                    double var32 = Math.min(1.0, var16 - var31);
                     float var33 = (float)var32 * 0.5F;
-                    var0.vertex(var31 - var4, -var6, var1.getMinZ() - var5).uv(var12 - var30, var12 + var15).endVertex();
-                    var0.vertex(var31 + var32 - var4, -var6, var1.getMinZ() - var5).uv(var12 - (var33 + var30), var12 + var15).endVertex();
-                    var0.vertex(var31 + var32 - var4, var6, var1.getMinZ() - var5).uv(var12 - (var33 + var30), var12 + 0.0F).endVertex();
-                    var0.vertex(var31 - var4, var6, var1.getMinZ() - var5).uv(var12 - var30, var12 + 0.0F).endVertex();
+                    var0.vertex(var31 - var4, -var6, var1.getMinZ() - var5).uv(var12 - var30, var12 + var14).endVertex();
+                    var0.vertex(var31 + var32 - var4, -var6, var1.getMinZ() - var5).uv(var12 - (var33 + var30), var12 + var14).endVertex();
+                    var0.vertex(var31 + var32 - var4, var6, var1.getMinZ() - var5).uv(var12 - (var33 + var30), var12 + var13).endVertex();
+                    var0.vertex(var31 - var4, var6, var1.getMinZ() - var5).uv(var12 - var30, var12 + var13).endVertex();
                     ++var31;
                 }
             }

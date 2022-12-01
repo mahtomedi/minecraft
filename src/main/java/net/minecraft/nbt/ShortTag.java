@@ -5,10 +5,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class ShortTag extends NumericTag {
-    private static final int SELF_SIZE_IN_BITS = 80;
+    private static final int SELF_SIZE_IN_BYTES = 10;
     public static final TagType<ShortTag> TYPE = new TagType.StaticSize<ShortTag>() {
         public ShortTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBits(80L);
+            param2.accountBytes(10L);
             return ShortTag.valueOf(param0.readShort());
         }
 
@@ -53,8 +53,8 @@ public class ShortTag extends NumericTag {
     }
 
     @Override
-    public int sizeInBits() {
-        return 80;
+    public int sizeInBytes() {
+        return 10;
     }
 
     @Override

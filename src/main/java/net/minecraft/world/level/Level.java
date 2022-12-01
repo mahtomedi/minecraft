@@ -390,7 +390,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.playSeededSound(param0, param1, param2, param3, BuiltInRegistries.SOUND_EVENT.wrapAsHolder(param4), param5, param6, param7, param8);
     }
 
-    public abstract void playSeededSound(@Nullable Player var1, Entity var2, SoundEvent var3, SoundSource var4, float var5, float var6, long var7);
+    public abstract void playSeededSound(@Nullable Player var1, Entity var2, Holder<SoundEvent> var3, SoundSource var4, float var5, float var6, long var7);
 
     public void playSound(
         @Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5, float param6, float param7
@@ -399,7 +399,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public void playSound(@Nullable Player param0, Entity param1, SoundEvent param2, SoundSource param3, float param4, float param5) {
-        this.playSeededSound(param0, param1, param2, param3, param4, param5, this.threadSafeRandom.nextLong());
+        this.playSeededSound(param0, param1, BuiltInRegistries.SOUND_EVENT.wrapAsHolder(param2), param3, param4, param5, this.threadSafeRandom.nextLong());
     }
 
     public void playLocalSound(BlockPos param0, SoundEvent param1, SoundSource param2, float param3, float param4, boolean param5) {

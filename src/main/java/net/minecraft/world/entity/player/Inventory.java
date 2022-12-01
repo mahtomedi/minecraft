@@ -551,7 +551,7 @@ public class Inventory implements Container, Nameable {
     public boolean contains(ItemStack param0) {
         for(List<ItemStack> var0 : this.compartments) {
             for(ItemStack var1 : var0) {
-                if (!var1.isEmpty() && var1.sameItem(param0)) {
+                if (!var1.isEmpty() && ItemStack.isSameItemSameTags(var1, param0)) {
                     return true;
                 }
             }
