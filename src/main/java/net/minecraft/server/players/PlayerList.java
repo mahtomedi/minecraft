@@ -490,7 +490,8 @@ public abstract class PlayerList {
             var7.setPos(var7.getX(), var7.getY() + 1.0, var7.getZ());
         }
 
-        LevelData var16 = var7.level.getLevelData();
+        byte var16 = (byte)(param1 ? 1 : 0);
+        LevelData var17 = var7.level.getLevelData();
         var7.connection
             .send(
                 new ClientboundRespawnPacket(
@@ -501,13 +502,13 @@ public abstract class PlayerList {
                     var7.gameMode.getPreviousGameModeForPlayer(),
                     var7.getLevel().isDebug(),
                     var7.getLevel().isFlat(),
-                    param1,
+                    var16,
                     var7.getLastDeathLocation()
                 )
             );
         var7.connection.teleport(var7.getX(), var7.getY(), var7.getZ(), var7.getYRot(), var7.getXRot());
         var7.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var6.getSharedSpawnPos(), var6.getSharedSpawnAngle()));
-        var7.connection.send(new ClientboundChangeDifficultyPacket(var16.getDifficulty(), var16.isDifficultyLocked()));
+        var7.connection.send(new ClientboundChangeDifficultyPacket(var17.getDifficulty(), var17.isDifficultyLocked()));
         var7.connection.send(new ClientboundSetExperiencePacket(var7.experienceProgress, var7.totalExperience, var7.experienceLevel));
         this.sendLevelInfo(var7, var6);
         this.sendPlayerPermissionLevel(var7);

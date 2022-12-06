@@ -12,6 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 
 public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener> {
+    public static final byte KEEP_ATTRIBUTES = 1;
+    public static final byte KEEP_ENTITY_DATA = 2;
+    public static final byte KEEP_ALL_DATA = 3;
     private final ResourceKey<DimensionType> dimensionType;
     private final ResourceKey<Level> dimension;
     private final long seed;
@@ -20,7 +23,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     private final GameType previousPlayerGameType;
     private final boolean isDebug;
     private final boolean isFlat;
-    private final boolean keepAllPlayerData;
+    private final byte dataToKeep;
     private final Optional<GlobalPos> lastDeathLocation;
 
     public ClientboundRespawnPacket(
@@ -31,7 +34,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         @Nullable GameType param4,
         boolean param5,
         boolean param6,
-        boolean param7,
+        byte param7,
         Optional<GlobalPos> param8
     ) {
         this.dimensionType = param0;
@@ -41,7 +44,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.previousPlayerGameType = param4;
         this.isDebug = param5;
         this.isFlat = param6;
-        this.keepAllPlayerData = param7;
+        this.dataToKeep = param7;
         this.lastDeathLocation = param8;
     }
 
@@ -53,7 +56,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.previousPlayerGameType = GameType.byNullableId(param0.readByte());
         this.isDebug = param0.readBoolean();
         this.isFlat = param0.readBoolean();
-        this.keepAllPlayerData = param0.readBoolean();
+        this.dataToKeep = param0.readByte();
         this.lastDeathLocation = param0.readOptional(FriendlyByteBuf::readGlobalPos);
     }
 
@@ -66,7 +69,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.writeByte(GameType.getNullableId(this.previousPlayerGameType));
         param0.writeBoolean(this.isDebug);
         param0.writeBoolean(this.isFlat);
-        param0.writeBoolean(this.keepAllPlayerData);
+        param0.writeByte(this.dataToKeep);
         param0.writeOptional(this.lastDeathLocation, FriendlyByteBuf::writeGlobalPos);
     }
 
@@ -103,8 +106,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         return this.isFlat;
     }
 
-    public boolean shouldKeepAllPlayerData() {
-        return this.keepAllPlayerData;
+    public boolean shouldKeep(byte param0) {
+        return (this.dataToKeep & param0) != 0;
     }
 
     public Optional<GlobalPos> getLastDeathLocation() {

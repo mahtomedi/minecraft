@@ -232,7 +232,7 @@ public class ParticleEngine implements PreparableReloadListener {
             .loadAndStitch(param1, PARTICLES_ATLAS_INFO, 0, param4)
             .thenCompose(SpriteLoader.Preparations::waitForUpload);
         return CompletableFuture.allOf(var1, var0).thenCompose(param0::wait).thenAcceptAsync(param3x -> {
-            this.particles.clear();
+            this.clearParticles();
             param3.startTick();
             param3.push("upload");
             SpriteLoader.Preparations var0x = (SpriteLoader.Preparations)var1.join();
@@ -445,9 +445,8 @@ public class ParticleEngine implements PreparableReloadListener {
 
     public void setLevel(@Nullable ClientLevel param0) {
         this.level = param0;
-        this.particles.clear();
+        this.clearParticles();
         this.trackingEmitters.clear();
-        this.trackedParticleCounts.clear();
     }
 
     public void destroy(BlockPos param0, BlockState param1) {
@@ -539,6 +538,11 @@ public class ParticleEngine implements PreparableReloadListener {
 
     private boolean hasSpaceInParticleLimit(ParticleGroup param0) {
         return this.trackedParticleCounts.getInt(param0) < param0.getLimit();
+    }
+
+    private void clearParticles() {
+        this.particles.clear();
+        this.trackedParticleCounts.clear();
     }
 
     @OnlyIn(Dist.CLIENT)
