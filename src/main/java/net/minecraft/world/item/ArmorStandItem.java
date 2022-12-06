@@ -1,5 +1,6 @@
 package net.minecraft.world.item;
 
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Rotations;
@@ -38,17 +39,19 @@ public class ArmorStandItem extends Item {
             AABB var6 = EntityType.ARMOR_STAND.getDimensions().makeBoundingBox(var5.x(), var5.y(), var5.z());
             if (var1.noCollision(null, var6) && var1.getEntities(null, var6).isEmpty()) {
                 if (var1 instanceof ServerLevel var7) {
-                    ArmorStand var8 = EntityType.ARMOR_STAND.create(var7, var4.getTag(), null, var3, MobSpawnType.SPAWN_EGG, true, true);
-                    if (var8 == null) {
+                    Consumer<ArmorStand> var8 = EntityType.appendCustomEntityStackConfig(param0x -> {
+                    }, var7, var4, param0.getPlayer());
+                    ArmorStand var9 = EntityType.ARMOR_STAND.create(var7, var4.getTag(), var8, var3, MobSpawnType.SPAWN_EGG, true, true);
+                    if (var9 == null) {
                         return InteractionResult.FAIL;
                     }
 
-                    float var9 = (float)Mth.floor((Mth.wrapDegrees(param0.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
-                    var8.moveTo(var8.getX(), var8.getY(), var8.getZ(), var9, 0.0F);
-                    this.randomizePose(var8, var1.random);
-                    var7.addFreshEntityWithPassengers(var8);
-                    var1.playSound(null, var8.getX(), var8.getY(), var8.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
-                    var8.gameEvent(GameEvent.ENTITY_PLACE, param0.getPlayer());
+                    float var10 = (float)Mth.floor((Mth.wrapDegrees(param0.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
+                    var9.moveTo(var9.getX(), var9.getY(), var9.getZ(), var10, 0.0F);
+                    this.randomizePose(var9, var1.random);
+                    var7.addFreshEntityWithPassengers(var9);
+                    var1.playSound(null, var9.getX(), var9.getY(), var9.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
+                    var9.gameEvent(GameEvent.ENTITY_PLACE, param0.getPlayer());
                 }
 
                 var4.shrink(1);

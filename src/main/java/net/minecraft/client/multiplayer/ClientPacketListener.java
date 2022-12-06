@@ -223,6 +223,7 @@ import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceKey;
@@ -1073,8 +1074,14 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         }
 
         this.minecraft.cameraEntity = var10;
-        var10.getEntityData().assignValues(var2.getEntityData().getNonDefaultValues());
-        if (param0.shouldKeepAllPlayerData()) {
+        if (param0.shouldKeep((byte)2)) {
+            List<SynchedEntityData.DataValue<?>> var11 = var2.getEntityData().getNonDefaultValues();
+            if (var11 != null) {
+                var10.getEntityData().assignValues(var11);
+            }
+        }
+
+        if (param0.shouldKeep((byte)1)) {
             var10.getAttributes().assignValues(var2.getAttributes());
         }
 

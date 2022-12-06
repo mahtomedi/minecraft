@@ -628,23 +628,36 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
     public T spawn(
         ServerLevel param0, @Nullable ItemStack param1, @Nullable Player param2, BlockPos param3, MobSpawnType param4, boolean param5, boolean param6
     ) {
-        Consumer<T> var0 = param0x -> {
-        };
-        CompoundTag var1;
+        Consumer<T> var1;
+        CompoundTag var0;
         if (param1 != null) {
-            if (param1.hasCustomHoverName()) {
-                var0 = param1x -> param1x.setCustomName(param1.getHoverName());
-            }
-
-            var1 = param1.getTag();
-            if (var1 != null) {
-                var0 = var0.andThen(param3x -> updateCustomEntityTag(param0, param2, param3x, var1));
-            }
+            var0 = param1.getTag();
+            var1 = createDefaultStackConfig(param0, param1, param2);
         } else {
-            var1 = null;
+            var1 = param0x -> {
+            };
+            var0 = null;
         }
 
-        return this.spawn(param0, var1, var0, param3, param4, param5, param6);
+        return this.spawn(param0, var0, var1, param3, param4, param5, param6);
+    }
+
+    public static <T extends Entity> Consumer<T> createDefaultStackConfig(ServerLevel param0, ItemStack param1, @Nullable Player param2) {
+        Consumer<T> var0 = param0x -> {
+        };
+        var0 = appendCustomNameConfig(var0, param1);
+        return appendCustomEntityStackConfig(var0, param0, param1, param2);
+    }
+
+    public static <T extends Entity> Consumer<T> appendCustomNameConfig(Consumer<T> param0, ItemStack param1) {
+        return param1.hasCustomHoverName() ? param0.andThen(param1x -> param1x.setCustomName(param1.getHoverName())) : param0;
+    }
+
+    public static <T extends Entity> Consumer<T> appendCustomEntityStackConfig(
+        Consumer<T> param0, ServerLevel param1, ItemStack param2, @Nullable Player param3
+    ) {
+        CompoundTag var0 = param2.getTag();
+        return var0 != null ? param0.andThen(param3x -> updateCustomEntityTag(param1, param3, param3x, var0)) : param0;
     }
 
     @Nullable
