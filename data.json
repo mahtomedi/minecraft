@@ -120,27 +120,27 @@
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "df83f55790fadb7aba06e84605531d421c6f8fe2",
-      "size": 22704185,
-      "url": "https://piston-data.mojang.com/v1/objects/df83f55790fadb7aba06e84605531d421c6f8fe2/client.jar"
+      "sha1": "977727ec9ab8b4631e5c12839f064092f17663f8",
+      "size": 22704188,
+      "url": "https://piston-data.mojang.com/v1/objects/977727ec9ab8b4631e5c12839f064092f17663f8/client.jar"
     },
     "client_mappings": {
-      "sha1": "81e3f0b8287c0b7faaae21031446526cb615465a",
+      "sha1": "42366909cc612e76208d34bf1356f05a88e08a1d",
       "size": 7574170,
-      "url": "https://piston-data.mojang.com/v1/objects/81e3f0b8287c0b7faaae21031446526cb615465a/client.txt"
+      "url": "https://piston-data.mojang.com/v1/objects/42366909cc612e76208d34bf1356f05a88e08a1d/client.txt"
     },
     "server": {
-      "sha1": "5f459ba58558d797229c819c0314bec84e774ecb",
-      "size": 47164898,
-      "url": "https://piston-data.mojang.com/v1/objects/5f459ba58558d797229c819c0314bec84e774ecb/server.jar"
+      "sha1": "c9df48efed58511cdd0213c56b9013a7b5c9ac1f",
+      "size": 47162712,
+      "url": "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
     },
     "server_mappings": {
-      "sha1": "48f573d570db6fa7ab99e62ce2bf4a00abcc6166",
+      "sha1": "bc44f6dd84cd2f3ad8c0caad850eaca9e82067e3",
       "size": 5852819,
-      "url": "https://piston-data.mojang.com/v1/objects/48f573d570db6fa7ab99e62ce2bf4a00abcc6166/server.txt"
+      "url": "https://piston-data.mojang.com/v1/objects/bc44f6dd84cd2f3ad8c0caad850eaca9e82067e3/server.txt"
     }
   },
-  "id": "1.19.3-rc3",
+  "id": "1.19.3",
   "javaVersion": {
     "component": "java-runtime-gamma",
     "majorVersion": 17
@@ -1405,7 +1405,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2022-12-06T10:24:01+00:00",
-  "time": "2022-12-06T10:24:01+00:00",
-  "type": "snapshot"
+  "releaseTime": "2022-12-07T08:17:18+00:00",
+  "time": "2022-12-07T08:17:18+00:00",
+  "type": "release"
 }
