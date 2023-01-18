@@ -3,6 +3,7 @@ package net.minecraft.server.level;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
@@ -204,11 +206,13 @@ public class ServerEntity {
     }
 
     public void addPairing(ServerPlayer param0) {
-        this.sendPairingData(param0.connection::send);
+        List<Packet<ClientGamePacketListener>> var0 = new ArrayList<>();
+        this.sendPairingData(var0::add);
+        param0.connection.send(new ClientboundBundlePacket(var0));
         this.entity.startSeenByPlayer(param0);
     }
 
-    public void sendPairingData(Consumer<Packet<?>> param0) {
+    public void sendPairingData(Consumer<Packet<ClientGamePacketListener>> param0) {
         if (this.entity.isRemoved()) {
             LOGGER.warn("Fetching packet for removed entity {}", this.entity);
         }

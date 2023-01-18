@@ -287,11 +287,6 @@ public class PresetFlatWorldScreen extends Screen {
         }
 
         @Override
-        protected boolean isFocused() {
-            return PresetFlatWorldScreen.this.getFocused() == this;
-        }
-
-        @Override
         public boolean keyPressed(int param0, int param1, int param2) {
             if (super.keyPressed(param0, param1, param2)) {
                 return true;
@@ -346,7 +341,6 @@ public class PresetFlatWorldScreen extends Screen {
             }
 
             private void blitSlotBg(PoseStack param0, int param1, int param2) {
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
                 GuiComponent.blit(param0, param1, param2, PresetFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
             }

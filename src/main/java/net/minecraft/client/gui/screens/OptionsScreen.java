@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.client.gui.components.FrameWidget;
-import net.minecraft.client.gui.components.GridWidget;
-import net.minecraft.client.gui.components.LinearLayoutWidget;
 import net.minecraft.client.gui.components.LockIconButton;
-import net.minecraft.client.gui.components.SpacerWidget;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.gui.screens.telemetry.TelemetryInfoScreen;
@@ -52,12 +52,12 @@ public class OptionsScreen extends Screen {
 
     @Override
     protected void init() {
-        GridWidget var0 = new GridWidget();
+        GridLayout var0 = new GridLayout();
         var0.defaultCellSetting().paddingHorizontal(5).paddingBottom(4).alignHorizontallyCenter();
-        GridWidget.RowHelper var1 = var0.createRowHelper(2);
+        GridLayout.RowHelper var1 = var0.createRowHelper(2);
         var1.addChild(this.options.fov().createButton(this.minecraft.options, 0, 0, 150));
         var1.addChild(this.createOnlineButton());
-        var1.addChild(SpacerWidget.height(26), 2);
+        var1.addChild(SpacerElement.height(26), 2);
         var1.addChild(this.openScreenButton(SKIN_CUSTOMIZATION, () -> new SkinCustomizationScreen(this, this.options)));
         var1.addChild(this.openScreenButton(SOUNDS, () -> new SoundOptionsScreen(this, this.options)));
         var1.addChild(this.openScreenButton(VIDEO, () -> new VideoSettingsScreen(this, this.options)));
@@ -83,12 +83,12 @@ public class OptionsScreen extends Screen {
             2,
             var1.newCellSettings().paddingTop(6)
         );
-        var0.pack();
-        FrameWidget.alignInRectangle(var0, 0, this.height / 6 - 12, this.width, this.height, 0.5F, 0.0F);
-        this.addRenderableWidget(var0);
+        var0.arrangeElements();
+        FrameLayout.alignInRectangle(var0, 0, this.height / 6 - 12, this.width, this.height, 0.5F, 0.0F);
+        var0.visitWidgets(this::addRenderableWidget);
     }
 
-    private AbstractWidget createOnlineButton() {
+    private LayoutElement createOnlineButton() {
         if (this.minecraft.level != null && this.minecraft.hasSingleplayerServer()) {
             this.difficultyButton = createDifficultyButton(0, 0, "options.difficulty", this.minecraft);
             if (!this.minecraft.level.getLevelData().isHardcore()) {
@@ -108,10 +108,9 @@ public class OptionsScreen extends Screen {
                 this.lockButton.setLocked(this.minecraft.level.getLevelData().isDifficultyLocked());
                 this.lockButton.active = !this.lockButton.isLocked();
                 this.difficultyButton.active = !this.lockButton.isLocked();
-                LinearLayoutWidget var0 = new LinearLayoutWidget(150, 0, LinearLayoutWidget.Orientation.HORIZONTAL);
+                LinearLayout var0 = new LinearLayout(150, 0, LinearLayout.Orientation.HORIZONTAL);
                 var0.addChild(this.difficultyButton);
                 var0.addChild(this.lockButton);
-                var0.pack();
                 return var0;
             } else {
                 this.difficultyButton.active = false;

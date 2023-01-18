@@ -81,7 +81,6 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         Lighting.setupForFlatItems();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, ENCHANTING_TABLE_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
@@ -105,8 +104,8 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         param0.mulPose(Axis.XP.rotationDegrees(180.0F));
         float var7 = Mth.lerp(param1, this.oFlip, this.flip) + 0.25F;
         float var8 = Mth.lerp(param1, this.oFlip, this.flip) + 0.75F;
-        var7 = (var7 - (float)Mth.fastFloor((double)var7)) * 1.6F - 0.3F;
-        var8 = (var8 - (float)Mth.fastFloor((double)var8)) * 1.6F - 0.3F;
+        var7 = (var7 - (float)Mth.floor(var7)) * 1.6F - 0.3F;
+        var8 = (var8 - (float)Mth.floor(var8)) * 1.6F - 0.3F;
         if (var7 < 0.0F) {
             var7 = 0.0F;
         }
@@ -132,7 +131,6 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
         RenderSystem.restoreProjectionMatrix();
         Lighting.setupFor3DItems();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         EnchantmentNames.getInstance().initSeed((long)this.menu.getEnchantmentSeed());
         int var11 = this.menu.getGoldCount();
 
@@ -143,7 +141,6 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, ENCHANTING_TABLE_LOCATION);
             int var15 = this.menu.costs[var12];
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             if (var15 == 0) {
                 this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
             } else {

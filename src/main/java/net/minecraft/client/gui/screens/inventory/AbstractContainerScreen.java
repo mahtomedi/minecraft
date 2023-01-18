@@ -97,9 +97,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         var2.pushPose();
         var2.translate((float)var0, (float)var1, 0.0F);
         RenderSystem.applyModelViewMatrix();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.hoveredSlot = null;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         for(int var3 = 0; var3 < this.menu.slots.size(); ++var3) {
             Slot var4 = this.menu.slots.get(var3);

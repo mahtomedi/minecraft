@@ -643,10 +643,12 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
     }
 
     public static <T extends Entity> Consumer<T> createDefaultStackConfig(ServerLevel param0, ItemStack param1, @Nullable Player param2) {
-        Consumer<T> var0 = param0x -> {
-        };
-        var0 = appendCustomNameConfig(var0, param1);
-        return appendCustomEntityStackConfig(var0, param0, param1, param2);
+        return appendDefaultStackConfig(param0x -> {
+        }, param0, param1, param2);
+    }
+
+    public static <T extends Entity> Consumer<T> appendDefaultStackConfig(Consumer<T> param0, ServerLevel param1, ItemStack param2, @Nullable Player param3) {
+        return appendCustomEntityStackConfig(appendCustomNameConfig(param0, param2), param1, param2, param3);
     }
 
     public static <T extends Entity> Consumer<T> appendCustomNameConfig(Consumer<T> param0, ItemStack param1) {

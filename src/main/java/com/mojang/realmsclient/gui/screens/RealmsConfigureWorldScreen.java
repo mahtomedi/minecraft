@@ -428,7 +428,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void drawExpired(PoseStack param0, int param1, int param2, int param3, int param4) {
         RenderSystem.setShaderTexture(0, EXPIRED_ICON_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
             this.toolTip = SERVER_EXPIRED_TOOLTIP;
@@ -438,7 +437,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void drawExpiring(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
         RenderSystem.setShaderTexture(0, EXPIRES_SOON_ICON_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.animTick % 20 < 10) {
             GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 20, 28);
         } else {
@@ -459,7 +457,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void drawOpen(PoseStack param0, int param1, int param2, int param3, int param4) {
         RenderSystem.setShaderTexture(0, ON_ICON_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
             this.toolTip = SERVER_OPEN_TOOLTIP;
@@ -469,7 +466,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void drawClose(PoseStack param0, int param1, int param2, int param3, int param4) {
         RenderSystem.setShaderTexture(0, OFF_ICON_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
             this.toolTip = SERVER_CLOSED_TOOLTIP;

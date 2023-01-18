@@ -39,8 +39,7 @@ public class ArmorStandItem extends Item {
             AABB var6 = EntityType.ARMOR_STAND.getDimensions().makeBoundingBox(var5.x(), var5.y(), var5.z());
             if (var1.noCollision(null, var6) && var1.getEntities(null, var6).isEmpty()) {
                 if (var1 instanceof ServerLevel var7) {
-                    Consumer<ArmorStand> var8 = EntityType.appendCustomEntityStackConfig(param0x -> {
-                    }, var7, var4, param0.getPlayer());
+                    Consumer<ArmorStand> var8 = EntityType.createDefaultStackConfig(var7, var4, param0.getPlayer());
                     ArmorStand var9 = EntityType.ARMOR_STAND.create(var7, var4.getTag(), var8, var3, MobSpawnType.SPAWN_EGG, true, true);
                     if (var9 == null) {
                         return InteractionResult.FAIL;

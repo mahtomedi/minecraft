@@ -105,20 +105,16 @@ public class SwimNodeEvaluator extends NodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
-        return this.getBlockPathType(
-            param0, param1, param2, param3, this.mob, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors()
-        );
+        return this.getBlockPathType(param0, param1, param2, param3, this.mob);
     }
 
     @Override
-    public BlockPathTypes getBlockPathType(
-        BlockGetter param0, int param1, int param2, int param3, Mob param4, int param5, int param6, int param7, boolean param8, boolean param9
-    ) {
+    public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3, Mob param4) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
-        for(int var1 = param1; var1 < param1 + param5; ++var1) {
-            for(int var2 = param2; var2 < param2 + param6; ++var2) {
-                for(int var3 = param3; var3 < param3 + param7; ++var3) {
+        for(int var1 = param1; var1 < param1 + this.entityWidth; ++var1) {
+            for(int var2 = param2; var2 < param2 + this.entityHeight; ++var2) {
+                for(int var3 = param3; var3 < param3 + this.entityDepth; ++var3) {
                     FluidState var4 = param0.getFluidState(var0.set(var1, var2, var3));
                     BlockState var5 = param0.getBlockState(var0.set(var1, var2, var3));
                     if (var4.isEmpty() && var5.isPathfindable(param0, var0.below(), PathComputationType.WATER) && var5.isAir()) {

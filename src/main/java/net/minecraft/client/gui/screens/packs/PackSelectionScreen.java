@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -135,8 +136,27 @@ public class PackSelectionScreen extends Screen {
 
     private void updateList(TransferableSelectionList param0, Stream<PackSelectionModel.Entry> param1) {
         param0.children().clear();
+        TransferableSelectionList.PackEntry var0 = param0.getSelected();
+        String var1 = var0 == null ? "" : var0.getPackId();
         param0.setSelected(null);
-        param1.forEach(param1x -> param0.children().add(new TransferableSelectionList.PackEntry(this.minecraft, param0, this, param1x)));
+        param1.forEach(param2 -> {
+            TransferableSelectionList.PackEntry var0x = new TransferableSelectionList.PackEntry(this.minecraft, param0, param2);
+            param0.children().add(var0x);
+            if (param2.getId().equals(var1)) {
+                param0.setSelected(var0x);
+            }
+
+        });
+    }
+
+    public void updateFocus(PackSelectionModel.Entry param0, TransferableSelectionList param1) {
+        TransferableSelectionList var0 = this.selectedPackList == param1 ? this.availablePackList : this.selectedPackList;
+        this.changeFocus(ComponentPath.path(var0.getFirstElement(), var0, this));
+    }
+
+    public void clearSelected() {
+        this.selectedPackList.setSelected(null);
+        this.availablePackList.setSelected(null);
     }
 
     private void reload() {
@@ -148,7 +168,7 @@ public class PackSelectionScreen extends Screen {
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
-        this.renderDirtBackground(0);
+        this.renderDirtBackground(param0);
         this.availablePackList.render(param0, param1, param2, param3);
         this.selectedPackList.render(param0, param1, param2, param3);
         drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);

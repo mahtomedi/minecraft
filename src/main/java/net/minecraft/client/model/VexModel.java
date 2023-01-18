@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -79,31 +80,48 @@ public class VexModel extends HierarchicalModel<Vex> implements ArmedModel {
 
     public void setupAnim(Vex param0, float param1, float param2, float param3, float param4, float param5) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
-        this.body.xRot = 6.440265F;
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
-        float var0 = (float) (Math.PI / 5) + Mth.cos(param3 * 5.5F * (float) (Math.PI / 180.0)) * 0.1F;
+        float var0 = Mth.cos(param3 * 5.5F * (float) (Math.PI / 180.0)) * 0.1F;
+        this.rightArm.zRot = (float) (Math.PI / 5) + var0;
+        this.leftArm.zRot = -((float) (Math.PI / 5) + var0);
         if (param0.isCharging()) {
             this.body.xRot = 0.0F;
-            this.rightArm.xRot = (float) (Math.PI * 7.0 / 6.0);
-            this.rightArm.yRot = (float) (Math.PI / 12);
-            this.rightArm.zRot = -0.47123888F;
+            this.setArmsCharging(param0.getMainHandItem(), param0.getOffhandItem(), var0);
         } else {
             this.body.xRot = (float) (Math.PI / 20);
-            this.rightArm.xRot = 0.0F;
-            this.rightArm.yRot = 0.0F;
-            this.rightArm.zRot = var0;
         }
 
-        this.leftArm.zRot = -var0;
-        this.rightWing.y = 1.0F;
-        this.leftWing.y = 1.0F;
         this.leftWing.yRot = 1.0995574F + Mth.cos(param3 * 45.836624F * (float) (Math.PI / 180.0)) * (float) (Math.PI / 180.0) * 16.2F;
         this.rightWing.yRot = -this.leftWing.yRot;
         this.leftWing.xRot = 0.47123888F;
         this.leftWing.zRot = -0.47123888F;
         this.rightWing.xRot = 0.47123888F;
         this.rightWing.zRot = 0.47123888F;
+    }
+
+    private void setArmsCharging(ItemStack param0, ItemStack param1, float param2) {
+        if (param0.isEmpty() && param1.isEmpty()) {
+            this.rightArm.xRot = -1.2217305F;
+            this.rightArm.yRot = (float) (Math.PI / 12);
+            this.rightArm.zRot = -0.47123888F - param2;
+            this.leftArm.xRot = -1.2217305F;
+            this.leftArm.yRot = (float) (-Math.PI / 12);
+            this.leftArm.zRot = 0.47123888F + param2;
+        } else {
+            if (!param0.isEmpty()) {
+                this.rightArm.xRot = (float) (Math.PI * 7.0 / 6.0);
+                this.rightArm.yRot = (float) (Math.PI / 12);
+                this.rightArm.zRot = -0.47123888F - param2;
+            }
+
+            if (!param1.isEmpty()) {
+                this.leftArm.xRot = (float) (Math.PI * 7.0 / 6.0);
+                this.leftArm.yRot = (float) (-Math.PI / 12);
+                this.leftArm.zRot = 0.47123888F + param2;
+            }
+
+        }
     }
 
     @Override

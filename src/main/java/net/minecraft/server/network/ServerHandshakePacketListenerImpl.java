@@ -57,7 +57,7 @@ public class ServerHandshakePacketListenerImpl implements ServerHandshakePacketL
     }
 
     @Override
-    public Connection getConnection() {
-        return this.connection;
+    public boolean isAcceptingMessages() {
+        return this.connection.isConnected();
     }
 }

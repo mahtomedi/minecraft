@@ -2,7 +2,6 @@ package net.minecraft.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import java.util.function.Function;
 
 public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclusive) {
     public static final Codec<InclusiveRange<Integer>> INT = codec(Codec.INT);
@@ -23,16 +22,22 @@ public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclu
     }
 
     public static <T extends Comparable<T>> Codec<InclusiveRange<T>> codec(Codec<T> param0, T param1, T param2) {
-        Function<InclusiveRange<T>, DataResult<InclusiveRange<T>>> var0 = param2x -> {
-            if (param2x.minInclusive().compareTo(param1) < 0) {
-                return DataResult.error("Range limit too low, expected at least " + param1 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]");
-            } else {
-                return param2x.maxInclusive().compareTo(param2) > 0
-                    ? DataResult.error("Range limit too high, expected at most " + param2 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]")
-                    : DataResult.success(param2x);
+        return ExtraCodecs.validate(
+            codec(param0),
+            param2x -> {
+                if (param2x.minInclusive().compareTo(param1) < 0) {
+                    return DataResult.error(
+                        "Range limit too low, expected at least " + param1 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]"
+                    );
+                } else {
+                    return param2x.maxInclusive().compareTo(param2) > 0
+                        ? DataResult.error(
+                            "Range limit too high, expected at most " + param2 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]"
+                        )
+                        : DataResult.success(param2x);
+                }
             }
-        };
-        return codec(param0).flatXmap(var0, var0);
+        );
     }
 
     public static <T extends Comparable<T>> DataResult<InclusiveRange<T>> create(T param0x, T param1) {

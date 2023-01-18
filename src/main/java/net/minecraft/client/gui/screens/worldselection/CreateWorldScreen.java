@@ -182,7 +182,7 @@ public class CreateWorldScreen extends Screen {
             @Override
             protected MutableComponent createNarrationMessage() {
                 return CommonComponents.joinForNarration(super.createNarrationMessage(), Component.translatable("selectWorld.resultFolder"))
-                    .append(" ")
+                    .append(CommonComponents.SPACE)
                     .append(CreateWorldScreen.this.resultFolder);
             }
         };
@@ -205,7 +205,7 @@ public class CreateWorldScreen extends Screen {
                     param0 -> AbstractWidget.wrapDefaultNarrationMessage(param0.getMessage())
                             .append(CommonComponents.NARRATION_SEPARATOR)
                             .append(this.gameModeHelp1)
-                            .append(" ")
+                            .append(CommonComponents.SPACE)
                             .append(this.gameModeHelp2)
                 )
                 .create(var0, 100, 150, 20, GAME_MODEL_LABEL, (param0, param1) -> this.setGameMode(param1))
@@ -440,7 +440,14 @@ public class CreateWorldScreen extends Screen {
             this.worldGenSettingsComponent.render(param0, param1, param2, param3);
         } else {
             drawString(param0, this.font, NAME_LABEL, this.width / 2 - 100, 47, -6250336);
-            drawString(param0, this.font, Component.empty().append(OUTPUT_DIR_INFO).append(" ").append(this.resultFolder), this.width / 2 - 100, 85, -6250336);
+            drawString(
+                param0,
+                this.font,
+                Component.empty().append(OUTPUT_DIR_INFO).append(CommonComponents.SPACE).append(this.resultFolder),
+                this.width / 2 - 100,
+                85,
+                -6250336
+            );
             this.nameEdit.render(param0, param1, param2, param3);
             drawString(param0, this.font, this.gameModeHelp1, this.width / 2 - 150, 122, -6250336);
             drawString(param0, this.font, this.gameModeHelp2, this.width / 2 - 150, 134, -6250336);

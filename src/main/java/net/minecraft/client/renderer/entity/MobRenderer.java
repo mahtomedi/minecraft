@@ -63,7 +63,7 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         float var11 = 0.025F;
         VertexConsumer var12 = param3.getBuffer(RenderType.leash());
         Matrix4f var13 = param2.last().pose();
-        float var14 = Mth.fastInvSqrt(var8 * var8 + var10 * var10) * 0.025F / 2.0F;
+        float var14 = Mth.invSqrt(var8 * var8 + var10 * var10) * 0.025F / 2.0F;
         float var15 = var10 * var14;
         float var16 = var8 * var14;
         BlockPos var17 = new BlockPos(param0.getEyePosition(param1));

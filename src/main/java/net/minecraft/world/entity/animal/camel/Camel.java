@@ -53,6 +53,7 @@ import net.minecraft.world.phys.Vec3;
 public class Camel extends AbstractHorse implements PlayerRideableJumping, RiderShieldingMount, Saddleable {
     public static final Ingredient TEMPTATION_ITEM = Ingredient.of(Items.CACTUS);
     public static final int DASH_COOLDOWN_TICKS = 55;
+    public static final int MAX_HEAD_Y_ROT = 30;
     private static final float RUNNING_SPEED_BONUS = 0.1F;
     private static final float DASH_VERTICAL_MOMENTUM = 1.4285F;
     private static final float DASH_HORIZONTAL_MOMENTUM = 22.2222F;
@@ -83,18 +84,18 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putBoolean("IsSitting", this.getPose() == Pose.SITTING);
         param0.putLong("LastPoseTick", this.entityData.get(LAST_POSE_CHANGE_TICK));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        if (param0.getBoolean("IsSitting")) {
+        long var0 = param0.getLong("LastPoseTick");
+        if (var0 < 0L) {
             this.setPose(Pose.SITTING);
         }
 
-        this.resetLastPoseChangeTick(param0.getLong("LastPoseTick"));
+        this.resetLastPoseChangeTick(var0);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -105,7 +106,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DASH, false);
-        this.entityData.define(LAST_POSE_CHANGE_TICK, -52L);
+        this.entityData.define(LAST_POSE_CHANGE_TICK, 0L);
     }
 
     @Override
@@ -113,7 +114,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         ServerLevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         CamelAi.initMemories(this, param0.getRandom());
-        this.entityData.set(LAST_POSE_CHANGE_TICK, param0.getLevel().getGameTime() - 52L);
+        this.resetLastPoseChangeTickToFullStand(param0.getLevel().getGameTime());
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
@@ -176,6 +177,10 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
             this.setupAnimationStates();
         }
 
+        if (this.refuseToMove()) {
+            this.clampHeadRotationToBody(this, 30.0F);
+        }
+
     }
 
     private void setupAnimationStates() {
@@ -186,33 +191,24 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
             --this.idleAnimationTimeout;
         }
 
-        switch(this.getPose()) {
-            case STANDING:
-                this.sitAnimationState.stop();
+        if (this.isCamelSitting()) {
+            this.walkAnimationState.stop();
+            this.sitUpAnimationState.stop();
+            this.dashAnimationState.stop();
+            if (this.isSittingDown()) {
+                this.sitAnimationState.startIfStopped(this.tickCount);
                 this.sitPoseAnimationState.stop();
-                this.dashAnimationState.animateWhen(this.isDashing(), this.tickCount);
-                this.sitUpAnimationState.animateWhen(this.isInPoseTransition(), this.tickCount);
-                this.walkAnimationState
-                    .animateWhen((this.onGround || this.hasControllingPassenger()) && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6, this.tickCount);
-                break;
-            case SITTING:
-                this.walkAnimationState.stop();
-                this.sitUpAnimationState.stop();
-                this.dashAnimationState.stop();
-                if (this.isSittingDown()) {
-                    this.sitAnimationState.startIfStopped(this.tickCount);
-                    this.sitPoseAnimationState.stop();
-                } else {
-                    this.sitAnimationState.stop();
-                    this.sitPoseAnimationState.startIfStopped(this.tickCount);
-                }
-                break;
-            default:
-                this.walkAnimationState.stop();
+            } else {
                 this.sitAnimationState.stop();
-                this.sitPoseAnimationState.stop();
-                this.sitUpAnimationState.stop();
-                this.dashAnimationState.stop();
+                this.sitPoseAnimationState.startIfStopped(this.tickCount);
+            }
+        } else {
+            this.sitAnimationState.stop();
+            this.sitPoseAnimationState.stop();
+            this.dashAnimationState.animateWhen(this.isDashing(), this.tickCount);
+            this.sitUpAnimationState.animateWhen(this.isInPoseTransition(), this.tickCount);
+            this.walkAnimationState
+                .animateWhen((this.onGround || this.hasControllingPassenger()) && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6, this.tickCount);
         }
 
     }
@@ -230,7 +226,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     }
 
     public boolean refuseToMove() {
-        return this.isPoseSitting() || this.isInPoseTransition();
+        return this.isCamelSitting() || this.isInPoseTransition();
     }
 
     @Override
@@ -242,7 +238,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     @Override
     protected boolean mountIgnoresControllerInput(LivingEntity param0) {
         boolean var0 = this.isInPoseTransition();
-        if (this.isPoseSitting() && !var0 && param0.zza > 0.0F) {
+        if (this.isCamelSitting() && !var0 && param0.zza > 0.0F) {
             this.standUp();
         }
 
@@ -259,6 +255,11 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         if (this.isSaddled() && this.dashCooldown <= 0 && this.isOnGround()) {
             super.onPlayerJump(param0);
         }
+    }
+
+    @Override
+    public boolean canSprint() {
+        return true;
     }
 
     @Override
@@ -357,7 +358,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
 
     @Override
     protected void onLeashDistance(float param0) {
-        if (param0 > 6.0F && this.isPoseSitting() && !this.isInPoseTransition()) {
+        if (param0 > 6.0F && this.isCamelSitting() && !this.isInPoseTransition()) {
             this.standUp();
         }
 
@@ -471,7 +472,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         float var2 = var1 - this.getScale() * 0.2F;
         float var3 = var1 - var2;
         boolean var4 = this.isInPoseTransition();
-        boolean var5 = this.getPose() == Pose.SITTING;
+        boolean var5 = this.isCamelSitting();
         if (var4) {
             int var6 = var5 ? 40 : 52;
             int var7;
@@ -484,7 +485,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
                 var8 = param0 ? 0.6F : 0.35F;
             }
 
-            float var11 = (float)this.getPoseTime() + param1;
+            float var11 = Mth.clamp((float)this.getPoseTime() + param1, 0.0F, (float)var6);
             boolean var12 = var11 < (float)var7;
             float var13 = var12 ? var11 / (float)var7 : (var11 - (float)var7) / (float)(var6 - var7);
             float var14 = var1 - var8 * var2;
@@ -507,7 +508,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
 
     @Override
     public double getPassengersRidingOffset() {
-        return (double)(this.getDimensions(this.getPose()).height - (this.isBaby() ? 0.35F : 0.6F));
+        return (double)(this.getDimensions(this.isCamelSitting() ? Pose.SITTING : Pose.STANDING).height - (this.isBaby() ? 0.35F : 0.6F));
     }
 
     @Override
@@ -527,6 +528,19 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         float var3 = var0 + var2 - var1;
         param0.setYRot(var3);
         param0.setYHeadRot(var3);
+    }
+
+    private void clampHeadRotationToBody(Entity param0, float param1) {
+        float var0 = param0.getYHeadRot();
+        float var1 = Mth.wrapDegrees(this.yBodyRot - var0);
+        float var2 = Mth.clamp(Mth.wrapDegrees(this.yBodyRot - var0), -param1, param1);
+        float var3 = var0 + var1 - var2;
+        param0.setYHeadRot(var3);
+    }
+
+    @Override
+    public int getMaxHeadYRot() {
+        return 30;
     }
 
     @Override
@@ -553,34 +567,29 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         DebugPackets.sendEntityBrain(this);
     }
 
-    public boolean isPoseSitting() {
-        return this.getPose() == Pose.SITTING;
+    public boolean isCamelSitting() {
+        return this.entityData.get(LAST_POSE_CHANGE_TICK) < 0L;
     }
 
     public boolean isInPoseTransition() {
         long var0 = this.getPoseTime();
-
-        return switch(this.getPose()) {
-            case STANDING -> var0 < 52L;
-            case SITTING -> var0 < 40L;
-            default -> false;
-        };
+        return var0 < (long)(this.isCamelSitting() ? 40 : 52);
     }
 
     private boolean isSittingDown() {
-        return this.getPose() == Pose.SITTING && this.getPoseTime() < 40L;
+        return this.isCamelSitting() && this.getPoseTime() < 40L;
     }
 
     public void sitDown() {
-        if (!this.hasPose(Pose.SITTING)) {
+        if (!this.isCamelSitting()) {
             this.playSound(SoundEvents.CAMEL_SIT, 1.0F, 1.0F);
             this.setPose(Pose.SITTING);
-            this.resetLastPoseChangeTick(this.level.getGameTime());
+            this.resetLastPoseChangeTick(-this.level.getGameTime());
         }
     }
 
     public void standUp() {
-        if (!this.hasPose(Pose.STANDING)) {
+        if (this.isCamelSitting()) {
             this.playSound(SoundEvents.CAMEL_STAND, 1.0F, 1.0F);
             this.setPose(Pose.STANDING);
             this.resetLastPoseChangeTick(this.level.getGameTime());
@@ -589,7 +598,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
 
     public void standUpPanic() {
         this.setPose(Pose.STANDING);
-        this.resetLastPoseChangeTick(this.level.getGameTime() - 52L);
+        this.resetLastPoseChangeTickToFullStand(this.level.getGameTime());
     }
 
     @VisibleForTesting
@@ -597,8 +606,12 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         this.entityData.set(LAST_POSE_CHANGE_TICK, param0);
     }
 
+    private void resetLastPoseChangeTickToFullStand(long param0) {
+        this.resetLastPoseChangeTick(Math.max(0L, param0 - 52L - 1L));
+    }
+
     public long getPoseTime() {
-        return this.level.getGameTime() - this.entityData.get(LAST_POSE_CHANGE_TICK);
+        return this.level.getGameTime() - Math.abs(this.entityData.get(LAST_POSE_CHANGE_TICK));
     }
 
     @Override

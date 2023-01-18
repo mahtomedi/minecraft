@@ -35,7 +35,7 @@ public class GameNarrator {
         String var0 = param0.getString();
         if (this.getStatus().shouldNarrateSystem() && !var0.isEmpty()) {
             this.logNarratedMessage(var0);
-            this.narrator.say(var0, true);
+            this.narrator.say(var0, false);
         }
 
     }

@@ -34,7 +34,6 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
         BufferBuilder var2 = var1.getBuilder();
         double var3 = (double)this.minecraft.level.getMinBuildHeight() - param3;
         double var4 = (double)this.minecraft.level.getMaxBuildHeight() - param3;
-        RenderSystem.disableTexture();
         RenderSystem.disableBlend();
         ChunkPos var5 = var0.chunkPosition();
         double var6 = (double)var5.getMinBlockX() - param2;
@@ -114,6 +113,5 @@ public class ChunkBorderRenderer implements DebugRenderer.SimpleDebugRenderer {
         var1.end();
         RenderSystem.lineWidth(1.0F);
         RenderSystem.enableBlend();
-        RenderSystem.enableTexture();
     }
 }

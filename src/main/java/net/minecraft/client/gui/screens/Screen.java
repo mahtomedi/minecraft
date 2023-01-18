@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -30,6 +31,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -41,6 +43,9 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.narration.ScreenNarrationCollector;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
@@ -128,16 +133,62 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         if (param0 == 256 && this.shouldCloseOnEsc()) {
             this.onClose();
             return true;
-        } else if (param0 == 258) {
-            boolean var0 = !hasShiftDown();
-            if (!this.changeFocus(var0)) {
-                this.changeFocus(var0);
+        } else if (super.keyPressed(param0, param1, param2)) {
+            return true;
+        } else {
+            FocusNavigationEvent var0 = (FocusNavigationEvent)(switch(param0) {
+                case 258 -> this.createTabEvent();
+                default -> null;
+                case 262 -> this.createArrowEvent(ScreenDirection.RIGHT);
+                case 263 -> this.createArrowEvent(ScreenDirection.LEFT);
+                case 264 -> this.createArrowEvent(ScreenDirection.DOWN);
+                case 265 -> this.createArrowEvent(ScreenDirection.UP);
+            });
+            if (var0 != null) {
+                ComponentPath var1 = super.nextFocusPath(var0);
+                if (var1 == null && var0 instanceof FocusNavigationEvent.TabNavigation) {
+                    this.clearFocus();
+                    var1 = super.nextFocusPath(var0);
+                }
+
+                if (var1 != null) {
+                    this.changeFocus(var1);
+                }
             }
 
             return false;
-        } else {
-            return super.keyPressed(param0, param1, param2);
         }
+    }
+
+    private FocusNavigationEvent.TabNavigation createTabEvent() {
+        boolean var0 = !hasShiftDown();
+        return new FocusNavigationEvent.TabNavigation(var0);
+    }
+
+    private FocusNavigationEvent.ArrowNavigation createArrowEvent(ScreenDirection param0) {
+        return new FocusNavigationEvent.ArrowNavigation(param0);
+    }
+
+    protected void setInitialFocus(GuiEventListener param0) {
+        ComponentPath var0 = ComponentPath.path(this, param0.nextFocusPath(new FocusNavigationEvent.InitialFocus()));
+        if (var0 != null) {
+            this.changeFocus(var0);
+        }
+
+    }
+
+    private void clearFocus() {
+        ComponentPath var0 = this.getCurrentFocusPath();
+        if (var0 != null) {
+            var0.applyFocus(false);
+        }
+
+    }
+
+    @VisibleForTesting
+    protected void changeFocus(ComponentPath param0) {
+        this.clearFocus();
+        param0.applyFocus(true);
     }
 
     public boolean shouldCloseOnEsc() {
@@ -259,12 +310,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
                 400
             );
             RenderSystem.enableDepthTest();
-            RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             BufferUploader.drawWithShader(var12.end());
             RenderSystem.disableBlend();
-            RenderSystem.enableTexture();
             MultiBufferSource.BufferSource var14 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             param0.translate(0.0F, 0.0F, 400.0F);
             int var15 = var5;
@@ -390,7 +439,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
 
     protected void rebuildWidgets() {
         this.clearWidgets();
-        this.setFocused(null);
+        this.clearFocus();
         this.init();
     }
 
@@ -409,34 +458,20 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     }
 
     public void renderBackground(PoseStack param0) {
-        this.renderBackground(param0, 0);
-    }
-
-    public void renderBackground(PoseStack param0, int param1) {
         if (this.minecraft.level != null) {
             this.fillGradient(param0, 0, 0, this.width, this.height, -1072689136, -804253680);
         } else {
-            this.renderDirtBackground(param1);
+            this.renderDirtBackground(param0);
         }
 
     }
 
-    public void renderDirtBackground(int param0) {
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    public void renderDirtBackground(PoseStack param0) {
         RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
+        RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
+        int var0 = 32;
+        blit(param0, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        float var2 = 32.0F;
-        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var1.vertex(0.0, (double)this.height, 0.0).uv(0.0F, (float)this.height / 32.0F + (float)param0).color(64, 64, 64, 255).endVertex();
-        var1.vertex((double)this.width, (double)this.height, 0.0)
-            .uv((float)this.width / 32.0F, (float)this.height / 32.0F + (float)param0)
-            .color(64, 64, 64, 255)
-            .endVertex();
-        var1.vertex((double)this.width, 0.0, 0.0).uv((float)this.width / 32.0F, (float)param0).color(64, 64, 64, 255).endVertex();
-        var1.vertex(0.0, 0.0, 0.0).uv(0.0F, (float)param0).color(64, 64, 64, 255).endVertex();
-        var0.end();
     }
 
     public boolean isPauseScreen() {
@@ -582,9 +617,16 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
 
     }
 
+    protected boolean shouldNarrateNavigation() {
+        return true;
+    }
+
     protected void updateNarrationState(NarrationElementOutput param0x) {
         param0x.add(NarratedElementType.TITLE, this.getNarrationMessage());
-        param0x.add(NarratedElementType.USAGE, USAGE_NARRATION);
+        if (this.shouldNarrateNavigation()) {
+            param0x.add(NarratedElementType.USAGE, USAGE_NARRATION);
+        }
+
         this.updateNarratedWidget(param0x);
     }
 
@@ -659,6 +701,11 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
             var0.visible = false;
         }
 
+    }
+
+    @Override
+    public ScreenRectangle getRectangle() {
+        return new ScreenRectangle(0, 0, this.width, this.height);
     }
 
     @OnlyIn(Dist.CLIENT)

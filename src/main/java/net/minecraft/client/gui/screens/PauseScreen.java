@@ -10,8 +10,8 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CenteredStringWidget;
-import net.minecraft.client.gui.components.FrameWidget;
-import net.minecraft.client.gui.components.GridWidget;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -62,9 +62,9 @@ public class PauseScreen extends Screen {
     }
 
     private void createPauseMenu() {
-        GridWidget var0 = new GridWidget();
+        GridLayout var0 = new GridLayout();
         var0.defaultCellSetting().padding(4, 4, 4, 0);
-        GridWidget.RowHelper var1 = var0.createRowHelper(2);
+        GridLayout.RowHelper var1 = var0.createRowHelper(2);
         var1.addChild(Button.builder(RETURN_TO_GAME, param0 -> {
             this.minecraft.setScreen(null);
             this.minecraft.mouseHandler.grabMouse();
@@ -92,9 +92,9 @@ public class PauseScreen extends Screen {
             param0.active = false;
             this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::onDisconnect, true);
         }).width(204).build(), 2);
-        var0.pack();
-        FrameWidget.alignInRectangle(var0, 0, 0, this.width, this.height, 0.5F, 0.25F);
-        this.addRenderableWidget(var0);
+        var0.arrangeElements();
+        FrameLayout.alignInRectangle(var0, 0, 0, this.width, this.height, 0.5F, 0.25F);
+        var0.visitWidgets(this::addRenderableWidget);
     }
 
     private void onDisconnect() {
@@ -132,7 +132,6 @@ public class PauseScreen extends Screen {
         super.render(param0, param1, param2, param3);
         if (this.showPauseMenu && this.minecraft != null && this.minecraft.getReportingContext().hasDraftReport() && this.disconnectButton != null) {
             RenderSystem.setShaderTexture(0, AbstractWidget.WIDGETS_LOCATION);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             this.blit(param0, this.disconnectButton.getX() + this.disconnectButton.getWidth() - 17, this.disconnectButton.getY() + 3, 182, 24, 15, 15);
         }
 

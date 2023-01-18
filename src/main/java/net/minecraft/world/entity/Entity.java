@@ -1796,11 +1796,15 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
                 this.setPose(Pose.STANDING);
                 this.vehicle = param0;
-                this.vehicle.addPassenger(this);
-                param0.getIndirectPassengersStream()
-                    .filter(param0x -> param0x instanceof ServerPlayer)
-                    .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
-                return true;
+                if (!this.vehicle.addPassenger(this)) {
+                    this.vehicle = null;
+                    return false;
+                } else {
+                    param0.getIndirectPassengersStream()
+                        .filter(param0x -> param0x instanceof ServerPlayer)
+                        .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
+                    return true;
+                }
             } else {
                 return false;
             }
@@ -1831,15 +1835,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     }
 
-    public boolean allowsDismounting(Entity param0) {
-        return true;
-    }
-
     public void stopRiding() {
         this.removeVehicle();
     }
 
-    protected void addPassenger(Entity param0) {
+    protected boolean addPassenger(Entity param0) {
         if (param0.getVehicle() != this) {
             throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
         } else {
@@ -1847,7 +1847,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.passengers = ImmutableList.of(param0);
             } else {
                 List<Entity> var0 = Lists.newArrayList(this.passengers);
-                if (!this.level.isClientSide && param0 instanceof Player && !(this.getControllingPassenger() instanceof Player)) {
+                if (!this.level.isClientSide && param0 instanceof Player && !(this.getFirstPassenger() instanceof Player)) {
                     var0.add(0, param0);
                 } else {
                     var0.add(param0);
@@ -1856,6 +1856,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.passengers = ImmutableList.copyOf(var0);
             }
 
+            return true;
         }
     }
 
@@ -1971,7 +1972,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    public void animateHurt() {
+    public void animateHurt(float param0) {
     }
 
     public Iterable<ItemStack> getHandSlots() {
@@ -2429,7 +2430,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean canChangeDimensions() {
-        return true;
+        return !this.isPassenger() && !this.isVehicle();
     }
 
     public float getBlockExplosionResistance(Explosion param0, BlockGetter param1, BlockPos param2, BlockState param3, FluidState param4, float param5) {
@@ -2532,6 +2533,28 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.level.getChunk(var0.x, var0.z);
             this.teleportTo(param0, param1, param2);
         }
+    }
+
+    public boolean teleportTo(ServerLevel param0, double param1, double param2, double param3, Set<RelativeMovement> param4, float param5, float param6) {
+        float var0 = Mth.clamp(param6, -90.0F, 90.0F);
+        if (param0 == this.level) {
+            this.moveTo(param1, param2, param3, param5, var0);
+            this.setYHeadRot(param5);
+        } else {
+            this.unRide();
+            Entity var1 = this.getType().create(param0);
+            if (var1 == null) {
+                return false;
+            }
+
+            var1.restoreFrom(this);
+            var1.moveTo(param1, param2, param3, param5, var0);
+            var1.setYHeadRot(param5);
+            this.setRemoved(Entity.RemovalReason.CHANGED_DIMENSION);
+            param0.addDuringTeleport(var1);
+        }
+
+        return true;
     }
 
     public void dismountTo(double param0, double param1, double param2) {
@@ -3159,6 +3182,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         } else {
             this.xRot = param0;
         }
+    }
+
+    public boolean canSprint() {
+        return false;
     }
 
     public final boolean isRemoved() {

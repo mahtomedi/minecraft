@@ -88,12 +88,16 @@ public final class Biome {
         return this.mobSettings;
     }
 
-    public Biome.Precipitation getPrecipitation() {
-        return this.climateSettings.precipitation;
+    public boolean hasPrecipitation() {
+        return this.climateSettings.hasPrecipitation();
     }
 
-    public boolean isHumid() {
-        return this.getDownfall() > 0.85F;
+    public Biome.Precipitation getPrecipitationAt(BlockPos param0) {
+        if (!this.hasPrecipitation()) {
+            return Biome.Precipitation.NONE;
+        } else {
+            return this.coldEnoughToSnow(param0) ? Biome.Precipitation.SNOW : Biome.Precipitation.RAIN;
+        }
     }
 
     private float getHeightAdjustedTemperature(BlockPos param0) {
@@ -168,10 +172,6 @@ public final class Biome {
         return this.getTemperature(param0) > 0.1F;
     }
 
-    public boolean shouldSnowGolemBurn(BlockPos param0) {
-        return this.getTemperature(param0) > 1.0F;
-    }
-
     public boolean shouldSnow(LevelReader param0, BlockPos param1) {
         if (this.warmEnoughToRain(param1)) {
             return false;
@@ -218,10 +218,6 @@ public final class Biome {
         return FoliageColor.get(var0, var1);
     }
 
-    public float getDownfall() {
-        return this.climateSettings.downfall;
-    }
-
     public float getBaseTemperature() {
         return this.climateSettings.temperature;
     }
@@ -259,8 +255,7 @@ public final class Biome {
     }
 
     public static class BiomeBuilder {
-        @Nullable
-        private Biome.Precipitation precipitation;
+        private boolean hasPrecipitation = true;
         @Nullable
         private Float temperature;
         private Biome.TemperatureModifier temperatureModifier = Biome.TemperatureModifier.NONE;
@@ -273,8 +268,8 @@ public final class Biome {
         @Nullable
         private BiomeGenerationSettings generationSettings;
 
-        public Biome.BiomeBuilder precipitation(Biome.Precipitation param0) {
-            this.precipitation = param0;
+        public Biome.BiomeBuilder hasPrecipitation(boolean param0) {
+            this.hasPrecipitation = param0;
             return this;
         }
 
@@ -309,14 +304,13 @@ public final class Biome {
         }
 
         public Biome build() {
-            if (this.precipitation != null
-                && this.temperature != null
+            if (this.temperature != null
                 && this.downfall != null
                 && this.specialEffects != null
                 && this.mobSpawnSettings != null
                 && this.generationSettings != null) {
                 return new Biome(
-                    new Biome.ClimateSettings(this.precipitation, this.temperature, this.temperatureModifier, this.downfall),
+                    new Biome.ClimateSettings(this.hasPrecipitation, this.temperature, this.temperatureModifier, this.downfall),
                     this.specialEffects,
                     this.generationSettings,
                     this.mobSpawnSettings
@@ -328,8 +322,8 @@ public final class Biome {
 
         @Override
         public String toString() {
-            return "BiomeBuilder{\nprecipitation="
-                + this.precipitation
+            return "BiomeBuilder{\nhasPrecipitation="
+                + this.hasPrecipitation
                 + ",\ntemperature="
                 + this.temperature
                 + ",\ntemperatureModifier="
@@ -346,10 +340,10 @@ public final class Biome {
         }
     }
 
-    static record ClimateSettings(Biome.Precipitation precipitation, float temperature, Biome.TemperatureModifier temperatureModifier, float downfall) {
+    static record ClimateSettings(boolean hasPrecipitation, float temperature, Biome.TemperatureModifier temperatureModifier, float downfall) {
         public static final MapCodec<Biome.ClimateSettings> CODEC = RecordCodecBuilder.mapCodec(
             param0 -> param0.group(
-                        Biome.Precipitation.CODEC.fieldOf("precipitation").forGetter(param0x -> param0x.precipitation),
+                        Codec.BOOL.fieldOf("has_precipitation").forGetter(param0x -> param0x.hasPrecipitation),
                         Codec.FLOAT.fieldOf("temperature").forGetter(param0x -> param0x.temperature),
                         Biome.TemperatureModifier.CODEC
                             .optionalFieldOf("temperature_modifier", Biome.TemperatureModifier.NONE)
@@ -360,26 +354,10 @@ public final class Biome {
         );
     }
 
-    public static enum Precipitation implements StringRepresentable {
-        NONE("none"),
-        RAIN("rain"),
-        SNOW("snow");
-
-        public static final Codec<Biome.Precipitation> CODEC = StringRepresentable.fromEnum(Biome.Precipitation::values);
-        private final String name;
-
-        private Precipitation(String param0) {
-            this.name = param0;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String getSerializedName() {
-            return this.name;
-        }
+    public static enum Precipitation {
+        NONE,
+        RAIN,
+        SNOW;
     }
 
     public static enum TemperatureModifier implements StringRepresentable {

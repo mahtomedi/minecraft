@@ -34,6 +34,7 @@ import net.minecraft.client.DebugQueryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.MapRenderer;
+import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.client.gui.components.toasts.RecipeToast;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -114,6 +115,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
@@ -133,6 +135,7 @@ import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
+import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
 import net.minecraft.network.protocol.game.ClientboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
@@ -247,6 +250,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -430,13 +434,13 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                     ServerboundCustomPayloadPacket.BRAND, new FriendlyByteBuf(Unpooled.buffer()).writeUtf(ClientBrandRetriever.getClientModName())
                 )
             );
+        this.chatSession = null;
         this.lastSeenMessages = new LastSeenMessagesTracker(20);
         this.messageSignatureCache = MessageSignatureCache.createDefault();
         if (this.connection.isEncrypted()) {
             this.minecraft.getProfileKeyPairManager().prepareKeyPair().thenAcceptAsync(param0x -> param0x.ifPresent(this::setKeyPair), this.minecraft);
         }
 
-        this.minecraft.getGame().onStartGameSession();
         this.telemetryManager.onPlayerInfoReceived(param0.gameType(), param0.hardcore());
     }
 
@@ -606,9 +610,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         }
 
         Vec3 var1 = var0.getDeltaMovement();
-        boolean var2 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X);
-        boolean var3 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y);
-        boolean var4 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Z);
+        boolean var2 = param0.getRelativeArguments().contains(RelativeMovement.X);
+        boolean var3 = param0.getRelativeArguments().contains(RelativeMovement.Y);
+        boolean var4 = param0.getRelativeArguments().contains(RelativeMovement.Z);
         double var5;
         double var6;
         if (var2) {
@@ -655,7 +659,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         var0.setDeltaMovement(var5, var9, var13);
         float var17 = param0.getYRot();
         float var18 = param0.getXRot();
-        if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT)) {
+        if (param0.getRelativeArguments().contains(RelativeMovement.X_ROT)) {
             var0.setXRot(var0.getXRot() + var18);
             var0.xRotO += var18;
         } else {
@@ -663,7 +667,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             var0.xRotO = var18;
         }
 
-        if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT)) {
+        if (param0.getRelativeArguments().contains(RelativeMovement.Y_ROT)) {
             var0.setYRot(var0.getYRot() + var17);
             var0.yRotO += var17;
         } else {
@@ -905,8 +909,6 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             } else if (param0.getAction() == 3) {
                 LivingEntity var2 = (LivingEntity)var0;
                 var2.swing(InteractionHand.OFF_HAND);
-            } else if (param0.getAction() == 1) {
-                var0.animateHurt();
             } else if (param0.getAction() == 2) {
                 Player var3 = (Player)var0;
                 var3.stopSleepInBed(false, false);
@@ -916,6 +918,15 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                 this.minecraft.particleEngine.createTrackingEmitter(var0, ParticleTypes.ENCHANTED_HIT);
             }
 
+        }
+    }
+
+    @Override
+    public void handleHurtAnimation(ClientboundHurtAnimationPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        Entity var0 = this.level.getEntity(param0.id());
+        if (var0 != null) {
+            var0.animateHurt(param0.yaw());
         }
     }
 
@@ -1277,6 +1288,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                     .setScreen(
                         new WinScreen(
                             true,
+                            new LogoRenderer(false),
                             () -> this.minecraft
                                     .player
                                     .connection
@@ -2425,6 +2437,16 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         this.level.handleBlockChangedAck(param0.sequence());
     }
 
+    @Override
+    public void handleBundlePacket(ClientboundBundlePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+
+        for(Packet<ClientGamePacketListener> var0 : param0.subPackets()) {
+            var0.handle(this);
+        }
+
+    }
+
     private void readSectionList(
         int param0, int param1, LevelLightEngine param2, LightLayer param3, BitSet param4, BitSet param5, Iterator<byte[]> param6, boolean param7
     ) {
@@ -2442,9 +2464,13 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
 
     }
 
-    @Override
     public Connection getConnection() {
         return this.connection;
+    }
+
+    @Override
+    public boolean isAcceptingMessages() {
+        return this.connection.isConnected();
     }
 
     public Collection<PlayerInfo> getListedOnlinePlayers() {

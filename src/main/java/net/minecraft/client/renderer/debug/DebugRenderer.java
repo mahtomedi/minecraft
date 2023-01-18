@@ -181,7 +181,6 @@ public class DebugRenderer {
             var6.translate((float)(param1 - var3), (float)(param2 - var4) + 0.07F, (float)(param3 - var5));
             var6.mulPoseMatrix(new Matrix4f().rotation(var1.rotation()));
             var6.scale(param5, -param5, param5);
-            RenderSystem.enableTexture();
             if (param8) {
                 RenderSystem.disableDepthTest();
             } else {
@@ -196,7 +195,6 @@ public class DebugRenderer {
             MultiBufferSource.BufferSource var8 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             var2.drawInBatch(param0, var7, 0.0F, param4, false, Transformation.identity().getMatrix(), var8, param8, 0, 15728880);
             var8.endBatch();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableDepthTest();
             var6.popPose();
             RenderSystem.applyModelViewMatrix();

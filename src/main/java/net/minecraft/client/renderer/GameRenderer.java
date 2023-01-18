@@ -835,7 +835,7 @@ public class GameRenderer implements AutoCloseable {
 
             var1 /= (float)var0.hurtDuration;
             var1 = Mth.sin(var1 * var1 * var1 * var1 * (float) Math.PI);
-            float var3 = var0.hurtDir;
+            float var3 = var0.getHurtDir();
             param0.mulPose(Axis.YP.rotationDegrees(-var3));
             param0.mulPose(Axis.ZP.rotationDegrees(-var1 * 14.0F));
             param0.mulPose(Axis.YP.rotationDegrees(var3));
@@ -971,7 +971,6 @@ public class GameRenderer implements AutoCloseable {
                 if (this.postEffect != null && this.effectActive) {
                     RenderSystem.disableBlend();
                     RenderSystem.disableDepthTest();
-                    RenderSystem.enableTexture();
                     RenderSystem.resetTextureMatrix();
                     this.postEffect.process(param0);
                 }

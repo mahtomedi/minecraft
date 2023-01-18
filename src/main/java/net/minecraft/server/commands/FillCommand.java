@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,7 +28,6 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class FillCommand {
-    private static final int MAX_FILL_AREA = 32768;
     private static final Dynamic2CommandExceptionType ERROR_AREA_TOO_LARGE = new Dynamic2CommandExceptionType(
         (param0, param1) -> Component.translatable("commands.fill.toobig", param0, param1)
     );
@@ -155,37 +155,38 @@ public class FillCommand {
         CommandSourceStack param0, BoundingBox param1, BlockInput param2, FillCommand.Mode param3, @Nullable Predicate<BlockInWorld> param4
     ) throws CommandSyntaxException {
         int var0 = param1.getXSpan() * param1.getYSpan() * param1.getZSpan();
-        if (var0 > 32768) {
-            throw ERROR_AREA_TOO_LARGE.create(32768, var0);
+        int var1 = param0.getLevel().getGameRules().getInt(GameRules.RULE_COMMAND_MODIFICATION_BLOCK_LIMIT);
+        if (var0 > var1) {
+            throw ERROR_AREA_TOO_LARGE.create(var1, var0);
         } else {
-            List<BlockPos> var1 = Lists.newArrayList();
-            ServerLevel var2 = param0.getLevel();
-            int var3 = 0;
+            List<BlockPos> var2 = Lists.newArrayList();
+            ServerLevel var3 = param0.getLevel();
+            int var4 = 0;
 
-            for(BlockPos var4 : BlockPos.betweenClosed(param1.minX(), param1.minY(), param1.minZ(), param1.maxX(), param1.maxY(), param1.maxZ())) {
-                if (param4 == null || param4.test(new BlockInWorld(var2, var4, true))) {
-                    BlockInput var5 = param3.filter.filter(param1, var4, param2, var2);
-                    if (var5 != null) {
-                        BlockEntity var6 = var2.getBlockEntity(var4);
-                        Clearable.tryClear(var6);
-                        if (var5.place(var2, var4, 2)) {
-                            var1.add(var4.immutable());
-                            ++var3;
+            for(BlockPos var5 : BlockPos.betweenClosed(param1.minX(), param1.minY(), param1.minZ(), param1.maxX(), param1.maxY(), param1.maxZ())) {
+                if (param4 == null || param4.test(new BlockInWorld(var3, var5, true))) {
+                    BlockInput var6 = param3.filter.filter(param1, var5, param2, var3);
+                    if (var6 != null) {
+                        BlockEntity var7 = var3.getBlockEntity(var5);
+                        Clearable.tryClear(var7);
+                        if (var6.place(var3, var5, 2)) {
+                            var2.add(var5.immutable());
+                            ++var4;
                         }
                     }
                 }
             }
 
-            for(BlockPos var7 : var1) {
-                Block var8 = var2.getBlockState(var7).getBlock();
-                var2.blockUpdated(var7, var8);
+            for(BlockPos var8 : var2) {
+                Block var9 = var3.getBlockState(var8).getBlock();
+                var3.blockUpdated(var8, var9);
             }
 
-            if (var3 == 0) {
+            if (var4 == 0) {
                 throw ERROR_FAILED.create();
             } else {
-                param0.sendSuccess(Component.translatable("commands.fill.success", var3), true);
-                return var3;
+                param0.sendSuccess(Component.translatable("commands.fill.success", var4), true);
+                return var4;
             }
         }
     }

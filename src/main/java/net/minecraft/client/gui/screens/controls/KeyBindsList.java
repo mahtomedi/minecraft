@@ -5,15 +5,19 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -76,9 +80,10 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
                 .draw(param0, this.name, (float)(KeyBindsList.this.minecraft.screen.width / 2 - this.width / 2), (float)(param2 + param5 - 9 - 1), 16777215);
         }
 
+        @Nullable
         @Override
-        public boolean changeFocus(boolean param0) {
-            return false;
+        public ComponentPath nextFocusPath(FocusNavigationEvent param0) {
+            return null;
         }
 
         @Override
@@ -100,10 +105,15 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
                 }
             });
         }
+
+        @Override
+        void onMappingChanged() {
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
     public abstract static class Entry extends ContainerObjectSelectionList.Entry<KeyBindsList.Entry> {
+        abstract void onMappingChanged();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -127,7 +137,9 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             this.resetButton = Button.builder(Component.translatable("controls.reset"), param1x -> {
                 KeyBindsList.this.minecraft.options.setKey(param1, param1.getDefaultKey());
                 KeyMapping.resetMapping();
+                this.onMappingChanged();
             }).bounds(0, 0, 50, 20).createNarration(param1x -> Component.translatable("narrator.controls.reset", param2)).build();
+            this.onMappingChanged();
         }
 
         @Override
@@ -137,7 +149,6 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             KeyBindsList.this.minecraft.font.draw(param0, this.name, var10003, (float)(param2 + param5 / 2 - 9 / 2), 16777215);
             this.resetButton.setX(param3 + 190);
             this.resetButton.setY(param2);
-            this.resetButton.active = !this.key.isDefault();
             this.resetButton.render(param0, param6, param7, param9);
             this.changeButton.setX(param3 + 105);
             this.changeButton.setY(param2);
@@ -156,12 +167,24 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
                 this.changeButton
                     .setMessage(
                         Component.literal("> ")
-                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.YELLOW))
+                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE))
                             .append(" <")
                             .withStyle(ChatFormatting.YELLOW)
                     );
             } else if (var1) {
-                this.changeButton.setMessage(this.changeButton.getMessage().copy().withStyle(ChatFormatting.RED));
+                this.changeButton
+                    .setMessage(
+                        Component.literal("[ ")
+                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.WHITE))
+                            .append(" ]")
+                            .withStyle(ChatFormatting.RED)
+                    );
+            }
+
+            if (var1) {
+                int var3 = 3;
+                int var4 = this.changeButton.getX() - 6;
+                GuiComponent.fill(param0, var4, param2 + 2, var4 + 3, param2 + param5 + 2, ChatFormatting.RED.getColor() | 0xFF000000);
             }
 
             this.changeButton.render(param0, param6, param7, param9);
@@ -189,6 +212,11 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         @Override
         public boolean mouseReleased(double param0, double param1, int param2) {
             return this.changeButton.mouseReleased(param0, param1, param2) || this.resetButton.mouseReleased(param0, param1, param2);
+        }
+
+        @Override
+        void onMappingChanged() {
+            this.resetButton.active = !this.key.isDefault();
         }
     }
 }

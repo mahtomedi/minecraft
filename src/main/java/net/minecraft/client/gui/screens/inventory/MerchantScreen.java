@@ -99,7 +99,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
@@ -114,7 +113,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             MerchantOffer var4 = var2.get(var3);
             if (var4.isOutOfStock()) {
                 RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 blit(param0, this.leftPos + 83 + 99, this.topPos + 35, this.getBlitOffset(), 311.0F, 0.0F, 28, 21, 512, 256);
             }
         }

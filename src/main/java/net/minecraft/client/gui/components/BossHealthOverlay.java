@@ -34,7 +34,6 @@ public class BossHealthOverlay extends GuiComponent {
 
             for(LerpingBossEvent var2 : this.events.values()) {
                 int var3 = var0 / 2 - 91;
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.setShaderTexture(0, GUI_BARS_LOCATION);
                 this.drawBar(param0, var3, var1, var2);
                 Component var5 = var2.getName();

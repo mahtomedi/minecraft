@@ -23,7 +23,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
         if (var0 == null) {
             throw new RuntimeException("ConnectionProtocol unknown: " + param1);
         } else {
-            Integer var1 = var0.getPacketId(this.flow, param1);
+            int var1 = var0.getPacketId(this.flow, param1);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                     Connection.PACKET_SENT_MARKER,
@@ -34,7 +34,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet<?>> {
                 );
             }
 
-            if (var1 == null) {
+            if (var1 == -1) {
                 throw new IOException("Can't serialize unregistered packet");
             } else {
                 FriendlyByteBuf var2 = new FriendlyByteBuf(param2);

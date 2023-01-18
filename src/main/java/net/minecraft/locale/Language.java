@@ -46,8 +46,8 @@ public abstract class Language {
         final Map<String, String> var5 = var0.build();
         return new Language() {
             @Override
-            public String getOrDefault(String param0) {
-                return var5.getOrDefault(param0, param0);
+            public String getOrDefault(String param0, String param1) {
+                return var5.getOrDefault(param0, param1);
             }
 
             @Override
@@ -89,7 +89,11 @@ public abstract class Language {
         instance = param0;
     }
 
-    public abstract String getOrDefault(String var1);
+    public String getOrDefault(String param0) {
+        return this.getOrDefault(param0, param0);
+    }
+
+    public abstract String getOrDefault(String var1, String var2);
 
     public abstract boolean has(String var1);
 

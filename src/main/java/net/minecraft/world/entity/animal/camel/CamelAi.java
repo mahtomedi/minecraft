@@ -157,7 +157,7 @@ public class CamelAi {
         }
 
         protected void start(ServerLevel param0, Camel param1, long param2) {
-            if (param1.isPoseSitting()) {
+            if (param1.isCamelSitting()) {
                 param1.standUp();
             } else if (!param1.isPanicking()) {
                 param1.sitDown();

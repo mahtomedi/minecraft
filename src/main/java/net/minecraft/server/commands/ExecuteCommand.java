@@ -3,6 +3,7 @@ package net.minecraft.server.commands;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.RedirectModifier;
 import com.mojang.brigadier.ResultConsumer;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -18,10 +19,13 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -42,6 +46,7 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
@@ -55,12 +60,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.PredicateManager;
@@ -212,6 +222,7 @@ public class ExecuteCommand {
                                 .redirect(var0, param0x -> param0x.getSource().withLevel(DimensionArgument.getDimension(param0x, "dimension")))
                         )
                 )
+                .then(createRelationOperations(var0, Commands.literal("on")))
         );
     }
 
@@ -404,6 +415,17 @@ public class ExecuteCommand {
         }, CALLBACK_CHAINER);
     }
 
+    private static boolean isChunkLoaded(ServerLevel param0, BlockPos param1) {
+        int var0 = SectionPos.blockToSectionCoord(param1.getX());
+        int var1 = SectionPos.blockToSectionCoord(param1.getZ());
+        LevelChunk var2 = param0.getChunkSource().getChunkNow(var0, var1);
+        if (var2 != null) {
+            return var2.getFullStatus() == ChunkHolder.FullChunkStatus.ENTITY_TICKING;
+        } else {
+            return false;
+        }
+    }
+
     private static ArgumentBuilder<CommandSourceStack, ?> addConditionals(
         CommandNode<CommandSourceStack> param0, LiteralArgumentBuilder<CommandSourceStack> param1, boolean param2, CommandBuildContext param3
     ) {
@@ -435,6 +457,27 @@ public class ExecuteCommand {
                                             .test(param0x.getSource().getLevel().getBiome(BlockPosArgument.getLoadedBlockPos(param0x, "pos")))
                                 )
                             )
+                    )
+            )
+            .then(
+                Commands.literal("loaded")
+                    .then(
+                        Commands.argument("pos", BlockPosArgument.blockPos())
+                            .fork(
+                                param0,
+                                param1x -> expect(param1x, param2, isChunkLoaded(param1x.getSource().getLevel(), BlockPosArgument.getBlockPos(param1x, "pos")))
+                            )
+                    )
+            )
+            .then(
+                Commands.literal("dimension")
+                    .then(
+                        addConditional(
+                            param0,
+                            Commands.argument("dimension", DimensionArgument.dimension()),
+                            param2,
+                            param0x -> DimensionArgument.getDimension(param0x, "dimension") == param0x.getSource().getLevel()
+                        )
                     )
             )
             .then(
@@ -745,6 +788,64 @@ public class ExecuteCommand {
 
             return OptionalInt.of(var4);
         }
+    }
+
+    private static RedirectModifier<CommandSourceStack> expandOneToOneEntityRelation(Function<Entity, Optional<Entity>> param0) {
+        return param1 -> {
+            CommandSourceStack var0x = param1.getSource();
+            Entity var1 = var0x.getEntity();
+            return (Collection<CommandSourceStack>)(var1 == null
+                ? List.of()
+                : param0.apply(var1).filter(param0x -> !param0x.isRemoved()).map(param1x -> List.of(var0x.withEntity(param1x))).orElse(List.of()));
+        };
+    }
+
+    private static RedirectModifier<CommandSourceStack> expandOneToManyEntityRelation(Function<Entity, Stream<Entity>> param0) {
+        return param1 -> {
+            CommandSourceStack var0x = param1.getSource();
+            Entity var1 = var0x.getEntity();
+            return var1 == null ? List.of() : param0.apply(var1).filter(param0x -> !param0x.isRemoved()).map(var0x::withEntity).toList();
+        };
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createRelationOperations(
+        CommandNode<CommandSourceStack> param0, LiteralArgumentBuilder<CommandSourceStack> param1
+    ) {
+        return param1.then(
+                Commands.literal("owner")
+                    .fork(
+                        param0,
+                        expandOneToOneEntityRelation(
+                            param0x -> param0x instanceof TamableAnimal var0x ? Optional.ofNullable(var0x.getOwner()) : Optional.empty()
+                        )
+                    )
+            )
+            .then(
+                Commands.literal("leasher")
+                    .fork(
+                        param0,
+                        expandOneToOneEntityRelation(param0x -> param0x instanceof Mob var0x ? Optional.ofNullable(var0x.getLeashHolder()) : Optional.empty())
+                    )
+            )
+            .then(
+                Commands.literal("target")
+                    .fork(
+                        param0,
+                        expandOneToOneEntityRelation(param0x -> param0x instanceof Mob var0x ? Optional.ofNullable(var0x.getTarget()) : Optional.empty())
+                    )
+            )
+            .then(
+                Commands.literal("attacker")
+                    .fork(
+                        param0,
+                        expandOneToOneEntityRelation(
+                            param0x -> param0x instanceof LivingEntity var0x ? Optional.ofNullable(var0x.getLastHurtByMob()) : Optional.empty()
+                        )
+                    )
+            )
+            .then(Commands.literal("vehicle").fork(param0, expandOneToOneEntityRelation(param0x -> Optional.ofNullable(param0x.getVehicle()))))
+            .then(Commands.literal("controller").fork(param0, expandOneToOneEntityRelation(param0x -> Optional.ofNullable(param0x.getControllingPassenger()))))
+            .then(Commands.literal("passengers").fork(param0, expandOneToManyEntityRelation(param0x -> param0x.getPassengers().stream())));
     }
 
     @FunctionalInterface

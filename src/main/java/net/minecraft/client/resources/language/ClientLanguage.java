@@ -29,26 +29,23 @@ public class ClientLanguage extends Language {
         this.defaultRightToLeft = param1;
     }
 
-    public static ClientLanguage loadFrom(ResourceManager param0, List<LanguageInfo> param1) {
+    public static ClientLanguage loadFrom(ResourceManager param0, List<String> param1, boolean param2) {
         Map<String, String> var0 = Maps.newHashMap();
-        boolean var1 = false;
 
-        for(LanguageInfo var2 : param1) {
-            var1 |= var2.isBidirectional();
-            String var3 = var2.getCode();
-            String var4 = String.format(Locale.ROOT, "lang/%s.json", var3);
+        for(String var1 : param1) {
+            String var2 = String.format(Locale.ROOT, "lang/%s.json", var1);
 
-            for(String var5 : param0.getNamespaces()) {
+            for(String var3 : param0.getNamespaces()) {
                 try {
-                    ResourceLocation var6 = new ResourceLocation(var5, var4);
-                    appendFrom(var3, param0.getResourceStack(var6), var0);
-                } catch (Exception var11) {
-                    LOGGER.warn("Skipped language file: {}:{} ({})", var5, var4, var11.toString());
+                    ResourceLocation var4 = new ResourceLocation(var3, var2);
+                    appendFrom(var1, param0.getResourceStack(var4), var0);
+                } catch (Exception var10) {
+                    LOGGER.warn("Skipped language file: {}:{} ({})", var3, var2, var10.toString());
                 }
             }
         }
 
-        return new ClientLanguage(ImmutableMap.copyOf(var0), var1);
+        return new ClientLanguage(ImmutableMap.copyOf(var0), param2);
     }
 
     private static void appendFrom(String param0, List<Resource> param1, Map<String, String> param2) {
@@ -63,8 +60,8 @@ public class ClientLanguage extends Language {
     }
 
     @Override
-    public String getOrDefault(String param0) {
-        return this.storage.getOrDefault(param0, param0);
+    public String getOrDefault(String param0, String param1) {
+        return this.storage.getOrDefault(param0, param1);
     }
 
     @Override

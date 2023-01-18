@@ -77,6 +77,23 @@ public class Advancement {
         return this.parent;
     }
 
+    public Advancement getRoot() {
+        return getRoot(this);
+    }
+
+    public static Advancement getRoot(Advancement param0) {
+        Advancement var0 = param0;
+
+        while(true) {
+            Advancement var1 = var0.getParent();
+            if (var1 == null) {
+                return var0;
+            }
+
+            var0 = var1;
+        }
+    }
+
     @Nullable
     public DisplayInfo getDisplay() {
         return this.display;

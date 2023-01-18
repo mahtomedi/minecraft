@@ -131,7 +131,7 @@ public class SpriteLoader {
         }
 
         FrameSize var8 = var0.calculateFrameSize(var4.getWidth(), var4.getHeight());
-        if (Mth.isDivisionInteger(var4.getWidth(), var8.width()) && Mth.isDivisionInteger(var4.getHeight(), var8.height())) {
+        if (Mth.isMultipleOf(var4.getWidth(), var8.width()) && Mth.isMultipleOf(var4.getHeight(), var8.height())) {
             return new SpriteContents(param0, var8, var4, var0);
         } else {
             LOGGER.error("Image {} size {},{} is not multiple of frame size {},{}", param0, var4.getWidth(), var4.getHeight(), var8.width(), var8.height());

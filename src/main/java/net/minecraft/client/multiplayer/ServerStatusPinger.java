@@ -51,7 +51,8 @@ import org.slf4j.Logger;
 public class ServerStatusPinger {
     static final Splitter SPLITTER = Splitter.on('\u0000').limit(6);
     static final Logger LOGGER = LogUtils.getLogger();
-    private static final Component CANT_CONNECT_MESSAGE = Component.translatable("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
+    private static final Component CANT_CONNECT_MESSAGE = Component.translatable("multiplayer.status.cannot_connect")
+        .withStyle(param0 -> param0.withColor(-65536));
     private final List<Connection> connections = Collections.synchronizedList(Lists.newArrayList());
 
     public void pingServer(final ServerData param0, final Runnable param1) throws UnknownHostException {
@@ -65,7 +66,7 @@ public class ServerStatusPinger {
             this.connections.add(var3);
             param0.motd = Component.translatable("multiplayer.status.pinging");
             param0.ping = -1L;
-            param0.playerList = null;
+            param0.playerList = Collections.emptyList();
             var3.setListener(new ClientStatusPacketListener() {
                 private boolean success;
                 private boolean receivedPing;
@@ -94,6 +95,7 @@ public class ServerStatusPinger {
 
                         if (var0.getPlayers() != null) {
                             param0.status = ServerStatusPinger.formatPlayerCount(var0.getPlayers().getNumPlayers(), var0.getPlayers().getMaxPlayers());
+                            param0.players = var0.getPlayers();
                             List<Component> var1 = Lists.newArrayList();
                             GameProfile[] var2 = var0.getPlayers().getSample();
                             if (var2 != null && var2.length > 0) {
@@ -149,8 +151,8 @@ public class ServerStatusPinger {
                 }
 
                 @Override
-                public Connection getConnection() {
-                    return var3;
+                public boolean isAcceptingMessages() {
+                    return var3.isConnected();
                 }
             });
 
@@ -228,6 +230,7 @@ public class ServerStatusPinger {
                                 param1.version = Component.literal(var4);
                                 param1.motd = Component.literal(var5);
                                 param1.status = ServerStatusPinger.formatPlayerCount(var6, var7);
+                                param1.players = new ServerStatus.Players(var7, var6);
                             }
                         }
 

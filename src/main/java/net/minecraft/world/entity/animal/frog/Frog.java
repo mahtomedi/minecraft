@@ -377,11 +377,6 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
 
     }
 
-    @Override
-    public boolean canCutCorner(BlockPathTypes param0) {
-        return super.canCutCorner(param0) && param0 != BlockPathTypes.WATER_BORDER;
-    }
-
     public static boolean canEat(LivingEntity param0) {
         if (param0 instanceof Slime var0 && var0.getSize() != 1) {
             return false;
@@ -446,6 +441,11 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
     static class FrogPathNavigation extends AmphibiousPathNavigation {
         FrogPathNavigation(Frog param0, Level param1) {
             super(param0, param1);
+        }
+
+        @Override
+        public boolean canCutCorner(BlockPathTypes param0) {
+            return param0 != BlockPathTypes.WATER_BORDER && super.canCutCorner(param0);
         }
 
         @Override

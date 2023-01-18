@@ -1,9 +1,9 @@
 package net.minecraft.network.protocol.game;
 
-import java.util.EnumSet;
 import java.util.Set;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.entity.RelativeMovement;
 
 public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketListener> {
     private final double x;
@@ -11,19 +11,12 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
     private final double z;
     private final float yRot;
     private final float xRot;
-    private final Set<ClientboundPlayerPositionPacket.RelativeArgument> relativeArguments;
+    private final Set<RelativeMovement> relativeArguments;
     private final int id;
     private final boolean dismountVehicle;
 
     public ClientboundPlayerPositionPacket(
-        double param0,
-        double param1,
-        double param2,
-        float param3,
-        float param4,
-        Set<ClientboundPlayerPositionPacket.RelativeArgument> param5,
-        int param6,
-        boolean param7
+        double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5, int param6, boolean param7
     ) {
         this.x = param0;
         this.y = param1;
@@ -41,7 +34,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         this.z = param0.readDouble();
         this.yRot = param0.readFloat();
         this.xRot = param0.readFloat();
-        this.relativeArguments = ClientboundPlayerPositionPacket.RelativeArgument.unpack(param0.readUnsignedByte());
+        this.relativeArguments = RelativeMovement.unpack(param0.readUnsignedByte());
         this.id = param0.readVarInt();
         this.dismountVehicle = param0.readBoolean();
     }
@@ -53,7 +46,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         param0.writeDouble(this.z);
         param0.writeFloat(this.yRot);
         param0.writeFloat(this.xRot);
-        param0.writeByte(ClientboundPlayerPositionPacket.RelativeArgument.pack(this.relativeArguments));
+        param0.writeByte(RelativeMovement.pack(this.relativeArguments));
         param0.writeVarInt(this.id);
         param0.writeBoolean(this.dismountVehicle);
     }
@@ -90,53 +83,7 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         return this.dismountVehicle;
     }
 
-    public Set<ClientboundPlayerPositionPacket.RelativeArgument> getRelativeArguments() {
+    public Set<RelativeMovement> getRelativeArguments() {
         return this.relativeArguments;
-    }
-
-    public static enum RelativeArgument {
-        X(0),
-        Y(1),
-        Z(2),
-        Y_ROT(3),
-        X_ROT(4);
-
-        public static final Set<ClientboundPlayerPositionPacket.RelativeArgument> ALL = Set.of(values());
-        public static final Set<ClientboundPlayerPositionPacket.RelativeArgument> ROTATION = Set.of(X_ROT, Y_ROT);
-        private final int bit;
-
-        private RelativeArgument(int param0) {
-            this.bit = param0;
-        }
-
-        private int getMask() {
-            return 1 << this.bit;
-        }
-
-        private boolean isSet(int param0) {
-            return (param0 & this.getMask()) == this.getMask();
-        }
-
-        public static Set<ClientboundPlayerPositionPacket.RelativeArgument> unpack(int param0) {
-            Set<ClientboundPlayerPositionPacket.RelativeArgument> var0 = EnumSet.noneOf(ClientboundPlayerPositionPacket.RelativeArgument.class);
-
-            for(ClientboundPlayerPositionPacket.RelativeArgument var1 : values()) {
-                if (var1.isSet(param0)) {
-                    var0.add(var1);
-                }
-            }
-
-            return var0;
-        }
-
-        public static int pack(Set<ClientboundPlayerPositionPacket.RelativeArgument> param0) {
-            int var0 = 0;
-
-            for(ClientboundPlayerPositionPacket.RelativeArgument var1 : param0) {
-                var0 |= var1.getMask();
-            }
-
-            return var0;
-        }
     }
 }

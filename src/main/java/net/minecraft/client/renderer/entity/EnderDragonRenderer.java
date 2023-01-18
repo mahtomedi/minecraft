@@ -355,16 +355,16 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
             float var4 = -12.0F;
             float var5 = 1.5F;
             double[] var6 = this.entity.getLatencyPos(6, this.a);
-            float var7 = Mth.rotWrap(this.entity.getLatencyPos(5, this.a)[0] - this.entity.getLatencyPos(10, this.a)[0]);
-            float var8 = Mth.rotWrap(this.entity.getLatencyPos(5, this.a)[0] + (double)(var7 / 2.0F));
+            float var7 = Mth.wrapDegrees((float)(this.entity.getLatencyPos(5, this.a)[0] - this.entity.getLatencyPos(10, this.a)[0]));
+            float var8 = Mth.wrapDegrees((float)(this.entity.getLatencyPos(5, this.a)[0] + (double)(var7 / 2.0F)));
             float var9 = var0 * (float) (Math.PI * 2);
 
             for(int var10 = 0; var10 < 5; ++var10) {
                 double[] var11 = this.entity.getLatencyPos(5 - var10, this.a);
                 float var12 = (float)Math.cos((double)((float)var10 * 0.45F + var9)) * 0.15F;
-                this.neck.yRot = Mth.rotWrap(var11[0] - var6[0]) * (float) (Math.PI / 180.0) * 1.5F;
+                this.neck.yRot = Mth.wrapDegrees((float)(var11[0] - var6[0])) * (float) (Math.PI / 180.0) * 1.5F;
                 this.neck.xRot = var12 + this.entity.getHeadPartYOffset(var10, var6, var11) * (float) (Math.PI / 180.0) * 1.5F * 5.0F;
-                this.neck.zRot = -Mth.rotWrap(var11[0] - (double)var8) * (float) (Math.PI / 180.0) * 1.5F;
+                this.neck.zRot = -Mth.wrapDegrees((float)(var11[0] - (double)var8)) * (float) (Math.PI / 180.0) * 1.5F;
                 this.neck.y = var3;
                 this.neck.z = var4;
                 this.neck.x = var2;
@@ -378,9 +378,9 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
             this.head.z = var4;
             this.head.x = var2;
             double[] var13 = this.entity.getLatencyPos(0, this.a);
-            this.head.yRot = Mth.rotWrap(var13[0] - var6[0]) * (float) (Math.PI / 180.0);
-            this.head.xRot = Mth.rotWrap((double)this.entity.getHeadPartYOffset(6, var6, var13)) * (float) (Math.PI / 180.0) * 1.5F * 5.0F;
-            this.head.zRot = -Mth.rotWrap(var13[0] - (double)var8) * (float) (Math.PI / 180.0);
+            this.head.yRot = Mth.wrapDegrees((float)(var13[0] - var6[0])) * (float) (Math.PI / 180.0);
+            this.head.xRot = Mth.wrapDegrees(this.entity.getHeadPartYOffset(6, var6, var13)) * (float) (Math.PI / 180.0) * 1.5F * 5.0F;
+            this.head.zRot = -Mth.wrapDegrees((float)(var13[0] - (double)var8)) * (float) (Math.PI / 180.0);
             this.head.render(param0, param1, param2, param3, 1.0F, 1.0F, 1.0F, param7);
             param0.pushPose();
             param0.translate(0.0F, 1.0F, 0.0F);
@@ -438,9 +438,9 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
             for(int var16 = 0; var16 < 12; ++var16) {
                 var13 = this.entity.getLatencyPos(12 + var16, this.a);
                 var15 += Mth.sin((float)var16 * 0.45F + var9) * 0.05F;
-                this.neck.yRot = (Mth.rotWrap(var13[0] - var6[0]) * 1.5F + 180.0F) * (float) (Math.PI / 180.0);
+                this.neck.yRot = (Mth.wrapDegrees((float)(var13[0] - var6[0])) * 1.5F + 180.0F) * (float) (Math.PI / 180.0);
                 this.neck.xRot = var15 + (float)(var13[1] - var6[1]) * (float) (Math.PI / 180.0) * 1.5F * 5.0F;
-                this.neck.zRot = Mth.rotWrap(var13[0] - (double)var8) * (float) (Math.PI / 180.0) * 1.5F;
+                this.neck.zRot = Mth.wrapDegrees((float)(var13[0] - (double)var8)) * (float) (Math.PI / 180.0) * 1.5F;
                 this.neck.y = var3;
                 this.neck.z = var4;
                 this.neck.x = var2;

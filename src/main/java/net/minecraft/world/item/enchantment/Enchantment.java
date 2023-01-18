@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.damagesource.DamageSource;
@@ -103,7 +104,7 @@ public abstract class Enchantment {
         }
 
         if (param0 != 1 || this.getMaxLevel() != 1) {
-            var0.append(" ").append(Component.translatable("enchantment.level." + param0));
+            var0.append(CommonComponents.SPACE).append(Component.translatable("enchantment.level." + param0));
         }
 
         return var0;

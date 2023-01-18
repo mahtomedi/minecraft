@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.LavaSlimeModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -24,6 +25,11 @@ public class MagmaCubeRenderer extends MobRenderer<MagmaCube, LavaSlimeModel<Mag
 
     public ResourceLocation getTextureLocation(MagmaCube param0) {
         return MAGMACUBE_LOCATION;
+    }
+
+    public void render(MagmaCube param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        this.shadowRadius = 0.25F * (float)param0.getSize();
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     protected void scale(MagmaCube param0, PoseStack param1, float param2) {

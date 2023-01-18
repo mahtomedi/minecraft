@@ -31,7 +31,6 @@ public class HopperScreen extends AbstractContainerScreen<HopperMenu> {
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, HOPPER_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;

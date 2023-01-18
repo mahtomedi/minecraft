@@ -52,7 +52,6 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
             Vec3 var1 = new Vec3(param2, 0.0, param4);
             this.trackedGameEvents.removeIf(GameEventListenerRenderer.TrackedGameEvent::isExpired);
             this.trackedListeners.removeIf(param2x -> param2x.isExpired(var0, var1));
-            RenderSystem.disableTexture();
             RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -139,7 +138,6 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
             }
 
             RenderSystem.depthMask(true);
-            RenderSystem.enableTexture();
             RenderSystem.disableBlend();
         }
     }

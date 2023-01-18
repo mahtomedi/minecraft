@@ -24,11 +24,10 @@ public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
     private final Codec<Either<TagKey<E>, List<Holder<E>>>> registryAwareCodec;
 
     private static <E> Codec<List<Holder<E>>> homogenousList(Codec<Holder<E>> param0, boolean param1) {
-        Function<List<Holder<E>>, DataResult<List<Holder<E>>>> var0 = ExtraCodecs.ensureHomogenous(Holder::kind);
-        Codec<List<Holder<E>>> var1 = param0.listOf().flatXmap(var0, var0);
+        Codec<List<Holder<E>>> var0 = ExtraCodecs.validate(param0.listOf(), ExtraCodecs.ensureHomogenous(Holder::kind));
         return param1
-            ? var1
-            : Codec.either(var1, param0)
+            ? var0
+            : Codec.either(var0, param0)
                 .xmap(
                     param0x -> param0x.map((Function<? super List<Holder<E>>, ? extends List<Holder<E>>>)(param0xx -> param0xx), List::of),
                     param0x -> param0x.size() == 1 ? Either.right(param0x.get(0)) : Either.left(param0x)

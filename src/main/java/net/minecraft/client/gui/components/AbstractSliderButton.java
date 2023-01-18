@@ -2,19 +2,31 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSliderButton extends AbstractWidget {
+    private static final ResourceLocation SLIDER_LOCATION = new ResourceLocation("textures/gui/slider.png");
+    private static final int HEIGHT = 20;
+    private static final int HANDLE_HALF_WIDTH = 4;
+    private static final int HANDLE_WIDTH = 8;
+    private static final int TEXTURE_WIDTH = 200;
+    private static final int BACKGROUND = 0;
+    private static final int BACKGROUND_FOCUSED = 1;
+    private static final int HANDLE = 2;
+    private static final int HANDLE_FOCUSED = 3;
     protected double value;
+    private boolean canChangeValue;
 
     public AbstractSliderButton(int param0, int param1, int param2, int param3, Component param4, double param5) {
         super(param0, param1, param2, param3, param4);
@@ -22,8 +34,19 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     }
 
     @Override
-    protected int getYImage(boolean param0) {
-        return 0;
+    protected ResourceLocation getTextureLocation() {
+        return SLIDER_LOCATION;
+    }
+
+    @Override
+    protected int getTextureY() {
+        int var0 = this.isFocused() && !this.canChangeValue ? 1 : 0;
+        return var0 * 20;
+    }
+
+    private int getHandleTextureY() {
+        int var0 = !this.isHovered && !this.canChangeValue ? 2 : 3;
+        return var0 * 20;
     }
 
     @Override
@@ -46,11 +69,10 @@ public abstract class AbstractSliderButton extends AbstractWidget {
 
     @Override
     protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        int var0 = (this.isHoveredOrFocused() ? 2 : 1) * 20;
-        this.blit(param0, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 0, 46 + var0, 4, 20);
-        this.blit(param0, this.getX() + (int)(this.value * (double)(this.width - 8)) + 4, this.getY(), 196, 46 + var0, 4, 20);
+        RenderSystem.setShaderTexture(0, this.getTextureLocation());
+        int var0 = this.getHandleTextureY();
+        this.blit(param0, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 0, var0, 4, 20);
+        this.blit(param0, this.getX() + (int)(this.value * (double)(this.width - 8)) + 4, this.getY(), 196, var0, 4, 20);
     }
 
     @Override
@@ -59,14 +81,36 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     }
 
     @Override
-    public boolean keyPressed(int param0, int param1, int param2) {
-        boolean var0 = param0 == 263;
-        if (var0 || param0 == 262) {
-            float var1 = var0 ? -1.0F : 1.0F;
-            this.setValue(this.value + (double)(var1 / (float)(this.width - 8)));
-        }
+    public void setFocused(boolean param0) {
+        super.setFocused(param0);
+        if (!param0) {
+            this.canChangeValue = false;
+        } else {
+            InputType var0 = Minecraft.getInstance().getLastInputType();
+            if (var0 == InputType.MOUSE || var0 == InputType.KEYBOARD_TAB) {
+                this.canChangeValue = true;
+            }
 
-        return false;
+        }
+    }
+
+    @Override
+    public boolean keyPressed(int param0, int param1, int param2) {
+        if (param0 != 32 && param0 != 257 && param0 != 335) {
+            if (this.canChangeValue) {
+                boolean var0 = param0 == 263;
+                if (var0 || param0 == 262) {
+                    float var1 = var0 ? -1.0F : 1.0F;
+                    this.setValue(this.value + (double)(var1 / (float)(this.width - 8)));
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            this.canChangeValue = !this.canChangeValue;
+            return true;
+        }
     }
 
     private void setValueFromMouse(double param0) {

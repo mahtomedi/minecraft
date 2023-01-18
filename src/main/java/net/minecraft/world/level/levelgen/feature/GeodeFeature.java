@@ -103,11 +103,11 @@ public class GeodeFeature extends Feature<GeodeConfiguration> {
             double var35 = 0.0;
 
             for(Pair<BlockPos, Integer> var36 : var6) {
-                var34 += Mth.fastInvSqrt(var32.distSqr(var36.getFirst()) + (double)var36.getSecond().intValue()) + var33;
+                var34 += Mth.invSqrt(var32.distSqr(var36.getFirst()) + (double)var36.getSecond().intValue()) + var33;
             }
 
             for(BlockPos var37 : var10) {
-                var35 += Mth.fastInvSqrt(var32.distSqr(var37) + (double)var14.crackPointOffset) + var33;
+                var35 += Mth.invSqrt(var32.distSqr(var37) + (double)var14.crackPointOffset) + var33;
             }
 
             if (!(var34 < var18)) {

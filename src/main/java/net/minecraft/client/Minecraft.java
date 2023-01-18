@@ -76,6 +76,7 @@ import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.font.FontManager;
+import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screens.BanNoticeScreen;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -280,6 +281,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final HotbarManager hotbarManager;
     public final MouseHandler mouseHandler;
     public final KeyboardHandler keyboardHandler;
+    private InputType lastInputType = InputType.NONE;
     public final File gameDirectory;
     private final String launchedVersion;
     private final String versionType;
@@ -314,7 +316,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final PaintingTextureManager paintingTextures;
     private final MobEffectTextureManager mobEffectTextures;
     private final ToastComponent toast;
-    private final Game game = new Game(this);
     private final Tutorial tutorial;
     private final PlayerSocialManager playerSocialManager;
     private final EntityModelSet entityModels;
@@ -593,6 +594,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
                 this.setScreen(new TitleScreen(true));
             }, this.multiplayerBan()));
+        } else if (this.options.onboardAccessibility) {
+            this.setScreen(new AccessibilityOnboardingScreen(this.options));
+            this.options.onboardAccessibility = false;
+            this.options.save();
         } else {
             this.setScreen(new TitleScreen(true));
         }
@@ -1095,7 +1100,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.mainRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
         this.profiler.push("display");
-        RenderSystem.enableTexture();
         RenderSystem.enableCull();
         this.profiler.pop();
         if (!this.noRender) {
@@ -1440,7 +1444,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         var3.translate(0.0F, 0.0F, -2000.0F);
         RenderSystem.applyModelViewMatrix();
         RenderSystem.lineWidth(1.0F);
-        RenderSystem.disableTexture();
         Tesselator var4 = Tesselator.getInstance();
         BufferBuilder var5 = var4.getBuilder();
         int var6 = 160;
@@ -1493,7 +1496,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         DecimalFormat var24 = new DecimalFormat("##0.00");
         var24.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
-        RenderSystem.enableTexture();
         String var25 = ProfileResults.demanglePath(var1.name);
         String var26 = "";
         if (!"unspecified".equals(var25)) {
@@ -2066,7 +2068,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.downloadedPackSource.clearServerPack();
             this.gui.onDisconnected();
             this.isLocalServer = false;
-            this.game.onLeaveGameSession();
         }
 
         this.level = null;
@@ -2317,7 +2318,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         if (param2 != null) {
-            param0.setDetail("Current Language", () -> param2.getSelected().toString());
+            param0.setDetail("Current Language", () -> param2.getSelected());
         }
 
         param0.setDetail("CPU", GlUtil::getCpuInfo);
@@ -2700,10 +2701,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.profiler;
     }
 
-    public Game getGame() {
-        return this.game;
-    }
-
     @Nullable
     public StoringChunkProgressListener getProgressListener() {
         return this.progressListener.get();
@@ -2757,6 +2754,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public SignatureValidator getServiceSignatureValidator() {
         return this.serviceSignatureValidator;
+    }
+
+    public InputType getLastInputType() {
+        return this.lastInputType;
+    }
+
+    public void setLastInputType(InputType param0) {
+        this.lastInputType = param0;
     }
 
     public GameNarrator getNarrator() {

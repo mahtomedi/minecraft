@@ -36,11 +36,17 @@ public class RecipeToast implements Toast {
         } else {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEXTURE);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             param1.blit(param0, 0, 0, 0, 32, this.width(), this.height());
             param1.getMinecraft().font.draw(param0, TITLE_TEXT, 30.0F, 7.0F, -11534256);
             param1.getMinecraft().font.draw(param0, DESCRIPTION_TEXT, 30.0F, 18.0F, -16777216);
-            Recipe<?> var0 = this.recipes.get((int)(param2 / Math.max(1L, 5000L / (long)this.recipes.size()) % (long)this.recipes.size()));
+            Recipe<?> var0 = this.recipes
+                .get(
+                    (int)(
+                        (double)param2
+                            / Math.max(1.0, 5000.0 * param1.getNotificationDisplayTimeMultiplier() / (double)this.recipes.size())
+                            % (double)this.recipes.size()
+                    )
+                );
             ItemStack var1 = var0.getToastSymbol();
             PoseStack var2 = RenderSystem.getModelViewStack();
             var2.pushPose();
@@ -50,7 +56,9 @@ public class RecipeToast implements Toast {
             var2.popPose();
             RenderSystem.applyModelViewMatrix();
             param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var0.getResultItem(), 8, 8);
-            return param2 - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
+            return (double)(param2 - this.lastChanged) >= 5000.0 * param1.getNotificationDisplayTimeMultiplier()
+                ? Toast.Visibility.HIDE
+                : Toast.Visibility.SHOW;
         }
     }
 

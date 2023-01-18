@@ -86,16 +86,16 @@ public class CombatTracker {
                     var5 = Component.translatable("death.fell.accident." + this.getFallLocation(var0), this.mob.getDisplayName());
                 } else if (var4 != null && !var4.equals(var2)) {
                     Entity var6 = var0.getSource().getEntity();
-                    ItemStack var7 = var6 instanceof LivingEntity ? ((LivingEntity)var6).getMainHandItem() : ItemStack.EMPTY;
-                    if (!var7.isEmpty() && var7.hasCustomHoverName()) {
-                        var5 = Component.translatable("death.fell.assist.item", this.mob.getDisplayName(), var4, var7.getDisplayName());
+                    ItemStack var8 = var6 instanceof LivingEntity var7 ? var7.getMainHandItem() : ItemStack.EMPTY;
+                    if (!var8.isEmpty() && var8.hasCustomHoverName()) {
+                        var5 = Component.translatable("death.fell.assist.item", this.mob.getDisplayName(), var4, var8.getDisplayName());
                     } else {
                         var5 = Component.translatable("death.fell.assist", this.mob.getDisplayName(), var4);
                     }
                 } else if (var2 != null) {
-                    ItemStack var10 = var3 instanceof LivingEntity ? ((LivingEntity)var3).getMainHandItem() : ItemStack.EMPTY;
-                    if (!var10.isEmpty() && var10.hasCustomHoverName()) {
-                        var5 = Component.translatable("death.fell.finish.item", this.mob.getDisplayName(), var2, var10.getDisplayName());
+                    ItemStack var12 = var3 instanceof LivingEntity var11 ? var11.getMainHandItem() : ItemStack.EMPTY;
+                    if (!var12.isEmpty() && var12.hasCustomHoverName()) {
+                        var5 = Component.translatable("death.fell.finish.item", this.mob.getDisplayName(), var2, var12.getDisplayName());
                     } else {
                         var5 = Component.translatable("death.fell.finish", this.mob.getDisplayName(), var2);
                     }
@@ -118,14 +118,16 @@ public class CombatTracker {
         float var3 = 0.0F;
 
         for(CombatEntry var4 : this.entries) {
-            if (var4.getSource().getEntity() instanceof Player && (var1 == null || var4.getDamage() > var3)) {
+            Entity var8 = var4.getSource().getEntity();
+            if (var8 instanceof Player var5 && (var1 == null || var4.getDamage() > var3)) {
                 var3 = var4.getDamage();
-                var1 = (Player)var4.getSource().getEntity();
+                var1 = var5;
             }
 
-            if (var4.getSource().getEntity() instanceof LivingEntity && (var0 == null || var4.getDamage() > var2)) {
+            var8 = var4.getSource().getEntity();
+            if (var8 instanceof LivingEntity var6 && (var0 == null || var4.getDamage() > var2)) {
                 var2 = var4.getDamage();
-                var0 = (LivingEntity)var4.getSource().getEntity();
+                var0 = var6;
             }
         }
 

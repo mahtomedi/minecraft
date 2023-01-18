@@ -52,7 +52,6 @@ public class DemoIntroScreen extends Screen {
     @Override
     public void renderBackground(PoseStack param0) {
         super.renderBackground(param0);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, DEMO_BACKGROUND_LOCATION);
         int var0 = (this.width - 248) / 2;
         int var1 = (this.height - 166) / 2;

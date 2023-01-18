@@ -318,6 +318,10 @@ public class Guardian extends Monster {
         return ((float)this.clientSideAttackTime + param0) / (float)this.getAttackDuration();
     }
 
+    public float getClientSideAttackTime() {
+        return (float)this.clientSideAttackTime;
+    }
+
     @Override
     public boolean checkSpawnObstruction(LevelReader param0) {
         return param0.isUnobstructed(this);

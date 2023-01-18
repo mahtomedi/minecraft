@@ -88,7 +88,7 @@ public class DolphinJumpGoal extends JumpGoal {
 
         Vec3 var2 = this.dolphin.getDeltaMovement();
         if (var2.y * var2.y < 0.03F && this.dolphin.getXRot() != 0.0F) {
-            this.dolphin.setXRot(Mth.rotlerp(this.dolphin.getXRot(), 0.0F, 0.2F));
+            this.dolphin.setXRot(Mth.rotLerp(0.2F, this.dolphin.getXRot(), 0.0F));
         } else if (var2.length() > 1.0E-5F) {
             double var3 = var2.horizontalDistance();
             double var4 = Math.atan2(-var2.y, var3) * 180.0F / (float)Math.PI;

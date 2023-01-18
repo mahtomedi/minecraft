@@ -171,7 +171,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             int var1 = param0 % 30;
             MutableComponent var2 = Component.empty();
             if (var0 > 0) {
-                var2.append(Integer.toString(var0)).append(" ");
+                var2.append(Integer.toString(var0)).append(CommonComponents.SPACE);
                 if (var0 == 1) {
                     var2.append(MONTH_SUFFIX);
                 } else {
@@ -184,7 +184,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
                     var2.append(", ");
                 }
 
-                var2.append(Integer.toString(var1)).append(" ");
+                var2.append(Integer.toString(var1)).append(CommonComponents.SPACE);
                 if (var1 == 1) {
                     var2.append(DAY_SUFFIX);
                 } else {

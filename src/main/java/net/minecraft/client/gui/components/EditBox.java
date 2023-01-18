@@ -2,11 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -15,12 +11,13 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -360,7 +357,7 @@ public class EditBox extends AbstractWidget implements Renderable {
                 && param1 >= (double)this.getY()
                 && param1 < (double)(this.getY() + this.height);
             if (this.canLoseFocus) {
-                this.setFocus(var0);
+                this.setFocused(var0);
             }
 
             if (this.isFocused() && var0 && param2 == 0) {
@@ -376,10 +373,6 @@ public class EditBox extends AbstractWidget implements Renderable {
                 return false;
             }
         }
-    }
-
-    public void setFocus(boolean param0) {
-        this.setFocused(param0);
     }
 
     @Override
@@ -440,49 +433,37 @@ public class EditBox extends AbstractWidget implements Renderable {
 
             if (var3 != var2) {
                 int var13 = var7 + this.font.width(var4.substring(0, var3));
-                this.renderHighlight(var12, var8 - 1, var13 - 1, var8 + 1 + 9);
+                this.renderHighlight(param0, var12, var8 - 1, var13 - 1, var8 + 1 + 9);
             }
 
         }
     }
 
-    private void renderHighlight(int param0, int param1, int param2, int param3) {
-        if (param0 < param2) {
-            int var0 = param0;
-            param0 = param2;
-            param2 = var0;
-        }
-
+    private void renderHighlight(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (param1 < param3) {
-            int var1 = param1;
+            int var0 = param1;
             param1 = param3;
-            param3 = var1;
+            param3 = var0;
         }
 
-        if (param2 > this.getX() + this.width) {
-            param2 = this.getX() + this.width;
+        if (param2 < param4) {
+            int var1 = param2;
+            param2 = param4;
+            param4 = var1;
         }
 
-        if (param0 > this.getX() + this.width) {
-            param0 = this.getX() + this.width;
+        if (param3 > this.getX() + this.width) {
+            param3 = this.getX() + this.width;
         }
 
-        Tesselator var2 = Tesselator.getInstance();
-        BufferBuilder var3 = var2.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
-        RenderSystem.disableTexture();
+        if (param1 > this.getX() + this.width) {
+            param1 = this.getX() + this.width;
+        }
+
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        var3.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        var3.vertex((double)param0, (double)param3, 0.0).endVertex();
-        var3.vertex((double)param2, (double)param3, 0.0).endVertex();
-        var3.vertex((double)param2, (double)param1, 0.0).endVertex();
-        var3.vertex((double)param0, (double)param1, 0.0).endVertex();
-        var2.end();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        fill(param0, param1, param2, param3, param4, -16776961);
         RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
     }
 
     public void setMaxLength(int param0) {
@@ -518,9 +499,10 @@ public class EditBox extends AbstractWidget implements Renderable {
         this.textColorUneditable = param0;
     }
 
+    @Nullable
     @Override
-    public boolean changeFocus(boolean param0) {
-        return this.visible && this.isEditable ? super.changeFocus(param0) : false;
+    public ComponentPath nextFocusPath(FocusNavigationEvent param0) {
+        return this.visible && this.isEditable ? super.nextFocusPath(param0) : null;
     }
 
     @Override
@@ -533,11 +515,14 @@ public class EditBox extends AbstractWidget implements Renderable {
     }
 
     @Override
-    protected void onFocusedChanged(boolean param0) {
-        if (param0) {
-            this.frame = 0;
-        }
+    public void setFocused(boolean param0) {
+        if (this.canLoseFocus || param0) {
+            super.setFocused(param0);
+            if (param0) {
+                this.frame = 0;
+            }
 
+        }
     }
 
     private boolean isEditable() {

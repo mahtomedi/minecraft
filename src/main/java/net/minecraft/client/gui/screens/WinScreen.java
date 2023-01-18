@@ -6,11 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -21,7 +17,7 @@ import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -34,13 +30,10 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class WinScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final ResourceLocation LOGO_LOCATION = new ResourceLocation("textures/gui/title/minecraft.png");
-    private static final ResourceLocation EDITION_LOCATION = new ResourceLocation("textures/gui/title/edition.png");
     private static final ResourceLocation VIGNETTE_LOCATION = new ResourceLocation("textures/misc/vignette.png");
     private static final Component SECTION_HEADING = Component.literal("============").withStyle(ChatFormatting.WHITE);
     private static final String NAME_PREFIX = "           ";
     private static final String OBFUSCATE_TOKEN = "" + ChatFormatting.WHITE + ChatFormatting.OBFUSCATED + ChatFormatting.GREEN + ChatFormatting.AQUA;
-    private static final int LOGO_WIDTH = 274;
     private static final float SPEEDUP_FACTOR = 5.0F;
     private static final float SPEEDUP_FACTOR_FAST = 15.0F;
     private final boolean poem;
@@ -53,11 +46,13 @@ public class WinScreen extends Screen {
     private final IntSet speedupModifiers = new IntOpenHashSet();
     private float scrollSpeed;
     private final float unmodifiedScrollSpeed;
+    private final LogoRenderer logoRenderer;
 
-    public WinScreen(boolean param0, Runnable param1) {
+    public WinScreen(boolean param0, LogoRenderer param1, Runnable param2) {
         super(GameNarrator.NO_TITLE);
         this.poem = param0;
-        this.onFinished = param1;
+        this.logoRenderer = param1;
+        this.onFinished = param2;
         if (!param0) {
             this.unmodifiedScrollSpeed = 0.75F;
         } else {
@@ -214,59 +209,40 @@ public class WinScreen extends Screen {
         this.lines.add(param0.getVisualOrderText());
     }
 
-    private void renderBg() {
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    private void renderBg(PoseStack param0) {
         RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
         int var0 = this.width;
-        float var1 = -this.scroll * 0.5F;
-        float var2 = (float)this.height - 0.5F * this.scroll;
-        float var3 = 0.015625F;
-        float var4 = this.scroll / this.unmodifiedScrollSpeed;
-        float var5 = var4 * 0.02F;
-        float var6 = (float)(this.totalScrollLength + this.height + this.height + 24) / this.unmodifiedScrollSpeed;
-        float var7 = (var6 - 20.0F - var4) * 0.005F;
-        if (var7 < var5) {
-            var5 = var7;
+        float var1 = this.scroll * 0.5F;
+        int var2 = 64;
+        float var3 = this.scroll / this.unmodifiedScrollSpeed;
+        float var4 = var3 * 0.02F;
+        float var5 = (float)(this.totalScrollLength + this.height + this.height + 24) / this.unmodifiedScrollSpeed;
+        float var6 = (var5 - 20.0F - var3) * 0.005F;
+        if (var6 < var4) {
+            var4 = var6;
         }
 
-        if (var5 > 1.0F) {
-            var5 = 1.0F;
+        if (var4 > 1.0F) {
+            var4 = 1.0F;
         }
 
-        var5 *= var5;
-        var5 = var5 * 96.0F / 255.0F;
-        Tesselator var8 = Tesselator.getInstance();
-        BufferBuilder var9 = var8.getBuilder();
-        var9.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var9.vertex(0.0, (double)this.height, (double)this.getBlitOffset()).uv(0.0F, var1 * 0.015625F).color(var5, var5, var5, 1.0F).endVertex();
-        var9.vertex((double)var0, (double)this.height, (double)this.getBlitOffset())
-            .uv((float)var0 * 0.015625F, var1 * 0.015625F)
-            .color(var5, var5, var5, 1.0F)
-            .endVertex();
-        var9.vertex((double)var0, 0.0, (double)this.getBlitOffset()).uv((float)var0 * 0.015625F, var2 * 0.015625F).color(var5, var5, var5, 1.0F).endVertex();
-        var9.vertex(0.0, 0.0, (double)this.getBlitOffset()).uv(0.0F, var2 * 0.015625F).color(var5, var5, var5, 1.0F).endVertex();
-        var8.end();
+        var4 *= var4;
+        var4 = var4 * 96.0F / 255.0F;
+        RenderSystem.setShaderColor(var4, var4, var4, 1.0F);
+        blit(param0, 0, 0, this.getBlitOffset(), 0.0F, var1, var0, this.height, 64, 64);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.scroll += param3 * this.scrollSpeed;
-        this.renderBg();
+        this.renderBg(param0);
         int var0 = this.width / 2 - 137;
         int var1 = this.height + 50;
         float var2 = -this.scroll;
         param0.pushPose();
         param0.translate(0.0F, var2, 0.0F);
-        RenderSystem.setShaderTexture(0, LOGO_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.enableBlend();
-        this.blitOutlineBlack(var0, var1, (param1x, param2x) -> {
-            this.blit(param0, param1x + 0, param2x, 0, 0, 155, 44);
-            this.blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
-        });
-        RenderSystem.disableBlend();
-        RenderSystem.setShaderTexture(0, EDITION_LOCATION);
-        blit(param0, var0 + 88, var1 + 37, 0.0F, 0.0F, 98, 14, 128, 16);
+        this.logoRenderer.renderLogo(param0, this.width, param3, var1);
         int var3 = var1 + 100;
 
         for(int var4 = 0; var4 < this.lines.size(); ++var4) {
@@ -290,20 +266,10 @@ public class WinScreen extends Screen {
         }
 
         param0.popPose();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR);
-        int var7 = this.width;
-        int var8 = this.height;
-        Tesselator var9 = Tesselator.getInstance();
-        BufferBuilder var10 = var9.getBuilder();
-        var10.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var10.vertex(0.0, (double)var8, (double)this.getBlitOffset()).uv(0.0F, 1.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var10.vertex((double)var7, (double)var8, (double)this.getBlitOffset()).uv(1.0F, 1.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var10.vertex((double)var7, 0.0, (double)this.getBlitOffset()).uv(1.0F, 0.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var10.vertex(0.0, 0.0, (double)this.getBlitOffset()).uv(0.0F, 0.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var9.end();
+        blit(param0, 0, 0, this.getBlitOffset(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);
         RenderSystem.disableBlend();
         super.render(param0, param1, param2, param3);
     }

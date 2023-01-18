@@ -34,9 +34,9 @@ public class LanguageSelectScreen extends OptionsSubScreen {
         this.addRenderableWidget(this.options.forceUnicodeFont().createButton(this.options, this.width / 2 - 155, this.height - 38, 150));
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0 -> {
             LanguageSelectScreen.LanguageSelectionList.Entry var0 = this.packSelectionList.getSelected();
-            if (var0 != null && !var0.language.getCode().equals(this.languageManager.getSelected().getCode())) {
-                this.languageManager.setSelected(var0.language);
-                this.options.languageCode = var0.language.getCode();
+            if (var0 != null && !var0.code.equals(this.languageManager.getSelected())) {
+                this.languageManager.setSelected(var0.code);
+                this.options.languageCode = var0.code;
                 this.minecraft.reloadResourcePacks();
                 this.options.save();
             }
@@ -58,15 +58,15 @@ public class LanguageSelectScreen extends OptionsSubScreen {
     class LanguageSelectionList extends ObjectSelectionList<LanguageSelectScreen.LanguageSelectionList.Entry> {
         public LanguageSelectionList(Minecraft param0) {
             super(param0, LanguageSelectScreen.this.width, LanguageSelectScreen.this.height, 32, LanguageSelectScreen.this.height - 65 + 4, 18);
-
-            for(LanguageInfo param1 : LanguageSelectScreen.this.languageManager.getLanguages()) {
-                LanguageSelectScreen.LanguageSelectionList.Entry var0 = new LanguageSelectScreen.LanguageSelectionList.Entry(param1);
+            String param1 = LanguageSelectScreen.this.languageManager.getSelected();
+            LanguageSelectScreen.this.languageManager.getLanguages().forEach((param1x, param2) -> {
+                LanguageSelectScreen.LanguageSelectionList.Entry var0 = new LanguageSelectScreen.LanguageSelectionList.Entry(param1x, param2);
                 this.addEntry(var0);
-                if (LanguageSelectScreen.this.languageManager.getSelected().getCode().equals(param1.getCode())) {
+                if (param1.equals(param1x)) {
                     this.setSelected(var0);
                 }
-            }
 
+            });
             if (this.getSelected() != null) {
                 this.centerScrollOn(this.getSelected());
             }
@@ -88,32 +88,27 @@ public class LanguageSelectScreen extends OptionsSubScreen {
             LanguageSelectScreen.this.renderBackground(param0);
         }
 
-        @Override
-        protected boolean isFocused() {
-            return LanguageSelectScreen.this.getFocused() == this;
-        }
-
         @OnlyIn(Dist.CLIENT)
         public class Entry extends ObjectSelectionList.Entry<LanguageSelectScreen.LanguageSelectionList.Entry> {
-            final LanguageInfo language;
+            final String code;
+            private final Component language;
 
-            public Entry(LanguageInfo param1) {
-                this.language = param1;
+            public Entry(String param1, LanguageInfo param2) {
+                this.code = param1;
+                this.language = param2.toComponent();
             }
 
             @Override
             public void render(
                 PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                String var0 = this.language.toString();
                 LanguageSelectScreen.this.font
                     .drawShadow(
                         param0,
-                        var0,
-                        (float)(LanguageSelectionList.this.width / 2 - LanguageSelectScreen.this.font.width(var0) / 2),
+                        this.language,
+                        (float)(LanguageSelectionList.this.width / 2 - LanguageSelectScreen.this.font.width(this.language) / 2),
                         (float)(param2 + 1),
-                        16777215,
-                        true
+                        16777215
                     );
             }
 

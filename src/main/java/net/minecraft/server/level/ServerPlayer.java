@@ -1,14 +1,18 @@
 package net.minecraft.server.level;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
@@ -48,6 +52,7 @@ import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
+import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
@@ -58,7 +63,6 @@ import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
@@ -100,6 +104,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -1254,20 +1259,31 @@ public class ServerPlayer extends Player {
 
     @Override
     public void teleportTo(double param0, double param1, double param2) {
-        this.connection.teleport(param0, param1, param2, this.getYRot(), this.getXRot(), ClientboundPlayerPositionPacket.RelativeArgument.ROTATION);
+        this.connection.teleport(param0, param1, param2, this.getYRot(), this.getXRot(), RelativeMovement.ROTATION);
     }
 
     @Override
     public void teleportRelative(double param0, double param1, double param2) {
-        this.connection
-            .teleport(
-                this.getX() + param0,
-                this.getY() + param1,
-                this.getZ() + param2,
-                this.getYRot(),
-                this.getXRot(),
-                ClientboundPlayerPositionPacket.RelativeArgument.ALL
-            );
+        this.connection.teleport(this.getX() + param0, this.getY() + param1, this.getZ() + param2, this.getYRot(), this.getXRot(), RelativeMovement.ALL);
+    }
+
+    @Override
+    public boolean teleportTo(ServerLevel param0, double param1, double param2, double param3, Set<RelativeMovement> param4, float param5, float param6) {
+        ChunkPos var0 = new ChunkPos(new BlockPos(param1, param2, param3));
+        param0.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, var0, 1, this.getId());
+        this.stopRiding();
+        if (this.isSleeping()) {
+            this.stopSleepInBed(true, true);
+        }
+
+        if (param0 == this.level) {
+            this.connection.teleport(param1, param2, param3, param5, param6, param4);
+        } else {
+            this.teleportTo(param0, param1, param2, param3, param5, param6);
+        }
+
+        this.setYHeadRot(param5);
+        return true;
     }
 
     @Override
@@ -1362,9 +1378,8 @@ public class ServerPlayer extends Player {
     }
 
     public String getIpAddress() {
-        String var0 = this.connection.connection.getRemoteAddress().toString();
-        var0 = var0.substring(var0.indexOf("/") + 1);
-        return var0.substring(0, var0.indexOf(":"));
+        SocketAddress var0 = this.connection.getRemoteAddress();
+        return var0 instanceof InetSocketAddress var1 ? InetAddresses.toAddrString(var1.getAddress()) : "<unknown>";
     }
 
     public void updateOptions(ServerboundClientInformationPacket param0) {
@@ -1436,8 +1451,16 @@ public class ServerPlayer extends Player {
         Entity var0 = this.getCamera();
         this.camera = (Entity)(param0 == null ? this : param0);
         if (var0 != this.camera) {
+            Level var4 = this.camera.getLevel();
+            if (var4 instanceof ServerLevel var1) {
+                this.teleportTo(var1, this.camera.getX(), this.camera.getY(), this.camera.getZ(), Set.of(), this.getYRot(), this.getXRot());
+            }
+
+            if (param0 != null) {
+                this.getLevel().getChunkSource().move(this);
+            }
+
             this.connection.send(new ClientboundSetCameraPacket(this.camera));
-            this.connection.teleport(this.camera.getX(), this.camera.getY(), this.camera.getZ(), this.getYRot(), this.getXRot());
             this.connection.resetPosition();
         }
 
@@ -1712,5 +1735,12 @@ public class ServerPlayer extends Player {
     @Nullable
     public RemoteChatSession getChatSession() {
         return this.chatSession;
+    }
+
+    @Override
+    public void knockback(double param0, double param1, double param2) {
+        super.knockback(param0, param1, param2);
+        this.hurtDir = (float)(Mth.atan2(param2, param1) * 180.0F / (float)Math.PI - (double)this.getYRot());
+        this.connection.send(new ClientboundHurtAnimationPacket(this));
     }
 }

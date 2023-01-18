@@ -31,7 +31,7 @@ public class YieldJobSite {
                         (param2, param3, param4, param5, param6) -> (param6x, param7, param8) -> {
                                 if (param7.isBaby()) {
                                     return false;
-                                } else if (param7.getVillagerData().getProfession() == VillagerProfession.NONE) {
+                                } else if (param7.getVillagerData().getProfession() != VillagerProfession.NONE) {
                                     return false;
                                 } else {
                                     BlockPos var0x = param1.<GlobalPos>get(param2).pos();

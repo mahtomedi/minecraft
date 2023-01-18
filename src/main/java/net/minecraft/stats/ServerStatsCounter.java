@@ -82,11 +82,7 @@ public class ServerStatsCounter extends StatsCounter {
                 JsonElement var1 = Streams.parse(var0);
                 if (!var1.isJsonNull()) {
                     CompoundTag var2 = fromJson(var1.getAsJsonObject());
-                    if (!var2.contains("DataVersion", 99)) {
-                        var2.putInt("DataVersion", 1343);
-                    }
-
-                    var2 = NbtUtils.update(param0, DataFixTypes.STATS, var2, var2.getInt("DataVersion"));
+                    var2 = DataFixTypes.STATS.updateToCurrentVersion(param0, var2, NbtUtils.getDataVersion(var2, 1343));
                     if (!var2.contains("stats", 10)) {
                         return;
                     }
@@ -167,7 +163,7 @@ public class ServerStatsCounter extends StatsCounter {
 
         JsonObject var5 = new JsonObject();
         var5.add("stats", var3);
-        var5.addProperty("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+        var5.addProperty("DataVersion", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
         return var5.toString();
     }
 

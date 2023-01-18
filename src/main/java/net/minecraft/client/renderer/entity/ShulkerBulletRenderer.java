@@ -32,7 +32,7 @@ public class ShulkerBulletRenderer extends EntityRenderer<ShulkerBullet> {
 
     public void render(ShulkerBullet param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
-        float var0 = Mth.rotlerp(param0.yRotO, param0.getYRot(), param2);
+        float var0 = Mth.rotLerp(param2, param0.yRotO, param0.getYRot());
         float var1 = Mth.lerp(param2, param0.xRotO, param0.getXRot());
         float var2 = (float)param0.tickCount + param2;
         param3.translate(0.0F, 0.15F, 0.0F);

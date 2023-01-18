@@ -209,10 +209,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             RealmsPendingInvitesScreen.this.font
                 .draw(param0, RealmsUtil.convertToAgePresentationFromInstant(param1.date), (float)(param2 + 38), (float)(param3 + 24), 7105644);
             RowButton.drawButtonsInRow(param0, this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param2, param3, param4, param5);
-            RealmsTextureManager.withBoundFace(param1.worldOwnerUuid, () -> {
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                PlayerFaceRenderer.draw(param0, param2, param3, 32);
-            });
+            RealmsTextureManager.withBoundFace(param1.worldOwnerUuid, () -> PlayerFaceRenderer.draw(param0, param2, param3, 32));
         }
 
         @Override
@@ -234,7 +231,6 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             @Override
             protected void draw(PoseStack param0, int param1, int param2, boolean param3) {
                 RenderSystem.setShaderTexture(0, RealmsPendingInvitesScreen.ACCEPT_ICON_LOCATION);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 float var0 = param3 ? 19.0F : 0.0F;
                 GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
                 if (param3) {
@@ -258,7 +254,6 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             @Override
             protected void draw(PoseStack param0, int param1, int param2, boolean param3) {
                 RenderSystem.setShaderTexture(0, RealmsPendingInvitesScreen.REJECT_ICON_LOCATION);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 float var0 = param3 ? 19.0F : 0.0F;
                 GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
                 if (param3) {
@@ -292,11 +287,6 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         @Override
         public int getRowWidth() {
             return 260;
-        }
-
-        @Override
-        public boolean isFocused() {
-            return RealmsPendingInvitesScreen.this.getFocused() == this;
         }
 
         @Override

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -178,7 +177,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     }
 
     void blitSlotIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, STATS_ICON_LOCATION);
         blit(param0, param1, param2, this.getBlitOffset(), (float)param3, (float)param4, 18, 18, 128, 128);
@@ -229,7 +227,9 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public Component getNarration() {
-                return Component.translatable("narrator.select", Component.empty().append(this.statDisplay).append(" ").append(this.getValueText()));
+                return Component.translatable(
+                    "narrator.select", Component.empty().append(this.statDisplay).append(CommonComponents.SPACE).append(this.getValueText())
+                );
             }
         }
     }
@@ -290,7 +290,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderHeader(PoseStack param0, int param1, int param2, Tesselator param3) {
+        protected void renderHeader(PoseStack param0, int param1, int param2) {
             if (!this.minecraft.mouseHandler.isLeftPressed()) {
                 this.headerPressed = -1;
             }

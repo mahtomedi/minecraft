@@ -67,7 +67,6 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CRAFTING_TABLE_LOCATION);
         int var0 = this.leftPos;
         int var1 = (this.height - this.imageHeight) / 2;

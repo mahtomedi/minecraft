@@ -51,8 +51,8 @@ public class PlayerDataStorage {
         }
 
         if (var0 != null) {
-            int var3 = var0.contains("DataVersion", 3) ? var0.getInt("DataVersion") : -1;
-            param0.load(NbtUtils.update(this.fixerUpper, DataFixTypes.PLAYER, var0, var3));
+            int var3 = NbtUtils.getDataVersion(var0, -1);
+            param0.load(DataFixTypes.PLAYER.updateToCurrentVersion(this.fixerUpper, var0, var3));
         }
 
         return var0;

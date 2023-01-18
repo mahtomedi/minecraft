@@ -16,6 +16,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 public class BlockPosArgument implements ArgumentType<Coordinates> {
@@ -29,18 +30,27 @@ public class BlockPosArgument implements ArgumentType<Coordinates> {
     }
 
     public static BlockPos getLoadedBlockPos(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        BlockPos var0 = param0.getArgument(param1, Coordinates.class).getBlockPos(param0.getSource());
-        if (!param0.getSource().getLevel().hasChunkAt(var0)) {
+        ServerLevel var0 = param0.getSource().getLevel();
+        return getLoadedBlockPos(param0, var0, param1);
+    }
+
+    public static BlockPos getLoadedBlockPos(CommandContext<CommandSourceStack> param0, ServerLevel param1, String param2) throws CommandSyntaxException {
+        BlockPos var0 = getBlockPos(param0, param2);
+        if (!param1.hasChunkAt(var0)) {
             throw ERROR_NOT_LOADED.create();
-        } else if (!param0.getSource().getLevel().isInWorldBounds(var0)) {
+        } else if (!param1.isInWorldBounds(var0)) {
             throw ERROR_OUT_OF_WORLD.create();
         } else {
             return var0;
         }
     }
 
+    public static BlockPos getBlockPos(CommandContext<CommandSourceStack> param0, String param1) {
+        return param0.getArgument(param1, Coordinates.class).getBlockPos(param0.getSource());
+    }
+
     public static BlockPos getSpawnablePos(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        BlockPos var0 = param0.getArgument(param1, Coordinates.class).getBlockPos(param0.getSource());
+        BlockPos var0 = getBlockPos(param0, param1);
         if (!Level.isInSpawnableBounds(var0)) {
             throw ERROR_OUT_OF_BOUNDS.create();
         } else {

@@ -2,11 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.Font;
@@ -14,11 +10,9 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class MultiLineEditBox extends AbstractScrollWidget {
@@ -216,23 +210,10 @@ public class MultiLineEditBox extends AbstractScrollWidget {
     }
 
     private void renderHighlight(PoseStack param0, int param1, int param2, int param3, int param4) {
-        Matrix4f var0 = param0.last().pose();
-        Tesselator var1 = Tesselator.getInstance();
-        BufferBuilder var2 = var1.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
-        RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        var2.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        var2.vertex(var0, (float)param1, (float)param4, 0.0F).endVertex();
-        var2.vertex(var0, (float)param3, (float)param4, 0.0F).endVertex();
-        var2.vertex(var0, (float)param3, (float)param2, 0.0F).endVertex();
-        var2.vertex(var0, (float)param1, (float)param2, 0.0F).endVertex();
-        var1.end();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        fill(param0, param1, param2, param3, param4, -16776961);
         RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
     }
 
     private void scrollToCursor() {

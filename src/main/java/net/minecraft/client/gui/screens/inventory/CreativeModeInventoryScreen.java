@@ -553,7 +553,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         if (selectedTab.getType() == CreativeModeTab.Type.SEARCH) {
             this.searchBox.setVisible(true);
             this.searchBox.setCanLoseFocus(false);
-            this.searchBox.setFocus(true);
+            this.searchBox.setFocused(true);
             if (var0 != param0) {
                 this.searchBox.setValue("");
             }
@@ -562,7 +562,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         } else {
             this.searchBox.setVisible(false);
             this.searchBox.setCanLoseFocus(true);
-            this.searchBox.setFocus(false);
+            this.searchBox.setFocused(false);
             this.searchBox.setValue("");
         }
 
@@ -632,7 +632,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             this.renderTooltip(param0, TRASH_SLOT_TOOLTIP, param1, param2);
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.renderTooltip(param0, param1, param2);
     }
 
@@ -672,8 +671,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
         for(CreativeModeTab var0 : CreativeModeTabs.tabs()) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, CREATIVE_TABS_LOCATION);
@@ -686,7 +683,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         RenderSystem.setShaderTexture(0, new ResourceLocation("textures/gui/container/creative_inventory/tab_" + selectedTab.getBackgroundSuffix()));
         this.blit(param0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         this.searchBox.render(param0, param2, param3, param1);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int var1 = this.leftPos + 175;
         int var2 = this.topPos + 18;
         int var3 = var2 + 112;

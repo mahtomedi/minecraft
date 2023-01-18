@@ -39,8 +39,14 @@ public class Marker extends Entity {
     }
 
     @Override
-    protected void addPassenger(Entity param0) {
+    protected boolean canAddPassenger(Entity param0) {
+        return false;
+    }
+
+    @Override
+    protected boolean addPassenger(Entity param0) {
         param0.stopRiding();
+        return false;
     }
 
     @Override

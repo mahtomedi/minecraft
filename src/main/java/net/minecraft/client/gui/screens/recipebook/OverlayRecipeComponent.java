@@ -95,11 +95,6 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
         this.lastRecipeClicked = null;
     }
 
-    @Override
-    public boolean changeFocus(boolean param0) {
-        return false;
-    }
-
     public RecipeCollection getRecipeCollection() {
         return this.collection;
     }
@@ -135,7 +130,6 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
         if (this.isVisible) {
             this.time += param3;
             RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
             param0.pushPose();
             param0.translate(0.0F, 0.0F, 170.0F);
@@ -229,6 +223,15 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
 
     public boolean isVisible() {
         return this.isVisible;
+    }
+
+    @Override
+    public void setFocused(boolean param0) {
+    }
+
+    @Override
+    public boolean isFocused() {
+        return false;
     }
 
     @OnlyIn(Dist.CLIENT)

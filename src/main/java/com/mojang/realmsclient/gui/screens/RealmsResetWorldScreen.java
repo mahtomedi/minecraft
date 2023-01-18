@@ -230,21 +230,14 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         RenderSystem.setShaderTexture(0, param4);
         if (param5) {
             RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
-        } else {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         GuiComponent.blit(param0, param1 + 2, param2 + 14, 0.0F, 0.0F, 56, 56, 56, 56);
         RenderSystem.setShaderTexture(0, SLOT_FRAME_LOCATION);
-        if (param5) {
-            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
-        } else {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        }
-
         GuiComponent.blit(param0, param1, param2 + 12, 0.0F, 0.0F, 60, 60, 60, 60);
         int var0 = param5 ? 10526880 : 16777215;
         drawCenteredString(param0, this.font, param3, param1 + 30, param2, var0);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void startTask(LongRunningTask param0) {

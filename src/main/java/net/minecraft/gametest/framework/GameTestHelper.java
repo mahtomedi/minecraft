@@ -16,6 +16,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -164,7 +165,12 @@ public class GameTestHelper {
     public void useBlock(BlockPos param0, Player param1, BlockHitResult param2) {
         BlockPos var0 = this.absolutePos(param0);
         BlockState var1 = this.getLevel().getBlockState(var0);
-        var1.use(this.getLevel(), param1, InteractionHand.MAIN_HAND, param2);
+        InteractionResult var2 = var1.use(this.getLevel(), param1, InteractionHand.MAIN_HAND, param2);
+        if (!var2.consumesAction()) {
+            UseOnContext var3 = new UseOnContext(param1, InteractionHand.MAIN_HAND, param2);
+            param1.getItemInHand(InteractionHand.MAIN_HAND).useOn(var3);
+        }
+
     }
 
     public LivingEntity makeAboutToDrown(LivingEntity param0) {

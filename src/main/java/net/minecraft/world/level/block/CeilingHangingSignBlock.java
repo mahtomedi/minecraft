@@ -104,7 +104,7 @@ public class CeilingHangingSignBlock extends SignBlock {
             }
         }
 
-        int var9 = !var6 ? RotationSegment.convertToSegment(var5) : RotationSegment.convertToSegment(param0.getRotation());
+        int var9 = !var6 ? RotationSegment.convertToSegment(var5.getOpposite()) : RotationSegment.convertToSegment(param0.getRotation() + 180.0F);
         return this.defaultBlockState()
             .setValue(ATTACHED, Boolean.valueOf(var6))
             .setValue(ROTATION, Integer.valueOf(var9))

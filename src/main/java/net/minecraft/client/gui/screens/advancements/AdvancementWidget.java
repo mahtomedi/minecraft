@@ -210,7 +210,6 @@ public class AdvancementWidget extends GuiComponent {
         int var18 = this.width - var5;
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         int var19 = param2 + this.y;
         int var20;

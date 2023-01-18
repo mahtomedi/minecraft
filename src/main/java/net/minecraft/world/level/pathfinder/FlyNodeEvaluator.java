@@ -281,31 +281,15 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
 
     private BlockPathTypes getCachedBlockPathType(int param0, int param1, int param2) {
         return this.pathTypeByPosCache
-            .computeIfAbsent(
-                BlockPos.asLong(param0, param1, param2),
-                param3 -> this.getBlockPathType(
-                        this.level,
-                        param0,
-                        param1,
-                        param2,
-                        this.mob,
-                        this.entityWidth,
-                        this.entityHeight,
-                        this.entityDepth,
-                        this.canOpenDoors(),
-                        this.canPassDoors()
-                    )
-            );
+            .computeIfAbsent(BlockPos.asLong(param0, param1, param2), param3 -> this.getBlockPathType(this.level, param0, param1, param2, this.mob));
     }
 
     @Override
-    public BlockPathTypes getBlockPathType(
-        BlockGetter param0, int param1, int param2, int param3, Mob param4, int param5, int param6, int param7, boolean param8, boolean param9
-    ) {
+    public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3, Mob param4) {
         EnumSet<BlockPathTypes> var0 = EnumSet.noneOf(BlockPathTypes.class);
         BlockPathTypes var1 = BlockPathTypes.BLOCKED;
         BlockPos var2 = param4.blockPosition();
-        var1 = super.getBlockPathTypes(param0, param1, param2, param3, param5, param6, param7, param8, param9, var0, var1, var2);
+        var1 = super.getBlockPathTypes(param0, param1, param2, param3, var0, var1, var2);
         if (var0.contains(BlockPathTypes.FENCE)) {
             return BlockPathTypes.FENCE;
         } else {
@@ -333,8 +317,6 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             BlockPathTypes var2 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
             if (var2 == BlockPathTypes.DAMAGE_FIRE || var2 == BlockPathTypes.LAVA) {
                 var1 = BlockPathTypes.DAMAGE_FIRE;
-            } else if (var2 == BlockPathTypes.DAMAGE_CACTUS) {
-                var1 = BlockPathTypes.DAMAGE_CACTUS;
             } else if (var2 == BlockPathTypes.DAMAGE_OTHER) {
                 var1 = BlockPathTypes.DAMAGE_OTHER;
             } else if (var2 == BlockPathTypes.COCOA) {

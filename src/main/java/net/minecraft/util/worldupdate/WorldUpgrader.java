@@ -134,7 +134,7 @@ public class WorldUpgrader {
                                     LOGGER.warn("Chunk {} has invalid position {}", var15, var21);
                                 }
 
-                                boolean var22 = var18 < SharedConstants.getCurrentVersion().getWorldVersion();
+                                boolean var22 = var18 < SharedConstants.getCurrentVersion().getDataVersion().getVersion();
                                 if (this.eraseCache) {
                                     var22 = var22 || var20.contains("Heightmaps");
                                     var20.remove("Heightmaps");

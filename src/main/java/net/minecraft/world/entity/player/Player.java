@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -26,6 +25,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -172,6 +172,7 @@ public abstract class Player extends LivingEntity {
     private Optional<GlobalPos> lastDeathLocation = Optional.empty();
     @Nullable
     public FishingHook fishing;
+    protected float hurtDir;
 
     public Player(Level param0, BlockPos param1, float param2, GameProfile param3) {
         super(EntityType.PLAYER, param0);
@@ -620,9 +621,9 @@ public abstract class Player extends LivingEntity {
 
         if (param0 != null) {
             this.setDeltaMovement(
-                (double)(-Mth.cos((this.hurtDir + this.getYRot()) * (float) (Math.PI / 180.0)) * 0.1F),
+                (double)(-Mth.cos((this.getHurtDir() + this.getYRot()) * (float) (Math.PI / 180.0)) * 0.1F),
                 0.1F,
-                (double)(-Mth.sin((this.hurtDir + this.getYRot()) * (float) (Math.PI / 180.0)) * 0.1F)
+                (double)(-Mth.sin((this.getHurtDir() + this.getYRot()) * (float) (Math.PI / 180.0)) * 0.1F)
             );
         } else {
             this.setDeltaMovement(0.0, 0.1, 0.0);
@@ -797,7 +798,7 @@ public abstract class Player extends LivingEntity {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+        NbtUtils.addCurrentDataVersion(param0);
         param0.put("Inventory", this.inventory.save(new ListTag()));
         param0.putInt("SelectedItemSlot", this.inventory.selected);
         param0.putShort("SleepTimer", (short)this.sleepCounter);
@@ -948,8 +949,8 @@ public abstract class Player extends LivingEntity {
             if (var8 != 0.0F) {
                 this.causeFoodExhaustion(param0.getFoodExhaustion());
                 float var2 = this.getHealth();
-                this.setHealth(this.getHealth() - var8);
                 this.getCombatTracker().recordDamage(param0, var2, var8);
+                this.setHealth(this.getHealth() - var8);
                 if (var8 < 3.4028235E37F) {
                     this.awardStat(Stats.DAMAGE_TAKEN, Math.round(var8 * 10.0F));
                 }
@@ -2126,6 +2127,22 @@ public abstract class Player extends LivingEntity {
 
     public void setLastDeathLocation(Optional<GlobalPos> param0) {
         this.lastDeathLocation = param0;
+    }
+
+    @Override
+    public float getHurtDir() {
+        return this.hurtDir;
+    }
+
+    @Override
+    public void animateHurt(float param0) {
+        super.animateHurt(param0);
+        this.hurtDir = param0;
+    }
+
+    @Override
+    public boolean canSprint() {
+        return true;
     }
 
     public static enum BedSleepingProblem {

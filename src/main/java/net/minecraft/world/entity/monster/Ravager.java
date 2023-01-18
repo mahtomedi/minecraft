@@ -23,14 +23,11 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -39,8 +36,6 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.PathFinder;
-import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -62,6 +57,7 @@ public class Ravager extends Raider {
         super(param0, param1);
         this.maxUpStep = 1.0F;
         this.xpReward = 20;
+        this.setPathfindingMalus(BlockPathTypes.LEAVES, 0.0F);
     }
 
     @Override
@@ -117,11 +113,6 @@ public class Ravager extends Raider {
     @Override
     public SoundEvent getCelebrateSound() {
         return SoundEvents.RAVAGER_CELEBRATE;
-    }
-
-    @Override
-    protected PathNavigation createNavigation(Level param0) {
-        return new Ravager.RavagerNavigation(this, param0);
     }
 
     @Override
@@ -347,25 +338,6 @@ public class Ravager extends Raider {
         protected double getAttackReachSqr(LivingEntity param0) {
             float var0 = Ravager.this.getBbWidth() - 0.1F;
             return (double)(var0 * 2.0F * var0 * 2.0F + param0.getBbWidth());
-        }
-    }
-
-    static class RavagerNavigation extends GroundPathNavigation {
-        public RavagerNavigation(Mob param0, Level param1) {
-            super(param0, param1);
-        }
-
-        @Override
-        protected PathFinder createPathFinder(int param0) {
-            this.nodeEvaluator = new Ravager.RavagerNodeEvaluator();
-            return new PathFinder(this.nodeEvaluator, param0);
-        }
-    }
-
-    static class RavagerNodeEvaluator extends WalkNodeEvaluator {
-        @Override
-        protected BlockPathTypes evaluateBlockPathType(BlockGetter param0, boolean param1, boolean param2, BlockPos param3, BlockPathTypes param4) {
-            return param4 == BlockPathTypes.LEAVES ? BlockPathTypes.OPEN : super.evaluateBlockPathType(param0, param1, param2, param3, param4);
         }
     }
 }

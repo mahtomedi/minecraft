@@ -1,6 +1,11 @@
 package net.minecraft.util.datafix;
 
+import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DSL.TypeReference;
+import com.mojang.serialization.Dynamic;
+import net.minecraft.SharedConstants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.datafix.fixes.References;
 
 public enum DataFixTypes {
@@ -25,5 +30,25 @@ public enum DataFixTypes {
 
     public TypeReference getType() {
         return this.type;
+    }
+
+    private static int currentVersion() {
+        return SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+    }
+
+    public <T> Dynamic<T> update(DataFixer param0, Dynamic<T> param1, int param2, int param3) {
+        return param0.update(this.type, param1, param2, param3);
+    }
+
+    public <T> Dynamic<T> updateToCurrentVersion(DataFixer param0, Dynamic<T> param1, int param2) {
+        return this.update(param0, param1, param2, currentVersion());
+    }
+
+    public CompoundTag update(DataFixer param0, CompoundTag param1, int param2, int param3) {
+        return this.update(param0, new Dynamic<>(NbtOps.INSTANCE, param1), param2, param3).getValue();
+    }
+
+    public CompoundTag updateToCurrentVersion(DataFixer param0, CompoundTag param1, int param2) {
+        return this.update(param0, param1, param2, currentVersion());
     }
 }

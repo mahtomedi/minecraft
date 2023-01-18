@@ -1,7 +1,5 @@
 package net.minecraft.world.entity.vehicle;
 
-import java.util.List;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -18,10 +16,7 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MinecartHopper extends AbstractMinecartContainer implements Hopper {
-    public static final int MOVE_ITEM_SPEED = 4;
     private boolean enabled = true;
-    private int cooldownTime = -1;
-    private final BlockPos lastPosition = BlockPos.ZERO;
 
     public MinecartHopper(EntityType<? extends MinecartHopper> param0, Level param1) {
         super(param0, param1);
@@ -86,21 +81,8 @@ public class MinecartHopper extends AbstractMinecartContainer implements Hopper 
     @Override
     public void tick() {
         super.tick();
-        if (!this.level.isClientSide && this.isAlive() && this.isEnabled()) {
-            BlockPos var0 = this.blockPosition();
-            if (var0.equals(this.lastPosition)) {
-                --this.cooldownTime;
-            } else {
-                this.setCooldown(0);
-            }
-
-            if (!this.isOnCooldown()) {
-                this.setCooldown(0);
-                if (this.suckInItems()) {
-                    this.setCooldown(4);
-                    this.setChanged();
-                }
-            }
+        if (!this.level.isClientSide && this.isAlive() && this.isEnabled() && this.suckInItems()) {
+            this.setChanged();
         }
 
     }
@@ -109,10 +91,11 @@ public class MinecartHopper extends AbstractMinecartContainer implements Hopper 
         if (HopperBlockEntity.suckInItems(this.level, this)) {
             return true;
         } else {
-            List<ItemEntity> var0 = this.level
-                .getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.25, 0.0, 0.25), EntitySelector.ENTITY_STILL_ALIVE);
-            if (!var0.isEmpty()) {
-                HopperBlockEntity.addItem(this, var0.get(0));
+            for(ItemEntity var1 : this.level
+                .getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.25, 0.0, 0.25), EntitySelector.ENTITY_STILL_ALIVE)) {
+                if (HopperBlockEntity.addItem(this, var1)) {
+                    return true;
+                }
             }
 
             return false;
@@ -127,23 +110,13 @@ public class MinecartHopper extends AbstractMinecartContainer implements Hopper 
     @Override
     protected void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putInt("TransferCooldown", this.cooldownTime);
         param0.putBoolean("Enabled", this.enabled);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.cooldownTime = param0.getInt("TransferCooldown");
         this.enabled = param0.contains("Enabled") ? param0.getBoolean("Enabled") : true;
-    }
-
-    public void setCooldown(int param0) {
-        this.cooldownTime = param0;
-    }
-
-    public boolean isOnCooldown() {
-        return this.cooldownTime > 0;
     }
 
     @Override

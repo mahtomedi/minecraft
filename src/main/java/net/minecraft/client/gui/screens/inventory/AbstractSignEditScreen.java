@@ -3,18 +3,12 @@ package net.minecraft.client.gui.screens.inventory;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.stream.IntStream;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -200,20 +194,10 @@ public abstract class AbstractSignEditScreen extends Screen {
                     int var20 = this.minecraft.font.width(var14.substring(0, var18)) - this.minecraft.font.width(var14) / 2;
                     int var21 = Math.min(var19, var20);
                     int var22 = Math.max(var19, var20);
-                    Tesselator var23 = Tesselator.getInstance();
-                    BufferBuilder var24 = var23.getBuilder();
-                    RenderSystem.setShader(GameRenderer::getPositionColorShader);
-                    RenderSystem.disableTexture();
                     RenderSystem.enableColorLogicOp();
                     RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-                    var24.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-                    var24.vertex(var7, (float)var21, (float)(var6 + this.sign.getTextLineHeight()), 0.0F).color(0, 0, 255, 255).endVertex();
-                    var24.vertex(var7, (float)var22, (float)(var6 + this.sign.getTextLineHeight()), 0.0F).color(0, 0, 255, 255).endVertex();
-                    var24.vertex(var7, (float)var22, (float)var6, 0.0F).color(0, 0, 255, 255).endVertex();
-                    var24.vertex(var7, (float)var21, (float)var6, 0.0F).color(0, 0, 255, 255).endVertex();
-                    BufferUploader.drawWithShader(var24.end());
+                    fill(param0, var21, var6, var22, var6 + this.sign.getTextLineHeight(), -16776961);
                     RenderSystem.disableColorLogicOp();
-                    RenderSystem.enableTexture();
                 }
             }
         }

@@ -23,7 +23,7 @@ public enum PackCompatibility {
     }
 
     public static PackCompatibility forFormat(int param0, PackType param1) {
-        int var0 = param1.getVersion(SharedConstants.getCurrentVersion());
+        int var0 = SharedConstants.getCurrentVersion().getPackVersion(param1);
         if (param0 < var0) {
             return TOO_OLD;
         } else {

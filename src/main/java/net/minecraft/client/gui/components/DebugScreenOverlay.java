@@ -530,7 +530,6 @@ public class DebugScreenOverlay extends GuiComponent {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder var13 = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
-        RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
         var13.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
@@ -550,7 +549,6 @@ public class DebugScreenOverlay extends GuiComponent {
         }
 
         BufferUploader.drawWithShader(var13.end());
-        RenderSystem.enableTexture();
         RenderSystem.disableBlend();
         if (param4) {
             fill(param0, param2 + 1, var12 - 30 + 1, param2 + 14, var12 - 30 + 10, -1873784752);

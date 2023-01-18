@@ -11,6 +11,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -33,6 +34,7 @@ import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.BundlerInfo;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
@@ -97,6 +99,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     public void setProtocol(ConnectionProtocol param0) {
         this.channel.attr(ATTRIBUTE_PROTOCOL).set(param0);
+        this.channel.attr(BundlerInfo.BUNDLER_PROVIDER).set(param0);
         this.channel.config().setAutoRead(true);
         LOGGER.debug("Enabled auto read");
     }
@@ -182,6 +185,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         ConnectionProtocol var1 = this.getCurrentProtocol();
         ++this.sentPackets;
         if (var1 != var0) {
+            if (var0 == null) {
+                throw new IllegalStateException("Encountered packet without set protocol: " + param0);
+            }
+
             LOGGER.debug("Disabled auto read");
             this.channel.config().setAutoRead(false);
         }
@@ -298,31 +305,30 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
             var2 = NETWORK_WORKER_GROUP;
         }
 
-        new Bootstrap()
-            .group(var2.get())
-            .handler(
-                new ChannelInitializer<Channel>() {
-                    @Override
-                    protected void initChannel(Channel param0) {
-                        try {
-                            param0.config().setOption(ChannelOption.TCP_NODELAY, true);
-                        } catch (ChannelException var3) {
-                        }
-        
-                        param0.pipeline()
-                            .addLast("timeout", new ReadTimeoutHandler(30))
-                            .addLast("splitter", new Varint21FrameDecoder())
-                            .addLast("decoder", new PacketDecoder(PacketFlow.CLIENTBOUND))
-                            .addLast("prepender", new Varint21LengthFieldPrepender())
-                            .addLast("encoder", new PacketEncoder(PacketFlow.SERVERBOUND))
-                            .addLast("packet_handler", var0);
-                    }
+        new Bootstrap().group(var2.get()).handler(new ChannelInitializer<Channel>() {
+            @Override
+            protected void initChannel(Channel param0) {
+                try {
+                    param0.config().setOption(ChannelOption.TCP_NODELAY, true);
+                } catch (ChannelException var3) {
                 }
-            )
-            .channel(var1)
-            .connect(param0.getAddress(), param0.getPort())
-            .syncUninterruptibly();
+
+                ChannelPipeline var0 = param0.pipeline().addLast("timeout", new ReadTimeoutHandler(30));
+                Connection.configureSerialization(var0, PacketFlow.CLIENTBOUND);
+                var0.addLast("packet_handler", var0);
+            }
+        }).channel(var1).connect(param0.getAddress(), param0.getPort()).syncUninterruptibly();
         return var0;
+    }
+
+    public static void configureSerialization(ChannelPipeline param0, PacketFlow param1) {
+        PacketFlow var0 = param1.getOpposite();
+        param0.addLast("splitter", new Varint21FrameDecoder())
+            .addLast("decoder", new PacketDecoder(param1))
+            .addLast("prepender", new Varint21LengthFieldPrepender())
+            .addLast("encoder", new PacketEncoder(var0))
+            .addLast("unbundler", new PacketBundleUnpacker(var0))
+            .addLast("bundler", new PacketBundlePacker(param1));
     }
 
     public static Connection connectToLocalServer(SocketAddress param0) {
@@ -330,7 +336,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         new Bootstrap().group(LOCAL_WORKER_GROUP.get()).handler(new ChannelInitializer<Channel>() {
             @Override
             protected void initChannel(Channel param0) {
-                param0.pipeline().addLast("packet_handler", var0);
+                ChannelPipeline var0 = param0.pipeline();
+                var0.addLast("packet_handler", var0);
             }
         }).channel(LocalChannel.class).connect(param0).syncUninterruptibly();
         return var0;

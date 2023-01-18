@@ -57,7 +57,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
         if (!this.level.isClientSide && !this.isRemoved()) {
             Entity var1 = this.getOwner();
             if (var1 instanceof ServerPlayer var2) {
-                if (var2.connection.getConnection().isConnected() && var2.level == this.level && !var2.isSleeping()) {
+                if (var2.connection.isAcceptingMessages() && var2.level == this.level && !var2.isSleeping()) {
                     if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
                         Endermite var3 = EntityType.ENDERMITE.create(this.level);
                         if (var3 != null) {

@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.net.SocketAddress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -140,6 +141,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.HasCustomInventoryScreen;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PlayerRideableJumping;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Inventory;
@@ -186,7 +188,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
     private static final int NO_BLOCK_UPDATES_TO_ACK = -1;
     private static final int TRACKED_MESSAGE_DISCONNECT_THRESHOLD = 4096;
     private static final Component CHAT_VALIDATION_FAILED = Component.translatable("multiplayer.disconnect.chat_validation_failed");
-    public final Connection connection;
+    private final Connection connection;
     private final MinecraftServer server;
     public ServerPlayer player;
     private int tickCount;
@@ -332,8 +334,8 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
     }
 
     @Override
-    public Connection getConnection() {
-        return this.connection;
+    public boolean isAcceptingMessages() {
+        return this.connection.isConnected();
     }
 
     private boolean isSingleplayerOwner() {
@@ -348,7 +350,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
 
     private <T, R> CompletableFuture<R> filterTextPacket(T param0, BiFunction<TextFilter, T, CompletableFuture<R>> param1) {
         return param1.apply(this.player.getTextFilter(), param0).thenApply(param0x -> {
-            if (!this.getConnection().isConnected()) {
+            if (!this.isAcceptingMessages()) {
                 LOGGER.debug("Ignoring packet due to disconnection");
                 throw new CancellationException("disconnected");
             } else {
@@ -1009,18 +1011,16 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
         this.teleport(param0, param1, param2, param3, param4, Collections.emptySet(), false);
     }
 
-    public void teleport(double param0, double param1, double param2, float param3, float param4, Set<ClientboundPlayerPositionPacket.RelativeArgument> param5) {
+    public void teleport(double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5) {
         this.teleport(param0, param1, param2, param3, param4, param5, false);
     }
 
-    public void teleport(
-        double param0, double param1, double param2, float param3, float param4, Set<ClientboundPlayerPositionPacket.RelativeArgument> param5, boolean param6
-    ) {
-        double var0 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0;
-        double var1 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0;
-        double var2 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0;
-        float var3 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.player.getYRot() : 0.0F;
-        float var4 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.player.getXRot() : 0.0F;
+    public void teleport(double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5, boolean param6) {
+        double var0 = param5.contains(RelativeMovement.X) ? this.player.getX() : 0.0;
+        double var1 = param5.contains(RelativeMovement.Y) ? this.player.getY() : 0.0;
+        double var2 = param5.contains(RelativeMovement.Z) ? this.player.getZ() : 0.0;
+        float var3 = param5.contains(RelativeMovement.Y_ROT) ? this.player.getYRot() : 0.0F;
+        float var4 = param5.contains(RelativeMovement.X_ROT) ? this.player.getXRot() : 0.0F;
         this.awaitingPositionFromClient = new Vec3(param0, param1, param2);
         if (++this.awaitingTeleport == Integer.MAX_VALUE) {
             this.awaitingTeleport = 0;
@@ -1507,6 +1507,10 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
 
     public void sendDisguisedChatMessage(Component param0, ChatType.Bound param1) {
         this.send(new ClientboundDisguisedChatPacket(param0, param1.toNetwork(this.player.level.registryAccess())));
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return this.connection.getRemoteAddress();
     }
 
     @Override

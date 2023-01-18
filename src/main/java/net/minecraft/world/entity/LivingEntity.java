@@ -170,7 +170,6 @@ public abstract class LivingEntity extends Entity {
     public int removeStingerTime;
     public int hurtTime;
     public int hurtDuration;
-    public float hurtDir;
     public int deathTime;
     public float oAttackAnim;
     public float attackAnim;
@@ -1109,7 +1108,6 @@ public abstract class LivingEntity extends Entity {
                 param1 *= 0.75F;
             }
 
-            this.hurtDir = 0.0F;
             Entity var6 = param0.getEntity();
             if (var6 != null) {
                 if (var6 instanceof LivingEntity && !param0.isNoAggro()) {
@@ -1164,10 +1162,7 @@ public abstract class LivingEntity extends Entity {
                         var14 = (Math.random() - Math.random()) * 0.01;
                     }
 
-                    this.hurtDir = (float)(Mth.atan2(var15, var14) * 180.0F / (float)Math.PI - (double)this.getYRot());
                     this.knockback(0.4F, var14, var15);
-                } else {
-                    this.hurtDir = (float)((int)(Math.random() * 2.0) * 180);
                 }
             }
 
@@ -1460,6 +1455,10 @@ public abstract class LivingEntity extends Entity {
         return var2 instanceof RiderShieldingMount var0 ? this.position().add(0.0, var0.getRiderShieldingHeight(), 0.0) : this.position();
     }
 
+    public float getHurtDir() {
+        return 0.0F;
+    }
+
     public LivingEntity.Fallsounds getFallSounds() {
         return new LivingEntity.Fallsounds(SoundEvents.GENERIC_SMALL_FALL, SoundEvents.GENERIC_BIG_FALL);
     }
@@ -1554,10 +1553,9 @@ public abstract class LivingEntity extends Entity {
     }
 
     @Override
-    public void animateHurt() {
+    public void animateHurt(float param0) {
         this.hurtDuration = 10;
         this.hurtTime = this.hurtDuration;
-        this.hurtDir = 0.0F;
     }
 
     public int getArmorValue() {
@@ -1621,18 +1619,21 @@ public abstract class LivingEntity extends Entity {
         if (!this.isInvulnerableTo(param0)) {
             param1 = this.getDamageAfterArmorAbsorb(param0, param1);
             param1 = this.getDamageAfterMagicAbsorb(param0, param1);
-            float var8 = Math.max(param1 - this.getAbsorptionAmount(), 0.0F);
-            this.setAbsorptionAmount(this.getAbsorptionAmount() - (param1 - var8));
-            float var1 = param1 - var8;
-            if (var1 > 0.0F && var1 < 3.4028235E37F && param0.getEntity() instanceof ServerPlayer) {
-                ((ServerPlayer)param0.getEntity()).awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(var1 * 10.0F));
+            float var9 = Math.max(param1 - this.getAbsorptionAmount(), 0.0F);
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - (param1 - var9));
+            float var1 = param1 - var9;
+            if (var1 > 0.0F && var1 < 3.4028235E37F) {
+                Entity var6 = param0.getEntity();
+                if (var6 instanceof ServerPlayer var2) {
+                    var2.awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(var1 * 10.0F));
+                }
             }
 
-            if (var8 != 0.0F) {
-                float var2 = this.getHealth();
-                this.setHealth(var2 - var8);
-                this.getCombatTracker().recordDamage(param0, var2, var8);
-                this.setAbsorptionAmount(this.getAbsorptionAmount() - var8);
+            if (var9 != 0.0F) {
+                float var3 = this.getHealth();
+                this.getCombatTracker().recordDamage(param0, var3, var9);
+                this.setHealth(var3 - var9);
+                this.setAbsorptionAmount(this.getAbsorptionAmount() - var9);
                 this.gameEvent(GameEvent.ENTITY_DAMAGE);
             }
         }
@@ -1716,7 +1717,6 @@ public abstract class LivingEntity extends Entity {
                 this.invulnerableTime = 20;
                 this.hurtDuration = 10;
                 this.hurtTime = this.hurtDuration;
-                this.hurtDir = 0.0F;
                 if (param0 == 33) {
                     this.playSound(SoundEvents.THORNS_HIT, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
@@ -3204,6 +3204,11 @@ public abstract class LivingEntity extends Entity {
         return new AABB(
             (double)(-var0.width / 2.0F), 0.0, (double)(-var0.width / 2.0F), (double)(var0.width / 2.0F), (double)var0.height, (double)(var0.width / 2.0F)
         );
+    }
+
+    @Override
+    public boolean canChangeDimensions() {
+        return super.canChangeDimensions() && !this.isSleeping();
     }
 
     public Optional<BlockPos> getSleepingPos() {

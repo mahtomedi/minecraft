@@ -17,7 +17,7 @@ public class EndBiomes {
         MobSpawnSettings.Builder var0 = new MobSpawnSettings.Builder();
         BiomeDefaultFeatures.endSpawns(var0);
         return new Biome.BiomeBuilder()
-            .precipitation(Biome.Precipitation.NONE)
+            .hasPrecipitation(false)
             .temperature(0.5F)
             .downfall(0.5F)
             .specialEffects(

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -21,31 +22,29 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.Entity;
 
 public class TranslatableContents implements ComponentContents {
-    private static final Object[] NO_ARGS = new Object[0];
+    public static final Object[] NO_ARGS = new Object[0];
     private static final FormattedText TEXT_PERCENT = FormattedText.of("%");
     private static final FormattedText TEXT_NULL = FormattedText.of("null");
     private final String key;
+    @Nullable
+    private final String fallback;
     private final Object[] args;
     @Nullable
     private Language decomposedWith;
     private List<FormattedText> decomposedParts = ImmutableList.of();
     private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
 
-    public TranslatableContents(String param0) {
+    public TranslatableContents(String param0, @Nullable String param1, Object[] param2) {
         this.key = param0;
-        this.args = NO_ARGS;
-    }
-
-    public TranslatableContents(String param0, Object... param1) {
-        this.key = param0;
-        this.args = param1;
+        this.fallback = param1;
+        this.args = param2;
     }
 
     private void decompose() {
         Language var0 = Language.getInstance();
         if (var0 != this.decomposedWith) {
             this.decomposedWith = var0;
-            String var1 = var0.getOrDefault(this.key);
+            String var1 = this.fallback != null ? var0.getOrDefault(this.key, this.fallback) : var0.getOrDefault(this.key);
 
             try {
                 Builder<FormattedText> var2 = ImmutableList.builder();
@@ -108,17 +107,15 @@ public class TranslatableContents implements ComponentContents {
     }
 
     private FormattedText getArgument(int param0) {
-        if (param0 < 0) {
-            throw new TranslatableFormatException(this, param0);
-        } else if (param0 >= this.args.length) {
-            return Component.EMPTY;
-        } else {
+        if (param0 >= 0 && param0 < this.args.length) {
             Object var0 = this.args[param0];
             if (var0 instanceof Component) {
                 return (Component)var0;
             } else {
                 return var0 == null ? TEXT_NULL : FormattedText.of(var0.toString());
             }
+        } else {
+            throw new TranslatableFormatException(this, param0);
         }
     }
 
@@ -163,7 +160,7 @@ public class TranslatableContents implements ComponentContents {
             }
         }
 
-        return MutableComponent.create(new TranslatableContents(this.key, var0));
+        return MutableComponent.create(new TranslatableContents(this.key, this.fallback, var0));
     }
 
     @Override
@@ -171,7 +168,10 @@ public class TranslatableContents implements ComponentContents {
         if (this == param0) {
             return true;
         } else {
-            if (param0 instanceof TranslatableContents var0 && this.key.equals(var0.key) && Arrays.equals(this.args, var0.args)) {
+            if (param0 instanceof TranslatableContents var0
+                && Objects.equals(this.key, var0.key)
+                && Objects.equals(this.fallback, var0.fallback)
+                && Arrays.equals(this.args, var0.args)) {
                 return true;
             }
 
@@ -181,17 +181,29 @@ public class TranslatableContents implements ComponentContents {
 
     @Override
     public int hashCode() {
-        int var0 = this.key.hashCode();
+        int var0 = Objects.hashCode(this.key);
+        var0 = 31 * var0 + Objects.hashCode(this.fallback);
         return 31 * var0 + Arrays.hashCode(this.args);
     }
 
     @Override
     public String toString() {
-        return "translation{key='" + this.key + "', args=" + Arrays.toString(this.args) + "}";
+        return "translation{key='"
+            + this.key
+            + "'"
+            + (this.fallback != null ? ", fallback='" + this.fallback + "'" : "")
+            + ", args="
+            + Arrays.toString(this.args)
+            + "}";
     }
 
     public String getKey() {
         return this.key;
+    }
+
+    @Nullable
+    public String getFallback() {
+        return this.fallback;
     }
 
     public Object[] getArgs() {

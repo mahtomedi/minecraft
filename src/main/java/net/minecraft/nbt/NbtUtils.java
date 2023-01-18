@@ -7,9 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Collections;
@@ -34,7 +32,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
-import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -495,14 +492,6 @@ public final class NbtUtils {
         return param1;
     }
 
-    public static CompoundTag update(DataFixer param0, DataFixTypes param1, CompoundTag param2, int param3) {
-        return update(param0, param1, param2, param3, SharedConstants.getCurrentVersion().getWorldVersion());
-    }
-
-    public static CompoundTag update(DataFixer param0, DataFixTypes param1, CompoundTag param2, int param3, int param4) {
-        return param0.update(param1.getType(), new Dynamic<>(NbtOps.INSTANCE, param2), param3, param4).getValue();
-    }
-
     public static Component toPrettyComponent(Tag param0) {
         return new TextComponentTagVisitor("", 0).visit(param0);
     }
@@ -654,5 +643,19 @@ public final class NbtUtils {
 
         var0x.putString("Name", var2x);
         return var0x;
+    }
+
+    public static CompoundTag addCurrentDataVersion(CompoundTag param0) {
+        int var0 = SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+        return addDataVersion(param0, var0);
+    }
+
+    public static CompoundTag addDataVersion(CompoundTag param0, int param1) {
+        param0.putInt("DataVersion", param1);
+        return param0;
+    }
+
+    public static int getDataVersion(CompoundTag param0, int param1) {
+        return param0.contains("DataVersion", 99) ? param0.getInt("DataVersion") : param1;
     }
 }

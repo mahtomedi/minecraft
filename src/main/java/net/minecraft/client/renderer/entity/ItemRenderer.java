@@ -4,14 +4,10 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.MatrixUtil;
 import java.util.List;
@@ -23,10 +19,10 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -278,7 +274,6 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         PoseStack var0 = RenderSystem.getModelViewStack();
         var0.pushPose();
         var0.translate((float)param1, (float)param2, 100.0F + this.blitOffset);
@@ -368,16 +363,12 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
             if (param1.isBarVisible()) {
                 RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.disableBlend();
-                Tesselator var3 = Tesselator.getInstance();
-                BufferBuilder var4 = var3.getBuilder();
-                int var5 = param1.getBarWidth();
-                int var6 = param1.getBarColor();
-                this.fillRect(var4, param2 + 2, param3 + 13, 13, 2, 0, 0, 0, 255);
-                this.fillRect(var4, param2 + 2, param3 + 13, var5, 1, var6 >> 16 & 0xFF, var6 >> 8 & 0xFF, var6 & 0xFF, 255);
-                RenderSystem.enableBlend();
-                RenderSystem.enableTexture();
+                int var3 = param1.getBarWidth();
+                int var4 = param1.getBarColor();
+                int var5 = param2 + 2;
+                int var6 = param3 + 13;
+                GuiComponent.fill(var0, var5, var6, var5 + 13, var6 + 2, -16777216);
+                GuiComponent.fill(var0, var5, var6, var5 + var3, var6 + 1, var4 | 0xFF000000);
                 RenderSystem.enableDepthTest();
             }
 
@@ -385,27 +376,13 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             float var8 = var7 == null ? 0.0F : var7.getCooldowns().getCooldownPercent(param1.getItem(), Minecraft.getInstance().getFrameTime());
             if (var8 > 0.0F) {
                 RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                Tesselator var9 = Tesselator.getInstance();
-                BufferBuilder var10 = var9.getBuilder();
-                this.fillRect(var10, param2, param3 + Mth.floor(16.0F * (1.0F - var8)), 16, Mth.ceil(16.0F * var8), 255, 255, 255, 127);
-                RenderSystem.enableTexture();
+                int var9 = param3 + Mth.floor(16.0F * (1.0F - var8));
+                int var10 = var9 + Mth.ceil(16.0F * var8);
+                GuiComponent.fill(var0, param2, var9, param2 + 16, var10, Integer.MAX_VALUE);
                 RenderSystem.enableDepthTest();
             }
 
         }
-    }
-
-    private void fillRect(BufferBuilder param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        param0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        param0.vertex((double)(param1 + 0), (double)(param2 + 0), 0.0).color(param5, param6, param7, param8).endVertex();
-        param0.vertex((double)(param1 + 0), (double)(param2 + param4), 0.0).color(param5, param6, param7, param8).endVertex();
-        param0.vertex((double)(param1 + param3), (double)(param2 + param4), 0.0).color(param5, param6, param7, param8).endVertex();
-        param0.vertex((double)(param1 + param3), (double)(param2 + 0), 0.0).color(param5, param6, param7, param8).endVertex();
-        BufferUploader.drawWithShader(param0.end());
     }
 
     @Override

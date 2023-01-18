@@ -244,7 +244,15 @@ public class SpreadPlayersCommand {
                 var5 = param2[var1++];
             }
 
-            var3.teleportToWithTicket((double)Mth.floor(var5.x) + 0.5, (double)var5.getSpawnY(param1, param3), (double)Mth.floor(var5.z) + 0.5);
+            var3.teleportTo(
+                param1,
+                (double)Mth.floor(var5.x) + 0.5,
+                (double)var5.getSpawnY(param1, param3),
+                (double)Mth.floor(var5.z) + 0.5,
+                Set.of(),
+                var3.getYRot(),
+                var3.getXRot()
+            );
             double var7 = Double.MAX_VALUE;
 
             for(SpreadPlayersCommand.Position var8 : param2) {
