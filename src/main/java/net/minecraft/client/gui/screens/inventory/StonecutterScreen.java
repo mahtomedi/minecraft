@@ -76,7 +76,7 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
                 int var6 = var0 + var5 % 4 * 16;
                 int var7 = var1 + var5 / 4 * 18 + 2;
                 if (param1 >= var6 && param1 < var6 + 16 && param2 >= var7 && param2 < var7 + 18) {
-                    this.renderTooltip(param0, var3.get(var4).getResultItem(), param1, param2);
+                    this.renderTooltip(param0, var3.get(var4).getResultItem(this.minecraft.level.registryAccess()), param1, param2);
                 }
             }
         }
@@ -109,7 +109,7 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
             int var3 = param0 + var2 % 4 * 16;
             int var4 = var2 / 4;
             int var5 = param1 + var4 * 18 + 2;
-            this.minecraft.getItemRenderer().renderAndDecorateItem(var0.get(var1).getResultItem(), var3, var5);
+            this.minecraft.getItemRenderer().renderAndDecorateItem(var0.get(var1).getResultItem(this.minecraft.level.registryAccess()), var3, var5);
         }
 
     }

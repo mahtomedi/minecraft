@@ -43,5 +43,37 @@ public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
             .pattern("###")
             .unlockedBy("has_book", has(Items.BOOK))
             .save(param0);
+        trimSmithing(param0, Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE);
+        netheriteSmithing(param0, Items.DIAMOND_CHESTPLATE, RecipeCategory.COMBAT, Items.NETHERITE_CHESTPLATE);
+        netheriteSmithing(param0, Items.DIAMOND_LEGGINGS, RecipeCategory.COMBAT, Items.NETHERITE_LEGGINGS);
+        netheriteSmithing(param0, Items.DIAMOND_HELMET, RecipeCategory.COMBAT, Items.NETHERITE_HELMET);
+        netheriteSmithing(param0, Items.DIAMOND_BOOTS, RecipeCategory.COMBAT, Items.NETHERITE_BOOTS);
+        netheriteSmithing(param0, Items.DIAMOND_SWORD, RecipeCategory.COMBAT, Items.NETHERITE_SWORD);
+        netheriteSmithing(param0, Items.DIAMOND_AXE, RecipeCategory.TOOLS, Items.NETHERITE_AXE);
+        netheriteSmithing(param0, Items.DIAMOND_PICKAXE, RecipeCategory.TOOLS, Items.NETHERITE_PICKAXE);
+        netheriteSmithing(param0, Items.DIAMOND_HOE, RecipeCategory.TOOLS, Items.NETHERITE_HOE);
+        netheriteSmithing(param0, Items.DIAMOND_SHOVEL, RecipeCategory.TOOLS, Items.NETHERITE_SHOVEL);
+        copySmithingTemplate(param0, Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, Items.NETHERRACK);
+        copySmithingTemplate(param0, Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLESTONE);
+        copySmithingTemplate(param0, Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.SANDSTONE);
+        copySmithingTemplate(param0, Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLESTONE);
+        copySmithingTemplate(param0, Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE, Items.MOSSY_COBBLESTONE);
+        copySmithingTemplate(param0, Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLED_DEEPSLATE);
+        copySmithingTemplate(param0, Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.END_STONE);
+        copySmithingTemplate(param0, Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLESTONE);
+        copySmithingTemplate(param0, Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.PRISMARINE);
+        copySmithingTemplate(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE, Items.BLACKSTONE);
+        copySmithingTemplate(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, Items.NETHERRACK);
+        copySmithingTemplate(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.PURPUR_BLOCK);
     }
 }

@@ -44,7 +44,9 @@ public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityR
             param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
             param3.mulPose(Axis.YP.rotationDegrees(180.0F));
             this.itemRenderer
-                .renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
+                .renderStatic(
+                    param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId()
+                );
             param3.popPose();
             super.render(param0, param1, param2, param3, param4, param5);
         }

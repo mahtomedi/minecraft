@@ -7,6 +7,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
+import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.client.renderer.texture.atlas.sources.SourceFilter;
 import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
@@ -21,6 +22,7 @@ public class SpriteSources {
     public static final SpriteSourceType DIRECTORY = register("directory", DirectoryLister.CODEC);
     public static final SpriteSourceType FILTER = register("filter", SourceFilter.CODEC);
     public static final SpriteSourceType UNSTITCHER = register("unstitch", Unstitcher.CODEC);
+    public static final SpriteSourceType PALETTED_PERMUTATIONS = register("paletted_permutations", PalettedPermutations.CODEC);
     public static Codec<SpriteSourceType> TYPE_CODEC = ResourceLocation.CODEC.flatXmap(param0 -> {
         SpriteSourceType var0 = (SpriteSourceType)TYPES.get(param0);
         return var0 != null ? DataResult.success(var0) : DataResult.error("Unknown type " + param0);

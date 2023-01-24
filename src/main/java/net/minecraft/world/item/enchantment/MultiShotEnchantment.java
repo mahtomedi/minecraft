@@ -18,11 +18,6 @@ public class MultiShotEnchantment extends Enchantment {
     }
 
     @Override
-    public int getMaxLevel() {
-        return 1;
-    }
-
-    @Override
     public boolean checkCompatibility(Enchantment param0) {
         return super.checkCompatibility(param0) && param0 != Enchantments.PIERCING;
     }

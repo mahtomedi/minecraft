@@ -28,6 +28,7 @@ import net.minecraft.data.recipes.packs.BundleRecipeProvider;
 import net.minecraft.data.recipes.packs.UpdateOneTwentyRecipeProvider;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.registries.RegistriesDatapackGenerator;
+import net.minecraft.data.registries.UpdateOneTwentyRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.data.structures.SnbtToNbt;
@@ -151,13 +152,15 @@ public class Main {
                     param0x, Component.translatable("dataPack.bundle.description"), FeatureFlagSet.of(FeatureFlags.BUNDLE)
                 )
         );
-        var3 = var0.getBuiltinDatapack(param3, "update_1_20");
-        var3.addProvider(UpdateOneTwentyRecipeProvider::new);
-        var5 = var3.addProvider(bindRegistries(UpdateOneTwentyBlockTagsProvider::new, var2));
-        var3.addProvider(param2x -> new UpdateOneTwentyItemTagsProvider(param2x, var2, var5));
-        var3.addProvider(UpdateOneTwentyLootTableProvider::create);
-        var3.addProvider(bindRegistries(UpdateOneTwentyVanillaAdvancementProvider::create, var2));
-        var3.addProvider(
+        CompletableFuture<HolderLookup.Provider> var9 = CompletableFuture.supplyAsync(UpdateOneTwentyRegistries::createLookup, Util.backgroundExecutor());
+        DataGenerator.PackGenerator var10 = var0.getBuiltinDatapack(param3, "update_1_20");
+        var10.addProvider(UpdateOneTwentyRecipeProvider::new);
+        TagsProvider<Block> var11 = var10.addProvider(bindRegistries(UpdateOneTwentyBlockTagsProvider::new, var2));
+        var10.addProvider(param2x -> new UpdateOneTwentyItemTagsProvider(param2x, var2, var11));
+        var10.addProvider(UpdateOneTwentyLootTableProvider::create);
+        var10.addProvider(bindRegistries(UpdateOneTwentyVanillaAdvancementProvider::create, var2));
+        var10.addProvider(bindRegistries(RegistriesDatapackGenerator::new, var9));
+        var10.addProvider(
             param0x -> PackMetadataGenerator.forFeaturePack(
                     param0x, Component.translatable("dataPack.update_1_20.description"), FeatureFlagSet.of(FeatureFlags.UPDATE_1_20)
                 )

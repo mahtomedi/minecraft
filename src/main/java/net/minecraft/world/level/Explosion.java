@@ -220,13 +220,13 @@ public class Explosion {
                         double var35 = (1.0 - var29) * var34;
                         var28.hurt(this.getDamageSource(), (float)((int)((var35 * var35 + var35) / 2.0 * 7.0 * (double)var18 + 1.0)));
                         double var36 = var35;
-                        if (var28 instanceof LivingEntity) {
-                            var36 = ProtectionEnchantment.getExplosionKnockbackAfterDampener((LivingEntity)var28, var35);
+                        if (var28 instanceof LivingEntity var37) {
+                            var36 = ProtectionEnchantment.getExplosionKnockbackAfterDampener(var37, var35);
                         }
 
                         var28.setDeltaMovement(var28.getDeltaMovement().add(var30 * var36, var31 * var36, var32 * var36));
-                        if (var28 instanceof Player var37 && !var37.isSpectator() && (!var37.isCreative() || !var37.getAbilities().flying)) {
-                            this.hitPlayers.put(var37, new Vec3(var30 * var35, var31 * var35, var32 * var35));
+                        if (var28 instanceof Player var38 && !var38.isSpectator() && (!var38.isCreative() || !var38.getAbilities().flying)) {
+                            this.hitPlayers.put(var38, new Vec3(var30 * var35, var31 * var35, var32 * var35));
                         }
                     }
                 }

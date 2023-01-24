@@ -70,7 +70,7 @@ public class ProtectionEnchantment extends Enchantment {
     public static double getExplosionKnockbackAfterDampener(LivingEntity param0, double param1) {
         int var0 = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLAST_PROTECTION, param0);
         if (var0 > 0) {
-            param1 -= (double)Mth.floor(param1 * (double)((float)var0 * 0.15F));
+            param1 *= Mth.clamp(1.0 - (double)var0 * 0.15, 0.0, 1.0);
         }
 
         return param1;

@@ -19,7 +19,8 @@ public class ZombieVillagerRenderer extends HumanoidMobRenderer<ZombieVillager, 
             new HumanoidArmorLayer<>(
                 this,
                 new ZombieVillagerModel(param0.bakeLayer(ModelLayers.ZOMBIE_VILLAGER_INNER_ARMOR)),
-                new ZombieVillagerModel(param0.bakeLayer(ModelLayers.ZOMBIE_VILLAGER_OUTER_ARMOR))
+                new ZombieVillagerModel(param0.bakeLayer(ModelLayers.ZOMBIE_VILLAGER_OUTER_ARMOR)),
+                param0.getModelManager()
             )
         );
         this.addLayer(new VillagerProfessionLayer<>(this, param0.getResourceManager(), "zombie_villager"));

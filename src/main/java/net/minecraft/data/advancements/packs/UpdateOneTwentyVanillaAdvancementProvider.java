@@ -8,6 +8,6 @@ import net.minecraft.data.advancements.AdvancementProvider;
 
 public class UpdateOneTwentyVanillaAdvancementProvider {
     public static AdvancementProvider create(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        return new AdvancementProvider(param0, param1, List.of(new UpdateOneTwentyAdvancements()));
+        return new AdvancementProvider(param0, param1, List.of(new UpdateOneTwentyHusbandryAdvancements()));
     }
 }

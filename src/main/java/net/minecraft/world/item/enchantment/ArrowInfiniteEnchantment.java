@@ -18,11 +18,6 @@ public class ArrowInfiniteEnchantment extends Enchantment {
     }
 
     @Override
-    public int getMaxLevel() {
-        return 1;
-    }
-
-    @Override
     public boolean checkCompatibility(Enchantment param0) {
         return param0 instanceof MendingEnchantment ? false : super.checkCompatibility(param0);
     }

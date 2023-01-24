@@ -694,7 +694,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
         this.renderTabButton(param0, selectedTab);
         if (selectedTab.getType() == CreativeModeTab.Type.INVENTORY) {
-            InventoryScreen.renderEntityInInventory(
+            InventoryScreen.renderEntityInInventoryFollowsMouse(
                 this.leftPos + 88, this.topPos + 45, 20, (float)(this.leftPos + 88 - param2), (float)(this.topPos + 45 - 30 - param3), this.minecraft.player
             );
         }

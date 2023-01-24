@@ -196,28 +196,44 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
         }
 
         public void keyboardSelection() {
-            if (this.pack.canSelect() && this.pack.getCompatibility().isCompatible()) {
-                this.pack.select();
-                this.parent.screen.updateFocus(this.pack, this.parent);
+            if (this.pack.canSelect() && this.handlePackSelection()) {
+                this.parent.screen.updateFocus(this.parent);
             } else if (this.pack.canUnselect()) {
                 this.pack.unselect();
-                this.parent.screen.updateFocus(this.pack, this.parent);
+                this.parent.screen.updateFocus(this.parent);
             }
 
         }
 
-        public void keyboardMoveUp() {
+        void keyboardMoveUp() {
             if (this.pack.canMoveUp()) {
                 this.pack.moveUp();
             }
 
         }
 
-        public void keyboardMoveDown() {
+        void keyboardMoveDown() {
             if (this.pack.canMoveDown()) {
                 this.pack.moveDown();
             }
 
+        }
+
+        private boolean handlePackSelection() {
+            if (this.pack.getCompatibility().isCompatible()) {
+                this.pack.select();
+                return true;
+            } else {
+                Component var0 = this.pack.getCompatibility().getConfirmation();
+                this.minecraft.setScreen(new ConfirmScreen(param0 -> {
+                    this.minecraft.setScreen(this.parent.screen);
+                    if (param0) {
+                        this.pack.select();
+                    }
+
+                }, TransferableSelectionList.INCOMPATIBLE_CONFIRM_TITLE, var0));
+                return false;
+            }
         }
 
         @Override
@@ -227,20 +243,7 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
             if (this.showHoverOverlay() && var0 <= 32.0) {
                 this.parent.screen.clearSelected();
                 if (this.pack.canSelect()) {
-                    PackCompatibility var2 = this.pack.getCompatibility();
-                    if (var2.isCompatible()) {
-                        this.pack.select();
-                    } else {
-                        Component var3 = var2.getConfirmation();
-                        this.minecraft.setScreen(new ConfirmScreen(param0x -> {
-                            this.minecraft.setScreen(this.parent.screen);
-                            if (param0x) {
-                                this.pack.select();
-                            }
-
-                        }, TransferableSelectionList.INCOMPATIBLE_CONFIRM_TITLE, var3));
-                    }
-
+                    this.handlePackSelection();
                     return true;
                 }
 

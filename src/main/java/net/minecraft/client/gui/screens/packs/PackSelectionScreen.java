@@ -149,8 +149,8 @@ public class PackSelectionScreen extends Screen {
         });
     }
 
-    public void updateFocus(PackSelectionModel.Entry param0, TransferableSelectionList param1) {
-        TransferableSelectionList var0 = this.selectedPackList == param1 ? this.availablePackList : this.selectedPackList;
+    public void updateFocus(TransferableSelectionList param0) {
+        TransferableSelectionList var0 = this.selectedPackList == param0 ? this.availablePackList : this.selectedPackList;
         this.changeFocus(ComponentPath.path(var0.getFirstElement(), var0, this));
     }
 

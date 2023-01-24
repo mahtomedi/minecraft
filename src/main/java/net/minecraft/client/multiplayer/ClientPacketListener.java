@@ -1408,7 +1408,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.recipeManager.replaceRecipes(param0.getRecipes());
         ClientRecipeBook var0 = this.minecraft.player.getRecipeBook();
-        var0.setupCollections(this.recipeManager.getRecipes());
+        var0.setupCollections(this.recipeManager.getRecipes(), this.minecraft.level.registryAccess());
         this.minecraft.populateSearchTree(SearchRegistry.RECIPE_COLLECTIONS, var0.getCollections());
     }
 

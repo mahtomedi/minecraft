@@ -2802,7 +2802,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void onItemPickup(ItemEntity param0) {
-        Player var0 = param0.getThrower() != null ? this.level.getPlayerByUUID(param0.getThrower()) : null;
+        Entity var0 = param0.getOwner();
         if (var0 instanceof ServerPlayer) {
             CriteriaTriggers.THROWN_ITEM_PICKED_UP_BY_ENTITY.trigger((ServerPlayer)var0, param0.getItem(), this);
         }

@@ -179,6 +179,37 @@ public abstract class GuiComponent {
         );
     }
 
+    public static void blit(
+        PoseStack param0,
+        int param1,
+        int param2,
+        int param3,
+        int param4,
+        int param5,
+        TextureAtlasSprite param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        innerBlit(
+            param0.last().pose(),
+            param1,
+            param1 + param4,
+            param2,
+            param2 + param5,
+            param3,
+            param6.getU0(),
+            param6.getU1(),
+            param6.getV0(),
+            param6.getV1(),
+            param7,
+            param8,
+            param9,
+            param10
+        );
+    }
+
     public void blit(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
         blit(param0, param1, param2, this.blitOffset, (float)param3, (float)param4, param5, param6, 256, 256);
     }
@@ -236,6 +267,35 @@ public abstract class GuiComponent {
         var0.vertex(param0, (float)param2, (float)param3, (float)param5).uv(param7, param8).endVertex();
         var0.vertex(param0, (float)param1, (float)param3, (float)param5).uv(param6, param8).endVertex();
         BufferUploader.drawWithShader(var0.end());
+    }
+
+    private static void innerBlit(
+        Matrix4f param0,
+        int param1,
+        int param2,
+        int param3,
+        int param4,
+        int param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11,
+        float param12,
+        float param13
+    ) {
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        BufferBuilder var0 = Tesselator.getInstance().getBuilder();
+        var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        var0.vertex(param0, (float)param1, (float)param4, (float)param5).color(param10, param11, param12, param13).uv(param6, param9).endVertex();
+        var0.vertex(param0, (float)param2, (float)param4, (float)param5).color(param10, param11, param12, param13).uv(param7, param9).endVertex();
+        var0.vertex(param0, (float)param2, (float)param3, (float)param5).color(param10, param11, param12, param13).uv(param7, param8).endVertex();
+        var0.vertex(param0, (float)param1, (float)param3, (float)param5).color(param10, param11, param12, param13).uv(param6, param8).endVertex();
+        BufferUploader.drawWithShader(var0.end());
+        RenderSystem.disableBlend();
     }
 
     public int getBlitOffset() {

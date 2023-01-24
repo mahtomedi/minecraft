@@ -1,6 +1,7 @@
 package net.minecraft.world.item.crafting;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -63,7 +64,7 @@ public class MapExtendingRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer param0) {
+    public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
         ItemStack var0 = ItemStack.EMPTY;
 
         for(int var1 = 0; var1 < param0.getContainerSize() && var0.isEmpty(); ++var1) {

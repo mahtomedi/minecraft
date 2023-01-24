@@ -1,5 +1,6 @@
 package net.minecraft.world.item.crafting;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -49,7 +50,7 @@ public class ShieldDecorationRecipe extends CustomRecipe {
         return !var0.isEmpty() && !var1.isEmpty();
     }
 
-    public ItemStack assemble(CraftingContainer param0) {
+    public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
         ItemStack var0 = ItemStack.EMPTY;
         ItemStack var1 = ItemStack.EMPTY;
 

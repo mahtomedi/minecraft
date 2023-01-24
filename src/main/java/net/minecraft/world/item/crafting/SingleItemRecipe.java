@@ -2,6 +2,7 @@ package net.minecraft.world.item.crafting;
 
 import com.google.gson.JsonObject;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -47,7 +48,7 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess param0) {
         return this.result;
     }
 
@@ -64,7 +65,7 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack assemble(Container param0) {
+    public ItemStack assemble(Container param0, RegistryAccess param1) {
         return this.result.copy();
     }
 

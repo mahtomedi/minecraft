@@ -27,7 +27,8 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
             new HumanoidArmorLayer<>(
                 this,
                 new ArmorStandArmorModel(param0.bakeLayer(ModelLayers.ARMOR_STAND_INNER_ARMOR)),
-                new ArmorStandArmorModel(param0.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR))
+                new ArmorStandArmorModel(param0.bakeLayer(ModelLayers.ARMOR_STAND_OUTER_ARMOR)),
+                param0.getModelManager()
             )
         );
         this.addLayer(new ItemInHandLayer<>(this, param0.getItemInHandRenderer()));

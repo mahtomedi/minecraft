@@ -98,7 +98,8 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
             } else {
                 int var12 = this.getLightVal(param0, 15728880, param5);
                 param3.scale(0.5F, 0.5F, 0.5F);
-                this.itemRenderer.renderStatic(var4, ItemTransforms.TransformType.FIXED, var12, OverlayTexture.NO_OVERLAY, param3, param4, param0.getId());
+                this.itemRenderer
+                    .renderStatic(var4, ItemTransforms.TransformType.FIXED, var12, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId());
             }
         }
 

@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ItemCombinerScreen<T extends ItemCombinerMenu> extends AbstractContainerScreen<T> implements ContainerListener {
+public abstract class ItemCombinerScreen<T extends ItemCombinerMenu> extends AbstractContainerScreen<T> implements ContainerListener {
     private final ResourceLocation menuResource;
 
     public ItemCombinerScreen(T param0, Inventory param1, Component param2, ResourceLocation param3) {
@@ -54,15 +54,11 @@ public class ItemCombinerScreen<T extends ItemCombinerMenu> extends AbstractCont
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, this.menuResource);
-        int var0 = (this.width - this.imageWidth) / 2;
-        int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        this.blit(param0, var0 + 59, var1 + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
-        if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(2).hasItem()) {
-            this.blit(param0, var0 + 99, var1 + 45, this.imageWidth, 0, 28, 21);
-        }
-
+        this.blit(param0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        this.renderErrorIcon(param0, this.leftPos, this.topPos);
     }
+
+    protected abstract void renderErrorIcon(PoseStack var1, int var2, int var3);
 
     @Override
     public void dataChanged(AbstractContainerMenu param0, int param1, int param2) {

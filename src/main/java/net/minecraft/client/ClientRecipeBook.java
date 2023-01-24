@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -29,16 +30,20 @@ public class ClientRecipeBook extends RecipeBook {
     private Map<RecipeBookCategories, List<RecipeCollection>> collectionsByTab = ImmutableMap.of();
     private List<RecipeCollection> allCollections = ImmutableList.of();
 
-    public void setupCollections(Iterable<Recipe<?>> param0) {
+    public void setupCollections(Iterable<Recipe<?>> param0, RegistryAccess param1) {
         Map<RecipeBookCategories, List<List<Recipe<?>>>> var0 = categorizeAndGroupRecipes(param0);
         Map<RecipeBookCategories, List<RecipeCollection>> var1 = Maps.newHashMap();
         Builder<RecipeCollection> var2 = ImmutableList.builder();
-        var0.forEach((param2, param3) -> var1.put(param2, param3.stream().map(RecipeCollection::new).peek(var2::add).collect(ImmutableList.toImmutableList())));
+        var0.forEach(
+            (param3, param4) -> var1.put(
+                    param3, param4.stream().map(param1x -> new RecipeCollection(param1, param1x)).peek(var2::add).collect(ImmutableList.toImmutableList())
+                )
+        );
         RecipeBookCategories.AGGREGATE_CATEGORIES
             .forEach(
-                (param1, param2) -> var1.put(
-                        param1,
-                        param2.stream().flatMap(param1x -> var1.getOrDefault(param1x, ImmutableList.of()).stream()).collect(ImmutableList.toImmutableList())
+                (param1x, param2) -> var1.put(
+                        param1x,
+                        param2.stream().flatMap(param1xx -> var1.getOrDefault(param1xx, ImmutableList.of()).stream()).collect(ImmutableList.toImmutableList())
                     )
             );
         this.collectionsByTab = ImmutableMap.copyOf(var1);

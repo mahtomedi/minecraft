@@ -38,22 +38,34 @@ public class ModelTemplate {
     }
 
     public ResourceLocation create(ResourceLocation param0, TextureMapping param1, BiConsumer<ResourceLocation, Supplier<JsonElement>> param2) {
-        Map<TextureSlot, ResourceLocation> var0 = this.createMap(param1);
-        param2.accept(param0, () -> {
-            JsonObject var0x = new JsonObject();
-            this.model.ifPresent(param1x -> var0x.addProperty("parent", param1x.toString()));
-            if (!var0.isEmpty()) {
-                JsonObject var1x = new JsonObject();
-                var0.forEach((param1x, param2x) -> var1x.addProperty(param1x.getId(), param2x.toString()));
-                var0x.add("textures", var1x);
-            }
+        return this.create(param0, param1, param2, this::createBaseTemplate);
+    }
 
-            return var0x;
-        });
+    public ResourceLocation create(
+        ResourceLocation param0, TextureMapping param1, BiConsumer<ResourceLocation, Supplier<JsonElement>> param2, ModelTemplate.JsonFactory param3
+    ) {
+        Map<TextureSlot, ResourceLocation> var0 = this.createMap(param1);
+        param2.accept(param0, () -> param3.create(param0, var0));
         return param0;
+    }
+
+    public JsonObject createBaseTemplate(ResourceLocation param0x, Map<TextureSlot, ResourceLocation> param1x) {
+        JsonObject var0 = new JsonObject();
+        this.model.ifPresent(param1xx -> var0.addProperty("parent", param1xx.toString()));
+        if (!param1x.isEmpty()) {
+            JsonObject var1 = new JsonObject();
+            param1x.forEach((param1xx, param2x) -> var1.addProperty(param1xx.getId(), param2x.toString()));
+            var0.add("textures", var1);
+        }
+
+        return var0;
     }
 
     private Map<TextureSlot, ResourceLocation> createMap(TextureMapping param0) {
         return Streams.concat(this.requiredSlots.stream(), param0.getForced()).collect(ImmutableMap.toImmutableMap(Function.identity(), param0::get));
+    }
+
+    public interface JsonFactory {
+        JsonObject create(ResourceLocation var1, Map<TextureSlot, ResourceLocation> var2);
     }
 }

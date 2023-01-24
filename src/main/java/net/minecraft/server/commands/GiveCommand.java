@@ -87,7 +87,7 @@ public class GiveCommand {
                         ItemEntity var7 = var2.drop(var5, false);
                         if (var7 != null) {
                             var7.setNoPickUpDelay();
-                            var7.setOwner(var2.getUUID());
+                            var7.setTarget(var2.getUUID());
                         }
                     }
                 }

@@ -55,7 +55,7 @@ public class RecipeToast implements Toast {
             param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var1, 3, 3);
             var2.popPose();
             RenderSystem.applyModelViewMatrix();
-            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var0.getResultItem(), 8, 8);
+            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var0.getResultItem(param1.getMinecraft().level.registryAccess()), 8, 8);
             return (double)(param2 - this.lastChanged) >= 5000.0 * param1.getNotificationDisplayTimeMultiplier()
                 ? Toast.Visibility.HIDE
                 : Toast.Visibility.SHOW;

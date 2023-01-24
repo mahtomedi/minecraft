@@ -24,7 +24,8 @@ public class GiantMobRenderer extends MobRenderer<Giant, HumanoidModel<Giant>> {
             new HumanoidArmorLayer<>(
                 this,
                 new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT_INNER_ARMOR)),
-                new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT_OUTER_ARMOR))
+                new GiantZombieModel(param0.bakeLayer(ModelLayers.GIANT_OUTER_ARMOR)),
+                param0.getModelManager()
             )
         );
     }

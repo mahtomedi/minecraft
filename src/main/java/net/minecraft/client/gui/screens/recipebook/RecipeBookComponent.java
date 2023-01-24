@@ -472,7 +472,7 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
     }
 
     public void setupGhostRecipe(Recipe<?> param0, List<Slot> param1) {
-        ItemStack var0 = param0.getResultItem();
+        ItemStack var0 = param0.getResultItem(this.minecraft.level.registryAccess());
         this.ghostRecipe.setRecipe(param0);
         this.ghostRecipe.addIngredient(Ingredient.of(var0), param1.get(0).x, param1.get(0).y);
         this.placeRecipe(this.menu.getGridWidth(), this.menu.getGridHeight(), this.menu.getResultSlotIndex(), param0, param0.getIngredients().iterator(), 0);

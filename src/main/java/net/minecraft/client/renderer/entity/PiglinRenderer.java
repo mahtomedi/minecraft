@@ -30,7 +30,9 @@ public class PiglinRenderer extends HumanoidMobRenderer<Mob, PiglinModel<Mob>> {
         EntityRendererProvider.Context param0, ModelLayerLocation param1, ModelLayerLocation param2, ModelLayerLocation param3, boolean param4
     ) {
         super(param0, createModel(param0.getModelSet(), param1, param4), 0.5F, 1.0019531F, 1.0F, 1.0019531F);
-        this.addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel(param0.bakeLayer(param2)), new HumanoidModel(param0.bakeLayer(param3))));
+        this.addLayer(
+            new HumanoidArmorLayer<>(this, new HumanoidModel(param0.bakeLayer(param2)), new HumanoidModel(param0.bakeLayer(param3)), param0.getModelManager())
+        );
     }
 
     private static PiglinModel<Mob> createModel(EntityModelSet param0, ModelLayerLocation param1, boolean param2) {

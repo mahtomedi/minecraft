@@ -1,5 +1,6 @@
 package net.minecraft.world.item.crafting;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -43,7 +44,7 @@ public class FireworkRocketRecipe extends CustomRecipe {
         return var0 && var1 >= 1;
     }
 
-    public ItemStack assemble(CraftingContainer param0) {
+    public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
         ItemStack var0 = new ItemStack(Items.FIREWORK_ROCKET, 3);
         CompoundTag var1 = var0.getOrCreateTagElement("Fireworks");
         ListTag var2 = new ListTag();
@@ -77,7 +78,7 @@ public class FireworkRocketRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess param0) {
         return new ItemStack(Items.FIREWORK_ROCKET);
     }
 

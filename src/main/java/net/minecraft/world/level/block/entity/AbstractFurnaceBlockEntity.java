@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -255,7 +256,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
             }
 
             int var7 = param3.getMaxStackSize();
-            if (!param3.isLit() && canBurn(var5, param3.items, var7)) {
+            if (!param3.isLit() && canBurn(param0.registryAccess(), var5, param3.items, var7)) {
                 param3.litTime = param3.getBurnDuration(var2);
                 param3.litDuration = param3.litTime;
                 if (param3.isLit()) {
@@ -271,12 +272,12 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
                 }
             }
 
-            if (param3.isLit() && canBurn(var5, param3.items, var7)) {
+            if (param3.isLit() && canBurn(param0.registryAccess(), var5, param3.items, var7)) {
                 ++param3.cookingProgress;
                 if (param3.cookingProgress == param3.cookingTotalTime) {
                     param3.cookingProgress = 0;
                     param3.cookingTotalTime = getTotalCookTime(param0, param3);
-                    if (burn(var5, param3.items, var7)) {
+                    if (burn(param0.registryAccess(), var5, param3.items, var7)) {
                         param3.setRecipeUsed(var5);
                     }
 
@@ -301,18 +302,18 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
 
     }
 
-    private static boolean canBurn(@Nullable Recipe<?> param0, NonNullList<ItemStack> param1, int param2) {
-        if (!param1.get(0).isEmpty() && param0 != null) {
-            ItemStack var0 = param0.getResultItem();
+    private static boolean canBurn(RegistryAccess param0, @Nullable Recipe<?> param1, NonNullList<ItemStack> param2, int param3) {
+        if (!param2.get(0).isEmpty() && param1 != null) {
+            ItemStack var0 = param1.getResultItem(param0);
             if (var0.isEmpty()) {
                 return false;
             } else {
-                ItemStack var1 = param1.get(2);
+                ItemStack var1 = param2.get(2);
                 if (var1.isEmpty()) {
                     return true;
                 } else if (!var1.sameItem(var0)) {
                     return false;
-                } else if (var1.getCount() < param2 && var1.getCount() < var1.getMaxStackSize()) {
+                } else if (var1.getCount() < param3 && var1.getCount() < var1.getMaxStackSize()) {
                     return true;
                 } else {
                     return var1.getCount() < var0.getMaxStackSize();
@@ -323,19 +324,19 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     }
 
-    private static boolean burn(@Nullable Recipe<?> param0, NonNullList<ItemStack> param1, int param2) {
-        if (param0 != null && canBurn(param0, param1, param2)) {
-            ItemStack var0 = param1.get(0);
-            ItemStack var1 = param0.getResultItem();
-            ItemStack var2 = param1.get(2);
+    private static boolean burn(RegistryAccess param0, @Nullable Recipe<?> param1, NonNullList<ItemStack> param2, int param3) {
+        if (param1 != null && canBurn(param0, param1, param2, param3)) {
+            ItemStack var0 = param2.get(0);
+            ItemStack var1 = param1.getResultItem(param0);
+            ItemStack var2 = param2.get(2);
             if (var2.isEmpty()) {
-                param1.set(2, var1.copy());
+                param2.set(2, var1.copy());
             } else if (var2.is(var1.getItem())) {
                 var2.grow(1);
             }
 
-            if (var0.is(Blocks.WET_SPONGE.asItem()) && !param1.get(1).isEmpty() && param1.get(1).is(Items.BUCKET)) {
-                param1.set(1, new ItemStack(Items.WATER_BUCKET));
+            if (var0.is(Blocks.WET_SPONGE.asItem()) && !param2.get(1).isEmpty() && param2.get(1).is(Items.BUCKET)) {
+                param2.set(1, new ItemStack(Items.WATER_BUCKET));
             }
 
             var0.shrink(1);

@@ -8,15 +8,22 @@ import javax.annotation.Nullable;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.DyeableArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -25,11 +32,13 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
     private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
     private final A innerModel;
     private final A outerModel;
+    private final TextureAtlas armorTrimAtlas;
 
-    public HumanoidArmorLayer(RenderLayerParent<T, M> param0, A param1, A param2) {
+    public HumanoidArmorLayer(RenderLayerParent<T, M> param0, A param1, A param2, ModelManager param3) {
         super(param0);
         this.innerModel = param1;
         this.outerModel = param2;
+        this.armorTrimAtlas = param3.getAtlas(Sheets.ARMOR_TRIMS_SHEET);
     }
 
     public void render(
@@ -43,22 +52,26 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
 
     private void renderArmorPiece(PoseStack param0, MultiBufferSource param1, T param2, EquipmentSlot param3, int param4, A param5) {
         ItemStack var0 = param2.getItemBySlot(param3);
-        if (var0.getItem() instanceof ArmorItem) {
-            ArmorItem var1 = (ArmorItem)var0.getItem();
+        Item var3 = var0.getItem();
+        if (var3 instanceof ArmorItem var1) {
             if (var1.getSlot() == param3) {
                 this.getParentModel().copyPropertiesTo(param5);
                 this.setPartVisibility(param5, param3);
-                boolean var2 = this.usesInnerModel(param3);
-                boolean var3 = var0.hasFoil();
+                boolean var3x = this.usesInnerModel(param3);
+                boolean var4 = var0.hasFoil();
                 if (var1 instanceof DyeableArmorItem) {
-                    int var4 = ((DyeableArmorItem)var1).getColor(var0);
-                    float var5 = (float)(var4 >> 16 & 0xFF) / 255.0F;
-                    float var6 = (float)(var4 >> 8 & 0xFF) / 255.0F;
-                    float var7 = (float)(var4 & 0xFF) / 255.0F;
-                    this.renderModel(param0, param1, param4, var1, var3, param5, var2, var5, var6, var7, null);
-                    this.renderModel(param0, param1, param4, var1, var3, param5, var2, 1.0F, 1.0F, 1.0F, "overlay");
+                    int var5 = ((DyeableArmorItem)var1).getColor(var0);
+                    float var6 = (float)(var5 >> 16 & 0xFF) / 255.0F;
+                    float var7 = (float)(var5 >> 8 & 0xFF) / 255.0F;
+                    float var8 = (float)(var5 & 0xFF) / 255.0F;
+                    this.renderModel(param0, param1, param4, var1, var4, param5, var3x, var6, var7, var8, null);
+                    this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, "overlay");
                 } else {
-                    this.renderModel(param0, param1, param4, var1, var3, param5, var2, 1.0F, 1.0F, 1.0F, null);
+                    this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, null);
+                    if (param2.level.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)) {
+                        ArmorTrim.getTrim(param2.level.registryAccess(), var0)
+                            .ifPresent(param6 -> this.renderTrim(param0, param1, param4, param6, var4, param5, var3, 1.0F, 1.0F, 1.0F));
+                    }
                 }
 
             }
@@ -106,6 +119,23 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
             param1, RenderType.armorCutoutNoCull(this.getArmorLocation(param3, param6, param10)), false, param4
         );
         param5.renderToBuffer(param0, var0, param2, OverlayTexture.NO_OVERLAY, param7, param8, param9, 1.0F);
+    }
+
+    private void renderTrim(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        ArmorTrim param3,
+        boolean param4,
+        A param5,
+        boolean param6,
+        float param7,
+        float param8,
+        float param9
+    ) {
+        TextureAtlasSprite var0 = this.armorTrimAtlas.getSprite(param6 ? param3.innerTexture() : param3.outerTexture());
+        VertexConsumer var1 = var0.wrap(ItemRenderer.getFoilBufferDirect(param1, Sheets.armorTrimsSheet(), true, param4));
+        param5.renderToBuffer(param0, var1, param2, OverlayTexture.NO_OVERLAY, param7, param8, param9, 1.0F);
     }
 
     private A getArmorModel(EquipmentSlot param0) {

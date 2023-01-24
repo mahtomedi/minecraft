@@ -16,9 +16,4 @@ public class TridentChannelingEnchantment extends Enchantment {
     public int getMaxCost(int param0) {
         return 50;
     }
-
-    @Override
-    public int getMaxLevel() {
-        return 1;
-    }
 }

@@ -8,7 +8,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.LegacySmithingMenu;
 import net.minecraft.world.inventory.SmithingMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -25,7 +28,10 @@ public class SmithingTableBlock extends CraftingTableBlock {
     @Override
     public MenuProvider getMenuProvider(BlockState param0, Level param1, BlockPos param2) {
         return new SimpleMenuProvider(
-            (param2x, param3, param4) -> new SmithingMenu(param2x, param3, ContainerLevelAccess.create(param1, param2)), CONTAINER_TITLE
+            (param2x, param3, param4) -> (AbstractContainerMenu)(param1.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)
+                    ? new SmithingMenu(param2x, param3, ContainerLevelAccess.create(param1, param2))
+                    : new LegacySmithingMenu(param2x, param3, ContainerLevelAccess.create(param1, param2))),
+            CONTAINER_TITLE
         );
     }
 

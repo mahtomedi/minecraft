@@ -19,7 +19,9 @@ public class SkeletonRenderer extends HumanoidMobRenderer<AbstractSkeleton, Skel
 
     public SkeletonRenderer(EntityRendererProvider.Context param0, ModelLayerLocation param1, ModelLayerLocation param2, ModelLayerLocation param3) {
         super(param0, new SkeletonModel<>(param0.bakeLayer(param1)), 0.5F);
-        this.addLayer(new HumanoidArmorLayer<>(this, new SkeletonModel(param0.bakeLayer(param2)), new SkeletonModel(param0.bakeLayer(param3))));
+        this.addLayer(
+            new HumanoidArmorLayer<>(this, new SkeletonModel(param0.bakeLayer(param2)), new SkeletonModel(param0.bakeLayer(param3)), param0.getModelManager())
+        );
     }
 
     public ResourceLocation getTextureLocation(AbstractSkeleton param0) {

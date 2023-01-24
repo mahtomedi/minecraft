@@ -71,15 +71,17 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.vanilla("spyglass", "inventory");
     public static final ModelResourceLocation SPYGLASS_IN_HAND_MODEL = ModelResourceLocation.vanilla("spyglass_in_hand", "inventory");
     public float blitOffset;
+    private final Minecraft minecraft;
     private final ItemModelShaper itemModelShaper;
     private final TextureManager textureManager;
     private final ItemColors itemColors;
     private final BlockEntityWithoutLevelRenderer blockEntityRenderer;
 
-    public ItemRenderer(TextureManager param0, ModelManager param1, ItemColors param2, BlockEntityWithoutLevelRenderer param3) {
-        this.textureManager = param0;
-        this.itemModelShaper = new ItemModelShaper(param1);
-        this.blockEntityRenderer = param3;
+    public ItemRenderer(Minecraft param0, TextureManager param1, ModelManager param2, ItemColors param3, BlockEntityWithoutLevelRenderer param4) {
+        this.minecraft = param0;
+        this.textureManager = param1;
+        this.itemModelShaper = new ItemModelShaper(param2);
+        this.blockEntityRenderer = param4;
 
         for(Item var0 : BuiltInRegistries.ITEM) {
             if (!IGNORED.contains(var0)) {
@@ -87,7 +89,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             }
         }
 
-        this.itemColors = param2;
+        this.itemColors = param3;
     }
 
     public ItemModelShaper getItemModelShaper() {
@@ -242,9 +244,16 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public void renderStatic(
-        ItemStack param0, ItemTransforms.TransformType param1, int param2, int param3, PoseStack param4, MultiBufferSource param5, int param6
+        ItemStack param0,
+        ItemTransforms.TransformType param1,
+        int param2,
+        int param3,
+        PoseStack param4,
+        MultiBufferSource param5,
+        @Nullable Level param6,
+        int param7
     ) {
-        this.renderStatic(null, param0, param1, false, param4, param5, null, param2, param3, param6);
+        this.renderStatic(null, param0, param1, false, param4, param5, param6, param2, param3, param7);
     }
 
     public void renderStatic(
@@ -282,7 +291,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         var0.scale(16.0F, 16.0F, 16.0F);
         RenderSystem.applyModelViewMatrix();
         PoseStack var1 = new PoseStack();
-        MultiBufferSource.BufferSource var2 = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource var2 = this.minecraft.renderBuffers().bufferSource();
         boolean var3 = !param3.usesBlockLight();
         if (var3) {
             Lighting.setupForFlatItems();
@@ -300,47 +309,47 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public void renderAndDecorateItem(ItemStack param0, int param1, int param2) {
-        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, 0);
+        this.tryRenderGuiItem(this.minecraft.player, this.minecraft.level, param0, param1, param2, 0);
     }
 
     public void renderAndDecorateItem(ItemStack param0, int param1, int param2, int param3) {
-        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, param3);
+        this.tryRenderGuiItem(this.minecraft.player, this.minecraft.level, param0, param1, param2, param3);
     }
 
     public void renderAndDecorateItem(ItemStack param0, int param1, int param2, int param3, int param4) {
-        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2, param3, param4);
+        this.tryRenderGuiItem(this.minecraft.player, this.minecraft.level, param0, param1, param2, param3, param4);
     }
 
     public void renderAndDecorateFakeItem(ItemStack param0, int param1, int param2) {
-        this.tryRenderGuiItem(null, param0, param1, param2, 0);
+        this.tryRenderGuiItem(null, this.minecraft.level, param0, param1, param2, 0);
     }
 
     public void renderAndDecorateItem(LivingEntity param0, ItemStack param1, int param2, int param3, int param4) {
-        this.tryRenderGuiItem(param0, param1, param2, param3, param4);
+        this.tryRenderGuiItem(param0, param0.level, param1, param2, param3, param4);
     }
 
-    private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3, int param4) {
-        this.tryRenderGuiItem(param0, param1, param2, param3, param4, 0);
+    private void tryRenderGuiItem(@Nullable LivingEntity param0, @Nullable Level param1, ItemStack param2, int param3, int param4, int param5) {
+        this.tryRenderGuiItem(param0, param1, param2, param3, param4, param5, 0);
     }
 
-    private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3, int param4, int param5) {
-        if (!param1.isEmpty()) {
-            BakedModel var0 = this.getModel(param1, null, param0, param4);
-            this.blitOffset = var0.isGui3d() ? this.blitOffset + 50.0F + (float)param5 : this.blitOffset + 50.0F;
+    private void tryRenderGuiItem(@Nullable LivingEntity param0, @Nullable Level param1, ItemStack param2, int param3, int param4, int param5, int param6) {
+        if (!param2.isEmpty()) {
+            BakedModel var0 = this.getModel(param2, param1, param0, param5);
+            this.blitOffset = var0.isGui3d() ? this.blitOffset + 50.0F + (float)param6 : this.blitOffset + 50.0F;
 
             try {
-                this.renderGuiItem(param1, param2, param3, var0);
-            } catch (Throwable var11) {
-                CrashReport var2 = CrashReport.forThrowable(var11, "Rendering item");
+                this.renderGuiItem(param2, param3, param4, var0);
+            } catch (Throwable var12) {
+                CrashReport var2 = CrashReport.forThrowable(var12, "Rendering item");
                 CrashReportCategory var3 = var2.addCategory("Item being rendered");
-                var3.setDetail("Item Type", () -> String.valueOf(param1.getItem()));
-                var3.setDetail("Item Damage", () -> String.valueOf(param1.getDamageValue()));
-                var3.setDetail("Item NBT", () -> String.valueOf(param1.getTag()));
-                var3.setDetail("Item Foil", () -> String.valueOf(param1.hasFoil()));
+                var3.setDetail("Item Type", () -> String.valueOf(param2.getItem()));
+                var3.setDetail("Item Damage", () -> String.valueOf(param2.getDamageValue()));
+                var3.setDetail("Item NBT", () -> String.valueOf(param2.getTag()));
+                var3.setDetail("Item Foil", () -> String.valueOf(param2.hasFoil()));
                 throw new ReportedException(var2);
             }
 
-            this.blitOffset = var0.isGui3d() ? this.blitOffset - 50.0F - (float)param5 : this.blitOffset - 50.0F;
+            this.blitOffset = var0.isGui3d() ? this.blitOffset - 50.0F - (float)param6 : this.blitOffset - 50.0F;
         }
     }
 
@@ -372,8 +381,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 RenderSystem.enableDepthTest();
             }
 
-            LocalPlayer var7 = Minecraft.getInstance().player;
-            float var8 = var7 == null ? 0.0F : var7.getCooldowns().getCooldownPercent(param1.getItem(), Minecraft.getInstance().getFrameTime());
+            LocalPlayer var7 = this.minecraft.player;
+            float var8 = var7 == null ? 0.0F : var7.getCooldowns().getCooldownPercent(param1.getItem(), this.minecraft.getFrameTime());
             if (var8 > 0.0F) {
                 RenderSystem.disableDepthTest();
                 int var9 = param3 + Mth.floor(16.0F * (1.0F - var8));

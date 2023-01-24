@@ -1408,6 +1408,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         var13.endBatch(Sheets.translucentCullBlockSheet());
         var13.endBatch(Sheets.bannerSheet());
         var13.endBatch(Sheets.shieldSheet());
+        var13.endBatch(Sheets.armorTrimsSheet());
         var13.endBatch(RenderType.armorGlint());
         var13.endBatch(RenderType.armorEntityGlint());
         var13.endBatch(RenderType.glint());

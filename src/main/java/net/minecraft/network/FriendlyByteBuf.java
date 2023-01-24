@@ -8,6 +8,7 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
@@ -56,7 +57,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -107,14 +107,14 @@ public class FriendlyByteBuf extends ByteBuf {
     }
 
     @Deprecated
-    public <T> T readWithCodec(Codec<T> param0) {
+    public <T> T readWithCodec(DynamicOps<Tag> param0, Codec<T> param1) {
         CompoundTag var0 = this.readAnySizeNbt();
-        return Util.getOrThrow(param0.parse(NbtOps.INSTANCE, var0), param1 -> new DecoderException("Failed to decode: " + param1 + " " + var0));
+        return Util.getOrThrow(param1.parse(param0, var0), param1x -> new DecoderException("Failed to decode: " + param1x + " " + var0));
     }
 
     @Deprecated
-    public <T> void writeWithCodec(Codec<T> param0, T param1) {
-        Tag var0 = Util.getOrThrow(param0.encodeStart(NbtOps.INSTANCE, param1), param1x -> new EncoderException("Failed to encode: " + param1x + " " + param1));
+    public <T> void writeWithCodec(DynamicOps<Tag> param0, Codec<T> param1, T param2) {
+        Tag var0 = Util.getOrThrow(param1.encodeStart(param0, param2), param1x -> new EncoderException("Failed to encode: " + param1x + " " + param2));
         this.writeNbt((CompoundTag)var0);
     }
 

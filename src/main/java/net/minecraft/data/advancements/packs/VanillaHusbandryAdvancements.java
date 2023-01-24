@@ -1,8 +1,10 @@
 package net.minecraft.data.advancements.packs;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
@@ -44,29 +46,31 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 
 public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
-    private static final EntityType<?>[] BREEDABLE_ANIMALS = new EntityType[]{
-        EntityType.HORSE,
-        EntityType.DONKEY,
-        EntityType.MULE,
-        EntityType.SHEEP,
-        EntityType.COW,
-        EntityType.MOOSHROOM,
-        EntityType.PIG,
-        EntityType.CHICKEN,
-        EntityType.WOLF,
-        EntityType.OCELOT,
-        EntityType.RABBIT,
-        EntityType.LLAMA,
-        EntityType.CAT,
-        EntityType.PANDA,
-        EntityType.FOX,
-        EntityType.BEE,
-        EntityType.HOGLIN,
-        EntityType.STRIDER,
-        EntityType.GOAT,
-        EntityType.AXOLOTL
-    };
-    private static final EntityType<?>[] INDIRECTLY_BREEDABLE_ANIMALS = new EntityType[]{EntityType.TURTLE, EntityType.FROG};
+    public static final List<EntityType<?>> BREEDABLE_ANIMALS = List.of(
+        new EntityType[]{
+            EntityType.HORSE,
+            EntityType.DONKEY,
+            EntityType.MULE,
+            EntityType.SHEEP,
+            EntityType.COW,
+            EntityType.MOOSHROOM,
+            EntityType.PIG,
+            EntityType.CHICKEN,
+            EntityType.WOLF,
+            EntityType.OCELOT,
+            EntityType.RABBIT,
+            EntityType.LLAMA,
+            EntityType.CAT,
+            EntityType.PANDA,
+            EntityType.FOX,
+            EntityType.BEE,
+            EntityType.HOGLIN,
+            EntityType.STRIDER,
+            EntityType.GOAT,
+            EntityType.AXOLOTL
+        }
+    );
+    public static final List<EntityType<?>> INDIRECTLY_BREEDABLE_ANIMALS = List.of(EntityType.TURTLE, EntityType.FROG);
     private static final Item[] FISH = new Item[]{Items.COD, Items.TROPICAL_FISH, Items.PUFFERFISH, Items.SALMON};
     private static final Item[] FISH_BUCKETS = new Item[]{Items.COD_BUCKET, Items.TROPICAL_FISH_BUCKET, Items.PUFFERFISH_BUCKET, Items.SALMON_BUCKET};
     private static final Item[] EDIBLE_ITEMS = new Item[]{
@@ -117,7 +121,19 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
 
     @Override
     public void generate(HolderLookup.Provider param0, Consumer<Advancement> param1) {
-        Advancement var0 = this.createRoot(param1);
+        Advancement var0 = Advancement.Builder.advancement()
+            .display(
+                Blocks.HAY_BLOCK,
+                Component.translatable("advancements.husbandry.root.title"),
+                Component.translatable("advancements.husbandry.root.description"),
+                new ResourceLocation("textures/gui/advancements/backgrounds/husbandry.png"),
+                FrameType.TASK,
+                false,
+                false,
+                false
+            )
+            .addCriterion("consumed_item", ConsumeItemTrigger.TriggerInstance.usedItem())
+            .save(param1, "husbandry/root");
         Advancement var1 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
@@ -137,8 +153,22 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .addCriterion("beetroots", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.BEETROOTS))
             .addCriterion("nether_wart", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.NETHER_WART))
             .save(param1, "husbandry/plant_seed");
-        Advancement var2 = this.createBreedAnAnimalAdvancement(var0, param1);
-        this.createBreedAllAnimalsAdvancement(var2, param1);
+        Advancement var2 = Advancement.Builder.advancement()
+            .parent(var0)
+            .display(
+                Items.WHEAT,
+                Component.translatable("advancements.husbandry.breed_an_animal.title"),
+                Component.translatable("advancements.husbandry.breed_an_animal.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .requirements(RequirementsStrategy.OR)
+            .addCriterion("bred", BredAnimalsTrigger.TriggerInstance.bredAnimals())
+            .save(param1, "husbandry/breed_an_animal");
+        createBreedAllAnimalsAdvancement(var2, param1, BREEDABLE_ANIMALS.stream(), INDIRECTLY_BREEDABLE_ANIMALS.stream());
         this.addFood(Advancement.Builder.advancement())
             .parent(var1)
             .display(
@@ -473,42 +503,10 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .save(param1, "husbandry/allay_deliver_cake_to_note_block");
     }
 
-    Advancement createRoot(Consumer<Advancement> param0) {
-        return Advancement.Builder.advancement()
-            .display(
-                Blocks.HAY_BLOCK,
-                Component.translatable("advancements.husbandry.root.title"),
-                Component.translatable("advancements.husbandry.root.description"),
-                new ResourceLocation("textures/gui/advancements/backgrounds/husbandry.png"),
-                FrameType.TASK,
-                false,
-                false,
-                false
-            )
-            .addCriterion("consumed_item", ConsumeItemTrigger.TriggerInstance.usedItem())
-            .save(param0, "husbandry/root");
-    }
-
-    Advancement createBreedAnAnimalAdvancement(Advancement param0, Consumer<Advancement> param1) {
-        return Advancement.Builder.advancement()
-            .parent(param0)
-            .display(
-                Items.WHEAT,
-                Component.translatable("advancements.husbandry.breed_an_animal.title"),
-                Component.translatable("advancements.husbandry.breed_an_animal.description"),
-                null,
-                FrameType.TASK,
-                true,
-                true,
-                false
-            )
-            .requirements(RequirementsStrategy.OR)
-            .addCriterion("bred", BredAnimalsTrigger.TriggerInstance.bredAnimals())
-            .save(param1, "husbandry/breed_an_animal");
-    }
-
-    Advancement createBreedAllAnimalsAdvancement(Advancement param0, Consumer<Advancement> param1) {
-        return this.addBreedable(Advancement.Builder.advancement())
+    public static Advancement createBreedAllAnimalsAdvancement(
+        Advancement param0, Consumer<Advancement> param1, Stream<EntityType<?>> param2, Stream<EntityType<?>> param3
+    ) {
+        return addBreedable(Advancement.Builder.advancement(), param2, param3)
             .parent(param0)
             .display(
                 Items.GOLDEN_CARROT,
@@ -552,20 +550,20 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
         return param0;
     }
 
-    Advancement.Builder addBreedable(Advancement.Builder param0) {
-        for(EntityType<?> var0 : this.getBreedableAnimals()) {
-            param0.addCriterion(EntityType.getKey(var0).toString(), BredAnimalsTrigger.TriggerInstance.bredAnimals(EntityPredicate.Builder.entity().of(var0)));
-        }
-
-        for(EntityType<?> var1 : this.getIndirectlyBreedableAnimals()) {
-            param0.addCriterion(
-                EntityType.getKey(var1).toString(),
-                BredAnimalsTrigger.TriggerInstance.bredAnimals(
-                    EntityPredicate.Builder.entity().of(var1).build(), EntityPredicate.Builder.entity().of(var1).build(), EntityPredicate.ANY
+    private static Advancement.Builder addBreedable(Advancement.Builder param0, Stream<EntityType<?>> param1, Stream<EntityType<?>> param2) {
+        param1.forEach(
+            param1x -> param0.addCriterion(
+                    EntityType.getKey(param1x).toString(), BredAnimalsTrigger.TriggerInstance.bredAnimals(EntityPredicate.Builder.entity().of(param1x))
                 )
-            );
-        }
-
+        );
+        param2.forEach(
+            param1x -> param0.addCriterion(
+                    EntityType.getKey(param1x).toString(),
+                    BredAnimalsTrigger.TriggerInstance.bredAnimals(
+                        EntityPredicate.Builder.entity().of(param1x).build(), EntityPredicate.Builder.entity().of(param1x).build(), EntityPredicate.ANY
+                    )
+                )
+        );
         return param0;
     }
 
@@ -604,13 +602,5 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                     )
             );
         return param0;
-    }
-
-    public EntityType<?>[] getBreedableAnimals() {
-        return BREEDABLE_ANIMALS;
-    }
-
-    public EntityType<?>[] getIndirectlyBreedableAnimals() {
-        return INDIRECTLY_BREEDABLE_ANIMALS;
     }
 }

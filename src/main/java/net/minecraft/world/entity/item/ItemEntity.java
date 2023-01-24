@@ -3,7 +3,6 @@ package net.minecraft.world.entity.item;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,6 +19,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
-public class ItemEntity extends Entity {
+public class ItemEntity extends Entity implements TraceableEntity {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(ItemEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final int LIFETIME = 6000;
     private static final int INFINITE_PICKUP_DELAY = 32767;
@@ -39,7 +39,7 @@ public class ItemEntity extends Entity {
     @Nullable
     private UUID thrower;
     @Nullable
-    private UUID owner;
+    private UUID target;
     public final float bobOffs;
 
     public ItemEntity(EntityType<? extends ItemEntity> param0, Level param1) {
@@ -72,8 +72,17 @@ public class ItemEntity extends Entity {
         return this.getItem().is(ItemTags.DAMPENS_VIBRATIONS);
     }
 
-    public Entity getThrowingEntity() {
-        return Util.mapNullable(this.getThrower(), this.level::getPlayerByUUID);
+    @Nullable
+    @Override
+    public Entity getOwner() {
+        if (this.thrower != null) {
+            Level var2 = this.level;
+            if (var2 instanceof ServerLevel var0) {
+                return var0.getEntity(this.thrower);
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -194,7 +203,7 @@ public class ItemEntity extends Entity {
     private void tryToMerge(ItemEntity param0) {
         ItemStack var0 = this.getItem();
         ItemStack var1 = param0.getItem();
-        if (Objects.equals(this.getOwner(), param0.getOwner()) && areMergable(var0, var1)) {
+        if (Objects.equals(this.target, param0.target) && areMergable(var0, var1)) {
             if (var1.getCount() < var0.getCount()) {
                 merge(this, var0, param0, var1);
             } else {
@@ -272,12 +281,12 @@ public class ItemEntity extends Entity {
         param0.putShort("Health", (short)this.health);
         param0.putShort("Age", (short)this.age);
         param0.putShort("PickupDelay", (short)this.pickupDelay);
-        if (this.getThrower() != null) {
-            param0.putUUID("Thrower", this.getThrower());
+        if (this.thrower != null) {
+            param0.putUUID("Thrower", this.thrower);
         }
 
-        if (this.getOwner() != null) {
-            param0.putUUID("Owner", this.getOwner());
+        if (this.target != null) {
+            param0.putUUID("Owner", this.target);
         }
 
         if (!this.getItem().isEmpty()) {
@@ -295,7 +304,7 @@ public class ItemEntity extends Entity {
         }
 
         if (param0.hasUUID("Owner")) {
-            this.owner = param0.getUUID("Owner");
+            this.target = param0.getUUID("Owner");
         }
 
         if (param0.hasUUID("Thrower")) {
@@ -316,7 +325,7 @@ public class ItemEntity extends Entity {
             ItemStack var0 = this.getItem();
             Item var1 = var0.getItem();
             int var2 = var0.getCount();
-            if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals(param0.getUUID())) && param0.getInventory().add(var0)) {
+            if (this.pickupDelay == 0 && (this.target == null || this.target.equals(param0.getUUID())) && param0.getInventory().add(var0)) {
                 param0.take(this, var2);
                 if (var0.isEmpty()) {
                     this.discard();
@@ -369,18 +378,8 @@ public class ItemEntity extends Entity {
 
     }
 
-    @Nullable
-    public UUID getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(@Nullable UUID param0) {
-        this.owner = param0;
-    }
-
-    @Nullable
-    public UUID getThrower() {
-        return this.thrower;
+    public void setTarget(@Nullable UUID param0) {
+        this.target = param0;
     }
 
     public void setThrower(@Nullable UUID param0) {

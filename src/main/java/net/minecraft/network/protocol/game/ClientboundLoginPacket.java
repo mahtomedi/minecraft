@@ -7,9 +7,13 @@ import javax.annotation.Nullable;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistrySynchronization;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -34,6 +38,10 @@ public record ClientboundLoginPacket(
     boolean isFlat,
     Optional<GlobalPos> lastDeathLocation
 ) implements Packet<ClientGamePacketListener> {
+    private static final RegistryOps<Tag> BUILTIN_CONTEXT_OPS = RegistryOps.create(
+        NbtOps.INSTANCE, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)
+    );
+
     public ClientboundLoginPacket(FriendlyByteBuf param0) {
         this(
             param0.readInt(),
@@ -41,7 +49,7 @@ public record ClientboundLoginPacket(
             GameType.byId(param0.readByte()),
             GameType.byNullableId(param0.readByte()),
             param0.readCollection(Sets::newHashSetWithExpectedSize, param0x -> param0x.readResourceKey(Registries.DIMENSION)),
-            param0.readWithCodec(RegistrySynchronization.NETWORK_CODEC).freeze(),
+            param0.readWithCodec(BUILTIN_CONTEXT_OPS, RegistrySynchronization.NETWORK_CODEC).freeze(),
             param0.readResourceKey(Registries.DIMENSION_TYPE),
             param0.readResourceKey(Registries.DIMENSION),
             param0.readLong(),
@@ -63,7 +71,7 @@ public record ClientboundLoginPacket(
         param0.writeByte(this.gameType.getId());
         param0.writeByte(GameType.getNullableId(this.previousGameType));
         param0.writeCollection(this.levels, FriendlyByteBuf::writeResourceKey);
-        param0.writeWithCodec(RegistrySynchronization.NETWORK_CODEC, this.registryHolder);
+        param0.writeWithCodec(BUILTIN_CONTEXT_OPS, RegistrySynchronization.NETWORK_CODEC, this.registryHolder);
         param0.writeResourceKey(this.dimensionType);
         param0.writeResourceKey(this.dimension);
         param0.writeLong(this.seed);

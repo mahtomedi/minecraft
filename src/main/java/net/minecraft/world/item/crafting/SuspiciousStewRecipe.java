@@ -1,5 +1,6 @@
 package net.minecraft.world.item.crafting;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -43,7 +44,7 @@ public class SuspiciousStewRecipe extends CustomRecipe {
         return var0 && var2 && var1 && var3;
     }
 
-    public ItemStack assemble(CraftingContainer param0) {
+    public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
         ItemStack var0 = new ItemStack(Items.SUSPICIOUS_STEW, 1);
 
         for(int var1 = 0; var1 < param0.getContainerSize(); ++var1) {

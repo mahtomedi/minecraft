@@ -48,7 +48,9 @@ public class HorseInventoryScreen extends AbstractContainerScreen<HorseInventory
             }
         }
 
-        InventoryScreen.renderEntityInInventory(var0 + 51, var1 + 60, 17, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.horse);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(
+            var0 + 51, var1 + 60, 17, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.horse
+        );
     }
 
     @Override

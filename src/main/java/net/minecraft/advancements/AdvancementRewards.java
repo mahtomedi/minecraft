@@ -70,7 +70,7 @@ public class AdvancementRewards {
                     ItemEntity var4 = param0.drop(var3, false);
                     if (var4 != null) {
                         var4.setNoPickUpDelay();
-                        var4.setOwner(param0.getUUID());
+                        var4.setTarget(param0.getUUID());
                     }
                 }
             }

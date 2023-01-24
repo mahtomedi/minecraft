@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -48,7 +49,7 @@ public class ShapelessRecipe implements CraftingRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess param0) {
         return this.result;
     }
 
@@ -72,7 +73,7 @@ public class ShapelessRecipe implements CraftingRecipe {
         return var1 == this.ingredients.size() && var0.canCraft(this, null);
     }
 
-    public ItemStack assemble(CraftingContainer param0) {
+    public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
         return this.result.copy();
     }
 

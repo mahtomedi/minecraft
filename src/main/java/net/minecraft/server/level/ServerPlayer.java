@@ -1721,7 +1721,7 @@ public class ServerPlayer extends Player {
     @Override
     public void onItemPickup(ItemEntity param0) {
         super.onItemPickup(param0);
-        Entity var0 = param0.getThrower() != null ? this.getLevel().getEntity(param0.getThrower()) : null;
+        Entity var0 = param0.getOwner();
         if (var0 != null) {
             CriteriaTriggers.THROWN_ITEM_PICKED_UP_BY_PLAYER.trigger(this, param0.getItem(), var0);
         }

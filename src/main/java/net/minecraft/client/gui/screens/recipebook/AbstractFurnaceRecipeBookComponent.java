@@ -34,7 +34,7 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
 
     @Override
     public void setupGhostRecipe(Recipe<?> param0, List<Slot> param1) {
-        ItemStack var0 = param0.getResultItem();
+        ItemStack var0 = param0.getResultItem(this.minecraft.level.registryAccess());
         this.ghostRecipe.setRecipe(param0);
         this.ghostRecipe.addIngredient(Ingredient.of(var0), param1.get(2).x, param1.get(2).y);
         NonNullList<Ingredient> var1 = param0.getIngredients();

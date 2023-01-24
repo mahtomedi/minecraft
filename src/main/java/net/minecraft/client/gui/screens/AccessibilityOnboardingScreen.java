@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.text2speech.Narrator;
 import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.AccessibilityOnboardingTextWidget;
@@ -24,6 +25,7 @@ public class AccessibilityOnboardingScreen extends Screen {
     private final PanoramaRenderer panorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
     private final LogoRenderer logoRenderer;
     private final Options options;
+    private final boolean narratorAvailable;
     private boolean hasNarrated;
     private float timer;
     @Nullable
@@ -33,6 +35,7 @@ public class AccessibilityOnboardingScreen extends Screen {
         super(Component.translatable("accessibility.onboarding.screen.title"));
         this.options = param0;
         this.logoRenderer = new LogoRenderer(true);
+        this.narratorAvailable = Minecraft.getInstance().getNarrator().isActive();
     }
 
     @Override
@@ -46,8 +49,12 @@ public class AccessibilityOnboardingScreen extends Screen {
         this.textWidget = new AccessibilityOnboardingTextWidget(this.font, this.title, this.width);
         var2.addChild(this.textWidget, var2.newCellSettings().padding(16));
         AbstractWidget var3 = this.options.narrator().createButton(this.options, 0, 0, 150);
+        var3.active = this.narratorAvailable;
         var2.addChild(var3);
-        this.setInitialFocus(var3);
+        if (this.narratorAvailable) {
+            this.setInitialFocus(var3);
+        }
+
         var2.addChild(
             Button.builder(
                     Component.translatable("options.accessibility.title"),
@@ -88,7 +95,7 @@ public class AccessibilityOnboardingScreen extends Screen {
     }
 
     private void handleInitialNarrationDelay() {
-        if (!this.hasNarrated) {
+        if (!this.hasNarrated && this.narratorAvailable) {
             if (this.timer < 40.0F) {
                 ++this.timer;
             } else {

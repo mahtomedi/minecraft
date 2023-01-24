@@ -15,6 +15,8 @@ import net.minecraft.network.chat.ChatType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.RegistryLayer;
+import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 
@@ -23,6 +25,8 @@ public class RegistrySynchronization {
         Builder<ResourceKey<? extends Registry<?>>, RegistrySynchronization.NetworkedRegistryData<?>> var0 = ImmutableMap.builder();
         put(var0, Registries.BIOME, Biome.NETWORK_CODEC);
         put(var0, Registries.CHAT_TYPE, ChatType.CODEC);
+        put(var0, Registries.TRIM_PATTERN, TrimPattern.DIRECT_CODEC);
+        put(var0, Registries.TRIM_MATERIAL, TrimMaterial.DIRECT_CODEC);
         put(var0, Registries.DIMENSION_TYPE, DimensionType.DIRECT_CODEC);
         return var0.build();
     });
