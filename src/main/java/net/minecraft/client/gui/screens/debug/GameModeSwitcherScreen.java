@@ -220,7 +220,7 @@ public class GameModeSwitcherScreen extends Screen {
         }
 
         @Override
-        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
             Minecraft var0 = Minecraft.getInstance();
             this.drawSlot(param0, var0.getTextureManager());
             this.icon.drawIcon(GameModeSwitcherScreen.this.itemRenderer, this.getX() + 5, this.getY() + 5);

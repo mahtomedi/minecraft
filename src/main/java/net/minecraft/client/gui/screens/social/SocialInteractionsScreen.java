@@ -43,7 +43,6 @@ public class SocialInteractionsScreen extends Screen {
     private static final Component BLOCKING_HINT = Component.translatable("gui.socialInteractions.blocking_hint");
     private static final String BLOCK_LINK = "https://aka.ms/javablocking";
     private static final int BG_BORDER_SIZE = 8;
-    private static final int BG_UNITS = 16;
     private static final int BG_WIDTH = 236;
     private static final int SEARCH_HEIGHT = 16;
     private static final int MARGIN_Y = 64;
@@ -74,12 +73,8 @@ public class SocialInteractionsScreen extends Screen {
         return Math.max(52, this.height - 128 - 16);
     }
 
-    private int backgroundUnits() {
-        return this.windowHeight() / 16;
-    }
-
     private int listEnd() {
-        return 80 + this.backgroundUnits() * 16 - 8;
+        return 80 + this.windowHeight() - 8;
     }
 
     private int marginX() {
@@ -111,7 +106,7 @@ public class SocialInteractionsScreen extends Screen {
         int var1 = this.socialInteractionsPlayerList.getRowLeft();
         int var2 = this.socialInteractionsPlayerList.getRowRight();
         int var3 = this.font.width(BLOCKING_HINT) + 40;
-        int var4 = 64 + 16 * this.backgroundUnits();
+        int var4 = 64 + this.windowHeight();
         int var5 = (this.width - var3) / 2 + 3;
         this.allButton = this.addRenderableWidget(
             Button.builder(TAB_ALL, param0 -> this.showPage(SocialInteractionsScreen.Page.ALL)).bounds(var1, 45, var0, 20).build()
@@ -196,14 +191,7 @@ public class SocialInteractionsScreen extends Screen {
         int var0 = this.marginX() + 3;
         super.renderBackground(param0);
         RenderSystem.setShaderTexture(0, SOCIAL_INTERACTIONS_LOCATION);
-        this.blit(param0, var0, 64, 1, 1, 236, 8);
-        int var1 = this.backgroundUnits();
-
-        for(int var2 = 0; var2 < var1; ++var2) {
-            this.blit(param0, var0, 72 + 16 * var2, 1, 10, 236, 16);
-        }
-
-        this.blit(param0, var0, 72 + 16 * var1, 1, 27, 236, 8);
+        this.blitNineSliced(param0, var0, 64, 236, this.windowHeight() + 16, 8, 236, 34, 1, 1);
         this.blit(param0, var0 + 10, 76, 243, 1, 12, 12);
     }
 

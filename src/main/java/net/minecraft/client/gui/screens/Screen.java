@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -18,6 +17,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,6 +37,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.TabOrderedElement;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -78,6 +80,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     private final List<NarratableEntry> narratables = Lists.newArrayList();
     @Nullable
     protected Minecraft minecraft;
+    private boolean initialized;
     protected ItemRenderer itemRenderer;
     public int width;
     public int height;
@@ -283,11 +286,9 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
                 var1 += var2.getHeight();
             }
 
-            int var4 = param2 + 12;
-            int var5 = param3 - 12;
-            Vector2ic var8 = param4.positionTooltip(this, var4, var5, var0, var1);
-            var4 = var8.x();
-            var5 = var8.y();
+            Vector2ic var6 = param4.positionTooltip(this, param2, param3, var0, var1);
+            int var7 = var6.x();
+            int var8 = var6.y();
             param0.pushPose();
             int var9 = 400;
             float var10 = this.itemRenderer.blitOffset;
@@ -303,8 +304,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
                     ),
                 var13,
                 var12,
-                var4,
-                var5,
+                var7,
+                var8,
                 var0,
                 var1,
                 400
@@ -316,21 +317,21 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
             RenderSystem.disableBlend();
             MultiBufferSource.BufferSource var14 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             param0.translate(0.0F, 0.0F, 400.0F);
-            int var15 = var5;
+            int var15 = var8;
 
             for(int var16 = 0; var16 < param1.size(); ++var16) {
                 ClientTooltipComponent var17 = param1.get(var16);
-                var17.renderText(this.font, var4, var15, var13, var14);
+                var17.renderText(this.font, var7, var15, var13, var14);
                 var15 += var17.getHeight() + (var16 == 0 ? 2 : 0);
             }
 
             var14.endBatch();
             param0.popPose();
-            var15 = var5;
+            var15 = var8;
 
             for(int var18 = 0; var18 < param1.size(); ++var18) {
                 ClientTooltipComponent var19 = param1.get(var18);
-                var19.renderImage(this.font, var4, var15, param0, this.itemRenderer, 400);
+                var19.renderImage(this.font, var7, var15, param0, this.itemRenderer, 400);
                 var15 += var19.getHeight() + (var18 == 0 ? 2 : 0);
             }
 
@@ -432,7 +433,13 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         this.font = param0.font;
         this.width = param1;
         this.height = param2;
-        this.rebuildWidgets();
+        if (!this.initialized) {
+            this.init();
+        } else {
+            this.repositionElements();
+        }
+
+        this.initialized = true;
         this.triggerImmediateNarration(false);
         this.suppressNarration(NARRATE_SUPPRESS_AFTER_INIT_TIME);
     }
@@ -527,8 +534,14 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         return param0 == 65 && hasControlDown() && !hasShiftDown() && !hasAltDown();
     }
 
+    protected void repositionElements() {
+        this.rebuildWidgets();
+    }
+
     public void resize(Minecraft param0, int param1, int param2) {
-        this.init(param0, param1, param2);
+        this.width = param1;
+        this.height = param2;
+        this.repositionElements();
     }
 
     public static void wrapScreenError(Runnable param0, String param1, String param2) {
@@ -631,7 +644,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     }
 
     protected void updateNarratedWidget(NarrationElementOutput param0) {
-        ImmutableList<NarratableEntry> var0 = this.narratables.stream().filter(NarratableEntry::isActive).collect(ImmutableList.toImmutableList());
+        List<NarratableEntry> var0 = this.narratables.stream().filter(NarratableEntry::isActive).collect(Collectors.toList());
+        Collections.sort(var0, Comparator.comparingInt(TabOrderedElement::getTabOrderGroup));
         Screen.NarratableSearchResult var1 = findNarratableWidget(var0, this.lastNarratable);
         if (var1 != null) {
             if (var1.priority.isTerminal()) {

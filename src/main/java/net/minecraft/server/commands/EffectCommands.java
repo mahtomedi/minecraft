@@ -107,6 +107,45 @@ public class EffectCommands {
                                                         )
                                                 )
                                         )
+                                        .then(
+                                            Commands.literal("infinite")
+                                                .executes(
+                                                    param0x -> giveEffect(
+                                                            param0x.getSource(),
+                                                            EntityArgument.getEntities(param0x, "targets"),
+                                                            ResourceArgument.getMobEffect(param0x, "effect"),
+                                                            -1,
+                                                            0,
+                                                            true
+                                                        )
+                                                )
+                                                .then(
+                                                    Commands.argument("amplifier", IntegerArgumentType.integer(0, 255))
+                                                        .executes(
+                                                            param0x -> giveEffect(
+                                                                    param0x.getSource(),
+                                                                    EntityArgument.getEntities(param0x, "targets"),
+                                                                    ResourceArgument.getMobEffect(param0x, "effect"),
+                                                                    -1,
+                                                                    IntegerArgumentType.getInteger(param0x, "amplifier"),
+                                                                    true
+                                                                )
+                                                        )
+                                                        .then(
+                                                            Commands.argument("hideParticles", BoolArgumentType.bool())
+                                                                .executes(
+                                                                    param0x -> giveEffect(
+                                                                            param0x.getSource(),
+                                                                            EntityArgument.getEntities(param0x, "targets"),
+                                                                            ResourceArgument.getMobEffect(param0x, "effect"),
+                                                                            -1,
+                                                                            IntegerArgumentType.getInteger(param0x, "amplifier"),
+                                                                            !BoolArgumentType.getBool(param0x, "hideParticles")
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
                                 )
                         )
                 )
@@ -122,6 +161,8 @@ public class EffectCommands {
         if (param3 != null) {
             if (var0.isInstantenous()) {
                 var2 = param3;
+            } else if (param3 == -1) {
+                var2 = -1;
             } else {
                 var2 = param3 * 20;
             }
@@ -131,10 +172,10 @@ public class EffectCommands {
             var2 = 600;
         }
 
-        for(Entity var6 : param1) {
-            if (var6 instanceof LivingEntity) {
-                MobEffectInstance var7 = new MobEffectInstance(var0, var2, param4, false, param5);
-                if (((LivingEntity)var6).addEffect(var7, param0.getEntity())) {
+        for(Entity var7 : param1) {
+            if (var7 instanceof LivingEntity) {
+                MobEffectInstance var8 = new MobEffectInstance(var0, var2, param4, false, param5);
+                if (((LivingEntity)var7).addEffect(var8, param0.getEntity())) {
                     ++var1;
                 }
             }

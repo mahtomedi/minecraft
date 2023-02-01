@@ -280,7 +280,7 @@ public class FogRenderer {
 
         @Override
         public void setupFog(FogRenderer.FogData param0, LivingEntity param1, MobEffectInstance param2, float param3, float param4) {
-            float var0 = Mth.lerp(Math.min(1.0F, (float)param2.getDuration() / 20.0F), param3, 5.0F);
+            float var0 = param2.isInfiniteDuration() ? 5.0F : Mth.lerp(Math.min(1.0F, (float)param2.getDuration() / 20.0F), param3, 5.0F);
             if (param0.mode == FogRenderer.FogMode.FOG_SKY) {
                 param0.start = 0.0F;
                 param0.end = var0 * 0.8F;
@@ -345,7 +345,7 @@ public class FogRenderer {
         default float getModifiedVoidDarkness(LivingEntity param0, MobEffectInstance param1, float param2, float param3) {
             MobEffectInstance var0 = param0.getEffect(this.getMobEffect());
             if (var0 != null) {
-                if (var0.getDuration() < 20) {
+                if (var0.endsWithin(19)) {
                     param2 = 1.0F - (float)var0.getDuration() / 20.0F;
                 } else {
                     param2 = 0.0F;

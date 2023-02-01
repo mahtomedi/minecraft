@@ -8,6 +8,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.AccessibilityOnboardingTextWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CommonButtons;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
@@ -40,35 +41,30 @@ public class AccessibilityOnboardingScreen extends Screen {
 
     @Override
     public void init() {
-        FrameLayout var0 = new FrameLayout();
-        var0.defaultChildLayoutSetting().alignVerticallyTop().padding(4);
-        var0.setMinDimensions(this.width, this.height - this.initTitleYPos());
-        GridLayout var1 = var0.addChild(new GridLayout());
-        var1.defaultCellSetting().alignHorizontallyCenter().padding(4);
-        GridLayout.RowHelper var2 = var1.createRowHelper(1);
+        int var0 = this.initTitleYPos();
+        FrameLayout var1 = FrameLayout.withMinDimensions(this.width, this.height - var0);
+        var1.defaultChildLayoutSetting().alignVerticallyTop().padding(4);
+        GridLayout var2 = var1.addChild(new GridLayout());
+        var2.defaultCellSetting().alignHorizontallyCenter().padding(4);
+        GridLayout.RowHelper var3 = var2.createRowHelper(1);
+        var3.defaultCellSetting().padding(2);
         this.textWidget = new AccessibilityOnboardingTextWidget(this.font, this.title, this.width);
-        var2.addChild(this.textWidget, var2.newCellSettings().padding(16));
-        AbstractWidget var3 = this.options.narrator().createButton(this.options, 0, 0, 150);
-        var3.active = this.narratorAvailable;
-        var2.addChild(var3);
+        var3.addChild(this.textWidget, var3.newCellSettings().paddingBottom(16));
+        AbstractWidget var4 = this.options.narrator().createButton(this.options, 0, 0, 150);
+        var4.active = this.narratorAvailable;
+        var3.addChild(var4);
         if (this.narratorAvailable) {
-            this.setInitialFocus(var3);
+            this.setInitialFocus(var4);
         }
 
-        var2.addChild(
-            Button.builder(
-                    Component.translatable("options.accessibility.title"),
-                    param0 -> this.minecraft.setScreen(new AccessibilityOptionsScreen(new TitleScreen(true), this.minecraft.options))
-                )
-                .build()
+        var3.addChild(CommonButtons.accessibilityTextAndImage(this.minecraft, this));
+        var3.addChild(CommonButtons.languageTextAndImage(this.minecraft, this));
+        var1.addChild(
+            Button.builder(CommonComponents.GUI_CONTINUE, param0 -> this.onClose()).build(), var1.newChildLayoutSettings().alignVerticallyBottom().padding(8)
         );
-        var0.addChild(
-            Button.builder(CommonComponents.GUI_CONTINUE, param0 -> this.minecraft.setScreen(new TitleScreen(true, this.logoRenderer))).build(),
-            var0.newChildLayoutSettings().alignVerticallyBottom().padding(8)
-        );
-        var0.arrangeElements();
-        FrameLayout.alignInRectangle(var0, 0, this.initTitleYPos(), this.width, this.height, 0.5F, 0.0F);
-        var0.visitWidgets(this::addRenderableWidget);
+        var1.arrangeElements();
+        FrameLayout.alignInRectangle(var1, 0, var0, this.width, this.height, 0.5F, 0.0F);
+        var1.visitWidgets(this::addRenderableWidget);
     }
 
     private int initTitleYPos() {
@@ -77,7 +73,7 @@ public class AccessibilityOnboardingScreen extends Screen {
 
     @Override
     public void onClose() {
-        this.minecraft.getNarrator().clear();
+        Narrator.getNarrator().clear();
         this.minecraft.setScreen(new TitleScreen(true, this.logoRenderer));
     }
 

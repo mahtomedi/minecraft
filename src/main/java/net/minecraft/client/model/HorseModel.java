@@ -218,7 +218,7 @@ public class HorseModel<T extends AbstractHorse> extends AgeableListModel<T> {
         }
 
         if (param2 > 0.2F) {
-            var4 += Mth.cos(param1 * 0.4F) * 0.15F * param2;
+            var4 += Mth.cos(param1 * 0.8F) * 0.15F * param2;
         }
 
         float var5 = param0.getEatAnim(param3);

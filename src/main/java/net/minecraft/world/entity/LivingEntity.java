@@ -174,9 +174,7 @@ public abstract class LivingEntity extends Entity {
     public float oAttackAnim;
     public float attackAnim;
     protected int attackStrengthTicker;
-    public float animationSpeedOld;
-    public float animationSpeed;
-    public float animationPosition;
+    public final WalkAnimationState walkAnimation = new WalkAnimationState();
     public final int invulnerableDuration = 20;
     public final float timeOffs;
     public final float rotA;
@@ -1085,7 +1083,7 @@ public abstract class LivingEntity extends Entity {
                 var1 = true;
             }
 
-            this.animationSpeed = 1.5F;
+            this.walkAnimation.setSpeed(1.5F);
             boolean var5 = true;
             if ((float)this.invulnerableTime > 10.0F) {
                 if (param1 <= this.lastHurt) {
@@ -1713,7 +1711,7 @@ public abstract class LivingEntity extends Entity {
             case 37:
             case 44:
             case 57:
-                this.animationSpeed = 1.5F;
+                this.walkAnimation.setSpeed(1.5F);
                 this.invulnerableTime = 20;
                 this.hurtDuration = 10;
                 this.hurtTime = this.hurtDuration;
@@ -2210,21 +2208,17 @@ public abstract class LivingEntity extends Entity {
             }
         }
 
-        this.calculateEntityAnimation(this, this instanceof FlyingAnimal);
+        this.calculateEntityAnimation(this instanceof FlyingAnimal);
     }
 
-    public void calculateEntityAnimation(LivingEntity param0, boolean param1) {
-        param0.animationSpeedOld = param0.animationSpeed;
-        double var0 = param0.getX() - param0.xo;
-        double var1 = param1 ? param0.getY() - param0.yo : 0.0;
-        double var2 = param0.getZ() - param0.zo;
-        float var3 = (float)Math.sqrt(var0 * var0 + var1 * var1 + var2 * var2) * 4.0F;
-        if (var3 > 1.0F) {
-            var3 = 1.0F;
-        }
+    public void calculateEntityAnimation(boolean param0) {
+        float var0 = (float)Mth.length(this.getX() - this.xo, param0 ? this.getY() - this.yo : 0.0, this.getZ() - this.zo);
+        this.updateWalkAnimation(var0);
+    }
 
-        param0.animationSpeed += (var3 - param0.animationSpeed) * 0.4F;
-        param0.animationPosition += param0.animationSpeed;
+    protected void updateWalkAnimation(float param0) {
+        float var0 = Math.min(param0 * 4.0F, 1.0F);
+        this.walkAnimation.update(var0, 0.4F);
     }
 
     public Vec3 handleRelativeFrictionAndCalculateMovement(Vec3 param0, float param1) {

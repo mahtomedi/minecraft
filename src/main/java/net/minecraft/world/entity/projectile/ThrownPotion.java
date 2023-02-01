@@ -136,19 +136,22 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
                 if (var3.isAffectedByPotions()) {
                     double var4 = this.distanceToSqr(var3);
                     if (var4 < 16.0) {
-                        double var5 = 1.0 - Math.sqrt(var4) / 4.0;
+                        double var5;
                         if (var3 == param1) {
                             var5 = 1.0;
+                        } else {
+                            var5 = 1.0 - Math.sqrt(var4) / 4.0;
                         }
 
-                        for(MobEffectInstance var6 : param0) {
-                            MobEffect var7 = var6.getEffect();
-                            if (var7.isInstantenous()) {
-                                var7.applyInstantenousEffect(this, this.getOwner(), var3, var6.getAmplifier(), var5);
+                        for(MobEffectInstance var7 : param0) {
+                            MobEffect var8 = var7.getEffect();
+                            if (var8.isInstantenous()) {
+                                var8.applyInstantenousEffect(this, this.getOwner(), var3, var7.getAmplifier(), var5);
                             } else {
-                                int var8 = (int)(var5 * (double)var6.getDuration() + 0.5);
-                                if (var8 > 20) {
-                                    var3.addEffect(new MobEffectInstance(var7, var8, var6.getAmplifier(), var6.isAmbient(), var6.isVisible()), var2);
+                                int var9 = var7.mapDuration(param1x -> (int)(var5 * (double)param1x + 0.5));
+                                MobEffectInstance var10 = new MobEffectInstance(var8, var9, var7.getAmplifier(), var7.isAmbient(), var7.isVisible());
+                                if (!var10.endsWithin(20)) {
+                                    var3.addEffect(var10, var2);
                                 }
                             }
                         }

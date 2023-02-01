@@ -3,6 +3,7 @@ package net.minecraft.client.gui.layouts;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -84,6 +85,10 @@ public class FrameLayout extends AbstractLayout {
 
     public static void centerInRectangle(LayoutElement param0, int param1, int param2, int param3, int param4) {
         alignInRectangle(param0, param1, param2, param3, param4, 0.5F, 0.5F);
+    }
+
+    public static void centerInRectangle(LayoutElement param0, ScreenRectangle param1) {
+        centerInRectangle(param0, param1.position().x(), param1.position().y(), param1.width(), param1.height());
     }
 
     public static void alignInRectangle(LayoutElement param0, int param1, int param2, int param3, int param4, float param5, float param6) {

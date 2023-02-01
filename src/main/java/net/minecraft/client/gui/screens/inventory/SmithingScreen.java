@@ -32,17 +32,17 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
         EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE
     );
     private static final int TITLE_LABEL_X = 44;
-    private static final int TITLE_LABEL_Y = 22;
+    private static final int TITLE_LABEL_Y = 15;
     private static final int ERROR_ICON_WIDTH = 28;
     private static final int ERROR_ICON_HEIGHT = 21;
-    private static final int ERROR_ICON_X = 95;
-    private static final int ERROR_ICON_Y = 45;
+    private static final int ERROR_ICON_X = 65;
+    private static final int ERROR_ICON_Y = 46;
     private static final int TOOLTIP_WIDTH = 115;
     public static final int ARMOR_STAND_Y_ROT = 210;
     public static final int ARMOR_STAND_X_ROT = 25;
     public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
     public static final int ARMOR_STAND_SCALE = 25;
-    public static final int ARMOR_STAND_OFFSET_Y = 65;
+    public static final int ARMOR_STAND_OFFSET_Y = 75;
     public static final int ARMOR_STAND_OFFSET_X = 141;
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground baseIcon = new CyclingSlotBackground(1);
@@ -53,7 +53,7 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     public SmithingScreen(SmithingMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2, SMITHING_LOCATION);
         this.titleLabelX = 44;
-        this.titleLabelY = 22;
+        this.titleLabelY = 15;
     }
 
     @Override
@@ -65,6 +65,7 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
         this.armorStandPreview.setXRot(25.0F);
         this.armorStandPreview.yHeadRot = this.armorStandPreview.getYRot();
         this.armorStandPreview.yHeadRotO = this.armorStandPreview.getYRot();
+        this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
     }
 
     @Override
@@ -100,40 +101,47 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
         this.templateIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
         this.baseIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
         this.additionalIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
-        InventoryScreen.renderEntityInInventory(this.leftPos + 141, this.topPos + 65, 25, ARMOR_STAND_ANGLE, null, this.armorStandPreview);
+        InventoryScreen.renderEntityInInventory(this.leftPos + 141, this.topPos + 75, 25, ARMOR_STAND_ANGLE, null, this.armorStandPreview);
     }
 
     @Override
     public void slotChanged(AbstractContainerMenu param0, int param1, ItemStack param2) {
-        if (param1 == 3 && this.armorStandPreview != null) {
+        if (param1 == 3) {
+            this.updateArmorStandPreview(param2);
+        }
+
+    }
+
+    private void updateArmorStandPreview(ItemStack param0) {
+        if (this.armorStandPreview != null) {
             for(EquipmentSlot var0 : EquipmentSlot.values()) {
                 this.armorStandPreview.setItemSlot(var0, ItemStack.EMPTY);
             }
 
-            if (!param2.isEmpty()) {
-                ItemStack var1 = param2.copy();
-                Item var10 = param2.getItem();
-                if (var10 instanceof ArmorItem var2) {
+            if (!param0.isEmpty()) {
+                ItemStack var1 = param0.copy();
+                Item var8 = param0.getItem();
+                if (var8 instanceof ArmorItem var2) {
                     this.armorStandPreview.setItemSlot(var2.getSlot(), var1);
                 } else {
                     this.armorStandPreview.setItemSlot(EquipmentSlot.OFFHAND, var1);
                 }
             }
-        }
 
+        }
     }
 
     @Override
     protected void renderErrorIcon(PoseStack param0, int param1, int param2) {
         if (this.hasRecipeError()) {
-            this.blit(param0, param1 + 95, param2 + 45, this.imageWidth, 0, 28, 21);
+            this.blit(param0, param1 + 65, param2 + 46, this.imageWidth, 0, 28, 21);
         }
 
     }
 
     private void renderOnboardingTooltips(PoseStack param0, int param1, int param2) {
         Optional<Component> var0 = Optional.empty();
-        if (this.hasRecipeError() && this.isHovering(95, 45, 28, 21, (double)param1, (double)param2)) {
+        if (this.hasRecipeError() && this.isHovering(65, 46, 28, 21, (double)param1, (double)param2)) {
             var0 = Optional.of(ERROR_TOOLTIP);
         }
 

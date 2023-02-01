@@ -14,6 +14,7 @@ import com.google.gson.stream.JsonReader;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
@@ -614,6 +615,25 @@ public class Options {
         param0x -> {
         }
     );
+    private static final Component ACCESSIBILITY_TOOLTIP_GLINT_SPEED = Component.translatable("options.glintSpeed.tooltip");
+    private final OptionInstance<Double> glintSpeed = new OptionInstance<>(
+        "options.glintSpeed",
+        OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_GLINT_SPEED),
+        (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+        OptionInstance.UnitDouble.INSTANCE,
+        0.5,
+        param0x -> {
+        }
+    );
+    private static final Component ACCESSIBILITY_TOOLTIP_GLINT_STRENGTH = Component.translatable("options.glintStrength.tooltip");
+    private final OptionInstance<Double> glintStrength = new OptionInstance<>(
+        "options.glintStrength",
+        OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_GLINT_STRENGTH),
+        (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+        OptionInstance.UnitDouble.INSTANCE,
+        1.0,
+        RenderSystem::setShaderGlintAlpha
+    );
     private final OptionInstance<Double> gamma = new OptionInstance<>("options.gamma", OptionInstance.noTooltip(), (param0x, param1x) -> {
         int var0x = (int)(param1x * 100.0);
         if (var0x == 0) {
@@ -945,6 +965,14 @@ public class Options {
         return this.darknessEffectScale;
     }
 
+    public OptionInstance<Double> glintSpeed() {
+        return this.glintSpeed;
+    }
+
+    public OptionInstance<Double> glintStrength() {
+        return this.glintStrength;
+    }
+
     public OptionInstance<Double> gamma() {
         return this.gamma;
     }
@@ -1036,6 +1064,8 @@ public class Options {
         param0.process("screenEffectScale", this.screenEffectScale);
         param0.process("fovEffectScale", this.fovEffectScale);
         param0.process("darknessEffectScale", this.darknessEffectScale);
+        param0.process("glintSpeed", this.glintSpeed);
+        param0.process("glintStrength", this.glintStrength);
         param0.process("gamma", this.gamma);
         param0.process("renderDistance", this.renderDistance);
         param0.process("simulationDistance", this.simulationDistance);
@@ -1424,6 +1454,8 @@ public class Options {
             .add(Pair.of("fov", this.fov.get()))
             .add(Pair.of("fovEffectScale", this.fovEffectScale.get()))
             .add(Pair.of("darknessEffectScale", this.darknessEffectScale.get()))
+            .add(Pair.of("glintSpeed", this.glintSpeed.get()))
+            .add(Pair.of("glintStrength", this.glintStrength.get()))
             .add(Pair.of("prioritizeChunkUpdates", this.prioritizeChunkUpdates.get()))
             .add(Pair.of("fullscreen", this.fullscreen.get()))
             .add(Pair.of("fullscreenResolution", String.valueOf(this.fullscreenVideoModeString)))

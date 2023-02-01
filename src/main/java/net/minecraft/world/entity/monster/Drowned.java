@@ -239,6 +239,11 @@ public class Drowned extends Zombie implements RangedAttackMob {
 
     }
 
+    @Override
+    public boolean isVisuallySwimming() {
+        return this.isSwimming();
+    }
+
     protected boolean closeToNextPos() {
         Path var0 = this.getNavigation().getPath();
         if (var0 != null) {

@@ -54,6 +54,7 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -936,8 +937,8 @@ public class GameRenderer implements AutoCloseable {
     }
 
     public static float getNightVisionScale(LivingEntity param0, float param1) {
-        int var0 = param0.getEffect(MobEffects.NIGHT_VISION).getDuration();
-        return var0 > 200 ? 1.0F : 0.7F + Mth.sin(((float)var0 - param1) * (float) Math.PI * 0.2F) * 0.3F;
+        MobEffectInstance var0 = param0.getEffect(MobEffects.NIGHT_VISION);
+        return !var0.endsWithin(200) ? 1.0F : 0.7F + Mth.sin(((float)var0.getDuration() - param1) * (float) Math.PI * 0.2F) * 0.3F;
     }
 
     public void render(float param0, long param1, boolean param2) {

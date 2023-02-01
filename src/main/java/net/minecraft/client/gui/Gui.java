@@ -459,21 +459,21 @@ public class Gui extends GuiComponent {
                         this.blit(param0, var8, var9, 165, 166, 24, 24);
                     } else {
                         this.blit(param0, var8, var9, 141, 166, 24, 24);
-                        if (var6.getDuration() <= 200) {
-                            int var11 = 10 - var6.getDuration() / 20;
-                            var10 = Mth.clamp((float)var6.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
-                                + Mth.cos((float)var6.getDuration() * (float) Math.PI / 5.0F) * Mth.clamp((float)var11 / 10.0F * 0.25F, 0.0F, 0.25F);
+                        if (var6.endsWithin(200)) {
+                            int var11 = var6.getDuration();
+                            int var12 = 10 - var11 / 20;
+                            var10 = Mth.clamp((float)var11 / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
+                                + Mth.cos((float)var11 * (float) Math.PI / 5.0F) * Mth.clamp((float)var12 / 10.0F * 0.25F, 0.0F, 0.25F);
                         }
                     }
 
-                    TextureAtlasSprite var12 = var4.get(var7);
-                    int var13 = var8;
-                    int var14 = var9;
-                    float var15 = var10;
+                    TextureAtlasSprite var13 = var4.get(var7);
+                    int var15 = var9;
+                    float var16 = var10;
                     var5.add(() -> {
-                        RenderSystem.setShaderTexture(0, var12.atlasLocation());
-                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var15);
-                        blit(param0, var13 + 3, var14 + 3, this.getBlitOffset(), 18, 18, var12);
+                        RenderSystem.setShaderTexture(0, var13.atlasLocation());
+                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var16);
+                        blit(param0, var8 + 3, var15 + 3, this.getBlitOffset(), 18, 18, var13);
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     });
                 }

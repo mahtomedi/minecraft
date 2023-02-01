@@ -1561,6 +1561,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             var7.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
         }
 
+        if (var7.GLINT_ALPHA != null) {
+            var7.GLINT_ALPHA.set(RenderSystem.getShaderGlintAlpha());
+        }
+
         if (var7.FOG_START != null) {
             var7.FOG_START.set(RenderSystem.getShaderFogStart());
         }

@@ -222,9 +222,9 @@ public class AdvancementWidget extends GuiComponent {
         int var22 = 32 + this.description.size() * 9;
         if (!this.description.isEmpty()) {
             if (var3) {
-                this.render9Sprite(param0, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
+                this.blitNineSliced(param0, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
             } else {
-                this.render9Sprite(param0, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
+                this.blitNineSliced(param0, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
             }
         }
 
@@ -254,62 +254,6 @@ public class AdvancementWidget extends GuiComponent {
         }
 
         this.minecraft.getItemRenderer().renderAndDecorateFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
-    }
-
-    protected void render9Sprite(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9) {
-        this.blit(param0, param1, param2, param8, param9, param5, param5);
-        this.renderRepeating(param0, param1 + param5, param2, param3 - param5 - param5, param5, param8 + param5, param9, param6 - param5 - param5, param7);
-        this.blit(param0, param1 + param3 - param5, param2, param8 + param6 - param5, param9, param5, param5);
-        this.blit(param0, param1, param2 + param4 - param5, param8, param9 + param7 - param5, param5, param5);
-        this.renderRepeating(
-            param0,
-            param1 + param5,
-            param2 + param4 - param5,
-            param3 - param5 - param5,
-            param5,
-            param8 + param5,
-            param9 + param7 - param5,
-            param6 - param5 - param5,
-            param7
-        );
-        this.blit(param0, param1 + param3 - param5, param2 + param4 - param5, param8 + param6 - param5, param9 + param7 - param5, param5, param5);
-        this.renderRepeating(param0, param1, param2 + param5, param5, param4 - param5 - param5, param8, param9 + param5, param6, param7 - param5 - param5);
-        this.renderRepeating(
-            param0,
-            param1 + param5,
-            param2 + param5,
-            param3 - param5 - param5,
-            param4 - param5 - param5,
-            param8 + param5,
-            param9 + param5,
-            param6 - param5 - param5,
-            param7 - param5 - param5
-        );
-        this.renderRepeating(
-            param0,
-            param1 + param3 - param5,
-            param2 + param5,
-            param5,
-            param4 - param5 - param5,
-            param8 + param6 - param5,
-            param9 + param5,
-            param6,
-            param7 - param5 - param5
-        );
-    }
-
-    protected void renderRepeating(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
-        for(int var0 = 0; var0 < param3; var0 += param7) {
-            int var1 = param1 + var0;
-            int var2 = Math.min(param7, param3 - var0);
-
-            for(int var3 = 0; var3 < param4; var3 += param8) {
-                int var4 = param2 + var3;
-                int var5 = Math.min(param8, param4 - var3);
-                this.blit(param0, var1, var4, param5, param6, var2, var5);
-            }
-        }
-
     }
 
     public boolean isMouseOver(int param0, int param1, int param2, int param3) {

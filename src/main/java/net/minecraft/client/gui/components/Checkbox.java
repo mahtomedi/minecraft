@@ -53,7 +53,7 @@ public class Checkbox extends AbstractButton {
     }
 
     @Override
-    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
         RenderSystem.setShaderTexture(0, TEXTURE);
         RenderSystem.enableDepthTest();

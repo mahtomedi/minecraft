@@ -45,7 +45,7 @@ public class StateSwitchingButton extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();

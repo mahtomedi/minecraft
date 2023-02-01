@@ -2,13 +2,14 @@ package net.minecraft.client.gui.components.events;
 
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.components.TabOrderedElement;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public interface GuiEventListener {
+public interface GuiEventListener extends TabOrderedElement {
     long DOUBLE_CLICK_THRESHOLD_MS = 250L;
 
     default void mouseMoved(double param0, double param1) {

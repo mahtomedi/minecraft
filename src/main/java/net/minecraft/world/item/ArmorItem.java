@@ -13,7 +13,6 @@ import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EntitySelector;
@@ -114,20 +113,7 @@ public class ArmorItem extends Item implements Wearable {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
-        ItemStack var0 = param1.getItemInHand(param2);
-        EquipmentSlot var1 = Mob.getEquipmentSlotForItem(var0);
-        ItemStack var2 = param1.getItemBySlot(var1);
-        if (var2.isEmpty()) {
-            param1.setItemSlot(var1, var0.copy());
-            if (!param0.isClientSide()) {
-                param1.awardStat(Stats.ITEM_USED.get(this));
-            }
-
-            var0.setCount(0);
-            return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
-        } else {
-            return InteractionResultHolder.fail(var0);
-        }
+        return this.swapWithEquipmentSlot(this, param0, param1, param2);
     }
 
     @Override

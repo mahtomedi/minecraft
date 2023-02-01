@@ -60,7 +60,7 @@ public class RecipeButton extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
         if (!Screen.hasControlDown()) {
             this.time += param3;
         }

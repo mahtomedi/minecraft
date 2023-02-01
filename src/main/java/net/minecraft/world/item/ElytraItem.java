@@ -3,11 +3,8 @@ package net.minecraft.world.item;
 import javax.annotation.Nullable;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -29,20 +26,7 @@ public class ElytraItem extends Item implements Wearable {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
-        ItemStack var0 = param1.getItemInHand(param2);
-        EquipmentSlot var1 = Mob.getEquipmentSlotForItem(var0);
-        ItemStack var2 = param1.getItemBySlot(var1);
-        if (var2.isEmpty()) {
-            param1.setItemSlot(var1, var0.copy());
-            if (!param0.isClientSide()) {
-                param1.awardStat(Stats.ITEM_USED.get(this));
-            }
-
-            var0.setCount(0);
-            return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
-        } else {
-            return InteractionResultHolder.fail(var0);
-        }
+        return this.swapWithEquipmentSlot(this, param0, param1, param2);
     }
 
     @Nullable

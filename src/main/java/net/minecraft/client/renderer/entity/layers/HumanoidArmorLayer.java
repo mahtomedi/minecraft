@@ -20,6 +20,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.DyeableArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -68,10 +69,11 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
                     this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, "overlay");
                 } else {
                     this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, null);
-                    if (param2.level.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)) {
-                        ArmorTrim.getTrim(param2.level.registryAccess(), var0)
-                            .ifPresent(param6 -> this.renderTrim(param0, param1, param4, param6, var4, param5, var3, 1.0F, 1.0F, 1.0F));
-                    }
+                }
+
+                if (param2.level.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)) {
+                    ArmorTrim.getTrim(param2.level.registryAccess(), var0)
+                        .ifPresent(param7 -> this.renderTrim(var1.getMaterial(), param0, param1, param4, param7, var4, param5, var3, 1.0F, 1.0F, 1.0F));
                 }
 
             }
@@ -122,20 +124,21 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
     }
 
     private void renderTrim(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        ArmorTrim param3,
-        boolean param4,
-        A param5,
-        boolean param6,
-        float param7,
+        ArmorMaterial param0,
+        PoseStack param1,
+        MultiBufferSource param2,
+        int param3,
+        ArmorTrim param4,
+        boolean param5,
+        A param6,
+        boolean param7,
         float param8,
-        float param9
+        float param9,
+        float param10
     ) {
-        TextureAtlasSprite var0 = this.armorTrimAtlas.getSprite(param6 ? param3.innerTexture() : param3.outerTexture());
-        VertexConsumer var1 = var0.wrap(ItemRenderer.getFoilBufferDirect(param1, Sheets.armorTrimsSheet(), true, param4));
-        param5.renderToBuffer(param0, var1, param2, OverlayTexture.NO_OVERLAY, param7, param8, param9, 1.0F);
+        TextureAtlasSprite var0 = this.armorTrimAtlas.getSprite(param7 ? param4.innerTexture(param0) : param4.outerTexture(param0));
+        VertexConsumer var1 = var0.wrap(ItemRenderer.getFoilBufferDirect(param2, Sheets.armorTrimsSheet(), true, param5));
+        param6.renderToBuffer(param1, var1, param3, OverlayTexture.NO_OVERLAY, param8, param9, param10, 1.0F);
     }
 
     private A getArmorModel(EquipmentSlot param0) {

@@ -78,6 +78,7 @@ public class RenderSystem {
     private static Matrix4f textureMatrix = new Matrix4f();
     private static final int[] shaderTextures = new int[12];
     private static final float[] shaderColor = new float[]{1.0F, 1.0F, 1.0F, 1.0F};
+    private static float shaderGlintAlpha = 1.0F;
     private static float shaderFogStart;
     private static float shaderFogEnd = 1.0F;
     private static final float[] shaderFogColor = new float[]{0.0F, 0.0F, 0.0F, 0.0F};
@@ -382,6 +383,24 @@ public class RenderSystem {
     public static float getShaderFogStart() {
         assertOnRenderThread();
         return shaderFogStart;
+    }
+
+    public static void setShaderGlintAlpha(double param0) {
+        setShaderGlintAlpha((float)param0);
+    }
+
+    public static void setShaderGlintAlpha(float param0) {
+        assertOnRenderThread();
+        _setShaderGlintAlpha(param0);
+    }
+
+    private static void _setShaderGlintAlpha(float param0) {
+        shaderGlintAlpha = param0;
+    }
+
+    public static float getShaderGlintAlpha() {
+        assertOnRenderThread();
+        return shaderGlintAlpha;
     }
 
     public static void setShaderFogEnd(float param0) {

@@ -376,7 +376,7 @@ public class EditBox extends AbstractWidget implements Renderable {
     }
 
     @Override
-    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
         if (this.isVisible()) {
             if (this.isBordered()) {
                 int var0 = this.isFocused() ? -1 : -6250336;

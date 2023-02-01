@@ -10,8 +10,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.armortrim.ArmorTrim;
@@ -51,10 +49,6 @@ public class SmithingTrimRecipe implements SmithingRecipe {
                     return ItemStack.EMPTY;
                 }
 
-                if (this.isArmorMaterialIncompatible(var0, (TrimMaterial)var1.get().value())) {
-                    return ItemStack.EMPTY;
-                }
-
                 ItemStack var4 = var0.copy();
                 var4.setCount(1);
                 ArmorTrim var5 = new ArmorTrim(var1.get(), var2.get());
@@ -80,15 +74,6 @@ public class SmithingTrimRecipe implements SmithingRecipe {
         }
 
         return var0;
-    }
-
-    private boolean isArmorMaterialIncompatible(ItemStack param0, TrimMaterial param1) {
-        Item var4 = param0.getItem();
-        if (var4 instanceof ArmorItem var0 && var0.getMaterial() == param1.incompatibleArmorMaterial().orElse(null)) {
-            return true;
-        }
-
-        return false;
     }
 
     @Override

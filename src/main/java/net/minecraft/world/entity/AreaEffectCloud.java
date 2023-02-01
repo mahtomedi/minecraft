@@ -230,7 +230,11 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
                 List<MobEffectInstance> var24 = Lists.newArrayList();
 
                 for(MobEffectInstance var25 : this.potion.getEffects()) {
-                    var24.add(new MobEffectInstance(var25.getEffect(), var25.getDuration() / 4, var25.getAmplifier(), var25.isAmbient(), var25.isVisible()));
+                    var24.add(
+                        new MobEffectInstance(
+                            var25.getEffect(), var25.mapDuration(param0 -> param0 / 4), var25.getAmplifier(), var25.isAmbient(), var25.isVisible()
+                        )
+                    );
                 }
 
                 var24.addAll(this.effects);

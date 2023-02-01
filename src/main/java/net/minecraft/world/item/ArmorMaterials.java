@@ -15,43 +15,43 @@ public enum ArmorMaterials implements StringRepresentable, ArmorMaterial {
         param0.put(ArmorItem.Type.LEGGINGS, 2);
         param0.put(ArmorItem.Type.CHESTPLATE, 3);
         param0.put(ArmorItem.Type.HELMET, 1);
-    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> Ingredient.of(Items.LEATHER), false),
+    }), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> Ingredient.of(Items.LEATHER)),
     CHAIN("chainmail", 15, Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
         param0.put(ArmorItem.Type.BOOTS, 1);
         param0.put(ArmorItem.Type.LEGGINGS, 4);
         param0.put(ArmorItem.Type.CHESTPLATE, 5);
         param0.put(ArmorItem.Type.HELMET, 2);
-    }), 12, SoundEvents.ARMOR_EQUIP_CHAIN, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT), true),
+    }), 12, SoundEvents.ARMOR_EQUIP_CHAIN, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT)),
     IRON("iron", 15, Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
         param0.put(ArmorItem.Type.BOOTS, 2);
         param0.put(ArmorItem.Type.LEGGINGS, 5);
         param0.put(ArmorItem.Type.CHESTPLATE, 6);
         param0.put(ArmorItem.Type.HELMET, 2);
-    }), 9, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT), true),
+    }), 9, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT)),
     GOLD("gold", 7, Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
         param0.put(ArmorItem.Type.BOOTS, 1);
         param0.put(ArmorItem.Type.LEGGINGS, 3);
         param0.put(ArmorItem.Type.CHESTPLATE, 5);
         param0.put(ArmorItem.Type.HELMET, 2);
-    }), 25, SoundEvents.ARMOR_EQUIP_GOLD, 0.0F, 0.0F, () -> Ingredient.of(Items.GOLD_INGOT), true),
+    }), 25, SoundEvents.ARMOR_EQUIP_GOLD, 0.0F, 0.0F, () -> Ingredient.of(Items.GOLD_INGOT)),
     DIAMOND("diamond", 33, Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
         param0.put(ArmorItem.Type.BOOTS, 3);
         param0.put(ArmorItem.Type.LEGGINGS, 6);
         param0.put(ArmorItem.Type.CHESTPLATE, 8);
         param0.put(ArmorItem.Type.HELMET, 3);
-    }), 10, SoundEvents.ARMOR_EQUIP_DIAMOND, 2.0F, 0.0F, () -> Ingredient.of(Items.DIAMOND), true),
+    }), 10, SoundEvents.ARMOR_EQUIP_DIAMOND, 2.0F, 0.0F, () -> Ingredient.of(Items.DIAMOND)),
     TURTLE("turtle", 25, Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
         param0.put(ArmorItem.Type.BOOTS, 2);
         param0.put(ArmorItem.Type.LEGGINGS, 5);
         param0.put(ArmorItem.Type.CHESTPLATE, 6);
         param0.put(ArmorItem.Type.HELMET, 2);
-    }), 9, SoundEvents.ARMOR_EQUIP_TURTLE, 0.0F, 0.0F, () -> Ingredient.of(Items.SCUTE), true),
+    }), 9, SoundEvents.ARMOR_EQUIP_TURTLE, 0.0F, 0.0F, () -> Ingredient.of(Items.SCUTE)),
     NETHERITE("netherite", 37, Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
         param0.put(ArmorItem.Type.BOOTS, 3);
         param0.put(ArmorItem.Type.LEGGINGS, 6);
         param0.put(ArmorItem.Type.CHESTPLATE, 8);
         param0.put(ArmorItem.Type.HELMET, 3);
-    }), 15, SoundEvents.ARMOR_EQUIP_NETHERITE, 3.0F, 0.1F, () -> Ingredient.of(Items.NETHERITE_INGOT), true);
+    }), 15, SoundEvents.ARMOR_EQUIP_NETHERITE, 3.0F, 0.1F, () -> Ingredient.of(Items.NETHERITE_INGOT));
 
     public static final StringRepresentable.EnumCodec<ArmorMaterials> CODEC = StringRepresentable.fromEnum(ArmorMaterials::values);
     private static final EnumMap<ArmorItem.Type, Integer> HEALTH_FUNCTION_FOR_TYPE = Util.make(new EnumMap<>(ArmorItem.Type.class), param0 -> {
@@ -68,7 +68,6 @@ public enum ArmorMaterials implements StringRepresentable, ArmorMaterial {
     private final float toughness;
     private final float knockbackResistance;
     private final LazyLoadedValue<Ingredient> repairIngredient;
-    private final boolean canHaveTrims;
 
     private ArmorMaterials(
         String param0,
@@ -78,8 +77,7 @@ public enum ArmorMaterials implements StringRepresentable, ArmorMaterial {
         SoundEvent param4,
         float param5,
         float param6,
-        Supplier<Ingredient> param7,
-        boolean param8
+        Supplier<Ingredient> param7
     ) {
         this.name = param0;
         this.durabilityMultiplier = param1;
@@ -89,7 +87,6 @@ public enum ArmorMaterials implements StringRepresentable, ArmorMaterial {
         this.toughness = param5;
         this.knockbackResistance = param6;
         this.repairIngredient = new LazyLoadedValue<>(param7);
-        this.canHaveTrims = param8;
     }
 
     @Override
@@ -130,11 +127,6 @@ public enum ArmorMaterials implements StringRepresentable, ArmorMaterial {
     @Override
     public float getKnockbackResistance() {
         return this.knockbackResistance;
-    }
-
-    @Override
-    public boolean canHaveTrims() {
-        return this.canHaveTrims;
     }
 
     @Override

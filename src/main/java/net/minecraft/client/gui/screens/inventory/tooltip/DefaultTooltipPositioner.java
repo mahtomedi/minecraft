@@ -15,7 +15,7 @@ public class DefaultTooltipPositioner implements ClientTooltipPositioner {
 
     @Override
     public Vector2ic positionTooltip(Screen param0, int param1, int param2, int param3, int param4) {
-        Vector2i var0 = new Vector2i(param1, param2);
+        Vector2i var0 = new Vector2i(param1, param2).add(12, -12);
         this.positionTooltip(param0, var0, param3, param4);
         return var0;
     }

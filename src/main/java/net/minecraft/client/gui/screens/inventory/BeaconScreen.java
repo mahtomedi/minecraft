@@ -252,7 +252,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         }
 
         @Override
-        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, BeaconScreen.BEACON_LOCATION);
             int var0 = 219;

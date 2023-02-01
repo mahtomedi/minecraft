@@ -44,7 +44,7 @@ public class RecipeBookTabButton extends StateSwitchingButton {
     }
 
     @Override
-    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
         if (this.animationTime > 0.0F) {
             float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
             param0.pushPose();

@@ -1,5 +1,6 @@
 package net.minecraft.world.item.armortrim;
 
+import java.util.Map;
 import java.util.Optional;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -31,16 +32,16 @@ public class TrimMaterials {
     }
 
     public static void nextUpdate(BootstapContext<TrimMaterial> param0) {
-        register(param0, QUARTZ, Items.QUARTZ, Style.EMPTY.withColor(14931140), 0.1F, Optional.empty());
-        register(param0, IRON, Items.IRON_INGOT, Style.EMPTY.withColor(15527148), 0.2F, Optional.of(ArmorMaterials.IRON));
-        register(param0, NETHERITE, Items.NETHERITE_INGOT, Style.EMPTY.withColor(6445145), 0.3F, Optional.of(ArmorMaterials.NETHERITE));
-        register(param0, REDSTONE, Items.REDSTONE, Style.EMPTY.withColor(9901575), 0.4F, Optional.empty());
-        register(param0, COPPER, Items.COPPER_INGOT, Style.EMPTY.withColor(11823181), 0.5F, Optional.empty());
-        register(param0, GOLD, Items.GOLD_INGOT, Style.EMPTY.withColor(14594349), 0.6F, Optional.of(ArmorMaterials.GOLD));
-        register(param0, EMERALD, Items.EMERALD, Style.EMPTY.withColor(1155126), 0.7F, Optional.empty());
-        register(param0, DIAMOND, Items.DIAMOND, Style.EMPTY.withColor(7269586), 0.8F, Optional.of(ArmorMaterials.DIAMOND));
-        register(param0, LAPIS, Items.LAPIS_LAZULI, Style.EMPTY.withColor(4288151), 0.9F, Optional.empty());
-        register(param0, AMETHYST, Items.AMETHYST_SHARD, Style.EMPTY.withColor(10116294), 1.0F, Optional.empty());
+        register(param0, QUARTZ, Items.QUARTZ, Style.EMPTY.withColor(14931140), 0.1F);
+        register(param0, IRON, Items.IRON_INGOT, Style.EMPTY.withColor(15527148), 0.2F, Map.of(ArmorMaterials.IRON, "iron_darker"));
+        register(param0, NETHERITE, Items.NETHERITE_INGOT, Style.EMPTY.withColor(6445145), 0.3F, Map.of(ArmorMaterials.NETHERITE, "netherite_darker"));
+        register(param0, REDSTONE, Items.REDSTONE, Style.EMPTY.withColor(9901575), 0.4F);
+        register(param0, COPPER, Items.COPPER_INGOT, Style.EMPTY.withColor(11823181), 0.5F);
+        register(param0, GOLD, Items.GOLD_INGOT, Style.EMPTY.withColor(14594349), 0.6F, Map.of(ArmorMaterials.GOLD, "gold_darker"));
+        register(param0, EMERALD, Items.EMERALD, Style.EMPTY.withColor(1155126), 0.7F);
+        register(param0, DIAMOND, Items.DIAMOND, Style.EMPTY.withColor(7269586), 0.8F, Map.of(ArmorMaterials.DIAMOND, "diamond_darker"));
+        register(param0, LAPIS, Items.LAPIS_LAZULI, Style.EMPTY.withColor(4288151), 0.9F);
+        register(param0, AMETHYST, Items.AMETHYST_SHARD, Style.EMPTY.withColor(10116294), 1.0F);
     }
 
     public static Optional<Holder.Reference<TrimMaterial>> getFromIngredient(RegistryAccess param0, ItemStack param1) {
@@ -50,15 +51,19 @@ public class TrimMaterials {
             .findFirst();
     }
 
+    private static void register(BootstapContext<TrimMaterial> param0, ResourceKey<TrimMaterial> param1, Item param2, Style param3, float param4) {
+        register(param0, param1, param2, param3, param4, Map.of());
+    }
+
     private static void register(
-        BootstapContext<TrimMaterial> param0, ResourceKey<TrimMaterial> param1, Item param2, Style param3, float param4, Optional<ArmorMaterials> param5
+        BootstapContext<TrimMaterial> param0, ResourceKey<TrimMaterial> param1, Item param2, Style param3, float param4, Map<ArmorMaterials, String> param5
     ) {
         TrimMaterial var0 = TrimMaterial.create(
             param1.location().getPath(),
             param2,
             param4,
-            param5,
-            Component.translatable(Util.makeDescriptionId("trim_material", param1.location())).withStyle(param3)
+            Component.translatable(Util.makeDescriptionId("trim_material", param1.location())).withStyle(param3),
+            param5
         );
         param0.register(param1, var0);
     }

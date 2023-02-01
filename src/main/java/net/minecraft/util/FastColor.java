@@ -18,8 +18,12 @@ public class FastColor {
             return param0 >> 16 & 0xFF;
         }
 
-        public static int bgr(int param0) {
+        public static int transparent(int param0) {
             return param0 & 16777215;
+        }
+
+        public static int opaque(int param0) {
+            return param0 | 0xFF000000;
         }
 
         public static int color(int param0, int param1, int param2, int param3) {

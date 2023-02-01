@@ -86,7 +86,7 @@ public class PalettedPermutations implements SpriteSource {
             for(int var1 = 0; var1 < param0.length; ++var1) {
                 int var2 = param0[var1];
                 if (FastColor.ABGR32.alpha(var2) != 0) {
-                    var0.put(FastColor.ABGR32.bgr(var2), param1[var1]);
+                    var0.put(FastColor.ABGR32.transparent(var2), param1[var1]);
                 }
             }
 
@@ -95,8 +95,8 @@ public class PalettedPermutations implements SpriteSource {
                 if (var0x == 0) {
                     return param1x;
                 } else {
-                    int var1x = FastColor.ABGR32.bgr(param1x);
-                    int var2x = var0.getOrDefault(var1x, var1x);
+                    int var1x = FastColor.ABGR32.transparent(param1x);
+                    int var2x = var0.getOrDefault(var1x, FastColor.ABGR32.opaque(var1x));
                     int var3x = FastColor.ABGR32.alpha(var2x);
                     return FastColor.ABGR32.color(var0x * var3x / 255, var2x);
                 }

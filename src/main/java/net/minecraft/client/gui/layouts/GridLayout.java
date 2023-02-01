@@ -13,6 +13,8 @@ public class GridLayout extends AbstractLayout {
     private final List<LayoutElement> children = new ArrayList<>();
     private final List<GridLayout.CellInhabitant> cellInhabitants = new ArrayList<>();
     private final LayoutSettings defaultCellSettings = LayoutSettings.defaults();
+    private int rowSpacing = 0;
+    private int columnSpacing = 0;
 
     public GridLayout() {
         this(0, 0);
@@ -37,52 +39,56 @@ public class GridLayout extends AbstractLayout {
         int[] var4 = new int[var0 + 1];
 
         for(GridLayout.CellInhabitant var5 : this.cellInhabitants) {
-            Divisor var6 = new Divisor(var5.getHeight(), var5.occupiedRows);
+            int var6 = var5.getHeight() - (var5.occupiedRows - 1) * this.rowSpacing;
+            Divisor var7 = new Divisor(var6, var5.occupiedRows);
 
-            for(int var7 = var5.row; var7 <= var5.getLastOccupiedRow(); ++var7) {
-                var4[var7] = Math.max(var4[var7], var6.nextInt());
+            for(int var8 = var5.row; var8 <= var5.getLastOccupiedRow(); ++var8) {
+                var4[var8] = Math.max(var4[var8], var7.nextInt());
             }
 
-            Divisor var8 = new Divisor(var5.getWidth(), var5.occupiedColumns);
+            int var9 = var5.getWidth() - (var5.occupiedColumns - 1) * this.columnSpacing;
+            Divisor var10 = new Divisor(var9, var5.occupiedColumns);
 
-            for(int var9 = var5.column; var9 <= var5.getLastOccupiedColumn(); ++var9) {
-                var3[var9] = Math.max(var3[var9], var8.nextInt());
+            for(int var11 = var5.column; var11 <= var5.getLastOccupiedColumn(); ++var11) {
+                var3[var11] = Math.max(var3[var11], var10.nextInt());
             }
         }
 
-        int[] var10 = new int[var1 + 1];
-        int[] var11 = new int[var0 + 1];
-        var10[0] = 0;
+        int[] var12 = new int[var1 + 1];
+        int[] var13 = new int[var0 + 1];
+        var12[0] = 0;
 
-        for(int var12 = 1; var12 <= var1; ++var12) {
-            var10[var12] = var10[var12 - 1] + var3[var12 - 1];
+        for(int var14 = 1; var14 <= var1; ++var14) {
+            var12[var14] = var12[var14 - 1] + var3[var14 - 1] + this.columnSpacing;
         }
 
-        var11[0] = 0;
+        var13[0] = 0;
 
-        for(int var13 = 1; var13 <= var0; ++var13) {
-            var11[var13] = var11[var13 - 1] + var4[var13 - 1];
+        for(int var15 = 1; var15 <= var0; ++var15) {
+            var13[var15] = var13[var15 - 1] + var4[var15 - 1] + this.rowSpacing;
         }
 
-        for(GridLayout.CellInhabitant var14 : this.cellInhabitants) {
-            int var15 = 0;
-
-            for(int var16 = var14.column; var16 <= var14.getLastOccupiedColumn(); ++var16) {
-                var15 += var3[var16];
-            }
-
-            var14.setX(this.getX() + var10[var14.column], var15);
+        for(GridLayout.CellInhabitant var16 : this.cellInhabitants) {
             int var17 = 0;
 
-            for(int var18 = var14.row; var18 <= var14.getLastOccupiedRow(); ++var18) {
-                var17 += var4[var18];
+            for(int var18 = var16.column; var18 <= var16.getLastOccupiedColumn(); ++var18) {
+                var17 += var3[var18];
             }
 
-            var14.setY(this.getY() + var11[var14.row], var17);
+            var17 += this.columnSpacing * (var16.occupiedColumns - 1);
+            var16.setX(this.getX() + var12[var16.column], var17);
+            int var19 = 0;
+
+            for(int var20 = var16.row; var20 <= var16.getLastOccupiedRow(); ++var20) {
+                var19 += var4[var20];
+            }
+
+            var19 += this.rowSpacing * (var16.occupiedRows - 1);
+            var16.setY(this.getY() + var13[var16.row], var19);
         }
 
-        this.width = var10[var1] + var3[var1];
-        this.height = var11[var0] + var4[var0];
+        this.width = var12[var1] + var3[var1];
+        this.height = var13[var0] + var4[var0];
     }
 
     public <T extends LayoutElement> T addChild(T param0, int param1, int param2) {
@@ -107,6 +113,20 @@ public class GridLayout extends AbstractLayout {
             this.children.add(param0);
             return param0;
         }
+    }
+
+    public GridLayout columnSpacing(int param0) {
+        this.columnSpacing = param0;
+        return this;
+    }
+
+    public GridLayout rowSpacing(int param0) {
+        this.rowSpacing = param0;
+        return this;
+    }
+
+    public GridLayout spacing(int param0) {
+        return this.columnSpacing(param0).rowSpacing(param0);
     }
 
     @Override
@@ -182,6 +202,10 @@ public class GridLayout extends AbstractLayout {
 
             this.index += param1;
             return GridLayout.this.addChild(param0, var0, var1, 1, param1, param2);
+        }
+
+        public GridLayout getGrid() {
+            return GridLayout.this;
         }
 
         public LayoutSettings newCellSettings() {

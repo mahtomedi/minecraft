@@ -305,4 +305,90 @@ public abstract class GuiComponent {
     public void setBlitOffset(int param0) {
         this.blitOffset = param0;
     }
+
+    public void blitNineSliced(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9) {
+        this.blitNineSliced(param0, param1, param2, param3, param4, param5, param5, param5, param5, param6, param7, param8, param9);
+    }
+
+    public void blitNineSliced(
+        PoseStack param0,
+        int param1,
+        int param2,
+        int param3,
+        int param4,
+        int param5,
+        int param6,
+        int param7,
+        int param8,
+        int param9,
+        int param10,
+        int param11,
+        int param12
+    ) {
+        if (param3 == param9 && param4 == param10) {
+            this.blit(param0, param1, param2, param11, param12, param3, param4);
+        } else if (param4 == param10) {
+            this.blit(param0, param1, param2, param11, param12, param5, param4);
+            this.blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param4, param11 + param5, param12, param9 - param7 - param5, param10);
+            this.blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param4);
+        } else if (param3 == param9) {
+            this.blit(param0, param1, param2, param11, param12, param3, param6);
+            this.blitRepeating(param0, param1, param2 + param6, param3, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
+            this.blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param3, param8);
+        } else {
+            this.blit(param0, param1, param2, param11, param12, param5, param6);
+            this.blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param6, param11 + param5, param12, param9 - param7 - param5, param10);
+            this.blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param6);
+            this.blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param5, param8);
+            this.blitRepeating(
+                param0,
+                param1 + param5,
+                param2 + param4 - param8,
+                param3 - param7 - param5,
+                param8,
+                param11 + param5,
+                param12 + param10 - param8,
+                param9 - param7 - param5,
+                param10
+            );
+            this.blit(param0, param1 + param3 - param7, param2 + param4 - param8, param11 + param9 - param7, param12 + param10 - param8, param7, param8);
+            this.blitRepeating(param0, param1, param2 + param6, param5, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
+            this.blitRepeating(
+                param0,
+                param1 + param5,
+                param2 + param6,
+                param3 - param7 - param5,
+                param4 - param8 - param6,
+                param11 + param5,
+                param12 + param6,
+                param9 - param7 - param5,
+                param10 - param8 - param6
+            );
+            this.blitRepeating(
+                param0,
+                param1 + param3 - param7,
+                param2 + param6,
+                param5,
+                param4 - param8 - param6,
+                param11 + param9 - param7,
+                param12 + param6,
+                param9,
+                param10 - param8 - param6
+            );
+        }
+    }
+
+    public void blitRepeating(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
+        for(int var0 = 0; var0 < param3; var0 += param7) {
+            int var1 = param1 + var0;
+            int var2 = Math.min(param7, param3 - var0);
+
+            for(int var3 = 0; var3 < param4; var3 += param8) {
+                int var4 = param2 + var3;
+                int var5 = Math.min(param8, param4 - var3);
+                this.blit(param0, var1, var4, param5, param6, var2, var5);
+            }
+        }
+
+    }
 }

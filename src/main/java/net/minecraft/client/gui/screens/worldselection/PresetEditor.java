@@ -38,13 +38,13 @@ public interface PresetEditor {
             HolderGetter<PlacedFeature> var4 = var1.lookupOrThrow(Registries.PLACED_FEATURE);
             return new CreateFlatWorldScreen(
                 param0,
-                param1x -> param0.worldGenSettingsComponent.updateSettings(flatWorldConfigurator(param1x)),
+                param1x -> param0.getUiState().updateDimensions(flatWorldConfigurator(param1x)),
                 var0 instanceof FlatLevelSource ? ((FlatLevelSource)var0).settings() : FlatLevelGeneratorSettings.getDefault(var2, var3, var4)
             );
         },
         Optional.of(WorldPresets.SINGLE_BIOME_SURFACE),
         (PresetEditor)(param0, param1) -> new CreateBuffetWorldScreen(
-                param0, param1, param1x -> param0.worldGenSettingsComponent.updateSettings(fixedBiomeConfigurator(param1x))
+                param0, param1, param1x -> param0.getUiState().updateDimensions(fixedBiomeConfigurator(param1x))
             )
     );
 

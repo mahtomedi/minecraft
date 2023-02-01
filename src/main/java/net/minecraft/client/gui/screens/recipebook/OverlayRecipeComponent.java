@@ -31,6 +31,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
     private static final int MAX_ROW = 4;
     private static final int MAX_ROW_LARGE = 5;
     private static final float ITEM_RENDER_SCALE = 0.375F;
+    public static final int BUTTON_SIZE = 25;
     private final List<OverlayRecipeComponent.OverlayRecipeButton> recipeButtons = Lists.newArrayList();
     private boolean isVisible;
     private int x;
@@ -58,37 +59,36 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
         int var6 = (int)Math.ceil((double)((float)var4 / (float)var5));
         this.x = param2;
         this.y = param3;
-        int var7 = 25;
-        float var8 = (float)(this.x + Math.min(var4, var5) * 25);
-        float var9 = (float)(param4 + 50);
-        if (var8 > var9) {
-            this.x = (int)((float)this.x - param6 * (float)((int)((var8 - var9) / param6)));
+        float var7 = (float)(this.x + Math.min(var4, var5) * 25);
+        float var8 = (float)(param4 + 50);
+        if (var7 > var8) {
+            this.x = (int)((float)this.x - param6 * (float)((int)((var7 - var8) / param6)));
         }
 
-        float var10 = (float)(this.y + var6 * 25);
-        float var11 = (float)(param5 + 50);
-        if (var10 > var11) {
-            this.y = (int)((float)this.y - param6 * (float)Mth.ceil((var10 - var11) / param6));
+        float var9 = (float)(this.y + var6 * 25);
+        float var10 = (float)(param5 + 50);
+        if (var9 > var10) {
+            this.y = (int)((float)this.y - param6 * (float)Mth.ceil((var9 - var10) / param6));
         }
 
-        float var12 = (float)this.y;
-        float var13 = (float)(param5 - 100);
-        if (var12 < var13) {
-            this.y = (int)((float)this.y - param6 * (float)Mth.ceil((var12 - var13) / param6));
+        float var11 = (float)this.y;
+        float var12 = (float)(param5 - 100);
+        if (var11 < var12) {
+            this.y = (int)((float)this.y - param6 * (float)Mth.ceil((var11 - var12) / param6));
         }
 
         this.isVisible = true;
         this.recipeButtons.clear();
 
-        for(int var14 = 0; var14 < var4; ++var14) {
-            boolean var15 = var14 < var3;
-            Recipe<?> var16 = var15 ? var1.get(var14) : var2.get(var14 - var3);
-            int var17 = this.x + 4 + 25 * (var14 % var5);
-            int var18 = this.y + 5 + 25 * (var14 / var5);
+        for(int var13 = 0; var13 < var4; ++var13) {
+            boolean var14 = var13 < var3;
+            Recipe<?> var15 = var14 ? var1.get(var13) : var2.get(var13 - var3);
+            int var16 = this.x + 4 + 25 * (var13 % var5);
+            int var17 = this.y + 5 + 25 * (var13 / var5);
             if (this.isFurnaceMenu) {
-                this.recipeButtons.add(new OverlayRecipeComponent.OverlaySmeltingRecipeButton(var17, var18, var16, var15));
+                this.recipeButtons.add(new OverlayRecipeComponent.OverlaySmeltingRecipeButton(var16, var17, var15, var14));
             } else {
-                this.recipeButtons.add(new OverlayRecipeComponent.OverlayRecipeButton(var17, var18, var16, var15));
+                this.recipeButtons.add(new OverlayRecipeComponent.OverlayRecipeButton(var16, var17, var15, var14));
             }
         }
 
@@ -136,85 +136,16 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
             int var0 = this.recipeButtons.size() <= 16 ? 4 : 5;
             int var1 = Math.min(this.recipeButtons.size(), var0);
             int var2 = Mth.ceil((float)this.recipeButtons.size() / (float)var0);
-            int var3 = 24;
-            int var4 = 4;
-            int var5 = 82;
-            int var6 = 208;
-            this.nineInchSprite(param0, var1, var2, 24, 4, 82, 208);
+            int var3 = 4;
+            this.blitNineSliced(param0, this.x, this.y, var1 * 25 + 8, var2 * 25 + 8, 4, 32, 32, 82, 208);
             RenderSystem.disableBlend();
 
-            for(OverlayRecipeComponent.OverlayRecipeButton var7 : this.recipeButtons) {
-                var7.render(param0, param1, param2, param3);
+            for(OverlayRecipeComponent.OverlayRecipeButton var4 : this.recipeButtons) {
+                var4.render(param0, param1, param2, param3);
             }
 
             param0.popPose();
         }
-    }
-
-    private void nineInchSprite(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        this.blit(param0, this.x, this.y, param5, param6, param4, param4);
-        this.blit(param0, this.x + param4 * 2 + param1 * param3, this.y, param5 + param3 + param4, param6, param4, param4);
-        this.blit(param0, this.x, this.y + param4 * 2 + param2 * param3, param5, param6 + param3 + param4, param4, param4);
-        this.blit(
-            param0,
-            this.x + param4 * 2 + param1 * param3,
-            this.y + param4 * 2 + param2 * param3,
-            param5 + param3 + param4,
-            param6 + param3 + param4,
-            param4,
-            param4
-        );
-
-        for(int var0 = 0; var0 < param1; ++var0) {
-            this.blit(param0, this.x + param4 + var0 * param3, this.y, param5 + param4, param6, param3, param4);
-            this.blit(param0, this.x + param4 + (var0 + 1) * param3, this.y, param5 + param4, param6, param4, param4);
-
-            for(int var1 = 0; var1 < param2; ++var1) {
-                if (var0 == 0) {
-                    this.blit(param0, this.x, this.y + param4 + var1 * param3, param5, param6 + param4, param4, param3);
-                    this.blit(param0, this.x, this.y + param4 + (var1 + 1) * param3, param5, param6 + param4, param4, param4);
-                }
-
-                this.blit(param0, this.x + param4 + var0 * param3, this.y + param4 + var1 * param3, param5 + param4, param6 + param4, param3, param3);
-                this.blit(param0, this.x + param4 + (var0 + 1) * param3, this.y + param4 + var1 * param3, param5 + param4, param6 + param4, param4, param3);
-                this.blit(param0, this.x + param4 + var0 * param3, this.y + param4 + (var1 + 1) * param3, param5 + param4, param6 + param4, param3, param4);
-                this.blit(
-                    param0,
-                    this.x + param4 + (var0 + 1) * param3 - 1,
-                    this.y + param4 + (var1 + 1) * param3 - 1,
-                    param5 + param4,
-                    param6 + param4,
-                    param4 + 1,
-                    param4 + 1
-                );
-                if (var0 == param1 - 1) {
-                    this.blit(
-                        param0,
-                        this.x + param4 * 2 + param1 * param3,
-                        this.y + param4 + var1 * param3,
-                        param5 + param3 + param4,
-                        param6 + param4,
-                        param4,
-                        param3
-                    );
-                    this.blit(
-                        param0,
-                        this.x + param4 * 2 + param1 * param3,
-                        this.y + param4 + (var1 + 1) * param3,
-                        param5 + param3 + param4,
-                        param6 + param4,
-                        param4,
-                        param4
-                    );
-                }
-            }
-
-            this.blit(param0, this.x + param4 + var0 * param3, this.y + param4 * 2 + param2 * param3, param5 + param4, param6 + param3 + param4, param3, param4);
-            this.blit(
-                param0, this.x + param4 + (var0 + 1) * param3, this.y + param4 * 2 + param2 * param3, param5 + param4, param6 + param3 + param4, param4, param4
-            );
-        }
-
     }
 
     public void setVisible(boolean param0) {
@@ -268,7 +199,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
         }
 
         @Override
-        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
             RenderSystem.setShaderTexture(0, OverlayRecipeComponent.RECIPE_BOOK_LOCATION);
             int var0 = 152;
             if (!this.isCraftable) {

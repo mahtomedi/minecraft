@@ -7,8 +7,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CenteredStringWidget;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -50,7 +50,7 @@ public class TelemetryInfoScreen extends Screen {
         GridLayout var1 = var0.addChild(new GridLayout(), var0.newChildLayoutSettings().align(0.5F, 0.0F));
         var1.defaultCellSetting().alignHorizontallyCenter().paddingBottom(8);
         GridLayout.RowHelper var2 = var1.createRowHelper(1);
-        var2.addChild(new CenteredStringWidget(this.getTitle(), this.font));
+        var2.addChild(new StringWidget(this.getTitle(), this.font));
         var2.addChild(MultiLineTextWidget.createCentered(this.width - 16, this.font, DESCRIPTION));
         GridLayout var3 = this.twoButtonContainer(
             Button.builder(BUTTON_GIVE_FEEDBACK, this::openFeedbackLink).build(), Button.builder(BUTTON_SHOW_DATA, this::openDataFolder).build()

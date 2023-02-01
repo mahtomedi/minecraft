@@ -57,6 +57,7 @@ import net.minecraft.util.datafix.fixes.ChunkToProtochunkFix;
 import net.minecraft.util.datafix.fixes.ColorlessShulkerEntityFix;
 import net.minecraft.util.datafix.fixes.CriteriaRenameFix;
 import net.minecraft.util.datafix.fixes.DyeItemRenameFix;
+import net.minecraft.util.datafix.fixes.EffectDurationFix;
 import net.minecraft.util.datafix.fixes.EntityArmorStandSilentFix;
 import net.minecraft.util.datafix.fixes.EntityBlockStateFix;
 import net.minecraft.util.datafix.fixes.EntityCatSplitFix;
@@ -1055,6 +1056,8 @@ public class DataFixers {
         param0.addFixer(new OptionsAmbientOcclusionFix(var181));
         Schema var182 = param0.addSchema(3319, SAME_NAMESPACED);
         param0.addFixer(new OptionsAccessibilityOnboardFix(var182));
+        Schema var183 = param0.addSchema(3322, SAME_NAMESPACED);
+        param0.addFixer(new EffectDurationFix(var183));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

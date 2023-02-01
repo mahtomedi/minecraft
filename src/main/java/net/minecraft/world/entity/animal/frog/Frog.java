@@ -106,8 +106,6 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
     public final AnimationState jumpAnimationState = new AnimationState();
     public final AnimationState croakAnimationState = new AnimationState();
     public final AnimationState tongueAnimationState = new AnimationState();
-    public final AnimationState walkAnimationState = new AnimationState();
-    public final AnimationState swimAnimationState = new AnimationState();
     public final AnimationState swimIdleAnimationState = new AnimationState();
 
     public Frog(EntityType<? extends Animal> param0, Level param1) {
@@ -192,14 +190,6 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
         return true;
     }
 
-    private boolean isMovingOnLand() {
-        return this.onGround && this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6 && !this.isInWaterOrBubble();
-    }
-
-    private boolean isMovingInWater() {
-        return this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6 && this.isInWaterOrBubble();
-    }
-
     @Override
     protected void customServerAiStep() {
         this.level.getProfiler().push("frogBrain");
@@ -214,22 +204,7 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
     @Override
     public void tick() {
         if (this.level.isClientSide()) {
-            if (this.isMovingOnLand()) {
-                this.walkAnimationState.startIfStopped(this.tickCount);
-            } else {
-                this.walkAnimationState.stop();
-            }
-
-            if (this.isMovingInWater()) {
-                this.swimIdleAnimationState.stop();
-                this.swimAnimationState.startIfStopped(this.tickCount);
-            } else if (this.isInWaterOrBubble()) {
-                this.swimAnimationState.stop();
-                this.swimIdleAnimationState.startIfStopped(this.tickCount);
-            } else {
-                this.swimAnimationState.stop();
-                this.swimIdleAnimationState.stop();
-            }
+            this.swimIdleAnimationState.animateWhen(this.isInWaterOrBubble() && !this.walkAnimation.isMoving(), this.tickCount);
         }
 
         super.tick();
@@ -259,6 +234,18 @@ public class Frog extends Animal implements VariantHolder<FrogVariant> {
         }
 
         super.onSyncedDataUpdated(param0);
+    }
+
+    @Override
+    protected void updateWalkAnimation(float param0) {
+        float var0;
+        if (this.jumpAnimationState.isStarted()) {
+            var0 = 0.0F;
+        } else {
+            var0 = Math.min(param0 * 25.0F, 1.0F);
+        }
+
+        this.walkAnimation.update(var0, 0.4F);
     }
 
     @Nullable

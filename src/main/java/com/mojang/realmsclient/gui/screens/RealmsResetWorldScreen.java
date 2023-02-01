@@ -283,7 +283,7 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
             RealmsResetWorldScreen.this.drawFrame(
                 param0, this.getX(), this.getY(), this.getMessage(), this.image, this.isHoveredOrFocused(), this.isMouseOver((double)param1, (double)param2)
             );
