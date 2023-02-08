@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -47,8 +48,8 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         this.addLayer(
             new HumanoidArmorLayer<>(
                 this,
-                new HumanoidModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
-                new HumanoidModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
+                new HumanoidArmorModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_INNER_ARMOR : ModelLayers.PLAYER_INNER_ARMOR)),
+                new HumanoidArmorModel(param0.bakeLayer(param1 ? ModelLayers.PLAYER_SLIM_OUTER_ARMOR : ModelLayers.PLAYER_OUTER_ARMOR)),
                 param0.getModelManager()
             )
         );

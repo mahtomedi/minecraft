@@ -44,7 +44,7 @@ public class DirtPathBlock extends Block {
 
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
-        FarmBlock.turnToDirt(param0, param1, param2);
+        FarmBlock.turnToDirt(null, param0, param1, param2);
     }
 
     @Override

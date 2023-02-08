@@ -102,7 +102,7 @@ public class Explosion {
         this.z = param6;
         this.fire = param8;
         this.blockInteraction = param9;
-        this.damageSource = param2 == null ? DamageSource.explosion(this) : param2;
+        this.damageSource = param2 == null ? param0.damageSources().explosion(this) : param2;
         this.damageCalculator = param3 == null ? this.makeDamageCalculator(param1) : param3;
     }
 

@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens.reporting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.Optionull;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -47,7 +48,7 @@ public class ReportReasonSelectionScreen extends Screen {
         this.reasonSelectionList = new ReportReasonSelectionScreen.ReasonSelectionList(this.minecraft);
         this.reasonSelectionList.setRenderBackground(false);
         this.addWidget(this.reasonSelectionList);
-        ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Util.mapNullable(this.currentlySelectedReason, this.reasonSelectionList::findEntry);
+        ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Optionull.map(this.currentlySelectedReason, this.reasonSelectionList::findEntry);
         this.reasonSelectionList.setSelected(var0);
         int var1 = this.width / 2 - 150 - 5;
         this.addRenderableWidget(Button.builder(READ_INFO_LABEL, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {

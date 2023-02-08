@@ -43,9 +43,11 @@ public class VibrationListener implements GameEventListener {
             param0.put(GameEvent.ENTITY_SHAKE, 6);
             param0.put(GameEvent.BLOCK_CHANGE, 6);
             param0.put(GameEvent.NOTE_BLOCK_PLAY, 6);
+            param0.put(GameEvent.ENTITY_DISMOUNT, 6);
             param0.put(GameEvent.PROJECTILE_SHOOT, 7);
             param0.put(GameEvent.DRINK, 7);
             param0.put(GameEvent.PRIME_FUSE, 7);
+            param0.put(GameEvent.ENTITY_MOUNT, 7);
             param0.put(GameEvent.PROJECTILE_LAND, 8);
             param0.put(GameEvent.EAT, 8);
             param0.put(GameEvent.ENTITY_INTERACT, 8);

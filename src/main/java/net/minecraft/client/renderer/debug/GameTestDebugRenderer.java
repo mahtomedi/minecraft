@@ -1,8 +1,6 @@
 package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Map;
 import net.minecraft.Util;
@@ -29,28 +27,18 @@ public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer 
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         long var0 = Util.getMillis();
         this.markers.entrySet().removeIf(param1x -> var0 > param1x.getValue().removeAtTime);
-        this.markers.forEach(this::renderMarker);
+        this.markers.forEach((param2x, param3x) -> this.renderMarker(param0, param1, param2x, param3x));
     }
 
-    private void renderMarker(BlockPos param0x, GameTestDebugRenderer.Marker param1x) {
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
-        RenderSystem.setShaderColor(0.0F, 1.0F, 0.0F, 0.75F);
-        DebugRenderer.renderFilledBox(param0x, 0.02F, param1x.getR(), param1x.getG(), param1x.getB(), param1x.getA());
-        if (!param1x.text.isEmpty()) {
-            double var0x = (double)param0x.getX() + 0.5;
-            double var1 = (double)param0x.getY() + 1.2;
-            double var2 = (double)param0x.getZ() + 0.5;
-            DebugRenderer.renderFloatingText(param1x.text, var0x, var1, var2, -1, 0.01F, true, 0.0F, true);
+    private void renderMarker(PoseStack param0, MultiBufferSource param1, BlockPos param2, GameTestDebugRenderer.Marker param3) {
+        DebugRenderer.renderFilledBox(param0, param1, param2, 0.02F, param3.getR(), param3.getG(), param3.getB(), param3.getA() * 0.75F);
+        if (!param3.text.isEmpty()) {
+            double var0 = (double)param2.getX() + 0.5;
+            double var1 = (double)param2.getY() + 1.2;
+            double var2 = (double)param2.getZ() + 0.5;
+            DebugRenderer.renderFloatingText(param0, param1, param3.text, var0, var1, var2, -1, 0.01F, true, 0.0F, true);
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
     }
 
     @OnlyIn(Dist.CLIENT)

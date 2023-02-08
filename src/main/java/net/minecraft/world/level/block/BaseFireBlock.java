@@ -7,7 +7,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -130,7 +129,7 @@ public abstract class BaseFireBlock extends Block {
             }
         }
 
-        param3.hurt(DamageSource.IN_FIRE, this.fireDamage);
+        param3.hurt(param1.damageSources().inFire(), this.fireDamage);
         super.entityInside(param0, param1, param2, param3);
     }
 

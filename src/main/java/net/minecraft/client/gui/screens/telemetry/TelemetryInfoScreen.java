@@ -44,14 +44,14 @@ public class TelemetryInfoScreen extends Screen {
 
     @Override
     protected void init() {
-        FrameLayout var0 = new FrameLayout(0, 0, this.width, this.height);
+        FrameLayout var0 = new FrameLayout();
         var0.defaultChildLayoutSetting().padding(8);
         var0.setMinHeight(this.height);
         GridLayout var1 = var0.addChild(new GridLayout(), var0.newChildLayoutSettings().align(0.5F, 0.0F));
         var1.defaultCellSetting().alignHorizontallyCenter().paddingBottom(8);
         GridLayout.RowHelper var2 = var1.createRowHelper(1);
         var2.addChild(new StringWidget(this.getTitle(), this.font));
-        var2.addChild(MultiLineTextWidget.createCentered(this.width - 16, this.font, DESCRIPTION));
+        var2.addChild(new MultiLineTextWidget(DESCRIPTION, this.font).setMaxWidth(this.width - 16).setCentered(true));
         GridLayout var3 = this.twoButtonContainer(
             Button.builder(BUTTON_GIVE_FEEDBACK, this::openFeedbackLink).build(), Button.builder(BUTTON_SHOW_DATA, this::openDataFolder).build()
         );

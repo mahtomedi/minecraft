@@ -40,7 +40,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -49,6 +48,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
+import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -203,7 +203,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         List<CustomSpawner> param9,
         boolean param10
     ) {
-        super(param3, param4, param5.type(), param0::getProfiler, false, param7, param8, param0.getMaxChainedNeighborUpdates());
+        super(param3, param4, param0.registryAccess(), param5.type(), param0::getProfiler, false, param7, param8, param0.getMaxChainedNeighborUpdates());
         this.tickTime = param10;
         this.server = param0;
         this.customSpawners = param9;
@@ -1022,6 +1022,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.getChunkSource().broadcastAndSend(param0, new ClientboundEntityEventPacket(param0, param1));
     }
 
+    @Override
+    public void broadcastDamageEvent(Entity param0, DamageSource param1) {
+        this.getChunkSource().broadcastAndSend(param0, new ClientboundDamageEventPacket(param0, param1));
+    }
+
     public ServerChunkCache getChunkSource() {
         return this.chunkSource;
     }
@@ -1211,11 +1216,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Override
     public boolean noSave() {
         return this.noSave;
-    }
-
-    @Override
-    public RegistryAccess registryAccess() {
-        return this.server.registryAccess();
     }
 
     public DimensionDataStorage getDataStorage() {
@@ -1587,11 +1587,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
         }
 
         public void onTickingStart(Entity param0) {
-            ServerLevel.this.entityTickList.add(param0);
+            if (param0.getType().isTicking()) {
+                ServerLevel.this.entityTickList.add(param0);
+            }
+
         }
 
         public void onTickingEnd(Entity param0) {
-            ServerLevel.this.entityTickList.remove(param0);
+            if (param0.getType().isTicking()) {
+                ServerLevel.this.entityTickList.remove(param0);
+            }
+
         }
 
         public void onTrackingStart(Entity param0) {

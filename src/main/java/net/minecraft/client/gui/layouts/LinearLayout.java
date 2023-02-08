@@ -68,7 +68,7 @@ public class LinearLayout extends AbstractLayout {
     }
 
     @Override
-    protected void visitChildren(Consumer<LayoutElement> param0) {
+    public void visitChildren(Consumer<LayoutElement> param0) {
         this.children.forEach(param1 -> param0.accept(param1.child));
     }
 

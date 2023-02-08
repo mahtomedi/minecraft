@@ -15,6 +15,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,6 +34,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -105,25 +107,28 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
     private final ResourceKey<Level> dimension;
+    private final RegistryAccess registryAccess;
+    private final DamageSources damageSources;
     private long subTickCount;
 
     protected Level(
         WritableLevelData param0,
         ResourceKey<Level> param1,
-        Holder<DimensionType> param2,
-        Supplier<ProfilerFiller> param3,
-        boolean param4,
+        RegistryAccess param2,
+        Holder<DimensionType> param3,
+        Supplier<ProfilerFiller> param4,
         boolean param5,
-        long param6,
-        int param7
+        boolean param6,
+        long param7,
+        int param8
     ) {
-        this.profiler = param3;
+        this.profiler = param4;
         this.levelData = param0;
-        this.dimensionTypeRegistration = param2;
-        this.dimensionTypeId = (ResourceKey)param2.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param2));
-        final DimensionType var0 = (DimensionType)param2.value();
+        this.dimensionTypeRegistration = param3;
+        this.dimensionTypeId = (ResourceKey)param3.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param3));
+        final DimensionType var0 = (DimensionType)param3.value();
         this.dimension = param1;
-        this.isClientSide = param4;
+        this.isClientSide = param5;
         if (var0.coordinateScale() != 1.0) {
             this.worldBorder = new WorldBorder() {
                 @Override
@@ -141,9 +146,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         }
 
         this.thread = Thread.currentThread();
-        this.biomeManager = new BiomeManager(this, param6);
-        this.isDebug = param5;
-        this.neighborUpdater = new CollectingNeighborUpdater(this, param7);
+        this.biomeManager = new BiomeManager(this, param7);
+        this.isDebug = param6;
+        this.neighborUpdater = new CollectingNeighborUpdater(this, param8);
+        this.registryAccess = param2;
+        this.damageSources = new DamageSources(param2);
     }
 
     @Override
@@ -806,6 +813,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void broadcastEntityEvent(Entity param0, byte param1) {
     }
 
+    public void broadcastDamageEvent(Entity param0, DamageSource param1) {
+    }
+
     public void blockEvent(BlockPos param0, Block param1, int param2, int param3) {
         this.getBlockState(param0).triggerEvent(this, param0, param2, param3);
     }
@@ -1010,6 +1020,15 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     @Override
     public long nextSubTickCount() {
         return (long)(this.subTickCount++);
+    }
+
+    @Override
+    public RegistryAccess registryAccess() {
+        return this.registryAccess;
+    }
+
+    public DamageSources damageSources() {
+        return this.damageSources;
     }
 
     public static enum ExplosionInteraction {

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -88,12 +89,14 @@ public class CreateWorldScreen extends Screen {
     private static final String TEMP_WORLD_PREFIX = "mcworld-";
     static final Component GAME_MODEL_LABEL = Component.translatable("selectWorld.gameMode");
     static final Component NAME_LABEL = Component.translatable("selectWorld.enterName");
+    static final Component EXPERIMENTS_LABEL = Component.translatable("selectWorld.experiments");
     static final Component ALLOW_CHEATS_INFO = Component.translatable("selectWorld.allowCommands.info");
     private static final Component PREPARING_WORLD_DATA = Component.translatable("createWorld.preparing");
     private static final int HORIZONTAL_BUTTON_SPACING = 10;
     private static final int VERTICAL_BUTTON_SPACING = 8;
     final WorldCreationUiState uiState;
     private final TabManager tabManager = new TabManager(this::addRenderableWidget, param1x -> this.removeWidget(param1x));
+    private boolean recreated;
     @Nullable
     private final Screen lastScreen;
     @Nullable
@@ -135,6 +138,7 @@ public class CreateWorldScreen extends Screen {
         CreateWorldScreen var0 = new CreateWorldScreen(
             param0, param2, WorldPresets.fromSettings(param2.selectedDimensions().dimensions()), OptionalLong.of(param2.options().seed())
         );
+        var0.recreated = true;
         var0.uiState.setName(param1.levelName());
         var0.uiState.setAllowCheats(param1.allowCommands());
         var0.uiState.setDifficulty(param1.difficulty());
@@ -187,7 +191,7 @@ public class CreateWorldScreen extends Screen {
             param0.setTabOrderGroup(1);
             this.addRenderableWidget(param0);
         });
-        this.tabNavigationBar.setInitialTab(0);
+        this.tabNavigationBar.selectTab(0);
         this.uiState.onChanged();
         this.repositionElements();
     }
@@ -236,7 +240,8 @@ public class CreateWorldScreen extends Screen {
         Lifecycle var3 = FeatureFlags.isExperimental(var0.dataConfiguration().enabledFeatures()) ? Lifecycle.experimental() : Lifecycle.stable();
         Lifecycle var4 = var2.compositeAccess().allRegistriesLifecycle();
         Lifecycle var5 = var4.add(var3);
-        WorldOpenFlows.confirmWorldCreation(this.minecraft, this, var5, () -> this.createNewWorld(var1.specialWorldProperty(), var2, var5));
+        boolean var6 = !this.recreated && var4 == Lifecycle.stable();
+        WorldOpenFlows.confirmWorldCreation(this.minecraft, this, var5, () -> this.createNewWorld(var1.specialWorldProperty(), var2, var5), var6);
     }
 
     private void createNewWorld(PrimaryLevelData.SpecialWorldProperty param0, LayeredRegistryAccess<RegistryLayer> param1, Lifecycle param2) {
@@ -273,7 +278,9 @@ public class CreateWorldScreen extends Screen {
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
-        if (super.keyPressed(param0, param1, param2)) {
+        if (this.tabNavigationBar.keyPressed(param0)) {
+            return true;
+        } else if (super.keyPressed(param0, param1, param2)) {
             return true;
         } else if (param0 != 257 && param0 != 335) {
             return false;
@@ -324,42 +331,57 @@ public class CreateWorldScreen extends Screen {
         return this.tempDataPackDir;
     }
 
+    void openExperimentsScreen(WorldDataConfiguration param0) {
+        Pair<Path, PackRepository> var0 = this.getDataPackSelectionSettings(param0);
+        if (var0 != null) {
+            this.minecraft
+                .setScreen(new ExperimentsScreen(this, var0.getSecond(), param0x -> this.tryApplyNewDataPacks(param0x, false, this::openExperimentsScreen)));
+        }
+
+    }
+
     void openDataPackSelectionScreen(WorldDataConfiguration param0) {
         Pair<Path, PackRepository> var0 = this.getDataPackSelectionSettings(param0);
         if (var0 != null) {
             this.minecraft
                 .setScreen(
-                    new PackSelectionScreen(this, var0.getSecond(), this::tryApplyNewDataPacks, var0.getFirst(), Component.translatable("dataPack.title"))
+                    new PackSelectionScreen(
+                        this,
+                        var0.getSecond(),
+                        param0x -> this.tryApplyNewDataPacks(param0x, true, this::openDataPackSelectionScreen),
+                        var0.getFirst(),
+                        Component.translatable("dataPack.title")
+                    )
                 );
         }
 
     }
 
-    private void tryApplyNewDataPacks(PackRepository param0x) {
-        List<String> var0x = ImmutableList.copyOf(param0x.getSelectedIds());
-        List<String> var1 = param0x.getAvailableIds().stream().filter(param1 -> !var0x.contains(param1)).collect(ImmutableList.toImmutableList());
+    private void tryApplyNewDataPacks(PackRepository param0, boolean param1, Consumer<WorldDataConfiguration> param2) {
+        List<String> var0 = ImmutableList.copyOf(param0.getSelectedIds());
+        List<String> var1 = param0.getAvailableIds().stream().filter(param1x -> !var0.contains(param1x)).collect(ImmutableList.toImmutableList());
         WorldDataConfiguration var2 = new WorldDataConfiguration(
-            new DataPackConfig(var0x, var1), this.uiState.getSettings().dataConfiguration().enabledFeatures()
+            new DataPackConfig(var0, var1), this.uiState.getSettings().dataConfiguration().enabledFeatures()
         );
         if (!this.uiState.tryUpdateDataConfiguration(var2)) {
-            FeatureFlagSet var3 = param0x.getRequestedFeatureFlags();
-            if (FeatureFlags.isExperimental(var3)) {
-                this.minecraft.tell(() -> this.minecraft.setScreen(new ConfirmExperimentalFeaturesScreen(param0x.getSelectedPacks(), param2 -> {
-                        if (param2) {
-                            this.applyNewPackConfig(param0x, var2);
+            FeatureFlagSet var3 = param0.getRequestedFeatureFlags();
+            if (FeatureFlags.isExperimental(var3) && param1) {
+                this.minecraft.tell(() -> this.minecraft.setScreen(new ConfirmExperimentalFeaturesScreen(param0.getSelectedPacks(), param3 -> {
+                        if (param3) {
+                            this.applyNewPackConfig(param0, var2, param2);
                         } else {
-                            this.openDataPackSelectionScreen(this.uiState.getSettings().dataConfiguration());
+                            param2.accept(this.uiState.getSettings().dataConfiguration());
                         }
 
                     })));
             } else {
-                this.applyNewPackConfig(param0x, var2);
+                this.applyNewPackConfig(param0, var2, param2);
             }
 
         }
     }
 
-    private void applyNewPackConfig(PackRepository param0, WorldDataConfiguration param1) {
+    private void applyNewPackConfig(PackRepository param0, WorldDataConfiguration param1, Consumer<WorldDataConfiguration> param2) {
         this.minecraft.tell(() -> this.minecraft.setScreen(new GenericDirtMessageScreen(Component.translatable("dataPack.validation.working"))));
         WorldLoader.InitConfig var0 = createDefaultLoadConfig(param0, param1);
         WorldLoader.load(
@@ -375,35 +397,35 @@ public class CreateWorldScreen extends Screen {
                         DataResult<JsonElement> var2x = WorldGenSettings.encode(var1x, var0x.options(), var0x.selectedDimensions())
                             .setLifecycle(Lifecycle.stable());
                         DynamicOps<JsonElement> var3x = RegistryOps.create(JsonOps.INSTANCE, param0x.datapackWorldgen());
-                        WorldGenSettings var4 = (WorldGenSettings)var2x.flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x))
+                        WorldGenSettings var4x = (WorldGenSettings)var2x.flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x))
                             .getOrThrow(false, Util.prefix("Error parsing worldgen settings after loading data packs: ", LOGGER::error));
                         return new WorldLoader.DataLoadOutput(
-                            new CreateWorldScreen.DataPackReloadCookie(var4, param0x.dataConfiguration()), param0x.datapackDimensions()
+                            new CreateWorldScreen.DataPackReloadCookie(var4x, param0x.dataConfiguration()), param0x.datapackDimensions()
                         );
                     }
                 },
-                (param0x, param1x, param2, param3) -> {
+                (param0x, param1x, param2x, param3) -> {
                     param0x.close();
-                    return new WorldCreationContext(param3.worldGenSettings(), param2, param1x, param3.dataConfiguration());
+                    return new WorldCreationContext(param3.worldGenSettings(), param2x, param1x, param3.dataConfiguration());
                 },
                 Util.backgroundExecutor(),
                 this.minecraft
             )
             .thenAcceptAsync(this.uiState::setSettings, this.minecraft)
             .handle(
-                (param0x, param1x) -> {
-                    if (param1x != null) {
-                        LOGGER.warn("Failed to validate datapack", param1x);
+                (param1x, param2x) -> {
+                    if (param2x != null) {
+                        LOGGER.warn("Failed to validate datapack", param2x);
                         this.minecraft
                             .tell(
                                 () -> this.minecraft
                                         .setScreen(
                                             new ConfirmScreen(
-                                                param0xx -> {
-                                                    if (param0xx) {
-                                                        this.openDataPackSelectionScreen(this.uiState.getSettings().dataConfiguration());
+                                                param1xx -> {
+                                                    if (param1xx) {
+                                                        param2.accept(this.uiState.getSettings().dataConfiguration());
                                                     } else {
-                                                        this.openDataPackSelectionScreen(WorldDataConfiguration.DEFAULT);
+                                                        param2.accept(WorldDataConfiguration.DEFAULT);
                                                     }
                             
                                                 },
@@ -592,6 +614,14 @@ public class CreateWorldScreen extends Screen {
                 var4.setValue(CreateWorldScreen.this.uiState.isAllowCheats());
                 var4.active = !CreateWorldScreen.this.uiState.isDebug() && !CreateWorldScreen.this.uiState.isHardcore();
             });
+            param0.addChild(
+                Button.builder(
+                        CreateWorldScreen.EXPERIMENTS_LABEL,
+                        param0x -> CreateWorldScreen.this.openExperimentsScreen(CreateWorldScreen.this.uiState.getSettings().dataConfiguration())
+                    )
+                    .width(210)
+                    .build()
+            );
         }
 
         @Override
@@ -610,6 +640,14 @@ public class CreateWorldScreen extends Screen {
             super(TITLE);
             GridLayout.RowHelper param0 = this.layout.rowSpacing(8).createRowHelper(1);
             param0.addChild(Button.builder(GAME_RULES_LABEL, param0x -> this.openGameRulesScreen()).width(210).build());
+            param0.addChild(
+                Button.builder(
+                        CreateWorldScreen.EXPERIMENTS_LABEL,
+                        param0x -> CreateWorldScreen.this.openExperimentsScreen(CreateWorldScreen.this.uiState.getSettings().dataConfiguration())
+                    )
+                    .width(210)
+                    .build()
+            );
             param0.addChild(
                 Button.builder(
                         DATA_PACKS_LABEL,

@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -219,7 +221,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
         ItemStack var1 = param3.getItemInHand(param4);
         if (var0 < 8 && COMPOSTABLES.containsKey(var1.getItem())) {
             if (var0 < 7 && !param1.isClientSide) {
-                BlockState var2 = addItem(param0, param1, param2, var1);
+                BlockState var2 = addItem(param3, param0, param1, param2, var1);
                 param1.levelEvent(1500, param2, param0 != var2 ? 1 : 0);
                 param3.awardStat(Stats.ITEM_USED.get(var1.getItem()));
                 if (!param3.getAbilities().instabuild) {
@@ -229,59 +231,61 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else if (var0 == 8) {
-            extractProduce(param0, param1, param2);
+            extractProduce(param3, param0, param1, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.PASS;
         }
     }
 
-    public static BlockState insertItem(BlockState param0, ServerLevel param1, ItemStack param2, BlockPos param3) {
-        int var0 = param0.getValue(LEVEL);
-        if (var0 < 7 && COMPOSTABLES.containsKey(param2.getItem())) {
-            BlockState var1 = addItem(param0, param1, param3, param2);
-            param2.shrink(1);
+    public static BlockState insertItem(Entity param0, BlockState param1, ServerLevel param2, ItemStack param3, BlockPos param4) {
+        int var0 = param1.getValue(LEVEL);
+        if (var0 < 7 && COMPOSTABLES.containsKey(param3.getItem())) {
+            BlockState var1 = addItem(param0, param1, param2, param4, param3);
+            param3.shrink(1);
             return var1;
         } else {
-            return param0;
+            return param1;
         }
     }
 
-    public static BlockState extractProduce(BlockState param0, Level param1, BlockPos param2) {
-        if (!param1.isClientSide) {
+    public static BlockState extractProduce(Entity param0, BlockState param1, Level param2, BlockPos param3) {
+        if (!param2.isClientSide) {
             float var0 = 0.7F;
-            double var1 = (double)(param1.random.nextFloat() * 0.7F) + 0.15F;
-            double var2 = (double)(param1.random.nextFloat() * 0.7F) + 0.060000002F + 0.6;
-            double var3 = (double)(param1.random.nextFloat() * 0.7F) + 0.15F;
+            double var1 = (double)(param2.random.nextFloat() * 0.7F) + 0.15F;
+            double var2 = (double)(param2.random.nextFloat() * 0.7F) + 0.060000002F + 0.6;
+            double var3 = (double)(param2.random.nextFloat() * 0.7F) + 0.15F;
             ItemEntity var4 = new ItemEntity(
-                param1, (double)param2.getX() + var1, (double)param2.getY() + var2, (double)param2.getZ() + var3, new ItemStack(Items.BONE_MEAL)
+                param2, (double)param3.getX() + var1, (double)param3.getY() + var2, (double)param3.getZ() + var3, new ItemStack(Items.BONE_MEAL)
             );
             var4.setDefaultPickUpDelay();
-            param1.addFreshEntity(var4);
+            param2.addFreshEntity(var4);
         }
 
-        BlockState var5 = empty(param0, param1, param2);
-        param1.playSound(null, param2, SoundEvents.COMPOSTER_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+        BlockState var5 = empty(param0, param1, param2, param3);
+        param2.playSound(null, param3, SoundEvents.COMPOSTER_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
         return var5;
     }
 
-    static BlockState empty(BlockState param0, LevelAccessor param1, BlockPos param2) {
-        BlockState var0 = param0.setValue(LEVEL, Integer.valueOf(0));
-        param1.setBlock(param2, var0, 3);
+    static BlockState empty(@Nullable Entity param0, BlockState param1, LevelAccessor param2, BlockPos param3) {
+        BlockState var0 = param1.setValue(LEVEL, Integer.valueOf(0));
+        param2.setBlock(param3, var0, 3);
+        param2.gameEvent(GameEvent.BLOCK_CHANGE, param3, GameEvent.Context.of(param0, var0));
         return var0;
     }
 
-    static BlockState addItem(BlockState param0, LevelAccessor param1, BlockPos param2, ItemStack param3) {
-        int var0 = param0.getValue(LEVEL);
-        float var1 = COMPOSTABLES.getFloat(param3.getItem());
-        if ((var0 != 0 || !(var1 > 0.0F)) && !(param1.getRandom().nextDouble() < (double)var1)) {
-            return param0;
+    static BlockState addItem(@Nullable Entity param0, BlockState param1, LevelAccessor param2, BlockPos param3, ItemStack param4) {
+        int var0 = param1.getValue(LEVEL);
+        float var1 = COMPOSTABLES.getFloat(param4.getItem());
+        if ((var0 != 0 || !(var1 > 0.0F)) && !(param2.getRandom().nextDouble() < (double)var1)) {
+            return param1;
         } else {
             int var2 = var0 + 1;
-            BlockState var3 = param0.setValue(LEVEL, Integer.valueOf(var2));
-            param1.setBlock(param2, var3, 3);
+            BlockState var3 = param1.setValue(LEVEL, Integer.valueOf(var2));
+            param2.setBlock(param3, var3, 3);
+            param2.gameEvent(GameEvent.BLOCK_CHANGE, param3, GameEvent.Context.of(param0, var3));
             if (var2 == 7) {
-                param1.scheduleTick(param2, param0.getBlock(), 20);
+                param2.scheduleTick(param3, param1.getBlock(), 20);
             }
 
             return var3;
@@ -386,7 +390,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
             ItemStack var0 = this.getItem(0);
             if (!var0.isEmpty()) {
                 this.changed = true;
-                BlockState var1 = ComposterBlock.addItem(this.state, this.level, this.pos, var0);
+                BlockState var1 = ComposterBlock.addItem(null, this.state, this.level, this.pos, var0);
                 this.level.levelEvent(1500, this.pos, var1 != this.state ? 1 : 0);
                 this.removeItemNoUpdate(0);
             }
@@ -429,7 +433,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
 
         @Override
         public void setChanged() {
-            ComposterBlock.empty(this.state, this.level, this.pos);
+            ComposterBlock.empty(null, this.state, this.level, this.pos);
             this.changed = true;
         }
     }

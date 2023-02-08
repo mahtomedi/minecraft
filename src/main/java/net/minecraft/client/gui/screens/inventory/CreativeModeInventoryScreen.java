@@ -23,6 +23,7 @@ import net.minecraft.client.player.inventory.Hotbar;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.client.searchtree.SearchTree;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
@@ -82,15 +83,15 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         this.imageHeight = 136;
         this.imageWidth = 195;
         this.displayOperatorCreativeTab = param2;
-        CreativeModeTabs.tryRebuildTabContents(param1, this.hasPermissions(param0));
+        CreativeModeTabs.tryRebuildTabContents(param1, this.hasPermissions(param0), param0.level.registryAccess());
     }
 
     private boolean hasPermissions(Player param0) {
         return param0.canUseGameMasterBlocks() && this.displayOperatorCreativeTab;
     }
 
-    private void tryRefreshInvalidatedTabs(FeatureFlagSet param0, boolean param1) {
-        if (CreativeModeTabs.tryRebuildTabContents(param0, param1)) {
+    private void tryRefreshInvalidatedTabs(FeatureFlagSet param0, boolean param1, HolderLookup.Provider param2) {
+        if (CreativeModeTabs.tryRebuildTabContents(param0, param1, param2)) {
             for(CreativeModeTab var0 : CreativeModeTabs.allTabs()) {
                 Collection<ItemStack> var1 = var0.getDisplayItems();
                 if (var0 == selectedTab) {
@@ -123,7 +124,11 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         super.containerTick();
         if (this.minecraft != null) {
             if (this.minecraft.player != null) {
-                this.tryRefreshInvalidatedTabs(this.minecraft.player.connection.enabledFeatures(), this.hasPermissions(this.minecraft.player));
+                this.tryRefreshInvalidatedTabs(
+                    this.minecraft.player.connection.enabledFeatures(),
+                    this.hasPermissions(this.minecraft.player),
+                    this.minecraft.player.level.registryAccess()
+                );
             }
 
             if (!this.minecraft.gameMode.hasInfiniteItems()) {
@@ -892,7 +897,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             if (param1 >= this.slots.size() - 9 && param1 < this.slots.size()) {
                 Slot var0 = this.slots.get(param1);
                 if (var0 != null && var0.hasItem()) {
-                    var0.set(ItemStack.EMPTY);
+                    var0.setByPlayer(ItemStack.EMPTY);
                 }
             }
 
@@ -947,6 +952,11 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         @Override
         public boolean hasItem() {
             return this.target.hasItem();
+        }
+
+        @Override
+        public void setByPlayer(ItemStack param0) {
+            this.target.setByPlayer(param0);
         }
 
         @Override

@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.monster.hoglin;
 
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +18,7 @@ public interface HoglinBase {
             var1 = var0;
         }
 
-        boolean var3 = param1.hurt(DamageSource.mobAttack(param0), var1);
+        boolean var3 = param1.hurt(param0.damageSources().mobAttack(param0), var1);
         if (var3) {
             param0.doEnchantDamageEffects(param0, param1);
             if (!param0.isBaby()) {

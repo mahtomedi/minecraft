@@ -6,7 +6,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -118,13 +117,13 @@ public class EvokerFangs extends Entity implements TraceableEntity {
         LivingEntity var0 = this.getOwner();
         if (param0.isAlive() && !param0.isInvulnerable() && param0 != var0) {
             if (var0 == null) {
-                param0.hurt(DamageSource.MAGIC, 6.0F);
+                param0.hurt(this.damageSources().magic(), 6.0F);
             } else {
                 if (var0.isAlliedTo(param0)) {
                     return;
                 }
 
-                param0.hurt(DamageSource.indirectMagic(this, var0), 6.0F);
+                param0.hurt(this.damageSources().indirectMagic(this, var0), 6.0F);
             }
 
         }

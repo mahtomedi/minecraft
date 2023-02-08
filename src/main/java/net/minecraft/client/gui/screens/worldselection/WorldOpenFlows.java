@@ -281,7 +281,7 @@ public class WorldOpenFlows {
         }, var0, var1, false));
     }
 
-    public static void confirmWorldCreation(Minecraft param0, CreateWorldScreen param1, Lifecycle param2, Runnable param3) {
+    public static void confirmWorldCreation(Minecraft param0, CreateWorldScreen param1, Lifecycle param2, Runnable param3, boolean param4) {
         BooleanConsumer var0 = param3x -> {
             if (param3x) {
                 param3.run();
@@ -290,7 +290,7 @@ public class WorldOpenFlows {
             }
 
         };
-        if (param2 == Lifecycle.stable()) {
+        if (param4 || param2 == Lifecycle.stable()) {
             param3.run();
         } else if (param2 == Lifecycle.experimental()) {
             param0.setScreen(

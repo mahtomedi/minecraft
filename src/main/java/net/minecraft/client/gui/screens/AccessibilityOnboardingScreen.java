@@ -42,7 +42,7 @@ public class AccessibilityOnboardingScreen extends Screen {
     @Override
     public void init() {
         int var0 = this.initTitleYPos();
-        FrameLayout var1 = FrameLayout.withMinDimensions(this.width, this.height - var0);
+        FrameLayout var1 = new FrameLayout(this.width, this.height - var0);
         var1.defaultChildLayoutSetting().alignVerticallyTop().padding(4);
         GridLayout var2 = var1.addChild(new GridLayout());
         var2.defaultCellSetting().alignHorizontallyCenter().padding(4);

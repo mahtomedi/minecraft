@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -94,8 +95,8 @@ public class EndCrystal extends Entity {
         } else {
             if (!this.isRemoved() && !this.level.isClientSide) {
                 this.remove(Entity.RemovalReason.KILLED);
-                if (!param0.isExplosion()) {
-                    DamageSource var0 = param0.getEntity() != null ? DamageSource.explosion(this, param0.getEntity()) : null;
+                if (!param0.is(DamageTypeTags.IS_EXPLOSION)) {
+                    DamageSource var0 = param0.getEntity() != null ? this.damageSources().explosion(this, param0.getEntity()) : null;
                     this.level.explode(this, var0, null, this.getX(), this.getY(), this.getZ(), 6.0F, false, Level.ExplosionInteraction.BLOCK);
                 }
 
@@ -108,7 +109,7 @@ public class EndCrystal extends Entity {
 
     @Override
     public void kill() {
-        this.onDestroyedBy(DamageSource.GENERIC);
+        this.onDestroyedBy(this.damageSources().generic());
         super.kill();
     }
 

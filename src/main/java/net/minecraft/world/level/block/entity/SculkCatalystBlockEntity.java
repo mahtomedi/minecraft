@@ -69,7 +69,7 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
     private void tryAwardItSpreadsAdvancement(LivingEntity param0) {
         LivingEntity var0 = param0.getLastHurtByMob();
         if (var0 instanceof ServerPlayer var1) {
-            DamageSource var2 = param0.getLastDamageSource() == null ? DamageSource.playerAttack(var1) : param0.getLastDamageSource();
+            DamageSource var2 = param0.getLastDamageSource() == null ? this.level.damageSources().playerAttack(var1) : param0.getLastDamageSource();
             CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.trigger(var1, param0, var2);
         }
 

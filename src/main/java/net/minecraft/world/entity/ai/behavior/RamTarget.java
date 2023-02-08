@@ -12,7 +12,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -74,12 +73,12 @@ public class RamTarget extends Behavior<Goat> {
         Brain<?> var1 = param1.getBrain();
         if (!var0.isEmpty()) {
             LivingEntity var2 = var0.get(0);
-            var2.hurt(DamageSource.mobAttack(param1).setNoAggro(), (float)param1.getAttributeValue(Attributes.ATTACK_DAMAGE));
+            var2.hurt(param0.damageSources().noAggroMobAttack(param1), (float)param1.getAttributeValue(Attributes.ATTACK_DAMAGE));
             int var3 = param1.hasEffect(MobEffects.MOVEMENT_SPEED) ? param1.getEffect(MobEffects.MOVEMENT_SPEED).getAmplifier() + 1 : 0;
             int var4 = param1.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) ? param1.getEffect(MobEffects.MOVEMENT_SLOWDOWN).getAmplifier() + 1 : 0;
             float var5 = 0.25F * (float)(var3 - var4);
             float var6 = Mth.clamp(param1.getSpeed() * 1.65F, 0.2F, 3.0F) + var5;
-            float var7 = var2.isDamageSourceBlocked(DamageSource.mobAttack(param1)) ? 0.5F : 1.0F;
+            float var7 = var2.isDamageSourceBlocked(param0.damageSources().mobAttack(param1)) ? 0.5F : 1.0F;
             var2.knockback((double)(var7 * var6) * this.getKnockbackForce.applyAsDouble(param1), this.ramDirection.x(), this.ramDirection.z());
             this.finishRam(param0, param1);
             param0.playSound(null, param1, this.getImpactSound.apply(param1), SoundSource.NEUTRAL, 1.0F, 1.0F);

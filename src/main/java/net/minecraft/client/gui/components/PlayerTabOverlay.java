@@ -12,7 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.Optionull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiComponent;
@@ -38,7 +38,7 @@ public class PlayerTabOverlay extends GuiComponent {
     private static final Comparator<PlayerInfo> PLAYER_COMPARATOR = Comparator.<PlayerInfo>comparingInt(
             param0 -> param0.getGameMode() == GameType.SPECTATOR ? 1 : 0
         )
-        .thenComparing(param0 -> Util.mapNullable(param0.getTeam(), PlayerTeam::getName, ""))
+        .thenComparing(param0 -> Optionull.mapOrDefault(param0.getTeam(), PlayerTeam::getName, ""))
         .thenComparing(param0 -> param0.getProfile().getName(), String::compareToIgnoreCase);
     public static final int MAX_ROWS_PER_COL = 20;
     public static final int HEART_EMPTY_CONTAINER = 16;

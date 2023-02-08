@@ -1,8 +1,12 @@
 package com.mojang.math;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.util.ExtraCodecs;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -14,6 +18,17 @@ import org.joml.Vector3fc;
 
 public final class Transformation {
     private final Matrix4f matrix;
+    public static final Codec<Transformation> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.VECTOR3F.fieldOf("translation").forGetter(param0x -> param0x.translation),
+                    ExtraCodecs.QUATERNIONF.fieldOf("left_rotation").forGetter(param0x -> param0x.leftRotation),
+                    ExtraCodecs.VECTOR3F.fieldOf("scale").forGetter(param0x -> param0x.scale),
+                    ExtraCodecs.QUATERNIONF.fieldOf("right_rotation").forGetter(param0x -> param0x.rightRotation)
+                )
+                .apply(param0, Transformation::new)
+    );
+    public static final Codec<Transformation> EXTENDED_CODEC = Codec.either(CODEC, ExtraCodecs.MATRIX4F.xmap(Transformation::new, Transformation::getMatrix))
+        .xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::left);
     private boolean decomposed;
     @Nullable
     private Vector3f translation;

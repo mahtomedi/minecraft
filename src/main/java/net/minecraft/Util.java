@@ -71,6 +71,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.SingleKeyCache;
 import net.minecraft.util.TimeSource;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -360,15 +361,6 @@ public class Util {
     public static <T> T make(T param0, Consumer<T> param1) {
         param1.accept(param0);
         return param0;
-    }
-
-    @Nullable
-    public static <T, R> R mapNullable(@Nullable T param0, Function<T, R> param1) {
-        return param0 == null ? null : param1.apply(param0);
-    }
-
-    public static <T, R> R mapNullable(@Nullable T param0, Function<T, R> param1, R param2) {
-        return (R)(param0 == null ? param2 : param1.apply(param0));
     }
 
     public static <K> Strategy<K> identityStrategy() {
@@ -691,6 +683,10 @@ public class Util {
             .chars()
             .mapToObj(param1x -> param1.test((char)param1x) ? Character.toString((char)param1x) : "_")
             .collect(Collectors.joining());
+    }
+
+    public static <K, V> SingleKeyCache<K, V> singleKeyCache(Function<K, V> param0) {
+        return new SingleKeyCache<>(param0);
     }
 
     public static <T, R> Function<T, R> memoize(final Function<T, R> param0) {

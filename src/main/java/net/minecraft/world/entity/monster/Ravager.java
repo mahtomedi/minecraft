@@ -235,7 +235,7 @@ public class Ravager extends Raider {
         if (this.isAlive()) {
             for(LivingEntity var1 : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0), NO_RAVAGER_AND_ALIVE)) {
                 if (!(var1 instanceof AbstractIllager)) {
-                    var1.hurt(DamageSource.mobAttack(this), 6.0F);
+                    var1.hurt(this.damageSources().mobAttack(this), 6.0F);
                 }
 
                 this.strongKnockback(var1);

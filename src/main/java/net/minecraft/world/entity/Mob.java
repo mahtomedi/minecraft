@@ -1074,15 +1074,17 @@ public abstract class Mob extends LivingEntity {
             return InteractionResult.PASS;
         } else if (this.getLeashHolder() == param0) {
             this.dropLeash(true, !param0.getAbilities().instabuild);
+            this.gameEvent(GameEvent.ENTITY_INTERACT, param0);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
             InteractionResult var0 = this.checkAndHandleImportantInteractions(param0, param1);
             if (var0.consumesAction()) {
+                this.gameEvent(GameEvent.ENTITY_INTERACT, param0);
                 return var0;
             } else {
                 var0 = this.mobInteract(param0, param1);
                 if (var0.consumesAction()) {
-                    this.gameEvent(GameEvent.ENTITY_INTERACT);
+                    this.gameEvent(GameEvent.ENTITY_INTERACT, param0);
                     return var0;
                 } else {
                     return super.interact(param0, param1);
@@ -1376,7 +1378,7 @@ public abstract class Mob extends LivingEntity {
             param0.setSecondsOnFire(var2 * 4);
         }
 
-        boolean var3 = param0.hurt(DamageSource.mobAttack(this), var0);
+        boolean var3 = param0.hurt(this.damageSources().mobAttack(this), var0);
         if (var3) {
             if (var1 > 0.0F && param0 instanceof LivingEntity) {
                 ((LivingEntity)param0)

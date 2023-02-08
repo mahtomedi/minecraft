@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -27,7 +26,7 @@ public class MagmaBlock extends Block {
     @Override
     public void stepOn(Level param0, BlockPos param1, BlockState param2, Entity param3) {
         if (!param3.isSteppingCarefully() && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
-            param3.hurt(DamageSource.HOT_FLOOR, 1.0F);
+            param3.hurt(param0.damageSources().hotFloor(), 1.0F);
         }
 
         super.stepOn(param0, param1, param2, param3);

@@ -13,6 +13,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -149,7 +150,7 @@ public class LecternBlock extends BaseEntityBlock {
         return new LecternBlockEntity(param0, param1);
     }
 
-    public static boolean tryPlaceBook(@Nullable Player param0, Level param1, BlockPos param2, BlockState param3, ItemStack param4) {
+    public static boolean tryPlaceBook(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, ItemStack param4) {
         if (!param3.getValue(HAS_BOOK)) {
             if (!param1.isClientSide) {
                 placeBook(param0, param1, param2, param3, param4);
@@ -161,20 +162,21 @@ public class LecternBlock extends BaseEntityBlock {
         }
     }
 
-    private static void placeBook(@Nullable Player param0, Level param1, BlockPos param2, BlockState param3, ItemStack param4) {
+    private static void placeBook(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, ItemStack param4) {
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof LecternBlockEntity var1) {
             var1.setBook(param4.split(1));
-            resetBookState(param1, param2, param3, true);
+            resetBookState(param0, param1, param2, param3, true);
             param1.playSound(null, param2, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
-            param1.gameEvent(param0, GameEvent.BLOCK_CHANGE, param2);
         }
 
     }
 
-    public static void resetBookState(Level param0, BlockPos param1, BlockState param2, boolean param3) {
-        param0.setBlock(param1, param2.setValue(POWERED, Boolean.valueOf(false)).setValue(HAS_BOOK, Boolean.valueOf(param3)), 3);
-        updateBelow(param0, param1, param2);
+    public static void resetBookState(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
+        BlockState var0 = param3.setValue(POWERED, Boolean.valueOf(false)).setValue(HAS_BOOK, Boolean.valueOf(param4));
+        param1.setBlock(param2, var0, 3);
+        param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param0, var0));
+        updateBelow(param1, param2, param3);
     }
 
     public static void signalPageChange(Level param0, BlockPos param1, BlockState param2) {

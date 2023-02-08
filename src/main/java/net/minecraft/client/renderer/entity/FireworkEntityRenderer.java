@@ -3,11 +3,11 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -31,9 +31,7 @@ public class FireworkEntityRenderer extends EntityRenderer<FireworkRocketEntity>
         }
 
         this.itemRenderer
-            .renderStatic(
-                param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId()
-            );
+            .renderStatic(param0.getItem(), ItemDisplayContext.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId());
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

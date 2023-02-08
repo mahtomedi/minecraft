@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.animal.horse;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -38,6 +37,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.Saddleable;
@@ -72,7 +72,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class AbstractHorse extends Animal implements ContainerListener, HasCustomInventoryScreen, PlayerRideableJumping, Saddleable {
+public abstract class AbstractHorse extends Animal implements ContainerListener, HasCustomInventoryScreen, OwnableEntity, PlayerRideableJumping, Saddleable {
     public static final int EQUIPMENT_SLOT_OFFSET = 400;
     public static final int CHEST_SLOT_OFFSET = 499;
     public static final int INVENTORY_SLOT_OFFSET = 500;
@@ -85,9 +85,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         Items.WHEAT, Items.SUGAR, Blocks.HAY_BLOCK.asItem(), Items.APPLE, Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE
     );
     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(AbstractHorse.class, EntityDataSerializers.BYTE);
-    private static final EntityDataAccessor<Optional<UUID>> DATA_ID_OWNER_UUID = SynchedEntityData.defineId(
-        AbstractHorse.class, EntityDataSerializers.OPTIONAL_UUID
-    );
     private static final int FLAG_TAME = 2;
     private static final int FLAG_SADDLE = 4;
     private static final int FLAG_BRED = 8;
@@ -115,6 +112,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     private float mouthAnimO;
     protected boolean canGallop = true;
     protected int gallopSoundCounter;
+    @Nullable
+    private UUID owner;
 
     protected AbstractHorse(EntityType<? extends AbstractHorse> param0, Level param1) {
         super(param0, param1);
@@ -147,7 +146,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_ID_FLAGS, (byte)0);
-        this.entityData.define(DATA_ID_OWNER_UUID, Optional.empty());
     }
 
     protected boolean getFlag(int param0) {
@@ -169,12 +167,13 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Nullable
+    @Override
     public UUID getOwnerUUID() {
-        return this.entityData.get(DATA_ID_OWNER_UUID).orElse(null);
+        return this.owner;
     }
 
     public void setOwnerUUID(@Nullable UUID param0) {
-        this.entityData.set(DATA_ID_OWNER_UUID, Optional.ofNullable(param0));
+        this.owner = param0;
     }
 
     public boolean isJumping() {

@@ -60,9 +60,9 @@ public class FogRenderer {
             int var8 = previousBiomeFog >> 8 & 0xFF;
             int var9 = previousBiomeFog & 0xFF;
             float var10 = Mth.clamp((float)(var2 - biomeChangedTime) / 5000.0F, 0.0F, 1.0F);
-            float var11 = Mth.lerp(var10, (float)var7, (float)var4);
-            float var12 = Mth.lerp(var10, (float)var8, (float)var5);
-            float var13 = Mth.lerp(var10, (float)var9, (float)var6);
+            float var11 = (float)Mth.lerp(var10, var7, var4);
+            float var12 = (float)Mth.lerp(var10, var8, var5);
+            float var13 = (float)Mth.lerp(var10, var9, var6);
             fogRed = var11 / 255.0F;
             fogGreen = var12 / 255.0F;
             fogBlue = var13 / 255.0F;

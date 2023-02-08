@@ -171,11 +171,11 @@ public class RealmsWorldSlotButton extends Button {
 
         Minecraft var1 = Minecraft.getInstance();
         if (param11) {
-            RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
+            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(param8), param9));
         } else if (param10) {
             RenderSystem.setShaderTexture(0, EMPTY_SLOT_LOCATION);
         } else if (param9 != null && param8 != -1L) {
-            RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
+            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(param8), param9));
         } else if (param7 == 1) {
             RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_1);
         } else if (param7 == 2) {

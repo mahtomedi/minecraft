@@ -12,6 +12,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
@@ -507,7 +508,7 @@ public class Inventory implements Container, Nameable {
 
             for(int var0 : param2) {
                 ItemStack var1 = this.armor.get(var0);
-                if ((!param0.isFire() || !var1.getItem().isFireResistant()) && var1.getItem() instanceof ArmorItem) {
+                if ((!param0.is(DamageTypeTags.IS_FIRE) || !var1.getItem().isFireResistant()) && var1.getItem() instanceof ArmorItem) {
                     var1.hurtAndBreak(
                         (int)param1, this.player, param1x -> param1x.broadcastBreakEvent(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, var0))
                     );

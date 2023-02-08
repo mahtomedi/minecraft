@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -426,7 +427,7 @@ public class EnderDragon extends Mob implements Enemy {
                 double var5 = Math.max(var3 * var3 + var4 * var4, 0.1);
                 var2.push(var3 / var5 * 4.0, 0.2F, var4 / var5 * 4.0);
                 if (!this.phaseManager.getCurrentPhase().isSitting() && ((LivingEntity)var2).getLastHurtByMobTimestamp() < var2.tickCount - 2) {
-                    var2.hurt(DamageSource.mobAttack(this), 5.0F);
+                    var2.hurt(this.damageSources().mobAttack(this), 5.0F);
                     this.doEnchantDamageEffects(this, var2);
                 }
             }
@@ -437,7 +438,7 @@ public class EnderDragon extends Mob implements Enemy {
     private void hurt(List<Entity> param0) {
         for(Entity var0 : param0) {
             if (var0 instanceof LivingEntity) {
-                var0.hurt(DamageSource.mobAttack(this), 10.0F);
+                var0.hurt(this.damageSources().mobAttack(this), 10.0F);
                 this.doEnchantDamageEffects(this, var0);
             }
         }
@@ -496,7 +497,7 @@ public class EnderDragon extends Mob implements Enemy {
             if (param2 < 0.01F) {
                 return false;
             } else {
-                if (param1.getEntity() instanceof Player || param1.isExplosion()) {
+                if (param1.getEntity() instanceof Player || param1.is(DamageTypeTags.IS_EXPLOSION)) {
                     float var0 = this.getHealth();
                     this.reallyHurt(param1, param2);
                     if (this.isDeadOrDying() && !this.phaseManager.getCurrentPhase().isSitting()) {
@@ -871,7 +872,7 @@ public class EnderDragon extends Mob implements Enemy {
         }
 
         if (param0 == this.nearestCrystal) {
-            this.hurt(this.head, DamageSource.explosion(param0, var0), 10.0F);
+            this.hurt(this.head, this.damageSources().explosion(param0, var0), 10.0F);
         }
 
         this.phaseManager.getCurrentPhase().onCrystalDestroyed(param0, param1, param2, var0);

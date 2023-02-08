@@ -31,7 +31,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -171,7 +170,7 @@ public class ClientLevel extends Level {
         boolean param8,
         long param9
     ) {
-        super(param1, param2, param3, param6, true, param8, param9, 1000000);
+        super(param1, param2, param0.registryAccess(), param3, param6, true, param8, param9, 1000000);
         this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param4);
         this.clientLevelData = param1;
@@ -581,11 +580,6 @@ public class ClientLevel extends Level {
     @Override
     public Scoreboard getScoreboard() {
         return this.scoreboard;
-    }
-
-    @Override
-    public RegistryAccess registryAccess() {
-        return this.connection.registryAccess();
     }
 
     @Override
@@ -1028,11 +1022,17 @@ public class ClientLevel extends Level {
         }
 
         public void onTickingStart(Entity param0) {
-            ClientLevel.this.tickingEntities.add(param0);
+            if (param0.getType().isTicking()) {
+                ClientLevel.this.tickingEntities.add(param0);
+            }
+
         }
 
         public void onTickingEnd(Entity param0) {
-            ClientLevel.this.tickingEntities.remove(param0);
+            if (param0.getType().isTicking()) {
+                ClientLevel.this.tickingEntities.remove(param0);
+            }
+
         }
 
         public void onTrackingStart(Entity param0) {

@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
+import net.minecraft.Optionull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
@@ -24,7 +24,7 @@ public class OnlineOptionsScreen extends SimpleOptionsSubScreen {
         List<OptionInstance<?>> var0 = Lists.newArrayList();
         var0.add(param2.realmsNotifications());
         var0.add(param2.allowServerListing());
-        OptionInstance<Unit> var1 = Util.mapNullable(
+        OptionInstance<Unit> var1 = Optionull.map(
             param0.level,
             param0x -> {
                 Difficulty var0x = param0x.getDifficulty();

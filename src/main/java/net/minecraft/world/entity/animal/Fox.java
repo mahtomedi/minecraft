@@ -952,7 +952,7 @@ public class Fox extends Animal implements VariantHolder<Fox.Type> {
         }
 
         private void pickGlowBerry(BlockState param0) {
-            CaveVines.use(param0, Fox.this.level, this.blockPos);
+            CaveVines.use(Fox.this, param0, Fox.this.level, this.blockPos);
         }
 
         private void pickSweetBerries(BlockState param0) {

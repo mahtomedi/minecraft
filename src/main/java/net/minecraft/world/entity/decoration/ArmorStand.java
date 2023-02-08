@@ -16,6 +16,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -389,16 +390,16 @@ public class ArmorStand extends LivingEntity {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.level.isClientSide || this.isRemoved()) {
             return false;
-        } else if (DamageSource.OUT_OF_WORLD.equals(param0)) {
+        } else if (param0.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             this.kill();
             return false;
         } else if (this.isInvulnerableTo(param0) || this.invisible || this.isMarker()) {
             return false;
-        } else if (param0.isExplosion()) {
+        } else if (param0.is(DamageTypeTags.IS_EXPLOSION)) {
             this.brokenByAnything(param0);
             this.kill();
             return false;
-        } else if (DamageSource.IN_FIRE.equals(param0)) {
+        } else if (param0.is(DamageTypeTags.IGNITES_ARMOR_STANDS)) {
             if (this.isOnFire()) {
                 this.causeDamage(param0, 0.15F);
             } else {
@@ -406,7 +407,7 @@ public class ArmorStand extends LivingEntity {
             }
 
             return false;
-        } else if (DamageSource.ON_FIRE.equals(param0) && this.getHealth() > 0.5F) {
+        } else if (param0.is(DamageTypeTags.BURNS_ARMOR_STANDS) && this.getHealth() > 0.5F) {
             this.causeDamage(param0, 4.0F);
             return false;
         } else {
@@ -415,26 +416,31 @@ public class ArmorStand extends LivingEntity {
             boolean var2 = "player".equals(param0.getMsgId());
             if (!var2 && !var0) {
                 return false;
-            } else if (param0.getEntity() instanceof Player && !((Player)param0.getEntity()).getAbilities().mayBuild) {
-                return false;
-            } else if (param0.isCreativePlayer()) {
-                this.playBrokenSound();
-                this.showBreakingParticles();
-                this.kill();
-                return var1;
             } else {
-                long var3 = this.level.getGameTime();
-                if (var3 - this.lastHit > 5L && !var0) {
-                    this.level.broadcastEntityEvent(this, (byte)32);
-                    this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
-                    this.lastHit = var3;
-                } else {
-                    this.brokenByPlayer(param0);
-                    this.showBreakingParticles();
-                    this.kill();
+                Entity var7 = param0.getEntity();
+                if (var7 instanceof Player var3 && !var3.getAbilities().mayBuild) {
+                    return false;
                 }
 
-                return true;
+                if (param0.isCreativePlayer()) {
+                    this.playBrokenSound();
+                    this.showBreakingParticles();
+                    this.kill();
+                    return var1;
+                } else {
+                    long var4 = this.level.getGameTime();
+                    if (var4 - this.lastHit > 5L && !var0) {
+                        this.level.broadcastEntityEvent(this, (byte)32);
+                        this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
+                        this.lastHit = var4;
+                    } else {
+                        this.brokenByPlayer(param0);
+                        this.showBreakingParticles();
+                        this.kill();
+                    }
+
+                    return true;
+                }
             }
         }
     }

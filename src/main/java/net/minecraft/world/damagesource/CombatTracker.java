@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +22,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public class CombatTracker {
     public static final int RESET_DAMAGE_STATUS_TIME = 100;
     public static final int RESET_COMBAT_STATUS_TIME = 300;
+    private static final Style INTENTIONAL_GAME_DESIGN_STYLE = Style.EMPTY
+        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://bugs.mojang.com/browse/MCPE-28723"))
+        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("MCPE-28723")));
     private final List<CombatEntry> entries = Lists.newArrayList();
     private final LivingEntity mob;
     private int lastDamageTime;
@@ -78,35 +86,44 @@ public class CombatTracker {
             CombatEntry var0 = this.getMostSignificantFall();
             CombatEntry var1 = this.entries.get(this.entries.size() - 1);
             Component var2 = var1.getAttackerName();
-            Entity var3 = var1.getSource().getEntity();
-            Component var5;
-            if (var0 != null && var1.getSource() == DamageSource.FALL) {
-                Component var4 = var0.getAttackerName();
-                if (var0.getSource() == DamageSource.FALL || var0.getSource() == DamageSource.OUT_OF_WORLD) {
-                    var5 = Component.translatable("death.fell.accident." + this.getFallLocation(var0), this.mob.getDisplayName());
-                } else if (var4 != null && !var4.equals(var2)) {
-                    Entity var6 = var0.getSource().getEntity();
-                    ItemStack var8 = var6 instanceof LivingEntity var7 ? var7.getMainHandItem() : ItemStack.EMPTY;
-                    if (!var8.isEmpty() && var8.hasCustomHoverName()) {
-                        var5 = Component.translatable("death.fell.assist.item", this.mob.getDisplayName(), var4, var8.getDisplayName());
+            DamageSource var3 = var1.getSource();
+            Entity var4 = var3.getEntity();
+            DeathMessageType var5 = var3.type().deathMessageType();
+            Component var8;
+            if (var0 != null && var5 == DeathMessageType.FALL_VARIANTS) {
+                Component var6 = var0.getAttackerName();
+                DamageSource var7 = var0.getSource();
+                if (var7.is(DamageTypeTags.IS_FALL) || var7.is(DamageTypeTags.ALWAYS_MOST_SIGNIFICANT_FALL)) {
+                    var8 = Component.translatable("death.fell.accident." + this.getFallLocation(var0), this.mob.getDisplayName());
+                } else if (var6 != null && !var6.equals(var2)) {
+                    Entity var9 = var7.getEntity();
+                    ItemStack var11 = var9 instanceof LivingEntity var10 ? var10.getMainHandItem() : ItemStack.EMPTY;
+                    if (!var11.isEmpty() && var11.hasCustomHoverName()) {
+                        var8 = Component.translatable("death.fell.assist.item", this.mob.getDisplayName(), var6, var11.getDisplayName());
                     } else {
-                        var5 = Component.translatable("death.fell.assist", this.mob.getDisplayName(), var4);
+                        var8 = Component.translatable("death.fell.assist", this.mob.getDisplayName(), var6);
                     }
                 } else if (var2 != null) {
-                    ItemStack var12 = var3 instanceof LivingEntity var11 ? var11.getMainHandItem() : ItemStack.EMPTY;
-                    if (!var12.isEmpty() && var12.hasCustomHoverName()) {
-                        var5 = Component.translatable("death.fell.finish.item", this.mob.getDisplayName(), var2, var12.getDisplayName());
+                    ItemStack var15 = var4 instanceof LivingEntity var14 ? var14.getMainHandItem() : ItemStack.EMPTY;
+                    if (!var15.isEmpty() && var15.hasCustomHoverName()) {
+                        var8 = Component.translatable("death.fell.finish.item", this.mob.getDisplayName(), var2, var15.getDisplayName());
                     } else {
-                        var5 = Component.translatable("death.fell.finish", this.mob.getDisplayName(), var2);
+                        var8 = Component.translatable("death.fell.finish", this.mob.getDisplayName(), var2);
                     }
                 } else {
-                    var5 = Component.translatable("death.fell.killer", this.mob.getDisplayName());
+                    var8 = Component.translatable("death.fell.killer", this.mob.getDisplayName());
                 }
             } else {
-                var5 = var1.getSource().getLocalizedDeathMessage(this.mob);
+                if (var5 == DeathMessageType.INTENTIONAL_GAME_DESIGN) {
+                    String var19 = "death.attack." + var3.getMsgId();
+                    Component var20 = ComponentUtils.wrapInSquareBrackets(Component.translatable(var19 + ".link")).withStyle(INTENTIONAL_GAME_DESIGN_STYLE);
+                    return Component.translatable(var19 + ".message", this.mob.getDisplayName(), var20);
+                }
+
+                var8 = var3.getLocalizedDeathMessage(this.mob);
             }
 
-            return var5;
+            return var8;
         }
     }
 
@@ -144,16 +161,17 @@ public class CombatTracker {
         for(int var4 = 0; var4 < this.entries.size(); ++var4) {
             CombatEntry var5 = this.entries.get(var4);
             CombatEntry var6 = var4 > 0 ? this.entries.get(var4 - 1) : null;
-            if ((var5.getSource() == DamageSource.FALL || var5.getSource() == DamageSource.OUT_OF_WORLD)
-                && var5.getFallDistance() > 0.0F
-                && (var0 == null || var5.getFallDistance() > var3)) {
+            DamageSource var7 = var5.getSource();
+            boolean var8 = var7.is(DamageTypeTags.ALWAYS_MOST_SIGNIFICANT_FALL);
+            float var9 = var8 ? Float.MAX_VALUE : var5.getFallDistance();
+            if ((var7.is(DamageTypeTags.IS_FALL) || var8) && var9 > 0.0F && (var0 == null || var9 > var3)) {
                 if (var4 > 0) {
                     var0 = var6;
                 } else {
                     var0 = var5;
                 }
 
-                var3 = var5.getFallDistance();
+                var3 = var9;
             }
 
             if (var5.getLocation() != null && (var1 == null || var5.getDamage() > var2)) {

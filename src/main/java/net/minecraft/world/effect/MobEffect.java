@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -56,10 +55,10 @@ public class MobEffect {
             }
         } else if (this == MobEffects.POISON) {
             if (param0.getHealth() > 1.0F) {
-                param0.hurt(DamageSource.MAGIC, 1.0F);
+                param0.hurt(param0.damageSources().magic(), 1.0F);
             }
         } else if (this == MobEffects.WITHER) {
-            param0.hurt(DamageSource.WITHER, 1.0F);
+            param0.hurt(param0.damageSources().wither(), 1.0F);
         } else if (this == MobEffects.HUNGER && param0 instanceof Player) {
             ((Player)param0).causeFoodExhaustion(0.005F * (float)(param1 + 1));
         } else if (this == MobEffects.SATURATION && param0 instanceof Player) {
@@ -68,7 +67,7 @@ public class MobEffect {
             }
         } else if ((this != MobEffects.HEAL || param0.isInvertedHealAndHarm()) && (this != MobEffects.HARM || !param0.isInvertedHealAndHarm())) {
             if (this == MobEffects.HARM && !param0.isInvertedHealAndHarm() || this == MobEffects.HEAL && param0.isInvertedHealAndHarm()) {
-                param0.hurt(DamageSource.MAGIC, (float)(6 << param1));
+                param0.hurt(param0.damageSources().magic(), (float)(6 << param1));
             }
         } else {
             param0.heal((float)Math.max(4 << param1, 0));
@@ -81,9 +80,9 @@ public class MobEffect {
             if (this == MobEffects.HARM && !param2.isInvertedHealAndHarm() || this == MobEffects.HEAL && param2.isInvertedHealAndHarm()) {
                 int var1 = (int)(param4 * (double)(6 << param3) + 0.5);
                 if (param0 == null) {
-                    param2.hurt(DamageSource.MAGIC, (float)var1);
+                    param2.hurt(param2.damageSources().magic(), (float)var1);
                 } else {
-                    param2.hurt(DamageSource.indirectMagic(param0, param1), (float)var1);
+                    param2.hurt(param2.damageSources().indirectMagic(param0, param1), (float)var1);
                 }
             } else {
                 this.applyEffectTick(param2, param3);

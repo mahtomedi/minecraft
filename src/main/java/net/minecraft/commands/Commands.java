@@ -47,6 +47,7 @@ import net.minecraft.server.commands.BanPlayerCommands;
 import net.minecraft.server.commands.BossBarCommands;
 import net.minecraft.server.commands.ClearInventoryCommands;
 import net.minecraft.server.commands.CloneCommands;
+import net.minecraft.server.commands.DamageCommand;
 import net.minecraft.server.commands.DataPackCommand;
 import net.minecraft.server.commands.DeOpCommands;
 import net.minecraft.server.commands.DebugCommand;
@@ -134,6 +135,7 @@ public class Commands {
         BossBarCommands.register(this.dispatcher);
         ClearInventoryCommands.register(this.dispatcher, param1);
         CloneCommands.register(this.dispatcher, param1);
+        DamageCommand.register(this.dispatcher, param1);
         DataCommands.register(this.dispatcher);
         DataPackCommand.register(this.dispatcher);
         DebugCommand.register(this.dispatcher);

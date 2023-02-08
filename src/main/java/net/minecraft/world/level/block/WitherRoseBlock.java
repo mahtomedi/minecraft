@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -54,7 +53,7 @@ public class WitherRoseBlock extends FlowerBlock {
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         if (!param1.isClientSide && param1.getDifficulty() != Difficulty.PEACEFUL) {
-            if (param3 instanceof LivingEntity var0 && !var0.isInvulnerableTo(DamageSource.WITHER)) {
+            if (param3 instanceof LivingEntity var0 && !var0.isInvulnerableTo(param1.damageSources().wither())) {
                 var0.addEffect(new MobEffectInstance(MobEffects.WITHER, 40));
             }
 

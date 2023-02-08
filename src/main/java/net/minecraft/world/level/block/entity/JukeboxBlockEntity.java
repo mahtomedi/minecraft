@@ -1,7 +1,9 @@
 package net.minecraft.world.level.block.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -10,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 
 public class JukeboxBlockEntity extends BlockEntity implements Clearable {
     private ItemStack record = ItemStack.EMPTY;
@@ -77,11 +80,21 @@ public class JukeboxBlockEntity extends BlockEntity implements Clearable {
                 } else if (shouldSendJukeboxPlayingEvent(param3)) {
                     param3.ticksSinceLastEvent = 0;
                     param0.gameEvent(GameEvent.JUKEBOX_PLAY, param1, GameEvent.Context.of(param2));
+                    spawnMusicParticles(param0, param1);
                 }
             }
         }
 
         ++param3.tickCount;
+    }
+
+    private static void spawnMusicParticles(Level param0, BlockPos param1) {
+        if (param0 instanceof ServerLevel var0) {
+            Vec3 var1 = Vec3.atBottomCenterOf(param1).add(0.0, 1.2F, 0.0);
+            float var2 = (float)param0.getRandom().nextInt(4) / 24.0F;
+            var0.sendParticles(ParticleTypes.NOTE, var1.x(), var1.y(), var1.z(), 0, (double)var2, 0.0, 0.0, 1.0);
+        }
+
     }
 
     private static boolean recordIsPlaying(BlockState param0, JukeboxBlockEntity param1) {

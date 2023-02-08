@@ -122,7 +122,7 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
                 ItemStack var1 = param0.copy();
                 Item var8 = param0.getItem();
                 if (var8 instanceof ArmorItem var2) {
-                    this.armorStandPreview.setItemSlot(var2.getSlot(), var1);
+                    this.armorStandPreview.setItemSlot(var2.getEquipmentSlot(), var1);
                 } else {
                     this.armorStandPreview.setItemSlot(EquipmentSlot.OFFHAND, var1);
                 }

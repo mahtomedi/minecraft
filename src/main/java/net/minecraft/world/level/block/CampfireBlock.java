@@ -14,7 +14,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -93,7 +92,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         if (param0.getValue(LIT) && param3 instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)param3)) {
-            param3.hurt(DamageSource.IN_FIRE, (float)this.fireDamage);
+            param3.hurt(param1.damageSources().inFire(), (float)this.fireDamage);
         }
 
         super.entityInside(param0, param1, param2, param3);

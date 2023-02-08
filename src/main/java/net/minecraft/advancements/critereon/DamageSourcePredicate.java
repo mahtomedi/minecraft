@@ -1,58 +1,31 @@
 package net.minecraft.advancements.critereon;
 
+import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.phys.Vec3;
 
 public class DamageSourcePredicate {
     public static final DamageSourcePredicate ANY = DamageSourcePredicate.Builder.damageType().build();
-    @Nullable
-    private final Boolean isProjectile;
-    @Nullable
-    private final Boolean isExplosion;
-    @Nullable
-    private final Boolean bypassesArmor;
-    @Nullable
-    private final Boolean bypassesInvulnerability;
-    @Nullable
-    private final Boolean bypassesMagic;
-    @Nullable
-    private final Boolean isFire;
-    @Nullable
-    private final Boolean isMagic;
-    @Nullable
-    private final Boolean isLightning;
+    private final List<TagPredicate<DamageType>> tags;
     private final EntityPredicate directEntity;
     private final EntityPredicate sourceEntity;
 
-    public DamageSourcePredicate(
-        @Nullable Boolean param0,
-        @Nullable Boolean param1,
-        @Nullable Boolean param2,
-        @Nullable Boolean param3,
-        @Nullable Boolean param4,
-        @Nullable Boolean param5,
-        @Nullable Boolean param6,
-        @Nullable Boolean param7,
-        EntityPredicate param8,
-        EntityPredicate param9
-    ) {
-        this.isProjectile = param0;
-        this.isExplosion = param1;
-        this.bypassesArmor = param2;
-        this.bypassesInvulnerability = param3;
-        this.bypassesMagic = param4;
-        this.isFire = param5;
-        this.isMagic = param6;
-        this.isLightning = param7;
-        this.directEntity = param8;
-        this.sourceEntity = param9;
+    public DamageSourcePredicate(List<TagPredicate<DamageType>> param0, EntityPredicate param1, EntityPredicate param2) {
+        this.tags = param0;
+        this.directEntity = param1;
+        this.sourceEntity = param2;
     }
 
     public boolean matches(ServerPlayer param0, DamageSource param1) {
@@ -62,51 +35,42 @@ public class DamageSourcePredicate {
     public boolean matches(ServerLevel param0, Vec3 param1, DamageSource param2) {
         if (this == ANY) {
             return true;
-        } else if (this.isProjectile != null && this.isProjectile != param2.isProjectile()) {
-            return false;
-        } else if (this.isExplosion != null && this.isExplosion != param2.isExplosion()) {
-            return false;
-        } else if (this.bypassesArmor != null && this.bypassesArmor != param2.isBypassArmor()) {
-            return false;
-        } else if (this.bypassesInvulnerability != null && this.bypassesInvulnerability != param2.isBypassInvul()) {
-            return false;
-        } else if (this.bypassesMagic != null && this.bypassesMagic != param2.isBypassMagic()) {
-            return false;
-        } else if (this.isFire != null && this.isFire != param2.isFire()) {
-            return false;
-        } else if (this.isMagic != null && this.isMagic != param2.isMagic()) {
-            return false;
-        } else if (this.isLightning != null && this.isLightning != (param2 == DamageSource.LIGHTNING_BOLT)) {
-            return false;
-        } else if (!this.directEntity.matches(param0, param1, param2.getDirectEntity())) {
-            return false;
         } else {
-            return this.sourceEntity.matches(param0, param1, param2.getEntity());
+            for(TagPredicate<DamageType> var0 : this.tags) {
+                if (!var0.matches(param2.typeHolder())) {
+                    return false;
+                }
+            }
+
+            if (!this.directEntity.matches(param0, param1, param2.getDirectEntity())) {
+                return false;
+            } else {
+                return this.sourceEntity.matches(param0, param1, param2.getEntity());
+            }
         }
     }
 
     public static DamageSourcePredicate fromJson(@Nullable JsonElement param0) {
         if (param0 != null && !param0.isJsonNull()) {
             JsonObject var0 = GsonHelper.convertToJsonObject(param0, "damage type");
-            Boolean var1 = getOptionalBoolean(var0, "is_projectile");
-            Boolean var2 = getOptionalBoolean(var0, "is_explosion");
-            Boolean var3 = getOptionalBoolean(var0, "bypasses_armor");
-            Boolean var4 = getOptionalBoolean(var0, "bypasses_invulnerability");
-            Boolean var5 = getOptionalBoolean(var0, "bypasses_magic");
-            Boolean var6 = getOptionalBoolean(var0, "is_fire");
-            Boolean var7 = getOptionalBoolean(var0, "is_magic");
-            Boolean var8 = getOptionalBoolean(var0, "is_lightning");
-            EntityPredicate var9 = EntityPredicate.fromJson(var0.get("direct_entity"));
-            EntityPredicate var10 = EntityPredicate.fromJson(var0.get("source_entity"));
-            return new DamageSourcePredicate(var1, var2, var3, var4, var5, var6, var7, var8, var9, var10);
+            JsonArray var1 = GsonHelper.getAsJsonArray(var0, "tags", null);
+            List<TagPredicate<DamageType>> var2;
+            if (var1 != null) {
+                var2 = new ArrayList<>(var1.size());
+
+                for(JsonElement var3 : var1) {
+                    var2.add(TagPredicate.fromJson(var3, Registries.DAMAGE_TYPE));
+                }
+            } else {
+                var2 = List.of();
+            }
+
+            EntityPredicate var5 = EntityPredicate.fromJson(var0.get("direct_entity"));
+            EntityPredicate var6 = EntityPredicate.fromJson(var0.get("source_entity"));
+            return new DamageSourcePredicate(var2, var5, var6);
         } else {
             return ANY;
         }
-    }
-
-    @Nullable
-    private static Boolean getOptionalBoolean(JsonObject param0, String param1) {
-        return param0.has(param1) ? GsonHelper.getAsBoolean(param0, param1) : null;
     }
 
     public JsonElement serializeToJson() {
@@ -114,44 +78,24 @@ public class DamageSourcePredicate {
             return JsonNull.INSTANCE;
         } else {
             JsonObject var0 = new JsonObject();
-            this.addOptionally(var0, "is_projectile", this.isProjectile);
-            this.addOptionally(var0, "is_explosion", this.isExplosion);
-            this.addOptionally(var0, "bypasses_armor", this.bypassesArmor);
-            this.addOptionally(var0, "bypasses_invulnerability", this.bypassesInvulnerability);
-            this.addOptionally(var0, "bypasses_magic", this.bypassesMagic);
-            this.addOptionally(var0, "is_fire", this.isFire);
-            this.addOptionally(var0, "is_magic", this.isMagic);
-            this.addOptionally(var0, "is_lightning", this.isLightning);
+            if (!this.tags.isEmpty()) {
+                JsonArray var1 = new JsonArray(this.tags.size());
+
+                for(int var2 = 0; var2 < this.tags.size(); ++var2) {
+                    var1.add(this.tags.get(var2).serializeToJson());
+                }
+
+                var0.add("tags", var1);
+            }
+
             var0.add("direct_entity", this.directEntity.serializeToJson());
             var0.add("source_entity", this.sourceEntity.serializeToJson());
             return var0;
         }
     }
 
-    private void addOptionally(JsonObject param0, String param1, @Nullable Boolean param2) {
-        if (param2 != null) {
-            param0.addProperty(param1, param2);
-        }
-
-    }
-
     public static class Builder {
-        @Nullable
-        private Boolean isProjectile;
-        @Nullable
-        private Boolean isExplosion;
-        @Nullable
-        private Boolean bypassesArmor;
-        @Nullable
-        private Boolean bypassesInvulnerability;
-        @Nullable
-        private Boolean bypassesMagic;
-        @Nullable
-        private Boolean isFire;
-        @Nullable
-        private Boolean isMagic;
-        @Nullable
-        private Boolean isLightning;
+        private final ImmutableList.Builder<TagPredicate<DamageType>> tags = ImmutableList.builder();
         private EntityPredicate directEntity = EntityPredicate.ANY;
         private EntityPredicate sourceEntity = EntityPredicate.ANY;
 
@@ -159,43 +103,8 @@ public class DamageSourcePredicate {
             return new DamageSourcePredicate.Builder();
         }
 
-        public DamageSourcePredicate.Builder isProjectile(Boolean param0) {
-            this.isProjectile = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder isExplosion(Boolean param0) {
-            this.isExplosion = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder bypassesArmor(Boolean param0) {
-            this.bypassesArmor = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder bypassesInvulnerability(Boolean param0) {
-            this.bypassesInvulnerability = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder bypassesMagic(Boolean param0) {
-            this.bypassesMagic = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder isFire(Boolean param0) {
-            this.isFire = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder isMagic(Boolean param0) {
-            this.isMagic = param0;
-            return this;
-        }
-
-        public DamageSourcePredicate.Builder isLightning(Boolean param0) {
-            this.isLightning = param0;
+        public DamageSourcePredicate.Builder tag(TagPredicate<DamageType> param0) {
+            this.tags.add(param0);
             return this;
         }
 
@@ -220,18 +129,7 @@ public class DamageSourcePredicate {
         }
 
         public DamageSourcePredicate build() {
-            return new DamageSourcePredicate(
-                this.isProjectile,
-                this.isExplosion,
-                this.bypassesArmor,
-                this.bypassesInvulnerability,
-                this.bypassesMagic,
-                this.isFire,
-                this.isMagic,
-                this.isLightning,
-                this.directEntity,
-                this.sourceEntity
-            );
+            return new DamageSourcePredicate(this.tags.build(), this.directEntity, this.sourceEntity);
         }
     }
 }

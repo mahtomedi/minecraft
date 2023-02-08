@@ -193,7 +193,7 @@ public class Axolotl extends Animal implements LerpingModel, VariantHolder<Axolo
             this.setAirSupply(param0 - 1);
             if (this.getAirSupply() == -20) {
                 this.setAirSupply(0);
-                this.hurt(DamageSource.DRY_OUT, 2.0F);
+                this.hurt(this.damageSources().dryOut(), 2.0F);
             }
         } else {
             this.setAirSupply(this.getMaxAirSupply());
@@ -321,7 +321,7 @@ public class Axolotl extends Animal implements LerpingModel, VariantHolder<Axolo
 
     @Override
     public boolean doHurtTarget(Entity param0) {
-        boolean var0 = param0.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
+        boolean var0 = param0.hurt(this.damageSources().mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
         if (var0) {
             this.doEnchantDamageEffects(this, param0);
             this.playSound(SoundEvents.AXOLOTL_ATTACK, 1.0F, 1.0F);

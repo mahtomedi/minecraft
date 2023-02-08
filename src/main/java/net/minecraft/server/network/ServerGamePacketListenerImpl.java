@@ -1707,7 +1707,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             boolean var5 = param0.getSlotNum() >= 1 && param0.getSlotNum() <= 45;
             boolean var6 = var1.isEmpty() || var1.getDamageValue() >= 0 && var1.getCount() <= 64 && !var1.isEmpty();
             if (var5 && var6) {
-                this.player.inventoryMenu.getSlot(param0.getSlotNum()).set(var1);
+                this.player.inventoryMenu.getSlot(param0.getSlotNum()).setByPlayer(var1);
                 this.player.inventoryMenu.broadcastChanges();
             } else if (var0 && var6 && this.dropSpamTickCount < 200) {
                 this.dropSpamTickCount += 20;

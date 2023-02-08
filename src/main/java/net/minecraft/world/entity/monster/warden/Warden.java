@@ -22,6 +22,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.GameEventTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -29,7 +30,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
@@ -146,7 +146,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
 
     @Override
     public boolean isInvulnerableTo(DamageSource param0) {
-        return this.isDiggingOrEmerging() && !param0.isBypassInvul() ? true : super.isInvulnerableTo(param0);
+        return this.isDiggingOrEmerging() && !param0.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? true : super.isInvulnerableTo(param0);
     }
 
     private boolean isDiggingOrEmerging() {
@@ -313,11 +313,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     public float getTendrilAnimation(float param0) {
-        return Mth.lerp(param0, (float)this.tendrilAnimationO, (float)this.tendrilAnimation) / 10.0F;
+        return (float)Mth.lerp(param0, this.tendrilAnimationO, this.tendrilAnimation) / 10.0F;
     }
 
     public float getHeartAnimation(float param0) {
-        return Mth.lerp(param0, (float)this.heartAnimationO, (float)this.heartAnimation) / 10.0F;
+        return (float)Mth.lerp(param0, this.heartAnimationO, this.heartAnimation) / 10.0F;
     }
 
     private void clientDiggingParticles(AnimationState param0) {
@@ -530,7 +530,7 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
             this.increaseAngerAt(var1, AngerLevel.ANGRY.getMinimumAnger() + 20, false);
             if (this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty()
                 && var1 instanceof LivingEntity var2
-                && (!(param0 instanceof IndirectEntityDamageSource) || this.closerThan(var2, 5.0))) {
+                && (!param0.isIndirect() || this.closerThan(var2, 5.0))) {
                 this.setAttackTarget(var2);
             }
         }

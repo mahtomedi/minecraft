@@ -7,12 +7,12 @@ import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,7 +31,7 @@ public class PlayerItemInHandLayer<T extends Player, M extends EntityModel<T> & 
 
     @Override
     protected void renderArmWithItem(
-        LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5, int param6
+        LivingEntity param0, ItemStack param1, ItemDisplayContext param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5, int param6
     ) {
         if (param1.is(Items.SPYGLASS) && param0.getUseItem() == param1 && param0.swingTime == 0) {
             this.renderArmWithSpyglass(param0, param1, param3, param4, param5, param6);
@@ -51,7 +51,7 @@ public class PlayerItemInHandLayer<T extends Player, M extends EntityModel<T> & 
         CustomHeadLayer.translateToHead(param3, false);
         boolean var2 = param2 == HumanoidArm.LEFT;
         param3.translate((var2 ? -2.5F : 2.5F) / 16.0F, -0.0625F, 0.0F);
-        this.itemInHandRenderer.renderItem(param0, param1, ItemTransforms.TransformType.HEAD, false, param3, param4, param5);
+        this.itemInHandRenderer.renderItem(param0, param1, ItemDisplayContext.HEAD, false, param3, param4, param5);
         param3.popPose();
     }
 }

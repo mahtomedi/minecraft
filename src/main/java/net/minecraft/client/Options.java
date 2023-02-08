@@ -273,7 +273,6 @@ public class Options {
     );
     public int overrideWidth;
     public int overrideHeight;
-    public boolean heldItemTooltips = true;
     private final OptionInstance<Double> chatScale = new OptionInstance<>(
         "options.chat.scale",
         OptionInstance.noTooltip(),
@@ -634,6 +633,16 @@ public class Options {
         1.0,
         RenderSystem::setShaderGlintAlpha
     );
+    private static final Component ACCESSIBILITY_TOOLTIP_DAMAGE_TILT_STRENGTH = Component.translatable("options.damageTiltStrength.tooltip");
+    private final OptionInstance<Double> damageTiltStrength = new OptionInstance<>(
+        "options.damageTiltStrength",
+        OptionInstance.cachedConstantTooltip(ACCESSIBILITY_TOOLTIP_DAMAGE_TILT_STRENGTH),
+        (param0x, param1x) -> param1x == 0.0 ? genericValueLabel(param0x, CommonComponents.OPTION_OFF) : percentValueLabel(param0x, param1x),
+        OptionInstance.UnitDouble.INSTANCE,
+        1.0,
+        param0x -> {
+        }
+    );
     private final OptionInstance<Double> gamma = new OptionInstance<>("options.gamma", OptionInstance.noTooltip(), (param0x, param1x) -> {
         int var0x = (int)(param1x * 100.0);
         if (var0x == 0) {
@@ -973,6 +982,10 @@ public class Options {
         return this.glintStrength;
     }
 
+    public OptionInstance<Double> damageTiltStrength() {
+        return this.damageTiltStrength;
+    }
+
     public OptionInstance<Double> gamma() {
         return this.gamma;
     }
@@ -1066,6 +1079,7 @@ public class Options {
         param0.process("darknessEffectScale", this.darknessEffectScale);
         param0.process("glintSpeed", this.glintSpeed);
         param0.process("glintStrength", this.glintStrength);
+        param0.process("damageTiltStrength", this.damageTiltStrength);
         param0.process("gamma", this.gamma);
         param0.process("renderDistance", this.renderDistance);
         param0.process("simulationDistance", this.simulationDistance);
@@ -1093,7 +1107,6 @@ public class Options {
         this.pauseOnLostFocus = param0.process("pauseOnLostFocus", this.pauseOnLostFocus);
         this.overrideWidth = param0.process("overrideWidth", this.overrideWidth);
         this.overrideHeight = param0.process("overrideHeight", this.overrideHeight);
-        this.heldItemTooltips = param0.process("heldItemTooltips", this.heldItemTooltips);
         param0.process("chatHeightFocused", this.chatHeightFocused);
         param0.process("chatDelay", this.chatDelay);
         param0.process("chatHeightUnfocused", this.chatHeightUnfocused);

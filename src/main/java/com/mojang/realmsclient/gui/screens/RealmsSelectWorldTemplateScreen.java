@@ -374,7 +374,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         }
 
         private void drawImage(PoseStack param0, int param1, int param2, int param3, int param4, WorldTemplate param5) {
-            RealmsTextureManager.bindWorldTemplate(param5.id, param5.image);
+            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(param5.id, param5.image));
             GuiComponent.blit(param0, param1 + 1, param2 + 1, 0.0F, 0.0F, 38, 38, 38, 38);
             RenderSystem.setShaderTexture(0, RealmsSelectWorldTemplateScreen.SLOT_FRAME_LOCATION);
             GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 40, 40, 40, 40);

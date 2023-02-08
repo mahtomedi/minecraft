@@ -1,14 +1,14 @@
 {
-    "id": "23w05a",
-    "name": "23w05a",
-    "world_version": 3323,
+    "id": "23w06a",
+    "name": "23w06a",
+    "world_version": 3326,
     "series_id": "main",
-    "protocol_version": 1073741941,
+    "protocol_version": 1073741942,
     "pack_version": {
         "resource": 12,
-        "data": 11
+        "data": 12
     },
-    "build_time": "2023-02-01T14:15:46+00:00",
+    "build_time": "2023-02-08T14:55:10+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
     "stable": false

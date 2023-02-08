@@ -29,11 +29,13 @@ public class ArmorStandArmorModel extends HumanoidModel<ArmorStand> {
             PartPose.offset(0.0F, 1.0F, 0.0F)
         );
         var1.addOrReplaceChild(
-            "right_leg", CubeListBuilder.create().texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0), PartPose.offset(-1.9F, 11.0F, 0.0F)
+            "right_leg",
+            CubeListBuilder.create().texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0.extend(-0.1F)),
+            PartPose.offset(-1.9F, 11.0F, 0.0F)
         );
         var1.addOrReplaceChild(
             "left_leg",
-            CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0),
+            CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0.extend(-0.1F)),
             PartPose.offset(1.9F, 11.0F, 0.0F)
         );
         return LayerDefinition.create(var0, 64, 32);

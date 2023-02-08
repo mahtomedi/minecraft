@@ -41,6 +41,7 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -271,18 +272,18 @@ public class BlockModel implements UnbakedModel {
     }
 
     public ItemTransforms getTransforms() {
-        ItemTransform var0 = this.getTransform(ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND);
-        ItemTransform var1 = this.getTransform(ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND);
-        ItemTransform var2 = this.getTransform(ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
-        ItemTransform var3 = this.getTransform(ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND);
-        ItemTransform var4 = this.getTransform(ItemTransforms.TransformType.HEAD);
-        ItemTransform var5 = this.getTransform(ItemTransforms.TransformType.GUI);
-        ItemTransform var6 = this.getTransform(ItemTransforms.TransformType.GROUND);
-        ItemTransform var7 = this.getTransform(ItemTransforms.TransformType.FIXED);
+        ItemTransform var0 = this.getTransform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND);
+        ItemTransform var1 = this.getTransform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND);
+        ItemTransform var2 = this.getTransform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND);
+        ItemTransform var3 = this.getTransform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND);
+        ItemTransform var4 = this.getTransform(ItemDisplayContext.HEAD);
+        ItemTransform var5 = this.getTransform(ItemDisplayContext.GUI);
+        ItemTransform var6 = this.getTransform(ItemDisplayContext.GROUND);
+        ItemTransform var7 = this.getTransform(ItemDisplayContext.FIXED);
         return new ItemTransforms(var0, var1, var2, var3, var4, var5, var6, var7);
     }
 
-    private ItemTransform getTransform(ItemTransforms.TransformType param0) {
+    private ItemTransform getTransform(ItemDisplayContext param0) {
         return this.parent != null && !this.transforms.hasTransform(param0) ? this.parent.getTransform(param0) : this.transforms.getTransform(param0);
     }
 

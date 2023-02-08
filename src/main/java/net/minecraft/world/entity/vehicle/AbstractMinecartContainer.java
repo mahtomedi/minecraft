@@ -94,7 +94,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
 
     @Override
     public InteractionResult interact(Player param0, InteractionHand param1) {
-        return this.interactWithChestVehicle(this::gameEvent, param0);
+        return this.interactWithContainerVehicle(param0);
     }
 
     @Override

@@ -57,7 +57,7 @@ public class CaveVinesBlock extends GrowingPlantHeadBlock implements Bonemealabl
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        return CaveVines.use(param0, param1, param2);
+        return CaveVines.use(param3, param0, param1, param2);
     }
 
     @Override

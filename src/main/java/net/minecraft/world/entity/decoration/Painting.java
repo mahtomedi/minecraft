@@ -3,7 +3,6 @@ package net.minecraft.world.entity.decoration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -37,6 +36,7 @@ public class Painting extends HangingEntity implements VariantHolder<Holder<Pain
         Painting.class, EntityDataSerializers.PAINTING_VARIANT
     );
     private static final ResourceKey<PaintingVariant> DEFAULT_VARIANT = PaintingVariants.KEBAB;
+    public static final String VARIANT_TAG = "variant";
 
     private static Holder<PaintingVariant> getDefaultVariant() {
         return BuiltInRegistries.PAINTING_VARIANT.getHolderOrThrow(DEFAULT_VARIANT);
@@ -112,22 +112,28 @@ public class Painting extends HangingEntity implements VariantHolder<Holder<Pain
 
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
-        param0.putString("variant", this.getVariant().unwrapKey().orElse(DEFAULT_VARIANT).location().toString());
+        storeVariant(param0, this.getVariant());
         param0.putByte("facing", (byte)this.direction.get2DDataValue());
         super.addAdditionalSaveData(param0);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
-        Holder<PaintingVariant> var0 = Optional.ofNullable(ResourceLocation.tryParse(param0.getString("variant")))
-            .map(param0x -> ResourceKey.create(Registries.PAINTING_VARIANT, param0x))
-            .flatMap(BuiltInRegistries.PAINTING_VARIANT::getHolder)
-            .map((Function<? super Holder.Reference<PaintingVariant>, ? extends Holder.Reference<PaintingVariant>>)(param0x -> param0x))
-            .orElseGet(Painting::getDefaultVariant);
+        Holder<PaintingVariant> var0 = loadVariant(param0).orElseGet(Painting::getDefaultVariant);
         this.setVariant(var0);
         this.direction = Direction.from2DDataValue(param0.getByte("facing"));
         super.readAdditionalSaveData(param0);
         this.setDirection(this.direction);
+    }
+
+    public static void storeVariant(CompoundTag param0, Holder<PaintingVariant> param1) {
+        param0.putString("variant", param1.unwrapKey().orElse(DEFAULT_VARIANT).location().toString());
+    }
+
+    public static Optional<Holder<PaintingVariant>> loadVariant(CompoundTag param0) {
+        return Optional.ofNullable(ResourceLocation.tryParse(param0.getString("variant")))
+            .map(param0x -> ResourceKey.create(Registries.PAINTING_VARIANT, param0x))
+            .flatMap(BuiltInRegistries.PAINTING_VARIANT::getHolder);
     }
 
     @Override

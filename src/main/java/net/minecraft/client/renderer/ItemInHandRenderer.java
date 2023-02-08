@@ -9,7 +9,6 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -20,6 +19,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
@@ -119,7 +119,7 @@ public class ItemInHandRenderer {
     }
 
     public void renderItem(
-        LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, boolean param3, PoseStack param4, MultiBufferSource param5, int param6
+        LivingEntity param0, ItemStack param1, ItemDisplayContext param2, boolean param3, PoseStack param4, MultiBufferSource param5, int param6
     ) {
         if (!param1.isEmpty()) {
             this.itemRenderer
@@ -404,7 +404,7 @@ public class ItemInHandRenderer {
                 this.renderItem(
                     param0,
                     param5,
-                    var3 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
+                    var3 ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND : ItemDisplayContext.FIRST_PERSON_LEFT_HAND,
                     !var3,
                     param7,
                     param8,
@@ -492,7 +492,7 @@ public class ItemInHandRenderer {
                 this.renderItem(
                     param0,
                     param5,
-                    var13 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
+                    var13 ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND : ItemDisplayContext.FIRST_PERSON_LEFT_HAND,
                     !var13,
                     param7,
                     param8,

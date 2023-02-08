@@ -38,7 +38,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
@@ -64,6 +63,7 @@ import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -244,9 +244,13 @@ public class GameRenderer implements AutoCloseable {
     @Nullable
     private static ShaderInstance rendertypeTextShader;
     @Nullable
+    private static ShaderInstance rendertypeTextBackgroundShader;
+    @Nullable
     private static ShaderInstance rendertypeTextIntensityShader;
     @Nullable
     private static ShaderInstance rendertypeTextSeeThroughShader;
+    @Nullable
+    private static ShaderInstance rendertypeTextBackgroundSeeThroughShader;
     @Nullable
     private static ShaderInstance rendertypeTextIntensitySeeThroughShader;
     @Nullable
@@ -631,6 +635,12 @@ public class GameRenderer implements AutoCloseable {
             );
             var1.add(
                 Pair.of(
+                    new ShaderInstance(param0, "rendertype_text_background", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP),
+                    param0x -> rendertypeTextBackgroundShader = param0x
+                )
+            );
+            var1.add(
+                Pair.of(
                     new ShaderInstance(param0, "rendertype_text_intensity", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP),
                     param0x -> rendertypeTextIntensityShader = param0x
                 )
@@ -639,6 +649,12 @@ public class GameRenderer implements AutoCloseable {
                 Pair.of(
                     new ShaderInstance(param0, "rendertype_text_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP),
                     param0x -> rendertypeTextSeeThroughShader = param0x
+                )
+            );
+            var1.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_text_background_see_through", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP),
+                    param0x -> rendertypeTextBackgroundSeeThroughShader = param0x
                 )
             );
             var1.add(
@@ -838,7 +854,8 @@ public class GameRenderer implements AutoCloseable {
             var1 = Mth.sin(var1 * var1 * var1 * var1 * (float) Math.PI);
             float var3 = var0.getHurtDir();
             param0.mulPose(Axis.YP.rotationDegrees(-var3));
-            param0.mulPose(Axis.ZP.rotationDegrees(-var1 * 14.0F));
+            float var4 = (float)((double)(-var1) * 14.0 * this.minecraft.options.damageTiltStrength().get());
+            param0.mulPose(Axis.ZP.rotationDegrees(var4));
             param0.mulPose(Axis.YP.rotationDegrees(var3));
         }
 
@@ -1244,9 +1261,7 @@ public class GameRenderer implements AutoCloseable {
             MultiBufferSource.BufferSource var10 = this.renderBuffers.bufferSource();
             this.minecraft
                 .getItemRenderer()
-                .renderStatic(
-                    this.itemActivationItem, ItemTransforms.TransformType.FIXED, 15728880, OverlayTexture.NO_OVERLAY, var8, var10, this.minecraft.level, 0
-                );
+                .renderStatic(this.itemActivationItem, ItemDisplayContext.FIXED, 15728880, OverlayTexture.NO_OVERLAY, var8, var10, this.minecraft.level, 0);
             var8.popPose();
             var10.endBatch();
             RenderSystem.enableCull();
@@ -1544,6 +1559,11 @@ public class GameRenderer implements AutoCloseable {
     }
 
     @Nullable
+    public static ShaderInstance getRendertypeTextBackgroundShader() {
+        return rendertypeTextBackgroundShader;
+    }
+
+    @Nullable
     public static ShaderInstance getRendertypeTextIntensityShader() {
         return rendertypeTextIntensityShader;
     }
@@ -1551,6 +1571,11 @@ public class GameRenderer implements AutoCloseable {
     @Nullable
     public static ShaderInstance getRendertypeTextSeeThroughShader() {
         return rendertypeTextSeeThroughShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeTextBackgroundSeeThroughShader() {
+        return rendertypeTextBackgroundSeeThroughShader;
     }
 
     @Nullable

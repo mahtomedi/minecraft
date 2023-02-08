@@ -102,8 +102,8 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         boolean param14
     ) {
         float var0 = (float)param13 / 24.0F;
-        int var1 = (int)Mth.lerp(var0, (float)param5, (float)param6);
-        int var2 = (int)Mth.lerp(var0, (float)param7, (float)param8);
+        int var1 = Mth.lerp(var0, param5, param6);
+        int var2 = Mth.lerp(var0, param7, param8);
         int var3 = LightTexture.pack(var1, var2);
         float var4 = param13 % 2 == (param14 ? 1 : 0) ? 0.7F : 1.0F;
         float var5 = 0.5F * var4;

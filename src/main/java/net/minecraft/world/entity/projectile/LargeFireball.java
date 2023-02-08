@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.projectile;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,7 +38,7 @@ public class LargeFireball extends Fireball {
         if (!this.level.isClientSide) {
             Entity var0 = param0.getEntity();
             Entity var1 = this.getOwner();
-            var0.hurt(DamageSource.fireball(this, var1), 6.0F);
+            var0.hurt(this.damageSources().fireball(this, var1), 6.0F);
             if (var1 instanceof LivingEntity) {
                 this.doEnchantDamageEffects((LivingEntity)var1, var0);
             }

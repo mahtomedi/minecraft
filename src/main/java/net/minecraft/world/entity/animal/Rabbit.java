@@ -303,9 +303,9 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
     public boolean doHurtTarget(Entity param0) {
         if (this.getVariant() == Rabbit.Variant.EVIL) {
             this.playSound(SoundEvents.RABBIT_ATTACK, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-            return param0.hurt(DamageSource.mobAttack(this), 8.0F);
+            return param0.hurt(this.damageSources().mobAttack(this), 8.0F);
         } else {
-            return param0.hurt(DamageSource.mobAttack(this), 3.0F);
+            return param0.hurt(this.damageSources().mobAttack(this), 3.0F);
         }
     }
 

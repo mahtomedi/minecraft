@@ -304,7 +304,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         if (param10) {
             RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.EMPTY_SLOT_LOCATION);
         } else if (param9 != null && param8 != -1L) {
-            RealmsTextureManager.bindWorldTemplate(String.valueOf(param8), param9);
+            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(param8), param9));
         } else if (param7 == 1) {
             RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_1);
         } else if (param7 == 2) {
@@ -312,7 +312,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         } else if (param7 == 3) {
             RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_3);
         } else {
-            RealmsTextureManager.bindWorldTemplate(String.valueOf(this.serverData.minigameId), this.serverData.minigameImage);
+            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(this.serverData.minigameId), this.serverData.minigameImage));
         }
 
         if (!param5) {

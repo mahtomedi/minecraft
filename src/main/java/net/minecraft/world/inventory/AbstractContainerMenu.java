@@ -360,7 +360,7 @@ public abstract class AbstractContainerMenu {
                             }
 
                             var6 -= var9.getCount() - var10;
-                            var7.set(var9);
+                            var7.setByPlayer(var9);
                         }
                     }
 
@@ -429,7 +429,7 @@ public abstract class AbstractContainerMenu {
                                 this.setCarried(var15.safeInsert(var17, var21));
                             } else if (var17.getCount() <= var15.getMaxStackSize(var17)) {
                                 this.setCarried(var16);
-                                var15.set(var17);
+                                var15.setByPlayer(var17);
                             }
                         } else if (ItemStack.isSameItemSameTags(var16, var17)) {
                             Optional<ItemStack> var22 = var15.tryRemove(var16.getCount(), var17.getMaxStackSize() - var17.getCount(), param3);
@@ -452,30 +452,30 @@ public abstract class AbstractContainerMenu {
                     if (var23.mayPickup(param3)) {
                         var0.setItem(param1, var25);
                         var23.onSwapCraft(var25.getCount());
-                        var23.set(ItemStack.EMPTY);
+                        var23.setByPlayer(ItemStack.EMPTY);
                         var23.onTake(param3, var25);
                     }
                 } else if (var25.isEmpty()) {
                     if (var23.mayPlace(var24)) {
                         int var26 = var23.getMaxStackSize(var24);
                         if (var24.getCount() > var26) {
-                            var23.set(var24.split(var26));
+                            var23.setByPlayer(var24.split(var26));
                         } else {
                             var0.setItem(param1, ItemStack.EMPTY);
-                            var23.set(var24);
+                            var23.setByPlayer(var24);
                         }
                     }
                 } else if (var23.mayPickup(param3) && var23.mayPlace(var24)) {
                     int var27 = var23.getMaxStackSize(var24);
                     if (var24.getCount() > var27) {
-                        var23.set(var24.split(var27));
+                        var23.setByPlayer(var24.split(var27));
                         var23.onTake(param3, var25);
                         if (!var0.add(var25)) {
                             param3.drop(var25, true);
                         }
                     } else {
                         var0.setItem(param1, var25);
-                        var23.set(var24);
+                        var23.setByPlayer(var24);
                         var23.onTake(param3, var25);
                     }
                 }
@@ -588,7 +588,7 @@ public abstract class AbstractContainerMenu {
 
     public void initializeContents(int param0, List<ItemStack> param1, ItemStack param2) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
-            this.getSlot(var0).initialize(param1.get(var0));
+            this.getSlot(var0).set(param1.get(var0));
         }
 
         this.carried = param2;
@@ -663,9 +663,9 @@ public abstract class AbstractContainerMenu {
                 ItemStack var6 = var5.getItem();
                 if (var6.isEmpty() && var5.mayPlace(param0)) {
                     if (param0.getCount() > var5.getMaxStackSize()) {
-                        var5.set(param0.split(var5.getMaxStackSize()));
+                        var5.setByPlayer(param0.split(var5.getMaxStackSize()));
                     } else {
-                        var5.set(param0.split(param0.getCount()));
+                        var5.setByPlayer(param0.split(param0.getCount()));
                     }
 
                     var5.setChanged();

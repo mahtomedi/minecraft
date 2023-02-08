@@ -39,6 +39,7 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
     protected static final int BUTTON_TEXTURE_WIDTH = 200;
     protected static final int BUTTON_TEXTURE_HEIGHT = 20;
     protected static final int BUTTON_TEXTURE_BORDER = 4;
+    private static final int BUTTON_TEXT_MARGIN = 2;
     protected int width;
     protected int height;
     private int x;
@@ -153,7 +154,19 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int var1 = this.active ? 16777215 : 10526880;
         Font var2 = var0.font;
-        this.renderString(param0, var2, this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, var1);
+        int var3 = var2.width(this.message);
+        int var4 = this.width - 4;
+        if (var3 > var4) {
+            double var5 = (double)Util.getMillis() / 1000.0;
+            double var6 = Math.sin((Math.PI / 2) * Math.cos(var5));
+            int var7 = var3 - var4;
+            enableScissor(this.x + 2, this.y + 2, this.x + this.width - 2, this.y + this.height - 2);
+            this.renderString(param0, var2, this.getX() + this.width / 2 - (int)(var6 * (double)var7), this.getY() + (this.height - 8) / 2, var1);
+            disableScissor();
+        } else {
+            this.renderString(param0, var2, this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, var1);
+        }
+
     }
 
     public void renderString(PoseStack param0, Font param1, int param2, int param3, int param4) {

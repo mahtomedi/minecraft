@@ -1,13 +1,11 @@
 package net.minecraft.client.gui.layouts;
 
-import java.util.function.Consumer;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractLayout implements LayoutElement {
+public abstract class AbstractLayout implements Layout {
     private int x;
     private int y;
     protected int width;
@@ -18,22 +16,6 @@ public abstract class AbstractLayout implements LayoutElement {
         this.y = param1;
         this.width = param2;
         this.height = param3;
-    }
-
-    protected abstract void visitChildren(Consumer<LayoutElement> var1);
-
-    public void arrangeElements() {
-        this.visitChildren(param0 -> {
-            if (param0 instanceof AbstractLayout var0) {
-                var0.arrangeElements();
-            }
-
-        });
-    }
-
-    @Override
-    public void visitWidgets(Consumer<AbstractWidget> param0) {
-        this.visitChildren(param1 -> param1.visitWidgets(param0));
     }
 
     @Override

@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -75,7 +74,7 @@ public class SonicBoom extends Behavior<Warden> {
                     }
     
                     param1.playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
-                    param2x.hurt(DamageSource.sonicBoom(param1), 10.0F);
+                    param2x.hurt(param0.damageSources().sonicBoom(param1), 10.0F);
                     double var5 = 0.5 * (1.0 - param2x.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
                     double var6 = 2.5 * (1.0 - param2x.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
                     param2x.push(var2x.x() * var6, var2x.y() * var5, var2x.z() * var6);

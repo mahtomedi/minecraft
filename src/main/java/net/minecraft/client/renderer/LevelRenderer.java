@@ -1398,17 +1398,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             }
         }
 
-        PoseStack var48 = RenderSystem.getModelViewStack();
-        var48.pushPose();
-        var48.mulPoseMatrix(param0.last().pose());
-        RenderSystem.applyModelViewMatrix();
         this.minecraft.debugRenderer.render(param0, var13, var3, var4, var5);
-        var48.popPose();
+        var13.endLastBatch();
+        PoseStack var48 = RenderSystem.getModelViewStack();
         RenderSystem.applyModelViewMatrix();
         var13.endBatch(Sheets.translucentCullBlockSheet());
         var13.endBatch(Sheets.bannerSheet());
         var13.endBatch(Sheets.shieldSheet());
-        var13.endBatch(Sheets.armorTrimsSheet());
         var13.endBatch(RenderType.armorGlint());
         var13.endBatch(RenderType.armorEntityGlint());
         var13.endBatch(RenderType.glint());
@@ -1481,11 +1477,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.depthMask(true);
         }
 
-        this.renderDebug(param4);
-        RenderSystem.depthMask(true);
-        RenderSystem.disableBlend();
         var48.popPose();
         RenderSystem.applyModelViewMatrix();
+        this.renderDebug(param0, var13, param4);
+        var13.endLastBatch();
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
         FogRenderer.setupNoFog();
     }
 
@@ -1627,69 +1624,54 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         param0.clearRenderState();
     }
 
-    private void renderDebug(Camera param0) {
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    private void renderDebug(PoseStack param0, MultiBufferSource param1, Camera param2) {
         if (this.minecraft.chunkPath || this.minecraft.chunkVisibility) {
-            double var2 = param0.getPosition().x();
-            double var3 = param0.getPosition().y();
-            double var4 = param0.getPosition().z();
-            RenderSystem.depthMask(true);
-            RenderSystem.disableCull();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
+            double var0 = param2.getPosition().x();
+            double var1 = param2.getPosition().y();
+            double var2 = param2.getPosition().z();
 
-            for(LevelRenderer.RenderChunkInfo var5 : this.renderChunksInFrustum) {
-                ChunkRenderDispatcher.RenderChunk var6 = var5.chunk;
-                BlockPos var7 = var6.getOrigin();
-                PoseStack var8 = RenderSystem.getModelViewStack();
-                var8.pushPose();
-                var8.translate((double)var7.getX() - var2, (double)var7.getY() - var3, (double)var7.getZ() - var4);
-                RenderSystem.applyModelViewMatrix();
-                RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            for(LevelRenderer.RenderChunkInfo var3 : this.renderChunksInFrustum) {
+                ChunkRenderDispatcher.RenderChunk var4 = var3.chunk;
+                BlockPos var5 = var4.getOrigin();
+                param0.pushPose();
+                param0.translate((double)var5.getX() - var0, (double)var5.getY() - var1, (double)var5.getZ() - var2);
+                Matrix4f var6 = param0.last().pose();
                 if (this.minecraft.chunkPath) {
-                    var1.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-                    RenderSystem.lineWidth(5.0F);
-                    int var9 = var5.step == 0 ? 0 : Mth.hsvToRgb((float)var5.step / 50.0F, 0.9F, 0.9F);
-                    int var10 = var9 >> 16 & 0xFF;
-                    int var11 = var9 >> 8 & 0xFF;
-                    int var12 = var9 & 0xFF;
+                    VertexConsumer var7 = param1.getBuffer(RenderType.lines());
+                    int var8 = var3.step == 0 ? 0 : Mth.hsvToRgb((float)var3.step / 50.0F, 0.9F, 0.9F);
+                    int var9 = var8 >> 16 & 0xFF;
+                    int var10 = var8 >> 8 & 0xFF;
+                    int var11 = var8 & 0xFF;
 
-                    for(int var13 = 0; var13 < DIRECTIONS.length; ++var13) {
-                        if (var5.hasSourceDirection(var13)) {
-                            Direction var14 = DIRECTIONS[var13];
-                            var1.vertex(8.0, 8.0, 8.0)
-                                .color(var10, var11, var12, 255)
-                                .normal((float)var14.getStepX(), (float)var14.getStepY(), (float)var14.getStepZ())
+                    for(int var12 = 0; var12 < DIRECTIONS.length; ++var12) {
+                        if (var3.hasSourceDirection(var12)) {
+                            Direction var13 = DIRECTIONS[var12];
+                            var7.vertex(var6, 8.0F, 8.0F, 8.0F)
+                                .color(var9, var10, var11, 255)
+                                .normal((float)var13.getStepX(), (float)var13.getStepY(), (float)var13.getStepZ())
                                 .endVertex();
-                            var1.vertex((double)(8 - 16 * var14.getStepX()), (double)(8 - 16 * var14.getStepY()), (double)(8 - 16 * var14.getStepZ()))
-                                .color(var10, var11, var12, 255)
-                                .normal((float)var14.getStepX(), (float)var14.getStepY(), (float)var14.getStepZ())
+                            var7.vertex(var6, (float)(8 - 16 * var13.getStepX()), (float)(8 - 16 * var13.getStepY()), (float)(8 - 16 * var13.getStepZ()))
+                                .color(var9, var10, var11, 255)
+                                .normal((float)var13.getStepX(), (float)var13.getStepY(), (float)var13.getStepZ())
                                 .endVertex();
                         }
                     }
-
-                    var0.end();
-                    RenderSystem.lineWidth(1.0F);
                 }
 
-                if (this.minecraft.chunkVisibility && !var6.getCompiledChunk().hasNoRenderableLayers()) {
-                    var1.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-                    RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-                    RenderSystem.lineWidth(5.0F);
+                if (this.minecraft.chunkVisibility && !var4.getCompiledChunk().hasNoRenderableLayers()) {
+                    VertexConsumer var14 = param1.getBuffer(RenderType.lines());
                     int var15 = 0;
 
                     for(Direction var16 : DIRECTIONS) {
                         for(Direction var17 : DIRECTIONS) {
-                            boolean var18 = var6.getCompiledChunk().facesCanSeeEachother(var16, var17);
+                            boolean var18 = var4.getCompiledChunk().facesCanSeeEachother(var16, var17);
                             if (!var18) {
                                 ++var15;
-                                var1.vertex((double)(8 + 8 * var16.getStepX()), (double)(8 + 8 * var16.getStepY()), (double)(8 + 8 * var16.getStepZ()))
+                                var14.vertex(var6, (float)(8 + 8 * var16.getStepX()), (float)(8 + 8 * var16.getStepY()), (float)(8 + 8 * var16.getStepZ()))
                                     .color(255, 0, 0, 255)
                                     .normal((float)var16.getStepX(), (float)var16.getStepY(), (float)var16.getStepZ())
                                     .endVertex();
-                                var1.vertex((double)(8 + 8 * var17.getStepX()), (double)(8 + 8 * var17.getStepY()), (double)(8 + 8 * var17.getStepZ()))
+                                var14.vertex(var6, (float)(8 + 8 * var17.getStepX()), (float)(8 + 8 * var17.getStepY()), (float)(8 + 8 * var17.getStepZ()))
                                     .color(255, 0, 0, 255)
                                     .normal((float)var17.getStepX(), (float)var17.getStepY(), (float)var17.getStepZ())
                                     .endVertex();
@@ -1697,131 +1679,106 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         }
                     }
 
-                    var0.end();
-                    RenderSystem.lineWidth(1.0F);
-                    RenderSystem.setShader(GameRenderer::getPositionColorShader);
                     if (var15 > 0) {
-                        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-                        float var19 = 0.5F;
-                        float var20 = 0.2F;
-                        var1.vertex(0.5, 15.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 15.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 15.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 15.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 0.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 0.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 0.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 0.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 15.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 15.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 0.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 0.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 0.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 0.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 15.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 15.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 0.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 0.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 15.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 15.5, 0.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 15.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 15.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(15.5, 0.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var1.vertex(0.5, 0.5, 15.5).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
-                        var0.end();
+                        VertexConsumer var19 = param1.getBuffer(RenderType.debugQuads());
+                        float var20 = 0.5F;
+                        float var21 = 0.2F;
+                        var19.vertex(var6, 0.5F, 15.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 15.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 15.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 15.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 0.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 0.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 0.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 0.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 15.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 15.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 0.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 0.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 0.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 0.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 15.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 15.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 0.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 0.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 15.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 15.5F, 0.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 15.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 15.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 15.5F, 0.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
+                        var19.vertex(var6, 0.5F, 0.5F, 15.5F).color(0.9F, 0.9F, 0.0F, 0.2F).endVertex();
                     }
                 }
 
-                var8.popPose();
-                RenderSystem.applyModelViewMatrix();
+                param0.popPose();
             }
-
-            RenderSystem.depthMask(true);
-            RenderSystem.disableBlend();
-            RenderSystem.enableCull();
         }
 
         if (this.capturedFrustum != null) {
-            RenderSystem.disableCull();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.lineWidth(5.0F);
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            PoseStack var21 = RenderSystem.getModelViewStack();
-            var21.pushPose();
-            var21.translate(
-                (float)(this.frustumPos.x - param0.getPosition().x),
-                (float)(this.frustumPos.y - param0.getPosition().y),
-                (float)(this.frustumPos.z - param0.getPosition().z)
+            param0.pushPose();
+            param0.translate(
+                (float)(this.frustumPos.x - param2.getPosition().x),
+                (float)(this.frustumPos.y - param2.getPosition().y),
+                (float)(this.frustumPos.z - param2.getPosition().z)
             );
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.depthMask(true);
-            var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            this.addFrustumQuad(var1, 0, 1, 2, 3, 0, 1, 1);
-            this.addFrustumQuad(var1, 4, 5, 6, 7, 1, 0, 0);
-            this.addFrustumQuad(var1, 0, 1, 5, 4, 1, 1, 0);
-            this.addFrustumQuad(var1, 2, 3, 7, 6, 0, 0, 1);
-            this.addFrustumQuad(var1, 0, 4, 7, 3, 0, 1, 0);
-            this.addFrustumQuad(var1, 1, 5, 6, 2, 1, 0, 1);
-            var0.end();
-            RenderSystem.depthMask(false);
-            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-            var1.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-            this.addFrustumVertex(var1, 0);
-            this.addFrustumVertex(var1, 1);
-            this.addFrustumVertex(var1, 1);
-            this.addFrustumVertex(var1, 2);
-            this.addFrustumVertex(var1, 2);
-            this.addFrustumVertex(var1, 3);
-            this.addFrustumVertex(var1, 3);
-            this.addFrustumVertex(var1, 0);
-            this.addFrustumVertex(var1, 4);
-            this.addFrustumVertex(var1, 5);
-            this.addFrustumVertex(var1, 5);
-            this.addFrustumVertex(var1, 6);
-            this.addFrustumVertex(var1, 6);
-            this.addFrustumVertex(var1, 7);
-            this.addFrustumVertex(var1, 7);
-            this.addFrustumVertex(var1, 4);
-            this.addFrustumVertex(var1, 0);
-            this.addFrustumVertex(var1, 4);
-            this.addFrustumVertex(var1, 1);
-            this.addFrustumVertex(var1, 5);
-            this.addFrustumVertex(var1, 2);
-            this.addFrustumVertex(var1, 6);
-            this.addFrustumVertex(var1, 3);
-            this.addFrustumVertex(var1, 7);
-            var0.end();
-            var21.popPose();
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.depthMask(true);
-            RenderSystem.disableBlend();
-            RenderSystem.enableCull();
-            RenderSystem.lineWidth(1.0F);
+            Matrix4f var22 = param0.last().pose();
+            VertexConsumer var23 = param1.getBuffer(RenderType.debugQuads());
+            this.addFrustumQuad(var23, var22, 0, 1, 2, 3, 0, 1, 1);
+            this.addFrustumQuad(var23, var22, 4, 5, 6, 7, 1, 0, 0);
+            this.addFrustumQuad(var23, var22, 0, 1, 5, 4, 1, 1, 0);
+            this.addFrustumQuad(var23, var22, 2, 3, 7, 6, 0, 0, 1);
+            this.addFrustumQuad(var23, var22, 0, 4, 7, 3, 0, 1, 0);
+            this.addFrustumQuad(var23, var22, 1, 5, 6, 2, 1, 0, 1);
+            VertexConsumer var24 = param1.getBuffer(RenderType.lines());
+            this.addFrustumVertex(var24, var22, 0);
+            this.addFrustumVertex(var24, var22, 1);
+            this.addFrustumVertex(var24, var22, 1);
+            this.addFrustumVertex(var24, var22, 2);
+            this.addFrustumVertex(var24, var22, 2);
+            this.addFrustumVertex(var24, var22, 3);
+            this.addFrustumVertex(var24, var22, 3);
+            this.addFrustumVertex(var24, var22, 0);
+            this.addFrustumVertex(var24, var22, 4);
+            this.addFrustumVertex(var24, var22, 5);
+            this.addFrustumVertex(var24, var22, 5);
+            this.addFrustumVertex(var24, var22, 6);
+            this.addFrustumVertex(var24, var22, 6);
+            this.addFrustumVertex(var24, var22, 7);
+            this.addFrustumVertex(var24, var22, 7);
+            this.addFrustumVertex(var24, var22, 4);
+            this.addFrustumVertex(var24, var22, 0);
+            this.addFrustumVertex(var24, var22, 4);
+            this.addFrustumVertex(var24, var22, 1);
+            this.addFrustumVertex(var24, var22, 5);
+            this.addFrustumVertex(var24, var22, 2);
+            this.addFrustumVertex(var24, var22, 6);
+            this.addFrustumVertex(var24, var22, 3);
+            this.addFrustumVertex(var24, var22, 7);
+            param0.popPose();
         }
 
     }
 
-    private void addFrustumVertex(VertexConsumer param0, int param1) {
-        param0.vertex((double)this.frustumPoints[param1].x(), (double)this.frustumPoints[param1].y(), (double)this.frustumPoints[param1].z())
+    private void addFrustumVertex(VertexConsumer param0, Matrix4f param1, int param2) {
+        param0.vertex(param1, this.frustumPoints[param2].x(), this.frustumPoints[param2].y(), this.frustumPoints[param2].z())
             .color(0, 0, 0, 255)
             .normal(0.0F, 0.0F, -1.0F)
             .endVertex();
     }
 
-    private void addFrustumQuad(VertexConsumer param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+    private void addFrustumQuad(VertexConsumer param0, Matrix4f param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
         float var0 = 0.25F;
-        param0.vertex((double)this.frustumPoints[param1].x(), (double)this.frustumPoints[param1].y(), (double)this.frustumPoints[param1].z())
-            .color((float)param5, (float)param6, (float)param7, 0.25F)
+        param0.vertex(param1, this.frustumPoints[param2].x(), this.frustumPoints[param2].y(), this.frustumPoints[param2].z())
+            .color((float)param6, (float)param7, (float)param8, 0.25F)
             .endVertex();
-        param0.vertex((double)this.frustumPoints[param2].x(), (double)this.frustumPoints[param2].y(), (double)this.frustumPoints[param2].z())
-            .color((float)param5, (float)param6, (float)param7, 0.25F)
+        param0.vertex(param1, this.frustumPoints[param3].x(), this.frustumPoints[param3].y(), this.frustumPoints[param3].z())
+            .color((float)param6, (float)param7, (float)param8, 0.25F)
             .endVertex();
-        param0.vertex((double)this.frustumPoints[param3].x(), (double)this.frustumPoints[param3].y(), (double)this.frustumPoints[param3].z())
-            .color((float)param5, (float)param6, (float)param7, 0.25F)
+        param0.vertex(param1, this.frustumPoints[param4].x(), this.frustumPoints[param4].y(), this.frustumPoints[param4].z())
+            .color((float)param6, (float)param7, (float)param8, 0.25F)
             .endVertex();
-        param0.vertex((double)this.frustumPoints[param4].x(), (double)this.frustumPoints[param4].y(), (double)this.frustumPoints[param4].z())
-            .color((float)param5, (float)param6, (float)param7, 0.25F)
+        param0.vertex(param1, this.frustumPoints[param5].x(), this.frustumPoints[param5].y(), this.frustumPoints[param5].z())
+            .color((float)param6, (float)param7, (float)param8, 0.25F)
             .endVertex();
     }
 
@@ -2660,48 +2617,69 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public static void addChainedFilledBoxVertices(
-        BufferBuilder param0,
-        double param1,
+        PoseStack param0,
+        VertexConsumer param1,
         double param2,
         double param3,
         double param4,
         double param5,
         double param6,
+        double param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11
+    ) {
+        addChainedFilledBoxVertices(
+            param0, param1, (float)param2, (float)param3, (float)param4, (float)param5, (float)param6, (float)param7, param8, param9, param10, param11
+        );
+    }
+
+    public static void addChainedFilledBoxVertices(
+        PoseStack param0,
+        VertexConsumer param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
         float param7,
         float param8,
         float param9,
-        float param10
+        float param10,
+        float param11
     ) {
-        param0.vertex(param1, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param2, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param1, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param3).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param6).color(param7, param8, param9, param10).endVertex();
-        param0.vertex(param4, param5, param6).color(param7, param8, param9, param10).endVertex();
+        Matrix4f var0 = param0.last().pose();
+        param1.vertex(var0, param2, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param3, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param2, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param4).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param7).color(param8, param9, param10, param11).endVertex();
+        param1.vertex(var0, param5, param6, param7).color(param8, param9, param10, param11).endVertex();
     }
 
     public void blockChanged(BlockGetter param0, BlockPos param1, BlockState param2, BlockState param3, int param4) {

@@ -7,7 +7,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -78,7 +77,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
                 double var0 = Math.abs(param3.getX() - param3.xOld);
                 double var1 = Math.abs(param3.getZ() - param3.zOld);
                 if (var0 >= 0.003F || var1 >= 0.003F) {
-                    param3.hurt(DamageSource.SWEET_BERRY_BUSH, 1.0F);
+                    param3.hurt(param1.damageSources().sweetBerryBush(), 1.0F);
                 }
             }
 

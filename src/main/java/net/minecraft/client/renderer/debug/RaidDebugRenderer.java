@@ -31,23 +31,23 @@ public class RaidDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         for(BlockPos var1 : this.raidCenters) {
             if (var0.closerThan(var1, 160.0)) {
-                highlightRaidCenter(var1);
+                highlightRaidCenter(param0, param1, var1);
             }
         }
 
     }
 
-    private static void highlightRaidCenter(BlockPos param0) {
-        DebugRenderer.renderFilledBox(param0.offset(-0.5, -0.5, -0.5), param0.offset(1.5, 1.5, 1.5), 1.0F, 0.0F, 0.0F, 0.15F);
+    private static void highlightRaidCenter(PoseStack param0, MultiBufferSource param1, BlockPos param2) {
+        DebugRenderer.renderFilledBox(param0, param1, param2.offset(-0.5, -0.5, -0.5), param2.offset(1.5, 1.5, 1.5), 1.0F, 0.0F, 0.0F, 0.15F);
         int var0 = -65536;
-        renderTextOverBlock("Raid center", param0, -65536);
+        renderTextOverBlock(param0, param1, "Raid center", param2, -65536);
     }
 
-    private static void renderTextOverBlock(String param0, BlockPos param1, int param2) {
-        double var0 = (double)param1.getX() + 0.5;
-        double var1 = (double)param1.getY() + 1.3;
-        double var2 = (double)param1.getZ() + 0.5;
-        DebugRenderer.renderFloatingText(param0, var0, var1, var2, param2, 0.04F, true, 0.0F, true);
+    private static void renderTextOverBlock(PoseStack param0, MultiBufferSource param1, String param2, BlockPos param3, int param4) {
+        double var0 = (double)param3.getX() + 0.5;
+        double var1 = (double)param3.getY() + 1.3;
+        double var2 = (double)param3.getZ() + 0.5;
+        DebugRenderer.renderFloatingText(param0, param1, param2, var0, var1, var2, param4, 0.04F, true, 0.0F, true);
     }
 
     private Camera getCamera() {

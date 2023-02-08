@@ -6,10 +6,10 @@ import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,14 +37,14 @@ public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 param0.scale(0.5F, 0.5F, 0.5F);
             }
 
-            this.renderArmWithItem(param3, var2, ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, param0, param1, param2);
-            this.renderArmWithItem(param3, var1, ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, param0, param1, param2);
+            this.renderArmWithItem(param3, var2, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, param0, param1, param2);
+            this.renderArmWithItem(param3, var1, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, param0, param1, param2);
             param0.popPose();
         }
     }
 
     protected void renderArmWithItem(
-        LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5, int param6
+        LivingEntity param0, ItemStack param1, ItemDisplayContext param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5, int param6
     ) {
         if (!param1.isEmpty()) {
             param4.pushPose();

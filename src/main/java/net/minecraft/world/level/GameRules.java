@@ -173,6 +173,9 @@ public class GameRules {
     public static final GameRules.Key<GameRules.BooleanValue> RULE_GLOBAL_SOUND_EVENTS = register(
         "globalSoundEvents", GameRules.Category.MISC, GameRules.BooleanValue.create(true)
     );
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_DO_VINES_SPREAD = register(
+        "doVinesSpread", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true)
+    );
     private final Map<GameRules.Key<?>, GameRules.Value<?>> rules;
 
     private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String param0, GameRules.Category param1, GameRules.Type<T> param2) {

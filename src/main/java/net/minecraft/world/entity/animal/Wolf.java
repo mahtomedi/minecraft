@@ -315,7 +315,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
 
     @Override
     public boolean doHurtTarget(Entity param0) {
-        boolean var0 = param0.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
+        boolean var0 = param0.hurt(this.damageSources().mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
         if (var0) {
             this.doEnchantDamageEffects(this, param0);
         }

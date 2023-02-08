@@ -8,12 +8,11 @@ import com.mojang.realmsclient.dto.Ops;
 import com.mojang.realmsclient.dto.PlayerInfo;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.exception.RealmsServiceException;
-import com.mojang.realmsclient.util.RealmsTextureManager;
+import com.mojang.realmsclient.util.RealmsUtil;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -309,7 +308,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
             RealmsPlayerScreen.this.drawRemoveIcon(
                 param0, RealmsPlayerScreen.this.column1X + RealmsPlayerScreen.this.columnWidth - 22, param3 + 2, param4, param5
             );
-            RealmsTextureManager.withBoundFace(param1.getUuid(), () -> PlayerFaceRenderer.draw(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8));
+            RealmsUtil.renderPlayerFace(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8, param1.getUuid());
         }
 
         @Override

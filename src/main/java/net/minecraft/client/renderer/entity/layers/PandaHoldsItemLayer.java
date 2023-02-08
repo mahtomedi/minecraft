@@ -4,11 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PandaModel;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Panda;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -45,7 +45,7 @@ public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
 
             param0.pushPose();
             param0.translate(0.1F, var2, var1);
-            this.itemInHandRenderer.renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
+            this.itemInHandRenderer.renderItem(param3, var0, ItemDisplayContext.GROUND, false, param0, param1, param2);
             param0.popPose();
         }
     }

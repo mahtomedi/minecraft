@@ -3,7 +3,6 @@ package net.minecraft.world.entity.projectile;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -55,7 +54,7 @@ public class Snowball extends ThrowableItemProjectile {
         super.onHitEntity(param0);
         Entity var0 = param0.getEntity();
         int var1 = var0 instanceof Blaze ? 3 : 0;
-        var0.hurt(DamageSource.thrown(this, this.getOwner()), (float)var1);
+        var0.hurt(this.damageSources().thrown(this, this.getOwner()), (float)var1);
     }
 
     @Override

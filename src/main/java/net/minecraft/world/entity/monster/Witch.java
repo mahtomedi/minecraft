@@ -8,6 +8,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -135,7 +136,7 @@ public class Witch extends Raider implements RangedAttackMob {
                 if (this.random.nextFloat() < 0.15F && this.isEyeInFluid(FluidTags.WATER) && !this.hasEffect(MobEffects.WATER_BREATHING)) {
                     var3 = Potions.WATER_BREATHING;
                 } else if (this.random.nextFloat() < 0.15F
-                    && (this.isOnFire() || this.getLastDamageSource() != null && this.getLastDamageSource().isFire())
+                    && (this.isOnFire() || this.getLastDamageSource() != null && this.getLastDamageSource().is(DamageTypeTags.IS_FIRE))
                     && !this.hasEffect(MobEffects.FIRE_RESISTANCE)) {
                     var3 = Potions.FIRE_RESISTANCE;
                 } else if (this.random.nextFloat() < 0.05F && this.getHealth() < this.getMaxHealth()) {
@@ -212,7 +213,7 @@ public class Witch extends Raider implements RangedAttackMob {
             param1 = 0.0F;
         }
 
-        if (param0.isMagic()) {
+        if (param0.is(DamageTypeTags.WITCH_RESISTANT_TO)) {
             param1 *= 0.15F;
         }
 

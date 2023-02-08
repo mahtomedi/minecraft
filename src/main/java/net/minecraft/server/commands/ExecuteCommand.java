@@ -37,6 +37,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.commands.arguments.ObjectiveArgument;
 import net.minecraft.commands.arguments.RangeArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.ResourceOrTagArgument;
 import net.minecraft.commands.arguments.ScoreHolderArgument;
@@ -45,7 +46,9 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ByteTag;
@@ -63,9 +66,10 @@ import net.minecraft.server.commands.data.DataCommands;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -221,6 +225,16 @@ public class ExecuteCommand {
                         .then(
                             Commands.argument("dimension", DimensionArgument.dimension())
                                 .redirect(var0, param0x -> param0x.getSource().withLevel(DimensionArgument.getDimension(param0x, "dimension")))
+                        )
+                )
+                .then(
+                    Commands.literal("summon")
+                        .then(
+                            Commands.argument("entity", ResourceArgument.resource(param1, Registries.ENTITY_TYPE))
+                                .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
+                                .redirect(
+                                    var0, param0x -> spawnEntityAndRedirect(param0x.getSource(), ResourceArgument.getSummonableEntityType(param0x, "entity"))
+                                )
                         )
                 )
                 .then(createRelationOperations(var0, Commands.literal("on")))
@@ -463,11 +477,12 @@ public class ExecuteCommand {
             .then(
                 Commands.literal("loaded")
                     .then(
-                        Commands.argument("pos", BlockPosArgument.blockPos())
-                            .fork(
-                                param0,
-                                param1x -> expect(param1x, param2, isChunkLoaded(param1x.getSource().getLevel(), BlockPosArgument.getBlockPos(param1x, "pos")))
-                            )
+                        addConditional(
+                            param0,
+                            Commands.argument("pos", BlockPosArgument.blockPos()),
+                            param2,
+                            param0x -> isChunkLoaded(param0x.getSource().getLevel(), BlockPosArgument.getBlockPos(param0x, "pos"))
+                        )
                     )
             )
             .then(
@@ -817,7 +832,7 @@ public class ExecuteCommand {
                     .fork(
                         param0,
                         expandOneToOneEntityRelation(
-                            param0x -> param0x instanceof TamableAnimal var0x ? Optional.ofNullable(var0x.getOwner()) : Optional.empty()
+                            param0x -> param0x instanceof OwnableEntity var0x ? Optional.ofNullable(var0x.getOwner()) : Optional.empty()
                         )
                     )
             )
@@ -856,6 +871,11 @@ public class ExecuteCommand {
                     )
             )
             .then(Commands.literal("passengers").fork(param0, expandOneToManyEntityRelation(param0x -> param0x.getPassengers().stream())));
+    }
+
+    private static CommandSourceStack spawnEntityAndRedirect(CommandSourceStack param0, Holder.Reference<EntityType<?>> param1) throws CommandSyntaxException {
+        Entity var0 = SummonCommand.createEntity(param0, param1, param0.getPosition(), new CompoundTag(), true);
+        return param0.withEntity(var0);
     }
 
     @FunctionalInterface

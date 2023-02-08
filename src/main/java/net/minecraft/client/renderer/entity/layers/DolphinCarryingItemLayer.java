@@ -4,11 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.DolphinModel;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.animal.Dolphin;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -46,7 +46,7 @@ public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<
         }
 
         ItemStack var4 = var0 ? param3.getMainHandItem() : param3.getOffhandItem();
-        this.itemInHandRenderer.renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
+        this.itemInHandRenderer.renderItem(param3, var4, ItemDisplayContext.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

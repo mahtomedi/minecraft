@@ -3,12 +3,10 @@ package net.minecraft.world.item;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Rotations;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -47,7 +45,6 @@ public class ArmorStandItem extends Item {
 
                     float var10 = (float)Mth.floor((Mth.wrapDegrees(param0.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
                     var9.moveTo(var9.getX(), var9.getY(), var9.getZ(), var10, 0.0F);
-                    this.randomizePose(var9, var1.random);
                     var7.addFreshEntityWithPassengers(var9);
                     var1.playSound(null, var9.getX(), var9.getY(), var9.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
                     var9.gameEvent(GameEvent.ENTITY_PLACE, param0.getPlayer());
@@ -59,17 +56,5 @@ public class ArmorStandItem extends Item {
                 return InteractionResult.FAIL;
             }
         }
-    }
-
-    private void randomizePose(ArmorStand param0, RandomSource param1) {
-        Rotations var0 = param0.getHeadPose();
-        float var1 = param1.nextFloat() * 5.0F;
-        float var2 = param1.nextFloat() * 20.0F - 10.0F;
-        Rotations var3 = new Rotations(var0.getX() + var1, var0.getY() + var2, var0.getZ());
-        param0.setHeadPose(var3);
-        var0 = param0.getBodyPose();
-        var1 = param1.nextFloat() * 10.0F - 5.0F;
-        var3 = new Rotations(var0.getX(), var0.getY() + var1, var0.getZ());
-        param0.setBodyPose(var3);
     }
 }

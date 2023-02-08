@@ -138,7 +138,7 @@ public class UpdateOneTwentyChestLoot implements LootTableSubProvider {
         );
         param0.accept(
             BuiltInLootTables.BASTION_HOGLIN_STABLE,
-            VanillaChestLoot.bastionBridgeLootTable()
+            VanillaChestLoot.bastionHoglinStableLootTable()
                 .withPool(
                     LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))

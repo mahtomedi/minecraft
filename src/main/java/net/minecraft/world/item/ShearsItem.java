@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class ShearsItem extends Item {
     public ShearsItem(Item.Properties param0) {
@@ -71,7 +72,9 @@ public class ShearsItem extends Item {
             }
 
             var0.playSound(var5, var1, SoundEvents.GROWING_PLANT_CROP, SoundSource.BLOCKS, 1.0F, 1.0F);
-            var0.setBlockAndUpdate(var1, var4.getMaxAgeState(var2));
+            BlockState var7 = var4.getMaxAgeState(var2);
+            var0.setBlockAndUpdate(var1, var7);
+            var0.gameEvent(GameEvent.BLOCK_CHANGE, var1, GameEvent.Context.of(param0.getPlayer(), var7));
             if (var5 != null) {
                 var6.hurtAndBreak(1, var5, param1 -> param1.broadcastBreakEvent(param0.getHand()));
             }

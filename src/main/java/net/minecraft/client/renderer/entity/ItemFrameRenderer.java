@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.ModelManager;
@@ -18,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
@@ -98,8 +98,7 @@ public class ItemFrameRenderer<T extends ItemFrame> extends EntityRenderer<T> {
             } else {
                 int var12 = this.getLightVal(param0, 15728880, param5);
                 param3.scale(0.5F, 0.5F, 0.5F);
-                this.itemRenderer
-                    .renderStatic(var4, ItemTransforms.TransformType.FIXED, var12, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId());
+                this.itemRenderer.renderStatic(var4, ItemDisplayContext.FIXED, var12, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId());
             }
         }
 

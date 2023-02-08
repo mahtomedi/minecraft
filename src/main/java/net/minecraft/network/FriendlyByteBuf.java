@@ -70,6 +70,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class FriendlyByteBuf extends ByteBuf {
     private static final int MAX_VARINT_SIZE = 5;
@@ -445,6 +447,27 @@ public class FriendlyByteBuf extends ByteBuf {
     public void writeGlobalPos(GlobalPos param0) {
         this.writeResourceKey(param0.dimension());
         this.writeBlockPos(param0.pos());
+    }
+
+    public Vector3f readVector3f() {
+        return new Vector3f(this.readFloat(), this.readFloat(), this.readFloat());
+    }
+
+    public void writeVector3f(Vector3f param0) {
+        this.writeFloat(param0.x());
+        this.writeFloat(param0.y());
+        this.writeFloat(param0.z());
+    }
+
+    public Quaternionf readQuaternion() {
+        return new Quaternionf(this.readFloat(), this.readFloat(), this.readFloat(), this.readFloat());
+    }
+
+    public void writeQuaternion(Quaternionf param0) {
+        this.writeFloat(param0.x);
+        this.writeFloat(param0.y);
+        this.writeFloat(param0.z);
+        this.writeFloat(param0.w);
     }
 
     public Component readComponent() {

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.Optionull;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
@@ -191,7 +191,7 @@ public class ChatComponent extends GuiComponent {
 
     private void logChatMessage(Component param0, @Nullable GuiMessageTag param1) {
         String var0 = param0.getString().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n");
-        String var1 = Util.mapNullable(param1, GuiMessageTag::logTag);
+        String var1 = Optionull.map(param1, GuiMessageTag::logTag);
         if (var1 != null) {
             LOGGER.info("[{}] [CHAT] {}", var1, var0);
         } else {

@@ -13,12 +13,14 @@ import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
@@ -51,6 +53,15 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             this.addEntry(new KeyBindsList.KeyEntry(var2, var4));
         }
 
+    }
+
+    public void resetMappingAndUpdateButtons() {
+        KeyMapping.resetMapping();
+        this.refreshEntries();
+    }
+
+    public void refreshEntries() {
+        this.children().forEach(KeyBindsList.Entry::refreshEntry);
     }
 
     @Override
@@ -107,13 +118,13 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         }
 
         @Override
-        void onMappingChanged() {
+        protected void refreshEntry() {
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     public abstract static class Entry extends ContainerObjectSelectionList.Entry<KeyBindsList.Entry> {
-        abstract void onMappingChanged();
+        abstract void refreshEntry();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -122,11 +133,15 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         private final Component name;
         private final Button changeButton;
         private final Button resetButton;
+        private boolean hasCollision = false;
 
         KeyEntry(KeyMapping param1, Component param2) {
             this.key = param1;
             this.name = param2;
-            this.changeButton = Button.builder(param2, param1x -> KeyBindsList.this.keyBindsScreen.selectedKey = param1)
+            this.changeButton = Button.builder(param2, param1x -> {
+                    KeyBindsList.this.keyBindsScreen.selectedKey = param1;
+                    KeyBindsList.this.resetMappingAndUpdateButtons();
+                })
                 .bounds(0, 0, 75, 20)
                 .createNarration(
                     param2x -> param1.isUnbound()
@@ -136,15 +151,13 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
                 .build();
             this.resetButton = Button.builder(Component.translatable("controls.reset"), param1x -> {
                 KeyBindsList.this.minecraft.options.setKey(param1, param1.getDefaultKey());
-                KeyMapping.resetMapping();
-                this.onMappingChanged();
+                KeyBindsList.this.resetMappingAndUpdateButtons();
             }).bounds(0, 0, 50, 20).createNarration(param1x -> Component.translatable("narrator.controls.reset", param2)).build();
-            this.onMappingChanged();
+            this.refreshEntry();
         }
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            boolean var0 = KeyBindsList.this.keyBindsScreen.selectedKey == this.key;
             float var10003 = (float)(param3 + 90 - KeyBindsList.this.maxNameWidth);
             KeyBindsList.this.minecraft.font.draw(param0, this.name, var10003, (float)(param2 + param5 / 2 - 9 / 2), 16777215);
             this.resetButton.setX(param3 + 190);
@@ -152,39 +165,10 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             this.resetButton.render(param0, param6, param7, param9);
             this.changeButton.setX(param3 + 105);
             this.changeButton.setY(param2);
-            this.changeButton.setMessage(this.key.getTranslatedKeyMessage());
-            boolean var1 = false;
-            if (!this.key.isUnbound()) {
-                for(KeyMapping var2 : KeyBindsList.this.minecraft.options.keyMappings) {
-                    if (var2 != this.key && this.key.same(var2)) {
-                        var1 = true;
-                        break;
-                    }
-                }
-            }
-
-            if (var0) {
-                this.changeButton
-                    .setMessage(
-                        Component.literal("> ")
-                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE))
-                            .append(" <")
-                            .withStyle(ChatFormatting.YELLOW)
-                    );
-            } else if (var1) {
-                this.changeButton
-                    .setMessage(
-                        Component.literal("[ ")
-                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.WHITE))
-                            .append(" ]")
-                            .withStyle(ChatFormatting.RED)
-                    );
-            }
-
-            if (var1) {
-                int var3 = 3;
-                int var4 = this.changeButton.getX() - 6;
-                GuiComponent.fill(param0, var4, param2 + 2, var4 + 3, param2 + param5 + 2, ChatFormatting.RED.getColor() | 0xFF000000);
+            if (this.hasCollision) {
+                int var0 = 3;
+                int var1 = this.changeButton.getX() - 6;
+                GuiComponent.fill(param0, var1, param2 + 2, var1 + 3, param2 + param5 + 2, ChatFormatting.RED.getColor() | 0xFF000000);
             }
 
             this.changeButton.render(param0, param6, param7, param9);
@@ -215,8 +199,47 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         }
 
         @Override
-        void onMappingChanged() {
+        protected void refreshEntry() {
+            this.changeButton.setMessage(this.key.getTranslatedKeyMessage());
             this.resetButton.active = !this.key.isDefault();
+            this.hasCollision = false;
+            MutableComponent var0 = Component.empty();
+            if (!this.key.isUnbound()) {
+                for(KeyMapping var1 : KeyBindsList.this.minecraft.options.keyMappings) {
+                    if (var1 != this.key && this.key.same(var1)) {
+                        if (this.hasCollision) {
+                            var0.append(", ");
+                        }
+
+                        this.hasCollision = true;
+                        var0.append(Component.translatable(var1.getName()));
+                    }
+                }
+            }
+
+            if (this.hasCollision) {
+                this.changeButton
+                    .setMessage(
+                        Component.literal("[ ")
+                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.WHITE))
+                            .append(" ]")
+                            .withStyle(ChatFormatting.RED)
+                    );
+                this.changeButton.setTooltip(Tooltip.create(Component.translatable("controls.keybinds.duplicateKeybinds", var0)));
+            } else {
+                this.changeButton.setTooltip(null);
+            }
+
+            if (KeyBindsList.this.keyBindsScreen.selectedKey == this.key) {
+                this.changeButton
+                    .setMessage(
+                        Component.literal("> ")
+                            .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE))
+                            .append(" <")
+                            .withStyle(ChatFormatting.YELLOW)
+                    );
+            }
+
         }
     }
 }

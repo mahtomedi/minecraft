@@ -22,7 +22,6 @@ public class RenderBuffers {
         put(param0, Sheets.signSheet());
         put(param0, Sheets.hangingSignSheet());
         put(param0, Sheets.chestSheet());
-        put(param0, Sheets.armorTrimsSheet());
         put(param0, RenderType.translucentNoCrumbling());
         put(param0, RenderType.armorGlint());
         put(param0, RenderType.armorEntityGlint());

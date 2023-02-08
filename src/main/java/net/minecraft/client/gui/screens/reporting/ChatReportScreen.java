@@ -10,7 +10,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.Optionull;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -100,7 +100,7 @@ public class ChatReportScreen extends Screen {
                     this.onReportChanged();
                 }))).bounds(this.contentLeft(), this.selectChatTop(), 280, 20).build()
         );
-        Component var6 = Util.mapNullable(var2, ReportReason::title, SELECT_REASON);
+        Component var6 = Optionull.mapOrDefault(var2, ReportReason::title, SELECT_REASON);
         this.addRenderableWidget(
             Button.builder(var6, param0 -> this.minecraft.setScreen(new ReportReasonSelectionScreen(this, this.reportBuilder.reason(), param0x -> {
                     this.reportBuilder.setReason(param0x);
@@ -138,7 +138,7 @@ public class ChatReportScreen extends Screen {
     private void onReportChanged() {
         this.cannotBuildReason = this.reportBuilder.checkBuildable();
         this.sendButton.active = this.cannotBuildReason == null;
-        this.sendButton.setTooltip(Util.mapNullable(this.cannotBuildReason, param0 -> Tooltip.create(param0.message())));
+        this.sendButton.setTooltip(Optionull.map(this.cannotBuildReason, param0 -> Tooltip.create(param0.message())));
     }
 
     private void sendReport() {

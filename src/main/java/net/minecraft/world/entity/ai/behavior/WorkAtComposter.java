@@ -36,7 +36,7 @@ public class WorkAtComposter extends WorkAtPoi {
     private void compostItems(ServerLevel param0, Villager param1, GlobalPos param2, BlockState param3) {
         BlockPos var0 = param2.pos();
         if (param3.getValue(ComposterBlock.LEVEL) == 8) {
-            param3 = ComposterBlock.extractProduce(param3, param0, var0);
+            param3 = ComposterBlock.extractProduce(param1, param3, param0, var0);
         }
 
         int var1 = 20;
@@ -58,7 +58,7 @@ public class WorkAtComposter extends WorkAtPoi {
                     var1 -= var12;
 
                     for(int var13 = 0; var13 < var12; ++var13) {
-                        var6 = ComposterBlock.insertItem(var6, param0, var8, var0);
+                        var6 = ComposterBlock.insertItem(param1, var6, param0, var8, var0);
                         if (var6.getValue(ComposterBlock.LEVEL) == 7) {
                             this.spawnComposterFillEffects(param0, param3, var0, var6);
                             return;

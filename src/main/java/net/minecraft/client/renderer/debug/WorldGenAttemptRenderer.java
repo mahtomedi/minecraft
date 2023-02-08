@@ -1,16 +1,12 @@
 package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,32 +31,27 @@ public class WorldGenAttemptRenderer implements DebugRenderer.SimpleDebugRendere
 
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        var1.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        VertexConsumer var0 = param1.getBuffer(RenderType.debugFilledBox());
 
-        for(int var2 = 0; var2 < this.toRender.size(); ++var2) {
-            BlockPos var3 = this.toRender.get(var2);
-            Float var4 = this.scales.get(var2);
-            float var5 = var4 / 2.0F;
+        for(int var1 = 0; var1 < this.toRender.size(); ++var1) {
+            BlockPos var2 = this.toRender.get(var1);
+            Float var3 = this.scales.get(var1);
+            float var4 = var3 / 2.0F;
             LevelRenderer.addChainedFilledBoxVertices(
-                var1,
-                (double)((float)var3.getX() + 0.5F - var5) - param2,
-                (double)((float)var3.getY() + 0.5F - var5) - param3,
-                (double)((float)var3.getZ() + 0.5F - var5) - param4,
-                (double)((float)var3.getX() + 0.5F + var5) - param2,
-                (double)((float)var3.getY() + 0.5F + var5) - param3,
-                (double)((float)var3.getZ() + 0.5F + var5) - param4,
-                this.reds.get(var2),
-                this.greens.get(var2),
-                this.blues.get(var2),
-                this.alphas.get(var2)
+                param0,
+                var0,
+                (double)((float)var2.getX() + 0.5F - var4) - param2,
+                (double)((float)var2.getY() + 0.5F - var4) - param3,
+                (double)((float)var2.getZ() + 0.5F - var4) - param4,
+                (double)((float)var2.getX() + 0.5F + var4) - param2,
+                (double)((float)var2.getY() + 0.5F + var4) - param3,
+                (double)((float)var2.getZ() + 0.5F + var4) - param4,
+                this.reds.get(var1),
+                this.greens.get(var1),
+                this.blues.get(var1),
+                this.alphas.get(var1)
             );
         }
 
-        var0.end();
     }
 }

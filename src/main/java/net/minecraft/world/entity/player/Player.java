@@ -41,6 +41,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
@@ -105,6 +106,7 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -659,15 +661,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     protected SoundEvent getHurtSound(DamageSource param0) {
-        if (param0 == DamageSource.ON_FIRE) {
-            return SoundEvents.PLAYER_HURT_ON_FIRE;
-        } else if (param0 == DamageSource.DROWN) {
-            return SoundEvents.PLAYER_HURT_DROWN;
-        } else if (param0 == DamageSource.SWEET_BERRY_BUSH) {
-            return SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH;
-        } else {
-            return param0 == DamageSource.FREEZE ? SoundEvents.PLAYER_HURT_FREEZE : SoundEvents.PLAYER_HURT;
-        }
+        return param0.type().effects().sound();
     }
 
     @Override
@@ -827,13 +821,13 @@ public abstract class Player extends LivingEntity {
     public boolean isInvulnerableTo(DamageSource param0) {
         if (super.isInvulnerableTo(param0)) {
             return true;
-        } else if (param0 == DamageSource.DROWN) {
+        } else if (param0.is(DamageTypeTags.IS_DROWNING)) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_DROWNING_DAMAGE);
-        } else if (param0.isFall()) {
+        } else if (param0.is(DamageTypeTags.IS_FALL)) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FALL_DAMAGE);
-        } else if (param0.isFire()) {
+        } else if (param0.is(DamageTypeTags.IS_FIRE)) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE);
-        } else if (param0 == DamageSource.FREEZE) {
+        } else if (param0.is(DamageTypeTags.IS_FREEZING)) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FREEZE_DAMAGE);
         } else {
             return false;
@@ -844,7 +838,7 @@ public abstract class Player extends LivingEntity {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
-        } else if (this.abilities.invulnerable && !param0.isBypassInvul()) {
+        } else if (this.abilities.invulnerable && !param0.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return false;
         } else {
             this.noActionTime = 0;
@@ -1021,6 +1015,7 @@ public abstract class Player extends LivingEntity {
 
                     InteractionResult var3 = var0.interactLivingEntity(this, (LivingEntity)param0, param1);
                     if (var3.consumesAction()) {
+                        this.level.gameEvent(GameEvent.ENTITY_INTERACT, param0.position(), GameEvent.Context.of(this));
                         if (var0.isEmpty() && !this.abilities.instabuild) {
                             this.setItemInHand(param1, ItemStack.EMPTY);
                         }
@@ -1178,7 +1173,7 @@ public abstract class Player extends LivingEntity {
                     }
 
                     Vec3 var14 = param0.getDeltaMovement();
-                    boolean var15 = param0.hurt(DamageSource.playerAttack(this), var0);
+                    boolean var15 = param0.hurt(this.damageSources().playerAttack(this), var0);
                     if (var15) {
                         if (var6 > 0) {
                             if (param0 instanceof LivingEntity) {
@@ -1214,7 +1209,7 @@ public abstract class Player extends LivingEntity {
                                         (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
                                         (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                                     );
-                                    var18.hurt(DamageSource.playerAttack(this), var16);
+                                    var18.hurt(this.damageSources().playerAttack(this), var16);
                                 }
                             }
 

@@ -29,7 +29,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -47,6 +46,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -110,20 +110,11 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public void render(
-        ItemStack param0,
-        ItemTransforms.TransformType param1,
-        boolean param2,
-        PoseStack param3,
-        MultiBufferSource param4,
-        int param5,
-        int param6,
-        BakedModel param7
+        ItemStack param0, ItemDisplayContext param1, boolean param2, PoseStack param3, MultiBufferSource param4, int param5, int param6, BakedModel param7
     ) {
         if (!param0.isEmpty()) {
             param3.pushPose();
-            boolean var0 = param1 == ItemTransforms.TransformType.GUI
-                || param1 == ItemTransforms.TransformType.GROUND
-                || param1 == ItemTransforms.TransformType.FIXED;
+            boolean var0 = param1 == ItemDisplayContext.GUI || param1 == ItemDisplayContext.GROUND || param1 == ItemDisplayContext.FIXED;
             if (var0) {
                 if (param0.is(Items.TRIDENT)) {
                     param7 = this.itemModelShaper.getModelManager().getModel(TRIDENT_MODEL);
@@ -136,7 +127,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             param3.translate(-0.5F, -0.5F, -0.5F);
             if (!param7.isCustomRenderer() && (!param0.is(Items.TRIDENT) || var0)) {
                 boolean var2;
-                if (param1 != ItemTransforms.TransformType.GUI && !param1.firstPerson() && param0.getItem() instanceof BlockItem) {
+                if (param1 != ItemDisplayContext.GUI && !param1.firstPerson() && param0.getItem() instanceof BlockItem) {
                     Block var1 = ((BlockItem)param0.getItem()).getBlock();
                     var2 = !(var1 instanceof HalfTransparentBlock) && !(var1 instanceof StainedGlassPaneBlock);
                 } else {
@@ -148,7 +139,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 if (param0.is(ItemTags.COMPASSES) && param0.hasFoil()) {
                     param3.pushPose();
                     PoseStack.Pose var5 = param3.last();
-                    if (param1 == ItemTransforms.TransformType.GUI) {
+                    if (param1 == ItemDisplayContext.GUI) {
                         MatrixUtil.mulComponentWise(var5.pose(), 0.5F);
                     } else if (param1.firstPerson()) {
                         MatrixUtil.mulComponentWise(var5.pose(), 0.75F);
@@ -244,14 +235,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public void renderStatic(
-        ItemStack param0,
-        ItemTransforms.TransformType param1,
-        int param2,
-        int param3,
-        PoseStack param4,
-        MultiBufferSource param5,
-        @Nullable Level param6,
-        int param7
+        ItemStack param0, ItemDisplayContext param1, int param2, int param3, PoseStack param4, MultiBufferSource param5, @Nullable Level param6, int param7
     ) {
         this.renderStatic(null, param0, param1, false, param4, param5, param6, param2, param3, param7);
     }
@@ -259,7 +243,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     public void renderStatic(
         @Nullable LivingEntity param0,
         ItemStack param1,
-        ItemTransforms.TransformType param2,
+        ItemDisplayContext param2,
         boolean param3,
         PoseStack param4,
         MultiBufferSource param5,
@@ -297,7 +281,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             Lighting.setupForFlatItems();
         }
 
-        this.render(param0, ItemTransforms.TransformType.GUI, false, var1, var2, 15728880, OverlayTexture.NO_OVERLAY, param3);
+        this.render(param0, ItemDisplayContext.GUI, false, var1, var2, 15728880, OverlayTexture.NO_OVERLAY, param3);
         var2.endBatch();
         RenderSystem.enableDepthTest();
         if (var3) {

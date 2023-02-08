@@ -1,17 +1,25 @@
 package net.minecraft.world.item;
 
 import com.mojang.datafixers.util.Pair;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.InstrumentTags;
+import net.minecraft.tags.PaintingVariantTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
@@ -29,7 +37,7 @@ public class CreativeModeTabs {
     private static final CreativeModeTab BUILDING_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
         .title(Component.translatable("itemGroup.buildingBlocks"))
         .icon(() -> new ItemStack(Blocks.BRICKS))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.OAK_LOG);
             param1.accept(Items.OAK_WOOD);
             param1.accept(Items.STRIPPED_OAK_LOG);
@@ -370,7 +378,7 @@ public class CreativeModeTabs {
     private static final CreativeModeTab COLORED_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 1)
         .title(Component.translatable("itemGroup.coloredBlocks"))
         .icon(() -> new ItemStack(Blocks.CYAN_WOOL))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.WHITE_WOOL);
             param1.accept(Items.LIGHT_GRAY_WOOL);
             param1.accept(Items.GRAY_WOOL);
@@ -574,7 +582,7 @@ public class CreativeModeTabs {
     private static final CreativeModeTab NATURAL_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 2)
         .title(Component.translatable("itemGroup.natural"))
         .icon(() -> new ItemStack(Blocks.GRASS_BLOCK))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.GRASS_BLOCK);
             param1.accept(Items.PODZOL);
             param1.accept(Items.MYCELIUM);
@@ -797,178 +805,187 @@ public class CreativeModeTabs {
     private static final CreativeModeTab FUNCTIONAL_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 3)
         .title(Component.translatable("itemGroup.functional"))
         .icon(() -> new ItemStack(Items.OAK_SIGN))
-        .displayItems((param0, param1, param2) -> {
-            param1.accept(Items.TORCH);
-            param1.accept(Items.SOUL_TORCH);
-            param1.accept(Items.REDSTONE_TORCH);
-            param1.accept(Items.LANTERN);
-            param1.accept(Items.SOUL_LANTERN);
-            param1.accept(Items.CHAIN);
-            param1.accept(Items.END_ROD);
-            param1.accept(Items.SEA_LANTERN);
-            param1.accept(Items.REDSTONE_LAMP);
-            param1.accept(Items.GLOWSTONE);
-            param1.accept(Items.SHROOMLIGHT);
-            param1.accept(Items.OCHRE_FROGLIGHT);
-            param1.accept(Items.VERDANT_FROGLIGHT);
-            param1.accept(Items.PEARLESCENT_FROGLIGHT);
-            param1.accept(Items.CRYING_OBSIDIAN);
-            param1.accept(Items.GLOW_LICHEN);
-            param1.accept(Items.MAGMA_BLOCK);
-            param1.accept(Items.CRAFTING_TABLE);
-            param1.accept(Items.STONECUTTER);
-            param1.accept(Items.CARTOGRAPHY_TABLE);
-            param1.accept(Items.FLETCHING_TABLE);
-            param1.accept(Items.SMITHING_TABLE);
-            param1.accept(Items.GRINDSTONE);
-            param1.accept(Items.LOOM);
-            param1.accept(Items.FURNACE);
-            param1.accept(Items.SMOKER);
-            param1.accept(Items.BLAST_FURNACE);
-            param1.accept(Items.CAMPFIRE);
-            param1.accept(Items.SOUL_CAMPFIRE);
-            param1.accept(Items.ANVIL);
-            param1.accept(Items.CHIPPED_ANVIL);
-            param1.accept(Items.DAMAGED_ANVIL);
-            param1.accept(Items.COMPOSTER);
-            param1.accept(Items.NOTE_BLOCK);
-            param1.accept(Items.JUKEBOX);
-            param1.accept(Items.ENCHANTING_TABLE);
-            param1.accept(Items.END_CRYSTAL);
-            param1.accept(Items.BREWING_STAND);
-            param1.accept(Items.CAULDRON);
-            param1.accept(Items.BELL);
-            param1.accept(Items.BEACON);
-            param1.accept(Items.CONDUIT);
-            param1.accept(Items.LODESTONE);
-            param1.accept(Items.LADDER);
-            param1.accept(Items.SCAFFOLDING);
-            param1.accept(Items.BEE_NEST);
-            param1.accept(Items.BEEHIVE);
-            param1.accept(Items.LIGHTNING_ROD);
-            param1.accept(Items.FLOWER_POT);
-            param1.accept(Items.ARMOR_STAND);
-            param1.accept(Items.ITEM_FRAME);
-            param1.accept(Items.GLOW_ITEM_FRAME);
-            param1.accept(Items.PAINTING);
-            param1.accept(Items.BOOKSHELF);
-            param1.accept(Items.CHISELED_BOOKSHELF);
-            param1.accept(Items.LECTERN);
-            param1.accept(Items.TINTED_GLASS);
-            param1.accept(Items.OAK_SIGN);
-            param1.accept(Items.OAK_HANGING_SIGN);
-            param1.accept(Items.SPRUCE_SIGN);
-            param1.accept(Items.SPRUCE_HANGING_SIGN);
-            param1.accept(Items.BIRCH_SIGN);
-            param1.accept(Items.BIRCH_HANGING_SIGN);
-            param1.accept(Items.JUNGLE_SIGN);
-            param1.accept(Items.JUNGLE_HANGING_SIGN);
-            param1.accept(Items.ACACIA_SIGN);
-            param1.accept(Items.ACACIA_HANGING_SIGN);
-            param1.accept(Items.DARK_OAK_SIGN);
-            param1.accept(Items.DARK_OAK_HANGING_SIGN);
-            param1.accept(Items.MANGROVE_SIGN);
-            param1.accept(Items.MANGROVE_HANGING_SIGN);
-            param1.accept(Items.BAMBOO_SIGN);
-            param1.accept(Items.BAMBOO_HANGING_SIGN);
-            param1.accept(Items.CRIMSON_SIGN);
-            param1.accept(Items.CRIMSON_HANGING_SIGN);
-            param1.accept(Items.WARPED_SIGN);
-            param1.accept(Items.WARPED_HANGING_SIGN);
-            param1.accept(Items.CHEST);
-            param1.accept(Items.BARREL);
-            param1.accept(Items.ENDER_CHEST);
-            param1.accept(Items.SHULKER_BOX);
-            param1.accept(Items.WHITE_SHULKER_BOX);
-            param1.accept(Items.LIGHT_GRAY_SHULKER_BOX);
-            param1.accept(Items.GRAY_SHULKER_BOX);
-            param1.accept(Items.BLACK_SHULKER_BOX);
-            param1.accept(Items.BROWN_SHULKER_BOX);
-            param1.accept(Items.RED_SHULKER_BOX);
-            param1.accept(Items.ORANGE_SHULKER_BOX);
-            param1.accept(Items.YELLOW_SHULKER_BOX);
-            param1.accept(Items.LIME_SHULKER_BOX);
-            param1.accept(Items.GREEN_SHULKER_BOX);
-            param1.accept(Items.CYAN_SHULKER_BOX);
-            param1.accept(Items.LIGHT_BLUE_SHULKER_BOX);
-            param1.accept(Items.BLUE_SHULKER_BOX);
-            param1.accept(Items.PURPLE_SHULKER_BOX);
-            param1.accept(Items.MAGENTA_SHULKER_BOX);
-            param1.accept(Items.PINK_SHULKER_BOX);
-            param1.accept(Items.RESPAWN_ANCHOR);
-            param1.accept(Items.WHITE_BED);
-            param1.accept(Items.LIGHT_GRAY_BED);
-            param1.accept(Items.GRAY_BED);
-            param1.accept(Items.BLACK_BED);
-            param1.accept(Items.BROWN_BED);
-            param1.accept(Items.RED_BED);
-            param1.accept(Items.ORANGE_BED);
-            param1.accept(Items.YELLOW_BED);
-            param1.accept(Items.LIME_BED);
-            param1.accept(Items.GREEN_BED);
-            param1.accept(Items.CYAN_BED);
-            param1.accept(Items.LIGHT_BLUE_BED);
-            param1.accept(Items.BLUE_BED);
-            param1.accept(Items.PURPLE_BED);
-            param1.accept(Items.MAGENTA_BED);
-            param1.accept(Items.PINK_BED);
-            param1.accept(Items.CANDLE);
-            param1.accept(Items.WHITE_CANDLE);
-            param1.accept(Items.LIGHT_GRAY_CANDLE);
-            param1.accept(Items.GRAY_CANDLE);
-            param1.accept(Items.BLACK_CANDLE);
-            param1.accept(Items.BROWN_CANDLE);
-            param1.accept(Items.RED_CANDLE);
-            param1.accept(Items.ORANGE_CANDLE);
-            param1.accept(Items.YELLOW_CANDLE);
-            param1.accept(Items.LIME_CANDLE);
-            param1.accept(Items.GREEN_CANDLE);
-            param1.accept(Items.CYAN_CANDLE);
-            param1.accept(Items.LIGHT_BLUE_CANDLE);
-            param1.accept(Items.BLUE_CANDLE);
-            param1.accept(Items.PURPLE_CANDLE);
-            param1.accept(Items.MAGENTA_CANDLE);
-            param1.accept(Items.PINK_CANDLE);
-            param1.accept(Items.WHITE_BANNER);
-            param1.accept(Items.LIGHT_GRAY_BANNER);
-            param1.accept(Items.GRAY_BANNER);
-            param1.accept(Items.BLACK_BANNER);
-            param1.accept(Items.BROWN_BANNER);
-            param1.accept(Items.RED_BANNER);
-            param1.accept(Items.ORANGE_BANNER);
-            param1.accept(Items.YELLOW_BANNER);
-            param1.accept(Items.LIME_BANNER);
-            param1.accept(Items.GREEN_BANNER);
-            param1.accept(Items.CYAN_BANNER);
-            param1.accept(Items.LIGHT_BLUE_BANNER);
-            param1.accept(Items.BLUE_BANNER);
-            param1.accept(Items.PURPLE_BANNER);
-            param1.accept(Items.MAGENTA_BANNER);
-            param1.accept(Items.PINK_BANNER);
-            param1.accept(Raid.getLeaderBannerInstance());
-            param1.accept(Items.SKELETON_SKULL);
-            param1.accept(Items.WITHER_SKELETON_SKULL);
-            param1.accept(Items.PLAYER_HEAD);
-            param1.accept(Items.ZOMBIE_HEAD);
-            param1.accept(Items.CREEPER_HEAD);
-            param1.accept(Items.PIGLIN_HEAD);
-            param1.accept(Items.DRAGON_HEAD);
-            param1.accept(Items.DRAGON_EGG);
-            param1.accept(Items.END_PORTAL_FRAME);
-            param1.accept(Items.ENDER_EYE);
-            param1.accept(Items.INFESTED_STONE);
-            param1.accept(Items.INFESTED_COBBLESTONE);
-            param1.accept(Items.INFESTED_STONE_BRICKS);
-            param1.accept(Items.INFESTED_MOSSY_STONE_BRICKS);
-            param1.accept(Items.INFESTED_CRACKED_STONE_BRICKS);
-            param1.accept(Items.INFESTED_CHISELED_STONE_BRICKS);
-            param1.accept(Items.INFESTED_DEEPSLATE);
-        })
+        .displayItems(
+            (param0, param1) -> {
+                param1.accept(Items.TORCH);
+                param1.accept(Items.SOUL_TORCH);
+                param1.accept(Items.REDSTONE_TORCH);
+                param1.accept(Items.LANTERN);
+                param1.accept(Items.SOUL_LANTERN);
+                param1.accept(Items.CHAIN);
+                param1.accept(Items.END_ROD);
+                param1.accept(Items.SEA_LANTERN);
+                param1.accept(Items.REDSTONE_LAMP);
+                param1.accept(Items.GLOWSTONE);
+                param1.accept(Items.SHROOMLIGHT);
+                param1.accept(Items.OCHRE_FROGLIGHT);
+                param1.accept(Items.VERDANT_FROGLIGHT);
+                param1.accept(Items.PEARLESCENT_FROGLIGHT);
+                param1.accept(Items.CRYING_OBSIDIAN);
+                param1.accept(Items.GLOW_LICHEN);
+                param1.accept(Items.MAGMA_BLOCK);
+                param1.accept(Items.CRAFTING_TABLE);
+                param1.accept(Items.STONECUTTER);
+                param1.accept(Items.CARTOGRAPHY_TABLE);
+                param1.accept(Items.FLETCHING_TABLE);
+                param1.accept(Items.SMITHING_TABLE);
+                param1.accept(Items.GRINDSTONE);
+                param1.accept(Items.LOOM);
+                param1.accept(Items.FURNACE);
+                param1.accept(Items.SMOKER);
+                param1.accept(Items.BLAST_FURNACE);
+                param1.accept(Items.CAMPFIRE);
+                param1.accept(Items.SOUL_CAMPFIRE);
+                param1.accept(Items.ANVIL);
+                param1.accept(Items.CHIPPED_ANVIL);
+                param1.accept(Items.DAMAGED_ANVIL);
+                param1.accept(Items.COMPOSTER);
+                param1.accept(Items.NOTE_BLOCK);
+                param1.accept(Items.JUKEBOX);
+                param1.accept(Items.ENCHANTING_TABLE);
+                param1.accept(Items.END_CRYSTAL);
+                param1.accept(Items.BREWING_STAND);
+                param1.accept(Items.CAULDRON);
+                param1.accept(Items.BELL);
+                param1.accept(Items.BEACON);
+                param1.accept(Items.CONDUIT);
+                param1.accept(Items.LODESTONE);
+                param1.accept(Items.LADDER);
+                param1.accept(Items.SCAFFOLDING);
+                param1.accept(Items.BEE_NEST);
+                param1.accept(Items.BEEHIVE);
+                param1.accept(Items.LIGHTNING_ROD);
+                param1.accept(Items.FLOWER_POT);
+                param1.accept(Items.ARMOR_STAND);
+                param1.accept(Items.ITEM_FRAME);
+                param1.accept(Items.GLOW_ITEM_FRAME);
+                param1.accept(Items.PAINTING);
+                param0.holders()
+                    .lookup(Registries.PAINTING_VARIANT)
+                    .ifPresent(
+                        param1x -> generatePresetPaintings(
+                                param1, param1x, param0x -> param0x.is(PaintingVariantTags.PLACEABLE), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                            )
+                    );
+                param1.accept(Items.BOOKSHELF);
+                param1.accept(Items.CHISELED_BOOKSHELF);
+                param1.accept(Items.LECTERN);
+                param1.accept(Items.TINTED_GLASS);
+                param1.accept(Items.OAK_SIGN);
+                param1.accept(Items.OAK_HANGING_SIGN);
+                param1.accept(Items.SPRUCE_SIGN);
+                param1.accept(Items.SPRUCE_HANGING_SIGN);
+                param1.accept(Items.BIRCH_SIGN);
+                param1.accept(Items.BIRCH_HANGING_SIGN);
+                param1.accept(Items.JUNGLE_SIGN);
+                param1.accept(Items.JUNGLE_HANGING_SIGN);
+                param1.accept(Items.ACACIA_SIGN);
+                param1.accept(Items.ACACIA_HANGING_SIGN);
+                param1.accept(Items.DARK_OAK_SIGN);
+                param1.accept(Items.DARK_OAK_HANGING_SIGN);
+                param1.accept(Items.MANGROVE_SIGN);
+                param1.accept(Items.MANGROVE_HANGING_SIGN);
+                param1.accept(Items.BAMBOO_SIGN);
+                param1.accept(Items.BAMBOO_HANGING_SIGN);
+                param1.accept(Items.CRIMSON_SIGN);
+                param1.accept(Items.CRIMSON_HANGING_SIGN);
+                param1.accept(Items.WARPED_SIGN);
+                param1.accept(Items.WARPED_HANGING_SIGN);
+                param1.accept(Items.CHEST);
+                param1.accept(Items.BARREL);
+                param1.accept(Items.ENDER_CHEST);
+                param1.accept(Items.SHULKER_BOX);
+                param1.accept(Items.WHITE_SHULKER_BOX);
+                param1.accept(Items.LIGHT_GRAY_SHULKER_BOX);
+                param1.accept(Items.GRAY_SHULKER_BOX);
+                param1.accept(Items.BLACK_SHULKER_BOX);
+                param1.accept(Items.BROWN_SHULKER_BOX);
+                param1.accept(Items.RED_SHULKER_BOX);
+                param1.accept(Items.ORANGE_SHULKER_BOX);
+                param1.accept(Items.YELLOW_SHULKER_BOX);
+                param1.accept(Items.LIME_SHULKER_BOX);
+                param1.accept(Items.GREEN_SHULKER_BOX);
+                param1.accept(Items.CYAN_SHULKER_BOX);
+                param1.accept(Items.LIGHT_BLUE_SHULKER_BOX);
+                param1.accept(Items.BLUE_SHULKER_BOX);
+                param1.accept(Items.PURPLE_SHULKER_BOX);
+                param1.accept(Items.MAGENTA_SHULKER_BOX);
+                param1.accept(Items.PINK_SHULKER_BOX);
+                param1.accept(Items.RESPAWN_ANCHOR);
+                param1.accept(Items.WHITE_BED);
+                param1.accept(Items.LIGHT_GRAY_BED);
+                param1.accept(Items.GRAY_BED);
+                param1.accept(Items.BLACK_BED);
+                param1.accept(Items.BROWN_BED);
+                param1.accept(Items.RED_BED);
+                param1.accept(Items.ORANGE_BED);
+                param1.accept(Items.YELLOW_BED);
+                param1.accept(Items.LIME_BED);
+                param1.accept(Items.GREEN_BED);
+                param1.accept(Items.CYAN_BED);
+                param1.accept(Items.LIGHT_BLUE_BED);
+                param1.accept(Items.BLUE_BED);
+                param1.accept(Items.PURPLE_BED);
+                param1.accept(Items.MAGENTA_BED);
+                param1.accept(Items.PINK_BED);
+                param1.accept(Items.CANDLE);
+                param1.accept(Items.WHITE_CANDLE);
+                param1.accept(Items.LIGHT_GRAY_CANDLE);
+                param1.accept(Items.GRAY_CANDLE);
+                param1.accept(Items.BLACK_CANDLE);
+                param1.accept(Items.BROWN_CANDLE);
+                param1.accept(Items.RED_CANDLE);
+                param1.accept(Items.ORANGE_CANDLE);
+                param1.accept(Items.YELLOW_CANDLE);
+                param1.accept(Items.LIME_CANDLE);
+                param1.accept(Items.GREEN_CANDLE);
+                param1.accept(Items.CYAN_CANDLE);
+                param1.accept(Items.LIGHT_BLUE_CANDLE);
+                param1.accept(Items.BLUE_CANDLE);
+                param1.accept(Items.PURPLE_CANDLE);
+                param1.accept(Items.MAGENTA_CANDLE);
+                param1.accept(Items.PINK_CANDLE);
+                param1.accept(Items.WHITE_BANNER);
+                param1.accept(Items.LIGHT_GRAY_BANNER);
+                param1.accept(Items.GRAY_BANNER);
+                param1.accept(Items.BLACK_BANNER);
+                param1.accept(Items.BROWN_BANNER);
+                param1.accept(Items.RED_BANNER);
+                param1.accept(Items.ORANGE_BANNER);
+                param1.accept(Items.YELLOW_BANNER);
+                param1.accept(Items.LIME_BANNER);
+                param1.accept(Items.GREEN_BANNER);
+                param1.accept(Items.CYAN_BANNER);
+                param1.accept(Items.LIGHT_BLUE_BANNER);
+                param1.accept(Items.BLUE_BANNER);
+                param1.accept(Items.PURPLE_BANNER);
+                param1.accept(Items.MAGENTA_BANNER);
+                param1.accept(Items.PINK_BANNER);
+                param1.accept(Raid.getLeaderBannerInstance());
+                param1.accept(Items.SKELETON_SKULL);
+                param1.accept(Items.WITHER_SKELETON_SKULL);
+                param1.accept(Items.PLAYER_HEAD);
+                param1.accept(Items.ZOMBIE_HEAD);
+                param1.accept(Items.CREEPER_HEAD);
+                param1.accept(Items.PIGLIN_HEAD);
+                param1.accept(Items.DRAGON_HEAD);
+                param1.accept(Items.DRAGON_EGG);
+                param1.accept(Items.END_PORTAL_FRAME);
+                param1.accept(Items.ENDER_EYE);
+                param1.accept(Items.INFESTED_STONE);
+                param1.accept(Items.INFESTED_COBBLESTONE);
+                param1.accept(Items.INFESTED_STONE_BRICKS);
+                param1.accept(Items.INFESTED_MOSSY_STONE_BRICKS);
+                param1.accept(Items.INFESTED_CRACKED_STONE_BRICKS);
+                param1.accept(Items.INFESTED_CHISELED_STONE_BRICKS);
+                param1.accept(Items.INFESTED_DEEPSLATE);
+            }
+        )
         .build();
     private static final CreativeModeTab REDSTONE_BLOCKS = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 4)
         .title(Component.translatable("itemGroup.redstone"))
         .icon(() -> new ItemStack(Items.REDSTONE))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.REDSTONE);
             param1.accept(Items.REDSTONE_TORCH);
             param1.accept(Items.REDSTONE_BLOCK);
@@ -1038,7 +1055,7 @@ public class CreativeModeTabs {
     private static final CreativeModeTab SEARCH = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 6)
         .title(Component.translatable("itemGroup.search"))
         .icon(() -> new ItemStack(Items.COMPASS))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             Set<ItemStack> var0 = ItemStackLinkedSet.createTypeAndTagSet();
     
             for(CreativeModeTab var1 : CreativeModeTabs.TABS) {
@@ -1056,173 +1073,185 @@ public class CreativeModeTabs {
     private static final CreativeModeTab TOOLS_AND_UTILITIES = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0)
         .title(Component.translatable("itemGroup.tools"))
         .icon(() -> new ItemStack(Items.DIAMOND_PICKAXE))
-        .displayItems((param0, param1, param2) -> {
-            param1.accept(Items.WOODEN_SHOVEL);
-            param1.accept(Items.WOODEN_PICKAXE);
-            param1.accept(Items.WOODEN_AXE);
-            param1.accept(Items.WOODEN_HOE);
-            param1.accept(Items.STONE_SHOVEL);
-            param1.accept(Items.STONE_PICKAXE);
-            param1.accept(Items.STONE_AXE);
-            param1.accept(Items.STONE_HOE);
-            param1.accept(Items.IRON_SHOVEL);
-            param1.accept(Items.IRON_PICKAXE);
-            param1.accept(Items.IRON_AXE);
-            param1.accept(Items.IRON_HOE);
-            param1.accept(Items.GOLDEN_SHOVEL);
-            param1.accept(Items.GOLDEN_PICKAXE);
-            param1.accept(Items.GOLDEN_AXE);
-            param1.accept(Items.GOLDEN_HOE);
-            param1.accept(Items.DIAMOND_SHOVEL);
-            param1.accept(Items.DIAMOND_PICKAXE);
-            param1.accept(Items.DIAMOND_AXE);
-            param1.accept(Items.DIAMOND_HOE);
-            param1.accept(Items.NETHERITE_SHOVEL);
-            param1.accept(Items.NETHERITE_PICKAXE);
-            param1.accept(Items.NETHERITE_AXE);
-            param1.accept(Items.NETHERITE_HOE);
-            param1.accept(Items.BUCKET);
-            param1.accept(Items.WATER_BUCKET);
-            param1.accept(Items.PUFFERFISH_BUCKET);
-            param1.accept(Items.SALMON_BUCKET);
-            param1.accept(Items.COD_BUCKET);
-            param1.accept(Items.TROPICAL_FISH_BUCKET);
-            param1.accept(Items.AXOLOTL_BUCKET);
-            param1.accept(Items.TADPOLE_BUCKET);
-            param1.accept(Items.LAVA_BUCKET);
-            param1.accept(Items.POWDER_SNOW_BUCKET);
-            param1.accept(Items.MILK_BUCKET);
-            param1.accept(Items.FISHING_ROD);
-            param1.accept(Items.FLINT_AND_STEEL);
-            param1.accept(Items.FIRE_CHARGE);
-            param1.accept(Items.BONE_MEAL);
-            param1.accept(Items.SHEARS);
-            param1.accept(Items.NAME_TAG);
-            param1.accept(Items.LEAD);
-            if (param0.contains(FeatureFlags.BUNDLE)) {
-                param1.accept(Items.BUNDLE);
+        .displayItems(
+            (param0, param1) -> {
+                param1.accept(Items.WOODEN_SHOVEL);
+                param1.accept(Items.WOODEN_PICKAXE);
+                param1.accept(Items.WOODEN_AXE);
+                param1.accept(Items.WOODEN_HOE);
+                param1.accept(Items.STONE_SHOVEL);
+                param1.accept(Items.STONE_PICKAXE);
+                param1.accept(Items.STONE_AXE);
+                param1.accept(Items.STONE_HOE);
+                param1.accept(Items.IRON_SHOVEL);
+                param1.accept(Items.IRON_PICKAXE);
+                param1.accept(Items.IRON_AXE);
+                param1.accept(Items.IRON_HOE);
+                param1.accept(Items.GOLDEN_SHOVEL);
+                param1.accept(Items.GOLDEN_PICKAXE);
+                param1.accept(Items.GOLDEN_AXE);
+                param1.accept(Items.GOLDEN_HOE);
+                param1.accept(Items.DIAMOND_SHOVEL);
+                param1.accept(Items.DIAMOND_PICKAXE);
+                param1.accept(Items.DIAMOND_AXE);
+                param1.accept(Items.DIAMOND_HOE);
+                param1.accept(Items.NETHERITE_SHOVEL);
+                param1.accept(Items.NETHERITE_PICKAXE);
+                param1.accept(Items.NETHERITE_AXE);
+                param1.accept(Items.NETHERITE_HOE);
+                param1.accept(Items.BUCKET);
+                param1.accept(Items.WATER_BUCKET);
+                param1.accept(Items.PUFFERFISH_BUCKET);
+                param1.accept(Items.SALMON_BUCKET);
+                param1.accept(Items.COD_BUCKET);
+                param1.accept(Items.TROPICAL_FISH_BUCKET);
+                param1.accept(Items.AXOLOTL_BUCKET);
+                param1.accept(Items.TADPOLE_BUCKET);
+                param1.accept(Items.LAVA_BUCKET);
+                param1.accept(Items.POWDER_SNOW_BUCKET);
+                param1.accept(Items.MILK_BUCKET);
+                param1.accept(Items.FISHING_ROD);
+                param1.accept(Items.FLINT_AND_STEEL);
+                param1.accept(Items.FIRE_CHARGE);
+                param1.accept(Items.BONE_MEAL);
+                param1.accept(Items.SHEARS);
+                param1.accept(Items.NAME_TAG);
+                param1.accept(Items.LEAD);
+                if (param0.enabledFeatures().contains(FeatureFlags.BUNDLE)) {
+                    param1.accept(Items.BUNDLE);
+                }
+        
+                param1.accept(Items.COMPASS);
+                param1.accept(Items.RECOVERY_COMPASS);
+                param1.accept(Items.CLOCK);
+                param1.accept(Items.SPYGLASS);
+                param1.accept(Items.MAP);
+                param1.accept(Items.WRITABLE_BOOK);
+                param1.accept(Items.ENDER_PEARL);
+                param1.accept(Items.ENDER_EYE);
+                param1.accept(Items.ELYTRA);
+                generateFireworksAllDurations(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                param1.accept(Items.SADDLE);
+                param1.accept(Items.CARROT_ON_A_STICK);
+                param1.accept(Items.WARPED_FUNGUS_ON_A_STICK);
+                param1.accept(Items.OAK_BOAT);
+                param1.accept(Items.OAK_CHEST_BOAT);
+                param1.accept(Items.SPRUCE_BOAT);
+                param1.accept(Items.SPRUCE_CHEST_BOAT);
+                param1.accept(Items.BIRCH_BOAT);
+                param1.accept(Items.BIRCH_CHEST_BOAT);
+                param1.accept(Items.JUNGLE_BOAT);
+                param1.accept(Items.JUNGLE_CHEST_BOAT);
+                param1.accept(Items.ACACIA_BOAT);
+                param1.accept(Items.ACACIA_CHEST_BOAT);
+                param1.accept(Items.DARK_OAK_BOAT);
+                param1.accept(Items.DARK_OAK_CHEST_BOAT);
+                param1.accept(Items.MANGROVE_BOAT);
+                param1.accept(Items.MANGROVE_CHEST_BOAT);
+                param1.accept(Items.BAMBOO_RAFT);
+                param1.accept(Items.BAMBOO_CHEST_RAFT);
+                param1.accept(Items.RAIL);
+                param1.accept(Items.POWERED_RAIL);
+                param1.accept(Items.DETECTOR_RAIL);
+                param1.accept(Items.ACTIVATOR_RAIL);
+                param1.accept(Items.MINECART);
+                param1.accept(Items.HOPPER_MINECART);
+                param1.accept(Items.CHEST_MINECART);
+                param1.accept(Items.FURNACE_MINECART);
+                param1.accept(Items.TNT_MINECART);
+                param0.holders()
+                    .lookup(Registries.INSTRUMENT)
+                    .ifPresent(
+                        param1x -> generateInstrumentTypes(
+                                param1, param1x, Items.GOAT_HORN, InstrumentTags.GOAT_HORNS, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                            )
+                    );
+                param1.accept(Items.MUSIC_DISC_13);
+                param1.accept(Items.MUSIC_DISC_CAT);
+                param1.accept(Items.MUSIC_DISC_BLOCKS);
+                param1.accept(Items.MUSIC_DISC_CHIRP);
+                param1.accept(Items.MUSIC_DISC_FAR);
+                param1.accept(Items.MUSIC_DISC_MALL);
+                param1.accept(Items.MUSIC_DISC_MELLOHI);
+                param1.accept(Items.MUSIC_DISC_STAL);
+                param1.accept(Items.MUSIC_DISC_STRAD);
+                param1.accept(Items.MUSIC_DISC_WARD);
+                param1.accept(Items.MUSIC_DISC_11);
+                param1.accept(Items.MUSIC_DISC_WAIT);
+                param1.accept(Items.MUSIC_DISC_OTHERSIDE);
+                param1.accept(Items.MUSIC_DISC_5);
+                param1.accept(Items.MUSIC_DISC_PIGSTEP);
             }
-    
-            param1.accept(Items.COMPASS);
-            param1.accept(Items.RECOVERY_COMPASS);
-            param1.accept(Items.CLOCK);
-            param1.accept(Items.SPYGLASS);
-            param1.accept(Items.MAP);
-            param1.accept(Items.WRITABLE_BOOK);
-            param1.accept(Items.ENDER_PEARL);
-            param1.accept(Items.ENDER_EYE);
-            param1.accept(Items.ELYTRA);
-            generateFireworksAllDurations(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            param1.accept(Items.SADDLE);
-            param1.accept(Items.CARROT_ON_A_STICK);
-            param1.accept(Items.WARPED_FUNGUS_ON_A_STICK);
-            param1.accept(Items.OAK_BOAT);
-            param1.accept(Items.OAK_CHEST_BOAT);
-            param1.accept(Items.SPRUCE_BOAT);
-            param1.accept(Items.SPRUCE_CHEST_BOAT);
-            param1.accept(Items.BIRCH_BOAT);
-            param1.accept(Items.BIRCH_CHEST_BOAT);
-            param1.accept(Items.JUNGLE_BOAT);
-            param1.accept(Items.JUNGLE_CHEST_BOAT);
-            param1.accept(Items.ACACIA_BOAT);
-            param1.accept(Items.ACACIA_CHEST_BOAT);
-            param1.accept(Items.DARK_OAK_BOAT);
-            param1.accept(Items.DARK_OAK_CHEST_BOAT);
-            param1.accept(Items.MANGROVE_BOAT);
-            param1.accept(Items.MANGROVE_CHEST_BOAT);
-            param1.accept(Items.BAMBOO_RAFT);
-            param1.accept(Items.BAMBOO_CHEST_RAFT);
-            param1.accept(Items.RAIL);
-            param1.accept(Items.POWERED_RAIL);
-            param1.accept(Items.DETECTOR_RAIL);
-            param1.accept(Items.ACTIVATOR_RAIL);
-            param1.accept(Items.MINECART);
-            param1.accept(Items.HOPPER_MINECART);
-            param1.accept(Items.CHEST_MINECART);
-            param1.accept(Items.FURNACE_MINECART);
-            param1.accept(Items.TNT_MINECART);
-            generateInstrumentTypes(param1, Items.GOAT_HORN, InstrumentTags.GOAT_HORNS, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            param1.accept(Items.MUSIC_DISC_13);
-            param1.accept(Items.MUSIC_DISC_CAT);
-            param1.accept(Items.MUSIC_DISC_BLOCKS);
-            param1.accept(Items.MUSIC_DISC_CHIRP);
-            param1.accept(Items.MUSIC_DISC_FAR);
-            param1.accept(Items.MUSIC_DISC_MALL);
-            param1.accept(Items.MUSIC_DISC_MELLOHI);
-            param1.accept(Items.MUSIC_DISC_STAL);
-            param1.accept(Items.MUSIC_DISC_STRAD);
-            param1.accept(Items.MUSIC_DISC_WARD);
-            param1.accept(Items.MUSIC_DISC_11);
-            param1.accept(Items.MUSIC_DISC_WAIT);
-            param1.accept(Items.MUSIC_DISC_OTHERSIDE);
-            param1.accept(Items.MUSIC_DISC_5);
-            param1.accept(Items.MUSIC_DISC_PIGSTEP);
-        })
+        )
         .build();
     private static final CreativeModeTab COMBAT = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 1)
         .title(Component.translatable("itemGroup.combat"))
         .icon(() -> new ItemStack(Items.NETHERITE_SWORD))
-        .displayItems((param0, param1, param2) -> {
-            param1.accept(Items.WOODEN_SWORD);
-            param1.accept(Items.STONE_SWORD);
-            param1.accept(Items.IRON_SWORD);
-            param1.accept(Items.GOLDEN_SWORD);
-            param1.accept(Items.DIAMOND_SWORD);
-            param1.accept(Items.NETHERITE_SWORD);
-            param1.accept(Items.WOODEN_AXE);
-            param1.accept(Items.STONE_AXE);
-            param1.accept(Items.IRON_AXE);
-            param1.accept(Items.GOLDEN_AXE);
-            param1.accept(Items.DIAMOND_AXE);
-            param1.accept(Items.NETHERITE_AXE);
-            param1.accept(Items.TRIDENT);
-            param1.accept(Items.SHIELD);
-            param1.accept(Items.LEATHER_HELMET);
-            param1.accept(Items.LEATHER_CHESTPLATE);
-            param1.accept(Items.LEATHER_LEGGINGS);
-            param1.accept(Items.LEATHER_BOOTS);
-            param1.accept(Items.CHAINMAIL_HELMET);
-            param1.accept(Items.CHAINMAIL_CHESTPLATE);
-            param1.accept(Items.CHAINMAIL_LEGGINGS);
-            param1.accept(Items.CHAINMAIL_BOOTS);
-            param1.accept(Items.IRON_HELMET);
-            param1.accept(Items.IRON_CHESTPLATE);
-            param1.accept(Items.IRON_LEGGINGS);
-            param1.accept(Items.IRON_BOOTS);
-            param1.accept(Items.GOLDEN_HELMET);
-            param1.accept(Items.GOLDEN_CHESTPLATE);
-            param1.accept(Items.GOLDEN_LEGGINGS);
-            param1.accept(Items.GOLDEN_BOOTS);
-            param1.accept(Items.DIAMOND_HELMET);
-            param1.accept(Items.DIAMOND_CHESTPLATE);
-            param1.accept(Items.DIAMOND_LEGGINGS);
-            param1.accept(Items.DIAMOND_BOOTS);
-            param1.accept(Items.NETHERITE_HELMET);
-            param1.accept(Items.NETHERITE_CHESTPLATE);
-            param1.accept(Items.NETHERITE_LEGGINGS);
-            param1.accept(Items.NETHERITE_BOOTS);
-            param1.accept(Items.TURTLE_HELMET);
-            param1.accept(Items.LEATHER_HORSE_ARMOR);
-            param1.accept(Items.IRON_HORSE_ARMOR);
-            param1.accept(Items.GOLDEN_HORSE_ARMOR);
-            param1.accept(Items.DIAMOND_HORSE_ARMOR);
-            param1.accept(Items.TOTEM_OF_UNDYING);
-            param1.accept(Items.TNT);
-            param1.accept(Items.END_CRYSTAL);
-            param1.accept(Items.SNOWBALL);
-            param1.accept(Items.EGG);
-            param1.accept(Items.BOW);
-            param1.accept(Items.CROSSBOW);
-            generateFireworksAllDurations(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            param1.accept(Items.ARROW);
-            param1.accept(Items.SPECTRAL_ARROW);
-            generatePotionEffectTypes(param1, Items.TIPPED_ARROW, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        })
+        .displayItems(
+            (param0, param1) -> {
+                param1.accept(Items.WOODEN_SWORD);
+                param1.accept(Items.STONE_SWORD);
+                param1.accept(Items.IRON_SWORD);
+                param1.accept(Items.GOLDEN_SWORD);
+                param1.accept(Items.DIAMOND_SWORD);
+                param1.accept(Items.NETHERITE_SWORD);
+                param1.accept(Items.WOODEN_AXE);
+                param1.accept(Items.STONE_AXE);
+                param1.accept(Items.IRON_AXE);
+                param1.accept(Items.GOLDEN_AXE);
+                param1.accept(Items.DIAMOND_AXE);
+                param1.accept(Items.NETHERITE_AXE);
+                param1.accept(Items.TRIDENT);
+                param1.accept(Items.SHIELD);
+                param1.accept(Items.LEATHER_HELMET);
+                param1.accept(Items.LEATHER_CHESTPLATE);
+                param1.accept(Items.LEATHER_LEGGINGS);
+                param1.accept(Items.LEATHER_BOOTS);
+                param1.accept(Items.CHAINMAIL_HELMET);
+                param1.accept(Items.CHAINMAIL_CHESTPLATE);
+                param1.accept(Items.CHAINMAIL_LEGGINGS);
+                param1.accept(Items.CHAINMAIL_BOOTS);
+                param1.accept(Items.IRON_HELMET);
+                param1.accept(Items.IRON_CHESTPLATE);
+                param1.accept(Items.IRON_LEGGINGS);
+                param1.accept(Items.IRON_BOOTS);
+                param1.accept(Items.GOLDEN_HELMET);
+                param1.accept(Items.GOLDEN_CHESTPLATE);
+                param1.accept(Items.GOLDEN_LEGGINGS);
+                param1.accept(Items.GOLDEN_BOOTS);
+                param1.accept(Items.DIAMOND_HELMET);
+                param1.accept(Items.DIAMOND_CHESTPLATE);
+                param1.accept(Items.DIAMOND_LEGGINGS);
+                param1.accept(Items.DIAMOND_BOOTS);
+                param1.accept(Items.NETHERITE_HELMET);
+                param1.accept(Items.NETHERITE_CHESTPLATE);
+                param1.accept(Items.NETHERITE_LEGGINGS);
+                param1.accept(Items.NETHERITE_BOOTS);
+                param1.accept(Items.TURTLE_HELMET);
+                param1.accept(Items.LEATHER_HORSE_ARMOR);
+                param1.accept(Items.IRON_HORSE_ARMOR);
+                param1.accept(Items.GOLDEN_HORSE_ARMOR);
+                param1.accept(Items.DIAMOND_HORSE_ARMOR);
+                param1.accept(Items.TOTEM_OF_UNDYING);
+                param1.accept(Items.TNT);
+                param1.accept(Items.END_CRYSTAL);
+                param1.accept(Items.SNOWBALL);
+                param1.accept(Items.EGG);
+                param1.accept(Items.BOW);
+                param1.accept(Items.CROSSBOW);
+                generateFireworksAllDurations(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                param1.accept(Items.ARROW);
+                param1.accept(Items.SPECTRAL_ARROW);
+                param0.holders()
+                    .lookup(Registries.POTION)
+                    .ifPresent(param1x -> generatePotionEffectTypes(param1, param1x, Items.TIPPED_ARROW, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+            }
+        )
         .build();
     private static final CreativeModeTab FOOD_AND_DRINKS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 2)
         .title(Component.translatable("itemGroup.foodAndDrink"))
         .icon(() -> new ItemStack(Items.GOLDEN_APPLE))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.APPLE);
             param1.accept(Items.GOLDEN_APPLE);
             param1.accept(Items.ENCHANTED_GOLDEN_APPLE);
@@ -1265,15 +1294,17 @@ public class CreativeModeTabs {
             generateSuspiciousStews(param1, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             param1.accept(Items.MILK_BUCKET);
             param1.accept(Items.HONEY_BOTTLE);
-            generatePotionEffectTypes(param1, Items.POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            generatePotionEffectTypes(param1, Items.SPLASH_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            generatePotionEffectTypes(param1, Items.LINGERING_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            param0.holders().lookup(Registries.POTION).ifPresent(param1x -> {
+                generatePotionEffectTypes(param1, param1x, Items.POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                generatePotionEffectTypes(param1, param1x, Items.SPLASH_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                generatePotionEffectTypes(param1, param1x, Items.LINGERING_POTION, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            });
         })
         .build();
     private static final CreativeModeTab INGREDIENTS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 3)
         .title(Component.translatable("itemGroup.ingredients"))
         .icon(() -> new ItemStack(Items.IRON_INGOT))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.COAL);
             param1.accept(Items.CHARCOAL);
             param1.accept(Items.RAW_IRON);
@@ -1313,6 +1344,7 @@ public class CreativeModeTabs {
             param1.accept(Items.PRISMARINE_CRYSTALS);
             param1.accept(Items.NAUTILUS_SHELL);
             param1.accept(Items.HEART_OF_THE_SEA);
+            param1.accept(Items.FIRE_CHARGE);
             param1.accept(Items.BLAZE_ROD);
             param1.accept(Items.NETHER_STAR);
             param1.accept(Items.ENDER_PEARL);
@@ -1381,14 +1413,16 @@ public class CreativeModeTabs {
             param1.accept(Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE);
             param1.accept(Items.EXPERIENCE_BOTTLE);
             Set<EnchantmentCategory> var0 = EnumSet.allOf(EnchantmentCategory.class);
-            generateEnchantmentBookTypesOnlyMaxLevel(param1, var0, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
-            generateEnchantmentBookTypesAllLevels(param1, var0, CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
+            param0.holders().lookup(Registries.ENCHANTMENT).ifPresent(param2 -> {
+                generateEnchantmentBookTypesOnlyMaxLevel(param1, param2, var0, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                generateEnchantmentBookTypesAllLevels(param1, param2, var0, CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
+            });
         })
         .build();
     private static final CreativeModeTab SPAWN_EGGS = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 4)
         .title(Component.translatable("itemGroup.spawnEggs"))
         .icon(() -> new ItemStack(Items.PIG_SPAWN_EGG))
-        .displayItems((param0, param1, param2) -> {
+        .displayItems((param0, param1) -> {
             param1.accept(Items.SPAWNER);
             param1.accept(Items.ALLAY_SPAWN_EGG);
             param1.accept(Items.AXOLOTL_SPAWN_EGG);
@@ -1470,24 +1504,37 @@ public class CreativeModeTabs {
         .title(Component.translatable("itemGroup.op"))
         .icon(() -> new ItemStack(Items.COMMAND_BLOCK))
         .alignedRight()
-        .displayItems((param0, param1, param2) -> {
-            if (param2) {
-                param1.accept(Items.COMMAND_BLOCK);
-                param1.accept(Items.CHAIN_COMMAND_BLOCK);
-                param1.accept(Items.REPEATING_COMMAND_BLOCK);
-                param1.accept(Items.COMMAND_BLOCK_MINECART);
-                param1.accept(Items.JIGSAW);
-                param1.accept(Items.STRUCTURE_BLOCK);
-                param1.accept(Items.STRUCTURE_VOID);
-                param1.accept(Items.BARRIER);
-                param1.accept(Items.DEBUG_STICK);
-    
-                for(int var0 = 15; var0 >= 0; --var0) {
-                    param1.accept(LightBlock.setLightOnStack(new ItemStack(Items.LIGHT), var0));
+        .displayItems(
+            (param0, param1) -> {
+                if (param0.hasPermissions()) {
+                    param1.accept(Items.COMMAND_BLOCK);
+                    param1.accept(Items.CHAIN_COMMAND_BLOCK);
+                    param1.accept(Items.REPEATING_COMMAND_BLOCK);
+                    param1.accept(Items.COMMAND_BLOCK_MINECART);
+                    param1.accept(Items.JIGSAW);
+                    param1.accept(Items.STRUCTURE_BLOCK);
+                    param1.accept(Items.STRUCTURE_VOID);
+                    param1.accept(Items.BARRIER);
+                    param1.accept(Items.DEBUG_STICK);
+        
+                    for(int var0 = 15; var0 >= 0; --var0) {
+                        param1.accept(LightBlock.setLightOnStack(new ItemStack(Items.LIGHT), var0));
+                    }
+        
+                    param0.holders()
+                        .lookup(Registries.PAINTING_VARIANT)
+                        .ifPresent(
+                            param1x -> generatePresetPaintings(
+                                    param1,
+                                    param1x,
+                                    param0x -> !param0x.is(PaintingVariantTags.PLACEABLE),
+                                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                                )
+                        );
                 }
+        
             }
-    
-        })
+        )
         .build();
     private static final CreativeModeTab INVENTORY = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 6)
         .title(Component.translatable("itemGroup.inventory"))
@@ -1514,9 +1561,11 @@ public class CreativeModeTabs {
         OP_BLOCKS,
         INVENTORY
     );
+    private static final Comparator<Holder<PaintingVariant>> PAINTING_COMPARATOR = Comparator.comparing(
+        Holder::value, Comparator.<PaintingVariant>comparingInt(param0 -> param0.getHeight() * param0.getWidth()).thenComparing(PaintingVariant::getWidth)
+    );
     @Nullable
-    public static FeatureFlagSet CACHED_ENABLED_FEATURES;
-    public static boolean CACHED_HAS_PERMISSIONS = false;
+    private static CreativeModeTab.ItemDisplayParameters CACHED_PARAMETERS;
 
     private static List<CreativeModeTab> checkTabs(CreativeModeTab... param0) {
         Map<Pair<CreativeModeTab.Row, Integer>, String> var0 = new HashMap<>();
@@ -1536,44 +1585,41 @@ public class CreativeModeTabs {
         return BUILDING_BLOCKS;
     }
 
-    private static void generatePotionEffectTypes(CreativeModeTab.Output param0, Item param1, CreativeModeTab.TabVisibility param2) {
-        for(Potion var0 : BuiltInRegistries.POTION) {
-            if (var0 != Potions.EMPTY) {
-                param0.accept(PotionUtils.setPotion(new ItemStack(param1), var0), param2);
-            }
-        }
-
+    private static void generatePotionEffectTypes(CreativeModeTab.Output param0, HolderLookup<Potion> param1, Item param2, CreativeModeTab.TabVisibility param3) {
+        param1.listElements()
+            .filter(param0x -> !param0x.is(Potions.EMPTY_ID))
+            .map(param1x -> PotionUtils.setPotion(new ItemStack(param2), param1x.value()))
+            .forEach(param2x -> param0.accept(param2x, param3));
     }
 
     private static void generateEnchantmentBookTypesOnlyMaxLevel(
-        CreativeModeTab.Output param0, Set<EnchantmentCategory> param1, CreativeModeTab.TabVisibility param2
+        CreativeModeTab.Output param0, HolderLookup<Enchantment> param1, Set<EnchantmentCategory> param2, CreativeModeTab.TabVisibility param3
     ) {
-        for(Enchantment var0 : BuiltInRegistries.ENCHANTMENT) {
-            if (param1.contains(var0.category)) {
-                param0.accept(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var0, var0.getMaxLevel())), param2);
-            }
-        }
-
+        param1.listElements()
+            .map(Holder::value)
+            .filter(param1x -> param2.contains(param1x.category))
+            .map(param0x -> EnchantedBookItem.createForEnchantment(new EnchantmentInstance(param0x, param0x.getMaxLevel())))
+            .forEach(param2x -> param0.accept(param2x, param3));
     }
 
     private static void generateEnchantmentBookTypesAllLevels(
-        CreativeModeTab.Output param0, Set<EnchantmentCategory> param1, CreativeModeTab.TabVisibility param2
+        CreativeModeTab.Output param0, HolderLookup<Enchantment> param1, Set<EnchantmentCategory> param2, CreativeModeTab.TabVisibility param3
     ) {
-        for(Enchantment var0 : BuiltInRegistries.ENCHANTMENT) {
-            if (param1.contains(var0.category)) {
-                for(int var1 = var0.getMinLevel(); var1 <= var0.getMaxLevel(); ++var1) {
-                    param0.accept(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var0, var1)), param2);
-                }
-            }
-        }
-
+        param1.listElements()
+            .map(Holder::value)
+            .filter(param1x -> param2.contains(param1x.category))
+            .flatMap(
+                param0x -> IntStream.rangeClosed(param0x.getMinLevel(), param0x.getMaxLevel())
+                        .mapToObj(param1x -> EnchantedBookItem.createForEnchantment(new EnchantmentInstance(param0x, param1x)))
+            )
+            .forEach(param2x -> param0.accept(param2x, param3));
     }
 
-    private static void generateInstrumentTypes(CreativeModeTab.Output param0, Item param1, TagKey<Instrument> param2, CreativeModeTab.TabVisibility param3) {
-        for(Holder<Instrument> var0 : BuiltInRegistries.INSTRUMENT.getTagOrEmpty(param2)) {
-            param0.accept(InstrumentItem.create(param1, var0), param3);
-        }
-
+    private static void generateInstrumentTypes(
+        CreativeModeTab.Output param0, HolderLookup<Instrument> param1, Item param2, TagKey<Instrument> param3, CreativeModeTab.TabVisibility param4
+    ) {
+        param1.get(param3)
+            .ifPresent(param3x -> param3x.stream().map(param1x -> InstrumentItem.create(param2, param1x)).forEach(param2x -> param0.accept(param2x, param4)));
     }
 
     private static void generateSuspiciousStews(CreativeModeTab.Output param0, CreativeModeTab.TabVisibility param1) {
@@ -1598,6 +1644,20 @@ public class CreativeModeTabs {
 
     }
 
+    private static void generatePresetPaintings(
+        CreativeModeTab.Output param0,
+        HolderLookup.RegistryLookup<PaintingVariant> param1,
+        Predicate<Holder<PaintingVariant>> param2,
+        CreativeModeTab.TabVisibility param3
+    ) {
+        param1.listElements().filter(param2).sorted(PAINTING_COMPARATOR).forEach(param2x -> {
+            ItemStack var0x = new ItemStack(Items.PAINTING);
+            CompoundTag var1x = var0x.getOrCreateTagElement("EntityTag");
+            Painting.storeVariant(var1x, param2x);
+            param0.accept(var0x, param3);
+        });
+    }
+
     public static List<CreativeModeTab> tabs() {
         return TABS.stream().filter(CreativeModeTab::shouldDisplay).toList();
     }
@@ -1610,22 +1670,17 @@ public class CreativeModeTabs {
         return SEARCH;
     }
 
-    private static void buildAllTabContents(FeatureFlagSet param0, boolean param1) {
-        TABS.stream().filter(param0x -> param0x.getType() == CreativeModeTab.Type.CATEGORY).forEach(param2 -> param2.buildContents(param0, param1));
-        TABS.stream().filter(param0x -> param0x.getType() != CreativeModeTab.Type.CATEGORY).forEach(param2 -> param2.buildContents(param0, param1));
+    private static void buildAllTabContents(CreativeModeTab.ItemDisplayParameters param0) {
+        TABS.stream().filter(param0x -> param0x.getType() == CreativeModeTab.Type.CATEGORY).forEach(param1 -> param1.buildContents(param0));
+        TABS.stream().filter(param0x -> param0x.getType() != CreativeModeTab.Type.CATEGORY).forEach(param1 -> param1.buildContents(param0));
     }
 
-    private static boolean wouldRebuildSameContents(FeatureFlagSet param0, boolean param1) {
-        return CACHED_HAS_PERMISSIONS == param1 && param0.equals(CACHED_ENABLED_FEATURES);
-    }
-
-    public static boolean tryRebuildTabContents(FeatureFlagSet param0, boolean param1) {
-        if (wouldRebuildSameContents(param0, param1)) {
+    public static boolean tryRebuildTabContents(FeatureFlagSet param0, boolean param1, HolderLookup.Provider param2) {
+        if (CACHED_PARAMETERS != null && !CACHED_PARAMETERS.needsUpdate(param0, param1, param2)) {
             return false;
         } else {
-            CACHED_ENABLED_FEATURES = param0;
-            CACHED_HAS_PERMISSIONS = param1;
-            buildAllTabContents(CACHED_ENABLED_FEATURES, CACHED_HAS_PERMISSIONS);
+            CACHED_PARAMETERS = new CreativeModeTab.ItemDisplayParameters(param0, param1, param2);
+            buildAllTabContents(CACHED_PARAMETERS);
             return true;
         }
     }

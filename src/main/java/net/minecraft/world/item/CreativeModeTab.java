@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.ItemLike;
@@ -97,9 +98,9 @@ public class CreativeModeTab {
         return this.type;
     }
 
-    public void buildContents(FeatureFlagSet param0, boolean param1) {
-        CreativeModeTab.ItemDisplayBuilder var0 = new CreativeModeTab.ItemDisplayBuilder(this, param0);
-        this.displayItemsGenerator.accept(param0, var0, param1);
+    public void buildContents(CreativeModeTab.ItemDisplayParameters param0) {
+        CreativeModeTab.ItemDisplayBuilder var0 = new CreativeModeTab.ItemDisplayBuilder(this, param0.enabledFeatures);
+        this.displayItemsGenerator.accept(param0, var0);
         this.displayItems = var0.tabContents;
         this.displayItemsSearchTab = var0.searchTabContents;
         this.rebuildSearchTree();
@@ -129,7 +130,7 @@ public class CreativeModeTab {
     }
 
     public static class Builder {
-        private static final CreativeModeTab.DisplayItemsGenerator EMPTY_GENERATOR = (param0, param1, param2) -> {
+        private static final CreativeModeTab.DisplayItemsGenerator EMPTY_GENERATOR = (param0, param1) -> {
         };
         private final CreativeModeTab.Row row;
         private final int column;
@@ -201,8 +202,9 @@ public class CreativeModeTab {
         }
     }
 
+    @FunctionalInterface
     public interface DisplayItemsGenerator {
-        void accept(FeatureFlagSet var1, CreativeModeTab.Output var2, boolean var3);
+        void accept(CreativeModeTab.ItemDisplayParameters var1, CreativeModeTab.Output var2);
     }
 
     static class ItemDisplayBuilder implements CreativeModeTab.Output {
@@ -246,6 +248,12 @@ public class CreativeModeTab {
 
                 }
             }
+        }
+    }
+
+    public static record ItemDisplayParameters(FeatureFlagSet enabledFeatures, boolean hasPermissions, HolderLookup.Provider holders) {
+        public boolean needsUpdate(FeatureFlagSet param0, boolean param1, HolderLookup.Provider param2) {
+            return !this.enabledFeatures.equals(param0) || this.hasPermissions != param1 || this.holders != param2;
         }
     }
 

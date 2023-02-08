@@ -54,7 +54,7 @@ public class WitherSkull extends AbstractHurtingProjectile {
             Entity var1 = this.getOwner();
             boolean var3;
             if (var1 instanceof LivingEntity var2) {
-                var3 = var0.hurt(DamageSource.witherSkull(this, var2), 8.0F);
+                var3 = var0.hurt(this.damageSources().witherSkull(this, var2), 8.0F);
                 if (var3) {
                     if (var0.isAlive()) {
                         this.doEnchantDamageEffects(var2, var0);
@@ -63,7 +63,7 @@ public class WitherSkull extends AbstractHurtingProjectile {
                     }
                 }
             } else {
-                var3 = var0.hurt(DamageSource.MAGIC, 5.0F);
+                var3 = var0.hurt(this.damageSources().magic(), 5.0F);
             }
 
             if (var3 && var0 instanceof LivingEntity) {

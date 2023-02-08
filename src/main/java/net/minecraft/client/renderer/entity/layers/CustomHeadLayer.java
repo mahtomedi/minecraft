@@ -11,7 +11,6 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.nbt.CompoundTag;
@@ -23,6 +22,7 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
@@ -88,9 +88,9 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 SkullModelBase var9 = this.skullModels.get(var8);
                 RenderType var10 = SkullBlockRenderer.getRenderType(var8, var6);
                 SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var9, var10);
-            } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
+            } else if (!(var1 instanceof ArmorItem var11) || var11.getEquipmentSlot() != EquipmentSlot.HEAD) {
                 translateToHead(param0, var2);
-                this.itemInHandRenderer.renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);
+                this.itemInHandRenderer.renderItem(param3, var0, ItemDisplayContext.HEAD, false, param0, param1, param2);
             }
 
             param0.popPose();

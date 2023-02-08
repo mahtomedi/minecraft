@@ -216,4 +216,6 @@ public interface ClientGamePacketListener extends PacketListener {
     void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket var1);
 
     void handleBundlePacket(ClientboundBundlePacket var1);
+
+    void handleDamageEvent(ClientboundDamageEventPacket var1);
 }

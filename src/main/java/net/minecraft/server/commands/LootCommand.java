@@ -27,7 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -460,7 +459,7 @@ public class LootCommand {
                 var2.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, (Player)var3);
             }
 
-            var2.withParameter(LootContextParams.DAMAGE_SOURCE, DamageSource.MAGIC);
+            var2.withParameter(LootContextParams.DAMAGE_SOURCE, param1.damageSources().magic());
             var2.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, var3);
             var2.withOptionalParameter(LootContextParams.KILLER_ENTITY, var3);
             var2.withParameter(LootContextParams.THIS_ENTITY, param1);

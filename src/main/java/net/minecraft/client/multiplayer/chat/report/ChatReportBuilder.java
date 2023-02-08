@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
+import net.minecraft.Optionull;
 import net.minecraft.client.multiplayer.chat.ChatLog;
 import net.minecraft.client.multiplayer.chat.LoggedChatMessage;
 import net.minecraft.network.chat.Component;
@@ -122,7 +122,7 @@ public class ChatReportBuilder {
         SignedMessageLink var0 = param0.message().link();
         SignedMessageBody var1 = param0.message().signedBody();
         List<ByteBuffer> var2 = var1.lastSeen().entries().stream().map(MessageSignature::asByteBuffer).toList();
-        ByteBuffer var3 = Util.mapNullable(param0.message().signature(), MessageSignature::asByteBuffer);
+        ByteBuffer var3 = Optionull.map(param0.message().signature(), MessageSignature::asByteBuffer);
         return new ReportChatMessage(var0.index(), var0.sender(), var0.sessionId(), var1.timeStamp(), var1.salt(), var2, var1.content(), var3, param1);
     }
 

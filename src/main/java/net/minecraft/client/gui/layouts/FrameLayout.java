@@ -15,16 +15,17 @@ public class FrameLayout extends AbstractLayout {
     private int minHeight;
     private final LayoutSettings defaultChildLayoutSettings = LayoutSettings.defaults().align(0.5F, 0.5F);
 
-    public static FrameLayout withMinDimensions(int param0, int param1) {
-        return new FrameLayout(0, 0, 0, 0).setMinDimensions(param0, param1);
-    }
-
     public FrameLayout() {
         this(0, 0, 0, 0);
     }
 
+    public FrameLayout(int param0, int param1) {
+        this(0, 0, param0, param1);
+    }
+
     public FrameLayout(int param0, int param1, int param2, int param3) {
         super(param0, param1, param2, param3);
+        this.setMinDimensions(param2, param3);
     }
 
     public FrameLayout setMinDimensions(int param0, int param1) {
@@ -79,7 +80,7 @@ public class FrameLayout extends AbstractLayout {
     }
 
     @Override
-    protected void visitChildren(Consumer<LayoutElement> param0) {
+    public void visitChildren(Consumer<LayoutElement> param0) {
         this.children.forEach(param1 -> param0.accept(param1.child));
     }
 
@@ -97,7 +98,7 @@ public class FrameLayout extends AbstractLayout {
     }
 
     public static void alignInDimension(int param0, int param1, int param2, Consumer<Integer> param3, float param4) {
-        int var0 = (int)Mth.lerp(param4, 0.0F, (float)(param1 - param2));
+        int var0 = Mth.lerp(param4, 0, param1 - param2);
         param3.accept(param0 + var0);
     }
 

@@ -13,7 +13,6 @@ import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
@@ -29,6 +28,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
@@ -85,7 +85,7 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
         this.skullModels = SkullBlockRenderer.createSkullRenderers(this.entityModelSet);
     }
 
-    public void renderByItem(ItemStack param0, ItemTransforms.TransformType param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
+    public void renderByItem(ItemStack param0, ItemDisplayContext param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         Item var0 = param0.getItem();
         if (var0 instanceof BlockItem) {
             Block var1 = ((BlockItem)var0).getBlock();

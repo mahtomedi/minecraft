@@ -281,7 +281,7 @@ public class Parrot extends ShoulderRidingEntity implements VariantHolder<Parrot
 
             this.addEffect(new MobEffectInstance(MobEffects.POISON, 900));
             if (param0.isCreative() || !this.isInvulnerable()) {
-                this.hurt(DamageSource.playerAttack(param0), Float.MAX_VALUE);
+                this.hurt(this.damageSources().playerAttack(param0), Float.MAX_VALUE);
             }
 
             return InteractionResult.sidedSuccess(this.level.isClientSide);
@@ -327,7 +327,7 @@ public class Parrot extends ShoulderRidingEntity implements VariantHolder<Parrot
 
     @Override
     public boolean doHurtTarget(Entity param0) {
-        return param0.hurt(DamageSource.mobAttack(this), 3.0F);
+        return param0.hurt(this.damageSources().mobAttack(this), 3.0F);
     }
 
     @Nullable

@@ -7,11 +7,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 
-public class ShieldItem extends Item {
+public class ShieldItem extends Item implements Equipable {
     public static final int EFFECTIVE_BLOCK_DELAY = 5;
     public static final float MINIMUM_DURABILITY_DAMAGE = 3.0F;
     public static final String TAG_BASE_COLOR = "Base";
@@ -56,5 +57,10 @@ public class ShieldItem extends Item {
     public static DyeColor getColor(ItemStack param0) {
         CompoundTag var0 = BlockItem.getBlockEntityData(param0);
         return var0 != null ? DyeColor.byId(var0.getInt("Base")) : DyeColor.WHITE;
+    }
+
+    @Override
+    public EquipmentSlot getEquipmentSlot() {
+        return EquipmentSlot.OFFHAND;
     }
 }

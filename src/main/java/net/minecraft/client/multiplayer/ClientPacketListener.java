@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.logging.LogUtils;
@@ -12,7 +13,9 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,8 +28,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.ClientRecipeBook;
@@ -127,6 +132,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundCooldownPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundDeleteChatPacket;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket;
@@ -213,6 +219,7 @@ import net.minecraft.network.protocol.game.ClientboundUpdateEnabledFeaturesPacke
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundChatAckPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
@@ -318,6 +325,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     private static final Component CHAT_VALIDATION_FAILED_ERROR = Component.translatable("multiplayer.disconnect.chat_validation_failed");
     private static final int PENDING_OFFSET_THRESHOLD = 64;
     private final Connection connection;
+    private final List<ClientPacketListener.DeferredPacket> deferredPackets = new ArrayList();
     @Nullable
     private final ServerData serverData;
     private final GameProfile localGameProfile;
@@ -1020,6 +1028,15 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             }
         }
 
+    }
+
+    @Override
+    public void handleDamageEvent(ClientboundDamageEventPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        Entity var0 = this.level.getEntity(param0.entityId());
+        if (var0 != null) {
+            var0.handleDamageEvent(param0.getSource(this.level));
+        }
     }
 
     @Override
@@ -1789,7 +1806,31 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
 
     @Override
     public void handleKeepAlive(ClientboundKeepAlivePacket param0) {
-        this.send(new ServerboundKeepAlivePacket(param0.getId()));
+        this.sendWhen(new ServerboundKeepAlivePacket(param0.getId()), () -> !RenderSystem.isFrozenAtPollEvents(), Duration.ofMinutes(1L));
+    }
+
+    private void sendWhen(Packet<ServerGamePacketListener> param0, BooleanSupplier param1, Duration param2) {
+        if (param1.getAsBoolean()) {
+            this.send(param0);
+        } else {
+            this.deferredPackets.add(new ClientPacketListener.DeferredPacket(param0, param1, Util.getMillis() + param2.toMillis()));
+        }
+
+    }
+
+    private void sendDeferredPackets() {
+        Iterator<ClientPacketListener.DeferredPacket> var0 = this.deferredPackets.iterator();
+
+        while(var0.hasNext()) {
+            ClientPacketListener.DeferredPacket var1 = (ClientPacketListener.DeferredPacket)var0.next();
+            if (var1.sendCondition().getAsBoolean()) {
+                this.send(var1.packet);
+                var0.remove();
+            } else if (var1.expirationTime() <= Util.getMillis()) {
+                var0.remove();
+            }
+        }
+
     }
 
     @Override
@@ -2591,6 +2632,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             }
         }
 
+        this.sendDeferredPackets();
         this.telemetryManager.tick();
     }
 
@@ -2615,5 +2657,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
 
     public boolean isFeatureEnabled(FeatureFlagSet param0) {
         return param0.isSubsetOf(this.enabledFeatures());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static record DeferredPacket(Packet<ServerGamePacketListener> packet, BooleanSupplier sendCondition, long expirationTime) {
     }
 }

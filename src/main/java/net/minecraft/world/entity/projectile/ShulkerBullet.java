@@ -280,11 +280,11 @@ public class ShulkerBullet extends Projectile {
         Entity var0 = param0.getEntity();
         Entity var1 = this.getOwner();
         LivingEntity var2 = var1 instanceof LivingEntity ? (LivingEntity)var1 : null;
-        boolean var3 = var0.hurt(DamageSource.indirectMobAttack(this, var2).setProjectile(), 4.0F);
+        boolean var3 = var0.hurt(this.damageSources().mobProjectile(this, var2), 4.0F);
         if (var3) {
             this.doEnchantDamageEffects(var2, var0);
-            if (var0 instanceof LivingEntity) {
-                ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200), MoreObjects.firstNonNull(var1, this));
+            if (var0 instanceof LivingEntity var4) {
+                var4.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200), MoreObjects.firstNonNull(var1, this));
             }
         }
 

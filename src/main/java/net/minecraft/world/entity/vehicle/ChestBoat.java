@@ -81,9 +81,17 @@ public class ChestBoat extends Boat implements HasCustomInventoryScreen, Contain
 
     @Override
     public InteractionResult interact(Player param0, InteractionHand param1) {
-        return this.canAddPassenger(param0) && !param0.isSecondaryUseActive()
-            ? super.interact(param0, param1)
-            : this.interactWithChestVehicle(this::gameEvent, param0);
+        if (this.canAddPassenger(param0) && !param0.isSecondaryUseActive()) {
+            return super.interact(param0, param1);
+        } else {
+            InteractionResult var0 = this.interactWithContainerVehicle(param0);
+            if (var0.consumesAction()) {
+                this.gameEvent(GameEvent.CONTAINER_OPEN, param0);
+                PiglinAi.angerNearbyPiglins(param0, true);
+            }
+
+            return var0;
+        }
     }
 
     @Override
@@ -198,5 +206,10 @@ public class ChestBoat extends Boat implements HasCustomInventoryScreen, Contain
     @Override
     public void clearItemStacks() {
         this.itemStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+    }
+
+    @Override
+    public void stopOpen(Player param0) {
+        this.level.gameEvent(GameEvent.CONTAINER_CLOSE, this.position(), GameEvent.Context.of(param0));
     }
 }

@@ -8,7 +8,6 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.PendingInvite;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.RowButton;
-import com.mojang.realmsclient.util.RealmsTextureManager;
 import com.mojang.realmsclient.util.RealmsUtil;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +16,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -209,7 +207,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             RealmsPendingInvitesScreen.this.font
                 .draw(param0, RealmsUtil.convertToAgePresentationFromInstant(param1.date), (float)(param2 + 38), (float)(param3 + 24), 7105644);
             RowButton.drawButtonsInRow(param0, this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param2, param3, param4, param5);
-            RealmsTextureManager.withBoundFace(param1.worldOwnerUuid, () -> PlayerFaceRenderer.draw(param0, param2, param3, 32));
+            RealmsUtil.renderPlayerFace(param0, param2, param3, 32, param1.worldOwnerUuid);
         }
 
         @Override

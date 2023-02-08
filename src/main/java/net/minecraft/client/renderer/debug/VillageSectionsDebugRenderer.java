@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Set;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -33,27 +32,20 @@ public class VillageSectionsDebugRenderer implements DebugRenderer.SimpleDebugRe
 
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        this.doRender(param2, param3, param4);
-        RenderSystem.disableBlend();
-    }
-
-    private void doRender(double param0, double param1, double param2) {
-        BlockPos var0 = new BlockPos(param0, param1, param2);
-        this.villageSections.forEach(param1x -> {
-            if (var0.closerThan(param1x.center(), 60.0)) {
-                highlightVillageSection(param1x);
+        BlockPos var0 = new BlockPos(param2, param3, param4);
+        this.villageSections.forEach(param3x -> {
+            if (var0.closerThan(param3x.center(), 60.0)) {
+                highlightVillageSection(param0, param1, param3x);
             }
 
         });
     }
 
-    private static void highlightVillageSection(SectionPos param0) {
+    private static void highlightVillageSection(PoseStack param0, MultiBufferSource param1, SectionPos param2) {
         float var0 = 1.0F;
-        BlockPos var1 = param0.center();
+        BlockPos var1 = param2.center();
         BlockPos var2 = var1.offset(-1.0, -1.0, -1.0);
         BlockPos var3 = var1.offset(1.0, 1.0, 1.0);
-        DebugRenderer.renderFilledBox(var2, var3, 0.2F, 1.0F, 0.2F, 0.15F);
+        DebugRenderer.renderFilledBox(param0, param1, var2, var3, 0.2F, 1.0F, 0.2F, 0.15F);
     }
 }

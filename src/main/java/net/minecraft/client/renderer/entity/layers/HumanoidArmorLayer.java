@@ -55,7 +55,7 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
         ItemStack var0 = param2.getItemBySlot(param3);
         Item var3 = var0.getItem();
         if (var3 instanceof ArmorItem var1) {
-            if (var1.getSlot() == param3) {
+            if (var1.getEquipmentSlot() == param3) {
                 this.getParentModel().copyPropertiesTo(param5);
                 this.setPartVisibility(param5, param3);
                 boolean var3x = this.usesInnerModel(param3);

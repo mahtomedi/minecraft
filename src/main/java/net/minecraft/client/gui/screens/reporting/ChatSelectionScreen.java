@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.Optionull;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -304,7 +304,7 @@ public class ChatSelectionScreen extends Screen {
 
             public MessageEntry(int param1, Component param2, @Nullable Component param3, GuiMessageTag param4, boolean param5, boolean param6) {
                 this.chatId = param1;
-                this.tagIcon = Util.mapNullable(param4, GuiMessageTag::icon);
+                this.tagIcon = Optionull.map(param4, GuiMessageTag::icon);
                 this.tagHoverText = param4 != null && param4.text() != null
                     ? ChatSelectionScreen.this.font.split(param4.text(), ChatSelectionList.this.getRowWidth())
                     : null;

@@ -240,7 +240,7 @@ public class FallingBlockEntity extends Entity {
                     var3 = var1.getFallDamageSource(this);
                 } else {
                     var2 = EntitySelector.NO_SPECTATORS;
-                    var3 = DamageSource.fallingBlock(this);
+                    var3 = this.damageSources().fallingBlock(this);
                 }
 
                 float var6 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);

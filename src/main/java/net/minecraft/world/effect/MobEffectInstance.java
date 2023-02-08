@@ -145,7 +145,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     }
 
     public int mapDuration(Int2IntFunction param0) {
-        return this.isInfiniteDuration() ? -1 : param0.applyAsInt(this.duration);
+        return !this.isInfiniteDuration() && this.duration != 0 ? param0.applyAsInt(this.duration) : this.duration;
     }
 
     public MobEffect getEffect() {

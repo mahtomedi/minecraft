@@ -60,6 +60,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
@@ -69,6 +70,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -446,7 +448,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 }
             } else {
                 if (this.remainingFireTicks % 20 == 0 && !this.isInLava()) {
-                    this.hurt(DamageSource.ON_FIRE, 1.0F);
+                    this.hurt(this.damageSources().onFire(), 1.0F);
                 }
 
                 this.setRemainingFireTicks(this.remainingFireTicks - 1);
@@ -505,7 +507,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public void lavaHurt() {
         if (!this.fireImmune()) {
             this.setSecondsOnFire(15);
-            if (this.hurt(DamageSource.LAVA, 4.0F)) {
+            if (this.hurt(this.damageSources().lava(), 4.0F)) {
                 this.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + this.random.nextFloat() * 0.4F);
             }
 
@@ -1782,6 +1784,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public boolean startRiding(Entity param0, boolean param1) {
         if (param0 == this.vehicle) {
             return false;
+        } else if (!param0.couldAcceptPassenger()) {
+            return false;
         } else {
             for(Entity var0 = param0; var0.vehicle != null; var0 = var0.vehicle) {
                 if (var0.vehicle == this) {
@@ -1796,15 +1800,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
                 this.setPose(Pose.STANDING);
                 this.vehicle = param0;
-                if (!this.vehicle.addPassenger(this)) {
-                    this.vehicle = null;
-                    return false;
-                } else {
-                    param0.getIndirectPassengersStream()
-                        .filter(param0x -> param0x instanceof ServerPlayer)
-                        .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
-                    return true;
-                }
+                this.vehicle.addPassenger(this);
+                param0.getIndirectPassengersStream()
+                    .filter(param0x -> param0x instanceof ServerPlayer)
+                    .forEach(param0x -> CriteriaTriggers.START_RIDING_TRIGGER.trigger((ServerPlayer)param0x));
+                return true;
             } else {
                 return false;
             }
@@ -1839,7 +1839,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.removeVehicle();
     }
 
-    protected boolean addPassenger(Entity param0) {
+    protected void addPassenger(Entity param0) {
         if (param0.getVehicle() != this) {
             throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
         } else {
@@ -1856,7 +1856,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.passengers = ImmutableList.copyOf(var0);
             }
 
-            return true;
+            this.gameEvent(GameEvent.ENTITY_MOUNT, param0);
         }
     }
 
@@ -1871,11 +1871,16 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             }
 
             param0.boardingCooldown = 60;
+            this.gameEvent(GameEvent.ENTITY_DISMOUNT, param0);
         }
     }
 
     protected boolean canAddPassenger(Entity param0) {
         return this.passengers.isEmpty();
+    }
+
+    protected boolean couldAcceptPassenger() {
+        return true;
     }
 
     public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
@@ -1963,6 +1968,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void lerpMotion(double param0, double param1, double param2) {
         this.setDeltaMovement(param0, param1, param2);
+    }
+
+    public void handleDamageEvent(DamageSource param0) {
     }
 
     public void handleEntityEvent(byte param0) {
@@ -2158,7 +2166,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             this.setSecondsOnFire(8);
         }
 
-        this.hurt(DamageSource.LIGHTNING_BOLT, 5.0F);
+        this.hurt(this.damageSources().lightningBolt(), 5.0F);
     }
 
     public void onAboveBubbleCol(boolean param0) {
@@ -2311,8 +2319,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public boolean isInvulnerableTo(DamageSource param0) {
         return this.isRemoved()
-            || this.invulnerable && param0 != DamageSource.OUT_OF_WORLD && !param0.isCreativePlayer()
-            || param0.isFire() && this.fireImmune();
+            || this.invulnerable && !param0.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !param0.isCreativePlayer()
+            || param0.is(DamageTypeTags.IS_FIRE) && this.fireImmune();
     }
 
     public boolean isInvulnerable() {
@@ -2581,6 +2589,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.isCustomNameVisible();
     }
 
+    public void onSyncedDataUpdated(List<SynchedEntityData.DataValue<?>> param0) {
+    }
+
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
         if (DATA_POSE.equals(param0)) {
             this.refreshDimensions();
@@ -2816,7 +2827,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public boolean hasIndirectPassenger(Entity param0) {
-        return this.getIndirectPassengersStream().anyMatch(param1 -> param1 == param0);
+        if (!param0.isPassenger()) {
+            return false;
+        } else {
+            Entity var0 = param0.getVehicle();
+            return var0 == this ? true : this.hasIndirectPassenger(var0);
+        }
     }
 
     public boolean isControlledByLocalInstance() {
@@ -3242,6 +3258,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public Level getLevel() {
         return this.level;
+    }
+
+    public DamageSources damageSources() {
+        return this.level.damageSources();
     }
 
     @FunctionalInterface

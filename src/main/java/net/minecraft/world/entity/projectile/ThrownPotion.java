@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
@@ -111,7 +110,7 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
             double var3 = this.distanceToSqr(var2);
             if (var3 < 16.0) {
                 if (var2.isSensitiveToWater()) {
-                    var2.hurt(DamageSource.indirectMagic(this, this.getOwner()), 1.0F);
+                    var2.hurt(this.damageSources().indirectMagic(this, this.getOwner()), 1.0F);
                 }
 
                 if (var2.isOnFire() && var2.isAlive()) {

@@ -237,7 +237,7 @@ public class Slime extends Mob implements Enemy {
             int var0 = this.getSize();
             if (this.distanceToSqr(param0) < 0.6 * (double)var0 * 0.6 * (double)var0
                 && this.hasLineOfSight(param0)
-                && param0.hurt(DamageSource.mobAttack(this), this.getAttackDamage())) {
+                && param0.hurt(this.damageSources().mobAttack(this), this.getAttackDamage())) {
                 this.playSound(SoundEvents.SLIME_ATTACK, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 this.doEnchantDamageEffects(this, param0);
             }
