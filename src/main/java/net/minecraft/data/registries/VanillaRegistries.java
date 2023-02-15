@@ -17,7 +17,7 @@ import net.minecraft.data.worldgen.Pools;
 import net.minecraft.data.worldgen.ProcessorLists;
 import net.minecraft.data.worldgen.StructureSets;
 import net.minecraft.data.worldgen.Structures;
-import net.minecraft.data.worldgen.biome.Biomes;
+import net.minecraft.data.worldgen.biome.BiomeData;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.network.chat.ChatType;
@@ -43,7 +43,7 @@ public class VanillaRegistries {
         .add(Registries.STRUCTURE_SET, StructureSets::bootstrap)
         .add(Registries.PROCESSOR_LIST, ProcessorLists::bootstrap)
         .add(Registries.TEMPLATE_POOL, Pools::bootstrap)
-        .add(Registries.BIOME, Biomes::bootstrap)
+        .add(Registries.BIOME, BiomeData::bootstrap)
         .add(Registries.NOISE, NoiseData::bootstrap)
         .add(Registries.DENSITY_FUNCTION, NoiseRouterData::bootstrap)
         .add(Registries.NOISE_SETTINGS, NoiseGeneratorSettings::bootstrap)
@@ -55,19 +55,22 @@ public class VanillaRegistries {
         .add(Registries.DAMAGE_TYPE, DamageTypes::bootstrap);
 
     private static void validateThatAllBiomeFeaturesHaveBiomeFilter(HolderLookup.Provider param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookupOrThrow(Registries.PLACED_FEATURE);
-        param0.lookupOrThrow(Registries.BIOME).listElements().forEach(param1 -> {
-            ResourceLocation var0x = param1.key().location();
-            List<HolderSet<PlacedFeature>> var1x = ((Biome)param1.value()).getGenerationSettings().features();
+        validateThatAllBiomeFeaturesHaveBiomeFilter(param0.lookupOrThrow(Registries.PLACED_FEATURE), param0.lookupOrThrow(Registries.BIOME));
+    }
+
+    public static void validateThatAllBiomeFeaturesHaveBiomeFilter(HolderGetter<PlacedFeature> param0, HolderLookup<Biome> param1) {
+        param1.listElements().forEach(param1x -> {
+            ResourceLocation var0x = param1x.key().location();
+            List<HolderSet<PlacedFeature>> var1x = param1x.value().getGenerationSettings().features();
             var1x.stream().flatMap(HolderSet::stream).forEach(param3 -> param3.unwrap().ifLeft(param2x -> {
-                    Holder.Reference<PlacedFeature> var0xx = var0.getOrThrow(param2x);
+                    Holder.Reference<PlacedFeature> var0xx = param0.getOrThrow(param2x);
                     if (!validatePlacedFeature((PlacedFeature)var0xx.value())) {
                         Util.logAndPauseIfInIde("Placed feature " + param2x.location() + " in biome " + var0x + " is missing BiomeFilter.biome()");
                     }
 
-                }).ifRight(param1x -> {
-                    if (!validatePlacedFeature(param1x)) {
-                        Util.logAndPauseIfInIde("Placed inline feature in biome " + param1 + " is missing BiomeFilter.biome()");
+                }).ifRight(param1xxx -> {
+                    if (!validatePlacedFeature(param1xxx)) {
+                        Util.logAndPauseIfInIde("Placed inline feature in biome " + param1x + " is missing BiomeFilter.biome()");
                     }
 
                 }));

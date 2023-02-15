@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.stream.IntStream;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
@@ -165,12 +166,24 @@ public abstract class AbstractSignEditScreen extends Screen {
                 float var10 = (float)(-this.minecraft.font.width(var9) / 2);
                 this.minecraft
                     .font
-                    .drawInBatch(var9, var10, (float)(var8 * this.sign.getTextLineHeight() - var5), var1, false, var7, param1, false, 0, 15728880, false);
+                    .drawInBatch(
+                        var9,
+                        var10,
+                        (float)(var8 * this.sign.getTextLineHeight() - var5),
+                        var1,
+                        false,
+                        var7,
+                        param1,
+                        Font.DisplayMode.NORMAL,
+                        0,
+                        15728880,
+                        false
+                    );
                 if (var8 == this.line && var3 >= 0 && var2) {
                     int var11 = this.minecraft.font.width(var9.substring(0, Math.max(Math.min(var3, var9.length()), 0)));
                     int var12 = var11 - this.minecraft.font.width(var9) / 2;
                     if (var3 >= var9.length()) {
-                        this.minecraft.font.drawInBatch("_", (float)var12, (float)var6, var1, false, var7, param1, false, 0, 15728880, false);
+                        this.minecraft.font.drawInBatch("_", (float)var12, (float)var6, var1, false, var7, param1, Font.DisplayMode.NORMAL, 0, 15728880, false);
                     }
                 }
             }

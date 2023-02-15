@@ -8,8 +8,6 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.worldgen.features.TreeFeatures;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -23,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.grower.AcaciaTreeGrower;
 import net.minecraft.world.level.block.grower.BirchTreeGrower;
+import net.minecraft.world.level.block.grower.CherryTreeGrower;
 import net.minecraft.world.level.block.grower.DarkOakTreeGrower;
 import net.minecraft.world.level.block.grower.JungleTreeGrower;
 import net.minecraft.world.level.block.grower.OakTreeGrower;
@@ -33,6 +32,7 @@ import net.minecraft.world.level.block.piston.PistonHeadBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -93,6 +93,15 @@ public class Blocks {
     public static final Block ACACIA_PLANKS = register(
         "acacia_planks", new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).strength(2.0F, 3.0F).sound(SoundType.WOOD))
     );
+    public static final Block CHERRY_PLANKS = register(
+        "cherry_planks",
+        new Block(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_WHITE)
+                .strength(2.0F, 3.0F)
+                .sound(SoundType.CHERRY_WOOD)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
+    );
     public static final Block DARK_OAK_PLANKS = register(
         "dark_oak_planks", new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(SoundType.WOOD))
     );
@@ -137,6 +146,18 @@ public class Blocks {
         "acacia_sapling",
         new SaplingBlock(new AcaciaTreeGrower(), BlockBehaviour.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS))
     );
+    public static final Block CHERRY_SAPLING = register(
+        "cherry_sapling",
+        new SaplingBlock(
+            new CherryTreeGrower(),
+            BlockBehaviour.Properties.of(Material.PLANT, MaterialColor.COLOR_PINK)
+                .noCollission()
+                .randomTicks()
+                .instabreak()
+                .sound(SoundType.CHERRY_SAPLING)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
+    );
     public static final Block DARK_OAK_SAPLING = register(
         "dark_oak_sapling",
         new SaplingBlock(new DarkOakTreeGrower(), BlockBehaviour.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.GRASS))
@@ -166,6 +187,15 @@ public class Blocks {
     );
     public static final Block SAND = register(
         "sand", new SandBlock(14406560, BlockBehaviour.Properties.of(Material.SAND, MaterialColor.SAND).strength(0.5F).sound(SoundType.SAND))
+    );
+    public static final Block SUSPICIOUS_SAND = register(
+        "suspicious_sand",
+        new SuspiciousSandBlock(
+            BlockBehaviour.Properties.of(Material.SAND, MaterialColor.SAND)
+                .strength(0.25F)
+                .sound(SoundType.SUSPICIOUS_SAND)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
     );
     public static final Block RED_SAND = register(
         "red_sand", new SandBlock(11098145, BlockBehaviour.Properties.of(Material.SAND, MaterialColor.COLOR_ORANGE).strength(0.5F).sound(SoundType.SAND))
@@ -212,6 +242,9 @@ public class Blocks {
     public static final Block BIRCH_LOG = register("birch_log", log(MaterialColor.SAND, MaterialColor.QUARTZ));
     public static final Block JUNGLE_LOG = register("jungle_log", log(MaterialColor.DIRT, MaterialColor.PODZOL));
     public static final Block ACACIA_LOG = register("acacia_log", log(MaterialColor.COLOR_ORANGE, MaterialColor.STONE));
+    public static final Block CHERRY_LOG = register(
+        "cherry_log", log(MaterialColor.TERRACOTTA_WHITE, MaterialColor.TERRACOTTA_GRAY, SoundType.CHERRY_WOOD, FeatureFlags.UPDATE_1_20)
+    );
     public static final Block DARK_OAK_LOG = register("dark_oak_log", log(MaterialColor.COLOR_BROWN, MaterialColor.COLOR_BROWN));
     public static final Block MANGROVE_LOG = register("mangrove_log", log(MaterialColor.COLOR_RED, MaterialColor.PODZOL));
     public static final Block MANGROVE_ROOTS = register(
@@ -238,6 +271,9 @@ public class Blocks {
     public static final Block STRIPPED_BIRCH_LOG = register("stripped_birch_log", log(MaterialColor.SAND, MaterialColor.SAND));
     public static final Block STRIPPED_JUNGLE_LOG = register("stripped_jungle_log", log(MaterialColor.DIRT, MaterialColor.DIRT));
     public static final Block STRIPPED_ACACIA_LOG = register("stripped_acacia_log", log(MaterialColor.COLOR_ORANGE, MaterialColor.COLOR_ORANGE));
+    public static final Block STRIPPED_CHERRY_LOG = register(
+        "stripped_cherry_log", log(MaterialColor.TERRACOTTA_WHITE, MaterialColor.TERRACOTTA_PINK, SoundType.CHERRY_WOOD, FeatureFlags.UPDATE_1_20)
+    );
     public static final Block STRIPPED_DARK_OAK_LOG = register("stripped_dark_oak_log", log(MaterialColor.COLOR_BROWN, MaterialColor.COLOR_BROWN));
     public static final Block STRIPPED_OAK_LOG = register("stripped_oak_log", log(MaterialColor.WOOD, MaterialColor.WOOD));
     public static final Block STRIPPED_MANGROVE_LOG = register("stripped_mangrove_log", log(MaterialColor.COLOR_RED, MaterialColor.COLOR_RED));
@@ -258,6 +294,15 @@ public class Blocks {
     );
     public static final Block ACACIA_WOOD = register(
         "acacia_wood", new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_GRAY).strength(2.0F).sound(SoundType.WOOD))
+    );
+    public static final Block CHERRY_WOOD = register(
+        "cherry_wood",
+        new RotatedPillarBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_GRAY)
+                .strength(2.0F)
+                .sound(SoundType.CHERRY_WOOD)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
     );
     public static final Block DARK_OAK_WOOD = register(
         "dark_oak_wood", new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F).sound(SoundType.WOOD))
@@ -281,6 +326,15 @@ public class Blocks {
         "stripped_acacia_wood",
         new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).strength(2.0F).sound(SoundType.WOOD))
     );
+    public static final Block STRIPPED_CHERRY_WOOD = register(
+        "stripped_cherry_wood",
+        new RotatedPillarBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_PINK)
+                .strength(2.0F)
+                .sound(SoundType.CHERRY_WOOD)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
+    );
     public static final Block STRIPPED_DARK_OAK_WOOD = register(
         "stripped_dark_oak_wood",
         new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F).sound(SoundType.WOOD))
@@ -291,6 +345,20 @@ public class Blocks {
     public static final Block BIRCH_LEAVES = register("birch_leaves", leaves(SoundType.GRASS));
     public static final Block JUNGLE_LEAVES = register("jungle_leaves", leaves(SoundType.GRASS));
     public static final Block ACACIA_LEAVES = register("acacia_leaves", leaves(SoundType.GRASS));
+    public static final Block CHERRY_LEAVES = register(
+        "cherry_leaves",
+        new CherryLeavesBlock(
+            BlockBehaviour.Properties.of(Material.LEAVES, MaterialColor.COLOR_PINK)
+                .strength(0.2F)
+                .randomTicks()
+                .sound(SoundType.CHERRY_LEAVES)
+                .noOcclusion()
+                .isValidSpawn(Blocks::ocelotOrParrot)
+                .isSuffocating(Blocks::never)
+                .isViewBlocking(Blocks::never)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
+    );
     public static final Block DARK_OAK_LEAVES = register("dark_oak_leaves", leaves(SoundType.GRASS));
     public static final Block MANGROVE_LEAVES = register(
         "mangrove_leaves",
@@ -486,6 +554,19 @@ public class Blocks {
             MobEffects.SATURATION,
             7,
             BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ)
+        )
+    );
+    public static final Block TORCHFLOWER = register(
+        "torchflower",
+        new FlowerBlock(
+            MobEffects.NIGHT_VISION,
+            5,
+            BlockBehaviour.Properties.of(Material.PLANT)
+                .noCollission()
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
         )
     );
     public static final Block POPPY = register(
@@ -708,45 +789,40 @@ public class Blocks {
         "furnace", new FurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13)))
     );
     public static final Block OAK_SIGN = register(
-        "oak_sign", new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).sound(SoundType.WOOD), WoodType.OAK)
+        "oak_sign", new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F), WoodType.OAK)
     );
     public static final Block SPRUCE_SIGN = register(
         "spruce_sign",
-        new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).sound(SoundType.WOOD), WoodType.SPRUCE
-        )
+        new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_LOG.defaultMaterialColor()).noCollission().strength(1.0F), WoodType.SPRUCE)
     );
     public static final Block BIRCH_SIGN = register(
-        "birch_sign",
-        new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).noCollission().strength(1.0F).sound(SoundType.WOOD), WoodType.BIRCH
-        )
+        "birch_sign", new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).noCollission().strength(1.0F), WoodType.BIRCH)
     );
     public static final Block ACACIA_SIGN = register(
         "acacia_sign",
+        new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).noCollission().strength(1.0F), WoodType.ACACIA)
+    );
+    public static final Block CHERRY_SIGN = register(
+        "cherry_sign",
         new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).noCollission().strength(1.0F).sound(SoundType.WOOD), WoodType.ACACIA
+            BlockBehaviour.Properties.of(Material.WOOD, CHERRY_PLANKS.defaultMaterialColor())
+                .noCollission()
+                .strength(1.0F)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            WoodType.CHERRY
         )
     );
     public static final Block JUNGLE_SIGN = register(
         "jungle_sign",
-        new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).sound(SoundType.WOOD), WoodType.JUNGLE
-        )
+        new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_LOG.defaultMaterialColor()).noCollission().strength(1.0F), WoodType.JUNGLE)
     );
     public static final Block DARK_OAK_SIGN = register(
         "dark_oak_sign",
-        new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_LOG.defaultMaterialColor()).noCollission().strength(1.0F).sound(SoundType.WOOD),
-            WoodType.DARK_OAK
-        )
+        new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_LOG.defaultMaterialColor()).noCollission().strength(1.0F), WoodType.DARK_OAK)
     );
     public static final Block MANGROVE_SIGN = register(
         "mangrove_sign",
-        new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).sound(SoundType.WOOD),
-            WoodType.MANGROVE
-        )
+        new StandingSignBlock(BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor()).noCollission().strength(1.0F), WoodType.MANGROVE)
     );
     public static final Block BAMBOO_SIGN = register(
         "bamboo_sign",
@@ -754,18 +830,13 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, BAMBOO_PLANKS.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.BAMBOO_WOOD)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.BAMBOO
         )
     );
     public static final Block OAK_DOOR = register(
         "oak_door",
-        new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
-        )
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.OAK)
     );
     public static final Block LADDER = register(
         "ladder", new LadderBlock(BlockBehaviour.Properties.of(Material.DECORATION).strength(0.4F).sound(SoundType.LADDER).noOcclusion())
@@ -777,64 +848,54 @@ public class Blocks {
         "cobblestone_stairs", new StairBlock(COBBLESTONE.defaultBlockState(), BlockBehaviour.Properties.copy(COBBLESTONE))
     );
     public static final Block OAK_WALL_SIGN = register(
-        "oak_wall_sign",
-        new WallSignBlock(BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).sound(SoundType.WOOD).dropsLike(OAK_SIGN), WoodType.OAK)
+        "oak_wall_sign", new WallSignBlock(BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).dropsLike(OAK_SIGN), WoodType.OAK)
     );
     public static final Block SPRUCE_WALL_SIGN = register(
         "spruce_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_LOG.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.WOOD)
-                .dropsLike(SPRUCE_SIGN),
+            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).dropsLike(SPRUCE_SIGN),
             WoodType.SPRUCE
         )
     );
     public static final Block BIRCH_WALL_SIGN = register(
         "birch_wall_sign",
-        new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).noCollission().strength(1.0F).sound(SoundType.WOOD).dropsLike(BIRCH_SIGN),
-            WoodType.BIRCH
-        )
+        new WallSignBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).noCollission().strength(1.0F).dropsLike(BIRCH_SIGN), WoodType.BIRCH)
     );
     public static final Block ACACIA_WALL_SIGN = register(
         "acacia_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).noCollission().strength(1.0F).sound(SoundType.WOOD).dropsLike(ACACIA_SIGN),
-            WoodType.ACACIA
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).noCollission().strength(1.0F).dropsLike(ACACIA_SIGN), WoodType.ACACIA
+        )
+    );
+    public static final Block CHERRY_WALL_SIGN = register(
+        "cherry_wall_sign",
+        new WallSignBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, CHERRY_LOG.defaultMaterialColor())
+                .noCollission()
+                .strength(1.0F)
+                .dropsLike(CHERRY_SIGN)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            WoodType.CHERRY
         )
     );
     public static final Block JUNGLE_WALL_SIGN = register(
         "jungle_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_LOG.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.WOOD)
-                .dropsLike(JUNGLE_SIGN),
+            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).dropsLike(JUNGLE_SIGN),
             WoodType.JUNGLE
         )
     );
     public static final Block DARK_OAK_WALL_SIGN = register(
         "dark_oak_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_LOG.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.WOOD)
-                .dropsLike(DARK_OAK_SIGN),
+            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_LOG.defaultMaterialColor()).noCollission().strength(1.0F).dropsLike(DARK_OAK_SIGN),
             WoodType.DARK_OAK
         )
     );
     public static final Block MANGROVE_WALL_SIGN = register(
         "mangrove_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.WOOD)
-                .dropsLike(MANGROVE_SIGN),
+            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor()).noCollission().strength(1.0F).dropsLike(MANGROVE_SIGN),
             WoodType.MANGROVE
         )
     );
@@ -844,7 +905,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, BAMBOO_PLANKS.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.BAMBOO_WOOD)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20)
                 .dropsLike(BAMBOO_SIGN),
             WoodType.BAMBOO
@@ -856,7 +916,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, OAK_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.OAK
         )
@@ -867,7 +926,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.SPRUCE
         )
@@ -875,23 +933,22 @@ public class Blocks {
     public static final Block BIRCH_HANGING_SIGN = register(
         "birch_hanging_sign",
         new CeilingHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).noCollission().strength(1.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.BIRCH
         )
     );
     public static final Block ACACIA_HANGING_SIGN = register(
         "acacia_hanging_sign",
         new CeilingHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).noCollission().strength(1.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.ACACIA
+        )
+    );
+    public static final Block CHERRY_HANGING_SIGN = register(
+        "cherry_hanging_sign",
+        new CeilingHangingSignBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_PINK).noCollission().strength(1.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
+            WoodType.CHERRY
         )
     );
     public static final Block JUNGLE_HANGING_SIGN = register(
@@ -900,7 +957,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.JUNGLE
         )
@@ -911,7 +967,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.DARK_OAK
         )
@@ -919,22 +974,14 @@ public class Blocks {
     public static final Block CRIMSON_HANGING_SIGN = register(
         "crimson_hanging_sign",
         new CeilingHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.CRIMSON_STEM)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD_HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.CRIMSON_STEM).noCollission().strength(1.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.CRIMSON
         )
     );
     public static final Block WARPED_HANGING_SIGN = register(
         "warped_hanging_sign",
         new CeilingHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WARPED_STEM)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD_HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WARPED_STEM).noCollission().strength(1.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.WARPED
         )
     );
@@ -944,7 +991,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.MANGROVE
         )
@@ -952,11 +998,7 @@ public class Blocks {
     public static final Block BAMBOO_HANGING_SIGN = register(
         "bamboo_hanging_sign",
         new CeilingHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_YELLOW)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.BAMBOO_WOOD_HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_YELLOW).noCollission().strength(1.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.BAMBOO
         )
     );
@@ -966,7 +1008,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, OAK_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20)
                 .dropsLike(OAK_HANGING_SIGN),
             WoodType.OAK
@@ -975,24 +1016,14 @@ public class Blocks {
     public static final Block SPRUCE_WALL_HANGING_SIGN = register(
         "spruce_wall_hanging_sign",
         new WallHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.WOOD)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
-                .dropsLike(SPRUCE_HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.WOOD).noCollission().strength(1.0F).dropsLike(SPRUCE_HANGING_SIGN).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.SPRUCE
         )
     );
     public static final Block BIRCH_WALL_HANGING_SIGN = register(
         "birch_wall_hanging_sign",
         new WallHangingSignBlock(
-            BlockBehaviour.Properties.of(Material.SAND)
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
-                .dropsLike(BIRCH_HANGING_SIGN)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockBehaviour.Properties.of(Material.SAND).noCollission().strength(1.0F).dropsLike(BIRCH_HANGING_SIGN).requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.BIRCH
         )
     );
@@ -1002,10 +1033,20 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE)
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .dropsLike(ACACIA_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.ACACIA
+        )
+    );
+    public static final Block CHERRY_WALL_HANGING_SIGN = register(
+        "cherry_wall_hanging_sign",
+        new WallHangingSignBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_PINK)
+                .noCollission()
+                .strength(1.0F)
+                .dropsLike(CHERRY_HANGING_SIGN)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            WoodType.CHERRY
         )
     );
     public static final Block JUNGLE_WALL_HANGING_SIGN = register(
@@ -1014,7 +1055,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .dropsLike(JUNGLE_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.JUNGLE
@@ -1026,7 +1066,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .dropsLike(DARK_OAK_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.DARK_OAK
@@ -1038,7 +1077,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_LOG.defaultMaterialColor())
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.HANGING_SIGN)
                 .dropsLike(MANGROVE_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.MANGROVE
@@ -1050,7 +1088,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.CRIMSON_STEM)
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD_HANGING_SIGN)
                 .dropsLike(CRIMSON_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.CRIMSON
@@ -1062,7 +1099,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WARPED_STEM)
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD_HANGING_SIGN)
                 .dropsLike(WARPED_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.WARPED
@@ -1074,7 +1110,6 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_YELLOW)
                 .noCollission()
                 .strength(1.0F)
-                .sound(SoundType.BAMBOO_WOOD_HANGING_SIGN)
                 .dropsLike(BAMBOO_HANGING_SIGN)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
             WoodType.BAMBOO
@@ -1088,79 +1123,80 @@ public class Blocks {
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.MOBS,
             BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().noCollission().strength(0.5F),
-            SoundEvents.STONE_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.STONE_PRESSURE_PLATE_CLICK_ON
+            BlockSetType.STONE
         )
     );
     public static final Block IRON_DOOR = register(
         "iron_door",
         new DoorBlock(
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(5.0F).sound(SoundType.METAL).noOcclusion(),
-            SoundEvents.IRON_DOOR_CLOSE,
-            SoundEvents.IRON_DOOR_OPEN
+            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.METAL).requiresCorrectToolForDrops().strength(5.0F).noOcclusion(), BlockSetType.IRON
         )
     );
     public static final Block OAK_PRESSURE_PLATE = register(
         "oak_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.OAK
         )
     );
     public static final Block SPRUCE_PRESSURE_PLATE = register(
         "spruce_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.SPRUCE
         )
     );
     public static final Block BIRCH_PRESSURE_PLATE = register(
         "birch_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, BIRCH_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, BIRCH_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.BIRCH
         )
     );
     public static final Block JUNGLE_PRESSURE_PLATE = register(
         "jungle_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.JUNGLE
         )
     );
     public static final Block ACACIA_PRESSURE_PLATE = register(
         "acacia_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.ACACIA
+        )
+    );
+    public static final Block CHERRY_PRESSURE_PLATE = register(
+        "cherry_pressure_plate",
+        new PressurePlateBlock(
+            PressurePlateBlock.Sensitivity.EVERYTHING,
+            BlockBehaviour.Properties.of(Material.WOOD, CHERRY_PLANKS.defaultMaterialColor())
+                .noCollission()
+                .strength(0.5F)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockSetType.CHERRY
         )
     );
     public static final Block DARK_OAK_PRESSURE_PLATE = register(
         "dark_oak_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.DARK_OAK
         )
     );
     public static final Block MANGROVE_PRESSURE_PLATE = register(
         "mangrove_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.WOOD),
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.MANGROVE
         )
     );
     public static final Block BAMBOO_PRESSURE_PLATE = register(
@@ -1170,10 +1206,8 @@ public class Blocks {
             BlockBehaviour.Properties.of(Material.WOOD, BAMBOO_PLANKS.defaultMaterialColor())
                 .noCollission()
                 .strength(0.5F)
-                .sound(SoundType.BAMBOO_WOOD)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
-            SoundEvents.BAMBOO_WOOD_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.BAMBOO_WOOD_PRESSURE_PLATE_CLICK_ON
+            BlockSetType.BAMBOO
         )
     );
     public static final Block REDSTONE_ORE = register(
@@ -1342,65 +1376,57 @@ public class Blocks {
     public static final Block OAK_TRAPDOOR = register(
         "oak_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never), BlockSetType.OAK
         )
     );
     public static final Block SPRUCE_TRAPDOOR = register(
         "spruce_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.PODZOL).strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.PODZOL).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never), BlockSetType.SPRUCE
         )
     );
     public static final Block BIRCH_TRAPDOOR = register(
         "birch_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.SAND).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never), BlockSetType.BIRCH
         )
     );
     public static final Block JUNGLE_TRAPDOOR = register(
         "jungle_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.DIRT).strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.DIRT).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never), BlockSetType.JUNGLE
         )
     );
     public static final Block ACACIA_TRAPDOOR = register(
         "acacia_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE)
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never),
+            BlockSetType.ACACIA
+        )
+    );
+    public static final Block CHERRY_TRAPDOOR = register(
+        "cherry_trapdoor",
+        new TrapDoorBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_WHITE)
                 .strength(3.0F)
-                .sound(SoundType.WOOD)
                 .noOcclusion()
-                .isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+                .isValidSpawn(Blocks::never)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockSetType.CHERRY
         )
     );
     public static final Block DARK_OAK_TRAPDOOR = register(
         "dark_oak_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN)
-                .strength(3.0F)
-                .sound(SoundType.WOOD)
-                .noOcclusion()
-                .isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never),
+            BlockSetType.DARK_OAK
         )
     );
     public static final Block MANGROVE_TRAPDOOR = register(
         "mangrove_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_RED).strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn(Blocks::never),
-            SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-            SoundEvents.WOODEN_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_RED).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never),
+            BlockSetType.MANGROVE
         )
     );
     public static final Block BAMBOO_TRAPDOOR = register(
@@ -1408,12 +1434,10 @@ public class Blocks {
         new TrapDoorBlock(
             BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_YELLOW)
                 .strength(3.0F)
-                .sound(SoundType.BAMBOO_WOOD)
                 .noOcclusion()
                 .isValidSpawn(Blocks::never)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
-            SoundEvents.BAMBOO_WOOD_TRAPDOOR_CLOSE,
-            SoundEvents.BAMBOO_WOOD_TRAPDOOR_OPEN
+            BlockSetType.BAMBOO
         )
     );
     public static final Block STONE_BRICKS = register(
@@ -1533,12 +1557,7 @@ public class Blocks {
         )
     );
     public static final Block OAK_FENCE_GATE = register(
-        "oak_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
-        )
+        "oak_fence_gate", new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.OAK)
     );
     public static final Block BRICK_STAIRS = register("brick_stairs", new StairBlock(BRICKS.defaultBlockState(), BlockBehaviour.Properties.copy(BRICKS)));
     public static final Block STONE_BRICK_STAIRS = register(
@@ -1699,6 +1718,10 @@ public class Blocks {
     public static final Block FLOWER_POT = register(
         "flower_pot", new FlowerPotBlock(AIR, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())
     );
+    public static final Block POTTED_TORCHFLOWER = register(
+        "potted_torchflower",
+        new FlowerPotBlock(TORCHFLOWER, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion().requiredFeatures(FeatureFlags.UPDATE_1_20))
+    );
     public static final Block POTTED_OAK_SAPLING = register(
         "potted_oak_sapling", new FlowerPotBlock(OAK_SAPLING, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())
     );
@@ -1713,6 +1736,12 @@ public class Blocks {
     );
     public static final Block POTTED_ACACIA_SAPLING = register(
         "potted_acacia_sapling", new FlowerPotBlock(ACACIA_SAPLING, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())
+    );
+    public static final Block POTTED_CHERRY_SAPLING = register(
+        "potted_cherry_sapling",
+        new FlowerPotBlock(
+            CHERRY_SAPLING, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion().requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
     );
     public static final Block POTTED_DARK_OAK_SAPLING = register(
         "potted_dark_oak_sapling", new FlowerPotBlock(DARK_OAK_SAPLING, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())
@@ -1780,13 +1809,26 @@ public class Blocks {
     public static final Block POTATOES = register(
         "potatoes", new PotatoBlock(BlockBehaviour.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.CROP))
     );
-    public static final Block OAK_BUTTON = register("oak_button", woodenButton());
-    public static final Block SPRUCE_BUTTON = register("spruce_button", woodenButton());
-    public static final Block BIRCH_BUTTON = register("birch_button", woodenButton());
-    public static final Block JUNGLE_BUTTON = register("jungle_button", woodenButton());
-    public static final Block ACACIA_BUTTON = register("acacia_button", woodenButton());
-    public static final Block DARK_OAK_BUTTON = register("dark_oak_button", woodenButton());
-    public static final Block MANGROVE_BUTTON = register("mangrove_button", woodenButton());
+    public static final Block OAK_BUTTON = register("oak_button", woodenButton(BlockSetType.OAK));
+    public static final Block SPRUCE_BUTTON = register("spruce_button", woodenButton(BlockSetType.SPRUCE));
+    public static final Block BIRCH_BUTTON = register("birch_button", woodenButton(BlockSetType.BIRCH));
+    public static final Block JUNGLE_BUTTON = register("jungle_button", woodenButton(BlockSetType.JUNGLE));
+    public static final Block ACACIA_BUTTON = register("acacia_button", woodenButton(BlockSetType.ACACIA));
+    public static final Block CHERRY_BUTTON = register(
+        "cherry_button",
+        new ButtonBlock(
+            BlockBehaviour.Properties.of(Material.DECORATION)
+                .noCollission()
+                .strength(0.5F)
+                .sound(SoundType.CHERRY_WOOD)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockSetType.CHERRY,
+            30,
+            true
+        )
+    );
+    public static final Block DARK_OAK_BUTTON = register("dark_oak_button", woodenButton(BlockSetType.DARK_OAK));
+    public static final Block MANGROVE_BUTTON = register("mangrove_button", woodenButton(BlockSetType.MANGROVE));
     public static final Block BAMBOO_BUTTON = register(
         "bamboo_button",
         new ButtonBlock(
@@ -1795,10 +1837,9 @@ public class Blocks {
                 .strength(0.5F)
                 .sound(SoundType.BAMBOO_WOOD)
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockSetType.BAMBOO,
             30,
-            true,
-            SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_OFF,
-            SoundEvents.BAMBOO_WOOD_BUTTON_CLICK_ON
+            true
         )
     );
     public static final Block SKELETON_SKULL = register(
@@ -1883,19 +1924,13 @@ public class Blocks {
     public static final Block LIGHT_WEIGHTED_PRESSURE_PLATE = register(
         "light_weighted_pressure_plate",
         new WeightedPressurePlateBlock(
-            15,
-            BlockBehaviour.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().noCollission().strength(0.5F).sound(SoundType.METAL),
-            SoundEvents.METAL_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.METAL_PRESSURE_PLATE_CLICK_ON
+            15, BlockBehaviour.Properties.of(Material.METAL, MaterialColor.GOLD).requiresCorrectToolForDrops().noCollission().strength(0.5F), BlockSetType.GOLD
         )
     );
     public static final Block HEAVY_WEIGHTED_PRESSURE_PLATE = register(
         "heavy_weighted_pressure_plate",
         new WeightedPressurePlateBlock(
-            150,
-            BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().noCollission().strength(0.5F).sound(SoundType.METAL),
-            SoundEvents.METAL_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.METAL_PRESSURE_PLATE_CLICK_ON
+            150, BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().noCollission().strength(0.5F), BlockSetType.IRON
         )
     );
     public static final Block COMPARATOR = register(
@@ -2081,6 +2116,9 @@ public class Blocks {
     public static final Block ACACIA_STAIRS = register(
         "acacia_stairs", new StairBlock(ACACIA_PLANKS.defaultBlockState(), BlockBehaviour.Properties.copy(ACACIA_PLANKS))
     );
+    public static final Block CHERRY_STAIRS = register(
+        "cherry_stairs", new StairBlock(CHERRY_PLANKS.defaultBlockState(), BlockBehaviour.Properties.copy(CHERRY_PLANKS))
+    );
     public static final Block DARK_OAK_STAIRS = register(
         "dark_oak_stairs", new StairBlock(DARK_OAK_PLANKS.defaultBlockState(), BlockBehaviour.Properties.copy(DARK_OAK_PLANKS))
     );
@@ -2115,14 +2153,8 @@ public class Blocks {
     public static final Block IRON_TRAPDOOR = register(
         "iron_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.METAL)
-                .requiresCorrectToolForDrops()
-                .strength(5.0F)
-                .sound(SoundType.METAL)
-                .noOcclusion()
-                .isValidSpawn(Blocks::never),
-            SoundEvents.IRON_TRAPDOOR_CLOSE,
-            SoundEvents.IRON_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.METAL).requiresCorrectToolForDrops().strength(5.0F).noOcclusion().isValidSpawn(Blocks::never),
+            BlockSetType.IRON
         )
     );
     public static final Block PRISMARINE = register(
@@ -2495,6 +2527,15 @@ public class Blocks {
     public static final Block ACACIA_SLAB = register(
         "acacia_slab", new SlabBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_ORANGE).strength(2.0F, 3.0F).sound(SoundType.WOOD))
     );
+    public static final Block CHERRY_SLAB = register(
+        "cherry_slab",
+        new SlabBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_WHITE)
+                .strength(2.0F, 3.0F)
+                .sound(SoundType.CHERRY_WOOD)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
+    );
     public static final Block DARK_OAK_SLAB = register(
         "dark_oak_slab", new SlabBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(SoundType.WOOD))
     );
@@ -2594,61 +2635,40 @@ public class Blocks {
     );
     public static final Block SPRUCE_FENCE_GATE = register(
         "spruce_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.SPRUCE)
     );
     public static final Block BIRCH_FENCE_GATE = register(
         "birch_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, BIRCH_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, BIRCH_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.BIRCH)
     );
     public static final Block JUNGLE_FENCE_GATE = register(
         "jungle_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.JUNGLE)
     );
     public static final Block ACACIA_FENCE_GATE = register(
         "acacia_fence_gate",
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.ACACIA)
+    );
+    public static final Block CHERRY_FENCE_GATE = register(
+        "cherry_fence_gate",
         new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, CHERRY_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
+            WoodType.CHERRY
         )
     );
     public static final Block DARK_OAK_FENCE_GATE = register(
         "dark_oak_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.DARK_OAK)
     );
     public static final Block MANGROVE_FENCE_GATE = register(
         "mangrove_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD),
-            SoundEvents.FENCE_GATE_CLOSE,
-            SoundEvents.FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.MANGROVE)
     );
     public static final Block BAMBOO_FENCE_GATE = register(
         "bamboo_fence_gate",
         new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, BAMBOO_PLANKS.defaultMaterialColor())
-                .strength(2.0F, 3.0F)
-                .sound(SoundType.BAMBOO_WOOD)
-                .requiredFeatures(FeatureFlags.UPDATE_1_20),
-            SoundEvents.BAMBOO_WOOD_FENCE_GATE_CLOSE,
-            SoundEvents.BAMBOO_WOOD_FENCE_GATE_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, BAMBOO_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).requiredFeatures(FeatureFlags.UPDATE_1_20),
+            WoodType.BAMBOO
         )
     );
     public static final Block SPRUCE_FENCE = register(
@@ -2666,6 +2686,15 @@ public class Blocks {
     public static final Block ACACIA_FENCE = register(
         "acacia_fence",
         new FenceBlock(BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.WOOD))
+    );
+    public static final Block CHERRY_FENCE = register(
+        "cherry_fence",
+        new FenceBlock(
+            BlockBehaviour.Properties.of(Material.WOOD, CHERRY_PLANKS.defaultMaterialColor())
+                .strength(2.0F, 3.0F)
+                .sound(SoundType.CHERRY_WOOD)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
     );
     public static final Block DARK_OAK_FENCE = register(
         "dark_oak_fence",
@@ -2686,62 +2715,46 @@ public class Blocks {
     );
     public static final Block SPRUCE_DOOR = register(
         "spruce_door",
-        new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
-        )
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, SPRUCE_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.SPRUCE)
     );
     public static final Block BIRCH_DOOR = register(
         "birch_door",
-        new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, BIRCH_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
-        )
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, BIRCH_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.BIRCH)
     );
     public static final Block JUNGLE_DOOR = register(
         "jungle_door",
-        new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
-        )
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, JUNGLE_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.JUNGLE)
     );
     public static final Block ACACIA_DOOR = register(
         "acacia_door",
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.ACACIA)
+    );
+    public static final Block CHERRY_DOOR = register(
+        "cherry_door",
         new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, ACACIA_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
+            BlockBehaviour.Properties.of(Material.WOOD, CHERRY_PLANKS.defaultMaterialColor())
+                .strength(3.0F)
+                .noOcclusion()
+                .requiredFeatures(FeatureFlags.UPDATE_1_20),
+            BlockSetType.CHERRY
         )
     );
     public static final Block DARK_OAK_DOOR = register(
         "dark_oak_door",
-        new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
-        )
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, DARK_OAK_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.DARK_OAK)
     );
     public static final Block MANGROVE_DOOR = register(
         "mangrove_door",
-        new DoorBlock(
-            BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.WOOD).noOcclusion(),
-            SoundEvents.WOODEN_DOOR_CLOSE,
-            SoundEvents.WOODEN_DOOR_OPEN
-        )
+        new DoorBlock(BlockBehaviour.Properties.of(Material.WOOD, MANGROVE_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.MANGROVE)
     );
     public static final Block BAMBOO_DOOR = register(
         "bamboo_door",
         new DoorBlock(
             BlockBehaviour.Properties.of(Material.WOOD, BAMBOO_PLANKS.defaultMaterialColor())
                 .strength(3.0F)
-                .sound(SoundType.BAMBOO_WOOD)
                 .noOcclusion()
                 .requiredFeatures(FeatureFlags.UPDATE_1_20),
-            SoundEvents.BAMBOO_WOOD_DOOR_CLOSE,
-            SoundEvents.BAMBOO_WOOD_DOOR_OPEN
+            BlockSetType.BAMBOO
         )
     );
     public static final Block END_ROD = register(
@@ -2775,6 +2788,17 @@ public class Blocks {
     );
     public static final Block END_STONE_BRICKS = register(
         "end_stone_bricks", new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SAND).requiresCorrectToolForDrops().strength(3.0F, 9.0F))
+    );
+    public static final Block TORCHFLOWER_CROP = register(
+        "torchflower_crop",
+        new TorchflowerCropBlock(
+            BlockBehaviour.Properties.of(Material.PLANT)
+                .noCollission()
+                .randomTicks()
+                .instabreak()
+                .sound(SoundType.CROP)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
     );
     public static final Block BEETROOTS = register(
         "beetroots", new BeetrootBlock(BlockBehaviour.Properties.of(Material.PLANT).noCollission().randomTicks().instabreak().sound(SoundType.CROP))
@@ -3737,21 +3761,16 @@ public class Blocks {
         "crimson_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor())
-                .noCollission()
-                .strength(0.5F)
-                .sound(SoundType.NETHER_WOOD),
-            SoundEvents.NETHER_WOOD_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.NETHER_WOOD_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.CRIMSON
         )
     );
     public static final Block WARPED_PRESSURE_PLATE = register(
         "warped_pressure_plate",
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.EVERYTHING,
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F).sound(SoundType.NETHER_WOOD),
-            SoundEvents.NETHER_WOOD_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.NETHER_WOOD_PRESSURE_PLATE_CLICK_ON
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).noCollission().strength(0.5F),
+            BlockSetType.WARPED
         )
     );
     public static final Block CRIMSON_FENCE = register(
@@ -3769,42 +3788,24 @@ public class Blocks {
     public static final Block CRIMSON_TRAPDOOR = register(
         "crimson_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor())
-                .strength(3.0F)
-                .sound(SoundType.NETHER_WOOD)
-                .noOcclusion()
-                .isValidSpawn(Blocks::never),
-            SoundEvents.NETHER_WOOD_TRAPDOOR_CLOSE,
-            SoundEvents.NETHER_WOOD_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never),
+            BlockSetType.CRIMSON
         )
     );
     public static final Block WARPED_TRAPDOOR = register(
         "warped_trapdoor",
         new TrapDoorBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor())
-                .strength(3.0F)
-                .sound(SoundType.NETHER_WOOD)
-                .noOcclusion()
-                .isValidSpawn(Blocks::never),
-            SoundEvents.NETHER_WOOD_TRAPDOOR_CLOSE,
-            SoundEvents.NETHER_WOOD_TRAPDOOR_OPEN
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never),
+            BlockSetType.WARPED
         )
     );
     public static final Block CRIMSON_FENCE_GATE = register(
         "crimson_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.NETHER_WOOD),
-            SoundEvents.NETHER_WOOD_FENCE_GATE_CLOSE,
-            SoundEvents.NETHER_WOOD_FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.CRIMSON)
     );
     public static final Block WARPED_FENCE_GATE = register(
         "warped_fence_gate",
-        new FenceGateBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F).sound(SoundType.NETHER_WOOD),
-            SoundEvents.NETHER_WOOD_FENCE_GATE_CLOSE,
-            SoundEvents.NETHER_WOOD_FENCE_GATE_OPEN
-        )
+        new FenceGateBlock(BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).strength(2.0F, 3.0F), WoodType.WARPED)
     );
     public static final Block CRIMSON_STAIRS = register(
         "crimson_stairs", new StairBlock(CRIMSON_PLANKS.defaultBlockState(), BlockBehaviour.Properties.copy(CRIMSON_PLANKS))
@@ -3812,64 +3813,43 @@ public class Blocks {
     public static final Block WARPED_STAIRS = register(
         "warped_stairs", new StairBlock(WARPED_PLANKS.defaultBlockState(), BlockBehaviour.Properties.copy(WARPED_PLANKS))
     );
-    public static final Block CRIMSON_BUTTON = register(
-        "crimson_button", woodenButton(SoundType.NETHER_WOOD, SoundEvents.NETHER_WOOD_BUTTON_CLICK_OFF, SoundEvents.NETHER_WOOD_BUTTON_CLICK_ON)
-    );
-    public static final Block WARPED_BUTTON = register(
-        "warped_button", woodenButton(SoundType.NETHER_WOOD, SoundEvents.NETHER_WOOD_BUTTON_CLICK_OFF, SoundEvents.NETHER_WOOD_BUTTON_CLICK_ON)
-    );
+    public static final Block CRIMSON_BUTTON = register("crimson_button", woodenButton(BlockSetType.CRIMSON));
+    public static final Block WARPED_BUTTON = register("warped_button", woodenButton(BlockSetType.WARPED));
     public static final Block CRIMSON_DOOR = register(
         "crimson_door",
         new DoorBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.NETHER_WOOD).noOcclusion(),
-            SoundEvents.NETHER_WOOD_DOOR_CLOSE,
-            SoundEvents.NETHER_WOOD_DOOR_OPEN
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.CRIMSON
         )
     );
     public static final Block WARPED_DOOR = register(
         "warped_door",
         new DoorBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).strength(3.0F).sound(SoundType.NETHER_WOOD).noOcclusion(),
-            SoundEvents.NETHER_WOOD_DOOR_CLOSE,
-            SoundEvents.NETHER_WOOD_DOOR_OPEN
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).strength(3.0F).noOcclusion(), BlockSetType.WARPED
         )
     );
     public static final Block CRIMSON_SIGN = register(
         "crimson_sign",
         new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD),
-            WoodType.CRIMSON
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).noCollission().strength(1.0F), WoodType.CRIMSON
         )
     );
     public static final Block WARPED_SIGN = register(
         "warped_sign",
         new StandingSignBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).noCollission().strength(1.0F).sound(SoundType.NETHER_WOOD),
-            WoodType.WARPED
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).noCollission().strength(1.0F), WoodType.WARPED
         )
     );
     public static final Block CRIMSON_WALL_SIGN = register(
         "crimson_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD)
-                .dropsLike(CRIMSON_SIGN),
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, CRIMSON_PLANKS.defaultMaterialColor()).noCollission().strength(1.0F).dropsLike(CRIMSON_SIGN),
             WoodType.CRIMSON
         )
     );
     public static final Block WARPED_WALL_SIGN = register(
         "warped_wall_sign",
         new WallSignBlock(
-            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor())
-                .noCollission()
-                .strength(1.0F)
-                .sound(SoundType.NETHER_WOOD)
-                .dropsLike(WARPED_SIGN),
+            BlockBehaviour.Properties.of(Material.NETHER_WOOD, WARPED_PLANKS.defaultMaterialColor()).noCollission().strength(1.0F).dropsLike(WARPED_SIGN),
             WoodType.WARPED
         )
     );
@@ -4007,8 +3987,7 @@ public class Blocks {
         new PressurePlateBlock(
             PressurePlateBlock.Sensitivity.MOBS,
             BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).requiresCorrectToolForDrops().noCollission().strength(0.5F),
-            SoundEvents.STONE_PRESSURE_PLATE_CLICK_OFF,
-            SoundEvents.STONE_PRESSURE_PLATE_CLICK_ON
+            BlockSetType.POLISHED_BLACKSTONE
         )
     );
     public static final Block POLISHED_BLACKSTONE_BUTTON = register("polished_blackstone_button", stoneButton());
@@ -4508,6 +4487,16 @@ public class Blocks {
     public static final Block MOSS_CARPET = register(
         "moss_carpet", new CarpetBlock(BlockBehaviour.Properties.of(Material.PLANT, MaterialColor.COLOR_GREEN).strength(0.1F).sound(SoundType.MOSS_CARPET))
     );
+    public static final Block PINK_PETALS = register(
+        "pink_petals",
+        new PinkPetalsBlock(
+            BlockBehaviour.Properties.of(Material.REPLACEABLE_PLANT, MaterialColor.COLOR_PINK)
+                .strength(0.1F)
+                .noCollission()
+                .sound(SoundType.PINK_PETALS)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+        )
+    );
     public static final Block MOSS_BLOCK = register(
         "moss_block", new MossBlock(BlockBehaviour.Properties.of(Material.MOSS, MaterialColor.COLOR_GREEN).strength(0.1F).sound(SoundType.MOSS))
     );
@@ -4635,6 +4624,16 @@ public class Blocks {
         "reinforced_deepslate",
         new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.DEEPSLATE).sound(SoundType.DEEPSLATE).strength(55.0F, 1200.0F))
     );
+    public static final Block DECORATED_POT = register(
+        "decorated_pot",
+        new DecoratedPotBlock(
+            BlockBehaviour.Properties.of(Material.DECORATED_POT)
+                .strength(0.0F, 0.0F)
+                .sound(SoundType.DECORATED_POT)
+                .requiredFeatures(FeatureFlags.UPDATE_1_20)
+                .noOcclusion()
+        )
+    );
 
     private static ToIntFunction<BlockState> litBlockEmission(int param0) {
         return param1 -> param1.getValue(BlockStateProperties.LIT) ? param0 : 0;
@@ -4740,22 +4739,12 @@ public class Blocks {
         );
     }
 
-    private static ButtonBlock woodenButton() {
-        return woodenButton(SoundType.WOOD, SoundEvents.WOODEN_BUTTON_CLICK_OFF, SoundEvents.WOODEN_BUTTON_CLICK_ON);
-    }
-
-    private static ButtonBlock woodenButton(SoundType param0, SoundEvent param1, SoundEvent param2) {
-        return new ButtonBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().strength(0.5F).sound(param0), 30, true, param1, param2);
+    private static ButtonBlock woodenButton(BlockSetType param0) {
+        return new ButtonBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().strength(0.5F), param0, 30, true);
     }
 
     private static ButtonBlock stoneButton() {
-        return new ButtonBlock(
-            BlockBehaviour.Properties.of(Material.DECORATION).noCollission().strength(0.5F).sound(SoundType.STONE),
-            20,
-            false,
-            SoundEvents.STONE_BUTTON_CLICK_OFF,
-            SoundEvents.STONE_BUTTON_CLICK_ON
-        );
+        return new ButtonBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().strength(0.5F), BlockSetType.STONE, 20, false);
     }
 
     private static Block register(String param0, Block param1) {

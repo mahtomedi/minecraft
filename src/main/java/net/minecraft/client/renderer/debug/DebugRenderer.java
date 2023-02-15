@@ -200,7 +200,9 @@ public class DebugRenderer {
             param0.scale(-param7, -param7, param7);
             float var6 = param8 ? (float)(-var2.width(param2)) / 2.0F : 0.0F;
             var6 -= param9 / param7;
-            var2.drawInBatch(param2, var6, 0.0F, param6, false, param0.last().pose(), param1, param10, 0, 15728880);
+            var2.drawInBatch(
+                param2, var6, 0.0F, param6, false, param0.last().pose(), param1, param10 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, 0, 15728880
+            );
             param0.popPose();
         }
     }

@@ -123,9 +123,7 @@ public class ReportReasonSelectionScreen extends Screen {
             super(param1, ReportReasonSelectionScreen.this.width, ReportReasonSelectionScreen.this.height, 40, ReportReasonSelectionScreen.this.height - 95, 18);
 
             for(ReportReason var0 : ReportReason.values()) {
-                if (var0.reportable()) {
-                    this.addEntry(new ReportReasonSelectionScreen.ReasonSelectionList.Entry(var0));
-                }
+                this.addEntry(new ReportReasonSelectionScreen.ReasonSelectionList.Entry(var0));
             }
 
         }

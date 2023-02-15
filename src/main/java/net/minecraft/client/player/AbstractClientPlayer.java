@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -29,6 +30,7 @@ public abstract class AbstractClientPlayer extends Player {
     private static final String SKIN_URL_TEMPLATE = "http://skins.minecraft.net/MinecraftSkins/%s.png";
     @Nullable
     private PlayerInfo playerInfo;
+    protected Vec3 deltaMovementOnPreviousTick = Vec3.ZERO;
     public float elytraRotX;
     public float elytraRotY;
     public float elytraRotZ;
@@ -62,6 +64,16 @@ public abstract class AbstractClientPlayer extends Player {
         }
 
         return this.playerInfo;
+    }
+
+    @Override
+    public void tick() {
+        this.deltaMovementOnPreviousTick = this.getDeltaMovement();
+        super.tick();
+    }
+
+    public Vec3 getDeltaMovementLerped(float param0) {
+        return this.deltaMovementOnPreviousTick.lerp(this.getDeltaMovement(), (double)param0);
     }
 
     public boolean isSkinLoaded() {

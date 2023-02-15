@@ -3,12 +3,16 @@ package net.minecraft.network;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
@@ -63,6 +67,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -83,6 +88,7 @@ public class FriendlyByteBuf extends ByteBuf {
     private static final int PUBLIC_KEY_SIZE = 256;
     private static final int MAX_PUBLIC_KEY_HEADER_SIZE = 256;
     private static final int MAX_PUBLIC_KEY_LENGTH = 512;
+    private static final Gson GSON = new Gson();
 
     public FriendlyByteBuf(ByteBuf param0) {
         this.source = param0;
@@ -118,6 +124,17 @@ public class FriendlyByteBuf extends ByteBuf {
     public <T> void writeWithCodec(DynamicOps<Tag> param0, Codec<T> param1, T param2) {
         Tag var0 = Util.getOrThrow(param1.encodeStart(param0, param2), param1x -> new EncoderException("Failed to encode: " + param1x + " " + param2));
         this.writeNbt((CompoundTag)var0);
+    }
+
+    public <T> T readJsonWithCodec(Codec<T> param0) {
+        JsonElement var0 = GsonHelper.fromJson(GSON, this.readUtf(), JsonElement.class);
+        DataResult<T> var1 = param0.parse(JsonOps.INSTANCE, var0);
+        return Util.getOrThrow(var1, param0x -> new DecoderException("Failed to decode json: " + param0x));
+    }
+
+    public <T> void writeJsonWithCodec(Codec<T> param0, T param1) {
+        DataResult<JsonElement> var0 = param0.encodeStart(JsonOps.INSTANCE, param1);
+        this.writeUtf(GSON.toJson(Util.getOrThrow(var0, param1x -> new EncoderException("Failed to encode: " + param1x + " " + param1))));
     }
 
     public <T> void writeId(IdMap<T> param0, T param1) {

@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.ParticleUtils;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -121,10 +122,7 @@ public class LeavesBlock extends Block implements SimpleWaterloggedBlock {
                 BlockPos var0 = param2.below();
                 BlockState var1 = param1.getBlockState(var0);
                 if (!var1.canOcclude() || !var1.isFaceSturdy(param1, var0, Direction.UP)) {
-                    double var2 = (double)param2.getX() + param3.nextDouble();
-                    double var3 = (double)param2.getY() - 0.05;
-                    double var4 = (double)param2.getZ() + param3.nextDouble();
-                    param1.addParticle(ParticleTypes.DRIPPING_WATER, var2, var3, var4, 0.0, 0.0, 0.0);
+                    ParticleUtils.spawnParticleBelow(param1, param2, param3, ParticleTypes.DRIPPING_WATER);
                 }
             }
         }

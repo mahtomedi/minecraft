@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
@@ -22,9 +24,11 @@ public abstract class BasePressurePlateBlock extends Block {
     protected static final VoxelShape PRESSED_AABB = Block.box(1.0, 0.0, 1.0, 15.0, 0.5, 15.0);
     protected static final VoxelShape AABB = Block.box(1.0, 0.0, 1.0, 15.0, 1.0, 15.0);
     protected static final AABB TOUCH_AABB = new AABB(0.0625, 0.0, 0.0625, 0.9375, 0.25, 0.9375);
+    private final BlockSetType type;
 
-    protected BasePressurePlateBlock(BlockBehaviour.Properties param0) {
-        super(param0);
+    protected BasePressurePlateBlock(BlockBehaviour.Properties param0, BlockSetType param1) {
+        super(param0.sound(param1.soundType()));
+        this.type = param1;
     }
 
     @Override
@@ -74,7 +78,7 @@ public abstract class BasePressurePlateBlock extends Block {
         }
     }
 
-    protected void checkPressed(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4) {
+    private void checkPressed(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4) {
         int var0 = this.getSignalStrength(param1, param2);
         boolean var1 = param4 > 0;
         boolean var2 = var0 > 0;
@@ -86,10 +90,10 @@ public abstract class BasePressurePlateBlock extends Block {
         }
 
         if (!var2 && var1) {
-            this.playOffSound(param1, param2);
+            param1.playSound(null, param2, this.type.pressurePlateClickOff(), SoundSource.BLOCKS);
             param1.gameEvent(param0, GameEvent.BLOCK_DEACTIVATE, param2);
         } else if (var2 && !var1) {
-            this.playOnSound(param1, param2);
+            param1.playSound(null, param2, this.type.pressurePlateClickOn(), SoundSource.BLOCKS);
             param1.gameEvent(param0, GameEvent.BLOCK_ACTIVATE, param2);
         }
 
@@ -98,10 +102,6 @@ public abstract class BasePressurePlateBlock extends Block {
         }
 
     }
-
-    protected abstract void playOnSound(LevelAccessor var1, BlockPos var2);
-
-    protected abstract void playOffSound(LevelAccessor var1, BlockPos var2);
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {

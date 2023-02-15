@@ -9,6 +9,7 @@ import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -586,7 +587,8 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .define('#', ItemTags.PLANKS)
             .pattern("##")
             .pattern("##")
-            .unlockedBy("has_planks", has(ItemTags.PLANKS))
+            .unlockedBy("unlock_right_away", PlayerTrigger.TriggerInstance.tick())
+            .showNotification(false)
             .save(param0);
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.CROSSBOW)
             .define('~', Items.STRING)
@@ -597,7 +599,6 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("~$~")
             .pattern(" # ")
             .unlockedBy("has_string", has(Items.STRING))
-            .unlockedBy("has_stick", has(Items.STICK))
             .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
             .unlockedBy("has_tripwire_hook", has(Blocks.TRIPWIRE_HOOK))
             .save(param0);
@@ -1535,6 +1536,14 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("# ")
             .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
             .save(param0);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.BRUSH)
+            .define('#', Items.STRING)
+            .define('I', Items.STICK)
+            .pattern("###")
+            .pattern(" I ")
+            .pattern(" I ")
+            .unlockedBy("has_string", has(Items.STRING))
+            .save(param0);
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.SHIELD)
             .define('W', ItemTags.PLANKS)
             .define('o', Items.IRON_INGOT)
@@ -1559,7 +1568,6 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern(" S ")
             .pattern("S#S")
             .pattern("LLL")
-            .unlockedBy("has_stick", has(Items.STICK))
             .unlockedBy("has_soul_sand", has(ItemTags.SOUL_FIRE_BASE_BLOCKS))
             .save(param0);
         ShapedRecipeBuilder.shaped(RecipeCategory.BREWING, Items.GLISTERING_MELON_SLICE)

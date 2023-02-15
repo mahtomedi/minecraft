@@ -1,7 +1,9 @@
 package net.minecraft.world.item;
 
 import java.util.List;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -37,21 +39,25 @@ public class BottleItem extends Item {
             var2.setRadius(var2.getRadius() - 0.5F);
             param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.BOTTLE_FILL_DRAGONBREATH, SoundSource.NEUTRAL, 1.0F, 1.0F);
             param0.gameEvent(param1, GameEvent.FLUID_PICKUP, param1.position());
+            if (param1 instanceof ServerPlayer var3) {
+                CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(var3, var1, var2);
+            }
+
             return InteractionResultHolder.sidedSuccess(this.turnBottleIntoItem(var1, param1, new ItemStack(Items.DRAGON_BREATH)), param0.isClientSide());
         } else {
-            HitResult var3 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
-            if (var3.getType() == HitResult.Type.MISS) {
+            HitResult var4 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
+            if (var4.getType() == HitResult.Type.MISS) {
                 return InteractionResultHolder.pass(var1);
             } else {
-                if (var3.getType() == HitResult.Type.BLOCK) {
-                    BlockPos var4 = ((BlockHitResult)var3).getBlockPos();
-                    if (!param0.mayInteract(param1, var4)) {
+                if (var4.getType() == HitResult.Type.BLOCK) {
+                    BlockPos var5 = ((BlockHitResult)var4).getBlockPos();
+                    if (!param0.mayInteract(param1, var5)) {
                         return InteractionResultHolder.pass(var1);
                     }
 
-                    if (param0.getFluidState(var4).is(FluidTags.WATER)) {
+                    if (param0.getFluidState(var5).is(FluidTags.WATER)) {
                         param0.playSound(param1, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
-                        param0.gameEvent(param1, GameEvent.FLUID_PICKUP, var4);
+                        param0.gameEvent(param1, GameEvent.FLUID_PICKUP, var5);
                         return InteractionResultHolder.sidedSuccess(
                             this.turnBottleIntoItem(var1, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)), param0.isClientSide()
                         );

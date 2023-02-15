@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens.worldselection;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -55,7 +56,6 @@ import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -592,8 +592,8 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                     DynamicTexture var5;
                     try (InputStream var1 = Files.newInputStream(this.iconFile)) {
                         NativeImage var2 = NativeImage.read(var1);
-                        Validate.validState(var2.getWidth() == 64, "Must be 64 pixels wide");
-                        Validate.validState(var2.getHeight() == 64, "Must be 64 pixels high");
+                        Preconditions.checkState(var2.getWidth() == 64, "Must be 64 pixels wide");
+                        Preconditions.checkState(var2.getHeight() == 64, "Must be 64 pixels high");
                         DynamicTexture var3 = new DynamicTexture(var2);
                         this.minecraft.getTextureManager().register(this.iconLocation, var3);
                         var5 = var3;

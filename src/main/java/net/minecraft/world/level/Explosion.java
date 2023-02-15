@@ -219,14 +219,20 @@ public class Explosion {
                         double var34 = (double)getSeenPercent(var26, var28);
                         double var35 = (1.0 - var29) * var34;
                         var28.hurt(this.getDamageSource(), (float)((int)((var35 * var35 + var35) / 2.0 * 7.0 * (double)var18 + 1.0)));
-                        double var36 = var35;
-                        if (var28 instanceof LivingEntity var37) {
-                            var36 = ProtectionEnchantment.getExplosionKnockbackAfterDampener(var37, var35);
+                        double var37;
+                        if (var28 instanceof LivingEntity var36) {
+                            var37 = ProtectionEnchantment.getExplosionKnockbackAfterDampener(var36, var35);
+                        } else {
+                            var37 = var35;
                         }
 
-                        var28.setDeltaMovement(var28.getDeltaMovement().add(var30 * var36, var31 * var36, var32 * var36));
-                        if (var28 instanceof Player var38 && !var38.isSpectator() && (!var38.isCreative() || !var38.getAbilities().flying)) {
-                            this.hitPlayers.put(var38, new Vec3(var30 * var35, var31 * var35, var32 * var35));
+                        var30 *= var37;
+                        var31 *= var37;
+                        var32 *= var37;
+                        Vec3 var39 = new Vec3(var30, var31, var32);
+                        var28.setDeltaMovement(var28.getDeltaMovement().add(var39));
+                        if (var28 instanceof Player var40 && !var40.isSpectator() && (!var40.isCreative() || !var40.getAbilities().flying)) {
+                            this.hitPlayers.put(var40, var39);
                         }
                     }
                 }

@@ -185,20 +185,6 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         }
 
         @Override
-        public boolean mouseClicked(double param0, double param1, int param2) {
-            if (this.changeButton.mouseClicked(param0, param1, param2)) {
-                return true;
-            } else {
-                return this.resetButton.mouseClicked(param0, param1, param2);
-            }
-        }
-
-        @Override
-        public boolean mouseReleased(double param0, double param1, int param2) {
-            return this.changeButton.mouseReleased(param0, param1, param2) || this.resetButton.mouseReleased(param0, param1, param2);
-        }
-
-        @Override
         protected void refreshEntry() {
             this.changeButton.setMessage(this.key.getTranslatedKeyMessage());
             this.resetButton.active = !this.key.isDefault();

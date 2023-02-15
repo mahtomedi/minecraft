@@ -35,7 +35,9 @@ public class DrownedRenderer extends AbstractZombieRenderer<Drowned, DrownedMode
         super.setupRotations(param0, param1, param2, param3, param4);
         float var0 = param0.getSwimAmount(param4);
         if (var0 > 0.0F) {
-            param1.mulPose(Axis.XP.rotationDegrees(Mth.lerp(var0, param0.getXRot(), -10.0F - param0.getXRot())));
+            float var1 = -10.0F - param0.getXRot();
+            float var2 = Mth.lerp(var0, 0.0F, var1);
+            param1.rotateAround(Axis.XP.rotationDegrees(var2), 0.0F, param0.getBbHeight() / 2.0F, 0.0F);
         }
 
     }

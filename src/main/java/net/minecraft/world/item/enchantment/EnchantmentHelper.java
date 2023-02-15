@@ -251,6 +251,10 @@ public class EnchantmentHelper {
         return getItemEnchantmentLevel(Enchantments.VANISHING_CURSE, param0) > 0;
     }
 
+    public static boolean hasSilkTouch(ItemStack param0) {
+        return getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param0) > 0;
+    }
+
     public static int getLoyalty(ItemStack param0) {
         return getItemEnchantmentLevel(Enchantments.LOYALTY, param0);
     }

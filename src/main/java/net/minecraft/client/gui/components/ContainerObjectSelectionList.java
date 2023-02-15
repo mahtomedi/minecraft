@@ -37,38 +37,40 @@ public abstract class ContainerObjectSelectionList<E extends ContainerObjectSele
             if (var0.direction().getAxis() == ScreenAxis.HORIZONTAL && var1 != null) {
                 return ComponentPath.path(this, var1.nextFocusPath(param0));
             } else {
-                ScreenDirection var2 = var0.direction();
-                int var3;
-                if (var1 == null) {
-                    switch(var2) {
-                        case LEFT:
-                            var3 = Integer.MAX_VALUE;
-                            var2 = ScreenDirection.DOWN;
-                            break;
-                        case RIGHT:
-                            var3 = 0;
-                            var2 = ScreenDirection.DOWN;
-                            break;
-                        default:
-                            var3 = 0;
-                    }
-                } else {
-                    var3 = var1.children().indexOf(var1.getFocused());
+                int var2 = -1;
+                ScreenDirection var3 = var0.direction();
+                if (var1 != null) {
+                    var2 = var1.children().indexOf(var1.getFocused());
                 }
 
-                E var7 = var1;
+                if (var2 == -1) {
+                    switch(var3) {
+                        case LEFT:
+                            var2 = Integer.MAX_VALUE;
+                            var3 = ScreenDirection.DOWN;
+                            break;
+                        case RIGHT:
+                            var2 = 0;
+                            var3 = ScreenDirection.DOWN;
+                            break;
+                        default:
+                            var2 = 0;
+                    }
+                }
 
-                ComponentPath var8;
+                E var4 = var1;
+
+                ComponentPath var5;
                 do {
-                    var7 = this.nextEntry(var2, param0x -> !param0x.children().isEmpty(), var7);
-                    if (var7 == null) {
+                    var4 = this.nextEntry(var3, param0x -> !param0x.children().isEmpty(), var4);
+                    if (var4 == null) {
                         return null;
                     }
 
-                    var8 = var7.focusPathAtIndex(var0, var3);
-                } while(var8 == null);
+                    var5 = var4.focusPathAtIndex(var0, var2);
+                } while(var5 == null);
 
-                return ComponentPath.path(this, var8);
+                return ComponentPath.path(this, var5);
             }
         }
     }

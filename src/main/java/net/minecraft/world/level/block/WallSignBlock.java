@@ -39,7 +39,7 @@ public class WallSignBlock extends SignBlock {
     );
 
     public WallSignBlock(BlockBehaviour.Properties param0, WoodType param1) {
-        super(param0, param1);
+        super(param0.sound(param1.soundType()), param1);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, Boolean.valueOf(false)));
     }
 

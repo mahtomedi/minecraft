@@ -1022,17 +1022,11 @@ public class ClientLevel extends Level {
         }
 
         public void onTickingStart(Entity param0) {
-            if (param0.getType().isTicking()) {
-                ClientLevel.this.tickingEntities.add(param0);
-            }
-
+            ClientLevel.this.tickingEntities.add(param0);
         }
 
         public void onTickingEnd(Entity param0) {
-            if (param0.getType().isTicking()) {
-                ClientLevel.this.tickingEntities.remove(param0);
-            }
-
+            ClientLevel.this.tickingEntities.remove(param0);
         }
 
         public void onTrackingStart(Entity param0) {

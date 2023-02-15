@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -48,20 +49,18 @@ public class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
     protected static final VoxelShape PRESSED_SOUTH_AABB = Block.box(5.0, 6.0, 0.0, 11.0, 10.0, 1.0);
     protected static final VoxelShape PRESSED_WEST_AABB = Block.box(15.0, 6.0, 5.0, 16.0, 10.0, 11.0);
     protected static final VoxelShape PRESSED_EAST_AABB = Block.box(0.0, 6.0, 5.0, 1.0, 10.0, 11.0);
-    private final SoundEvent soundOff;
-    private final SoundEvent soundOn;
+    private final BlockSetType type;
     private final int ticksToStayPressed;
     private final boolean arrowsCanPress;
 
-    protected ButtonBlock(BlockBehaviour.Properties param0, int param1, boolean param2, SoundEvent param3, SoundEvent param4) {
-        super(param0);
+    protected ButtonBlock(BlockBehaviour.Properties param0, BlockSetType param1, int param2, boolean param3) {
+        super(param0.sound(param1.soundType()));
+        this.type = param1;
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(FACE, AttachFace.WALL)
         );
-        this.ticksToStayPressed = param1;
-        this.arrowsCanPress = param2;
-        this.soundOff = param3;
-        this.soundOn = param4;
+        this.ticksToStayPressed = param2;
+        this.arrowsCanPress = param3;
     }
 
     @Override
@@ -115,7 +114,7 @@ public class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
     }
 
     protected SoundEvent getSound(boolean param0) {
-        return param0 ? this.soundOn : this.soundOff;
+        return param0 ? this.type.buttonClickOn() : this.type.buttonClickOff();
     }
 
     @Override

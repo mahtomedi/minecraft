@@ -349,7 +349,16 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 var0.translate(0.0F, 0.0F, this.blitOffset + 200.0F);
                 MultiBufferSource.BufferSource var2 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                 param0.drawInBatch(
-                    var1, (float)(param2 + 19 - 2 - param0.width(var1)), (float)(param3 + 6 + 3), 16777215, true, var0.last().pose(), var2, false, 0, 15728880
+                    var1,
+                    (float)(param2 + 19 - 2 - param0.width(var1)),
+                    (float)(param3 + 6 + 3),
+                    16777215,
+                    true,
+                    var0.last().pose(),
+                    var2,
+                    Font.DisplayMode.NORMAL,
+                    0,
+                    15728880
                 );
                 var2.endBatch();
             }

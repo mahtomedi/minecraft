@@ -66,6 +66,7 @@ import net.minecraft.network.protocol.game.ClientboundUpdateEnabledFeaturesPacke
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
+import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
@@ -226,7 +227,11 @@ public abstract class PlayerList {
 
         this.broadcastSystemMessage(var15.withStyle(ChatFormatting.YELLOW), false);
         var11.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
-        param1.sendServerStatus(this.server.getStatus());
+        ServerStatus var17 = this.server.getStatus();
+        if (var17 != null) {
+            param1.sendServerStatus(var17);
+        }
+
         param1.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players));
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
@@ -236,27 +241,27 @@ public abstract class PlayerList {
         this.sendLevelInfo(param1, var7);
         this.server.getServerResourcePack().ifPresent(param1x -> param1.sendTexturePack(param1x.url(), param1x.hash(), param1x.isRequired(), param1x.prompt()));
 
-        for(MobEffectInstance var17 : param1.getActiveEffects()) {
-            var11.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var17));
+        for(MobEffectInstance var18 : param1.getActiveEffects()) {
+            var11.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var18));
         }
 
         if (var4 != null && var4.contains("RootVehicle", 10)) {
-            CompoundTag var18 = var4.getCompound("RootVehicle");
-            Entity var19 = EntityType.loadEntityRecursive(var18.getCompound("Entity"), var7, param1x -> !var7.addWithUUID(param1x) ? null : param1x);
-            if (var19 != null) {
-                UUID var20;
-                if (var18.hasUUID("Attach")) {
-                    var20 = var18.getUUID("Attach");
+            CompoundTag var19 = var4.getCompound("RootVehicle");
+            Entity var20 = EntityType.loadEntityRecursive(var19.getCompound("Entity"), var7, param1x -> !var7.addWithUUID(param1x) ? null : param1x);
+            if (var20 != null) {
+                UUID var21;
+                if (var19.hasUUID("Attach")) {
+                    var21 = var19.getUUID("Attach");
                 } else {
-                    var20 = null;
+                    var21 = null;
                 }
 
-                if (var19.getUUID().equals(var20)) {
-                    param1.startRiding(var19, true);
+                if (var20.getUUID().equals(var21)) {
+                    param1.startRiding(var20, true);
                 } else {
-                    for(Entity var22 : var19.getIndirectPassengers()) {
-                        if (var22.getUUID().equals(var20)) {
-                            param1.startRiding(var22, true);
+                    for(Entity var23 : var20.getIndirectPassengers()) {
+                        if (var23.getUUID().equals(var21)) {
+                            param1.startRiding(var23, true);
                             break;
                         }
                     }
@@ -264,10 +269,10 @@ public abstract class PlayerList {
 
                 if (!param1.isPassenger()) {
                     LOGGER.warn("Couldn't reattach entity to player");
-                    var19.discard();
+                    var20.discard();
 
-                    for(Entity var23 : var19.getIndirectPassengers()) {
-                        var23.discard();
+                    for(Entity var24 : var20.getIndirectPassengers()) {
+                        var24.discard();
                     }
                 }
             }

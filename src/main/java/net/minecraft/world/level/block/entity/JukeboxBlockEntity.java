@@ -1,10 +1,19 @@
 package net.minecraft.world.level.block.entity;
 
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Clearable;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
@@ -13,9 +22,11 @@ import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.ContainerSingleItem;
 
-public class JukeboxBlockEntity extends BlockEntity implements Clearable {
-    private ItemStack record = ItemStack.EMPTY;
+public class JukeboxBlockEntity extends BlockEntity implements Clearable, ContainerSingleItem {
+    private static final int SONG_END_PADDING = 20;
+    private final NonNullList<ItemStack> items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
     private int ticksSinceLastEvent;
     private long tickCount;
     private long recordStartedTick;
@@ -29,7 +40,7 @@ public class JukeboxBlockEntity extends BlockEntity implements Clearable {
     public void load(CompoundTag param0) {
         super.load(param0);
         if (param0.contains("RecordItem", 10)) {
-            this.setRecord(ItemStack.of(param0.getCompound("RecordItem")));
+            this.items.set(0, ItemStack.of(param0.getCompound("RecordItem")));
         }
 
         this.isPlaying = param0.getBoolean("IsPlaying");
@@ -40,8 +51,8 @@ public class JukeboxBlockEntity extends BlockEntity implements Clearable {
     @Override
     protected void saveAdditional(CompoundTag param0) {
         super.saveAdditional(param0);
-        if (!this.getRecord().isEmpty()) {
-            param0.put("RecordItem", this.getRecord().save(new CompoundTag()));
+        if (!this.getFirstItem().isEmpty()) {
+            param0.put("RecordItem", this.getFirstItem().save(new CompoundTag()));
         }
 
         param0.putBoolean("IsPlaying", this.isPlaying);
@@ -49,46 +60,109 @@ public class JukeboxBlockEntity extends BlockEntity implements Clearable {
         param0.putLong("TickCount", this.tickCount);
     }
 
-    public ItemStack getRecord() {
-        return this.record;
+    public boolean isRecordPlaying() {
+        return !this.getFirstItem().isEmpty() && this.isPlaying;
     }
 
-    public void setRecord(ItemStack param0) {
-        this.record = param0;
+    private void setHasRecordBlockState(@Nullable Entity param0, boolean param1) {
+        if (this.level.getBlockState(this.getBlockPos()) == this.getBlockState()) {
+            this.level.setBlock(this.getBlockPos(), this.getBlockState().setValue(JukeboxBlock.HAS_RECORD, Boolean.valueOf(param1)), 2);
+            this.level.gameEvent(GameEvent.BLOCK_CHANGE, this.getBlockPos(), GameEvent.Context.of(param0, this.getBlockState()));
+        }
+
+    }
+
+    @VisibleForTesting
+    public void startPlaying() {
+        this.recordStartedTick = this.tickCount;
+        this.isPlaying = true;
+        this.level.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
+        this.level.levelEvent(null, 1010, this.getBlockPos(), Item.getId(this.getFirstItem().getItem()));
         this.setChanged();
     }
 
-    public void playRecord() {
-        this.recordStartedTick = this.tickCount;
-        this.isPlaying = true;
-    }
-
-    @Override
-    public void clearContent() {
-        this.setRecord(ItemStack.EMPTY);
+    private void stopPlaying() {
         this.isPlaying = false;
+        this.level.gameEvent(GameEvent.JUKEBOX_STOP_PLAY, this.getBlockPos(), GameEvent.Context.of(this.getBlockState()));
+        this.level.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
+        this.level.levelEvent(1011, this.getBlockPos(), 0);
+        this.setChanged();
     }
 
-    public static void playRecordTick(Level param0, BlockPos param1, BlockState param2, JukeboxBlockEntity param3) {
-        ++param3.ticksSinceLastEvent;
-        if (recordIsPlaying(param2, param3)) {
-            Item var5 = param3.getRecord().getItem();
+    private void tick(Level param0, BlockPos param1, BlockState param2) {
+        ++this.ticksSinceLastEvent;
+        if (this.isRecordPlaying()) {
+            Item var5 = this.getFirstItem().getItem();
             if (var5 instanceof RecordItem var0) {
-                if (recordShouldStopPlaying(param3, var0)) {
-                    param0.gameEvent(GameEvent.JUKEBOX_STOP_PLAY, param1, GameEvent.Context.of(param2));
-                    param3.isPlaying = false;
-                } else if (shouldSendJukeboxPlayingEvent(param3)) {
-                    param3.ticksSinceLastEvent = 0;
+                if (this.shouldRecordStopPlaying(var0)) {
+                    this.stopPlaying();
+                } else if (this.shouldSendJukeboxPlayingEvent()) {
+                    this.ticksSinceLastEvent = 0;
                     param0.gameEvent(GameEvent.JUKEBOX_PLAY, param1, GameEvent.Context.of(param2));
-                    spawnMusicParticles(param0, param1);
+                    this.spawnMusicParticles(param0, param1);
                 }
             }
         }
 
-        ++param3.tickCount;
+        ++this.tickCount;
     }
 
-    private static void spawnMusicParticles(Level param0, BlockPos param1) {
+    private boolean shouldRecordStopPlaying(RecordItem param0) {
+        return this.tickCount >= this.recordStartedTick + (long)param0.getLengthInTicks() + 20L;
+    }
+
+    private boolean shouldSendJukeboxPlayingEvent() {
+        return this.ticksSinceLastEvent >= 20;
+    }
+
+    @Override
+    public ItemStack getItem(int param0) {
+        return this.items.get(param0);
+    }
+
+    @Override
+    public ItemStack removeItem(int param0, int param1) {
+        ItemStack var0 = (ItemStack)Objects.requireNonNullElse(this.items.get(param0), ItemStack.EMPTY);
+        this.items.set(param0, ItemStack.EMPTY);
+        if (!var0.isEmpty()) {
+            this.setHasRecordBlockState(null, false);
+            this.stopPlaying();
+        }
+
+        return var0;
+    }
+
+    @Override
+    public void setItem(int param0, ItemStack param1) {
+        if (param1.is(ItemTags.MUSIC_DISCS) && this.level != null) {
+            this.items.set(param0, param1);
+            this.setHasRecordBlockState(null, true);
+            this.startPlaying();
+        }
+
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return 1;
+    }
+
+    @Override
+    public boolean stillValid(Player param0) {
+        return Container.stillValidBlockEntity(this, param0);
+    }
+
+    @Override
+    public boolean canPlaceItem(int param0, ItemStack param1) {
+        return param1.is(ItemTags.MUSIC_DISCS) && this.getItem(param0).isEmpty();
+    }
+
+    @Override
+    public boolean canTakeItem(Container param0, int param1, ItemStack param2) {
+        return param0.hasAnyMatching(ItemStack::isEmpty);
+    }
+
+    private void spawnMusicParticles(Level param0, BlockPos param1) {
         if (param0 instanceof ServerLevel var0) {
             Vec3 var1 = Vec3.atBottomCenterOf(param1).add(0.0, 1.2F, 0.0);
             float var2 = (float)param0.getRandom().nextInt(4) / 24.0F;
@@ -97,15 +171,29 @@ public class JukeboxBlockEntity extends BlockEntity implements Clearable {
 
     }
 
-    private static boolean recordIsPlaying(BlockState param0, JukeboxBlockEntity param1) {
-        return param0.getValue(JukeboxBlock.HAS_RECORD) && param1.isPlaying;
+    public void popOutRecord() {
+        if (this.level != null && !this.level.isClientSide) {
+            BlockPos var0 = this.getBlockPos();
+            ItemStack var1 = this.getFirstItem();
+            if (!var1.isEmpty()) {
+                this.removeFirstItem();
+                Vec3 var2 = Vec3.atLowerCornerWithOffset(var0, 0.5, 1.01, 0.5).offsetRandom(this.level.random, 0.7F);
+                ItemStack var3 = var1.copy();
+                ItemEntity var4 = new ItemEntity(this.level, var2.x(), var2.y(), var2.z(), var3);
+                var4.setDefaultPickUpDelay();
+                this.level.addFreshEntity(var4);
+            }
+        }
     }
 
-    private static boolean recordShouldStopPlaying(JukeboxBlockEntity param0, RecordItem param1) {
-        return param0.tickCount >= param0.recordStartedTick + (long)param1.getLengthInTicks();
+    public static void playRecordTick(Level param0, BlockPos param1, BlockState param2, JukeboxBlockEntity param3) {
+        param3.tick(param0, param1, param2);
     }
 
-    private static boolean shouldSendJukeboxPlayingEvent(JukeboxBlockEntity param0) {
-        return param0.ticksSinceLastEvent >= 20;
+    @VisibleForTesting
+    public void setRecordWithoutPlaying(ItemStack param0) {
+        this.items.set(0, param0);
+        this.level.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
+        this.setChanged();
     }
 }

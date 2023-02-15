@@ -79,12 +79,14 @@ public class VegetationPlacements {
     public static final ResourceKey<PlacedFeature> FLOWER_SWAMP = PlacementUtils.createKey("flower_swamp");
     public static final ResourceKey<PlacedFeature> FLOWER_PLAINS = PlacementUtils.createKey("flower_plains");
     public static final ResourceKey<PlacedFeature> FLOWER_MEADOW = PlacementUtils.createKey("flower_meadow");
+    public static final ResourceKey<PlacedFeature> FLOWER_CHERRY = PlacementUtils.createKey("flower_cherry");
     public static final ResourceKey<PlacedFeature> TREES_PLAINS = PlacementUtils.createKey("trees_plains");
     public static final ResourceKey<PlacedFeature> DARK_FOREST_VEGETATION = PlacementUtils.createKey("dark_forest_vegetation");
     public static final ResourceKey<PlacedFeature> FLOWER_FOREST_FLOWERS = PlacementUtils.createKey("flower_forest_flowers");
     public static final ResourceKey<PlacedFeature> FOREST_FLOWERS = PlacementUtils.createKey("forest_flowers");
     public static final ResourceKey<PlacedFeature> TREES_FLOWER_FOREST = PlacementUtils.createKey("trees_flower_forest");
     public static final ResourceKey<PlacedFeature> TREES_MEADOW = PlacementUtils.createKey("trees_meadow");
+    public static final ResourceKey<PlacedFeature> TREES_CHERRY = PlacementUtils.createKey("trees_cherry");
     public static final ResourceKey<PlacedFeature> TREES_TAIGA = PlacementUtils.createKey("trees_taiga");
     public static final ResourceKey<PlacedFeature> TREES_GROVE = PlacementUtils.createKey("trees_grove");
     public static final ResourceKey<PlacedFeature> TREES_BADLANDS = PlacementUtils.createKey("trees_badlands");
@@ -170,29 +172,31 @@ public class VegetationPlacements {
         Holder<ConfiguredFeature<?, ?>> var22 = var0.getOrThrow(VegetationFeatures.FLOWER_SWAMP);
         Holder<ConfiguredFeature<?, ?>> var23 = var0.getOrThrow(VegetationFeatures.FLOWER_PLAIN);
         Holder<ConfiguredFeature<?, ?>> var24 = var0.getOrThrow(VegetationFeatures.FLOWER_MEADOW);
-        Holder<ConfiguredFeature<?, ?>> var25 = var0.getOrThrow(VegetationFeatures.TREES_PLAINS);
-        Holder<ConfiguredFeature<?, ?>> var26 = var0.getOrThrow(VegetationFeatures.DARK_FOREST_VEGETATION);
-        Holder<ConfiguredFeature<?, ?>> var27 = var0.getOrThrow(VegetationFeatures.FOREST_FLOWERS);
-        Holder<ConfiguredFeature<?, ?>> var28 = var0.getOrThrow(VegetationFeatures.TREES_FLOWER_FOREST);
-        Holder<ConfiguredFeature<?, ?>> var29 = var0.getOrThrow(VegetationFeatures.MEADOW_TREES);
-        Holder<ConfiguredFeature<?, ?>> var30 = var0.getOrThrow(VegetationFeatures.TREES_TAIGA);
-        Holder<ConfiguredFeature<?, ?>> var31 = var0.getOrThrow(VegetationFeatures.TREES_GROVE);
-        Holder<ConfiguredFeature<?, ?>> var32 = var0.getOrThrow(TreeFeatures.OAK);
-        Holder<ConfiguredFeature<?, ?>> var33 = var0.getOrThrow(TreeFeatures.SPRUCE);
-        Holder<ConfiguredFeature<?, ?>> var34 = var0.getOrThrow(TreeFeatures.SWAMP_OAK);
-        Holder<ConfiguredFeature<?, ?>> var35 = var0.getOrThrow(VegetationFeatures.TREES_SAVANNA);
-        Holder<ConfiguredFeature<?, ?>> var36 = var0.getOrThrow(VegetationFeatures.BIRCH_TALL);
-        Holder<ConfiguredFeature<?, ?>> var37 = var0.getOrThrow(TreeFeatures.BIRCH_BEES_0002);
-        Holder<ConfiguredFeature<?, ?>> var38 = var0.getOrThrow(VegetationFeatures.TREES_WINDSWEPT_HILLS);
-        Holder<ConfiguredFeature<?, ?>> var39 = var0.getOrThrow(VegetationFeatures.TREES_WATER);
-        Holder<ConfiguredFeature<?, ?>> var40 = var0.getOrThrow(VegetationFeatures.TREES_BIRCH_AND_OAK);
-        Holder<ConfiguredFeature<?, ?>> var41 = var0.getOrThrow(VegetationFeatures.TREES_SPARSE_JUNGLE);
-        Holder<ConfiguredFeature<?, ?>> var42 = var0.getOrThrow(VegetationFeatures.TREES_OLD_GROWTH_SPRUCE_TAIGA);
-        Holder<ConfiguredFeature<?, ?>> var43 = var0.getOrThrow(VegetationFeatures.TREES_OLD_GROWTH_PINE_TAIGA);
-        Holder<ConfiguredFeature<?, ?>> var44 = var0.getOrThrow(VegetationFeatures.TREES_JUNGLE);
-        Holder<ConfiguredFeature<?, ?>> var45 = var0.getOrThrow(VegetationFeatures.BAMBOO_VEGETATION);
-        Holder<ConfiguredFeature<?, ?>> var46 = var0.getOrThrow(VegetationFeatures.MUSHROOM_ISLAND_VEGETATION);
-        Holder<ConfiguredFeature<?, ?>> var47 = var0.getOrThrow(VegetationFeatures.MANGROVE_VEGETATION);
+        Holder<ConfiguredFeature<?, ?>> var25 = var0.getOrThrow(VegetationFeatures.FLOWER_CHERRY);
+        Holder<ConfiguredFeature<?, ?>> var26 = var0.getOrThrow(VegetationFeatures.TREES_PLAINS);
+        Holder<ConfiguredFeature<?, ?>> var27 = var0.getOrThrow(VegetationFeatures.DARK_FOREST_VEGETATION);
+        Holder<ConfiguredFeature<?, ?>> var28 = var0.getOrThrow(VegetationFeatures.FOREST_FLOWERS);
+        Holder<ConfiguredFeature<?, ?>> var29 = var0.getOrThrow(VegetationFeatures.TREES_FLOWER_FOREST);
+        Holder<ConfiguredFeature<?, ?>> var30 = var0.getOrThrow(VegetationFeatures.MEADOW_TREES);
+        Holder<ConfiguredFeature<?, ?>> var31 = var0.getOrThrow(VegetationFeatures.TREES_TAIGA);
+        Holder<ConfiguredFeature<?, ?>> var32 = var0.getOrThrow(VegetationFeatures.TREES_GROVE);
+        Holder<ConfiguredFeature<?, ?>> var33 = var0.getOrThrow(TreeFeatures.OAK);
+        Holder<ConfiguredFeature<?, ?>> var34 = var0.getOrThrow(TreeFeatures.SPRUCE);
+        Holder<ConfiguredFeature<?, ?>> var35 = var0.getOrThrow(TreeFeatures.CHERRY_BEES_005);
+        Holder<ConfiguredFeature<?, ?>> var36 = var0.getOrThrow(TreeFeatures.SWAMP_OAK);
+        Holder<ConfiguredFeature<?, ?>> var37 = var0.getOrThrow(VegetationFeatures.TREES_SAVANNA);
+        Holder<ConfiguredFeature<?, ?>> var38 = var0.getOrThrow(VegetationFeatures.BIRCH_TALL);
+        Holder<ConfiguredFeature<?, ?>> var39 = var0.getOrThrow(TreeFeatures.BIRCH_BEES_0002);
+        Holder<ConfiguredFeature<?, ?>> var40 = var0.getOrThrow(VegetationFeatures.TREES_WINDSWEPT_HILLS);
+        Holder<ConfiguredFeature<?, ?>> var41 = var0.getOrThrow(VegetationFeatures.TREES_WATER);
+        Holder<ConfiguredFeature<?, ?>> var42 = var0.getOrThrow(VegetationFeatures.TREES_BIRCH_AND_OAK);
+        Holder<ConfiguredFeature<?, ?>> var43 = var0.getOrThrow(VegetationFeatures.TREES_SPARSE_JUNGLE);
+        Holder<ConfiguredFeature<?, ?>> var44 = var0.getOrThrow(VegetationFeatures.TREES_OLD_GROWTH_SPRUCE_TAIGA);
+        Holder<ConfiguredFeature<?, ?>> var45 = var0.getOrThrow(VegetationFeatures.TREES_OLD_GROWTH_PINE_TAIGA);
+        Holder<ConfiguredFeature<?, ?>> var46 = var0.getOrThrow(VegetationFeatures.TREES_JUNGLE);
+        Holder<ConfiguredFeature<?, ?>> var47 = var0.getOrThrow(VegetationFeatures.BAMBOO_VEGETATION);
+        Holder<ConfiguredFeature<?, ?>> var48 = var0.getOrThrow(VegetationFeatures.MUSHROOM_ISLAND_VEGETATION);
+        Holder<ConfiguredFeature<?, ?>> var49 = var0.getOrThrow(VegetationFeatures.MANGROVE_VEGETATION);
         PlacementUtils.register(
             param0, BAMBOO_LIGHT, var1, RarityFilter.onAverageOnceEvery(4), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome()
         );
@@ -364,15 +368,24 @@ public class VegetationPlacements {
             PlacementUtils.HEIGHTMAP,
             BiomeFilter.biome()
         );
+        PlacementUtils.register(
+            param0,
+            FLOWER_CHERRY,
+            var25,
+            NoiseThresholdCountPlacement.of(-0.8, 5, 10),
+            InSquarePlacement.spread(),
+            PlacementUtils.HEIGHTMAP,
+            BiomeFilter.biome()
+        );
         PlacementUtils.register(param0, FLOWER_MEADOW, var24, InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
-        PlacementModifier var48 = SurfaceWaterDepthFilter.forMaxDepth(0);
+        PlacementModifier var50 = SurfaceWaterDepthFilter.forMaxDepth(0);
         PlacementUtils.register(
             param0,
             TREES_PLAINS,
-            var25,
+            var26,
             PlacementUtils.countExtra(0, 0.05F, 1),
             InSquarePlacement.spread(),
-            var48,
+            var50,
             PlacementUtils.HEIGHTMAP_OCEAN_FLOOR,
             BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.OAK_SAPLING.defaultBlockState(), BlockPos.ZERO)),
             BiomeFilter.biome()
@@ -380,17 +393,17 @@ public class VegetationPlacements {
         PlacementUtils.register(
             param0,
             DARK_FOREST_VEGETATION,
-            var26,
+            var27,
             CountPlacement.of(16),
             InSquarePlacement.spread(),
-            var48,
+            var50,
             PlacementUtils.HEIGHTMAP_OCEAN_FLOOR,
             BiomeFilter.biome()
         );
         PlacementUtils.register(
             param0,
             FLOWER_FOREST_FLOWERS,
-            var27,
+            var28,
             RarityFilter.onAverageOnceEvery(7),
             InSquarePlacement.spread(),
             PlacementUtils.HEIGHTMAP,
@@ -400,23 +413,24 @@ public class VegetationPlacements {
         PlacementUtils.register(
             param0,
             FOREST_FLOWERS,
-            var27,
+            var28,
             RarityFilter.onAverageOnceEvery(7),
             InSquarePlacement.spread(),
             PlacementUtils.HEIGHTMAP,
             CountPlacement.of(ClampedInt.of(UniformInt.of(-3, 1), 0, 1)),
             BiomeFilter.biome()
         );
-        PlacementUtils.register(param0, TREES_FLOWER_FOREST, var28, treePlacement(PlacementUtils.countExtra(6, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_MEADOW, var29, treePlacement(RarityFilter.onAverageOnceEvery(100)));
-        PlacementUtils.register(param0, TREES_TAIGA, var30, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_GROVE, var31, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_BADLANDS, var32, treePlacement(PlacementUtils.countExtra(5, 0.1F, 1), Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, TREES_SNOWY, var33, treePlacement(PlacementUtils.countExtra(0, 0.1F, 1), Blocks.SPRUCE_SAPLING));
+        PlacementUtils.register(param0, TREES_FLOWER_FOREST, var29, treePlacement(PlacementUtils.countExtra(6, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_MEADOW, var30, treePlacement(RarityFilter.onAverageOnceEvery(100)));
+        PlacementUtils.register(param0, TREES_CHERRY, var35, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1), Blocks.CHERRY_SAPLING));
+        PlacementUtils.register(param0, TREES_TAIGA, var31, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_GROVE, var32, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_BADLANDS, var33, treePlacement(PlacementUtils.countExtra(5, 0.1F, 1), Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, TREES_SNOWY, var34, treePlacement(PlacementUtils.countExtra(0, 0.1F, 1), Blocks.SPRUCE_SAPLING));
         PlacementUtils.register(
             param0,
             TREES_SWAMP,
-            var34,
+            var36,
             PlacementUtils.countExtra(2, 0.1F, 1),
             InSquarePlacement.spread(),
             SurfaceWaterDepthFilter.forMaxDepth(2),
@@ -424,24 +438,24 @@ public class VegetationPlacements {
             BiomeFilter.biome(),
             BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.OAK_SAPLING.defaultBlockState(), BlockPos.ZERO))
         );
-        PlacementUtils.register(param0, TREES_WINDSWEPT_SAVANNA, var35, treePlacement(PlacementUtils.countExtra(2, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_SAVANNA, var35, treePlacement(PlacementUtils.countExtra(1, 0.1F, 1)));
-        PlacementUtils.register(param0, BIRCH_TALL, var36, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_BIRCH, var37, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1), Blocks.BIRCH_SAPLING));
-        PlacementUtils.register(param0, TREES_WINDSWEPT_FOREST, var38, treePlacement(PlacementUtils.countExtra(3, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_WINDSWEPT_HILLS, var38, treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_WATER, var39, treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_BIRCH_AND_OAK, var40, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_SPARSE_JUNGLE, var41, treePlacement(PlacementUtils.countExtra(2, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_OLD_GROWTH_SPRUCE_TAIGA, var42, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_OLD_GROWTH_PINE_TAIGA, var43, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
-        PlacementUtils.register(param0, TREES_JUNGLE, var44, treePlacement(PlacementUtils.countExtra(50, 0.1F, 1)));
-        PlacementUtils.register(param0, BAMBOO_VEGETATION, var45, treePlacement(PlacementUtils.countExtra(30, 0.1F, 1)));
-        PlacementUtils.register(param0, MUSHROOM_ISLAND_VEGETATION, var46, InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
+        PlacementUtils.register(param0, TREES_WINDSWEPT_SAVANNA, var37, treePlacement(PlacementUtils.countExtra(2, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_SAVANNA, var37, treePlacement(PlacementUtils.countExtra(1, 0.1F, 1)));
+        PlacementUtils.register(param0, BIRCH_TALL, var38, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_BIRCH, var39, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1), Blocks.BIRCH_SAPLING));
+        PlacementUtils.register(param0, TREES_WINDSWEPT_FOREST, var40, treePlacement(PlacementUtils.countExtra(3, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_WINDSWEPT_HILLS, var40, treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_WATER, var41, treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_BIRCH_AND_OAK, var42, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_SPARSE_JUNGLE, var43, treePlacement(PlacementUtils.countExtra(2, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_OLD_GROWTH_SPRUCE_TAIGA, var44, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_OLD_GROWTH_PINE_TAIGA, var45, treePlacement(PlacementUtils.countExtra(10, 0.1F, 1)));
+        PlacementUtils.register(param0, TREES_JUNGLE, var46, treePlacement(PlacementUtils.countExtra(50, 0.1F, 1)));
+        PlacementUtils.register(param0, BAMBOO_VEGETATION, var47, treePlacement(PlacementUtils.countExtra(30, 0.1F, 1)));
+        PlacementUtils.register(param0, MUSHROOM_ISLAND_VEGETATION, var48, InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
         PlacementUtils.register(
             param0,
             TREES_MANGROVE,
-            var47,
+            var49,
             CountPlacement.of(25),
             InSquarePlacement.spread(),
             SurfaceWaterDepthFilter.forMaxDepth(5),

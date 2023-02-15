@@ -173,6 +173,22 @@ public class GameTestHelper {
 
     }
 
+    public void continuouslyUse(BlockPos param0, Player param1, BlockHitResult param2) {
+        BlockPos var0 = this.absolutePos(param0);
+        BlockState var1 = this.getLevel().getBlockState(var0);
+        InteractionResult var2 = var1.use(this.getLevel(), param1, InteractionHand.MAIN_HAND, param2);
+        if (!var2.consumesAction()) {
+            UseOnContext var3 = new UseOnContext(param1, InteractionHand.MAIN_HAND, param2);
+            ItemStack var4 = param1.getItemInHand(InteractionHand.MAIN_HAND);
+            if (param1.isUsingItem()) {
+                var4.onUseTick(this.getLevel(), param1, param1.getUseItemRemainingTicks());
+            } else {
+                var4.useOn(var3);
+            }
+        }
+
+    }
+
     public LivingEntity makeAboutToDrown(LivingEntity param0) {
         param0.setAirSupply(0);
         param0.setHealth(0.25F);

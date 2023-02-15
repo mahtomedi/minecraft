@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -36,12 +37,10 @@ public class DeathScreen extends Screen {
         this.delayTicker = 0;
         this.exitButtons.clear();
         Component var0 = this.hardcore ? Component.translatable("deathScreen.spectate") : Component.translatable("deathScreen.respawn");
-        this.exitButtons
-            .add(
-                this.addRenderableWidget(
-                    Button.builder(var0, param0 -> this.minecraft.player.respawn()).bounds(this.width / 2 - 100, this.height / 4 + 72, 200, 20).build()
-                )
-            );
+        this.exitButtons.add(this.addRenderableWidget(Button.builder(var0, param0 -> {
+            this.minecraft.player.respawn();
+            param0.active = false;
+        }).bounds(this.width / 2 - 100, this.height / 4 + 72, 200, 20).build()));
         this.exitToTitleButton = this.addRenderableWidget(
             Button.builder(
                     Component.translatable("deathScreen.titleScreen"),
@@ -51,11 +50,7 @@ public class DeathScreen extends Screen {
                 .build()
         );
         this.exitButtons.add(this.exitToTitleButton);
-
-        for(Button var1 : this.exitButtons) {
-            var1.active = false;
-        }
-
+        this.setButtonsActive(false);
         this.deathScore = Component.translatable("deathScreen.score")
             .append(": ")
             .append(Component.literal(Integer.toString(this.minecraft.player.getScore())).withStyle(ChatFormatting.YELLOW));
@@ -70,7 +65,7 @@ public class DeathScreen extends Screen {
         if (this.hardcore) {
             this.exitToTitleScreen();
         } else {
-            ConfirmScreen var0 = new ConfirmScreen(
+            ConfirmScreen var0 = new DeathScreen.TitleConfirmScreen(
                 param0 -> {
                     if (param0) {
                         this.exitToTitleScreen();
@@ -159,10 +154,22 @@ public class DeathScreen extends Screen {
         super.tick();
         ++this.delayTicker;
         if (this.delayTicker == 20) {
-            for(Button var0 : this.exitButtons) {
-                var0.active = true;
-            }
+            this.setButtonsActive(true);
         }
 
+    }
+
+    private void setButtonsActive(boolean param0) {
+        for(Button var0 : this.exitButtons) {
+            var0.active = param0;
+        }
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class TitleConfirmScreen extends ConfirmScreen {
+        public TitleConfirmScreen(BooleanConsumer param0, Component param1, Component param2, Component param3, Component param4) {
+            super(param0, param1, param2, param3, param4);
+        }
     }
 }

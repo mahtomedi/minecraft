@@ -99,7 +99,7 @@ public class Font {
             return 0;
         } else {
             MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            int var1 = this.drawInBatch(param0, param1, param2, param3, param5, param4, var0, false, 0, 15728880, param6);
+            int var1 = this.drawInBatch(param0, param1, param2, param3, param5, param4, var0, Font.DisplayMode.NORMAL, 0, 15728880, param6);
             var0.endBatch();
             return var1;
         }
@@ -107,7 +107,7 @@ public class Font {
 
     private int drawInternal(FormattedCharSequence param0, float param1, float param2, int param3, Matrix4f param4, boolean param5) {
         MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        int var1 = this.drawInBatch(param0, param1, param2, param3, param5, param4, var0, false, 0, 15728880);
+        int var1 = this.drawInBatch(param0, param1, param2, param3, param5, param4, var0, Font.DisplayMode.NORMAL, 0, 15728880);
         var0.endBatch();
         return var1;
     }
@@ -120,7 +120,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9
     ) {
@@ -135,7 +135,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9,
         boolean param10
@@ -151,7 +151,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9
     ) {
@@ -166,7 +166,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9
     ) {
@@ -217,7 +217,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9,
         boolean param10
@@ -245,7 +245,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9
     ) {
@@ -268,7 +268,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9
     ) {
@@ -285,7 +285,7 @@ public class Font {
         boolean param4,
         Matrix4f param5,
         MultiBufferSource param6,
-        boolean param7,
+        Font.DisplayMode param7,
         int param8,
         int param9
     ) {
@@ -400,10 +400,6 @@ public class Font {
             }
 
             this.effects.add(param0);
-        }
-
-        public StringRenderOutput(MultiBufferSource param0, float param1, float param2, int param3, boolean param4, Matrix4f param5, boolean param6, int param7) {
-            this(param0, param1, param2, param3, param4, param5, param6 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, param7);
         }
 
         public StringRenderOutput(

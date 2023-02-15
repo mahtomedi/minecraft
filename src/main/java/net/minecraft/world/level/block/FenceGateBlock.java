@@ -2,7 +2,6 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -17,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -40,11 +40,11 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
     protected static final VoxelShape X_OCCLUSION_SHAPE = Shapes.or(Block.box(7.0, 5.0, 0.0, 9.0, 16.0, 2.0), Block.box(7.0, 5.0, 14.0, 9.0, 16.0, 16.0));
     protected static final VoxelShape Z_OCCLUSION_SHAPE_LOW = Shapes.or(Block.box(0.0, 2.0, 7.0, 2.0, 13.0, 9.0), Block.box(14.0, 2.0, 7.0, 16.0, 13.0, 9.0));
     protected static final VoxelShape X_OCCLUSION_SHAPE_LOW = Shapes.or(Block.box(7.0, 2.0, 0.0, 9.0, 13.0, 2.0), Block.box(7.0, 2.0, 14.0, 9.0, 13.0, 16.0));
-    private final SoundEvent closeSound;
-    private final SoundEvent openSound;
+    private final WoodType type;
 
-    public FenceGateBlock(BlockBehaviour.Properties param0, SoundEvent param1, SoundEvent param2) {
-        super(param0);
+    public FenceGateBlock(BlockBehaviour.Properties param0, WoodType param1) {
+        super(param0.sound(param1.soundType()));
+        this.type = param1;
         this.registerDefaultState(
             this.stateDefinition
                 .any()
@@ -52,8 +52,6 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
                 .setValue(POWERED, Boolean.valueOf(false))
                 .setValue(IN_WALL, Boolean.valueOf(false))
         );
-        this.closeSound = param1;
-        this.openSound = param2;
     }
 
     @Override
@@ -153,7 +151,14 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
         }
 
         boolean var1 = param0.getValue(OPEN);
-        param1.playSound(param3, param2, var1 ? this.openSound : this.closeSound, SoundSource.BLOCKS, 1.0F, param1.getRandom().nextFloat() * 0.1F + 0.9F);
+        param1.playSound(
+            param3,
+            param2,
+            var1 ? this.type.fenceGateOpen() : this.type.fenceGateClose(),
+            SoundSource.BLOCKS,
+            1.0F,
+            param1.getRandom().nextFloat() * 0.1F + 0.9F
+        );
         param1.gameEvent(param3, var1 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
         return InteractionResult.sidedSuccess(param1.isClientSide);
     }
@@ -166,7 +171,12 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
                 param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)).setValue(OPEN, Boolean.valueOf(var0)), 2);
                 if (param0.getValue(OPEN) != var0) {
                     param1.playSound(
-                        null, param2, var0 ? this.openSound : this.closeSound, SoundSource.BLOCKS, 1.0F, param1.getRandom().nextFloat() * 0.1F + 0.9F
+                        null,
+                        param2,
+                        var0 ? this.type.fenceGateOpen() : this.type.fenceGateClose(),
+                        SoundSource.BLOCKS,
+                        1.0F,
+                        param1.getRandom().nextFloat() * 0.1F + 0.9F
                     );
                     param1.gameEvent(null, var0 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
                 }

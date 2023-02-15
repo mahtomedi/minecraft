@@ -63,10 +63,10 @@ public class FastColor {
         }
 
         public static int lerp(float param0, int param1, int param2) {
-            int var0 = Mth.lerp(param0, alpha(param1), alpha(param2));
-            int var1 = Mth.lerp(param0, red(param1), red(param2));
-            int var2 = Mth.lerp(param0, green(param1), green(param2));
-            int var3 = Mth.lerp(param0, blue(param1), blue(param2));
+            int var0 = Mth.lerpInt(param0, alpha(param1), alpha(param2));
+            int var1 = Mth.lerpInt(param0, red(param1), red(param2));
+            int var2 = Mth.lerpInt(param0, green(param1), green(param2));
+            int var3 = Mth.lerpInt(param0, blue(param1), blue(param2));
             return color(var0, var1, var2, var3);
         }
     }

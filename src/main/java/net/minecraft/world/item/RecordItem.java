@@ -16,7 +16,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class RecordItem extends Item {
     private static final Map<SoundEvent, RecordItem> BY_NAME = Maps.newHashMap();
@@ -40,10 +43,14 @@ public class RecordItem extends Item {
         if (var2.is(Blocks.JUKEBOX) && !var2.getValue(JukeboxBlock.HAS_RECORD)) {
             ItemStack var3 = param0.getItemInHand();
             if (!var0.isClientSide) {
-                ((JukeboxBlock)Blocks.JUKEBOX).setRecord(param0.getPlayer(), var0, var1, var2, var3);
-                var0.levelEvent(null, 1010, var1, Item.getId(this));
-                var3.shrink(1);
                 Player var4 = param0.getPlayer();
+                BlockEntity var8 = var0.getBlockEntity(var1);
+                if (var8 instanceof JukeboxBlockEntity var5) {
+                    var5.setFirstItem(var3.copy());
+                    var0.gameEvent(GameEvent.BLOCK_CHANGE, var1, GameEvent.Context.of(var4, var2));
+                }
+
+                var3.shrink(1);
                 if (var4 != null) {
                     var4.awardStat(Stats.PLAY_RECORD);
                 }

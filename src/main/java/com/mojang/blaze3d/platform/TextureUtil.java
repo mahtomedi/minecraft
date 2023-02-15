@@ -3,13 +3,12 @@ package com.mojang.blaze3d.platform;
 import com.mojang.blaze3d.DontObfuscate;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Path;
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.SharedConstants;
@@ -77,25 +76,25 @@ public class TextureUtil {
     }
 
     public static ByteBuffer readResource(InputStream param0) throws IOException {
-        ByteBuffer var2;
-        if (param0 instanceof FileInputStream var0) {
-            FileChannel var1 = var0.getChannel();
-            var2 = MemoryUtil.memAlloc((int)var1.size() + 1);
+        ReadableByteChannel var0 = Channels.newChannel(param0);
+        return var0 instanceof SeekableByteChannel var1 ? readResource(var0, (int)var1.size() + 1) : readResource(var0, 8192);
+    }
 
-            while(var1.read(var2) != -1) {
-            }
-        } else {
-            var2 = MemoryUtil.memAlloc(8192);
-            ReadableByteChannel var4 = Channels.newChannel(param0);
+    private static ByteBuffer readResource(ReadableByteChannel param0, int param1) throws IOException {
+        ByteBuffer var0 = MemoryUtil.memAlloc(param1);
 
-            while(var4.read(var2) != -1) {
-                if (var2.remaining() == 0) {
-                    var2 = MemoryUtil.memRealloc(var2, var2.capacity() * 2);
+        try {
+            while(param0.read(var0) != -1) {
+                if (!var0.hasRemaining()) {
+                    var0 = MemoryUtil.memRealloc(var0, var0.capacity() * 2);
                 }
             }
-        }
 
-        return var2;
+            return var0;
+        } catch (IOException var4) {
+            MemoryUtil.memFree(var0);
+            throw var4;
+        }
     }
 
     public static void writeAsPNG(Path param0, String param1, int param2, int param3, int param4, int param5) {

@@ -68,7 +68,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         BlockPos param2,
         BiConsumer<BlockPos, BlockState> param3,
         BiConsumer<BlockPos, BlockState> param4,
-        BiConsumer<BlockPos, BlockState> param5,
+        FoliagePlacer.FoliageSetter param5,
         TreeConfiguration param6
     ) {
         int var0 = param6.trunkPlacer.getTreeHeight(param1);
@@ -123,13 +123,13 @@ public class TreeFeature extends Feature<TreeConfiguration> {
 
     @Override
     public final boolean place(FeaturePlaceContext<TreeConfiguration> param0) {
-        WorldGenLevel var0 = param0.level();
+        final WorldGenLevel var0 = param0.level();
         RandomSource var1 = param0.random();
         BlockPos var2 = param0.origin();
         TreeConfiguration var3 = param0.config();
         Set<BlockPos> var4 = Sets.newHashSet();
         Set<BlockPos> var5 = Sets.newHashSet();
-        Set<BlockPos> var6 = Sets.newHashSet();
+        final Set<BlockPos> var6 = Sets.newHashSet();
         Set<BlockPos> var7 = Sets.newHashSet();
         BiConsumer<BlockPos, BlockState> var8 = (param2, param3) -> {
             var4.add(param2.immutable());
@@ -139,9 +139,17 @@ public class TreeFeature extends Feature<TreeConfiguration> {
             var5.add(param2.immutable());
             var0.setBlock(param2, param3, 19);
         };
-        BiConsumer<BlockPos, BlockState> var10 = (param2, param3) -> {
-            var6.add(param2.immutable());
-            var0.setBlock(param2, param3, 19);
+        FoliagePlacer.FoliageSetter var10 = new FoliagePlacer.FoliageSetter() {
+            @Override
+            public void set(BlockPos param0, BlockState param1) {
+                var6.add(param0.immutable());
+                var0.setBlock(param0, param1, 19);
+            }
+
+            @Override
+            public boolean isSet(BlockPos param0) {
+                return var6.contains(param0);
+            }
         };
         BiConsumer<BlockPos, BlockState> var11 = (param2, param3) -> {
             var7.add(param2.immutable());

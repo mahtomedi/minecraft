@@ -42,14 +42,19 @@ public abstract class AbstractSoundInstance implements SoundInstance {
 
     @Override
     public WeighedSoundEvents resolve(SoundManager param0) {
-        WeighedSoundEvents var0 = param0.getSoundEvent(this.location);
-        if (var0 == null) {
-            this.sound = SoundManager.EMPTY_SOUND;
+        if (this.location.equals(SoundManager.INTENTIONALLY_EMPTY_SOUND_LOCATION)) {
+            this.sound = SoundManager.INTENTIONALLY_EMPTY_SOUND;
+            return SoundManager.INTENTIONALLY_EMPTY_SOUND_EVENT;
         } else {
-            this.sound = var0.getSound(this.random);
-        }
+            WeighedSoundEvents var0 = param0.getSoundEvent(this.location);
+            if (var0 == null) {
+                this.sound = SoundManager.EMPTY_SOUND;
+            } else {
+                this.sound = var0.getSound(this.random);
+            }
 
-        return var0;
+            return var0;
+        }
     }
 
     @Override

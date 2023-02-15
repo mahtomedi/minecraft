@@ -45,6 +45,7 @@ import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ConduitBlockEntity;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
@@ -67,6 +68,7 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
     private final BannerBlockEntity banner = new BannerBlockEntity(BlockPos.ZERO, Blocks.WHITE_BANNER.defaultBlockState());
     private final BedBlockEntity bed = new BedBlockEntity(BlockPos.ZERO, Blocks.RED_BED.defaultBlockState());
     private final ConduitBlockEntity conduit = new ConduitBlockEntity(BlockPos.ZERO, Blocks.CONDUIT.defaultBlockState());
+    private final DecoratedPotBlockEntity decoratedPot = new DecoratedPotBlockEntity(BlockPos.ZERO, Blocks.DECORATED_POT.defaultBlockState());
     private ShieldModel shieldModel;
     private TridentModel tridentModel;
     private Map<SkullBlock.Type, SkullModelBase> skullModels;
@@ -123,16 +125,19 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
                     var8 = this.enderChest;
                 } else if (var7.is(Blocks.TRAPPED_CHEST)) {
                     var8 = this.trappedChest;
+                } else if (var7.is(Blocks.DECORATED_POT)) {
+                    this.decoratedPot.setFromItem(param0);
+                    var8 = this.decoratedPot;
                 } else {
                     if (!(var1 instanceof ShulkerBoxBlock)) {
                         return;
                     }
 
-                    DyeColor var14 = ShulkerBoxBlock.getColorFromItem(var0);
-                    if (var14 == null) {
+                    DyeColor var15 = ShulkerBoxBlock.getColorFromItem(var0);
+                    if (var15 == null) {
                         var8 = DEFAULT_SHULKER_BOX;
                     } else {
-                        var8 = SHULKER_BOXES[var14.getId()];
+                        var8 = SHULKER_BOXES[var15.getId()];
                     }
                 }
 
@@ -140,28 +145,28 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
             }
         } else {
             if (param0.is(Items.SHIELD)) {
-                boolean var18 = BlockItem.getBlockEntityData(param0) != null;
+                boolean var19 = BlockItem.getBlockEntityData(param0) != null;
                 param2.pushPose();
                 param2.scale(1.0F, -1.0F, -1.0F);
-                Material var19 = var18 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
-                VertexConsumer var20 = var19.sprite()
-                    .wrap(ItemRenderer.getFoilBufferDirect(param3, this.shieldModel.renderType(var19.atlasLocation()), true, param0.hasFoil()));
-                this.shieldModel.handle().render(param2, var20, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
-                if (var18) {
-                    List<Pair<Holder<BannerPattern>, DyeColor>> var21 = BannerBlockEntity.createPatterns(
+                Material var20 = var19 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
+                VertexConsumer var21 = var20.sprite()
+                    .wrap(ItemRenderer.getFoilBufferDirect(param3, this.shieldModel.renderType(var20.atlasLocation()), true, param0.hasFoil()));
+                this.shieldModel.handle().render(param2, var21, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
+                if (var19) {
+                    List<Pair<Holder<BannerPattern>, DyeColor>> var22 = BannerBlockEntity.createPatterns(
                         ShieldItem.getColor(param0), BannerBlockEntity.getItemPatterns(param0)
                     );
-                    BannerRenderer.renderPatterns(param2, param3, param4, param5, this.shieldModel.plate(), var19, false, var21, param0.hasFoil());
+                    BannerRenderer.renderPatterns(param2, param3, param4, param5, this.shieldModel.plate(), var20, false, var22, param0.hasFoil());
                 } else {
-                    this.shieldModel.plate().render(param2, var20, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
+                    this.shieldModel.plate().render(param2, var21, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
                 }
 
                 param2.popPose();
             } else if (param0.is(Items.TRIDENT)) {
                 param2.pushPose();
                 param2.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var22 = ItemRenderer.getFoilBufferDirect(param3, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
-                this.tridentModel.renderToBuffer(param2, var22, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
+                VertexConsumer var23 = ItemRenderer.getFoilBufferDirect(param3, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
+                this.tridentModel.renderToBuffer(param2, var23, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
                 param2.popPose();
             }
 

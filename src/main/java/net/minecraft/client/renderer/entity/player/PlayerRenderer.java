@@ -135,6 +135,10 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
                 if (var1 == UseAnim.TOOT_HORN) {
                     return HumanoidModel.ArmPose.TOOT_HORN;
                 }
+
+                if (var1 == UseAnim.BRUSH) {
+                    return HumanoidModel.ArmPose.BRUSH;
+                }
             } else if (!param0.swinging && var0.is(Items.CROSSBOW) && CrossbowItem.isCharged(var0)) {
                 return HumanoidModel.ArmPose.CROSSBOW_HOLD;
             }
@@ -207,7 +211,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             }
 
             Vec3 var3 = param0.getViewVector(param4);
-            Vec3 var4 = param0.getDeltaMovement();
+            Vec3 var4 = param0.getDeltaMovementLerped(param4);
             double var5 = var4.horizontalDistanceSqr();
             double var6 = var3.horizontalDistanceSqr();
             if (var5 > 0.0 && var6 > 0.0) {

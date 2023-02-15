@@ -110,6 +110,13 @@ public class ItemProperties {
             }
         });
         register(
+            Items.BRUSH,
+            new ResourceLocation("brushing"),
+            (param0, param1, param2, param3) -> param2 != null && param2.getUseItem() == param0
+                    ? (float)(param2.getUseItemRemainingTicks() % 10) / 10.0F
+                    : 0.0F
+        );
+        register(
             Items.BOW,
             new ResourceLocation("pulling"),
             (param0, param1, param2, param3) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0 ? 1.0F : 0.0F

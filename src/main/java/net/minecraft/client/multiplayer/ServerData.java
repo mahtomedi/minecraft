@@ -1,6 +1,7 @@
 package net.minecraft.client.multiplayer;
 
-import java.text.ParseException;
+import com.mojang.logging.LogUtils;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -10,9 +11,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ServerData {
+    private static final Logger LOGGER = LogUtils.getLogger();
     public String name;
     public String ip;
     public Component status;
@@ -26,7 +29,7 @@ public class ServerData {
     public List<Component> playerList = Collections.emptyList();
     private ServerData.ServerPackStatus packStatus = ServerData.ServerPackStatus.PROMPT;
     @Nullable
-    private String iconB64;
+    private byte[] iconBytes;
     private boolean lan;
     private boolean enforcesSecureChat;
 
@@ -40,8 +43,8 @@ public class ServerData {
         CompoundTag var0 = new CompoundTag();
         var0.putString("name", this.name);
         var0.putString("ip", this.ip);
-        if (this.iconB64 != null) {
-            var0.putString("icon", this.iconB64);
+        if (this.iconBytes != null) {
+            var0.putString("icon", Base64.getEncoder().encodeToString(this.iconBytes));
         }
 
         if (this.packStatus == ServerData.ServerPackStatus.ENABLED) {
@@ -64,7 +67,11 @@ public class ServerData {
     public static ServerData read(CompoundTag param0) {
         ServerData var0 = new ServerData(param0.getString("name"), param0.getString("ip"), false);
         if (param0.contains("icon", 8)) {
-            var0.setIconB64(param0.getString("icon"));
+            try {
+                var0.setIconBytes(Base64.getDecoder().decode(param0.getString("icon")));
+            } catch (IllegalArgumentException var3) {
+                LOGGER.warn("Malformed base64 server icon", (Throwable)var3);
+            }
         }
 
         if (param0.contains("acceptTextures", 1)) {
@@ -81,20 +88,12 @@ public class ServerData {
     }
 
     @Nullable
-    public String getIconB64() {
-        return this.iconB64;
+    public byte[] getIconBytes() {
+        return this.iconBytes;
     }
 
-    public static String parseFavicon(String param0) throws ParseException {
-        if (param0.startsWith("data:image/png;base64,")) {
-            return param0.substring("data:image/png;base64,".length());
-        } else {
-            throw new ParseException("Unknown format", 0);
-        }
-    }
-
-    public void setIconB64(@Nullable String param0) {
-        this.iconB64 = param0;
+    public void setIconBytes(@Nullable byte[] param0) {
+        this.iconBytes = param0;
     }
 
     public boolean isLan() {
@@ -112,7 +111,7 @@ public class ServerData {
     public void copyNameIconFrom(ServerData param0) {
         this.ip = param0.ip;
         this.name = param0.name;
-        this.iconB64 = param0.iconB64;
+        this.iconBytes = param0.iconBytes;
     }
 
     public void copyFrom(ServerData param0) {

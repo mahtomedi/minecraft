@@ -31,9 +31,17 @@ public class ShapedRecipe implements CraftingRecipe {
     private final ResourceLocation id;
     final String group;
     final CraftingBookCategory category;
+    final boolean showNotification;
 
     public ShapedRecipe(
-        ResourceLocation param0, String param1, CraftingBookCategory param2, int param3, int param4, NonNullList<Ingredient> param5, ItemStack param6
+        ResourceLocation param0,
+        String param1,
+        CraftingBookCategory param2,
+        int param3,
+        int param4,
+        NonNullList<Ingredient> param5,
+        ItemStack param6,
+        boolean param7
     ) {
         this.id = param0;
         this.group = param1;
@@ -42,6 +50,13 @@ public class ShapedRecipe implements CraftingRecipe {
         this.height = param4;
         this.recipeItems = param5;
         this.result = param6;
+        this.showNotification = param7;
+    }
+
+    public ShapedRecipe(
+        ResourceLocation param0, String param1, CraftingBookCategory param2, int param3, int param4, NonNullList<Ingredient> param5, ItemStack param6
+    ) {
+        this(param0, param1, param2, param3, param4, param5, param6, true);
     }
 
     @Override
@@ -72,6 +87,11 @@ public class ShapedRecipe implements CraftingRecipe {
     @Override
     public NonNullList<Ingredient> getIngredients() {
         return this.recipeItems;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return this.showNotification;
     }
 
     @Override
@@ -294,7 +314,8 @@ public class ShapedRecipe implements CraftingRecipe {
             int var5 = var3.length;
             NonNullList<Ingredient> var6 = ShapedRecipe.dissolvePattern(var3, var2, var4, var5);
             ItemStack var7 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
-            return new ShapedRecipe(param0, var0, var1, var4, var5, var6, var7);
+            boolean var8 = GsonHelper.getAsBoolean(param1, "show_notification", true);
+            return new ShapedRecipe(param0, var0, var1, var4, var5, var6, var7, var8);
         }
 
         public ShapedRecipe fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
@@ -309,7 +330,8 @@ public class ShapedRecipe implements CraftingRecipe {
             }
 
             ItemStack var6 = param1.readItem();
-            return new ShapedRecipe(param0, var2, var3, var0, var1, var4, var6);
+            boolean var7 = param1.readBoolean();
+            return new ShapedRecipe(param0, var2, var3, var0, var1, var4, var6, var7);
         }
 
         public void toNetwork(FriendlyByteBuf param0, ShapedRecipe param1) {
@@ -323,6 +345,7 @@ public class ShapedRecipe implements CraftingRecipe {
             }
 
             param0.writeItem(param1.result);
+            param0.writeBoolean(param1.showNotification);
         }
     }
 }

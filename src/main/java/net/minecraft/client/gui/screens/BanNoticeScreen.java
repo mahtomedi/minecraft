@@ -5,11 +5,10 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.time.Duration;
 import java.time.Instant;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.multiplayer.chat.report.ReportReason;
+import net.minecraft.client.multiplayer.chat.report.BanReason;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,17 +41,17 @@ public class BanNoticeScreen {
         String var1 = param0.reasonMessage();
         if (StringUtils.isNumeric(var0)) {
             int var2 = Integer.parseInt(var0);
-            Component var3 = ReportReason.getTranslationById(var2);
-            MutableComponent var5;
+            BanReason var3 = BanReason.byId(var2);
+            Component var4;
             if (var3 != null) {
-                var5 = ComponentUtils.mergeStyles(var3.copy(), Style.EMPTY.withBold(true));
+                var4 = ComponentUtils.mergeStyles(var3.title().copy(), Style.EMPTY.withBold(true));
             } else if (var1 != null) {
-                var5 = Component.translatable("gui.banned.description.reason_id_message", var2, var1).withStyle(ChatFormatting.BOLD);
+                var4 = Component.translatable("gui.banned.description.reason_id_message", var2, var1).withStyle(ChatFormatting.BOLD);
             } else {
-                var5 = Component.translatable("gui.banned.description.reason_id", var2).withStyle(ChatFormatting.BOLD);
+                var4 = Component.translatable("gui.banned.description.reason_id", var2).withStyle(ChatFormatting.BOLD);
             }
 
-            return Component.translatable("gui.banned.description.reason", var5);
+            return Component.translatable("gui.banned.description.reason", var4);
         } else {
             return Component.translatable("gui.banned.description.unknownreason");
         }

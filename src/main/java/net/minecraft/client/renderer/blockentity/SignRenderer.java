@@ -127,7 +127,18 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
                     .drawInBatch8xOutline(var12, var13, (float)(var11 * param0.getTextLineHeight() - var3), var5, var2, param1.last().pose(), param2, var7);
             } else {
                 this.font
-                    .drawInBatch(var12, var13, (float)(var11 * param0.getTextLineHeight() - var3), var5, false, param1.last().pose(), param2, false, 0, var7);
+                    .drawInBatch(
+                        var12,
+                        var13,
+                        (float)(var11 * param0.getTextLineHeight() - var3),
+                        var5,
+                        false,
+                        param1.last().pose(),
+                        param2,
+                        Font.DisplayMode.NORMAL,
+                        0,
+                        var7
+                    );
             }
         }
 

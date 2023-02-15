@@ -1,13 +1,17 @@
 package net.minecraft.world.level.levelgen.structure.structures;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -21,6 +25,7 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
     public static final int WIDTH = 21;
     public static final int DEPTH = 21;
     private final boolean[] hasPlacedChest = new boolean[4];
+    private final List<BlockPos> potentialSuspiciousSandWorldPositions = new ArrayList<>();
 
     public DesertPyramidPiece(RandomSource param0, int param1, int param2) {
         super(StructurePieceType.DESERT_PYRAMID_PIECE, param1, 64, param2, 21, 15, 21, getRandomHorizontalDirection(param0));
@@ -291,6 +296,135 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
                 }
             }
 
+            if (param0.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)) {
+                this.addCellar(param0, param4);
+            }
+
         }
+    }
+
+    private void addCellar(WorldGenLevel param0, BoundingBox param1) {
+        BlockPos var0 = new BlockPos(16, -4, 13);
+        this.addCellarStairs(var0, param0, param1);
+        this.addCellarRoom(var0, param0, param1);
+    }
+
+    private void addCellarStairs(BlockPos param0, WorldGenLevel param1, BoundingBox param2) {
+        int var0 = param0.getX();
+        int var1 = param0.getY();
+        int var2 = param0.getZ();
+        BlockState var3 = Blocks.SANDSTONE_STAIRS.defaultBlockState();
+        this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 12, 0, 17, param2);
+        this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 13, -1, 17, param2);
+        this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 14, -2, 17, param2);
+        this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 15, -3, 17, param2);
+        BlockState var4 = Blocks.SAND.defaultBlockState();
+        BlockState var5 = Blocks.SANDSTONE.defaultBlockState();
+        boolean var6 = param1.getRandom().nextBoolean();
+        this.placeBlock(param1, var4, var0 - 4, var1 + 4, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0 - 3, var1 + 4, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0 - 2, var1 + 4, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0 - 1, var1 + 4, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0, var1 + 4, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0 - 2, var1 + 3, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0 - 1, var1 + 3, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0, var1 + 3, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0 - 1, var1 + 2, var2 + 4, param2);
+        this.placeBlock(param1, var6 ? var4 : var5, var0, var1 + 2, var2 + 4, param2);
+        this.placeBlock(param1, var6 ? var4 : var5, var0, var1 + 1, var2 + 4, param2);
+    }
+
+    private void addCellarRoom(BlockPos param0, WorldGenLevel param1, BoundingBox param2) {
+        int var0 = param0.getX();
+        int var1 = param0.getY();
+        int var2 = param0.getZ();
+        BlockState var3 = Blocks.CUT_SANDSTONE.defaultBlockState();
+        BlockState var4 = Blocks.CHISELED_SANDSTONE.defaultBlockState();
+        this.generateBox(param1, param2, var0 - 3, var1 + 1, var2 - 3, var0 - 3, var1 + 1, var2 + 2, var3, var3, true);
+        this.generateBox(param1, param2, var0 + 3, var1 + 1, var2 - 3, var0 + 3, var1 + 1, var2 + 2, var3, var3, true);
+        this.generateBox(param1, param2, var0 - 3, var1 + 1, var2 - 3, var0 + 3, var1 + 1, var2 - 2, var3, var3, true);
+        this.generateBox(param1, param2, var0 - 3, var1 + 1, var2 + 3, var0 + 3, var1 + 1, var2 + 3, var3, var3, true);
+        this.generateBox(param1, param2, var0 - 3, var1 + 2, var2 - 3, var0 - 3, var1 + 2, var2 + 2, var4, var4, true);
+        this.generateBox(param1, param2, var0 + 3, var1 + 2, var2 - 3, var0 + 3, var1 + 2, var2 + 2, var4, var4, true);
+        this.generateBox(param1, param2, var0 - 3, var1 + 2, var2 - 3, var0 + 3, var1 + 2, var2 - 2, var4, var4, true);
+        this.generateBox(param1, param2, var0 - 3, var1 + 2, var2 + 3, var0 + 3, var1 + 2, var2 + 3, var4, var4, true);
+        this.generateBox(param1, param2, var0 - 3, -1, var2 - 3, var0 - 3, -1, var2 + 2, var3, var3, true);
+        this.generateBox(param1, param2, var0 + 3, -1, var2 - 3, var0 + 3, -1, var2 + 2, var3, var3, true);
+        this.generateBox(param1, param2, var0 - 3, -1, var2 - 3, var0 + 3, -1, var2 - 2, var3, var3, true);
+        this.generateBox(param1, param2, var0 - 3, -1, var2 + 3, var0 + 3, -1, var2 + 3, var3, var3, true);
+        this.placeSandBox(param2, var0 - 2, var1 + 1, var2 - 2, var0 + 2, var1 + 3, var2 + 2);
+        this.placeCollapsedRoof(param1, param2, var0 - 2, var1 + 4, var2 - 2, var0 + 2, var2 + 2);
+        BlockState var5 = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
+        BlockState var6 = Blocks.BLUE_TERRACOTTA.defaultBlockState();
+        this.placeBlock(param1, var6, var0, var1, var2, param2);
+        this.placeBlock(param1, var5, var0 + 1, var1, var2 - 1, param2);
+        this.placeBlock(param1, var5, var0 + 1, var1, var2 + 1, param2);
+        this.placeBlock(param1, var5, var0 - 1, var1, var2 - 1, param2);
+        this.placeBlock(param1, var5, var0 - 1, var1, var2 + 1, param2);
+        this.placeBlock(param1, var5, var0 + 2, var1, var2, param2);
+        this.placeBlock(param1, var5, var0 - 2, var1, var2, param2);
+        this.placeBlock(param1, var5, var0, var1, var2 + 2, param2);
+        this.placeBlock(param1, var5, var0, var1, var2 - 2, param2);
+        this.placeBlock(param1, var5, var0 + 3, var1, var2, param2);
+        this.placeSand(var0 + 3, var1 + 1, var2, param2);
+        this.placeSand(var0 + 3, var1 + 2, var2, param2);
+        this.placeBlock(param1, var3, var0 + 4, var1 + 1, var2, param2);
+        this.placeBlock(param1, var4, var0 + 4, var1 + 2, var2, param2);
+        this.placeBlock(param1, var5, var0 - 3, var1, var2, param2);
+        this.placeSand(var0 - 3, var1 + 1, var2, param2);
+        this.placeSand(var0 - 3, var1 + 2, var2, param2);
+        this.placeBlock(param1, var3, var0 - 4, var1 + 1, var2, param2);
+        this.placeBlock(param1, var4, var0 - 4, var1 + 2, var2, param2);
+        this.placeBlock(param1, var5, var0, var1, var2 + 3, param2);
+        this.placeSand(var0, var1 + 1, var2 + 3, param2);
+        this.placeSand(var0, var1 + 2, var2 + 3, param2);
+        this.placeBlock(param1, var5, var0, var1, var2 - 3, param2);
+        this.placeSand(var0, var1 + 1, var2 - 3, param2);
+        this.placeSand(var0, var1 + 2, var2 - 3, param2);
+        this.placeBlock(param1, var3, var0, var1 + 1, var2 - 4, param2);
+        this.placeBlock(param1, var4, var0, -2, var2 - 4, param2);
+    }
+
+    private void placeSand(int param0, int param1, int param2, BoundingBox param3) {
+        BlockPos var0 = this.getWorldPos(param0, param1, param2);
+        if (param3.isInside(var0)) {
+            this.potentialSuspiciousSandWorldPositions.add(var0);
+        }
+
+    }
+
+    private void placeSandBox(BoundingBox param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        for(int var0 = param2; var0 <= param5; ++var0) {
+            for(int var1 = param1; var1 <= param4; ++var1) {
+                for(int var2 = param3; var2 <= param6; ++var2) {
+                    this.placeSand(var1, var0, var2, param0);
+                }
+            }
+        }
+
+    }
+
+    private void placeCollapsedRoofPiece(WorldGenLevel param0, int param1, int param2, int param3, BoundingBox param4) {
+        if (param0.getRandom().nextBoolean()) {
+            BlockState var0 = Blocks.SANDSTONE.defaultBlockState();
+            this.placeBlock(param0, var0, param1, param2, param3, param4);
+        } else {
+            BlockState var1 = Blocks.SAND.defaultBlockState();
+            this.placeBlock(param0, var1, param1, param2, param3, param4);
+        }
+
+    }
+
+    private void placeCollapsedRoof(WorldGenLevel param0, BoundingBox param1, int param2, int param3, int param4, int param5, int param6) {
+        for(int var0 = param2; var0 <= param5; ++var0) {
+            for(int var1 = param4; var1 <= param6; ++var1) {
+                this.placeCollapsedRoofPiece(param0, var0, param3, var1, param1);
+            }
+        }
+
+    }
+
+    public List<BlockPos> getPotentialSuspiciousSandWorldPositions() {
+        return this.potentialSuspiciousSandWorldPositions;
     }
 }

@@ -1,13 +1,21 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.stream.Stream;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.data.loot.packs.UpdateOneTwentyBuiltInLootTables;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
     private static final BlockStatePredicate IS_SAND = BlockStatePredicate.forBlock(Blocks.SAND);
@@ -48,6 +56,10 @@ public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
                 }
             }
 
+            if (var0.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)) {
+                placeSandFloor(var0, var1, param0.random());
+            }
+
             var0.setBlock(var1, this.water, 2);
 
             for(Direction var7 : Direction.Plane.HORIZONTAL) {
@@ -86,5 +98,30 @@ public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
 
             return true;
         }
+    }
+
+    private static void placeSandFloor(WorldGenLevel param0, BlockPos param1, RandomSource param2) {
+        BlockPos var0 = param1.offset(0, -1, 0);
+        ObjectArrayList<BlockPos> var1 = Util.make(new ObjectArrayList<>(), param1x -> {
+            param1x.add(var0.east());
+            param1x.add(var0.south());
+            param1x.add(var0.west());
+            param1x.add(var0.north());
+        });
+        Util.shuffle(var1, param2);
+        MutableInt var2 = new MutableInt(param2.nextInt(2, 4));
+        Stream.concat(Stream.of(var0), var1.stream())
+            .forEach(
+                param2x -> {
+                    if (var2.getAndDecrement() > 0) {
+                        param0.setBlock(param2x, Blocks.SUSPICIOUS_SAND.defaultBlockState(), 3);
+                        param0.getBlockEntity(param2x, BlockEntityType.SUSPICIOUS_SAND)
+                            .ifPresent(param1x -> param1x.setLootTable(UpdateOneTwentyBuiltInLootTables.DESERT_WELL_ARCHAEOLOGY, param2x.asLong()));
+                    } else {
+                        param0.setBlock(param2x, Blocks.SAND.defaultBlockState(), 3);
+                    }
+        
+                }
+            );
     }
 }

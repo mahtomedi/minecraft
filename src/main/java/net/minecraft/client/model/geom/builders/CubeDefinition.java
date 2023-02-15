@@ -1,7 +1,9 @@
 package net.minecraft.client.model.geom.builders;
 
+import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
@@ -16,6 +18,7 @@ public final class CubeDefinition {
     private final boolean mirror;
     private final UVPair texCoord;
     private final UVPair texScale;
+    private final Set<Direction> visibleFaces;
 
     protected CubeDefinition(
         @Nullable String param0,
@@ -30,7 +33,8 @@ public final class CubeDefinition {
         CubeDeformation param9,
         boolean param10,
         float param11,
-        float param12
+        float param12,
+        Set<Direction> param13
     ) {
         this.comment = param0;
         this.texCoord = new UVPair(param1, param2);
@@ -39,6 +43,7 @@ public final class CubeDefinition {
         this.grow = param9;
         this.mirror = param10;
         this.texScale = new UVPair(param11, param12);
+        this.visibleFaces = param13;
     }
 
     public ModelPart.Cube bake(int param0, int param1) {
@@ -56,7 +61,8 @@ public final class CubeDefinition {
             this.grow.growZ,
             this.mirror,
             (float)param0 * this.texScale.u(),
-            (float)param1 * this.texScale.v()
+            (float)param1 * this.texScale.v(),
+            this.visibleFaces
         );
     }
 }

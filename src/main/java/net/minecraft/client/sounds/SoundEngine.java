@@ -28,6 +28,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -82,10 +83,12 @@ public class SoundEngine {
         ONLY_WARN_ONCE.clear();
 
         for(SoundEvent var0 : BuiltInRegistries.SOUND_EVENT) {
-            ResourceLocation var1 = var0.getLocation();
-            if (this.soundManager.getSoundEvent(var1) == null) {
-                LOGGER.warn("Missing sound for event: {}", BuiltInRegistries.SOUND_EVENT.getKey(var0));
-                ONLY_WARN_ONCE.add(var1);
+            if (var0 != SoundEvents.EMPTY) {
+                ResourceLocation var1 = var0.getLocation();
+                if (this.soundManager.getSoundEvent(var1) == null) {
+                    LOGGER.warn("Missing sound for event: {}", BuiltInRegistries.SOUND_EVENT.getKey(var0));
+                    ONLY_WARN_ONCE.add(var1);
+                }
             }
         }
 
@@ -332,83 +335,85 @@ public class SoundEngine {
 
                 } else {
                     Sound var2x = param0.getSound();
-                    if (var2x == SoundManager.EMPTY_SOUND) {
-                        if (ONLY_WARN_ONCE.add(var1x)) {
-                            LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", var1x);
-                        }
-
-                    } else {
-                        float var3x = param0.getVolume();
-                        float var4x = Math.max(var3x, 1.0F) * (float)var2x.getAttenuationDistance();
-                        SoundSource var5x = param0.getSource();
-                        float var6x = this.calculateVolume(var3x, var5x);
-                        float var7x = this.calculatePitch(param0);
-                        SoundInstance.Attenuation var8x = param0.getAttenuation();
-                        boolean var9x = param0.isRelative();
-                        if (var6x == 0.0F && !param0.canStartSilent()) {
-                            LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var2x.getLocation());
-                        } else {
-                            Vec3 var10x = new Vec3(param0.getX(), param0.getY(), param0.getZ());
-                            if (!this.listeners.isEmpty()) {
-                                boolean var11x = var9x
-                                    || var8x == SoundInstance.Attenuation.NONE
-                                    || this.listener.getListenerPosition().distanceToSqr(var10x) < (double)(var4x * var4x);
-                                if (var11x) {
-                                    for(SoundEventListener var12x : this.listeners) {
-                                        var12x.onPlaySound(param0, var0x);
-                                    }
-                                } else {
-                                    LOGGER.debug(MARKER, "Did not notify listeners of soundEvent: {}, it is too far away to hear", var1x);
-                                }
+                    if (var2x != SoundManager.INTENTIONALLY_EMPTY_SOUND) {
+                        if (var2x == SoundManager.EMPTY_SOUND) {
+                            if (ONLY_WARN_ONCE.add(var1x)) {
+                                LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", var1x);
                             }
 
-                            if (this.listener.getGain() <= 0.0F) {
-                                LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", var1x);
+                        } else {
+                            float var3x = param0.getVolume();
+                            float var4x = Math.max(var3x, 1.0F) * (float)var2x.getAttenuationDistance();
+                            SoundSource var5x = param0.getSource();
+                            float var6x = this.calculateVolume(var3x, var5x);
+                            float var7x = this.calculatePitch(param0);
+                            SoundInstance.Attenuation var8x = param0.getAttenuation();
+                            boolean var9x = param0.isRelative();
+                            if (var6x == 0.0F && !param0.canStartSilent()) {
+                                LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var2x.getLocation());
                             } else {
-                                boolean var13x = shouldLoopAutomatically(param0);
-                                boolean var14 = var2x.shouldStream();
-                                CompletableFuture<ChannelAccess.ChannelHandle> var15 = this.channelAccess
-                                    .createHandle(var2x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
-                                ChannelAccess.ChannelHandle var16 = var15.join();
-                                if (var16 == null) {
-                                    if (SharedConstants.IS_RUNNING_IN_IDE) {
-                                        LOGGER.warn("Failed to create new sound handle");
+                                Vec3 var10x = new Vec3(param0.getX(), param0.getY(), param0.getZ());
+                                if (!this.listeners.isEmpty()) {
+                                    boolean var11x = var9x
+                                        || var8x == SoundInstance.Attenuation.NONE
+                                        || this.listener.getListenerPosition().distanceToSqr(var10x) < (double)(var4x * var4x);
+                                    if (var11x) {
+                                        for(SoundEventListener var12x : this.listeners) {
+                                            var12x.onPlaySound(param0, var0x);
+                                        }
+                                    } else {
+                                        LOGGER.debug(MARKER, "Did not notify listeners of soundEvent: {}, it is too far away to hear", var1x);
                                     }
+                                }
 
+                                if (this.listener.getGain() <= 0.0F) {
+                                    LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", var1x);
                                 } else {
-                                    LOGGER.debug(MARKER, "Playing sound {} for event {}", var2x.getLocation(), var1x);
-                                    this.soundDeleteTime.put(param0, this.tickCount + 20);
-                                    this.instanceToChannel.put(param0, var16);
-                                    this.instanceBySource.put(var5x, param0);
-                                    var16.execute(param8 -> {
-                                        param8.setPitch(var7x);
-                                        param8.setVolume(var6x);
-                                        if (var8x == SoundInstance.Attenuation.LINEAR) {
-                                            param8.linearAttenuation(var4x);
-                                        } else {
-                                            param8.disableAttenuation();
+                                    boolean var13x = shouldLoopAutomatically(param0);
+                                    boolean var14 = var2x.shouldStream();
+                                    CompletableFuture<ChannelAccess.ChannelHandle> var15 = this.channelAccess
+                                        .createHandle(var2x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
+                                    ChannelAccess.ChannelHandle var16 = var15.join();
+                                    if (var16 == null) {
+                                        if (SharedConstants.IS_RUNNING_IN_IDE) {
+                                            LOGGER.warn("Failed to create new sound handle");
                                         }
 
-                                        param8.setLooping(var13x && !var14);
-                                        param8.setSelfPosition(var10x);
-                                        param8.setRelative(var9x);
-                                    });
-                                    if (!var14) {
-                                        this.soundBuffers.getCompleteBuffer(var2x.getPath()).thenAccept(param1 -> var16.execute(param1x -> {
-                                                param1x.attachStaticBuffer(param1);
-                                                param1x.play();
-                                            }));
                                     } else {
-                                        this.soundBuffers.getStream(var2x.getPath(), var13x).thenAccept(param1 -> var16.execute(param1x -> {
-                                                param1x.attachBufferStream(param1);
-                                                param1x.play();
-                                            }));
-                                    }
+                                        LOGGER.debug(MARKER, "Playing sound {} for event {}", var2x.getLocation(), var1x);
+                                        this.soundDeleteTime.put(param0, this.tickCount + 20);
+                                        this.instanceToChannel.put(param0, var16);
+                                        this.instanceBySource.put(var5x, param0);
+                                        var16.execute(param8 -> {
+                                            param8.setPitch(var7x);
+                                            param8.setVolume(var6x);
+                                            if (var8x == SoundInstance.Attenuation.LINEAR) {
+                                                param8.linearAttenuation(var4x);
+                                            } else {
+                                                param8.disableAttenuation();
+                                            }
 
-                                    if (param0 instanceof TickableSoundInstance) {
-                                        this.tickingSounds.add((TickableSoundInstance)param0);
-                                    }
+                                            param8.setLooping(var13x && !var14);
+                                            param8.setSelfPosition(var10x);
+                                            param8.setRelative(var9x);
+                                        });
+                                        if (!var14) {
+                                            this.soundBuffers.getCompleteBuffer(var2x.getPath()).thenAccept(param1 -> var16.execute(param1x -> {
+                                                    param1x.attachStaticBuffer(param1);
+                                                    param1x.play();
+                                                }));
+                                        } else {
+                                            this.soundBuffers.getStream(var2x.getPath(), var13x).thenAccept(param1 -> var16.execute(param1x -> {
+                                                    param1x.attachBufferStream(param1);
+                                                    param1x.play();
+                                                }));
+                                        }
 
+                                        if (param0 instanceof TickableSoundInstance) {
+                                            this.tickingSounds.add((TickableSoundInstance)param0);
+                                        }
+
+                                    }
                                 }
                             }
                         }

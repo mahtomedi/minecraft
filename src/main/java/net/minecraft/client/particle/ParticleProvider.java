@@ -10,4 +10,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface ParticleProvider<T extends ParticleOptions> {
     @Nullable
     Particle createParticle(T var1, ClientLevel var2, double var3, double var5, double var7, double var9, double var11, double var13);
+
+    @OnlyIn(Dist.CLIENT)
+    public interface Sprite<T extends ParticleOptions> {
+        @Nullable
+        TextureSheetParticle createParticle(T var1, ClientLevel var2, double var3, double var5, double var7, double var9, double var11, double var13);
+    }
 }

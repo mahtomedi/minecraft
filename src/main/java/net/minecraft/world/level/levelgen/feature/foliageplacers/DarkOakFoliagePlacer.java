@@ -2,12 +2,10 @@ package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public class DarkOakFoliagePlacer extends FoliagePlacer {
@@ -27,7 +25,7 @@ public class DarkOakFoliagePlacer extends FoliagePlacer {
     @Override
     protected void createFoliage(
         LevelSimulatedReader param0,
-        BiConsumer<BlockPos, BlockState> param1,
+        FoliagePlacer.FoliageSetter param1,
         RandomSource param2,
         TreeConfiguration param3,
         int param4,

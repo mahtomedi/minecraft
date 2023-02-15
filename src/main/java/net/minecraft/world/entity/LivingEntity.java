@@ -117,7 +117,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import org.slf4j.Logger;
 
-public abstract class LivingEntity extends Entity {
+public abstract class LivingEntity extends Entity implements Attackable {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
     private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
@@ -155,6 +155,7 @@ public abstract class LivingEntity extends Entity {
     protected static final float DEFAULT_EYE_HEIGHT = 1.74F;
     protected static final EntityDimensions SLEEPING_DIMENSIONS = EntityDimensions.fixed(0.2F, 0.2F);
     public static final float EXTRA_RENDER_CULLING_SIZE_WITH_BIG_HAT = 0.5F;
+    private static final int MAX_HEAD_ROTATION_RELATIVE_TO_BODY = 50;
     private final AttributeMap attributes;
     private final CombatTracker combatTracker = new CombatTracker(this);
     private final Map<MobEffect, MobEffectInstance> activeEffects = Maps.newHashMap();
@@ -601,6 +602,11 @@ public abstract class LivingEntity extends Entity {
     @Nullable
     public LivingEntity getLastHurtByMob() {
         return this.lastHurtByMob;
+    }
+
+    @Override
+    public LivingEntity getLastAttacker() {
+        return this.getLastHurtByMob();
     }
 
     public int getLastHurtByMobTimestamp() {
@@ -2433,20 +2439,11 @@ public abstract class LivingEntity extends Entity {
         float var0 = Mth.wrapDegrees(param0 - this.yBodyRot);
         this.yBodyRot += var0 * 0.3F;
         float var1 = Mth.wrapDegrees(this.getYRot() - this.yBodyRot);
+        if (Math.abs(var1) > 50.0F) {
+            this.yBodyRot += var1 - (float)(Mth.sign((double)var1) * 50);
+        }
+
         boolean var2 = var1 < -90.0F || var1 >= 90.0F;
-        if (var1 < -75.0F) {
-            var1 = -75.0F;
-        }
-
-        if (var1 >= 75.0F) {
-            var1 = 75.0F;
-        }
-
-        this.yBodyRot = this.getYRot() - var1;
-        if (var1 * var1 > 2500.0F) {
-            this.yBodyRot += var1 * 0.2F;
-        }
-
         if (var2) {
             param1 *= -1.0F;
         }

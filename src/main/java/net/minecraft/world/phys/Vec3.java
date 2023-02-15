@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import org.joml.Vector3f;
 
 public class Vec3 implements Position {
@@ -29,20 +30,24 @@ public class Vec3 implements Position {
         return new Vec3(var0, var1, var2);
     }
 
-    public static Vec3 atCenterOf(Vec3i param0) {
-        return new Vec3((double)param0.getX() + 0.5, (double)param0.getY() + 0.5, (double)param0.getZ() + 0.5);
-    }
-
     public static Vec3 atLowerCornerOf(Vec3i param0) {
         return new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
     }
 
+    public static Vec3 atLowerCornerWithOffset(Vec3i param0, double param1, double param2, double param3) {
+        return new Vec3((double)param0.getX() + param1, (double)param0.getY() + param2, (double)param0.getZ() + param3);
+    }
+
+    public static Vec3 atCenterOf(Vec3i param0) {
+        return atLowerCornerWithOffset(param0, 0.5, 0.5, 0.5);
+    }
+
     public static Vec3 atBottomCenterOf(Vec3i param0) {
-        return new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
+        return atLowerCornerWithOffset(param0, 0.5, 0.0, 0.5);
     }
 
     public static Vec3 upFromBottomCenterOf(Vec3i param0, double param1) {
-        return new Vec3((double)param0.getX() + 0.5, (double)param0.getY() + param1, (double)param0.getZ() + 0.5);
+        return atLowerCornerWithOffset(param0, 0.5, param1, 0.5);
     }
 
     public Vec3(double param0, double param1, double param2) {
@@ -127,6 +132,12 @@ public class Vec3 implements Position {
 
     public Vec3 multiply(double param0, double param1, double param2) {
         return new Vec3(this.x * param0, this.y * param1, this.z * param2);
+    }
+
+    public Vec3 offsetRandom(RandomSource param0, float param1) {
+        return this.add(
+            (double)((param0.nextFloat() - 0.5F) * param1), (double)((param0.nextFloat() - 0.5F) * param1), (double)((param0.nextFloat() - 0.5F) * param1)
+        );
     }
 
     public double length() {

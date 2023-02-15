@@ -93,9 +93,11 @@ public abstract class EntityRenderer<T extends Entity> {
             int var6 = (int)(var5 * 255.0F) << 24;
             Font var7 = this.getFont();
             float var8 = (float)(-var7.width(param1) / 2);
-            var7.drawInBatch(param1, var8, (float)var3, 553648127, false, var4, param3, var1, var6, param4);
+            var7.drawInBatch(
+                param1, var8, (float)var3, 553648127, false, var4, param3, var1 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, var6, param4
+            );
             if (var1) {
-                var7.drawInBatch(param1, var8, (float)var3, -1, false, var4, param3, false, 0, param4);
+                var7.drawInBatch(param1, var8, (float)var3, -1, false, var4, param3, Font.DisplayMode.NORMAL, 0, param4);
             }
 
             param2.popPose();

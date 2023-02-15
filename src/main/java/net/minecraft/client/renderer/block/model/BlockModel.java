@@ -62,10 +62,12 @@ public class BlockModel implements UnbakedModel {
         .create();
     private static final char REFERENCE_CHAR = '#';
     public static final String PARTICLE_TEXTURE_REFERENCE = "particle";
+    private static final boolean DEFAULT_AMBIENT_OCCLUSION = true;
     private final List<BlockElement> elements;
     @Nullable
     private final BlockModel.GuiLight guiLight;
-    private final boolean hasAmbientOcclusion;
+    @Nullable
+    private final Boolean hasAmbientOcclusion;
     private final ItemTransforms transforms;
     private final List<ItemOverride> overrides;
     public String name = "";
@@ -88,7 +90,7 @@ public class BlockModel implements UnbakedModel {
         @Nullable ResourceLocation param0,
         List<BlockElement> param1,
         Map<String, Either<Material, String>> param2,
-        boolean param3,
+        @Nullable Boolean param3,
         @Nullable BlockModel.GuiLight param4,
         ItemTransforms param5,
         List<ItemOverride> param6
@@ -107,7 +109,11 @@ public class BlockModel implements UnbakedModel {
     }
 
     public boolean hasAmbientOcclusion() {
-        return this.parent != null ? this.parent.hasAmbientOcclusion() : this.hasAmbientOcclusion;
+        if (this.hasAmbientOcclusion != null) {
+            return this.hasAmbientOcclusion;
+        } else {
+            return this.parent != null ? this.parent.hasAmbientOcclusion() : true;
+        }
     }
 
     public BlockModel.GuiLight getGuiLight() {
@@ -294,14 +300,12 @@ public class BlockModel implements UnbakedModel {
 
     @OnlyIn(Dist.CLIENT)
     public static class Deserializer implements JsonDeserializer<BlockModel> {
-        private static final boolean DEFAULT_AMBIENT_OCCLUSION = true;
-
         public BlockModel deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             JsonObject var0 = param0.getAsJsonObject();
             List<BlockElement> var1 = this.getElements(param2, var0);
             String var2 = this.getParentName(var0);
             Map<String, Either<Material, String>> var3 = this.getTextureMap(var0);
-            boolean var4 = this.getAmbientOcclusion(var0);
+            Boolean var4 = this.getAmbientOcclusion(var0);
             ItemTransforms var5 = ItemTransforms.NO_TRANSFORMS;
             if (var0.has("display")) {
                 JsonObject var6 = GsonHelper.getAsJsonObject(var0, "display");
@@ -360,8 +364,9 @@ public class BlockModel implements UnbakedModel {
             return GsonHelper.getAsString(param0, "parent", "");
         }
 
-        protected boolean getAmbientOcclusion(JsonObject param0) {
-            return GsonHelper.getAsBoolean(param0, "ambientocclusion", true);
+        @Nullable
+        protected Boolean getAmbientOcclusion(JsonObject param0) {
+            return param0.has("ambientocclusion") ? GsonHelper.getAsBoolean(param0, "ambientocclusion") : null;
         }
 
         protected List<BlockElement> getElements(JsonDeserializationContext param0, JsonObject param1) {

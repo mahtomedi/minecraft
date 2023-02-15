@@ -313,11 +313,11 @@ public class Warden extends Monster implements VibrationListener.VibrationListen
     }
 
     public float getTendrilAnimation(float param0) {
-        return (float)Mth.lerp(param0, this.tendrilAnimationO, this.tendrilAnimation) / 10.0F;
+        return Mth.lerp(param0, (float)this.tendrilAnimationO, (float)this.tendrilAnimation) / 10.0F;
     }
 
     public float getHeartAnimation(float param0) {
-        return (float)Mth.lerp(param0, this.heartAnimationO, this.heartAnimation) / 10.0F;
+        return Mth.lerp(param0, (float)this.heartAnimationO, (float)this.heartAnimation) / 10.0F;
     }
 
     private void clientDiggingParticles(AnimationState param0) {

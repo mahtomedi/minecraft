@@ -38,7 +38,7 @@ public class OverworldBiomes {
     private static Biome biome(
         boolean param0, float param1, float param2, MobSpawnSettings.Builder param3, BiomeGenerationSettings.Builder param4, @Nullable Music param5
     ) {
-        return biome(param0, param1, param2, 4159204, 329011, param3, param4, param5);
+        return biome(param0, param1, param2, 4159204, 329011, null, null, param3, param4, param5);
     }
 
     private static Biome biome(
@@ -47,26 +47,34 @@ public class OverworldBiomes {
         float param2,
         int param3,
         int param4,
-        MobSpawnSettings.Builder param5,
-        BiomeGenerationSettings.Builder param6,
-        @Nullable Music param7
+        @Nullable Integer param5,
+        @Nullable Integer param6,
+        MobSpawnSettings.Builder param7,
+        BiomeGenerationSettings.Builder param8,
+        @Nullable Music param9
     ) {
+        BiomeSpecialEffects.Builder var0 = new BiomeSpecialEffects.Builder()
+            .waterColor(param3)
+            .waterFogColor(param4)
+            .fogColor(12638463)
+            .skyColor(calculateSkyColor(param1))
+            .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+            .backgroundMusic(param9);
+        if (param5 != null) {
+            var0.grassColorOverride(param5);
+        }
+
+        if (param6 != null) {
+            var0.foliageColorOverride(param6);
+        }
+
         return new Biome.BiomeBuilder()
             .hasPrecipitation(param0)
             .temperature(param1)
             .downfall(param2)
-            .specialEffects(
-                new BiomeSpecialEffects.Builder()
-                    .waterColor(param3)
-                    .waterFogColor(param4)
-                    .fogColor(12638463)
-                    .skyColor(calculateSkyColor(param1))
-                    .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
-                    .backgroundMusic(param7)
-                    .build()
-            )
-            .mobSpawnSettings(param5.build())
-            .generationSettings(param6.build())
+            .specialEffects(var0.build())
+            .mobSpawnSettings(param7.build())
+            .generationSettings(param8.build())
             .build();
     }
 
@@ -342,7 +350,7 @@ public class OverworldBiomes {
     }
 
     private static Biome baseOcean(MobSpawnSettings.Builder param0, int param1, int param2, BiomeGenerationSettings.Builder param3) {
-        return biome(true, 0.5F, 0.5F, param1, param2, param0, param3, NORMAL_MUSIC);
+        return biome(true, 0.5F, 0.5F, param1, param2, null, null, param0, param3, NORMAL_MUSIC);
     }
 
     private static BiomeGenerationSettings.Builder baseOceanGeneration(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1) {
@@ -521,7 +529,7 @@ public class OverworldBiomes {
             BiomeDefaultFeatures.addCommonBerryBushes(var2);
         }
 
-        return biome(true, var1, param2 ? 0.4F : 0.8F, param2 ? 4020182 : 4159204, 329011, var0, var2, NORMAL_MUSIC);
+        return biome(true, var1, param2 ? 0.4F : 0.8F, param2 ? 4020182 : 4159204, 329011, null, null, var0, var2, NORMAL_MUSIC);
     }
 
     public static Biome darkForest(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1) {
@@ -651,7 +659,7 @@ public class OverworldBiomes {
         }
 
         float var2 = param2 ? 0.0F : 0.5F;
-        return biome(true, var2, 0.5F, param2 ? 3750089 : 4159204, 329011, var0, var1, NORMAL_MUSIC);
+        return biome(true, var2, 0.5F, param2 ? 3750089 : 4159204, 329011, null, null, var0, var1, NORMAL_MUSIC);
     }
 
     public static Biome beach(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1, boolean param2, boolean param3) {
@@ -679,7 +687,7 @@ public class OverworldBiomes {
             var3 = 0.8F;
         }
 
-        return biome(true, var3, var1 ? 0.4F : 0.3F, param2 ? 4020182 : 4159204, 329011, var0, var2, NORMAL_MUSIC);
+        return biome(true, var3, var1 ? 0.4F : 0.3F, param2 ? 4020182 : 4159204, 329011, null, null, var0, var2, NORMAL_MUSIC);
     }
 
     public static Biome theVoid(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1) {
@@ -688,7 +696,7 @@ public class OverworldBiomes {
         return biome(false, 0.5F, 0.5F, new MobSpawnSettings.Builder(), var0, NORMAL_MUSIC);
     }
 
-    public static Biome meadow(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1) {
+    public static Biome meadowOrCherryGrove(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1, boolean param2) {
         BiomeGenerationSettings.Builder var0 = new BiomeGenerationSettings.Builder(param0, param1);
         MobSpawnSettings.Builder var1 = new MobSpawnSettings.Builder();
         var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.DONKEY, 1, 1, 2))
@@ -699,11 +707,18 @@ public class OverworldBiomes {
         BiomeDefaultFeatures.addPlainGrass(var0);
         BiomeDefaultFeatures.addDefaultOres(var0);
         BiomeDefaultFeatures.addDefaultSoftDisks(var0);
-        BiomeDefaultFeatures.addMeadowVegetation(var0);
+        if (param2) {
+            BiomeDefaultFeatures.addCherryGroveVegetation(var0);
+        } else {
+            BiomeDefaultFeatures.addMeadowVegetation(var0);
+        }
+
         BiomeDefaultFeatures.addExtraEmeralds(var0);
         BiomeDefaultFeatures.addInfestedStone(var0);
-        Music var2 = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_MEADOW);
-        return biome(true, 0.5F, 0.8F, 937679, 329011, var1, var0, var2);
+        Music var2 = Musics.createGameMusic(param2 ? SoundEvents.MUSIC_BIOME_CHERRY_GROVE : SoundEvents.MUSIC_BIOME_MEADOW);
+        return param2
+            ? biome(true, 0.5F, 0.8F, 6141935, 6141935, 11983713, 11983713, var1, var0, var2)
+            : biome(true, 0.5F, 0.8F, 937679, 329011, null, null, var1, var0, var2);
     }
 
     public static Biome frozenPeaks(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1) {

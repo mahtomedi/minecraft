@@ -98,7 +98,7 @@ public class FrameLayout extends AbstractLayout {
     }
 
     public static void alignInDimension(int param0, int param1, int param2, Consumer<Integer> param3, float param4) {
-        int var0 = Mth.lerp(param4, 0, param1 - param2);
+        int var0 = (int)Mth.lerp(param4, 0.0F, (float)(param1 - param2));
         param3.accept(param0 + var0);
     }
 

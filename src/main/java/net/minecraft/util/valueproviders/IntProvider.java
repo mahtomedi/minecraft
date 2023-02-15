@@ -19,15 +19,19 @@ public abstract class IntProvider {
     public static final Codec<IntProvider> POSITIVE_CODEC = codec(1, Integer.MAX_VALUE);
 
     public static Codec<IntProvider> codec(int param0, int param1) {
+        return codec(param0, param1, CODEC);
+    }
+
+    public static <T extends IntProvider> Codec<T> codec(int param0, int param1, Codec<T> param2) {
         return ExtraCodecs.validate(
-            CODEC,
-            param2 -> {
-                if (param2.getMinValue() < param0) {
-                    return DataResult.error("Value provider too low: " + param0 + " [" + param2.getMinValue() + "-" + param2.getMaxValue() + "]");
+            param2,
+            param2x -> {
+                if (param2x.getMinValue() < param0) {
+                    return DataResult.error("Value provider too low: " + param0 + " [" + param2x.getMinValue() + "-" + param2x.getMaxValue() + "]");
                 } else {
-                    return param2.getMaxValue() > param1
-                        ? DataResult.error("Value provider too high: " + param1 + " [" + param2.getMinValue() + "-" + param2.getMaxValue() + "]")
-                        : DataResult.success(param2);
+                    return param2x.getMaxValue() > param1
+                        ? DataResult.error("Value provider too high: " + param1 + " [" + param2x.getMinValue() + "-" + param2x.getMaxValue() + "]")
+                        : DataResult.success(param2x);
                 }
             }
         );

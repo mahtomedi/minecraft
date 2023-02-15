@@ -62,7 +62,6 @@ public class StructureTemplate {
     public static final String ENTITY_TAG_BLOCKPOS = "blockPos";
     public static final String ENTITY_TAG_NBT = "nbt";
     public static final String SIZE_TAG = "size";
-    static final int CHUNK_SIZE = 16;
     private final List<StructureTemplate.Palette> palettes = Lists.newArrayList();
     private final List<StructureTemplate.StructureEntityInfo> entityInfoList = Lists.newArrayList();
     private Vec3i size = Vec3i.ZERO;
@@ -381,6 +380,10 @@ public class StructureTemplate {
             if (var3 != null) {
                 var0.add(var3);
             }
+        }
+
+        for(StructureProcessor var5 : param3.getProcessors()) {
+            var5.finalizeStructure(param0, param1, param2, param3, var0);
         }
 
         return var0;

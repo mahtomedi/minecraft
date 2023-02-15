@@ -12,7 +12,6 @@ import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -73,6 +72,7 @@ import net.minecraft.client.resources.sounds.BeeFlyingSoundInstance;
 import net.minecraft.client.resources.sounds.BeeSoundInstance;
 import net.minecraft.client.resources.sounds.GuardianAttackSoundInstance;
 import net.minecraft.client.resources.sounds.MinecartSoundInstance;
+import net.minecraft.client.resources.sounds.SnifferSoundInstance;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.commands.CommandBuildContext;
@@ -263,6 +263,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.animal.sniffer.Sniffer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Inventory;
@@ -1014,17 +1015,23 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Entity var0 = param0.getEntity(this.level);
         if (var0 != null) {
-            if (param0.getEventId() == 21) {
-                this.minecraft.getSoundManager().play(new GuardianAttackSoundInstance((Guardian)var0));
-            } else if (param0.getEventId() == 35) {
-                int var1 = 40;
-                this.minecraft.particleEngine.createTrackingEmitter(var0, ParticleTypes.TOTEM_OF_UNDYING, 30);
-                this.level.playLocalSound(var0.getX(), var0.getY(), var0.getZ(), SoundEvents.TOTEM_USE, var0.getSoundSource(), 1.0F, 1.0F, false);
-                if (var0 == this.minecraft.player) {
-                    this.minecraft.gameRenderer.displayItemActivation(findTotem(this.minecraft.player));
-                }
-            } else {
-                var0.handleEntityEvent(param0.getEventId());
+            switch(param0.getEventId()) {
+                case 21:
+                    this.minecraft.getSoundManager().play(new GuardianAttackSoundInstance((Guardian)var0));
+                    break;
+                case 35:
+                    int var1 = 40;
+                    this.minecraft.particleEngine.createTrackingEmitter(var0, ParticleTypes.TOTEM_OF_UNDYING, 30);
+                    this.level.playLocalSound(var0.getX(), var0.getY(), var0.getZ(), SoundEvents.TOTEM_USE, var0.getSoundSource(), 1.0F, 1.0F, false);
+                    if (var0 == this.minecraft.player) {
+                        this.minecraft.gameRenderer.displayItemActivation(findTotem(this.minecraft.player));
+                    }
+                    break;
+                case 63:
+                    this.minecraft.getSoundManager().play(new SnifferSoundInstance((Sniffer)var0));
+                    break;
+                default:
+                    var0.handleEntityEvent(param0.getEventId());
             }
         }
 
@@ -1122,7 +1129,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         var10.setReducedDebugInfo(var2.isReducedDebugInfo());
         var10.setShowDeathScreen(var2.shouldShowDeathScreen());
         var10.setLastDeathLocation(param0.getLastDeathLocation());
-        if (this.minecraft.screen instanceof DeathScreen) {
+        if (this.minecraft.screen instanceof DeathScreen || this.minecraft.screen instanceof DeathScreen.TitleConfirmScreen) {
             this.minecraft.setScreen(null);
         }
 
@@ -1490,7 +1497,10 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                     this.recipeManager.byKey(var5).ifPresent(param1 -> {
                         var0.add(param1);
                         var0.addHighlight(param1);
-                        RecipeToast.addOrUpdate(this.minecraft.getToasts(), param1);
+                        if (param1.showNotification()) {
+                            RecipeToast.addOrUpdate(this.minecraft.getToasts(), param1);
+                        }
+
                     });
                 }
         }
@@ -1653,15 +1663,8 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     public void handleServerData(ClientboundServerDataPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         if (this.serverData != null) {
-            param0.getMotd().ifPresent(param0x -> this.serverData.motd = param0x);
-            param0.getIconBase64().ifPresent(param0x -> {
-                try {
-                    this.serverData.setIconB64(ServerData.parseFavicon(param0x));
-                } catch (ParseException var3) {
-                    LOGGER.error("Invalid server icon", (Throwable)var3);
-                }
-
-            });
+            this.serverData.motd = param0.getMotd();
+            param0.getIconBytes().ifPresent(this.serverData::setIconBytes);
             this.serverData.setEnforcesSecureChat(param0.enforcesSecureChat());
             ServerList.saveSingleServer(this.serverData);
             if (!param0.enforcesSecureChat()) {

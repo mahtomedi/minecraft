@@ -34,7 +34,7 @@ public class SkeletonHorse extends AbstractHorse {
 
     @Override
     protected void randomizeAttributes(RandomSource param0) {
-        this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength(param0));
+        this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(generateJumpStrength(param0::nextDouble));
     }
 
     @Override

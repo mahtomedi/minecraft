@@ -6,10 +6,12 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Blocks;
 
 public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
@@ -30,6 +32,7 @@ public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
         hangingSign(param0, Items.BIRCH_HANGING_SIGN, Blocks.STRIPPED_BIRCH_LOG);
         hangingSign(param0, Items.JUNGLE_HANGING_SIGN, Blocks.STRIPPED_JUNGLE_LOG);
         hangingSign(param0, Items.ACACIA_HANGING_SIGN, Blocks.STRIPPED_ACACIA_LOG);
+        hangingSign(param0, Items.CHERRY_HANGING_SIGN, Blocks.STRIPPED_CHERRY_LOG);
         hangingSign(param0, Items.DARK_OAK_HANGING_SIGN, Blocks.STRIPPED_DARK_OAK_LOG);
         hangingSign(param0, Items.MANGROVE_HANGING_SIGN, Blocks.STRIPPED_MANGROVE_LOG);
         hangingSign(param0, Items.BAMBOO_HANGING_SIGN, Items.STRIPPED_BAMBOO_BLOCK);
@@ -75,5 +78,13 @@ public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
         copySmithingTemplate(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE, Items.BLACKSTONE);
         copySmithingTemplate(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, Items.NETHERRACK);
         copySmithingTemplate(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.PURPUR_BLOCK);
+        oneToOneConversionRecipe(param0, Items.ORANGE_DYE, Blocks.TORCHFLOWER, "orange_dye");
+        planksFromLog(param0, Blocks.CHERRY_PLANKS, ItemTags.CHERRY_LOGS, 4);
+        woodFromLogs(param0, Blocks.CHERRY_WOOD, Blocks.CHERRY_LOG);
+        woodFromLogs(param0, Blocks.STRIPPED_CHERRY_WOOD, Blocks.STRIPPED_CHERRY_LOG);
+        woodenBoat(param0, Items.CHERRY_BOAT, Blocks.CHERRY_PLANKS);
+        chestBoat(param0, Items.CHERRY_CHEST_BOAT, Items.CHERRY_BOAT);
+        oneToOneConversionRecipe(param0, Items.PINK_DYE, Items.PINK_PETALS, "pink_dye", 1);
+        SpecialRecipeBuilder.special(RecipeSerializer.DECORATED_POT_RECIPE).save(param0, "decorated_pot");
     }
 }

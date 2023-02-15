@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Stream;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -220,7 +221,8 @@ public final class ModelPart {
             float param10,
             boolean param11,
             float param12,
-            float param13
+            float param13,
+            Set<Direction> param14
         ) {
             this.minX = param2;
             this.minY = param3;
@@ -228,7 +230,7 @@ public final class ModelPart {
             this.maxX = param2 + param5;
             this.maxY = param3 + param6;
             this.maxZ = param4 + param7;
-            this.polygons = new ModelPart.Polygon[6];
+            this.polygons = new ModelPart.Polygon[param14.size()];
             float var0 = param2 + param5;
             float var1 = param3 + param6;
             float var2 = param4 + param7;
@@ -261,24 +263,43 @@ public final class ModelPart {
             float var18 = (float)param1;
             float var19 = (float)param1 + param7;
             float var20 = (float)param1 + param7 + param6;
-            this.polygons[2] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var9, var8, var4, var5}, var13, var18, var14, var19, param12, param13, param11, Direction.DOWN
-            );
-            this.polygons[3] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var6, var7, var11, var10}, var14, var19, var15, var18, param12, param13, param11, Direction.UP
-            );
-            this.polygons[1] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var4, var8, var11, var7}, var12, var19, var13, var20, param12, param13, param11, Direction.WEST
-            );
-            this.polygons[4] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var5, var4, var7, var6}, var13, var19, var14, var20, param12, param13, param11, Direction.NORTH
-            );
-            this.polygons[0] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var9, var5, var6, var10}, var14, var19, var16, var20, param12, param13, param11, Direction.EAST
-            );
-            this.polygons[5] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var8, var9, var10, var11}, var16, var19, var17, var20, param12, param13, param11, Direction.SOUTH
-            );
+            int var21 = 0;
+            if (param14.contains(Direction.DOWN)) {
+                this.polygons[var21++] = new ModelPart.Polygon(
+                    new ModelPart.Vertex[]{var9, var8, var4, var5}, var13, var18, var14, var19, param12, param13, param11, Direction.DOWN
+                );
+            }
+
+            if (param14.contains(Direction.UP)) {
+                this.polygons[var21++] = new ModelPart.Polygon(
+                    new ModelPart.Vertex[]{var6, var7, var11, var10}, var14, var19, var15, var18, param12, param13, param11, Direction.UP
+                );
+            }
+
+            if (param14.contains(Direction.WEST)) {
+                this.polygons[var21++] = new ModelPart.Polygon(
+                    new ModelPart.Vertex[]{var4, var8, var11, var7}, var12, var19, var13, var20, param12, param13, param11, Direction.WEST
+                );
+            }
+
+            if (param14.contains(Direction.NORTH)) {
+                this.polygons[var21++] = new ModelPart.Polygon(
+                    new ModelPart.Vertex[]{var5, var4, var7, var6}, var13, var19, var14, var20, param12, param13, param11, Direction.NORTH
+                );
+            }
+
+            if (param14.contains(Direction.EAST)) {
+                this.polygons[var21++] = new ModelPart.Polygon(
+                    new ModelPart.Vertex[]{var9, var5, var6, var10}, var14, var19, var16, var20, param12, param13, param11, Direction.EAST
+                );
+            }
+
+            if (param14.contains(Direction.SOUTH)) {
+                this.polygons[var21] = new ModelPart.Polygon(
+                    new ModelPart.Vertex[]{var8, var9, var10, var11}, var16, var19, var17, var20, param12, param13, param11, Direction.SOUTH
+                );
+            }
+
         }
 
         public void compile(PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {

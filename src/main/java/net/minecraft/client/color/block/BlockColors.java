@@ -48,6 +48,13 @@ public class BlockColors {
             Blocks.GRASS,
             Blocks.POTTED_FERN
         );
+        var0.register((param0, param1, param2, param3) -> {
+            if (param3 != 0) {
+                return param1 != null && param2 != null ? BiomeColors.getAverageGrassColor(param1, param2) : GrassColor.get(0.5, 1.0);
+            } else {
+                return -1;
+            }
+        }, Blocks.PINK_PETALS);
         var0.register((param0, param1, param2, param3) -> FoliageColor.getEvergreenColor(), Blocks.SPRUCE_LEAVES);
         var0.register((param0, param1, param2, param3) -> FoliageColor.getBirchColor(), Blocks.BIRCH_LEAVES);
         var0.register(

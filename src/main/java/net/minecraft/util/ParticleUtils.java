@@ -64,4 +64,11 @@ public class ParticleUtils {
         double var9 = var3 == 0 ? param4.z() : 0.0;
         param0.addParticle(param3, var4, var5, var6, var7, var8, var9);
     }
+
+    public static void spawnParticleBelow(Level param0, BlockPos param1, RandomSource param2, ParticleOptions param3) {
+        double var0 = (double)param1.getX() + param2.nextDouble();
+        double var1 = (double)param1.getY() - 0.05;
+        double var2 = (double)param1.getZ() + param2.nextDouble();
+        param0.addParticle(param3, var0, var1, var2, 0.0, 0.0, 0.0);
+    }
 }

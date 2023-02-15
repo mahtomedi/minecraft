@@ -148,7 +148,7 @@ public class MapRenderer implements AutoCloseable {
                         );
                         param0.scale(var18, var18, 1.0F);
                         param0.translate(0.0F, 0.0F, -0.1F);
-                        var15.drawInBatch(var16, 0.0F, 0.0F, -1, false, param0.last().pose(), param1, false, Integer.MIN_VALUE, param3);
+                        var15.drawInBatch(var16, 0.0F, 0.0F, -1, false, param0.last().pose(), param1, Font.DisplayMode.NORMAL, Integer.MIN_VALUE, param3);
                         param0.popPose();
                     }
 

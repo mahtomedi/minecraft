@@ -27,6 +27,7 @@ public class TreePlacements {
     public static final ResourceKey<PlacedFeature> ACACIA_CHECKED = PlacementUtils.createKey("acacia_checked");
     public static final ResourceKey<PlacedFeature> SPRUCE_CHECKED = PlacementUtils.createKey("spruce_checked");
     public static final ResourceKey<PlacedFeature> MANGROVE_CHECKED = PlacementUtils.createKey("mangrove_checked");
+    public static final ResourceKey<PlacedFeature> CHERRY_CHECKED = PlacementUtils.createKey("cherry_checked");
     public static final ResourceKey<PlacedFeature> PINE_ON_SNOW = PlacementUtils.createKey("pine_on_snow");
     public static final ResourceKey<PlacedFeature> SPRUCE_ON_SNOW = PlacementUtils.createKey("spruce_on_snow");
     public static final ResourceKey<PlacedFeature> PINE_CHECKED = PlacementUtils.createKey("pine_checked");
@@ -46,6 +47,7 @@ public class TreePlacements {
     public static final ResourceKey<PlacedFeature> FANCY_OAK_BEES_0002 = PlacementUtils.createKey("fancy_oak_bees_0002");
     public static final ResourceKey<PlacedFeature> FANCY_OAK_BEES_002 = PlacementUtils.createKey("fancy_oak_bees_002");
     public static final ResourceKey<PlacedFeature> FANCY_OAK_BEES = PlacementUtils.createKey("fancy_oak_bees");
+    public static final ResourceKey<PlacedFeature> CHERRY_BEES_005 = PlacementUtils.createKey("cherry_bees_005");
 
     public static void bootstrap(BootstapContext<PlacedFeature> param0) {
         HolderGetter<ConfiguredFeature<?, ?>> var0 = param0.lookup(Registries.CONFIGURED_FEATURE);
@@ -57,23 +59,25 @@ public class TreePlacements {
         Holder<ConfiguredFeature<?, ?>> var6 = var0.getOrThrow(TreeFeatures.ACACIA);
         Holder<ConfiguredFeature<?, ?>> var7 = var0.getOrThrow(TreeFeatures.SPRUCE);
         Holder<ConfiguredFeature<?, ?>> var8 = var0.getOrThrow(TreeFeatures.MANGROVE);
-        Holder<ConfiguredFeature<?, ?>> var9 = var0.getOrThrow(TreeFeatures.PINE);
-        Holder<ConfiguredFeature<?, ?>> var10 = var0.getOrThrow(TreeFeatures.JUNGLE_TREE);
-        Holder<ConfiguredFeature<?, ?>> var11 = var0.getOrThrow(TreeFeatures.FANCY_OAK);
-        Holder<ConfiguredFeature<?, ?>> var12 = var0.getOrThrow(TreeFeatures.MEGA_JUNGLE_TREE);
-        Holder<ConfiguredFeature<?, ?>> var13 = var0.getOrThrow(TreeFeatures.MEGA_SPRUCE);
-        Holder<ConfiguredFeature<?, ?>> var14 = var0.getOrThrow(TreeFeatures.MEGA_PINE);
-        Holder<ConfiguredFeature<?, ?>> var15 = var0.getOrThrow(TreeFeatures.TALL_MANGROVE);
-        Holder<ConfiguredFeature<?, ?>> var16 = var0.getOrThrow(TreeFeatures.JUNGLE_BUSH);
-        Holder<ConfiguredFeature<?, ?>> var17 = var0.getOrThrow(TreeFeatures.SUPER_BIRCH_BEES_0002);
-        Holder<ConfiguredFeature<?, ?>> var18 = var0.getOrThrow(TreeFeatures.SUPER_BIRCH_BEES);
-        Holder<ConfiguredFeature<?, ?>> var19 = var0.getOrThrow(TreeFeatures.OAK_BEES_0002);
-        Holder<ConfiguredFeature<?, ?>> var20 = var0.getOrThrow(TreeFeatures.OAK_BEES_002);
-        Holder<ConfiguredFeature<?, ?>> var21 = var0.getOrThrow(TreeFeatures.BIRCH_BEES_0002);
-        Holder<ConfiguredFeature<?, ?>> var22 = var0.getOrThrow(TreeFeatures.BIRCH_BEES_002);
-        Holder<ConfiguredFeature<?, ?>> var23 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES_0002);
-        Holder<ConfiguredFeature<?, ?>> var24 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES_002);
-        Holder<ConfiguredFeature<?, ?>> var25 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES);
+        Holder<ConfiguredFeature<?, ?>> var9 = var0.getOrThrow(TreeFeatures.CHERRY);
+        Holder<ConfiguredFeature<?, ?>> var10 = var0.getOrThrow(TreeFeatures.PINE);
+        Holder<ConfiguredFeature<?, ?>> var11 = var0.getOrThrow(TreeFeatures.JUNGLE_TREE);
+        Holder<ConfiguredFeature<?, ?>> var12 = var0.getOrThrow(TreeFeatures.FANCY_OAK);
+        Holder<ConfiguredFeature<?, ?>> var13 = var0.getOrThrow(TreeFeatures.MEGA_JUNGLE_TREE);
+        Holder<ConfiguredFeature<?, ?>> var14 = var0.getOrThrow(TreeFeatures.MEGA_SPRUCE);
+        Holder<ConfiguredFeature<?, ?>> var15 = var0.getOrThrow(TreeFeatures.MEGA_PINE);
+        Holder<ConfiguredFeature<?, ?>> var16 = var0.getOrThrow(TreeFeatures.TALL_MANGROVE);
+        Holder<ConfiguredFeature<?, ?>> var17 = var0.getOrThrow(TreeFeatures.JUNGLE_BUSH);
+        Holder<ConfiguredFeature<?, ?>> var18 = var0.getOrThrow(TreeFeatures.SUPER_BIRCH_BEES_0002);
+        Holder<ConfiguredFeature<?, ?>> var19 = var0.getOrThrow(TreeFeatures.SUPER_BIRCH_BEES);
+        Holder<ConfiguredFeature<?, ?>> var20 = var0.getOrThrow(TreeFeatures.OAK_BEES_0002);
+        Holder<ConfiguredFeature<?, ?>> var21 = var0.getOrThrow(TreeFeatures.OAK_BEES_002);
+        Holder<ConfiguredFeature<?, ?>> var22 = var0.getOrThrow(TreeFeatures.BIRCH_BEES_0002);
+        Holder<ConfiguredFeature<?, ?>> var23 = var0.getOrThrow(TreeFeatures.BIRCH_BEES_002);
+        Holder<ConfiguredFeature<?, ?>> var24 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES_0002);
+        Holder<ConfiguredFeature<?, ?>> var25 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES_002);
+        Holder<ConfiguredFeature<?, ?>> var26 = var0.getOrThrow(TreeFeatures.FANCY_OAK_BEES);
+        Holder<ConfiguredFeature<?, ?>> var27 = var0.getOrThrow(TreeFeatures.CHERRY_BEES_005);
         PlacementUtils.register(param0, CRIMSON_FUNGI, var1, CountOnEveryLayerPlacement.of(8), BiomeFilter.biome());
         PlacementUtils.register(param0, WARPED_FUNGI, var2, CountOnEveryLayerPlacement.of(8), BiomeFilter.biome());
         PlacementUtils.register(param0, OAK_CHECKED, var3, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
@@ -82,29 +86,31 @@ public class TreePlacements {
         PlacementUtils.register(param0, ACACIA_CHECKED, var6, PlacementUtils.filteredByBlockSurvival(Blocks.ACACIA_SAPLING));
         PlacementUtils.register(param0, SPRUCE_CHECKED, var7, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
         PlacementUtils.register(param0, MANGROVE_CHECKED, var8, PlacementUtils.filteredByBlockSurvival(Blocks.MANGROVE_PROPAGULE));
-        BlockPredicate var26 = BlockPredicate.matchesBlocks(Direction.DOWN.getNormal(), Blocks.SNOW_BLOCK, Blocks.POWDER_SNOW);
-        List<PlacementModifier> var27 = List.of(
+        PlacementUtils.register(param0, CHERRY_CHECKED, var9, PlacementUtils.filteredByBlockSurvival(Blocks.CHERRY_SAPLING));
+        BlockPredicate var28 = BlockPredicate.matchesBlocks(Direction.DOWN.getNormal(), Blocks.SNOW_BLOCK, Blocks.POWDER_SNOW);
+        List<PlacementModifier> var29 = List.of(
             EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.not(BlockPredicate.matchesBlocks(Blocks.POWDER_SNOW)), 8),
-            BlockPredicateFilter.forPredicate(var26)
+            BlockPredicateFilter.forPredicate(var28)
         );
-        PlacementUtils.register(param0, PINE_ON_SNOW, var9, var27);
-        PlacementUtils.register(param0, SPRUCE_ON_SNOW, var7, var27);
-        PlacementUtils.register(param0, PINE_CHECKED, var9, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
-        PlacementUtils.register(param0, JUNGLE_TREE_CHECKED, var10, PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING));
-        PlacementUtils.register(param0, FANCY_OAK_CHECKED, var11, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, MEGA_JUNGLE_TREE_CHECKED, var12, PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING));
-        PlacementUtils.register(param0, MEGA_SPRUCE_CHECKED, var13, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
-        PlacementUtils.register(param0, MEGA_PINE_CHECKED, var14, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
-        PlacementUtils.register(param0, TALL_MANGROVE_CHECKED, var15, PlacementUtils.filteredByBlockSurvival(Blocks.MANGROVE_PROPAGULE));
-        PlacementUtils.register(param0, JUNGLE_BUSH, var16, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, SUPER_BIRCH_BEES_0002, var17, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
-        PlacementUtils.register(param0, SUPER_BIRCH_BEES, var18, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
-        PlacementUtils.register(param0, OAK_BEES_0002, var19, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, OAK_BEES_002, var20, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, BIRCH_BEES_0002_PLACED, var21, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
-        PlacementUtils.register(param0, BIRCH_BEES_002, var22, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
-        PlacementUtils.register(param0, FANCY_OAK_BEES_0002, var23, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, FANCY_OAK_BEES_002, var24, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
-        PlacementUtils.register(param0, FANCY_OAK_BEES, var25, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, PINE_ON_SNOW, var10, var29);
+        PlacementUtils.register(param0, SPRUCE_ON_SNOW, var7, var29);
+        PlacementUtils.register(param0, PINE_CHECKED, var10, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
+        PlacementUtils.register(param0, JUNGLE_TREE_CHECKED, var11, PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING));
+        PlacementUtils.register(param0, FANCY_OAK_CHECKED, var12, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, MEGA_JUNGLE_TREE_CHECKED, var13, PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING));
+        PlacementUtils.register(param0, MEGA_SPRUCE_CHECKED, var14, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
+        PlacementUtils.register(param0, MEGA_PINE_CHECKED, var15, PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
+        PlacementUtils.register(param0, TALL_MANGROVE_CHECKED, var16, PlacementUtils.filteredByBlockSurvival(Blocks.MANGROVE_PROPAGULE));
+        PlacementUtils.register(param0, JUNGLE_BUSH, var17, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, SUPER_BIRCH_BEES_0002, var18, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
+        PlacementUtils.register(param0, SUPER_BIRCH_BEES, var19, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
+        PlacementUtils.register(param0, OAK_BEES_0002, var20, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, OAK_BEES_002, var21, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, BIRCH_BEES_0002_PLACED, var22, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
+        PlacementUtils.register(param0, BIRCH_BEES_002, var23, PlacementUtils.filteredByBlockSurvival(Blocks.BIRCH_SAPLING));
+        PlacementUtils.register(param0, FANCY_OAK_BEES_0002, var24, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, FANCY_OAK_BEES_002, var25, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, FANCY_OAK_BEES, var26, PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING));
+        PlacementUtils.register(param0, CHERRY_BEES_005, var27, PlacementUtils.filteredByBlockSurvival(Blocks.CHERRY_SAPLING));
     }
 }

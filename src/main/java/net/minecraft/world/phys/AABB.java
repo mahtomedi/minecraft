@@ -473,6 +473,13 @@ public class AABB {
         }
     }
 
+    public double distanceToSqr(Vec3 param0) {
+        double var0 = Math.max(Math.max(this.minX - param0.x, param0.x - this.maxX), 0.0);
+        double var1 = Math.max(Math.max(this.minY - param0.y, param0.y - this.maxY), 0.0);
+        double var2 = Math.max(Math.max(this.minZ - param0.z, param0.z - this.maxZ), 0.0);
+        return Mth.lengthSquared(var0, var1, var2);
+    }
+
     @Override
     public String toString() {
         return "AABB[" + this.minX + ", " + this.minY + ", " + this.minZ + "] -> [" + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";

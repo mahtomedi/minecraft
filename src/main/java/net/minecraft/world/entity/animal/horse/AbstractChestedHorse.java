@@ -30,7 +30,7 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
 
     @Override
     protected void randomizeAttributes(RandomSource param0) {
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)this.generateRandomMaxHealth(param0));
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)generateMaxHealth(param0::nextInt));
     }
 
     @Override

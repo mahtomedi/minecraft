@@ -39,7 +39,7 @@ public class BlockBlobFeature extends Feature<BlockStateConfiguration> {
 
                 for(BlockPos var10 : BlockPos.betweenClosed(var0.offset(-var6, -var7, -var8), var0.offset(var6, var7, var8))) {
                     if (var10.distSqr(var0) <= (double)(var9 * var9)) {
-                        var1.setBlock(var10, var3.state, 4);
+                        var1.setBlock(var10, var3.state, 3);
                     }
                 }
 

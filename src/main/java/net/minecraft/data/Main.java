@@ -46,6 +46,7 @@ import net.minecraft.data.tags.PaintingVariantTagsProvider;
 import net.minecraft.data.tags.PoiTypeTagsProvider;
 import net.minecraft.data.tags.StructureTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyBiomeTagsProvider;
 import net.minecraft.data.tags.UpdateOneTwentyBlockTagsProvider;
 import net.minecraft.data.tags.UpdateOneTwentyItemTagsProvider;
 import net.minecraft.data.tags.VanillaBlockTagsProvider;
@@ -154,13 +155,14 @@ public class Main {
                     param0x, Component.translatable("dataPack.bundle.description"), FeatureFlagSet.of(FeatureFlags.BUNDLE)
                 )
         );
-        CompletableFuture<HolderLookup.Provider> var9 = CompletableFuture.supplyAsync(UpdateOneTwentyRegistries::createLookup, Util.backgroundExecutor());
+        CompletableFuture<HolderLookup.Provider> var9 = UpdateOneTwentyRegistries.createLookup(var2);
         DataGenerator.PackGenerator var10 = var0.getBuiltinDatapack(param3, "update_1_20");
         var10.addProvider(UpdateOneTwentyRecipeProvider::new);
-        TagsProvider<Block> var11 = var10.addProvider(bindRegistries(UpdateOneTwentyBlockTagsProvider::new, var2));
-        var10.addProvider(param2x -> new UpdateOneTwentyItemTagsProvider(param2x, var2, var11));
+        TagsProvider<Block> var11 = var10.addProvider(bindRegistries(UpdateOneTwentyBlockTagsProvider::new, var9));
+        var10.addProvider(param2x -> new UpdateOneTwentyItemTagsProvider(param2x, var9, var11));
+        var10.addProvider(bindRegistries(UpdateOneTwentyBiomeTagsProvider::new, var9));
         var10.addProvider(UpdateOneTwentyLootTableProvider::create);
-        var10.addProvider(bindRegistries(UpdateOneTwentyVanillaAdvancementProvider::create, var2));
+        var10.addProvider(bindRegistries(UpdateOneTwentyVanillaAdvancementProvider::create, var9));
         var10.addProvider(bindRegistries(RegistriesDatapackGenerator::new, var9));
         var10.addProvider(
             param0x -> PackMetadataGenerator.forFeaturePack(

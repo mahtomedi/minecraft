@@ -195,7 +195,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
 
     private static boolean tryTakeInItemFromSlot(Hopper param0, Container param1, int param2, Direction param3) {
         ItemStack var0 = param1.getItem(param2);
-        if (!var0.isEmpty() && canTakeItemFromContainer(param1, var0, param2, param3)) {
+        if (!var0.isEmpty() && canTakeItemFromContainer(param0, param1, var0, param2, param3)) {
             ItemStack var1 = var0.copy();
             ItemStack var2 = addItem(param1, param0, param1.removeItem(param2, 1), null);
             if (var2.isEmpty()) {
@@ -230,12 +230,14 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
             for(int var2 = 0; var2 < var1.length && !param2.isEmpty(); ++var2) {
                 param2 = tryMoveInItem(param0, param1, param2, var1[var2], param3);
             }
-        } else {
-            int var3 = param1.getContainerSize();
 
-            for(int var4 = 0; var4 < var3 && !param2.isEmpty(); ++var4) {
-                param2 = tryMoveInItem(param0, param1, param2, var4, param3);
-            }
+            return param2;
+        }
+
+        int var3 = param1.getContainerSize();
+
+        for(int var4 = 0; var4 < var3 && !param2.isEmpty(); ++var4) {
+            param2 = tryMoveInItem(param0, param1, param2, var4, param3);
         }
 
         return param2;
@@ -245,12 +247,24 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
         if (!param0.canPlaceItem(param2, param1)) {
             return false;
         } else {
-            return !(param0 instanceof WorldlyContainer) || ((WorldlyContainer)param0).canPlaceItemThroughFace(param2, param1, param3);
+            if (param0 instanceof WorldlyContainer var0 && !var0.canPlaceItemThroughFace(param2, param1, param3)) {
+                return false;
+            }
+
+            return true;
         }
     }
 
-    private static boolean canTakeItemFromContainer(Container param0, ItemStack param1, int param2, Direction param3) {
-        return !(param0 instanceof WorldlyContainer) || ((WorldlyContainer)param0).canTakeItemThroughFace(param2, param1, param3);
+    private static boolean canTakeItemFromContainer(Container param0, Container param1, ItemStack param2, int param3, Direction param4) {
+        if (!param1.canTakeItem(param0, param3, param2)) {
+            return false;
+        } else {
+            if (param1 instanceof WorldlyContainer var0 && !var0.canTakeItemThroughFace(param3, param2, param4)) {
+                return false;
+            }
+
+            return true;
+        }
     }
 
     private static ItemStack tryMoveInItem(@Nullable Container param0, Container param1, ItemStack param2, int param3, @Nullable Direction param4) {
@@ -355,10 +369,8 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
             return false;
         } else if (param0.getDamageValue() != param1.getDamageValue()) {
             return false;
-        } else if (param0.getCount() > param0.getMaxStackSize()) {
-            return false;
         } else {
-            return ItemStack.tagMatches(param0, param1);
+            return param0.getCount() > param0.getMaxStackSize() ? false : ItemStack.tagMatches(param0, param1);
         }
     }
 

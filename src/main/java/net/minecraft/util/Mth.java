@@ -482,7 +482,7 @@ public class Mth {
         return param0;
     }
 
-    public static int lerp(float param0, int param1, int param2) {
+    public static int lerpInt(float param0, int param1, int param2) {
         return param1 + floor(param0 * (float)(param2 - param1));
     }
 

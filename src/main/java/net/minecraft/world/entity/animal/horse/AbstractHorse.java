@@ -1,6 +1,8 @@
 package net.minecraft.world.entity.animal.horse;
 
 import java.util.UUID;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -43,6 +45,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.Saddleable;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -76,6 +79,13 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     public static final int EQUIPMENT_SLOT_OFFSET = 400;
     public static final int CHEST_SLOT_OFFSET = 499;
     public static final int INVENTORY_SLOT_OFFSET = 500;
+    public static final double BREEDING_CROSS_FACTOR = 0.15;
+    private static final float MIN_MOVEMENT_SPEED = (float)generateSpeed(() -> 0.0);
+    private static final float MAX_MOVEMENT_SPEED = (float)generateSpeed(() -> 1.0);
+    private static final float MIN_JUMP_STRENGTH = (float)generateJumpStrength(() -> 0.0);
+    private static final float MAX_JUMP_STRENGTH = (float)generateJumpStrength(() -> 1.0);
+    private static final float MIN_HEALTH = generateMaxHealth(param0 -> 0);
+    private static final float MAX_HEALTH = generateMaxHealth(param0 -> param0 - 1);
     private static final Predicate<LivingEntity> PARENT_HORSE_SELECTOR = param0 -> param0 instanceof AbstractHorse && ((AbstractHorse)param0).isBred();
     private static final TargetingConditions MOMMY_TARGETING = TargetingConditions.forNonCombat()
         .range(16.0)
@@ -882,18 +892,37 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     protected void setOffspringAttributes(AgeableMob param0, AbstractHorse param1) {
-        double var0 = this.getAttributeBaseValue(Attributes.MAX_HEALTH)
-            + param0.getAttributeBaseValue(Attributes.MAX_HEALTH)
-            + (double)this.generateRandomMaxHealth(this.random);
-        param1.getAttribute(Attributes.MAX_HEALTH).setBaseValue(var0 / 3.0);
-        double var1 = this.getAttributeBaseValue(Attributes.JUMP_STRENGTH)
-            + param0.getAttributeBaseValue(Attributes.JUMP_STRENGTH)
-            + this.generateRandomJumpStrength(this.random);
-        param1.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(var1 / 3.0);
-        double var2 = this.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
-            + param0.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
-            + this.generateRandomSpeed(this.random);
-        param1.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(var2 / 3.0);
+        this.setOffspringAttribute(param0, param1, Attributes.MAX_HEALTH, (double)MIN_HEALTH, (double)MAX_HEALTH);
+        this.setOffspringAttribute(param0, param1, Attributes.JUMP_STRENGTH, (double)MIN_JUMP_STRENGTH, (double)MAX_JUMP_STRENGTH);
+        this.setOffspringAttribute(param0, param1, Attributes.MOVEMENT_SPEED, (double)MIN_MOVEMENT_SPEED, (double)MAX_MOVEMENT_SPEED);
+    }
+
+    private void setOffspringAttribute(AgeableMob param0, AbstractHorse param1, Attribute param2, double param3, double param4) {
+        double var0 = createOffspringAttribute(this.getAttributeBaseValue(param2), param0.getAttributeBaseValue(param2), param3, param4, this.random);
+        param1.getAttribute(param2).setBaseValue(var0);
+    }
+
+    static double createOffspringAttribute(double param0, double param1, double param2, double param3, RandomSource param4) {
+        if (param3 <= param2) {
+            throw new IllegalArgumentException("Incorrect range for an attribute");
+        } else {
+            param0 = Mth.clamp(param0, param2, param3);
+            param1 = Mth.clamp(param1, param2, param3);
+            double var0 = 0.15 * (param3 - param2);
+            double var1 = Math.abs(param0 - param1) + var0 * 2.0;
+            double var2 = (param0 + param1) / 2.0;
+            double var3 = (param4.nextDouble() + param4.nextDouble() + param4.nextDouble()) / 3.0 - 0.5;
+            double var4 = var2 + var1 * var3;
+            if (var4 > param3) {
+                double var5 = var4 - param3;
+                return param3 - var5;
+            } else if (var4 < param2) {
+                double var6 = param2 - var4;
+                return param2 + var6;
+            } else {
+                return var4;
+            }
+        }
     }
 
     public float getEatAnim(float param0) {
@@ -991,16 +1020,16 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     }
 
-    protected float generateRandomMaxHealth(RandomSource param0) {
-        return 15.0F + (float)param0.nextInt(8) + (float)param0.nextInt(9);
+    protected static float generateMaxHealth(IntUnaryOperator param0) {
+        return 15.0F + (float)param0.applyAsInt(8) + (float)param0.applyAsInt(9);
     }
 
-    protected double generateRandomJumpStrength(RandomSource param0) {
-        return 0.4F + param0.nextDouble() * 0.2 + param0.nextDouble() * 0.2 + param0.nextDouble() * 0.2;
+    protected static double generateJumpStrength(DoubleSupplier param0) {
+        return 0.4F + param0.getAsDouble() * 0.2 + param0.getAsDouble() * 0.2 + param0.getAsDouble() * 0.2;
     }
 
-    protected double generateRandomSpeed(RandomSource param0) {
-        return (0.45F + param0.nextDouble() * 0.3 + param0.nextDouble() * 0.3 + param0.nextDouble() * 0.3) * 0.25;
+    protected static double generateSpeed(DoubleSupplier param0) {
+        return (0.45F + param0.getAsDouble() * 0.3 + param0.getAsDouble() * 0.3 + param0.getAsDouble() * 0.3) * 0.25;
     }
 
     @Override

@@ -305,6 +305,31 @@ public class BlockModelGenerators {
         this.blockStateOutput.accept(createRotatedVariant(param0, var0));
     }
 
+    private void createSuspiciousSandBlock() {
+        this.blockStateOutput
+            .accept(
+                MultiVariantGenerator.multiVariant(Blocks.SUSPICIOUS_SAND)
+                    .with(
+                        PropertyDispatch.property(BlockStateProperties.DUSTED)
+                            .generate(
+                                param0 -> {
+                                    String var0 = "_" + param0;
+                                    ResourceLocation var1 = TextureMapping.getBlockTexture(Blocks.SUSPICIOUS_SAND, var0);
+                                    return Variant.variant()
+                                        .with(
+                                            VariantProperties.MODEL,
+                                            ModelTemplates.CUBE_ALL
+                                                .createWithSuffix(
+                                                    Blocks.SUSPICIOUS_SAND, var0, new TextureMapping().put(TextureSlot.ALL, var1), this.modelOutput
+                                                )
+                                        );
+                                }
+                            )
+                    )
+            );
+        this.delegateItemModel(Blocks.SUSPICIOUS_SAND, TextureMapping.getBlockTexture(Blocks.SUSPICIOUS_SAND, "_0"));
+    }
+
     static BlockStateGenerator createButton(Block param0, ResourceLocation param1, ResourceLocation param2) {
         return MultiVariantGenerator.multiVariant(param0)
             .with(
@@ -1322,6 +1347,21 @@ public class BlockModelGenerators {
         this.blockStateOutput.accept(createSimpleBlock(param0, var0));
     }
 
+    private void createCrossBlock(Block param0, BlockModelGenerators.TintState param1, Property<Integer> param2, int... param3) {
+        if (param2.getPossibleValues().size() != param3.length) {
+            throw new IllegalArgumentException("missing values for property: " + param2);
+        } else {
+            PropertyDispatch var0 = PropertyDispatch.property(param2).generate(param3x -> {
+                String var0x = "_stage" + param3[param3x];
+                TextureMapping var1x = TextureMapping.cross(TextureMapping.getBlockTexture(param0, var0x));
+                ResourceLocation var2x = param1.getCross().createWithSuffix(param0, var0x, var1x, this.modelOutput);
+                return Variant.variant().with(VariantProperties.MODEL, var2x);
+            });
+            this.createSimpleFlatItemModel(param0.asItem());
+            this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(param0).with(var0));
+        }
+    }
+
     private void createPlant(Block param0, Block param1, BlockModelGenerators.TintState param2) {
         this.createCrossBlockWithDefaultItem(param0, param2);
         TextureMapping var0 = TextureMapping.plant(param0);
@@ -1529,6 +1569,86 @@ public class BlockModelGenerators {
         this.createTrivialCube(param0);
         ResourceLocation var0 = TexturedModel.CARPET.get(param0).create(param1, this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(param1, var0));
+    }
+
+    private void createFlowerBed(Block param0) {
+        this.createSimpleFlatItemModel(param0.asItem());
+        ResourceLocation var0 = TexturedModel.FLOWERBED_1.create(param0, this.modelOutput);
+        ResourceLocation var1 = TexturedModel.FLOWERBED_2.create(param0, this.modelOutput);
+        ResourceLocation var2 = TexturedModel.FLOWERBED_3.create(param0, this.modelOutput);
+        ResourceLocation var3 = TexturedModel.FLOWERBED_4.create(param0, this.modelOutput);
+        this.blockStateOutput
+            .accept(
+                MultiPartGenerator.multiPart(param0)
+                    .with(
+                        Condition.condition()
+                            .term(BlockStateProperties.FLOWER_AMOUNT, 1, 2, 3, 4)
+                            .term(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH),
+                        Variant.variant().with(VariantProperties.MODEL, var0)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 1, 2, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST),
+                        Variant.variant().with(VariantProperties.MODEL, var0).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+                    )
+                    .with(
+                        Condition.condition()
+                            .term(BlockStateProperties.FLOWER_AMOUNT, 1, 2, 3, 4)
+                            .term(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH),
+                        Variant.variant().with(VariantProperties.MODEL, var0).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 1, 2, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST),
+                        Variant.variant().with(VariantProperties.MODEL, var0).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 2, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH),
+                        Variant.variant().with(VariantProperties.MODEL, var1)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 2, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST),
+                        Variant.variant().with(VariantProperties.MODEL, var1).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 2, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH),
+                        Variant.variant().with(VariantProperties.MODEL, var1).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 2, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST),
+                        Variant.variant().with(VariantProperties.MODEL, var1).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH),
+                        Variant.variant().with(VariantProperties.MODEL, var2)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST),
+                        Variant.variant().with(VariantProperties.MODEL, var2).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH),
+                        Variant.variant().with(VariantProperties.MODEL, var2).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 3, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST),
+                        Variant.variant().with(VariantProperties.MODEL, var2).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH),
+                        Variant.variant().with(VariantProperties.MODEL, var3)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST),
+                        Variant.variant().with(VariantProperties.MODEL, var3).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH),
+                        Variant.variant().with(VariantProperties.MODEL, var3).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
+                    )
+                    .with(
+                        Condition.condition().term(BlockStateProperties.FLOWER_AMOUNT, 4).term(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST),
+                        Variant.variant().with(VariantProperties.MODEL, var3).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
+                    )
+            );
     }
 
     private void createColoredBlockWithRandomRotations(TexturedModel.Provider param0, Block... param1) {
@@ -4110,6 +4230,7 @@ public class BlockModelGenerators {
         this.createPottedAzalea(Blocks.POTTED_FLOWERING_AZALEA);
         this.createCaveVines();
         this.createFullAndCarpetBlocks(Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET);
+        this.createFlowerBed(Blocks.PINK_PETALS);
         this.createAirLikeBlock(Blocks.BARRIER, Items.BARRIER);
         this.createSimpleFlatItemModel(Items.BARRIER);
         this.createLightBlock();
@@ -4273,6 +4394,7 @@ public class BlockModelGenerators {
         this.createRotatedVariantBlock(Blocks.DIRT);
         this.createRotatedVariantBlock(Blocks.ROOTED_DIRT);
         this.createRotatedVariantBlock(Blocks.SAND);
+        this.createSuspiciousSandBlock();
         this.createRotatedVariantBlock(Blocks.RED_SAND);
         this.createRotatedMirroredVariantBlock(Blocks.BEDROCK);
         this.createTrivialBlock(Blocks.REINFORCED_DEEPSLATE, TexturedModel.CUBE_TOP_BOTTOM);
@@ -4291,6 +4413,8 @@ public class BlockModelGenerators {
         this.createCropBlock(Blocks.NETHER_WART, BlockStateProperties.AGE_3, 0, 1, 1, 2);
         this.createCropBlock(Blocks.POTATOES, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
         this.createCropBlock(Blocks.WHEAT, BlockStateProperties.AGE_7, 0, 1, 2, 3, 4, 5, 6, 7);
+        this.createCrossBlock(Blocks.TORCHFLOWER_CROP, BlockModelGenerators.TintState.NOT_TINTED, BlockStateProperties.AGE_2, 0, 1, 2);
+        this.blockEntityModels(ModelLocationUtils.decorateBlockModelLocation("decorated_pot"), Blocks.TERRACOTTA).createWithoutBlockItem(Blocks.DECORATED_POT);
         this.blockEntityModels(ModelLocationUtils.decorateBlockModelLocation("banner"), Blocks.OAK_PLANKS)
             .createWithCustomBlockItemModel(
                 ModelTemplates.BANNER_INVENTORY,
@@ -4533,6 +4657,7 @@ public class BlockModelGenerators {
         this.createPlant(Blocks.RED_MUSHROOM, Blocks.POTTED_RED_MUSHROOM, BlockModelGenerators.TintState.NOT_TINTED);
         this.createPlant(Blocks.BROWN_MUSHROOM, Blocks.POTTED_BROWN_MUSHROOM, BlockModelGenerators.TintState.NOT_TINTED);
         this.createPlant(Blocks.DEAD_BUSH, Blocks.POTTED_DEAD_BUSH, BlockModelGenerators.TintState.NOT_TINTED);
+        this.createPlant(Blocks.TORCHFLOWER, Blocks.POTTED_TORCHFLOWER, BlockModelGenerators.TintState.NOT_TINTED);
         this.createPointedDripstone();
         this.createMushroomBlock(Blocks.BROWN_MUSHROOM_BLOCK);
         this.createMushroomBlock(Blocks.RED_MUSHROOM_BLOCK);
@@ -4626,6 +4751,11 @@ public class BlockModelGenerators {
         this.createHangingSign(Blocks.STRIPPED_ACACIA_LOG, Blocks.ACACIA_HANGING_SIGN, Blocks.ACACIA_WALL_HANGING_SIGN);
         this.createPlant(Blocks.ACACIA_SAPLING, Blocks.POTTED_ACACIA_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
         this.createTrivialBlock(Blocks.ACACIA_LEAVES, TexturedModel.LEAVES);
+        this.woodProvider(Blocks.CHERRY_LOG).logUVLocked(Blocks.CHERRY_LOG).wood(Blocks.CHERRY_WOOD);
+        this.woodProvider(Blocks.STRIPPED_CHERRY_LOG).logUVLocked(Blocks.STRIPPED_CHERRY_LOG).wood(Blocks.STRIPPED_CHERRY_WOOD);
+        this.createHangingSign(Blocks.STRIPPED_CHERRY_LOG, Blocks.CHERRY_HANGING_SIGN, Blocks.CHERRY_WALL_HANGING_SIGN);
+        this.createPlant(Blocks.CHERRY_SAPLING, Blocks.POTTED_CHERRY_SAPLING, BlockModelGenerators.TintState.NOT_TINTED);
+        this.createTrivialBlock(Blocks.CHERRY_LEAVES, TexturedModel.LEAVES);
         this.woodProvider(Blocks.BIRCH_LOG).logWithHorizontal(Blocks.BIRCH_LOG).wood(Blocks.BIRCH_WOOD);
         this.woodProvider(Blocks.STRIPPED_BIRCH_LOG).logWithHorizontal(Blocks.STRIPPED_BIRCH_LOG).wood(Blocks.STRIPPED_BIRCH_WOOD);
         this.createHangingSign(Blocks.STRIPPED_BIRCH_LOG, Blocks.BIRCH_HANGING_SIGN, Blocks.BIRCH_WALL_HANGING_SIGN);

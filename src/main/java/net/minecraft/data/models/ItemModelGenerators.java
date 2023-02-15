@@ -136,7 +136,9 @@ public class ItemModelGenerators {
 
     public void run() {
         this.generateFlatItem(Items.ACACIA_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.CHERRY_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.ACACIA_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.CHERRY_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.AMETHYST_SHARD, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.APPLE, ModelTemplates.FLAT_ITEM);
         this.generateFlatItem(Items.ARMOR_STAND, ModelTemplates.FLAT_ITEM);
@@ -383,6 +385,10 @@ public class ItemModelGenerators {
             }
         }
 
+        this.generateFlatItem(Items.POTTERY_SHARD_ARCHER, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.POTTERY_SHARD_PRIZE, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.POTTERY_SHARD_ARMS_UP, ModelTemplates.FLAT_ITEM);
+        this.generateFlatItem(Items.POTTERY_SHARD_SKULL, ModelTemplates.FLAT_ITEM);
     }
 
     static record TrimModelData(String name, float itemModelIndex, Map<ArmorMaterial, String> overrideArmorMaterials) {

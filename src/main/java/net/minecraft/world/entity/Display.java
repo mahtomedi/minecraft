@@ -64,7 +64,7 @@ public abstract class Display extends Entity {
     private static final EntityDataAccessor<Integer> DATA_GLOW_COLOR_OVERRIDE_ID = SynchedEntityData.defineId(Display.class, EntityDataSerializers.INT);
     private static final float INITIAL_SHADOW_RADIUS = 0.0F;
     private static final float INITIAL_SHADOW_STRENGTH = 1.0F;
-    private static final int NO_GLOW_COLOR_OVERRIDE = 0;
+    private static final int NO_GLOW_COLOR_OVERRIDE = -1;
     public static final String TAG_INTERPOLATION_DURATION = "interpolation_duration";
     public static final String TAG_INTERPOLATION_START = "interpolation_start";
     public static final String TAG_TRANSFORMATION = "transformation";
@@ -85,6 +85,7 @@ public abstract class Display extends Entity {
     private final Display.FloatInterpolator shadowStrength = new Display.FloatInterpolator(1.0F);
     private final Quaternionf orientation = new Quaternionf();
     protected final Display.InterpolatorSet interpolators = new Display.InterpolatorSet();
+    private long interpolationStartClientTick;
     private AABB cullingBoundingBox;
 
     public Display(EntityType<?> param0, Level param1) {
@@ -123,6 +124,11 @@ public abstract class Display extends Entity {
             this.updateCulling();
         }
 
+        if (DATA_INTERPOLATION_START_TICKS_ID.equals(param0)) {
+            long var0 = this.entityData.get(DATA_INTERPOLATION_START_TICKS_ID) - this.level.getGameTime();
+            this.interpolationStartClientTick = (long)this.tickCount + var0;
+        }
+
     }
 
     private static Transformation createTransformation(SynchedEntityData param0) {
@@ -135,6 +141,11 @@ public abstract class Display extends Entity {
 
     @Override
     public void tick() {
+        Entity var0 = this.getVehicle();
+        if (var0 != null && var0.isRemoved()) {
+            this.stopRiding();
+        }
+
     }
 
     @Override
@@ -152,7 +163,7 @@ public abstract class Display extends Entity {
         this.entityData.define(DATA_SHADOW_STRENGTH_ID, 1.0F);
         this.entityData.define(DATA_WIDTH_ID, 0.0F);
         this.entityData.define(DATA_HEIGHT_ID, 0.0F);
-        this.entityData.define(DATA_GLOW_COLOR_OVERRIDE_ID, 0);
+        this.entityData.define(DATA_GLOW_COLOR_OVERRIDE_ID, -1);
     }
 
     @Override
@@ -172,7 +183,8 @@ public abstract class Display extends Entity {
         if (param0.contains("interpolation_start", 99)) {
             long var1 = param0.getLong("interpolation_start");
             if (var1 < 0L) {
-                this.setInterpolationStartTick(this.level.getGameTime());
+                long var2 = -var1 - 1L;
+                this.setInterpolationStartTick(this.level.getGameTime() + var2);
             } else {
                 this.setInterpolationStartTick(var1);
             }
@@ -365,15 +377,14 @@ public abstract class Display extends Entity {
         this.entityData.set(DATA_GLOW_COLOR_OVERRIDE_ID, param0);
     }
 
-    public float calculateInterpolationProgress(long param0, float param1) {
+    public float calculateInterpolationProgress(float param0) {
         int var0 = this.getInterpolationDuration();
         if (var0 <= 0) {
             return 1.0F;
         } else {
-            long var1 = this.getInterpolationStartTick();
-            float var2 = (float)(param0 - var1);
-            float var3 = var2 + param1;
-            return Mth.clamp(Mth.inverseLerp(var3, 0.0F, (float)var0), 0.0F, 1.0F);
+            float var1 = (float)((long)this.tickCount - this.interpolationStartClientTick);
+            float var2 = var1 + param0;
+            return Mth.clamp(Mth.inverseLerp(var2, 0.0F, (float)var0), 0.0F, 1.0F);
         }
     }
 
@@ -406,14 +417,12 @@ public abstract class Display extends Entity {
     @Override
     public void setXRot(float param0) {
         super.setXRot(param0);
-        this.xRotO = param0;
         this.updateOrientation();
     }
 
     @Override
     public void setYRot(float param0) {
         super.setYRot(param0);
-        this.yRotO = param0;
         this.updateOrientation();
     }
 
@@ -429,7 +438,7 @@ public abstract class Display extends Entity {
     @Override
     public int getTeamColor() {
         int var0 = this.getGlowColorOverride();
-        return var0 != 0 ? var0 : super.getTeamColor();
+        return var0 != -1 ? var0 : super.getTeamColor();
     }
 
     public static enum BillboardConstraints implements StringRepresentable {
@@ -540,7 +549,7 @@ public abstract class Display extends Entity {
         }
 
         protected int interpolate(float param0, int param1, int param2) {
-            return Mth.lerp(param0, param1, param2);
+            return Mth.lerpInt(param0, param1, param2);
         }
 
         public int get(float param0) {

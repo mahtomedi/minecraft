@@ -180,11 +180,11 @@ public abstract class Projectile extends Entity implements TraceableEntity {
     }
 
     protected boolean canHitEntity(Entity param0) {
-        if (!param0.isSpectator() && param0.isAlive() && param0.isPickable()) {
+        if (!param0.canBeHitByProjectile()) {
+            return false;
+        } else {
             Entity var0 = this.getOwner();
             return var0 == null || this.leftOwner || !var0.isPassengerOfSameVehicle(param0);
-        } else {
-            return false;
         }
     }
 

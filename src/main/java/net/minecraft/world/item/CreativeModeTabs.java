@@ -129,6 +129,19 @@ public class CreativeModeTabs {
             param1.accept(Items.MANGROVE_TRAPDOOR);
             param1.accept(Items.MANGROVE_PRESSURE_PLATE);
             param1.accept(Items.MANGROVE_BUTTON);
+            param1.accept(Items.CHERRY_LOG);
+            param1.accept(Items.CHERRY_WOOD);
+            param1.accept(Items.STRIPPED_CHERRY_LOG);
+            param1.accept(Items.STRIPPED_CHERRY_WOOD);
+            param1.accept(Items.CHERRY_PLANKS);
+            param1.accept(Items.CHERRY_STAIRS);
+            param1.accept(Items.CHERRY_SLAB);
+            param1.accept(Items.CHERRY_FENCE);
+            param1.accept(Items.CHERRY_FENCE_GATE);
+            param1.accept(Items.CHERRY_DOOR);
+            param1.accept(Items.CHERRY_TRAPDOOR);
+            param1.accept(Items.CHERRY_PRESSURE_PLATE);
+            param1.accept(Items.CHERRY_BUTTON);
             param1.accept(Items.BAMBOO_BLOCK);
             param1.accept(Items.STRIPPED_BAMBOO_BLOCK);
             param1.accept(Items.BAMBOO_PLANKS);
@@ -605,6 +618,7 @@ public class CreativeModeTabs {
             param1.accept(Items.SNOW);
             param1.accept(Items.MOSS_BLOCK);
             param1.accept(Items.MOSS_CARPET);
+            param1.accept(Items.PINK_PETALS);
             param1.accept(Items.STONE);
             param1.accept(Items.DEEPSLATE);
             param1.accept(Items.GRANITE);
@@ -664,6 +678,7 @@ public class CreativeModeTabs {
             param1.accept(Items.ACACIA_LOG);
             param1.accept(Items.DARK_OAK_LOG);
             param1.accept(Items.MANGROVE_LOG);
+            param1.accept(Items.CHERRY_LOG);
             param1.accept(Items.MUSHROOM_STEM);
             param1.accept(Items.CRIMSON_STEM);
             param1.accept(Items.WARPED_STEM);
@@ -676,6 +691,7 @@ public class CreativeModeTabs {
             param1.accept(Items.MANGROVE_LEAVES);
             param1.accept(Items.MANGROVE_ROOTS);
             param1.accept(Items.MUDDY_MANGROVE_ROOTS);
+            param1.accept(Items.CHERRY_LEAVES);
             param1.accept(Items.AZALEA_LEAVES);
             param1.accept(Items.FLOWERING_AZALEA_LEAVES);
             param1.accept(Items.BROWN_MUSHROOM_BLOCK);
@@ -690,6 +706,7 @@ public class CreativeModeTabs {
             param1.accept(Items.ACACIA_SAPLING);
             param1.accept(Items.DARK_OAK_SAPLING);
             param1.accept(Items.MANGROVE_PROPAGULE);
+            param1.accept(Items.CHERRY_SAPLING);
             param1.accept(Items.AZALEA);
             param1.accept(Items.FLOWERING_AZALEA);
             param1.accept(Items.BROWN_MUSHROOM);
@@ -719,6 +736,7 @@ public class CreativeModeTabs {
             param1.accept(Items.CRIMSON_ROOTS);
             param1.accept(Items.WARPED_ROOTS);
             param1.accept(Items.NETHER_SPROUTS);
+            param1.accept(Items.TORCHFLOWER);
             param1.accept(Items.WEEPING_VINES);
             param1.accept(Items.TWISTING_VINES);
             param1.accept(Items.VINE);
@@ -744,6 +762,7 @@ public class CreativeModeTabs {
             param1.accept(Items.GLOW_BERRIES);
             param1.accept(Items.SWEET_BERRIES);
             param1.accept(Items.NETHER_WART);
+            param1.accept(Items.TORCHFLOWER_SEEDS);
             param1.accept(Items.LILY_PAD);
             param1.accept(Items.SEAGRASS);
             param1.accept(Items.SEA_PICKLE);
@@ -854,8 +873,10 @@ public class CreativeModeTabs {
                 param1.accept(Items.SCAFFOLDING);
                 param1.accept(Items.BEE_NEST);
                 param1.accept(Items.BEEHIVE);
+                param1.accept(Items.SUSPICIOUS_SAND);
                 param1.accept(Items.LIGHTNING_ROD);
                 param1.accept(Items.FLOWER_POT);
+                param1.accept(Items.DECORATED_POT);
                 param1.accept(Items.ARMOR_STAND);
                 param1.accept(Items.ITEM_FRAME);
                 param1.accept(Items.GLOW_ITEM_FRAME);
@@ -885,6 +906,8 @@ public class CreativeModeTabs {
                 param1.accept(Items.DARK_OAK_HANGING_SIGN);
                 param1.accept(Items.MANGROVE_SIGN);
                 param1.accept(Items.MANGROVE_HANGING_SIGN);
+                param1.accept(Items.CHERRY_SIGN);
+                param1.accept(Items.CHERRY_HANGING_SIGN);
                 param1.accept(Items.BAMBOO_SIGN);
                 param1.accept(Items.BAMBOO_HANGING_SIGN);
                 param1.accept(Items.CRIMSON_SIGN);
@@ -1115,6 +1138,7 @@ public class CreativeModeTabs {
                 param1.accept(Items.FIRE_CHARGE);
                 param1.accept(Items.BONE_MEAL);
                 param1.accept(Items.SHEARS);
+                param1.accept(Items.BRUSH);
                 param1.accept(Items.NAME_TAG);
                 param1.accept(Items.LEAD);
                 if (param0.enabledFeatures().contains(FeatureFlags.BUNDLE)) {
@@ -1148,6 +1172,8 @@ public class CreativeModeTabs {
                 param1.accept(Items.DARK_OAK_CHEST_BOAT);
                 param1.accept(Items.MANGROVE_BOAT);
                 param1.accept(Items.MANGROVE_CHEST_BOAT);
+                param1.accept(Items.CHERRY_BOAT);
+                param1.accept(Items.CHERRY_CHEST_BOAT);
                 param1.accept(Items.BAMBOO_RAFT);
                 param1.accept(Items.BAMBOO_CHEST_RAFT);
                 param1.accept(Items.RAIL);
@@ -1399,6 +1425,10 @@ public class CreativeModeTabs {
             param1.accept(Items.MOJANG_BANNER_PATTERN);
             param1.accept(Items.GLOBE_BANNER_PATTERN);
             param1.accept(Items.PIGLIN_BANNER_PATTERN);
+            param1.accept(Items.POTTERY_SHARD_ARCHER);
+            param1.accept(Items.POTTERY_SHARD_PRIZE);
+            param1.accept(Items.POTTERY_SHARD_ARMS_UP);
+            param1.accept(Items.POTTERY_SHARD_SKULL);
             param1.accept(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
             param1.accept(Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE);
             param1.accept(Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE);
@@ -1476,6 +1506,7 @@ public class CreativeModeTabs {
             param1.accept(Items.SKELETON_SPAWN_EGG);
             param1.accept(Items.SKELETON_HORSE_SPAWN_EGG);
             param1.accept(Items.SLIME_SPAWN_EGG);
+            param1.accept(Items.SNIFFER_SPAWN_EGG);
             param1.accept(Items.SNOW_GOLEM_SPAWN_EGG);
             param1.accept(Items.SPIDER_SPAWN_EGG);
             param1.accept(Items.SQUID_SPAWN_EGG);

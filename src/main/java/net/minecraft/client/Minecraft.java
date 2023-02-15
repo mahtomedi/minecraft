@@ -598,8 +598,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }, this.multiplayerBan()));
         } else if (this.options.onboardAccessibility) {
             this.setScreen(new AccessibilityOnboardingScreen(this.options));
-            this.options.onboardAccessibility = false;
-            this.options.save();
         } else {
             this.setScreen(new TitleScreen(true));
         }
@@ -681,10 +679,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.options.resourcePacks.clear();
         this.options.incompatibleResourcePacks.clear();
         this.options.save();
-        this.reloadResourcePacks(true).thenRun(() -> {
-            ToastComponent var0 = this.getToasts();
-            SystemToast.addOrUpdate(var0, SystemToast.SystemToastIds.PACK_LOAD_FAILURE, Component.translatable("resourcePack.load_fail"), param1);
-        });
+        this.reloadResourcePacks(true).thenRun(() -> this.addResourcePackLoadFailToast(param1));
+    }
+
+    private void abortResourcePackRecovery() {
+        this.setOverlay(null);
+        if (this.level != null) {
+            this.level.disconnect();
+            this.clearLevel();
+        }
+
+        this.setScreen(new TitleScreen());
+        this.addResourcePackLoadFailToast(null);
+    }
+
+    private void addResourcePackLoadFailToast(@Nullable Component param0) {
+        ToastComponent var0 = this.getToasts();
+        SystemToast.addOrUpdate(var0, SystemToast.SystemToastIds.PACK_LOAD_FAILURE, Component.translatable("resourcePack.load_fail"), param0);
     }
 
     public void run() {
@@ -859,7 +870,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     new LoadingOverlay(
                         this,
                         this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1),
-                        param1 -> Util.ifElse(param1, this::rollbackResourcePacks, () -> {
+                        param2 -> Util.ifElse(param2, param1x -> {
+                                if (param0) {
+                                    this.abortResourcePackRecovery();
+                                } else {
+                                    this.rollbackResourcePacks(param1x);
+                                }
+        
+                            }, () -> {
                                 this.levelRenderer.allChanged();
                                 this.reloadStateTracker.finishReload();
                                 var0.complete(null);

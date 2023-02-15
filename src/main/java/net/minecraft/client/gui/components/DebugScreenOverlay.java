@@ -595,10 +595,10 @@ public class DebugScreenOverlay extends GuiComponent {
         int var5 = param1 >> 16 & 0xFF;
         int var6 = param1 >> 8 & 0xFF;
         int var7 = param1 & 0xFF;
-        int var8 = Mth.clamp(Mth.lerp(param2, var0, var4), 0, 255);
-        int var9 = Mth.clamp(Mth.lerp(param2, var1, var5), 0, 255);
-        int var10 = Mth.clamp(Mth.lerp(param2, var2, var6), 0, 255);
-        int var11 = Mth.clamp(Mth.lerp(param2, var3, var7), 0, 255);
+        int var8 = Mth.clamp((int)Mth.lerp(param2, (float)var0, (float)var4), 0, 255);
+        int var9 = Mth.clamp((int)Mth.lerp(param2, (float)var1, (float)var5), 0, 255);
+        int var10 = Mth.clamp((int)Mth.lerp(param2, (float)var2, (float)var6), 0, 255);
+        int var11 = Mth.clamp((int)Mth.lerp(param2, (float)var3, (float)var7), 0, 255);
         return var8 << 24 | var9 << 16 | var10 << 8 | var11;
     }
 

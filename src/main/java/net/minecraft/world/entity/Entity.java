@@ -1425,6 +1425,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.level.clip(new ClipContext(var0, var2, ClipContext.Block.OUTLINE, param2 ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, this));
     }
 
+    public boolean canBeHitByProjectile() {
+        return this.isAlive() && this.isPickable();
+    }
+
     public boolean isPickable() {
         return false;
     }
@@ -2199,7 +2203,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void checkSlowFallDistance() {
-        if (this.deltaMovement.y() > -0.5 && this.fallDistance > 1.0F) {
+        if (this.getDeltaMovement().y() > -0.5 && this.fallDistance > 1.0F) {
             this.fallDistance = 1.0F;
         }
 
@@ -3057,7 +3061,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public void addDeltaMovement(Vec3 param0) {
-        this.deltaMovement = this.deltaMovement.add(param0);
+        this.setDeltaMovement(this.getDeltaMovement().add(param0));
     }
 
     public void setDeltaMovement(double param0, double param1, double param2) {

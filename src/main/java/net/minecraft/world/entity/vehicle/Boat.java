@@ -229,6 +229,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
             case BIRCH -> Items.BIRCH_BOAT;
             case JUNGLE -> Items.JUNGLE_BOAT;
             case ACACIA -> Items.ACACIA_BOAT;
+            case CHERRY -> Items.CHERRY_BOAT;
             case DARK_OAK -> Items.DARK_OAK_BOAT;
             case MANGROVE -> Items.MANGROVE_BOAT;
             case BAMBOO -> Items.BAMBOO_RAFT;
@@ -346,7 +347,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
                     if (var6
                         && this.getPassengers().size() < this.getMaxPassengers()
                         && !var8.isPassenger()
-                        && var8.getBbWidth() < this.getBbWidth()
+                        && this.hasEnoughSpaceFor(var8)
                         && var8 instanceof LivingEntity
                         && !(var8 instanceof WaterAnimal)
                         && !(var8 instanceof Player)) {
@@ -675,6 +676,10 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         return 0.0F;
     }
 
+    public boolean hasEnoughSpaceFor(Entity param0) {
+        return param0.getBbWidth() < this.getBbWidth();
+    }
+
     @Override
     public void positionRider(Entity param0) {
         if (this.hasPassenger(param0)) {
@@ -909,6 +914,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         BIRCH(Blocks.BIRCH_PLANKS, "birch"),
         JUNGLE(Blocks.JUNGLE_PLANKS, "jungle"),
         ACACIA(Blocks.ACACIA_PLANKS, "acacia"),
+        CHERRY(Blocks.CHERRY_PLANKS, "cherry"),
         DARK_OAK(Blocks.DARK_OAK_PLANKS, "dark_oak"),
         MANGROVE(Blocks.MANGROVE_PLANKS, "mangrove"),
         BAMBOO(Blocks.BAMBOO_PLANKS, "bamboo");

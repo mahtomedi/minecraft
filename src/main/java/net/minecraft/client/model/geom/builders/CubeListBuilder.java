@@ -2,12 +2,16 @@ package net.minecraft.client.model.geom.builders;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CubeListBuilder {
+    private static final Set<Direction> ALL_VISIBLE = EnumSet.allOf(Direction.class);
     private final List<CubeDefinition> cubes = Lists.newArrayList();
     private int xTexOffs;
     private int yTexOffs;
@@ -47,7 +51,8 @@ public class CubeListBuilder {
                     param7,
                     this.mirror,
                     1.0F,
-                    1.0F
+                    1.0F,
+                    ALL_VISIBLE
                 )
             );
         return this;
@@ -70,7 +75,8 @@ public class CubeListBuilder {
                     CubeDeformation.NONE,
                     this.mirror,
                     1.0F,
-                    1.0F
+                    1.0F,
+                    ALL_VISIBLE
                 )
             );
         return this;
@@ -92,7 +98,31 @@ public class CubeListBuilder {
                     CubeDeformation.NONE,
                     this.mirror,
                     1.0F,
-                    1.0F
+                    1.0F,
+                    ALL_VISIBLE
+                )
+            );
+        return this;
+    }
+
+    public CubeListBuilder addBox(float param0, float param1, float param2, float param3, float param4, float param5, Set<Direction> param6) {
+        this.cubes
+            .add(
+                new CubeDefinition(
+                    null,
+                    (float)this.xTexOffs,
+                    (float)this.yTexOffs,
+                    param0,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    param5,
+                    CubeDeformation.NONE,
+                    this.mirror,
+                    1.0F,
+                    1.0F,
+                    param6
                 )
             );
         return this;
@@ -114,7 +144,8 @@ public class CubeListBuilder {
                     CubeDeformation.NONE,
                     this.mirror,
                     1.0F,
-                    1.0F
+                    1.0F,
+                    ALL_VISIBLE
                 )
             );
         return this;
@@ -124,7 +155,20 @@ public class CubeListBuilder {
         this.cubes
             .add(
                 new CubeDefinition(
-                    param0, (float)this.xTexOffs, (float)this.yTexOffs, param1, param2, param3, param4, param5, param6, param7, this.mirror, 1.0F, 1.0F
+                    param0,
+                    (float)this.xTexOffs,
+                    (float)this.yTexOffs,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    param5,
+                    param6,
+                    param7,
+                    this.mirror,
+                    1.0F,
+                    1.0F,
+                    ALL_VISIBLE
                 )
             );
         return this;
@@ -134,7 +178,20 @@ public class CubeListBuilder {
         this.cubes
             .add(
                 new CubeDefinition(
-                    null, (float)this.xTexOffs, (float)this.yTexOffs, param0, param1, param2, param3, param4, param5, CubeDeformation.NONE, param6, 1.0F, 1.0F
+                    null,
+                    (float)this.xTexOffs,
+                    (float)this.yTexOffs,
+                    param0,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    param5,
+                    CubeDeformation.NONE,
+                    param6,
+                    1.0F,
+                    1.0F,
+                    ALL_VISIBLE
                 )
             );
         return this;
@@ -146,7 +203,20 @@ public class CubeListBuilder {
         this.cubes
             .add(
                 new CubeDefinition(
-                    null, (float)this.xTexOffs, (float)this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, this.mirror, param7, param8
+                    null,
+                    (float)this.xTexOffs,
+                    (float)this.yTexOffs,
+                    param0,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    param5,
+                    param6,
+                    this.mirror,
+                    param7,
+                    param8,
+                    ALL_VISIBLE
                 )
             );
         return this;
@@ -156,7 +226,20 @@ public class CubeListBuilder {
         this.cubes
             .add(
                 new CubeDefinition(
-                    null, (float)this.xTexOffs, (float)this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, this.mirror, 1.0F, 1.0F
+                    null,
+                    (float)this.xTexOffs,
+                    (float)this.yTexOffs,
+                    param0,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    param5,
+                    param6,
+                    this.mirror,
+                    1.0F,
+                    1.0F,
+                    ALL_VISIBLE
                 )
             );
         return this;

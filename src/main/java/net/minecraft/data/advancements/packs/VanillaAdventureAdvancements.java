@@ -33,10 +33,8 @@ import net.minecraft.advancements.critereon.TargetBlockTrigger;
 import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.advancements.critereon.UsingItemTrigger;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -144,22 +142,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("slept_in_bed", PlayerTrigger.TriggerInstance.sleptInBed())
             .save(param1, "adventure/sleep_in_bed");
-        HolderGetter<Biome> var2 = param0.lookupOrThrow(Registries.BIOME);
-        addBiomes(Advancement.Builder.advancement(), MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes(var2).toList())
-            .parent(var1)
-            .display(
-                Items.DIAMOND_BOOTS,
-                Component.translatable("advancements.adventure.adventuring_time.title"),
-                Component.translatable("advancements.adventure.adventuring_time.description"),
-                null,
-                FrameType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .rewards(AdvancementRewards.Builder.experience(500))
-            .save(param1, "adventure/adventuring_time");
-        Advancement var3 = Advancement.Builder.advancement()
+        createAdventuringTime(param1, var1, MultiNoiseBiomeSource.Preset.OVERWORLD);
+        Advancement var2 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
                 Items.EMERALD,
@@ -174,7 +158,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion("traded", TradeTrigger.TriggerInstance.tradedWithVillager())
             .save(param1, "adventure/trade");
         Advancement.Builder.advancement()
-            .parent(var3)
+            .parent(var2)
             .display(
                 Items.EMERALD,
                 Component.translatable("advancements.adventure.trade_at_world_height.title"),
@@ -192,7 +176,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 )
             )
             .save(param1, "adventure/trade_at_world_height");
-        Advancement var4 = this.addMobsToKill(Advancement.Builder.advancement())
+        Advancement var3 = this.addMobsToKill(Advancement.Builder.advancement())
             .parent(var0)
             .display(
                 Items.IRON_SWORD,
@@ -207,7 +191,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .requirements(RequirementsStrategy.OR)
             .save(param1, "adventure/kill_a_mob");
         this.addMobsToKill(Advancement.Builder.advancement())
-            .parent(var4)
+            .parent(var3)
             .display(
                 Items.DIAMOND_SWORD,
                 Component.translatable("advancements.adventure.kill_all_mobs.title"),
@@ -220,8 +204,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .rewards(AdvancementRewards.Builder.experience(100))
             .save(param1, "adventure/kill_all_mobs");
-        Advancement var5 = Advancement.Builder.advancement()
-            .parent(var4)
+        Advancement var4 = Advancement.Builder.advancement()
+            .parent(var3)
             .display(
                 Items.BOW,
                 Component.translatable("advancements.adventure.shoot_arrow.title"),
@@ -244,8 +228,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 )
             )
             .save(param1, "adventure/shoot_arrow");
-        Advancement var6 = Advancement.Builder.advancement()
-            .parent(var4)
+        Advancement var5 = Advancement.Builder.advancement()
+            .parent(var3)
             .display(
                 Items.TRIDENT,
                 Component.translatable("advancements.adventure.throw_trident.title"),
@@ -269,7 +253,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/throw_trident");
         Advancement.Builder.advancement()
-            .parent(var6)
+            .parent(var5)
             .display(
                 Items.TRIDENT,
                 Component.translatable("advancements.adventure.very_very_frightening.title"),
@@ -286,7 +270,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/very_very_frightening");
         Advancement.Builder.advancement()
-            .parent(var3)
+            .parent(var2)
             .display(
                 Blocks.CARVED_PUMPKIN,
                 Component.translatable("advancements.adventure.summon_iron_golem.title"),
@@ -300,7 +284,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion("summoned_golem", SummonedEntityTrigger.TriggerInstance.summonedEntity(EntityPredicate.Builder.entity().of(EntityType.IRON_GOLEM)))
             .save(param1, "adventure/summon_iron_golem");
         Advancement.Builder.advancement()
-            .parent(var5)
+            .parent(var4)
             .display(
                 Items.ARROW,
                 Component.translatable("advancements.adventure.sniper_duel.title"),
@@ -321,7 +305,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/sniper_duel");
         Advancement.Builder.advancement()
-            .parent(var4)
+            .parent(var3)
             .display(
                 Items.TOTEM_OF_UNDYING,
                 Component.translatable("advancements.adventure.totem_of_undying.title"),
@@ -334,7 +318,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("used_totem", UsedTotemTrigger.TriggerInstance.usedTotem(Items.TOTEM_OF_UNDYING))
             .save(param1, "adventure/totem_of_undying");
-        Advancement var7 = Advancement.Builder.advancement()
+        Advancement var6 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
                 Items.CROSSBOW,
@@ -349,7 +333,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion("shot_crossbow", ShotCrossbowTrigger.TriggerInstance.shotCrossbow(Items.CROSSBOW))
             .save(param1, "adventure/ol_betsy");
         Advancement.Builder.advancement()
-            .parent(var7)
+            .parent(var6)
             .display(
                 Items.CROSSBOW,
                 Component.translatable("advancements.adventure.whos_the_pillager_now.title"),
@@ -363,7 +347,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion("kill_pillager", KilledByCrossbowTrigger.TriggerInstance.crossbowKilled(EntityPredicate.Builder.entity().of(EntityType.PILLAGER)))
             .save(param1, "adventure/whos_the_pillager_now");
         Advancement.Builder.advancement()
-            .parent(var7)
+            .parent(var6)
             .display(
                 Items.CROSSBOW,
                 Component.translatable("advancements.adventure.two_birds_one_arrow.title"),
@@ -383,7 +367,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/two_birds_one_arrow");
         Advancement.Builder.advancement()
-            .parent(var7)
+            .parent(var6)
             .display(
                 Items.CROSSBOW,
                 Component.translatable("advancements.adventure.arbalistic.title"),
@@ -397,7 +381,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .rewards(AdvancementRewards.Builder.experience(85))
             .addCriterion("arbalistic", KilledByCrossbowTrigger.TriggerInstance.crossbowKilled(MinMaxBounds.Ints.exactly(5)))
             .save(param1, "adventure/arbalistic");
-        Advancement var8 = Advancement.Builder.advancement()
+        Advancement var7 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
                 Raid.getLeaderBannerInstance(),
@@ -417,7 +401,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/voluntary_exile");
         Advancement.Builder.advancement()
-            .parent(var8)
+            .parent(var7)
             .display(
                 Raid.getLeaderBannerInstance(),
                 Component.translatable("advancements.adventure.hero_of_the_village.title"),
@@ -446,7 +430,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion("honey_block_slide", SlideDownBlockTrigger.TriggerInstance.slidesDownBlock(Blocks.HONEY_BLOCK))
             .save(param1, "adventure/honey_block_slide");
         Advancement.Builder.advancement()
-            .parent(var5)
+            .parent(var4)
             .display(
                 Blocks.TARGET.asItem(),
                 Component.translatable("advancements.adventure.bullseye.title"),
@@ -501,7 +485,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 fireCountAndBystander(MinMaxBounds.Ints.exactly(0), EntityPredicate.Builder.entity().of(EntityType.VILLAGER).build())
             )
             .save(param1, "adventure/lightning_rod_with_villager_no_fire");
-        Advancement var9 = Advancement.Builder.advancement()
+        Advancement var8 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
                 Items.SPYGLASS,
@@ -515,8 +499,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("spyglass_at_parrot", lookAtThroughItem(EntityType.PARROT, Items.SPYGLASS))
             .save(param1, "adventure/spyglass_at_parrot");
-        Advancement var10 = Advancement.Builder.advancement()
-            .parent(var9)
+        Advancement var9 = Advancement.Builder.advancement()
+            .parent(var8)
             .display(
                 Items.SPYGLASS,
                 Component.translatable("advancements.adventure.spyglass_at_ghast.title"),
@@ -550,7 +534,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/play_jukebox_in_meadows");
         Advancement.Builder.advancement()
-            .parent(var10)
+            .parent(var9)
             .display(
                 Items.SPYGLASS,
                 Component.translatable("advancements.adventure.spyglass_at_dragon.title"),
@@ -585,7 +569,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .save(param1, "adventure/fall_from_world_height");
         Advancement.Builder.advancement()
-            .parent(var4)
+            .parent(var3)
             .display(
                 Blocks.SCULK_CATALYST,
                 Component.translatable("advancements.adventure.kill_mob_near_sculk_catalyst.title"),
@@ -612,6 +596,23 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("avoid_vibration", PlayerTrigger.TriggerInstance.avoidVibration())
             .save(param1, "adventure/avoid_vibration");
+    }
+
+    protected static void createAdventuringTime(Consumer<Advancement> param0, Advancement param1, MultiNoiseBiomeSource.Preset param2) {
+        addBiomes(Advancement.Builder.advancement(), param2.possibleBiomes().toList())
+            .parent(param1)
+            .display(
+                Items.DIAMOND_BOOTS,
+                Component.translatable("advancements.adventure.adventuring_time.title"),
+                Component.translatable("advancements.adventure.adventuring_time.description"),
+                null,
+                FrameType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .rewards(AdvancementRewards.Builder.experience(500))
+            .save(param0, "adventure/adventuring_time");
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {

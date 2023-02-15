@@ -36,17 +36,16 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
     }
 
     public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
-        long var0 = param0.level.getGameTime();
-        float var1 = param0.calculateInterpolationProgress(var0, param2);
-        this.shadowRadius = Math.min(param0.getShadowRadius(var1), 64.0F);
-        this.shadowStrength = param0.getShadowStrength(var1);
-        int var2 = param0.getPackedBrightnessOverride();
-        int var3 = var2 != -1 ? var2 : param5;
-        super.render(param0, param1, param2, param3, param4, var3);
+        float var0 = param0.calculateInterpolationProgress(param2);
+        this.shadowRadius = Math.min(param0.getShadowRadius(var0), 64.0F);
+        this.shadowStrength = param0.getShadowStrength(var0);
+        int var1 = param0.getPackedBrightnessOverride();
+        int var2 = var1 != -1 ? var1 : param5;
+        super.render(param0, param1, param2, param3, param4, var2);
         param3.pushPose();
         param3.mulPose(this.calculateOrientation(param0));
-        param3.mulPoseMatrix(param0.transformation(var1).getMatrix());
-        this.renderInner(param0, param3, param4, var3, var1);
+        param3.mulPoseMatrix(param0.transformation(var0).getMatrix());
+        this.renderInner(param0, param3, param4, var2, var0);
         param3.popPose();
     }
 
@@ -55,8 +54,7 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
 
         return switch(param0.getBillboardConstraints()) {
             case FIXED -> param0.orientation();
-            case HORIZONTAL -> new Quaternionf()
-            .rotationYXZ(((float) (-Math.PI / 180.0)) * param0.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
+            case HORIZONTAL -> new Quaternionf().rotationYXZ((float) (-Math.PI / 180.0) * param0.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
             case VERTICAL -> new Quaternionf()
             .rotationYXZ((float) Math.PI - (float) (Math.PI / 180.0) * var0.getYRot(), (float) (Math.PI / 180.0) * param0.getXRot(), 0.0F);
             case CENTER -> new Quaternionf()
@@ -99,7 +97,6 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
 
     @OnlyIn(Dist.CLIENT)
     public static class TextDisplayRenderer extends DisplayRenderer<Display.TextDisplay> {
-        private static final float Z_FIGHTER = 0.001F;
         private final Font font;
 
         protected TextDisplayRenderer(EntityRendererProvider.Context param0) {
@@ -147,10 +144,10 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
             var10.translate(1.0F - (float)var13 / 2.0F, (float)(-var14), 0.0F);
             if (var7 != 0) {
                 VertexConsumer var15 = param2.getBuffer(var1 ? RenderType.textBackgroundSeeThrough() : RenderType.textBackground());
-                var15.vertex(var10, -1.0F, -1.0F, -0.001F).color(var7).uv2(param3).endVertex();
-                var15.vertex(var10, -1.0F, (float)var14, -0.001F).color(var7).uv2(param3).endVertex();
-                var15.vertex(var10, (float)var13, (float)var14, -0.001F).color(var7).uv2(param3).endVertex();
-                var15.vertex(var10, (float)var13, -1.0F, -0.001F).color(var7).uv2(param3).endVertex();
+                var15.vertex(var10, -1.0F, -1.0F, 0.0F).color(var7).uv2(param3).endVertex();
+                var15.vertex(var10, -1.0F, (float)var14, 0.0F).color(var7).uv2(param3).endVertex();
+                var15.vertex(var10, (float)var13, (float)var14, 0.0F).color(var7).uv2(param3).endVertex();
+                var15.vertex(var10, (float)var13, -1.0F, 0.0F).color(var7).uv2(param3).endVertex();
             }
 
             for(Display.TextDisplay.CachedLine var16 : var11.lines()) {
@@ -159,7 +156,19 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
                     case RIGHT -> (float)(var13 - var16.width());
                     case CENTER -> (float)var13 / 2.0F - (float)var16.width() / 2.0F;
                 };
-                this.font.drawInBatch(var16.contents(), var17, var9, var5 << 24 | 16777215, var3, var10, param2, var1, 0, param3);
+                this.font
+                    .drawInBatch(
+                        var16.contents(),
+                        var17,
+                        var9,
+                        var5 << 24 | 16777215,
+                        var3,
+                        var10,
+                        param2,
+                        var1 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
+                        0,
+                        param3
+                    );
                 var9 += (float)var12;
             }
 

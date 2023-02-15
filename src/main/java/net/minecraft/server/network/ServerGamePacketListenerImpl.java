@@ -259,7 +259,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
         this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.getYRot(), this.player.getXRot());
         ++this.tickCount;
         this.knownMovePacketCount = this.receivedMovePacketCount;
-        if (this.clientIsFloating && !this.player.isSleeping() && !this.player.isPassenger()) {
+        if (this.clientIsFloating && !this.player.isSleeping() && !this.player.isPassenger() && !this.player.isDeadOrDying()) {
             if (++this.aboveGroundTickCount > 80) {
                 LOGGER.warn("{} was kicked for floating too long!", this.player.getName().getString());
                 this.disconnect(Component.translatable("multiplayer.disconnect.flying"));
@@ -1525,7 +1525,8 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                 return;
             }
 
-            if (var1.distanceToSqr(this.player.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
+            AABB var2 = var1.getBoundingBox();
+            if (var2.distanceToSqr(this.player.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
                 param0.dispatch(
                     new ServerboundInteractPacket.Handler() {
                         private void performInteraction(InteractionHand param0, ServerGamePacketListenerImpl.EntityInteraction param1) {

@@ -1410,7 +1410,8 @@ public class ServerPlayer extends Player {
     }
 
     public void sendServerStatus(ServerStatus param0) {
-        this.connection.send(new ClientboundServerDataPacket(param0.getDescription(), param0.getFavicon(), param0.enforcesSecureChat()));
+        this.connection
+            .send(new ClientboundServerDataPacket(param0.description(), param0.favicon().map(ServerStatus.Favicon::iconBytes), param0.enforcesSecureChat()));
     }
 
     @Override

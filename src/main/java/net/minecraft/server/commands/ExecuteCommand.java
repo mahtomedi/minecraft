@@ -65,11 +65,12 @@ import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Attackable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.Targeting;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -847,7 +848,7 @@ public class ExecuteCommand {
                 Commands.literal("target")
                     .fork(
                         param0,
-                        expandOneToOneEntityRelation(param0x -> param0x instanceof Mob var0x ? Optional.ofNullable(var0x.getTarget()) : Optional.empty())
+                        expandOneToOneEntityRelation(param0x -> param0x instanceof Targeting var0x ? Optional.ofNullable(var0x.getTarget()) : Optional.empty())
                     )
             )
             .then(
@@ -855,7 +856,7 @@ public class ExecuteCommand {
                     .fork(
                         param0,
                         expandOneToOneEntityRelation(
-                            param0x -> param0x instanceof LivingEntity var0x ? Optional.ofNullable(var0x.getLastHurtByMob()) : Optional.empty()
+                            param0x -> param0x instanceof Attackable var0x ? Optional.ofNullable(var0x.getLastAttacker()) : Optional.empty()
                         )
                     )
             )
